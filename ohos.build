@@ -1,5 +1,5 @@
 {
-  "subsystem": "storage",
+  "subsystem": "filemanagement",
   "parts": {
     "filemanager": {
       "module_list": [
