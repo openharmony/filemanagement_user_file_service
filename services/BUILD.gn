@@ -16,9 +16,9 @@ FMS_BASE_DIR = "//foundation/storage/services"
 
 group("fms") {
   deps = [
-    ":fms_service.rc",
-    ":fms_server",
     ":fms_exe",
+    ":fms_server",
+    ":fms_service.rc",
   ]
 }
 
@@ -33,7 +33,6 @@ ohos_prebuilt_etc("fms_service.rc") {
   part_name = "filemanager"
 }
 
-
 ohos_shared_library("fms_server") {
   subsystem_name = "storage"
   part_name = "filemanager"
@@ -44,42 +43,41 @@ ohos_shared_library("fms_server") {
     "$FMS_BASE_DIR/src/server",
     "$FMS_BASE_DIR/src/fileoper",
     "$FMS_BASE_DIR/include/fileoper",
-     "//base/hiviewdfx/hilog/interfaces/native/innerkits/include/hilog",
+    "//base/hiviewdfx/hilog/interfaces/native/innerkits/include/hilog",
   ]
 
   sources = [
-    "src/server/file_manager_service_stub.cpp",
-    "src/server/file_manager_service.cpp",
+    "src/client/file_manager_proxy.cpp",
     "src/fileoper/media_file_oper.cpp",
     "src/fileoper/oper_factory.cpp",
-    "src/client/file_manager_proxy.cpp",
+    "src/server/file_manager_service.cpp",
+    "src/server/file_manager_service_stub.cpp",
   ]
 
   deps = [
-    "//utils/native/base:utils",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
-    "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/medialibrary_data_ability:medialibrary_data_ability",
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/aafwk/standard/interfaces/innerkits/base:base",
     "//foundation/aafwk/standard/interfaces/innerkits/dataobs_manager:dataobs_manager",
     "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
+    "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/medialibrary_data_ability:medialibrary_data_ability",
+    "//utils/native/base:utils",
   ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   external_deps = [
+    "ability_runtime:ability_manager",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
-    "aafwk_standard:ability_manager",
     "native_appdatamgr:native_appdatafwk",
     "native_appdatamgr:native_dataability",
     "native_appdatamgr:native_rdb",
+    "safwk:system_ability_fwk",
+    "samgr_standard:samgr_proxy",
   ]
 }
-
 
 ohos_executable("fms_exe") {
   install_enable = true
@@ -94,9 +92,9 @@ ohos_executable("fms_exe") {
   ]
 
   deps = [
-    "//utils/native/base:utils",
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
     ":fms_server",
+    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
+    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -109,7 +107,6 @@ ohos_executable("fms_exe") {
   subsystem_name = "storage"
   part_name = "filemanager"
 }
-
 
 # Unittest
 group("test") {
