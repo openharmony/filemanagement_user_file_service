@@ -12,7 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#ifndef STORAGE_SERVICES_OPER_FACTORY_H
+#define STORAGE_SERVICES_OPER_FACTORY_H
 #pragma once
 
 #include <string>
@@ -23,7 +24,8 @@ namespace OHOS {
 namespace FileManagerService {
 class OperFactory {
 public:
-    FileOper* getFileOper(int equipmentId);
+    std::unique_ptr<FileOper> GetFileOper(int equipmentId);
 };
-} // OHOS
-} // FileManager
+} // namespace FileManagerService
+} // namespace OHOS
+#endif // STORAGE_SERVICES_OPER_FACTORY_H

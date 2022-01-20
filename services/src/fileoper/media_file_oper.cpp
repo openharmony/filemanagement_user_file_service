@@ -18,162 +18,41 @@
 #include <vector>
 
 #include "file_info.h"
-#include "file_manager_service_const.h"
+#include "file_manager_service_def.h"
+#include "file_manager_service_errno.h"
 #include "ipc_types.h"
 #include "iremote_broker.h"
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
 #include "log.h"
 #include "media_data_ability_const.h"
-#include "medialibrary_data_ability.h"
+#include "media_file_utils.h"
 
 using namespace std;
 
 namespace OHOS {
 namespace FileManagerService {
-const std::vector<std::string> mediaData = {
-            Media::MEDIA_DATA_DB_ID,
-            Media::MEDIA_DATA_DB_URI,
-            Media::MEDIA_DATA_DB_NAME
-            };
-const std::vector<std::pair<int, std::string>> mediaMetaMap = {
-            {0, "string"}, // 0 id
-            {1, "string"},  // 1 fileuri
-            {4, "string"},  // 4 type
-            {6, "string"},  // 6 name
-            {7, "int"},     // 7 size
-            {8, "int"},     // 8 at
-            // 9 mt
-            {9, "int"}
-            };
-int Insert(const string &name, const string &path, const string &type)
-{
-    Media::ValuesBucket values;
-    Media::MediaLibraryDataAbility mediaLibDb;
-    string abilityUri = Media::MEDIALIBRARY_DATA_URI;
-    string oper;
-    if (type == "album") {
-        oper = Media::MEDIA_ALBUMOPRN + "/" + Media::MEDIA_ALBUMOPRN_CREATEALBUM;
-    } else if (type == "file") {
-        oper = Media::MEDIA_FILEOPRN + "/" + Media::MEDIA_FILEOPRN_CREATEASSET;
-    }
-    Uri createUri(abilityUri + "/" + oper);
-    struct stat statInfo {};
-    // need getfileStat info
-    // need MEDIA_DATA_DB_RELATIVE_PATH
-    // need MEDIA_DATA_DB_NAME
-    values.PutLong(Media::MEDIA_DATA_DB_DATE_ADDED, statInfo.st_ctime);
-    values.PutLong(Media::MEDIA_DATA_DB_DATE_MODIFIED, statInfo.st_mtime);
-    mediaLibDb.InitMediaLibraryRdbStore();
-    return mediaLibDb.Insert(createUri, values);
-}
-
-bool PushFileInfo(shared_ptr<Media::AbsSharedResultSet> result, MessageParcel &reply)
-{
-    string id;
-    string uri;
-    result->GetString(mediaMetaMap[0].first, id);
-    result->GetString(mediaMetaMap[1].first, uri);
-    reply.WriteString(uri + "/" + id);
-    for (int i = 2; i < mediaMetaMap.size(); i++) {
-        if (mediaMetaMap[i].second == "string") {
-            string value;
-            result->GetString(mediaMetaMap[i].first, value);
-            reply.WriteString(value);
-        } else {
-            int64_t value;
-            result->GetLong(mediaMetaMap[i].first, value);
-            reply.WriteInt64(value);
-        }
-    }
-    return true;
-}
-
-int GetFileInfoFromResult(shared_ptr<Media::AbsSharedResultSet> result, MessageParcel &reply)
-{
-    int count = 0;
-    result->GetRowCount(count);
-    if (count == 0) {
-        ERR_LOG("GetFileInfoFromResult::AbsSharedResultSet null");
-        return FAIL;
-    }
-    result->GoToFirstRow();
-    reply.WriteInt32(count);
-    for (int i = 0; i < count; i++) {
-        PushFileInfo(result, reply);
-        result->GoToNextRow();
-    }
-    return SUCCESS;
-}
-
-bool GetRelativePath(const string &path, string &relativePath)
-{
-    NativeRdb::DataAbilityPredicates predicates;
-    string selection = Media::MEDIA_DATA_DB_ID + " LIKE ? ";
-    vector<string> selectionArgs = { path };
-    predicates.SetWhereClause(selection);
-    predicates.SetWhereArgs(selectionArgs);
-    Media::MediaLibraryDataAbility mediaLibDb;
-    mediaLibDb.InitMediaLibraryRdbStore();
-    Uri uri(Media::MEDIALIBRARY_DATA_URI);
-    vector<string> columns;
-    shared_ptr<Media::AbsSharedResultSet> result = mediaLibDb.Query(uri, columns, predicates);
-    if (result == nullptr) {
-        return false;
-    }
-    int count = 0;
-    result->GetRowCount(count);
-
-    if (count != 1) {
-        ERR_LOG("GetRelativePath::AbsSharedResultSet more than one uri");
-    }
-    int32_t columnIndex;
-    int ret = result->GetColumnIndex(Media::MEDIA_DATA_DB_FILE_PATH, columnIndex);
-    if (ret != NativeRdb::E_OK) {
-        return false;
-    }
-    result->GoToFirstRow();
-    ret = result->GetString(columnIndex, relativePath);
-    if (ret != NativeRdb::E_OK) {
-        return false;
-    }
-    return true;
-}
-
-int MediaFileOper::CreateFile(const std::string &name, const std::string &path, std::string &uri)
-{
-    string type = "file";
-    int index = Insert(name, path, type);
-    // media type need to check the path
-    if (index < 0) {
-        ERR_LOG("MediaFileOper:: Fail to create fail %{public}s %{public}s", name.c_str(), path.c_str());
-        return index;
-    }
-    uri = Media::MEDIALIBRARY_FILE_URI;
-    uri += "/" + to_string(index);
-    return SUCCESS;
-}
-
-int MediaFileOper::OperProcess(uint32_t code, MessageParcel &data, MessageParcel &reply)
+int MediaFileOper::OperProcess(uint32_t code, MessageParcel &data, MessageParcel &reply) const
 {
     int errCode = SUCCESS;
     // media process
     switch (code) {
-        case FILE_OPER::MKDIR: {
+        case Operation::MAKE_DIR: {
             string name = data.ReadString();
             string path = data.ReadString();
             errCode = Mkdir(name, path);
             break;
         }
-        case FILE_OPER::LIST_FILE: {
+        case Operation::LIST_FILE: {
+            string type = data.ReadString();
             string path = data.ReadString();
             int off = data.ReadInt32();
             int count = data.ReadInt32();
-            errCode = ListFile(path, off, count, reply);
-            // need reply fileInfo
+            // put fileInfo into reply
+            errCode = ListFile(type, path, off, count, reply);
             break;
         }
-        case FILE_OPER::CREATE_FILE: {
+        case Operation::CREATE_FILE: {
             string name = data.ReadString();
             string path = data.ReadString();
             string uri;
@@ -181,42 +60,29 @@ int MediaFileOper::OperProcess(uint32_t code, MessageParcel &data, MessageParcel
             reply.WriteString(uri);
             break;
         }
-        default:
+        default: {
+            DEBUG_LOG("not valid code %{public}d.", code);
             break;
+        }
     }
     return errCode;
 }
 
-int MediaFileOper::ListFile(const string &path, int offset, int count, MessageParcel &reply)
+int MediaFileOper::CreateFile(const std::string &name, const std::string &path, std::string &uri) const
 {
-    // get the relative path from the path uri
-    string relativePath;
-    if (!GetRelativePath(path, relativePath)) {
-        ERR_LOG("MediaFileOper::path not exsit");
-        return E_NOEXIST;
-    }
-    NativeRdb::DataAbilityPredicates predicates;
-    string selection = Media::MEDIA_DATA_DB_RELATIVE_PATH + " LIKE ? ";
-    vector<string> selectionArgs = { relativePath };
-    predicates.SetWhereClause(selection);
-    predicates.SetWhereArgs(selectionArgs);
-    Media::MediaLibraryDataAbility mediaLibDb;
-    mediaLibDb.InitMediaLibraryRdbStore();
-    Uri uri(Media::MEDIALIBRARY_DATA_URI);
-    vector<string> columns;
-    shared_ptr<Media::AbsSharedResultSet> result = mediaLibDb.Query(uri, columns, predicates);
-    if (result == nullptr) {
-        ERR_LOG("MediaFileOper::ListFile folder is empty");
-        return E_EMPTYFOLDER;
-    }
-    GetFileInfoFromResult(result, reply);
-    return SUCCESS;
+    string type = "file";
+    return MediaFileUtils::DoInsert(name, path, type, uri);
 }
 
-int MediaFileOper::Mkdir(const string &name, const string &path)
+int MediaFileOper::ListFile(const string type, const string &path, int offset, int count, MessageParcel &reply) const
 {
-    string type = "album";
-    Insert(name, path, type);
+    shared_ptr<NativeRdb::AbsSharedResultSet> result;
+    int res = MediaFileUtils::DoListFile(type, path, offset, count, result);
+    return  MediaFileUtils::GetFileInfoFromResult(result, reply, res);
+}
+
+int MediaFileOper::Mkdir(const string &name, const string &path) const
+{
     DEBUG_LOG("MediaFileOper::mkdir path %{public}s.", path.c_str());
     return SUCCESS;
 }

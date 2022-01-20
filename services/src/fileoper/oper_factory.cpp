@@ -15,29 +15,30 @@
 
 #include "oper_factory.h"
 
+#include "file_manager_service_def.h"
 #include "file_oper.h"
-#include "file_manager_service_const.h"
 #include "log.h"
 #include "media_file_oper.h"
 
 using namespace std;
 namespace OHOS {
 namespace FileManagerService {
-FileOper* OperFactory::getFileOper(int equipmentId)
+unique_ptr<FileOper> OperFactory::GetFileOper(int equipmentId)
 {
-    FileOper* fp = nullptr;
-    DEBUG_LOG("OperFactory::getFileOper %{public}d.", equipmentId);
+    unique_ptr<FileOper> fp;
+    DEBUG_LOG("FileOper %{public}d.", equipmentId);
     switch (equipmentId) {
-        case EQUIPMENT::INTERNAL_CARD: {
-            fp = new MediaFileOper();
+        case Equipment::INTERNAL_STORAGE: {
+            fp = make_unique<MediaFileOper>();
             break;
         }
-        case EQUIPMENT::EXTERNAL_CARD: {
+        case Equipment::EXTERNAL_STORAGE: {
+            DEBUG_LOG("FileOper exter %{public}d %{public}d.", Equipment::EXTERNAL_STORAGE, equipmentId);
             // do Exteranl storage process;
-            // return ExternalOper()
             break;
         }
         default: {
+            DEBUG_LOG("default FileOper %{public}d.", equipmentId);
             break;
         }
     }

@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#pragma once
+#ifndef STORAGE_IFILE_MANAGER_CLIENT_H
+#define STORAGE_IFILE_MANAGER_CLIENT_H
 #include "file_info.h"
 
 namespace OHOS {
@@ -21,12 +21,13 @@ namespace FileManagerService {
 class IFmsClient {
 public:
     virtual ~IFmsClient() {}
-
-    static IFmsClient  *GetFmsInstance();
-
-    virtual int Mkdir(std::string name, std::string path) = 0;
-    virtual int ListFile(std::string path, int off, int count, std::vector<FileInfo> &fileRes) = 0;
-    virtual int CreateFile(std::string name, std::string path, std::string &uri) = 0;
+    static IFmsClient *GetFmsInstance();
+    virtual int Mkdir(const std::string &name, const std::string &path) = 0;
+    virtual int ListFile(const std::string &type, const std::string &path,
+        int off, int count, std::vector<FileInfo> &fileRes) = 0;
+    virtual int GetRoot(const std::string &devName, std::vector<FileInfo> &fileRes) const = 0;
+    virtual int CreateFile(const std::string &name, const std::string &path, std::string &uri) = 0;
 };
 } // namespace FileManagerService {
 } // namespace OHOS
+#endif // STORAGE_IFILE_MANAGER_CLIENT_H

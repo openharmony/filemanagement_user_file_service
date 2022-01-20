@@ -12,30 +12,25 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-FMS_BASE_DIR = "//foundation/storage/services"
+FMS_BASE_DIR = "//foundation/filemanagement/user_file_service/services"
 
 group("fms") {
   deps = [
-    ":fms_exe",
     ":fms_server",
-    ":fms_service.rc",
+    ":fms_service.cfg",
   ]
 }
 
-ohos_prebuilt_etc("fms_service.rc") {
-  if (use_musl) {
-    source = "etc/fms_service.cfg"
-  } else {
-    source = "etc/fms_service.rc"
-  }
+ohos_prebuilt_etc("fms_service.cfg") {
+  source = "etc/fms_service.cfg"
   relative_install_dir = "init"
-  subsystem_name = "storage"
-  part_name = "filemanager"
+  subsystem_name = "filemanagement"
+  part_name = "file_manager_service"
 }
 
 ohos_shared_library("fms_server") {
-  subsystem_name = "storage"
-  part_name = "filemanager"
+  subsystem_name = "filemanagement"
+  part_name = "file_manager_service"
 
   include_dirs = [
     "$FMS_BASE_DIR/include",
@@ -49,6 +44,7 @@ ohos_shared_library("fms_server") {
   sources = [
     "src/client/file_manager_proxy.cpp",
     "src/fileoper/media_file_oper.cpp",
+    "src/fileoper/media_file_utils.cpp",
     "src/fileoper/oper_factory.cpp",
     "src/server/file_manager_service.cpp",
     "src/server/file_manager_service_stub.cpp",
@@ -60,6 +56,7 @@ ohos_shared_library("fms_server") {
     "//foundation/aafwk/standard/interfaces/innerkits/base:base",
     "//foundation/aafwk/standard/interfaces/innerkits/dataobs_manager:dataobs_manager",
     "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
+    "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/media_library:media_library",
     "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/medialibrary_data_ability:medialibrary_data_ability",
     "//utils/native/base:utils",
   ]
@@ -77,40 +74,4 @@ ohos_shared_library("fms_server") {
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
   ]
-}
-
-ohos_executable("fms_exe") {
-  install_enable = true
-
-  sources = [ "exe/main.cpp" ]
-
-  include_dirs = [
-    "$FMS_BASE_DIR/include",
-    "$FMS_BASE_DIR/src/client",
-    "$FMS_BASE_DIR/src/server",
-    "$FMS_BASE_DIR/src/fileoper",
-  ]
-
-  deps = [
-    ":fms_server",
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
-    "//utils/native/base:utils",
-  ]
-
-  external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
-  ]
-
-  subsystem_name = "storage"
-  part_name = "filemanager"
-}
-
-# Unittest
-group("test") {
-  testonly = true
-
-  deps = [ "test:test" ]
 }

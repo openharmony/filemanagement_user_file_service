@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#pragma once
+#ifndef STORAGE_FILE_MANAGER_SERVICE_STUB_H
+#define STORAGE_FILE_MANAGER_SERVICE_STUB_H
 
 #include "ipc_types.h"
 #include "iremote_broker.h"
@@ -30,9 +30,12 @@ public:
 
 class FileManagerServiceStub : public IRemoteStub<IFileManagerService> {
 public:
+    FileManagerServiceStub() = default;
+    virtual ~FileManagerServiceStub() = default;
     int OperProcess(uint32_t code, MessageParcel &data, MessageParcel &reply);
     virtual int OnRemoteRequest(uint32_t code, MessageParcel &data,
-                                MessageParcel &reply, MessageOption &option) override;
+        MessageParcel &reply, MessageOption &option) override;
 };
 } // namespace FileManagerService
 } // namespace OHOS
+#endif // STORAGE_FILE_MANAGER_SERVICE_STUB_H
