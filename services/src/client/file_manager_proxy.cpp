@@ -14,50 +14,41 @@
  */
 #include "file_manager_proxy.h"
 
-#include "file_manager_service_const.h"
 #include "file_info.h"
+#include "file_manager_service_def.h"
+#include "file_manager_service_errno.h"
 #include "file_manager_service_stub.h"
 #include "log.h"
+#include "media_file_utils.h"
 
 using namespace std;
 
 namespace OHOS {
 namespace FileManagerService {
-int GetFileInfo(FileInfo &file, MessageParcel &reply)
-{
-    string path;
-    string name;
-    string type;
-    int64_t size = 0;
-    int64_t at = 0;
-    int64_t mt = 0;
+FileManagerProxy::FileManagerProxy(const sptr<IRemoteObject> &impl)
+    : IRemoteProxy<IFileManagerService>(impl) {}
 
-    reply.ReadString(path);
-    reply.ReadString(type);
-    reply.ReadString(name);
-    reply.ReadInt64(size);
-    reply.ReadInt64(at);
-    reply.ReadInt64(mt);
-    file = FileInfo(name, path, type, size, at, mt);
+int FileManagerProxy::GetRoot(const std::string &devName, vector<FileInfo> &fileRes) const
+{
+    // currently getRoot don't need to sendReq
+    fileRes.emplace_back(IMAGE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+    fileRes.emplace_back(VIDEO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+    fileRes.emplace_back(AUDIO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+    fileRes.emplace_back(FILE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
     return SUCCESS;
 }
 
-FileManagerProxy::FileManagerProxy(const sptr<IRemoteObject> &impl)
-    : IRemoteProxy<IFileManagerService>(impl) { }
-
-int FileManagerProxy::CreateFile(string name, string path, string &uri)
+int FileManagerProxy::CreateFile(const string &name, const string &path, string &uri)
 {
     MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    sptr<IRemoteObject> remote = Remote();
     data.WriteString(name);
     data.WriteString(path);
-    int err = remote->SendRequest(FILE_OPER::CREATE_FILE, data, reply, option);
+    MessageParcel reply;
+    MessageOption option;
+    int err = Remote()->SendRequest(Operation::CREATE_FILE, data, reply, option);
     if (err != ERR_NONE) {
-        ERR_LOG("FileManagerProxy::CreateFile send request fail %{public}d", err);
-        return err;
+        ERR_LOG("inner error send request fail %{public}d", err);
+        return FAIL;
     }
     reply.ReadString(uri);
     reply.ReadInt32(err);
@@ -76,31 +67,29 @@ IFmsClient *IFmsClient::GetFmsInstance()
         ERR_LOG("FileManager Service object is NULL.");
         return nullptr;
     }
-    static FileManagerProxy proxy(object);
+    static FileManagerProxy proxy = FileManagerProxy(object);
     return &proxy;
 }
 
-int FileManagerProxy::ListFile(string path, int off, int count, vector<FileInfo> &fileRes)
+int FileManagerProxy::ListFile(const string &type, const string &path, int off, int count, vector<FileInfo> &fileRes)
 {
-    int err;
     MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    sptr<IRemoteObject> remote = Remote();
+    data.WriteString(type);
     data.WriteString(path);
     data.WriteInt32(off);
     data.WriteInt32(count);
-    err = remote->SendRequest(FILE_OPER::LIST_FILE, data, reply, option);
+    MessageParcel reply;
+    MessageOption option;
+    int err = Remote()->SendRequest(Operation::LIST_FILE, data, reply, option);
     if (err != ERR_NONE) {
-        ERR_LOG("FileManagerProxy::ListFile err %{public}d", err);
-        return err;
+        ERR_LOG("inner error send request fail %{public}d", err);
+        return FAIL;
     }
     int fileInfoNum = 0;
     reply.ReadInt32(fileInfoNum);
     while (fileInfoNum) {
         FileInfo file;
-        GetFileInfo(file, reply);
+        MediaFileUtils::PopFileInfo(file, reply);
         fileRes.emplace_back(file);
         fileInfoNum--;
     }
@@ -108,20 +97,17 @@ int FileManagerProxy::ListFile(string path, int off, int count, vector<FileInfo>
     return err;
 }
 
-int FileManagerProxy::Mkdir(string name, string path)
+int FileManagerProxy::Mkdir(const string &name, const string &path)
 {
-    int err;
     MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    sptr<IRemoteObject> remote = Remote();
     data.WriteString(name);
     data.WriteString(path);
-    err = remote->SendRequest(FILE_OPER::MKDIR, data, reply, option);
+    MessageParcel reply;
+    MessageOption option;
+    int err = Remote()->SendRequest(Operation::MAKE_DIR, data, reply, option);
     if (err != ERR_NONE) {
-        ERR_LOG("FileManagerProxy::mkdir err %{public}d", err);
-        return err;
+        ERR_LOG("inner error send request fail %{public}d", err);
+        return FAIL;
     }
     reply.ReadInt32(err);
     return err;

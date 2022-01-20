@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef STORAGE_SERVICES_FILE_INFO_H
+#define STORAGE_SERVICES_FILE_INFO_H
 
-#pragma once
-
-#include <string>
 #include <cstdint>
+#include <string>
 #include "ipc_types.h"
 #include "iremote_broker.h"
 #include "iremote_proxy.h"
@@ -26,10 +26,35 @@ namespace OHOS {
 namespace FileManagerService {
 class FileInfo {
 public:
-    FileInfo() {};
-    FileInfo(const std::string &name, const std::string &path, const std::string &type, int64_t size, int64_t added_time,
-        int64_t modified_time) : path_(path), name_(name), type_(type), size_(size),
-        added_time_(added_time), modified_time_(modified_time) {}
+    FileInfo(const std::string &name, const std::string &path, const std::string &type) : path_(path),
+        name_(name), type_(type) {}
+    FileInfo() = default;
+    ~FileInfo() = default;
+
+    void SetName(std::string &name)
+    {
+        name_ = name;
+    }
+    void SetPath(std::string &path)
+    {
+        path_ = path;
+    }
+    void SetType(std::string &type)
+    {
+        type_ = type;
+    }
+    void SetSize(int64_t size)
+    {
+        size_ = size;
+    }
+    void SetAddedTime(int64_t time)
+    {
+        addedTime_ = time;
+    }
+    void SetModifiedTime(int64_t time)
+    {
+        modifiedTime_ =  time;
+    }
     std::string GetName() const
     {
         return name_;
@@ -46,21 +71,22 @@ public:
     {
         return size_;
     }
-    int64_t GetAdded_Time() const
+    int64_t GetAddedTime() const
     {
-        return added_time_;
+        return addedTime_;
     }
-    int64_t GetModified_time() const
+    int64_t GetModifiedTime() const
     {
-        return modified_time_;
+        return modifiedTime_;
     }
 private:
     std::string path_;
     std::string name_;
     std::string type_;
-    int64_t size_;
-    int64_t added_time_;
-    int64_t modified_time_;
+    int64_t size_ {0};
+    int64_t addedTime_ {0};
+    int64_t modifiedTime_ {0};
 };
-} // OHOS
-} // FileManager
+} // namespace FileManagerService
+} // namespace OHOS
+#endif // STORAGE_SERVICES_FILE_INFO_H

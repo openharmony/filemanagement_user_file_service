@@ -12,7 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#pragma once
+#ifndef STORAGE_FILE_MANAGER_PROXY_H
+#define STORAGE_FILE_MANAGER_PROXY_H
 
 #include "file_manager_service_stub.h"
 #include "ifms_client.h"
@@ -26,13 +27,14 @@ class FileManagerProxy : public IRemoteProxy<IFileManagerService>, public IFmsCl
 public:
     explicit FileManagerProxy(const sptr<IRemoteObject> &impl);
     virtual ~FileManagerProxy() = default;
-    static IFmsClient* GetFmsInstance();
-    int Mkdir(std::string name, std::string path) override;
-    int ListFile(std::string path, int off, int count, std::vector<FileInfo> &fileRes) override;
-    int CreateFile(std::string name, std::string path, std::string &uri) override;
-
+    int Mkdir(const std::string &name, const std::string &path) override;
+    int ListFile(const std::string &type, const std::string &path,
+        int off, int count, std::vector<FileInfo> &fileRes) override;
+    int CreateFile(const std::string &name, const std::string &path, std::string &uri) override;
+    int GetRoot(const std::string &devName, std::vector<FileInfo> &fileRes) const override;
 private:
     static inline BrokerDelegator<FileManagerProxy> delegator_;
 };
 } // namespace FileManagerService
 } // namespace OHOS
+#endif // STORAGE_FILE_MANAGER_PROXY_H

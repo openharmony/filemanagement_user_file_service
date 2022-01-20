@@ -15,8 +15,9 @@
 
 #include "file_manager_service_stub.h"
 
-#include "file_manager_service_const.h"
 #include "file_manager_service.h"
+#include "file_manager_service_def.h"
+#include "file_manager_service_errno.h"
 #include "log.h"
 #include "oper_factory.h"
 
@@ -24,28 +25,28 @@ using namespace std;
 
 namespace OHOS {
 namespace FileManagerService {
-int getEquipmentCode(uint32_t code)
+int GetEquipmentCode(uint32_t code)
 {
     return (code >> EQUIPMENT_SHIFT) & CODE_MASK;
 }
-int getOperCode(uint32_t code)
+
+int GetOperCode(uint32_t code)
 {
     return code & CODE_MASK;
 }
+
 int FileManagerServiceStub::OperProcess(uint32_t code, MessageParcel &data,
     MessageParcel &reply)
 {
-    int equipmentId = getEquipmentCode(code);
-    int operCode = getOperCode(code);
+    int equipmentId = GetEquipmentCode(code);
+    int operCode = GetOperCode(code);
     OperFactory factory = OperFactory();
-    auto *fp = factory.getFileOper(equipmentId);
+    auto fp = factory.GetFileOper(equipmentId);
     if (fp == nullptr) {
         ERR_LOG("OnRemoteRequest inner error %{public}d", code);
         return FAIL;
     }
     int errCode = fp->OperProcess(operCode, data, reply);
-
-    delete fp;
     return errCode;
 }
 

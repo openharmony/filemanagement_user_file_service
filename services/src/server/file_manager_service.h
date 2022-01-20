@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#pragma once
+#ifndef STORAGE_FILE_MANAGER_SERVICE_H
+#define STORAGE_FILE_MANAGER_SERVICE_H
 
 #include "file_manager_service_stub.h"
 #include "iremote_stub.h"
@@ -33,3 +33,4 @@ public:
 };
 } // namespace FileManagerService
 } // namespace OHOS
+#endif // STORAGE_FILE_MANAGER_SERVICE_H

@@ -12,21 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#pragma once
+#ifndef STORAGE_SERVICES_MEDIA_FILE_OPER_H
+#define STORAGE_SERVICES_MEDIA_FILE_OPER_H
 
 #include <string>
 #include "file_oper.h"
-
 namespace OHOS {
 namespace FileManagerService {
 class MediaFileOper : public FileOper {
 public:
+    MediaFileOper() = default;
     virtual ~MediaFileOper() = default;
-    int Mkdir(const std::string &name, const std::string &path) override;
-    int ListFile(const std::string &path, int offset, int count, MessageParcel &data) override;
-    int CreateFile(const std::string &name, const std::string &path, std::string &uri) override;
-    int OperProcess(uint32_t code, MessageParcel &data, MessageParcel &reply) override;
+    int OperProcess(uint32_t code, MessageParcel &data, MessageParcel &reply) const override;
+private:
+    int CreateFile(const std::string &name, const std::string &path, std::string &uri) const;
+    int ListFile(const std::string type, const std::string &path, int offset, int count, MessageParcel &data) const;
+    int Mkdir(const std::string &name, const std::string &path) const;
 };
-} // OHOS
-} // FileManager
+} // namespace FileManagerService
+} // namespace OHOS
+#endif // STORAGE_SERVICES_MEDIA_FILE_OPER_H

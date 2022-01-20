@@ -12,29 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#pragma once
-
-#include <vector>
+#ifndef STORAGE_SERVICES_INCLUDE_ERRNO_H
+#define STORAGE_SERVICES_INCLUDE_ERRNO_H
 namespace OHOS {
 namespace FileManagerService {
-enum FILE_OPER {
-    GET_ROOT,
-    MKDIR,
-    LIST_FILE,
-    CREATE_FILE
-};
-
-enum EQUIPMENT {
-    INTERNAL_CARD,
-    EXTERNAL_CARD
-};
-
-const int32_t CODE_MASK = 0xff;
-const int32_t EQUIPMENT_SHIFT = 16;
-
-const int32_t SUCCESS = 0;
-const int32_t FAIL = -1;
-const int32_t E_NOEXIST = -2;        // file not exist
-const int32_t E_EMPTYFOLDER = -3;    // folder empty
+constexpr int32_t SUCCESS = 0;
+constexpr int32_t FAIL = -1;                  // internal Error
+constexpr int32_t E_NOEXIST = -2;             // file not exist
+constexpr int32_t E_EMPTYFOLDER = -3;         // folder empty
+constexpr int32_t E_INVALID_OPERCODE = -4;    // not valid oper code
+constexpr int32_t E_CREATE_FAIL = -5;         // create file fail
 } // namespace FileManagerService
 } // namespace OHOS
+#endif // STORAGE_SERVICES_INCLUDE_ERRNO_H

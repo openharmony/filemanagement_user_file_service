@@ -19,17 +19,17 @@
 #include "log.h"
 #include "system_ability_definition.h"
 
-
 namespace OHOS {
 namespace FileManagerService {
 REGISTER_SYSTEM_ABILITY_BY_ID(FileManagerService, FILE_MANAGER_SERVICE_ID, true);
 
 FileManagerService::FileManagerService(int32_t systemAbilityId, bool runOnCreate)
-    : SystemAbility(systemAbilityId, runOnCreate) { }
-void FileManagerService::OnDump() { }
+    : SystemAbility(systemAbilityId, runOnCreate) {}
+void FileManagerService::OnDump() {}
 
 void FileManagerService::OnStart()
 {
+    DEBUG_LOG("FileManagerService OnStart");
     bool res = Publish(this);
     if (!res) {
         ERR_LOG("FileManagerService OnStart invalid");

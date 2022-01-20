@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#pragma once
+#ifndef STORAGE_SERVICES_FILE_OPER_H
+#define STORAGE_SERVICES_FILE_OPER_H
 
 #include <string>
 #include "ipc_types.h"
@@ -25,11 +25,10 @@ namespace OHOS {
 namespace FileManagerService {
 class FileOper {
 public:
+    FileOper() = default;
     virtual ~FileOper() = default;
-    virtual int Mkdir(const std::string &name, const std::string &path) = 0;
-    virtual int ListFile(const std::string &path, int offset, int count, MessageParcel &data) = 0;
-    virtual int CreateFile(const std::string &name, const std::string &path, std::string &uri) = 0;
-    virtual int OperProcess(uint32_t code, MessageParcel &data, MessageParcel &reply) = 0;
+    virtual int OperProcess(uint32_t code, MessageParcel &data, MessageParcel &reply) const = 0;
 };
-} // OHOS
-} // FileManager
+} // namespace FileManagerService
+} // namespace OHOS
+#endif // STORAGE_SERVICES_FILE_OPER_H

@@ -1,11 +1,11 @@
 {
   "subsystem": "filemanagement",
   "parts": {
-    "filemanager": {
+    "file_manager_service": {
       "module_list": [
-        "//foundation/storage/services:fms",
-        "//foundation/storage/sa_profile:filemanager_service_sa_profile",
-        "//foundation/storage/interfaces/kits/js:filemanager"
+        "//foundation/filemanagement/user_file_service/services:fms",
+        "//foundation/filemanagement/user_file_service/sa_profile:filemanager_service_sa_profile",
+        "//foundation/filemanagement/user_file_service/interfaces/kits/js:filemanager"
       ]
     }
   }
