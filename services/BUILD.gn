@@ -25,12 +25,12 @@ ohos_prebuilt_etc("fms_service.cfg") {
   source = "etc/fms_service.cfg"
   relative_install_dir = "init"
   subsystem_name = "filemanagement"
-  part_name = "file_manager_service"
+  part_name = "user_file_service"
 }
 
 ohos_shared_library("fms_server") {
   subsystem_name = "filemanagement"
-  part_name = "file_manager_service"
+  part_name = "user_file_service"
 
   include_dirs = [
     "$FMS_BASE_DIR/include",

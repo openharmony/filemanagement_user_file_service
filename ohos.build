@@ -1,7 +1,7 @@
 {
   "subsystem": "filemanagement",
   "parts": {
-    "file_manager_service": {
+    "user_file_service": {
       "module_list": [
         "//foundation/filemanagement/user_file_service/services:fms",
         "//foundation/filemanagement/user_file_service/sa_profile:filemanager_service_sa_profile",

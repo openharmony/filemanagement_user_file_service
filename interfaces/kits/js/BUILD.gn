@@ -16,7 +16,7 @@ FMS_BASE_DIR = "//foundation/filemanagement/user_file_service/services"
 
 ohos_shared_library("filemanager") {
   subsystem_name = "filemanagement"
-  part_name = "file_manager_service"
+  part_name = "user_file_service"
 
   relative_install_dir = "module"
 
