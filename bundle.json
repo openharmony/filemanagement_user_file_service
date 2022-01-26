@@ -1,5 +1,5 @@
 {
-    "name": "@ohos/filemanagement",
+    "name": "@ohos/user_file_service",
     "description": "filemanagement is the module of OpenHarmony that provides storage and file management.",
     "version": "3.1",
     "license": "Apache License 2.0",
@@ -10,7 +10,7 @@
     "dirs": {},
     "scripts": {},
     "component": {
-        "name": "filemanagement",
+        "name": "user_file_service",
         "subsystem": "filemanagement",
         "syscap": [
             "SystemCapability.FileManagement.FileManagerService"
@@ -23,7 +23,7 @@
         "deps": {
             "components": [
                 "ability_runtime",
-                "hiviewdfx_hilog_native",
+                "hiviewdfx",
                 "ipc",
                 "native_appdatamgr",
                 "safwk",

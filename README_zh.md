@@ -26,9 +26,8 @@
 ├── interfaces                                  # 接口代码
 │   ├── innerkits                               # 内部 Native 接口
 │   └── kits                                    # 外部 JS 接口
-├── LICENSE                                     # 证书文件
-├── ohos.build                                  # 编译文件
-└── sa_profile                                  # 服务配置文件
+├── BUILD.gn                                    # 编译入口
+└── bundle.json                                 # 部件描述文件
 ```
 ## 说明<a name="guide"></a>
 ### 使用说明<a name="usage-guidelines"></a>
