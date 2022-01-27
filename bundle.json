@@ -1,0 +1,41 @@
+{
+    "name": "@ohos/user_file_service",
+    "description": "filemanagement is the module of OpenHarmony that provides storage and file management.",
+    "version": "3.1",
+    "license": "Apache License 2.0",
+    "publishAs": "code-segment",
+    "segment": {
+        "destPath": "foundation/filemanagement/user_file_service"
+    },
+    "dirs": {},
+    "scripts": {},
+    "component": {
+        "name": "user_file_service",
+        "subsystem": "filemanagement",
+        "syscap": [
+            "SystemCapability.FileManagement.FileManagerService"
+        ],
+        "adapted_system_type": [
+            "standard"
+        ],
+        "rom": "",
+        "ram": "",
+        "deps": {
+            "components": [
+                "ability_runtime",
+                "hiviewdfx",
+                "ipc",
+                "native_appdatamgr",
+                "safwk",
+                "samgr_standard"
+            ]
+        },
+        "build": {
+            "sub_component": [
+                "//foundation/filemanagement/user_file_service/services:fms",
+                "//foundation/filemanagement/user_file_service/services/sa_profile:filemanager_service_sa_profile",
+                "//foundation/filemanagement/user_file_service/interfaces/kits/js:filemanager"
+            ]
+        }
+    }
+}
