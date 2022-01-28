@@ -309,7 +309,7 @@ bool FileManagerNapi::Export()
         NVal::DeclareNapiFunction("listFile", ListFile),
         NVal::DeclareNapiFunction("createFile", CreateFile),
         NVal::DeclareNapiFunction("getRoot", GetRoot),
-    } );
+    });
 }
 
 string FileManagerNapi::GetClassName()
