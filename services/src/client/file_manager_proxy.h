@@ -28,8 +28,8 @@ public:
     explicit FileManagerProxy(const sptr<IRemoteObject> &impl);
     virtual ~FileManagerProxy() = default;
     int Mkdir(const std::string &name, const std::string &path) override;
-    int ListFile(const std::string &type, const std::string &path,
-        int off, int count, std::vector<FileInfo> &fileRes) override;
+    int ListFile(const std::string &type, const std::string &path, const CmdOptions &option,
+        std::vector<FileInfo> &fileRes) override;
     int CreateFile(const std::string &name, const std::string &path, std::string &uri) override;
     int GetRoot(const std::string &devName, std::vector<FileInfo> &fileRes) const override;
 private:

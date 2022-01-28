@@ -12,22 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef STORAGE_IFILE_MANAGER_CLIENT_H
-#define STORAGE_IFILE_MANAGER_CLIENT_H
+#ifndef STORAGE_SERIVCES_EXTERNAL_STORAGE_UTILS_H
+#define STORAGE_SERIVCES_EXTERNAL_STORAGE_UTILS_H
+
+#include <string>
+#include <vector>
+
 #include "cmd_options.h"
 #include "file_info.h"
+#include "file_oper.h"
+
 namespace OHOS {
 namespace FileManagerService {
-class IFmsClient {
+class ExternalStorageUtils {
 public:
-    virtual ~IFmsClient() {}
-    static IFmsClient *GetFmsInstance();
-    virtual int Mkdir(const std::string &name, const std::string &path) = 0;
-    virtual int ListFile(const std::string &type, const std::string &path, const CmdOptions &option,
-        std::vector<FileInfo> &fileRes) = 0;
-    virtual int GetRoot(const std::string &devName, std::vector<FileInfo> &fileRes) const = 0;
-    virtual int CreateFile(const std::string &name, const std::string &path, std::string &uri) = 0;
+    ExternalStorageUtils();
+    ~ExternalStorageUtils();
+    static int DoListFile(const std::string &type, const std::string &uri, MessageParcel &reply);
+    static int DoCreateFile(const std::string &uri, const std::string &name, MessageParcel &reply);
+    static bool PopFileInfo(FileInfo &fileInfo, MessageParcel &reply);
 };
-} // namespace FileManagerService {
+} // namespace FileManagerService
 } // namespace OHOS
-#endif // STORAGE_IFILE_MANAGER_CLIENT_H
+#endif // STORAGE_SERIVCES_EXTERNAL_STORAGE_UTILS_H

@@ -34,20 +34,19 @@ enum GetRootArgs {
 };
 
 enum ListFileArgs {
-    LF_DEV = 0,
+    LF_PATH = 0,
     LF_TYPE = 1,
-    LF_PATH = 2,
-    LF_OPTION = 3,
-    LF_CALLBACK_WITHOUT_OP = 3,
-    LF_CALLBACK_WITH_OP = 4,
+    LF_OPTION = 2,
+    LF_CALLBACK_WITHOUT_OP = 2,
+    LF_CALLBACK_WITH_OP = 3,
 };
 
 constexpr int CREATE_FILE_PARA_MAX = 4;
 constexpr int CREATE_FILE_PARA_MIN = 3;
 constexpr int GET_ROOT_PARA_MAX = 2;
 constexpr int GET_ROOT_PARA_MIN = 1;
-constexpr int LIST_FILE_PARA_MAX = 5;
-constexpr int LIST_FILE_PARA_MIN = 3;
+constexpr int LIST_FILE_PARA_MAX = 4;
+constexpr int LIST_FILE_PARA_MIN = 2;
 } // namespace FileManagerService
 } // namespace OHOS
 #endif // STORAGE_FILE_MANAGER_NAPI_DEF_H

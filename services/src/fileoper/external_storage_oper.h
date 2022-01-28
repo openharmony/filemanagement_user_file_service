@@ -12,22 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef STORAGE_IFILE_MANAGER_CLIENT_H
-#define STORAGE_IFILE_MANAGER_CLIENT_H
+#ifndef STORAGE_SERIVCES_EXTERNAL_STORAGE_OPER_H
+#define STORAGE_SERIVCES_EXTERNAL_STORAGE_OPER_H
+
+#include <string>
 #include "cmd_options.h"
-#include "file_info.h"
+#include "file_oper.h"
 namespace OHOS {
 namespace FileManagerService {
-class IFmsClient {
+class ExternalStorageOper : public FileOper {
 public:
-    virtual ~IFmsClient() {}
-    static IFmsClient *GetFmsInstance();
-    virtual int Mkdir(const std::string &name, const std::string &path) = 0;
-    virtual int ListFile(const std::string &type, const std::string &path, const CmdOptions &option,
-        std::vector<FileInfo> &fileRes) = 0;
-    virtual int GetRoot(const std::string &devName, std::vector<FileInfo> &fileRes) const = 0;
-    virtual int CreateFile(const std::string &name, const std::string &path, std::string &uri) = 0;
+    ExternalStorageOper() = default;
+    virtual ~ExternalStorageOper() = default;
+    int OperProcess(uint32_t code, MessageParcel &data, MessageParcel &reply) const override;
+private:
+    int CreateFile(const std::string &uri, const std::string &name, MessageParcel &reply) const;
+    int ListFile(const std::string &type, const std::string &uri, const CmdOptions &option,
+        MessageParcel &reply) const;
 };
-} // namespace FileManagerService {
+} // namespace FileManagerService
 } // namespace OHOS
-#endif // STORAGE_IFILE_MANAGER_CLIENT_H
+#endif // STORAGE_SERIVCES_EXTERNAL_STORAGE_OPER_H
