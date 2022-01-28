@@ -62,7 +62,7 @@ int ExternalStorageOper::CreateFile(const std::string &uri, const std::string &n
 }
 
 int ExternalStorageOper::ListFile(const std::string &type, const std::string &uri, const CmdOptions &option,
-        MessageParcel &reply) const
+    MessageParcel &reply) const
 {
     return ExternalStorageUtils::DoListFile(type, uri, reply);
 }

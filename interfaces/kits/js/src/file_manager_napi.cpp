@@ -305,11 +305,11 @@ napi_value FileManagerNapi::Mkdir(napi_env env, napi_callback_info info)
 
 bool FileManagerNapi::Export()
 {
-    return exports_.AddProp({
+    return exports_.AddProp( {
         NVal::DeclareNapiFunction("listFile", ListFile),
         NVal::DeclareNapiFunction("createFile", CreateFile),
         NVal::DeclareNapiFunction("getRoot", GetRoot),
-    });
+    } );
 }
 
 string FileManagerNapi::GetClassName()

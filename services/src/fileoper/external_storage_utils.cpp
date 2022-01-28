@@ -54,7 +54,6 @@ static bool GetFileInfo(const std::string &path, const std::string &name, FileIn
 
 static bool ConvertUriToAbsolutePath(const std::string &uri, std::string &path)
 {
-    // TODO convert uri to absolute path
     path = "/data/media";
     return true;
 }

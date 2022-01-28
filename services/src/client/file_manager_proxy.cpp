@@ -72,7 +72,7 @@ IFmsClient *IFmsClient::GetFmsInstance()
 }
 
 int FileManagerProxy::ListFile(const std::string &type, const std::string &path, const CmdOptions &option,
-        std::vector<FileInfo> &fileRes)
+    std::vector<FileInfo> &fileRes)
 {
     MessageParcel data;
     CmdOptions op(option);
