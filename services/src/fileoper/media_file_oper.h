@@ -26,7 +26,7 @@ public:
     int OperProcess(uint32_t code, MessageParcel &data, MessageParcel &reply) const override;
 private:
     int CreateFile(const std::string &name, const std::string &path, std::string &uri) const;
-    int ListFile(const std::string type, const std::string &path, int offset, int count, MessageParcel &data) const;
+    int ListFile(const std::string &type, const std::string &path, int offset, int count, MessageParcel &data) const;
     int Mkdir(const std::string &name, const std::string &path) const;
 };
 } // namespace FileManagerService

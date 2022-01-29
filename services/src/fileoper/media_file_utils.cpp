@@ -259,7 +259,7 @@ bool GetAlbumPath(const string &name, const string &path, string &albumPath)
     return GetPathFromAlbumPath(path, albumPath);
 }
 
-int MediaFileUtils::DoListFile(const string type, const string &path, int offset, int count,
+int MediaFileUtils::DoListFile(const string &type, const string &path, int offset, int count,
     shared_ptr<NativeRdb::AbsSharedResultSet> &result)
 {
     string selection;
