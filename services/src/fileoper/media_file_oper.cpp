@@ -17,6 +17,7 @@
 
 #include <vector>
 
+#include "cmd_options.h"
 #include "file_info.h"
 #include "file_manager_service_def.h"
 #include "file_manager_service_errno.h"
@@ -44,6 +45,8 @@ int MediaFileOper::OperProcess(uint32_t code, MessageParcel &data, MessageParcel
             break;
         }
         case Operation::LIST_FILE: {
+            string devName = data.ReadString();
+            string devPath = data.ReadString();
             string type = data.ReadString();
             string path = data.ReadString();
             int off = data.ReadInt32();

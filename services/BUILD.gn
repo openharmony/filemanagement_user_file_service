@@ -43,6 +43,8 @@ ohos_shared_library("fms_server") {
 
   sources = [
     "src/client/file_manager_proxy.cpp",
+    "src/fileoper/external_storage_oper.cpp",
+    "src/fileoper/external_storage_utils.cpp",
     "src/fileoper/media_file_oper.cpp",
     "src/fileoper/media_file_utils.cpp",
     "src/fileoper/oper_factory.cpp",

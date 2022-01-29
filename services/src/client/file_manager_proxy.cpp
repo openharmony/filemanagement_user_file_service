@@ -71,16 +71,29 @@ IFmsClient *IFmsClient::GetFmsInstance()
     return &proxy;
 }
 
-int FileManagerProxy::ListFile(const string &type, const string &path, int off, int count, vector<FileInfo> &fileRes)
+int FileManagerProxy::ListFile(const std::string &type, const std::string &path, const CmdOptions &option,
+    std::vector<FileInfo> &fileRes)
 {
     MessageParcel data;
+    CmdOptions op(option);
+    std::string devName(op.GetDevInfo().GetName());
+    std::string devPath(op.GetDevInfo().GetPath());
+    int32_t offset = op.GetOffset();
+    int32_t count = op.GetCount();
+
+    data.WriteString(devName);
+    data.WriteString(devPath);
     data.WriteString(type);
     data.WriteString(path);
-    data.WriteInt32(off);
+    data.WriteInt32(offset);
     data.WriteInt32(count);
     MessageParcel reply;
-    MessageOption option;
-    int err = Remote()->SendRequest(Operation::LIST_FILE, data, reply, option);
+    MessageOption messageOption;
+    uint32_t code = Equipment::INTERNAL_STORAGE;
+    if (op.GetDevInfo().GetName() == "external_storage") {
+        code = (Equipment::EXTERNAL_STORAGE << EQUIPMENT_SHIFT) | Operation::LIST_FILE;
+    }
+    int err = Remote()->SendRequest(code, data, reply, messageOption);
     if (err != ERR_NONE) {
         ERR_LOG("inner error send request fail %{public}d", err);
         return FAIL;

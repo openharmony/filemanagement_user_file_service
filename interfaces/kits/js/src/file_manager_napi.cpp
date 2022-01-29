@@ -43,12 +43,6 @@ struct AsyncUriArg {
     ~AsyncUriArg() = default;
 };
 
-struct ListFileOptionArgs {
-    int64_t offset = 0;
-    int64_t count = 0;
-    bool hasOp = false;
-};
-
 tuple<bool, IFmsClient*> FileManagerNapi::GetFmsClient()
 {
     if (fmsClient_ == nullptr) {
@@ -185,42 +179,69 @@ napi_value FileManagerNapi::GetRoot(napi_env env, napi_callback_info info)
     }
 }
 
-tuple<bool, unique_ptr<char[]>, unique_ptr<char[]>, unique_ptr<char[]>, ListFileOptionArgs> GetListFileArg(
+bool GetLstFileOption(const NVal &argv, CmdOptions &option)
+{
+    bool ret = false;
+    if (argv.HasProp("dev")) {
+        unique_ptr<char[]> devName;
+        NVal dev(argv.GetProp("dev"));
+        if (dev.HasProp("name")) {
+            tie(ret, devName, ignore) = dev.GetProp("name").ToUTF8String();
+            if (!ret) {
+                ERR_LOG("ListFileArgs LF_OPTION dev para fails");
+                return false;
+            }
+            option.SetDevInfo(DevInfo(devName.get(), ""));
+        }
+    }
+    if (argv.HasProp("offset")) {
+        int64_t offset;
+        tie(ret, offset) = argv.GetProp("offset").ToInt64();
+        if (!ret) {
+            ERR_LOG("ListFileArgs LF_OPTION offset para fails");
+            return false;
+        }
+        option.SetOffset(offset);
+    }
+    if (argv.HasProp("count")) {
+        int64_t count;
+        tie(ret, count) = argv.GetProp("count").ToInt64();
+        if (!ret) {
+            ERR_LOG("ListFileArgs LF_OPTION count para fails");
+            return false;
+        }
+        option.setCount(count);
+    }
+    return true;
+}
+
+tuple<bool, unique_ptr<char[]>, unique_ptr<char[]>, CmdOptions> GetListFileArg(
     napi_env env, NFuncArg &funcArg)
 {
     bool succ = false;
-    unique_ptr<char[]> type;
-    ListFileOptionArgs option;
-    tie(succ, type, ignore) = NVal(env, funcArg[ListFileArgs::LF_TYPE]).ToUTF8String();
-    if (!succ) {
-        ERR_LOG("ListFileArgs LF_TYPE para fails");
-        return {false, nullptr, nullptr, nullptr, option};
-    }
     unique_ptr<char[]> path;
+    unique_ptr<char[]> type;
+    CmdOptions option;
     tie(succ, path, ignore) = NVal(env, funcArg[ListFileArgs::LF_PATH]).ToUTF8String();
     if (!succ) {
         ERR_LOG("ListFileArgs LF_PATH para fails");
-        return {false, nullptr, nullptr, nullptr, option};
+        return {false, nullptr, nullptr, option};
     }
+    tie(succ, type, ignore) = NVal(env, funcArg[ListFileArgs::LF_TYPE]).ToUTF8String();
+    if (!succ) {
+        ERR_LOG("ListFileArgs LF_TYPE para fails");
+        return {false, nullptr, nullptr, option};
+    }
+
     NVal op(env, NVal(env, funcArg[ListFileArgs::LF_OPTION]).val_);
-    if (op.HasProp("offset")) {
-        tie(succ, option.offset) = op.GetProp("offset").ToInt64();
-        if (!succ) {
-            ERR_LOG("ListFileArgs LF_OPTION offset para fails");
-            return {false, nullptr, nullptr, nullptr, option};
-        }
-        option.hasOp = true;
+    if (op.TypeIs(napi_function)) {
+        return {true, move(type), move(path), option};
     }
-    if (op.HasProp("count")) {
-        tie(succ, option.count) = op.GetProp("count").ToInt64();
-        if (!succ) {
-            ERR_LOG("ListFileArgs LF_OPTION count para fails");
-            return {false, nullptr, nullptr, nullptr, option};
-        }
-        option.hasOp = true;
+    option.SetHasOpt(true);
+    if (!GetLstFileOption(op, option)) {
+        return {false, nullptr, nullptr, option};
     }
-    // currently devName is ignore
-    return {true, nullptr, move(type), move(path), option};
+    return {true, move(type), move(path), option};
 }
 
 napi_value FileManagerNapi::ListFile(napi_env env, napi_callback_info info)
@@ -231,13 +252,14 @@ napi_value FileManagerNapi::ListFile(napi_env env, napi_callback_info info)
         return nullptr;
     }
     bool succ = false;
-    // first is devName for extention
-    // second is type
     unique_ptr<char[]> type;
     unique_ptr<char[]> path;
-    ListFileOptionArgs option;
-    // currently devName is ignore
-    tie(succ, ignore, type, path, option) = GetListFileArg(env, funcArg);
+    CmdOptions option;
+    tie(succ, type, path, option) = GetListFileArg(env, funcArg);
+    if (!succ) {
+        UniError(EINVAL).ThrowErr(env, "Get argments fails");
+        return nullptr;
+    }
     napi_value fileArr;
     napi_create_array(env, &fileArr);
     auto arg = make_shared<AsyncFileInfoArg>(NVal(env, fileArr));
@@ -250,7 +272,8 @@ napi_value FileManagerNapi::ListFile(napi_env env, napi_callback_info info)
             return UniError(ESRCH);
         }
         vector<FileInfo> fileRes;
-        int err = client->ListFile(type, path, option.offset, option.count, fileRes);
+        int err = client->ListFile(type, path, option, fileRes);
+
         arg->fileRes_ = fileRes;
         return DealWithErrno(err);
     };
@@ -266,10 +289,10 @@ napi_value FileManagerNapi::ListFile(napi_env env, napi_callback_info info)
     string procedureName = "ListFile";
     int argc = funcArg.GetArgc();
     NVal thisVar(env, funcArg.GetThisVar());
-    if (argc == LIST_FILE_PARA_MIN || (argc != LIST_FILE_PARA_MAX && option.hasOp)) {
+    if (argc == LIST_FILE_PARA_MIN || (argc != LIST_FILE_PARA_MAX && option.GetHasOpt())) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        int cbIdx = ((!option.hasOp) ? ListFileArgs::LF_CALLBACK_WITHOUT_OP : ListFileArgs::LF_CALLBACK_WITH_OP);
+        int cbIdx = ((!option.GetHasOpt()) ? ListFileArgs::LF_CALLBACK_WITHOUT_OP : ListFileArgs::LF_CALLBACK_WITH_OP);
         NVal cb(env, funcArg[cbIdx]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
@@ -282,7 +305,7 @@ napi_value FileManagerNapi::Mkdir(napi_env env, napi_callback_info info)
 
 bool FileManagerNapi::Export()
 {
-    return exports_.AddProp({
+    return exports_.AddProp( {
         NVal::DeclareNapiFunction("listFile", ListFile),
         NVal::DeclareNapiFunction("createFile", CreateFile),
         NVal::DeclareNapiFunction("getRoot", GetRoot),

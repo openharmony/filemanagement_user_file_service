@@ -15,6 +15,7 @@
 
 #include "oper_factory.h"
 
+#include "external_storage_oper.h"
 #include "file_manager_service_def.h"
 #include "file_oper.h"
 #include "log.h"
@@ -33,8 +34,7 @@ unique_ptr<FileOper> OperFactory::GetFileOper(int equipmentId)
             break;
         }
         case Equipment::EXTERNAL_STORAGE: {
-            DEBUG_LOG("FileOper exter %{public}d %{public}d.", Equipment::EXTERNAL_STORAGE, equipmentId);
-            // do Exteranl storage process;
+            fp = make_unique<ExternalStorageOper>();
             break;
         }
         default: {
