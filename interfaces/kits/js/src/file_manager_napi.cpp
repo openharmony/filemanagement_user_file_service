@@ -31,7 +31,7 @@ using namespace std;
 using namespace DistributedFS;
 struct AsyncFileInfoArg {
     NRef ref_;
-    vector<FileInfo> fileRes_;
+    vector<unique_ptr<FileInfo>> fileRes_;
     explicit AsyncFileInfoArg(NVal ref) : ref_(ref), fileRes_() {};
     ~AsyncFileInfoArg() = default;
 };
@@ -127,13 +127,13 @@ void CreateFileArray(napi_env env, shared_ptr<AsyncFileInfoArg> arg)
 {
     for (unsigned int i = 0; i < arg->fileRes_.size(); i++) {
         NVal obj = NVal::CreateObject(env);
-        FileInfo res = arg->fileRes_[i];
-        obj.AddProp("name", NVal::CreateUTF8String(env, res.GetName()).val_);
-        obj.AddProp("path", NVal::CreateUTF8String(env, res.GetPath()).val_);
-        obj.AddProp("type", NVal::CreateUTF8String(env, res.GetType()).val_);
-        obj.AddProp("size", NVal::CreateInt64(env, res.GetSize()).val_);
-        obj.AddProp("added_time", NVal::CreateInt64(env, res.GetAddedTime()).val_);
-        obj.AddProp("modified_time", NVal::CreateInt64(env, res.GetModifiedTime()).val_);
+        unique_ptr<FileInfo> &res = arg->fileRes_[i];
+        obj.AddProp("name", NVal::CreateUTF8String(env, res->GetName()).val_);
+        obj.AddProp("path", NVal::CreateUTF8String(env, res->GetPath()).val_);
+        obj.AddProp("type", NVal::CreateUTF8String(env, res->GetType()).val_);
+        obj.AddProp("size", NVal::CreateInt64(env, res->GetSize()).val_);
+        obj.AddProp("added_time", NVal::CreateInt64(env, res->GetAddedTime()).val_);
+        obj.AddProp("modified_time", NVal::CreateInt64(env, res->GetModifiedTime()).val_);
         napi_set_property(env, arg->ref_.Deref(env).val_, NVal::CreateInt32(env, i).val_, obj.val_);
     }
 }
@@ -155,9 +155,7 @@ napi_value FileManagerNapi::GetRoot(napi_env env, napi_callback_info info)
         if (!succ) {
             return UniError(ESRCH);
         }
-        vector<FileInfo> fileRes;
-        int err = client->GetRoot("local", fileRes);
-        arg->fileRes_ = fileRes;
+        int err = client->GetRoot("local", arg->fileRes_);
         return DealWithErrno(err);
     };
     auto cbComplete = [arg](napi_env env, UniError err) -> NVal {
@@ -271,10 +269,7 @@ napi_value FileManagerNapi::ListFile(napi_env env, napi_callback_info info)
         if (!succ) {
             return UniError(ESRCH);
         }
-        vector<FileInfo> fileRes;
-        int err = client->ListFile(type, path, option, fileRes);
-
-        arg->fileRes_ = fileRes;
+        int err = client->ListFile(type, path, option, arg->fileRes_);
         return DealWithErrno(err);
     };
 

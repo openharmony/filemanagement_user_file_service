@@ -29,9 +29,9 @@ public:
     virtual ~FileManagerProxy() = default;
     int Mkdir(const std::string &name, const std::string &path) override;
     int ListFile(const std::string &type, const std::string &path, const CmdOptions &option,
-        std::vector<FileInfo> &fileRes) override;
+        std::vector<std::unique_ptr<FileInfo>> &fileRes) override;
     int CreateFile(const std::string &name, const std::string &path, std::string &uri) override;
-    int GetRoot(const std::string &devName, std::vector<FileInfo> &fileRes) override;
+    int GetRoot(const std::string &devName, std::vector<std::unique_ptr<FileInfo>> &fileRes) override;
 private:
     static inline BrokerDelegator<FileManagerProxy> delegator_;
 };
