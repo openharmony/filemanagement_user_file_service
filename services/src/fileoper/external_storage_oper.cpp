@@ -23,6 +23,7 @@
 #include "file_manager_service_errno.h"
 #include "log.h"
 
+using namespace std;
 namespace OHOS {
 namespace FileManagerService {
 int ExternalStorageOper::OperProcess(uint32_t code, MessageParcel &data, MessageParcel &reply) const
@@ -48,12 +49,24 @@ int ExternalStorageOper::OperProcess(uint32_t code, MessageParcel &data, Message
             errCode = this->CreateFile(uri, name, reply);
             break;
         }
+        case Operation::GET_ROOT: {
+            string path = data.ReadString();
+            // name for extension
+            string name = "name";
+            errCode = GetRoot(path, name, reply);
+            break;
+        }
         default: {
             DEBUG_LOG("not valid code %{public}d.", code);
             break;
         }
     }
     return errCode;
+}
+
+int ExternalStorageOper::GetRoot(const std::string &path, const std::string &name, MessageParcel &reply) const
+{
+    return ExternalStorageUtils::DoGetRoot(path, name, reply);
 }
 
 int ExternalStorageOper::CreateFile(const std::string &uri, const std::string &name, MessageParcel &reply) const

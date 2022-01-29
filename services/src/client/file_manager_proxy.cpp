@@ -28,14 +28,35 @@ namespace FileManagerService {
 FileManagerProxy::FileManagerProxy(const sptr<IRemoteObject> &impl)
     : IRemoteProxy<IFileManagerService>(impl) {}
 
-int FileManagerProxy::GetRoot(const std::string &devName, vector<FileInfo> &fileRes) const
+int FileManagerProxy::GetRoot(const std::string &devName, vector<FileInfo> &fileRes)
 {
-    // currently getRoot don't need to sendReq
-    fileRes.emplace_back(IMAGE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
-    fileRes.emplace_back(VIDEO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
-    fileRes.emplace_back(AUDIO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
-    fileRes.emplace_back(FILE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
-    return SUCCESS;
+    if (devName == "external_storage") {
+        MessageParcel data;
+        data.WriteString(devName);
+        MessageParcel reply;
+        MessageOption option;
+        int code = (Equipment::EXTERNAL_STORAGE << EQUIPMENT_SHIFT) | Operation::GET_ROOT;
+        int err = Remote()->SendRequest(code, data, reply, option);
+        if (err != ERR_NONE) {
+            ERR_LOG("GetRoot inner error send request fail %{public}d", err);
+            return FAIL;
+        }
+        int count = 0;
+        reply.ReadInt32(count);
+        for (int i = 0; i < count; i++) {
+            string rootPath;
+            reply.ReadString(rootPath);
+            fileRes.emplace_back(FILE_ROOT_NAME, rootPath, ALBUM_TYPE);
+        }
+        reply.ReadInt32(err);
+        return err;
+    } else {
+        fileRes.emplace_back(IMAGE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+        fileRes.emplace_back(VIDEO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+        fileRes.emplace_back(AUDIO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+        fileRes.emplace_back(FILE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+        return SUCCESS;
+    }
 }
 
 int FileManagerProxy::CreateFile(const string &name, const string &path, string &uri)

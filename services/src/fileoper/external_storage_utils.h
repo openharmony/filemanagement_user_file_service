@@ -31,6 +31,7 @@ public:
     static int DoListFile(const std::string &type, const std::string &uri, MessageParcel &reply);
     static int DoCreateFile(const std::string &uri, const std::string &name, MessageParcel &reply);
     static bool PopFileInfo(FileInfo &fileInfo, MessageParcel &reply);
+    static int DoGetRoot(const std::string &path, const std::string &name, MessageParcel &reply);
 };
 } // namespace FileManagerService
 } // namespace OHOS

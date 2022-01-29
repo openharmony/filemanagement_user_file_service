@@ -39,12 +39,17 @@ ohos_shared_library("fms_server") {
     "$FMS_BASE_DIR/src/fileoper",
     "$FMS_BASE_DIR/include/fileoper",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits/include/hilog",
+    "//foundation/filemanagement/storage_service/services/storage_manager/include",
+    "//foundation/filemanagement/storage_service/interfaces/innerkits/storage_manager/native",
   ]
 
   sources = [
     "src/client/file_manager_proxy.cpp",
+    "src/fileoper/ext_storage/ext_storage_subscriber.cpp",
+    "src/fileoper/ext_storage/storage_manager_inf.cpp",
     "src/fileoper/external_storage_oper.cpp",
     "src/fileoper/external_storage_utils.cpp",
+    "src/fileoper/file_info.cpp",
     "src/fileoper/media_file_oper.cpp",
     "src/fileoper/media_file_utils.cpp",
     "src/fileoper/oper_factory.cpp",
@@ -54,10 +59,13 @@ ohos_shared_library("fms_server") {
 
   deps = [
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
+    "//base/notification/ans_standard/frameworks/wantagent:wantagent_innerkits",
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/aafwk/standard/interfaces/innerkits/base:base",
     "//foundation/aafwk/standard/interfaces/innerkits/dataobs_manager:dataobs_manager",
     "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
+    "//foundation/filemanagement/storage_service/interfaces/innerkits/storage_manager/native:storage_manager_sa_proxy",
+    "//foundation/filemanagement/storage_service/services/storage_manager:storage_manager",
     "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/media_library:media_library",
     "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/medialibrary_data_ability:medialibrary_data_ability",
     "//utils/native/base:utils",
@@ -68,6 +76,8 @@ ohos_shared_library("fms_server") {
   }
   external_deps = [
     "ability_runtime:ability_manager",
+    "ability_runtime:want",
+    "ces_standard:cesfwk_innerkits",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "native_appdatamgr:native_appdatafwk",

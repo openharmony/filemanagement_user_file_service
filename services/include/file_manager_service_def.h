@@ -35,6 +35,13 @@ enum Equipment {
     EXTERNAL_STORAGE
 };
 
+enum VolumeState {
+    UNMOUNTED = 0,
+    CHECKING,
+    MOUNTED,
+    EJECTING
+};
+
 constexpr int32_t CODE_MASK = 0xff;
 constexpr int32_t EQUIPMENT_SHIFT = 16;
 
@@ -47,6 +54,9 @@ const std::string FILE_ROOT_NAME = "file_folder";
 
 const std::string ALBUM_TYPE = "album";
 const std::string FILE_MIME_TYPE = "file/*";
+
+const std::string EXTERNAL_STORAGE_URI = "dataability:///external_storage";
+
 constexpr int FILE_MEDIA_TYPE = Media::MediaType::MEDIA_TYPE_FILE;
 constexpr int RESULTSET_EMPTY = 0;
 constexpr int RESULTSET_ONE = 1;
