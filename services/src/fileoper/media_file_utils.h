@@ -28,7 +28,7 @@ class MediaFileUtils  {
 public:
     MediaFileUtils();
     ~MediaFileUtils();
-    static int DoListFile(const std::string type, const std::string &path, int offset, int count,
+    static int DoListFile(const std::string &type, const std::string &path, int offset, int count,
         std::shared_ptr<NativeRdb::AbsSharedResultSet> &result);
     static std::shared_ptr<NativeRdb::AbsSharedResultSet> DoQuery(std::string selection,
         std::vector<std::string> selectionArgs);

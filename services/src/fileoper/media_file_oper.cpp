@@ -77,7 +77,7 @@ int MediaFileOper::CreateFile(const std::string &name, const std::string &path, 
     return MediaFileUtils::DoInsert(name, path, type, uri);
 }
 
-int MediaFileOper::ListFile(const string type, const string &path, int offset, int count, MessageParcel &reply) const
+int MediaFileOper::ListFile(const string &type, const string &path, int offset, int count, MessageParcel &reply) const
 {
     shared_ptr<NativeRdb::AbsSharedResultSet> result;
     int res = MediaFileUtils::DoListFile(type, path, offset, count, result);

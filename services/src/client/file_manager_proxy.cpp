@@ -89,7 +89,7 @@ int FileManagerProxy::ListFile(const std::string &type, const std::string &path,
     data.WriteInt32(count);
     MessageParcel reply;
     MessageOption messageOption;
-    uint32_t code = Equipment::INTERNAL_STORAGE;
+    uint32_t code = Operation::LIST_FILE;
     if (op.GetDevInfo().GetName() == "external_storage") {
         code = (Equipment::EXTERNAL_STORAGE << EQUIPMENT_SHIFT) | Operation::LIST_FILE;
     }
