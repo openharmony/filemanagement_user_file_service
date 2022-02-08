@@ -360,18 +360,23 @@ bool MediaFileUtils::PushFileInfo(shared_ptr<NativeRdb::AbsSharedResultSet> resu
     result->GetString(mediaTableMap[index++].first, id);
     string uri;
     result->GetString(mediaTableMap[index++].first, uri);
-    reply.WriteString(uri + "/" + id);
-    for (int i = index; i < mediaTableMap.size(); i++) {
-        if (mediaTableMap[i].second == "string") {
-            string value;
-            result->GetString(mediaTableMap[i].first, value);
-            reply.WriteString(value);
-        } else {
-            int64_t value;
-            result->GetLong(mediaTableMap[i].first, value);
-            reply.WriteInt64(value);
-        }
-    }
+    unique_ptr<FileInfo> file = make_unique<FileInfo>();
+    string path = uri + "/" + id;
+    file->SetPath(path);
+    string type;
+    result->GetString(mediaTableMap[index++].first, type);
+    file->SetType(type);
+    string name;
+    result->GetString(mediaTableMap[index++].first, name);
+    file->SetName(name);
+    int64_t value;
+    result->GetLong(mediaTableMap[index++].first, value);
+    file->SetSize(value);
+    result->GetLong(mediaTableMap[index++].first, value);
+    file->SetAddedTime(value);
+    result->GetLong(mediaTableMap[index++].first, value);
+    file->SetModifiedTime(value);
+    reply.WriteParcelable(file.get());
     return true;
 }
 

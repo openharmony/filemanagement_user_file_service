@@ -27,8 +27,7 @@ namespace OHOS {
 namespace FileManagerService {
 FileManagerProxy::FileManagerProxy(const sptr<IRemoteObject> &impl)
     : IRemoteProxy<IFileManagerService>(impl) {}
-
-int FileManagerProxy::GetRoot(const std::string &devName, vector<FileInfo> &fileRes)
+int FileManagerProxy::GetRoot(const std::string &devName, vector<unique_ptr<FileInfo>> &fileRes)
 {
     if (devName == "external_storage") {
         MessageParcel data;
@@ -46,15 +45,20 @@ int FileManagerProxy::GetRoot(const std::string &devName, vector<FileInfo> &file
         for (int i = 0; i < count; i++) {
             string rootPath;
             reply.ReadString(rootPath);
-            fileRes.emplace_back(FILE_ROOT_NAME, rootPath, ALBUM_TYPE);
+            unique_ptr<FileInfo> file = make_unique<FileInfo>(FILE_ROOT_NAME, rootPath, ALBUM_TYPE);
+            fileRes.emplace_back(move(file));
         }
         reply.ReadInt32(err);
         return err;
     } else {
-        fileRes.emplace_back(IMAGE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
-        fileRes.emplace_back(VIDEO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
-        fileRes.emplace_back(AUDIO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
-        fileRes.emplace_back(FILE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+        unique_ptr<FileInfo> image = make_unique<FileInfo>(IMAGE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+        fileRes.emplace_back(move(image));
+        unique_ptr<FileInfo> video = make_unique<FileInfo>(VIDEO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+        fileRes.emplace_back(move(video));
+        unique_ptr<FileInfo> audio = make_unique<FileInfo>(AUDIO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+        fileRes.emplace_back(move(audio));
+        unique_ptr<FileInfo> file = make_unique<FileInfo>(FILE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+        fileRes.emplace_back(move(file));
         return SUCCESS;
     }
 }
@@ -93,7 +97,7 @@ IFmsClient *IFmsClient::GetFmsInstance()
 }
 
 int FileManagerProxy::ListFile(const std::string &type, const std::string &path, const CmdOptions &option,
-    std::vector<FileInfo> &fileRes)
+    std::vector<unique_ptr<FileInfo>> &fileRes)
 {
     MessageParcel data;
     CmdOptions op(option);
@@ -122,9 +126,8 @@ int FileManagerProxy::ListFile(const std::string &type, const std::string &path,
     int fileInfoNum = 0;
     reply.ReadInt32(fileInfoNum);
     while (fileInfoNum) {
-        FileInfo file;
-        MediaFileUtils::PopFileInfo(file, reply);
-        fileRes.emplace_back(file);
+        unique_ptr<FileInfo> file(reply.ReadParcelable<FileInfo>());
+        fileRes.emplace_back(move(file));
         fileInfoNum--;
     }
     reply.ReadInt32(err);

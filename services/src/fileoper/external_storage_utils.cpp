@@ -59,7 +59,7 @@ static bool GetRealPath(string &path)
     return true;
 }
 
-static bool GetFileInfo(const std::string &path, const std::string &name, FileInfo &fileInfo)
+static bool GetFileInfo(const std::string &path, const std::string &name, unique_ptr<FileInfo> &fileInfo)
 {
     std::string fullPath("");
     fullPath.append(path).append("/").append(name);
@@ -71,13 +71,13 @@ static bool GetFileInfo(const std::string &path, const std::string &name, FileIn
     std::string fPath(path.c_str());
     std::string fName(name.c_str());
 
-    fileInfo.SetPath(fPath);
+    fileInfo->SetPath(fPath);
     std::string type = "file";
-    fileInfo.SetType(type);
-    fileInfo.SetName(fName);
-    fileInfo.SetSize(st.st_size);
-    fileInfo.SetAddedTime(static_cast<long>(st.st_ctim.tv_sec));
-    fileInfo.SetModifiedTime(static_cast<long>(st.st_mtim.tv_sec));
+    fileInfo->SetType(type);
+    fileInfo->SetName(fName);
+    fileInfo->SetSize(st.st_size);
+    fileInfo->SetAddedTime(static_cast<long>(st.st_ctim.tv_sec));
+    fileInfo->SetModifiedTime(static_cast<long>(st.st_mtim.tv_sec));
     return true;
 }
 
@@ -113,16 +113,16 @@ int ExternalStorageUtils::DoListFile(const std::string &type, const std::string 
         ERR_LOG("opendir path[%{public}s] fail.", path.c_str());
         return E_NOEXIST;
     }
-    std::vector<FileInfo> fileList;
+    std::vector<unique_ptr<FileInfo>> fileList;
     for (struct dirent *ent = readdir(dir); ent != nullptr; ent = readdir(dir)) {
         if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) {
             continue;
         }
-        FileInfo fileInfo;
+        unique_ptr<FileInfo> fileInfo = make_unique<FileInfo>();
         if (!GetFileInfo(path, ent->d_name, fileInfo)) {
             continue;
         }
-        fileList.push_back(fileInfo);
+        fileList.push_back(move(fileInfo));
     }
     closedir(dir);
     int fileCount = static_cast<int32_t>(fileList.size());
@@ -130,13 +130,8 @@ int ExternalStorageUtils::DoListFile(const std::string &type, const std::string 
     if (fileCount == 0) {
         return E_EMPTYFOLDER;
     }
-    for (auto file : fileList) {
-        reply.WriteString(file.GetPath());
-        reply.WriteString(file.GetType());
-        reply.WriteString(file.GetName());
-        reply.WriteInt64(file.GetSize());
-        reply.WriteInt64(file.GetAddedTime());
-        reply.WriteInt64(file.GetModifiedTime());
+    for (int i = 0; i < fileCount; i++) {
+        reply.WriteParcelable(fileList[i].get());
     }
     return SUCCESS;
 }
