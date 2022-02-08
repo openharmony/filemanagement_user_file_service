@@ -31,7 +31,7 @@ public:
     int ListFile(const std::string &type, const std::string &path, const CmdOptions &option,
         std::vector<FileInfo> &fileRes) override;
     int CreateFile(const std::string &name, const std::string &path, std::string &uri) override;
-    int GetRoot(const std::string &devName, std::vector<FileInfo> &fileRes) const override;
+    int GetRoot(const std::string &devName, std::vector<FileInfo> &fileRes) override;
 private:
     static inline BrokerDelegator<FileManagerProxy> delegator_;
 };

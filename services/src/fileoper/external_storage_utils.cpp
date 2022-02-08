@@ -15,21 +15,50 @@
 
 #include "external_storage_utils.h"
 
-#include <cstring>
-#include <unordered_map>
-
 #include <cerrno>
+#include <cstring>
 #include <dirent.h>
 #include <fcntl.h>
+#include <securec.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <unordered_map>
 
 #include "file_manager_service_def.h"
 #include "file_manager_service_errno.h"
 #include "log.h"
-
+#include "storage_manager_inf.h"
+using namespace std;
+using namespace OHOS::StorageManager;
 namespace OHOS {
 namespace FileManagerService {
+static bool GetPathFromUri(const string &uri, string &path)
+{
+    uint len = EXTERNAL_STORAGE_URI.size();
+    string head = uri.substr(0, len);
+    if (head != EXTERNAL_STORAGE_URI) {
+        ERR_LOG("invalid format uri %{public}s, head check fail", uri.c_str());
+        return false;
+    }
+    if (uri.size() == len) {
+        ERR_LOG("uri content is invalid %{public}s", uri.c_str());
+        return false;
+    }
+    path = uri.substr(len);
+    return true;
+}
+
+static bool GetRealPath(string &path)
+{
+    char filePath[PATH_MAX + 1] = { 0 };
+    if (realpath(path.c_str(), filePath) == nullptr) {
+        ERR_LOG("untrustPath invalid %{public}d %{public}s \n", errno, strerror(errno));
+        return false;
+    }
+    path = string(filePath);
+    return true;
+}
+
 static bool GetFileInfo(const std::string &path, const std::string &name, FileInfo &fileInfo)
 {
     std::string fullPath("");
@@ -54,7 +83,20 @@ static bool GetFileInfo(const std::string &path, const std::string &name, FileIn
 
 static bool ConvertUriToAbsolutePath(const std::string &uri, std::string &path)
 {
-    path = "/data/media";
+    if (!GetPathFromUri(uri, path)) {
+        ERR_LOG("GetPathFromUri fail");
+        return false;
+    }
+    if (!GetRealPath(path)) {
+        ERR_LOG("get real path fail");
+        return false;
+    }
+#ifdef VOLUME_ENABLE
+    if (!StorageManagerInf::StoragePathValidCheck(path)) {
+        ERR_LOG("external uri path was ejected");
+        return false;
+    }
+#endif
     return true;
 }
 
@@ -121,6 +163,23 @@ int ExternalStorageUtils::DoCreateFile(const std::string &uri, const std::string
     close(fd);
 
     reply.WriteString(uri);
+    return SUCCESS;
+}
+
+int ExternalStorageUtils::DoGetRoot(const std::string &path, const std::string &name, MessageParcel &reply)
+{
+    vector<string> vecRootPath;
+#ifdef VOLUME_ENABLE
+    if (!StorageManagerInf::GetMountedVolumes(vecRootPath)) {
+        ERR_LOG("there is valid extorage storage");
+        reply.WriteInt32(0);
+        return FAIL;
+    }
+#endif
+    reply.WriteInt32(vecRootPath.size());
+    for (auto path : vecRootPath) {
+        reply.WriteString(path);
+    }
     return SUCCESS;
 }
 

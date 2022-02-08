@@ -25,7 +25,7 @@ public:
     virtual int Mkdir(const std::string &name, const std::string &path) = 0;
     virtual int ListFile(const std::string &type, const std::string &path, const CmdOptions &option,
         std::vector<FileInfo> &fileRes) = 0;
-    virtual int GetRoot(const std::string &devName, std::vector<FileInfo> &fileRes) const = 0;
+    virtual int GetRoot(const std::string &devName, std::vector<FileInfo> &fileRes) = 0;
     virtual int CreateFile(const std::string &name, const std::string &path, std::string &uri) = 0;
 };
 } // namespace FileManagerService {

@@ -17,14 +17,11 @@
 
 #include <cstdint>
 #include <string>
-#include "ipc_types.h"
-#include "iremote_broker.h"
-#include "iremote_proxy.h"
-#include "iremote_stub.h"
+#include "parcel.h"
 
 namespace OHOS {
 namespace FileManagerService {
-class FileInfo {
+class FileInfo : public Parcelable {
 public:
     FileInfo(const std::string &name, const std::string &path, const std::string &type) : path_(path),
         name_(name), type_(type) {}
@@ -79,6 +76,8 @@ public:
     {
         return modifiedTime_;
     }
+    bool Marshalling(Parcel &parcel) const override;
+    static FileInfo* Unmarshalling(Parcel &parcel);
 private:
     std::string path_;
     std::string name_;
