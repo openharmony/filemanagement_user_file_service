@@ -42,8 +42,6 @@ bool ExtStorageSubscriber::Subscriber(void)
 {
     if (ExtStorageSubscriber_ == nullptr) {
         EventFwk::MatchingSkills matchingSkills;
-        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED);
-        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_DISK_REMOVED);
         matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_DISK_UNMOUNTED);
         matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_DISK_MOUNTED);
 
