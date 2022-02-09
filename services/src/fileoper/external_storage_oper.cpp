@@ -53,7 +53,7 @@ int ExternalStorageOper::OperProcess(uint32_t code, MessageParcel &data, Message
             string path = data.ReadString();
             // name for extension
             string name = "name";
-            errCode = GetRoot(path, name, reply);
+            errCode = GetRoot(name, path, reply);
             break;
         }
         default: {
@@ -64,9 +64,9 @@ int ExternalStorageOper::OperProcess(uint32_t code, MessageParcel &data, Message
     return errCode;
 }
 
-int ExternalStorageOper::GetRoot(const std::string &path, const std::string &name, MessageParcel &reply) const
+int ExternalStorageOper::GetRoot(const std::string &name, const std::string &path, MessageParcel &reply) const
 {
-    return ExternalStorageUtils::DoGetRoot(path, name, reply);
+    return ExternalStorageUtils::DoGetRoot(name, path, reply);
 }
 
 int ExternalStorageOper::CreateFile(const std::string &uri, const std::string &name, MessageParcel &reply) const

@@ -27,15 +27,16 @@ namespace OHOS {
 namespace FileManagerService {
 FileManagerProxy::FileManagerProxy(const sptr<IRemoteObject> &impl)
     : IRemoteProxy<IFileManagerService>(impl) {}
-int FileManagerProxy::GetRoot(const std::string &devName, vector<unique_ptr<FileInfo>> &fileRes)
+int FileManagerProxy::GetRoot(const CmdOptions &option, vector<unique_ptr<FileInfo>> &fileRes)
 {
-    if (devName == "external_storage") {
+    CmdOptions op(option);
+    if (op.GetDevInfo().GetName() == "external_storage") {
         MessageParcel data;
-        data.WriteString(devName);
+        data.WriteString(op.GetDevInfo().GetName());
         MessageParcel reply;
-        MessageOption option;
+        MessageOption messageOption;
         int code = (Equipment::EXTERNAL_STORAGE << EQUIPMENT_SHIFT) | Operation::GET_ROOT;
-        int err = Remote()->SendRequest(code, data, reply, option);
+        int err = Remote()->SendRequest(code, data, reply, messageOption);
         if (err != ERR_NONE) {
             ERR_LOG("GetRoot inner error send request fail %{public}d", err);
             return FAIL;
@@ -63,14 +64,20 @@ int FileManagerProxy::GetRoot(const std::string &devName, vector<unique_ptr<File
     }
 }
 
-int FileManagerProxy::CreateFile(const string &name, const string &path, string &uri)
+int FileManagerProxy::CreateFile(const std::string &path, const std::string &fileName,
+    const CmdOptions &option, std::string &uri)
 {
     MessageParcel data;
-    data.WriteString(name);
+    data.WriteString(fileName);
     data.WriteString(path);
     MessageParcel reply;
-    MessageOption option;
-    int err = Remote()->SendRequest(Operation::CREATE_FILE, data, reply, option);
+    MessageOption messageOption;
+    int code = Operation::CREATE_FILE;
+    CmdOptions op(option);
+    if (op.GetDevInfo().GetName() == "external_storage") {
+        code = (Equipment::EXTERNAL_STORAGE << EQUIPMENT_SHIFT) | Operation::CREATE_FILE;
+    }
+    int err = Remote()->SendRequest(code, data, reply, messageOption);
     if (err != ERR_NONE) {
         ERR_LOG("inner error send request fail %{public}d", err);
         return FAIL;

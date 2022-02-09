@@ -73,6 +73,61 @@ UniError DealWithErrno(int err)
     }
 }
 
+bool GetDevInfoArg(const NVal &prop, DevInfo &dev)
+{
+    if (prop.HasProp("name")) {
+        bool ret = false;
+        unique_ptr<char[]> name;
+        tie(ret, name, ignore) = prop.GetProp("name").ToUTF8String();
+        if (!ret) {
+            return false;
+        }
+        dev.SetName(std::string(name.get()));
+    }
+    return true;
+}
+
+tuple<bool, unique_ptr<char[]>, unique_ptr<char[]>, CmdOptions> GetCreateFileArgs(napi_env env, NFuncArg &funcArg)
+{
+    bool succ = false;
+    unique_ptr<char[]> path;
+    unique_ptr<char[]> fileName;
+    CmdOptions option("local", "", 0, 0, false);
+    tie(succ, path, ignore) = NVal(env, funcArg[CreateFileArgs::CF_PATH]).ToUTF8String();
+    if (!succ) {
+        return {false, nullptr, nullptr, option};
+    }
+    tie(succ, fileName, ignore) = NVal(env, funcArg[CreateFileArgs::CF_FILENAME]).ToUTF8String();
+    if (!succ) {
+        return {false, nullptr, nullptr, option};
+    }
+
+    if (funcArg.GetArgc() < CreateFileArgs::CF_OPTION) {
+        return {false, nullptr, nullptr, option};
+    }
+
+    NVal op(env, NVal(env, funcArg[CreateFileArgs::CF_OPTION]).val_);
+    if (op.TypeIs(napi_function)) {
+        return {true, move(path), move(fileName), option};
+    }
+
+    option.SetHasOpt(true);
+    if (!op.HasProp("dev")) {
+        return {true, move(path), move(fileName), option};
+    }
+
+    NVal prop(op.GetProp("dev"));
+    DevInfo dev("local", "");
+    if (!GetDevInfoArg(prop, dev)) {
+        ERR_LOG("CreateFile func get dev para fails");
+        option.SetDevInfo(dev);
+        return {false, nullptr, nullptr, option};
+    }
+
+    option.SetDevInfo(dev);
+    return {true, move(path), move(fileName), option};
+}
+
 napi_value FileManagerNapi::CreateFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
@@ -81,20 +136,17 @@ napi_value FileManagerNapi::CreateFile(napi_env env, napi_callback_info info)
         return nullptr;
     }
     bool succ = false;
-    unique_ptr<char[]> name;
     unique_ptr<char[]> path;
-    tie(succ, name, ignore) = NVal(env, funcArg[CreateFileArgs::CF_FILENAME]).ToUTF8String();
+    unique_ptr<char[]> fileName;
+    CmdOptions option;
+    tie(succ, path, fileName, option) = GetCreateFileArgs(env, funcArg);
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid name");
-        return nullptr;
-    }
-    tie(succ, path, ignore) = NVal(env, funcArg[CreateFileArgs::CF_PATH]).ToUTF8String();
-    if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Invalid path");
+        UniError(EINVAL).ThrowErr(env, "CreateFile func get args fails");
         return nullptr;
     }
     auto arg = make_shared<AsyncUriArg>(NVal(env, funcArg.GetThisVar()));
-    auto cbExec = [arg, name = string(name.get()), path = string(path.get())] (napi_env env) -> UniError {
+    auto cbExec = [arg, path = string(path.get()), fileName = string(fileName.get()), option = option]
+        (napi_env env) -> UniError {
         IFmsClient* client = nullptr;
         bool succ = false;
         tie(succ, client) = GetFmsClient();
@@ -102,7 +154,7 @@ napi_value FileManagerNapi::CreateFile(napi_env env, napi_callback_info info)
             return UniError(ESRCH);
         }
         string uri = "";
-        int err = client->CreateFile(name, path, arg->uri_);
+        int err = client->CreateFile(path, fileName, option, arg->uri_);
         return DealWithErrno(err);
     };
     auto cbComplete = [arg](napi_env env, UniError err) -> NVal {
@@ -115,10 +167,12 @@ napi_value FileManagerNapi::CreateFile(napi_env env, napi_callback_info info)
     string procedureName = "CreateFile";
     int argc = funcArg.GetArgc();
     NVal thisVar(env, funcArg.GetThisVar());
-    if (argc == CREATE_FILE_PARA_MIN) {
+    if (argc == CREATE_FILE_PARA_MIN || (argc != CREATE_FILE_PARA_MAX && option.GetHasOpt())) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[CreateFileArgs::CF_CALLBACK]);
+        int cbIdx = (!option.GetHasOpt() ?
+            CreateFileArgs::CF_CALLBACK_WITHOUT_OP : CreateFileArgs::CF_CALLBACK_WITH_OP);
+        NVal cb(env, funcArg[cbIdx]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
 }
@@ -138,6 +192,29 @@ void CreateFileArray(napi_env env, shared_ptr<AsyncFileInfoArg> arg)
     }
 }
 
+bool GetRootArgs(napi_env env, NFuncArg &funcArg, CmdOptions &option)
+{
+    NVal op(env, NVal(env, funcArg[GetRootArgs::GR_OPTION]).val_);
+    if (op.TypeIs(napi_function)) {
+        return true;
+    }
+
+    option.SetHasOpt(true);
+    if (!op.HasProp("dev")) {
+        return true;
+    }
+
+    NVal prop(op.GetProp("dev"));
+    DevInfo dev("local", "");
+    if (!GetDevInfoArg(prop, dev)) {
+        option.SetDevInfo(dev);
+        return false;
+    }
+
+    option.SetDevInfo(dev);
+    return true;
+}
+
 napi_value FileManagerNapi::GetRoot(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
@@ -145,17 +222,26 @@ napi_value FileManagerNapi::GetRoot(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Number of argments unmatched");
         return nullptr;
     }
+
+    CmdOptions option("local", "", 0, 0, false);
+    if (funcArg.GetArgc() != 0) {
+        if (!GetRootArgs(env, funcArg, option)) {
+            UniError(EINVAL).ThrowErr(env, "GetRoot func get dev para fails");
+            return nullptr;
+        }
+    }
+
     napi_value fileArr;
     napi_create_array(env, &fileArr);
     auto arg = make_shared<AsyncFileInfoArg>(NVal(env, fileArr));
-    auto cbExec = [arg] (napi_env env) -> UniError {
+    auto cbExec = [option = option, arg] (napi_env env) -> UniError {
         IFmsClient* client = nullptr;
         bool succ = false;
         tie(succ, client) = GetFmsClient();
         if (!succ) {
             return UniError(ESRCH);
         }
-        int err = client->GetRoot("local", arg->fileRes_);
+        int err = client->GetRoot(option, arg->fileRes_);
         return DealWithErrno(err);
     };
     auto cbComplete = [arg](napi_env env, UniError err) -> NVal {
@@ -169,28 +255,26 @@ napi_value FileManagerNapi::GetRoot(napi_env env, napi_callback_info info)
     string procedureName = "GetRoot";
     int argc = funcArg.GetArgc();
     NVal thisVar(env, funcArg.GetThisVar());
-    if (argc == GET_ROOT_PARA_MIN) {
+    if (argc == GET_ROOT_PARA_MIN || (argc != GET_ROOT_PARA_MAX && option.GetHasOpt())) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[GetRootArgs::GR_CALLBACK]);
+        int cbIdx = (!option.GetHasOpt() ? GetRootArgs::GR_CALLBACK_WITHOUT_OP : GetRootArgs::GR_CALLBACK_WITH_OP);
+        NVal cb(env, funcArg[cbIdx]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
 }
 
-bool GetLstFileOption(const NVal &argv, CmdOptions &option)
+bool GetListFileOption(const NVal &argv, CmdOptions &option)
 {
     bool ret = false;
     if (argv.HasProp("dev")) {
-        unique_ptr<char[]> devName;
-        NVal dev(argv.GetProp("dev"));
-        if (dev.HasProp("name")) {
-            tie(ret, devName, ignore) = dev.GetProp("name").ToUTF8String();
-            if (!ret) {
-                ERR_LOG("ListFileArgs LF_OPTION dev para fails");
-                return false;
-            }
-            option.SetDevInfo(DevInfo(devName.get(), ""));
+        NVal prop(argv.GetProp("dev"));
+        DevInfo dev("local", "");
+        if (!GetDevInfoArg(prop, dev)) {
+            option.SetDevInfo(dev);
+            return false;
         }
+        option.SetDevInfo(dev);
     }
     if (argv.HasProp("offset")) {
         int64_t offset;
@@ -219,7 +303,7 @@ tuple<bool, unique_ptr<char[]>, unique_ptr<char[]>, CmdOptions> GetListFileArg(
     bool succ = false;
     unique_ptr<char[]> path;
     unique_ptr<char[]> type;
-    CmdOptions option;
+    CmdOptions option("local", "", 0, 0, false);
     tie(succ, path, ignore) = NVal(env, funcArg[ListFileArgs::LF_PATH]).ToUTF8String();
     if (!succ) {
         ERR_LOG("ListFileArgs LF_PATH para fails");
@@ -236,7 +320,7 @@ tuple<bool, unique_ptr<char[]>, unique_ptr<char[]>, CmdOptions> GetListFileArg(
         return {true, move(type), move(path), option};
     }
     option.SetHasOpt(true);
-    if (!GetLstFileOption(op, option)) {
+    if (!GetListFileOption(op, option)) {
         return {false, nullptr, nullptr, option};
     }
     return {true, move(type), move(path), option};

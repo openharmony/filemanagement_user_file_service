@@ -39,7 +39,7 @@ public:
         return *this;
     }
 
-    std::string GetName()
+    std::string GetName() const
     {
         return name_;
     }
@@ -49,7 +49,7 @@ public:
         name_ = name;
     }
 
-    std::string GetPath()
+    std::string GetPath() const
     {
         return path_;
     }
@@ -80,7 +80,7 @@ public:
     CmdOptions(const CmdOptions &option) = default;
     CmdOptions& operator=(const CmdOptions& option) = default;
 
-    DevInfo GetDevInfo()
+    DevInfo GetDevInfo() const
     {
         return dev_;
     }
@@ -90,7 +90,7 @@ public:
         dev_ = dev;
     }
 
-    int64_t GetOffset()
+    int64_t GetOffset() const
     {
         return offset_;
     }
@@ -100,7 +100,7 @@ public:
         offset_ = offset;
     }
 
-    int64_t GetCount()
+    int64_t GetCount() const
     {
         return count_;
     }
@@ -110,7 +110,7 @@ public:
         count_ = count;
     }
 
-    bool GetHasOpt()
+    bool GetHasOpt() const
     {
         return hasOpt_;
     }
