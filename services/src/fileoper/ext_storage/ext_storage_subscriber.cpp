@@ -72,24 +72,16 @@ void ExtStorageSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &event
     DEBUG_LOG("%{public}s, diskId:%{public}s.", __func__, diskId.c_str());
     DEBUG_LOG("%{public}s, notifyCode:%{public}d.", __func__, notifyCode);
   
-    if (action == EventFwk::CommonEventSupport::COMMON_EVENT_DISK_MOUNTED)
-    {
+    if (action == EventFwk::CommonEventSupport::COMMON_EVENT_DISK_MOUNTED) {
         std::string fsUuid = AAFwk::String::Unbox(AAFwk::IString::Query(wantParams.GetParam("fsUuid")));
         std::string path = AAFwk::String::Unbox(AAFwk::IString::Query(wantParams.GetParam("path")));
         
-        DEBUG_LOG("%{public}s, id:%{public}s, diskId:%{public}s, fsUuid:%{public}s, path:%{public}s, notifyCode:%{public}d.",
-            __func__, id.c_str(), diskId.c_str(), fsUuid.c_str(), path.c_str(), notifyCode);
+        DEBUG_LOG("%{public}s, id:%{public}s, fsUuid:%{public}s, path:%{public}s.",
+            __func__, id.c_str(), fsUuid.c_str(), path.c_str());
 
         ExtStorageStatus extStatus(id, diskId, fsUuid, path, notifyCode);
         mountStatus.insert(std::pair<std::string, ExtStorageStatus>(path, extStatus));
     }
-
-    // for (auto iter = mountStatus.begin(); iter != mountStatus.end(); ++iter){
-    //     std::string diskId = iter->second.GetDiskId();
-    //     int32_t notifyCode = iter->second.GetNotifyCode();
-    //     DEBUG_LOG("%{public}s, path:%{public}s, diskId:%{public}s, notifyCode:%{public}d.", __func__, iter->first.c_str(), diskId.c_str(), notifyCode);
-    // }
-    
 }
 }  // namespace FileManagerService
 }  // namespace OHOS
