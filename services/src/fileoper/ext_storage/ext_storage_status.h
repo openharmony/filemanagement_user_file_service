@@ -17,6 +17,8 @@
 
 #include <string>
 
+#include "file_manager_service_def.h"
+
 namespace OHOS {
 namespace FileManagerService {
 class ExtStorageStatus {
@@ -24,8 +26,8 @@ public:
     ExtStorageStatus() = default;
     ~ExtStorageStatus() = default;
     ExtStorageStatus(const std::string &id, const std::string &diskId,
-        const std::string &fsUuid, const std::string &path, const int32_t notifyCode)
-        : id_(id), diskId_(diskId), fsUuid_(fsUuid), path_(path), notifyCode_(notifyCode) {}
+        const std::string &fsUuid, const std::string &path, const VolumeState &volumeState)
+        : id_(id), diskId_(diskId), fsUuid_(fsUuid), path_(path), volumeState_(volumeState) {}
     
     ExtStorageStatus(const ExtStorageStatus &extStatus)
     {
@@ -33,7 +35,7 @@ public:
         this->diskId_ = extStatus.diskId_;
         this->fsUuid_ = extStatus.fsUuid_;
         this->path_ = extStatus.path_;
-        this->notifyCode_ = extStatus.notifyCode_;
+        this->volumeState_ = extStatus.volumeState_;
     }
 
     ExtStorageStatus& operator=(const ExtStorageStatus &extStatus)
@@ -42,7 +44,7 @@ public:
         this->diskId_ = extStatus.diskId_;
         this->fsUuid_ = extStatus.fsUuid_;
         this->path_ = extStatus.path_;
-        this->notifyCode_ = extStatus.notifyCode_;
+        this->volumeState_ = extStatus.volumeState_;
         return *this;
     }
 
@@ -80,20 +82,20 @@ public:
     {
         return path_;
     }
-    
+
     void SetPath(const std::string &path)
     {
         path_ = path;
     }
 
-    int32_t GetNotifyCode()
+    VolumeState GetVolumeState()
     {
-        return notifyCode_;
+        return volumeState_;
     }
 
-    void SetNotifyCode(const int32_t &notifyCode)
+    void SetVolumeState(const VolumeState &volumeState)
     {
-        notifyCode_ = notifyCode;
+        volumeState_ = volumeState;
     }
 
 private:
@@ -101,7 +103,7 @@ private:
     std::string diskId_;
     std::string fsUuid_;
     std::string path_;
-    int32_t notifyCode_;
+    VolumeState volumeState_;
 };
 } // namespace FileManagerService
 } // namespace OHOS

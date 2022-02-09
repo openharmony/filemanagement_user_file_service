@@ -43,6 +43,8 @@ public:
      */
     virtual void OnReceiveEvent(const EventFwk::CommonEventData &eventData) override;
 
+    bool CheckMountPoint(const std::string &path);
+
     std::unordered_map<std::string, ExtStorageStatus> mountStatus;
 };
 }  // namespace FileManagerService
