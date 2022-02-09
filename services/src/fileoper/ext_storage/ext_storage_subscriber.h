@@ -15,10 +15,14 @@
 #ifndef STORAGE_FILE_SYS_EVENT_RECEIVER_H
 #define STORAGE_FILE_SYS_EVENT_RECEIVER_H
 
+#include <string>
+#include <unordered_map>
+
 #include "common_event_manager.h"
 #include "common_event_subscribe_info.h"
 #include "common_event_subscriber.h"
 #include "common_event_support.h"
+#include "ext_storage_status.h"
 #include "matching_skills.h"
 
 namespace OHOS {
@@ -38,6 +42,8 @@ public:
      * @param eventData Common event data.
      */
     virtual void OnReceiveEvent(const EventFwk::CommonEventData &eventData) override;
+
+    std::unordered_map<std::string, ExtStorageStatus> mountStatus;
 };
 }  // namespace FileManagerService
 }  // namespace OHOS

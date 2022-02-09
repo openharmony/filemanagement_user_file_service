@@ -22,6 +22,8 @@
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "log.h"
+#include "string_wrapper.h"
+#include "int_wrapper.h"
 #include "want.h"
 
 using namespace OHOS::AAFwk;
@@ -41,6 +43,9 @@ bool ExtStorageSubscriber::Subscriber(void)
     if (ExtStorageSubscriber_ == nullptr) {
         EventFwk::MatchingSkills matchingSkills;
         matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED);
+        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_DISK_REMOVED);
+        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_DISK_UNMOUNTED);
+        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_DISK_MOUNTED);
 
         EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
         ExtStorageSubscriber_ = std::make_shared<ExtStorageSubscriber>(subscribeInfo);
@@ -58,6 +63,33 @@ void ExtStorageSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &event
     const AAFwk::Want& want = eventData.GetWant();
     std::string action = want.GetAction();
     DEBUG_LOG("%{public}s, action:%{public}s.", __func__, action.c_str());
+
+    const AAFwk::WantParams wantParams = want.GetParams();
+    std::string id = AAFwk::String::Unbox(AAFwk::IString::Query(wantParams.GetParam("id")));
+    std::string diskId = AAFwk::String::Unbox(AAFwk::IString::Query(wantParams.GetParam("diskId")));
+    int32_t notifyCode = AAFwk::Integer::Unbox(AAFwk::IInteger::Query(wantParams.GetParam("notifyCode")));
+    DEBUG_LOG("%{public}s, id:%{public}s.", __func__, id.c_str());
+    DEBUG_LOG("%{public}s, diskId:%{public}s.", __func__, diskId.c_str());
+    DEBUG_LOG("%{public}s, notifyCode:%{public}d.", __func__, notifyCode);
+  
+    if (action == EventFwk::CommonEventSupport::COMMON_EVENT_DISK_MOUNTED)
+    {
+        std::string fsUuid = AAFwk::String::Unbox(AAFwk::IString::Query(wantParams.GetParam("fsUuid")));
+        std::string path = AAFwk::String::Unbox(AAFwk::IString::Query(wantParams.GetParam("path")));
+        
+        DEBUG_LOG("%{public}s, id:%{public}s, diskId:%{public}s, fsUuid:%{public}s, path:%{public}s, notifyCode:%{public}d.",
+            __func__, id.c_str(), diskId.c_str(), fsUuid.c_str(), path.c_str(), notifyCode);
+
+        ExtStorageStatus extStatus(id, diskId, fsUuid, path, notifyCode);
+        mountStatus.insert(std::pair<std::string, ExtStorageStatus>(path, extStatus));
+    }
+
+    // for (auto iter = mountStatus.begin(); iter != mountStatus.end(); ++iter){
+    //     std::string diskId = iter->second.GetDiskId();
+    //     int32_t notifyCode = iter->second.GetNotifyCode();
+    //     DEBUG_LOG("%{public}s, path:%{public}s, diskId:%{public}s, notifyCode:%{public}d.", __func__, iter->first.c_str(), diskId.c_str(), notifyCode);
+    // }
+    
 }
 }  // namespace FileManagerService
 }  // namespace OHOS
