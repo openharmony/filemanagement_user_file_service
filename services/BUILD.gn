@@ -62,7 +62,6 @@ ohos_shared_library("fms_server") {
     "//base/notification/ans_standard/frameworks/wantagent:wantagent_innerkits",
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/aafwk/standard/interfaces/innerkits/base:base",
-    "//foundation/aafwk/standard/interfaces/innerkits/dataobs_manager:dataobs_manager",
     "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/filemanagement/storage_service/interfaces/innerkits/storage_manager/native:storage_manager_sa_proxy",
     "//foundation/filemanagement/storage_service/services/storage_manager:storage_manager",
