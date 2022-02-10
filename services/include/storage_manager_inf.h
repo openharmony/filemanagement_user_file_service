@@ -19,19 +19,16 @@
 #include "ipc/storage_manager_proxy.h"
 #include "ipc/storage_manager.h"
 #include "istorage_manager.h"
-#define VOLUME_ENABLE
 namespace OHOS {
 namespace FileManagerService {
 class StorageManagerInf {
 public:
     StorageManagerInf() = default;
     ~StorageManagerInf() = default;
-#ifdef VOLUME_ENABLE
     static int Connect();
     static std::vector<StorageManager::VolumeExternal> GetAllVolumes();
     static bool GetMountedVolumes(std::vector<std::string> &vecRootPath);
     static bool StoragePathValidCheck(const std::string &path);
-#endif
 private:
     inline static sptr<StorageManager::IStorageManager> storageManager_;
 };

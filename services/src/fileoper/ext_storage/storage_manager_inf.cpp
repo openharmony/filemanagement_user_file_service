@@ -22,7 +22,6 @@
 using namespace std;
 namespace OHOS {
 namespace FileManagerService {
-#ifdef VOLUME_ENABLE
 static bool GetMountPointFromPath(const string &path, string &mountPoint)
 {
     size_t len = MOUNT_POINT_ROOT.size();
@@ -114,6 +113,5 @@ bool StorageManagerInf::StoragePathValidCheck(const string &path)
     }
     return succ;
 }
-#endif
 } // FileManagerService
 } // OHOS
