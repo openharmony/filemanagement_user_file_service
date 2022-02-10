@@ -40,11 +40,13 @@ public:
 
     ExtStorageStatus& operator=(const ExtStorageStatus &extStatus)
     {
-        this->id_ = extStatus.id_;
-        this->diskId_ = extStatus.diskId_;
-        this->fsUuid_ = extStatus.fsUuid_;
-        this->path_ = extStatus.path_;
-        this->volumeState_ = extStatus.volumeState_;
+        if (this != &extStatus) {
+            this->id_ = extStatus.id_;
+            this->diskId_ = extStatus.diskId_;
+            this->fsUuid_ = extStatus.fsUuid_;
+            this->path_ = extStatus.path_;
+            this->volumeState_ = extStatus.volumeState_;
+        }
         return *this;
     }
 
