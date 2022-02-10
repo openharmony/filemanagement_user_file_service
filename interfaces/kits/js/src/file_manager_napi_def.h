@@ -22,15 +22,17 @@
 namespace OHOS {
 namespace FileManagerService {
 enum CreateFileArgs {
-    CF_DEV = 0,
+    CF_PATH = 0,
     CF_FILENAME = 1,
-    CF_PATH = 2,
-    CF_CALLBACK = 3,
+    CF_OPTION = 2,
+    CF_CALLBACK_WITHOUT_OP = 2,
+    CF_CALLBACK_WITH_OP = 3,
 };
 
 enum GetRootArgs {
-    GR_DEV = 0,
-    GR_CALLBACK = 1,
+    GR_OPTION = 0,
+    GR_CALLBACK_WITHOUT_OP = 0,
+    GR_CALLBACK_WITH_OP = 1,
 };
 
 enum ListFileArgs {
@@ -42,9 +44,9 @@ enum ListFileArgs {
 };
 
 constexpr int CREATE_FILE_PARA_MAX = 4;
-constexpr int CREATE_FILE_PARA_MIN = 3;
+constexpr int CREATE_FILE_PARA_MIN = 2;
 constexpr int GET_ROOT_PARA_MAX = 2;
-constexpr int GET_ROOT_PARA_MIN = 1;
+constexpr int GET_ROOT_PARA_MIN = 0;
 constexpr int LIST_FILE_PARA_MAX = 4;
 constexpr int LIST_FILE_PARA_MIN = 2;
 } // namespace FileManagerService

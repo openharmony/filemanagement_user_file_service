@@ -61,18 +61,24 @@ static bool GetRealPath(string &path)
 
 static bool GetFileInfo(const std::string &path, const std::string &name, unique_ptr<FileInfo> &fileInfo)
 {
-    std::string fullPath("");
-    fullPath.append(path).append("/").append(name);
+    std::string fullPath(path);
+    size_t len = fullPath.size();
+    if (fullPath.at(len - 1) != '/') {
+        fullPath.append("/").append(name);
+    } else {
+        fullPath.append(name);
+    }
     struct stat st;
     if (lstat(fullPath.c_str(), &st) != 0) {
         ERR_LOG("check file info fail.");
         return false;
     }
-    std::string fPath(path.c_str());
+    std::string uri(EXTERNAL_STORAGE_URI);
     std::string fName(name.c_str());
 
-    fileInfo->SetPath(fPath);
-    std::string type = "file";
+    uri.append(fullPath);
+    fileInfo->SetPath(uri);
+    std::string type = S_ISDIR(st.st_mode) ? "album" : "file";
     fileInfo->SetType(type);
     fileInfo->SetName(fName);
     fileInfo->SetSize(st.st_size);
@@ -103,14 +109,17 @@ static bool ConvertUriToAbsolutePath(const std::string &uri, std::string &path)
 int ExternalStorageUtils::DoListFile(const std::string &type, const std::string &uri, MessageParcel &reply)
 {
     std::string path;
+    int fileCount = 0;
     if (!ConvertUriToAbsolutePath(uri, path)) {
         ERR_LOG("invalid uri[%{public}s].", uri.c_str());
+        reply.WriteInt32(fileCount);
         return E_NOEXIST;
     }
 
     DIR *dir = opendir(path.c_str());
     if (!dir) {
         ERR_LOG("opendir path[%{public}s] fail.", path.c_str());
+        reply.WriteInt32(fileCount);
         return E_NOEXIST;
     }
     std::vector<unique_ptr<FileInfo>> fileList;
@@ -125,7 +134,7 @@ int ExternalStorageUtils::DoListFile(const std::string &type, const std::string 
         fileList.push_back(move(fileInfo));
     }
     closedir(dir);
-    int fileCount = static_cast<int32_t>(fileList.size());
+    fileCount = static_cast<int32_t>(fileList.size());
     reply.WriteInt32(fileCount);
     if (fileCount == 0) {
         return E_EMPTYFOLDER;
@@ -143,8 +152,12 @@ int ExternalStorageUtils::DoCreateFile(const std::string &uri, const std::string
         ERR_LOG("invalid uri[%{public}s].", uri.c_str());
         return E_NOEXIST;
     }
-
-    path.append("/").append(name);
+    size_t len = path.size();
+    if (path.at(len -1) != '/') {
+        path.append("/").append(name);
+    } else {
+        path.append(name);
+    }
     if (access(path.c_str(), F_OK) == 0) {
         ERR_LOG("target file[%{public}s] exist.", path.c_str());
         return E_CREATE_FAIL;
@@ -157,11 +170,13 @@ int ExternalStorageUtils::DoCreateFile(const std::string &uri, const std::string
     }
     close(fd);
 
-    reply.WriteString(uri);
+    std::string fullUri(EXTERNAL_STORAGE_URI);
+    fullUri.append(path);
+    reply.WriteString(fullUri);
     return SUCCESS;
 }
 
-int ExternalStorageUtils::DoGetRoot(const std::string &path, const std::string &name, MessageParcel &reply)
+int ExternalStorageUtils::DoGetRoot(const std::string &name, const std::string &path, MessageParcel &reply)
 {
     vector<string> vecRootPath;
 #ifdef VOLUME_ENABLE
@@ -172,8 +187,8 @@ int ExternalStorageUtils::DoGetRoot(const std::string &path, const std::string &
     }
 #endif
     reply.WriteInt32(vecRootPath.size());
-    for (auto path : vecRootPath) {
-        reply.WriteString(path);
+    for (auto rootPath : vecRootPath) {
+        reply.WriteString(rootPath);
     }
     return SUCCESS;
 }

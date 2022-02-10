@@ -29,7 +29,7 @@ private:
     int CreateFile(const std::string &uri, const std::string &name, MessageParcel &reply) const;
     int ListFile(const std::string &type, const std::string &uri, const CmdOptions &option,
         MessageParcel &reply) const;
-    int GetRoot(const std::string &path, const std::string &name, MessageParcel &reply) const;
+    int GetRoot(const std::string &name, const std::string &path, MessageParcel &reply) const;
 };
 } // namespace FileManagerService
 } // namespace OHOS
