@@ -97,12 +97,10 @@ static bool ConvertUriToAbsolutePath(const std::string &uri, std::string &path)
         ERR_LOG("get real path fail");
         return false;
     }
-#ifdef VOLUME_ENABLE
     if (!StorageManagerInf::StoragePathValidCheck(path)) {
         ERR_LOG("external uri path was ejected");
         return false;
     }
-#endif
     return true;
 }
 
@@ -179,13 +177,11 @@ int ExternalStorageUtils::DoCreateFile(const std::string &uri, const std::string
 int ExternalStorageUtils::DoGetRoot(const std::string &name, const std::string &path, MessageParcel &reply)
 {
     vector<string> vecRootPath;
-#ifdef VOLUME_ENABLE
     if (!StorageManagerInf::GetMountedVolumes(vecRootPath)) {
         ERR_LOG("there is valid extorage storage");
         reply.WriteInt32(0);
         return FAIL;
     }
-#endif
     reply.WriteInt32(vecRootPath.size());
     for (auto rootPath : vecRootPath) {
         reply.WriteString(rootPath);
