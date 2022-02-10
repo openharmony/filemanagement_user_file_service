@@ -25,8 +25,20 @@ namespace FileManagerService {
 #ifdef VOLUME_ENABLE
 static bool GetMountPointFromPath(const string &path, string &mountPoint)
 {
-    // need to deal with path
-    mountPoint = path;
+    size_t len = MOUNT_POINT_ROOT.size();
+    std::string head = path.substr(0, len);
+    std::string body = path.substr(len);
+    if (head != MOUNT_POINT_ROOT || body.size() == 0) {
+        ERR_LOG("invalid mountPoint %{public}s, head check fail", path.c_str());
+        return false;
+    }
+
+    size_t index = body.find("/");
+    if (index != std::string::npos) {
+        mountPoint = MOUNT_POINT_ROOT + body.substr(0, index);
+    } else {
+        mountPoint = path;
+    }
     return true;
 }
 
@@ -105,4 +117,3 @@ bool StorageManagerInf::StoragePathValidCheck(const string &path)
 #endif
 } // FileManagerService
 } // OHOS
-

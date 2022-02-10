@@ -109,14 +109,17 @@ static bool ConvertUriToAbsolutePath(const std::string &uri, std::string &path)
 int ExternalStorageUtils::DoListFile(const std::string &type, const std::string &uri, MessageParcel &reply)
 {
     std::string path;
+    int fileCount = 0;
     if (!ConvertUriToAbsolutePath(uri, path)) {
         ERR_LOG("invalid uri[%{public}s].", uri.c_str());
+        reply.WriteInt32(fileCount);
         return E_NOEXIST;
     }
 
     DIR *dir = opendir(path.c_str());
     if (!dir) {
         ERR_LOG("opendir path[%{public}s] fail.", path.c_str());
+        reply.WriteInt32(fileCount);
         return E_NOEXIST;
     }
     std::vector<unique_ptr<FileInfo>> fileList;
@@ -131,7 +134,7 @@ int ExternalStorageUtils::DoListFile(const std::string &type, const std::string 
         fileList.push_back(move(fileInfo));
     }
     closedir(dir);
-    int fileCount = static_cast<int32_t>(fileList.size());
+    fileCount = static_cast<int32_t>(fileList.size());
     reply.WriteInt32(fileCount);
     if (fileCount == 0) {
         return E_EMPTYFOLDER;

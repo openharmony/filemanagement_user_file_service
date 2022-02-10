@@ -358,10 +358,10 @@ napi_value FileManagerNapi::ListFile(napi_env env, napi_callback_info info)
     };
 
     auto cbComplete = [arg](napi_env env, UniError err) -> NVal {
-        CreateFileArray(env, arg);
         if (err) {
             return { env, err.GetNapiErr(env) };
         } else {
+            CreateFileArray(env, arg);
             return NVal(env, arg->ref_.Deref(env).val_);
         }
     };

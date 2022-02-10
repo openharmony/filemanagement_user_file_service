@@ -19,6 +19,7 @@
 #include "ipc/storage_manager_proxy.h"
 #include "ipc/storage_manager.h"
 #include "istorage_manager.h"
+#define VOLUME_ENABLE
 namespace OHOS {
 namespace FileManagerService {
 class StorageManagerInf {

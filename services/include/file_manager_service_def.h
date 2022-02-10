@@ -56,6 +56,7 @@ const std::string ALBUM_TYPE = "album";
 const std::string FILE_MIME_TYPE = "file/*";
 
 const std::string EXTERNAL_STORAGE_URI = "dataability:///external_storage";
+const std::string MOUNT_POINT_ROOT = "/mnt/";
 
 constexpr int FILE_MEDIA_TYPE = Media::MediaType::MEDIA_TYPE_FILE;
 constexpr int RESULTSET_EMPTY = 0;
