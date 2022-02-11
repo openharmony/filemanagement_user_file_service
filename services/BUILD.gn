@@ -75,8 +75,8 @@ ohos_shared_library("fms_server") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   external_deps = [
+    "ability_base:want",
     "ability_runtime:ability_manager",
-    "ability_runtime:want",
     "ces_standard:cesfwk_innerkits",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
