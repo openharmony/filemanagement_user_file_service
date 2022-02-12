@@ -23,16 +23,14 @@
 #define LOG_DOMAIN 0xD00430A
 #define LOG_TAG "FileManagerment:FMS"
 
-#define __FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
-
 #define DEBUG_LOG(fmt, args...) \
-    HILOG_DEBUG(LOG_CORE, "{%{public}s()-%{public}s:%{public}d} " fmt, __FUNCTION__, __FILENAME__, __LINE__, ##args)
+    HILOG_DEBUG(LOG_CORE, "{%{public}s():%{public}d} " fmt, __FUNCTION__, __LINE__, ##args)
 #define ERR_LOG(fmt, args...)  \
-    HILOG_ERROR(LOG_CORE, "{%{public}s()-%{public}s:%{public}d} " fmt, __FUNCTION__, __FILENAME__, __LINE__, ##args)
+    HILOG_ERROR(LOG_CORE, "{%{public}s():%{public}d} " fmt, __FUNCTION__, __LINE__, ##args)
 #define WARNING_LOG(fmt, args...)  \
-    HILOG_WARN(LOG_CORE, "{%{public}s()-%{public}s:%{public}d} " fmt, __FUNCTION__, __FILENAME__, __LINE__, ##args)
+    HILOG_WARN(LOG_CORE, "{%{public}s():%{public}d} " fmt, __FUNCTION__, __LINE__, ##args)
 #define INFO_LOG(fmt, args...)  \
-    HILOG_INFO(LOG_CORE, "{%{public}s()-%{public}s:%{public}d} " fmt, __FUNCTION__, __FILENAME__, __LINE__, ##args)
+    HILOG_INFO(LOG_CORE, "{%{public}s():%{public}d} " fmt, __FUNCTION__, __LINE__, ##args)
 #define FATAL_LOG(fmt, args...)  \
-    HILOG_FATAL(LOG_CORE, "{%{public}s()-%{public}s:%{public}d} " fmt, __FUNCTION__, __FILENAME__, __LINE__, ##args)
+    HILOG_FATAL(LOG_CORE, "{%{public}s():%{public}d} " fmt, __FUNCTION__, __LINE__, ##args)
 #endif // STORAGE_SERIVCE_INCLUDE_LOG_H
