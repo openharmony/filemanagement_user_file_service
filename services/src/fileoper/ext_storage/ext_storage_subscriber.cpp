@@ -22,6 +22,8 @@
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "log.h"
+#include "string_wrapper.h"
+#include "int_wrapper.h"
 #include "want.h"
 
 using namespace OHOS::AAFwk;
@@ -40,7 +42,8 @@ bool ExtStorageSubscriber::Subscriber(void)
 {
     if (ExtStorageSubscriber_ == nullptr) {
         EventFwk::MatchingSkills matchingSkills;
-        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED);
+        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_DISK_UNMOUNTED);
+        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_DISK_MOUNTED);
 
         EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
         ExtStorageSubscriber_ = std::make_shared<ExtStorageSubscriber>(subscribeInfo);
@@ -58,6 +61,37 @@ void ExtStorageSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &event
     const AAFwk::Want& want = eventData.GetWant();
     std::string action = want.GetAction();
     DEBUG_LOG("%{public}s, action:%{public}s.", __func__, action.c_str());
+
+    const AAFwk::WantParams wantParams = want.GetParams();
+    std::string id = AAFwk::String::Unbox(AAFwk::IString::Query(wantParams.GetParam("id")));
+    std::string diskId = AAFwk::String::Unbox(AAFwk::IString::Query(wantParams.GetParam("diskId")));
+    DEBUG_LOG("%{public}s, id:%{public}s.", __func__, id.c_str());
+    DEBUG_LOG("%{public}s, diskId:%{public}s.", __func__, diskId.c_str());
+    
+    if (action == EventFwk::CommonEventSupport::COMMON_EVENT_DISK_MOUNTED) {
+        int32_t volumeState = AAFwk::Integer::Unbox(AAFwk::IInteger::Query(wantParams.GetParam("volumeState")));
+        std::string fsUuid = AAFwk::String::Unbox(AAFwk::IString::Query(wantParams.GetParam("fsUuid")));
+        std::string path = AAFwk::String::Unbox(AAFwk::IString::Query(wantParams.GetParam("path")));
+        DEBUG_LOG("%{public}s, volumeState:%{public}d.", __func__, volumeState);
+        DEBUG_LOG("%{public}s, id:%{public}s, fsUuid:%{public}s, path:%{public}s.",
+            __func__, id.c_str(), fsUuid.c_str(), path.c_str());
+
+        ExtStorageStatus extStatus(id, diskId, fsUuid, path, VolumeState(volumeState));
+        mountStatus.insert(std::pair<std::string, ExtStorageStatus>(path, extStatus));
+    }
+}
+
+bool ExtStorageSubscriber::CheckMountPoint(const std::string &path)
+{
+    auto extStorageStatus = mountStatus.find(path);
+    if (extStorageStatus == mountStatus.end()) {
+        return false;
+    } else {
+        if (extStorageStatus->second.GetVolumeState() == VolumeState::MOUNTED) {
+            return true;
+        }
+        return false;
+    }
 }
 }  // namespace FileManagerService
 }  // namespace OHOS
