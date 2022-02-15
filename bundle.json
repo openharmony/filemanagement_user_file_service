@@ -22,6 +22,7 @@
         "ram": "",
         "deps": {
             "components": [
+                "ability_base",
                 "ability_runtime",
                 "hiviewdfx",
                 "ipc",
