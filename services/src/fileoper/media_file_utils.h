@@ -22,6 +22,13 @@
 #include "file_info.h"
 #include "file_oper.h"
 
+#include "ipc_types.h"
+#include "iremote_broker.h"
+#include "iremote_proxy.h"
+#include "iremote_stub.h"
+
+#include "data_ability_helper.h"
+
 namespace OHOS {
 namespace FileManagerService {
 class MediaFileUtils  {
@@ -30,16 +37,18 @@ public:
     ~MediaFileUtils();
     static int DoListFile(const std::string &type, const std::string &path, int offset, int count,
         std::shared_ptr<NativeRdb::AbsSharedResultSet> &result);
-    static std::shared_ptr<NativeRdb::AbsSharedResultSet> DoQuery(std::string selection,
-        std::vector<std::string> selectionArgs);
+    static std::shared_ptr<NativeRdb::AbsSharedResultSet> DoQuery(const std::string &selection,
+        const std::vector<std::string> &selectionArgs);
     static int DoInsert(const std::string &name, const std::string &path, const std::string &type, std::string &uri);
     static bool PushFileInfo(std::shared_ptr<NativeRdb::AbsSharedResultSet> result, MessageParcel &reply);
     static bool PopFileInfo(FileInfo &file, MessageParcel &reply);
     static int GetFileInfoFromResult(std::shared_ptr<NativeRdb::AbsSharedResultSet> result,
         MessageParcel &reply, int res);
     static bool InitMediaTableColIndexMap(std::shared_ptr<NativeRdb::AbsSharedResultSet> result);
+    static bool InitHelper(sptr<IRemoteObject> obj);
 private:
     inline static std::vector<std::pair<int, std::string>> mediaTableMap = {};
+    inline static std::shared_ptr<AppExecFwk::DataAbilityHelper> abilityHelper = nullptr;
 };
 } // namespace FileManagerService
 } // namespace OHOS

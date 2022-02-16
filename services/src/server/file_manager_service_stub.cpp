@@ -15,22 +15,23 @@
 
 #include "file_manager_service_stub.h"
 
-#include "file_manager_service.h"
 #include "file_manager_service_def.h"
 #include "file_manager_service_errno.h"
+#include "file_manager_service.h"
 #include "log.h"
+#include "media_file_utils.h"
 #include "oper_factory.h"
 
 using namespace std;
 
 namespace OHOS {
 namespace FileManagerService {
-int GetEquipmentCode(uint32_t code)
+static int GetEquipmentCode(uint32_t code)
 {
     return (code >> EQUIPMENT_SHIFT) & CODE_MASK;
 }
 
-int GetOperCode(uint32_t code)
+static int GetOperCode(uint32_t code)
 {
     return code & CODE_MASK;
 }
@@ -54,6 +55,11 @@ int FileManagerServiceStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
     // to do checkpermission()
+    if (!MediaFileUtils::InitHelper(AsObject())) {
+        ERR_LOG("InitHelper error %{public}d", FAIL);
+        reply.WriteInt32(FAIL);
+        return FAIL;
+    }
     // do file process
     int32_t errCode = OperProcess(code, data, reply);
     reply.WriteInt32(errCode);

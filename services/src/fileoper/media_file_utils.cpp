@@ -17,13 +17,14 @@
 
 #include <algorithm>
 
+#include "data_ability_predicates.h"
 #include "file_manager_service_def.h"
 #include "file_manager_service_errno.h"
-
+#include "log.h"
 #include "media_asset.h"
 #include "media_data_ability_const.h"
-#include "medialibrary_data_ability.h"
-#include "log.h"
+#include "rdb_errno.h"
+#include "values_bucket.h"
 
 using namespace std;
 namespace OHOS {
@@ -36,17 +37,25 @@ bool GetPathFromResult(shared_ptr<NativeRdb::AbsSharedResultSet> result, string 
         ERR_LOG("AbsSharedResultSet null");
         return false;
     }
-    int32_t columnIndex;
-    int ret = result->GetColumnIndex(Media::MEDIA_DATA_DB_FILE_PATH, columnIndex);
-    if (ret != NativeRdb::E_OK) {
-        ERR_LOG("NativeRdb gets MEDIA_DATA_DB_FILE_PATH index fail");
-        return false;
-    }
+    int32_t columnIndex = 0;
+    GET_COLUMN_INDEX_FROM_NAME(result, Media::MEDIA_DATA_DB_FILE_PATH, columnIndex);
     result->GoToFirstRow();
-    ret = result->GetString(columnIndex, path);
+    int ret = result->GetString(columnIndex, path);
     if (ret != NativeRdb::E_OK) {
         ERR_LOG("NativeRdb gets path index fail");
         return false;
+    }
+    GET_COLUMN_INDEX_FROM_NAME(result, Media::MEDIA_DATA_DB_RELATIVE_PATH, columnIndex);
+    string relativePath;
+    ret = result->GetString(columnIndex, relativePath);
+    if (ret != NativeRdb::E_OK) {
+        relativePath = "";
+        DEBUG_LOG("NativeRdb gets relative path is null %{public}d", columnIndex);
+    }
+    // get relative path from absolute path
+    string::size_type pos = path.find_last_of('/');
+    if (pos != string::npos) {
+        path = relativePath + path.substr(pos + 1) + "/";
     }
     return true;
 }
@@ -147,21 +156,17 @@ bool GetAlbumFromResult(shared_ptr<NativeRdb::AbsSharedResultSet> &result, vecto
     result->GetRowCount(count);
     result->GoToFirstRow();
     int32_t columnIndex;
-    int ret = result->GetColumnIndex(Media::MEDIA_DATA_DB_RELATIVE_PATH, columnIndex);
-    if (ret != NativeRdb::E_OK) {
-        ERR_LOG("NativeRdb  gets MEDIA_DATA_DB_RELATIVE_PATH columnIndex fail");
-        return false;
-    }
-
+    GET_COLUMN_INDEX_FROM_NAME(result, Media::MEDIA_DATA_DB_RELATIVE_PATH, columnIndex);
     for (int i = 0; i < count; i++) {
         string path;
-        ret = result->GetString(columnIndex, path);
-        if (ret != NativeRdb::E_OK) {
+        if (result->GetString(columnIndex, path) != NativeRdb::E_OK) {
             ERR_LOG("NativeRdb gets path columnIndex fail");
             return false;
         }
-        auto it = find(album.begin(), album.end(), path);
-        if (it == album.end()) {
+        path = MEDIA_ROOT_PATH + "/" + path.substr(0, path.size() - 1);
+        // add into ablum if not in album
+        if (find(album.begin(), album.end(), path) == album.end()) {
+            DEBUG_LOG(" // add into ablum path %{public}s", path.c_str());
             album.emplace_back(path);
         }
         result->GoToNextRow();
@@ -210,7 +215,7 @@ int CreateSelectionAndArgsFirstLevel(const string &type, string &selection, vect
         selection = Media::MEDIA_DATA_DB_RELATIVE_PATH + " LIKE ? AND (" + Media::MEDIA_DATA_DB_MEDIA_TYPE;
         selection += " LIKE ? OR " + Media::MEDIA_DATA_DB_MEDIA_TYPE + " LIKE ? )";
         selectionArgs = {
-            ROOT_PATH, ToString(Media::MediaType::MEDIA_TYPE_FILE),
+            RELATIVE_ROOT_PATH, ToString(Media::MediaType::MEDIA_TYPE_FILE),
             ToString(Media::MediaType::MEDIA_TYPE_ALBUM)
         };
     } else {
@@ -259,13 +264,21 @@ bool GetAlbumPath(const string &name, const string &path, string &albumPath)
     return GetPathFromAlbumPath(path, albumPath);
 }
 
+static void ShowSelecArgs(const string &selection, const vector<string> &selectionArgs)
+{
+    DEBUG_LOG("selection %{public}s ", selection.c_str());
+    for (auto s : selectionArgs) {
+        DEBUG_LOG("selectionArgs %{public}s", s.c_str());
+    }
+}
+
 int MediaFileUtils::DoListFile(const string &type, const string &path, int offset, int count,
     shared_ptr<NativeRdb::AbsSharedResultSet> &result)
 {
     string selection;
     vector<string> selectionArgs;
     if (IsFirstLevelUriPath(path)) {
-        DEBUG_LOG("IsFirstLevelUriPath ");
+        DEBUG_LOG("IsFirstLevelUriPath");
         CreateSelectionAndArgsFirstLevel(type, selection, selectionArgs);
     } else {
         int err = CreateSelectionAndArgsOtherLevel(type, path, selection, selectionArgs);
@@ -282,44 +295,43 @@ int MediaFileUtils::DoListFile(const string &type, const string &path, int offse
     return SUCCESS;
 }
 
-shared_ptr<NativeRdb::AbsSharedResultSet> MediaFileUtils::DoQuery(string selection, vector<string> selectionArgs)
+shared_ptr<NativeRdb::AbsSharedResultSet> MediaFileUtils::DoQuery(const string &selection,
+    const vector<string> &selectionArgs)
 {
+    ShowSelecArgs(selection, selectionArgs);
     NativeRdb::DataAbilityPredicates predicates;
     predicates.SetWhereClause(selection);
     predicates.SetWhereArgs(selectionArgs);
-    Media::MediaLibraryDataAbility mediaLibDb;
-    mediaLibDb.InitMediaLibraryRdbStore();
     Uri uri = Uri(Media::MEDIALIBRARY_DATA_URI);
     vector<string> columns;
-    return mediaLibDb.Query(uri, columns, predicates);
+    return abilityHelper->Query(uri, columns, predicates);
 }
 
 int MediaFileUtils::DoInsert(const string &name, const string &path, const string &type, string &uri)
 {
-    Media::ValuesBucket values;
-
+    NativeRdb::ValuesBucket values;
     string albumPath;
     if (!GetAlbumPath(name, path, albumPath)) {
         ERR_LOG("path not exsit");
         return E_NOEXIST;
     }
-    // album path + name ---> MEDIA_DATA_DB_FILE_PATH
-    values.PutString(Media::MEDIA_DATA_DB_FILE_PATH, albumPath + "/" + name);
+    values.PutString(Media::MEDIA_DATA_DB_RELATIVE_PATH, albumPath);
+    values.PutString(Media::MEDIA_DATA_DB_NAME, name);
     values.PutString(Media::MEDIA_DATA_DB_MIME_TYPE, GetMimeType(name));
     values.PutInt(Media::MEDIA_DATA_DB_MEDIA_TYPE, GetMediaType(name));
-
     Uri createAsset(Media::MEDIALIBRARY_DATA_URI + "/" + Media::MEDIA_FILEOPRN + "/" +
         Media::MEDIA_FILEOPRN_CREATEASSET);
-    Media::MediaLibraryDataAbility mediaLibDb;
-    mediaLibDb.InitMediaLibraryRdbStore();
-    int index = mediaLibDb.Insert(createAsset, values);
+    int index = abilityHelper->Insert(createAsset, values);
     if (index < 0) {
-        ERR_LOG("Fail to create fail %{public}s %{public}s", name.c_str(), path.c_str());
+        ERR_LOG("Fail to create fail file %{public}s uri %{public}s album %{public}s", name.c_str(),
+            path.c_str(), albumPath.c_str());
         return E_CREATE_FAIL;
     }
+    // use file id concatenate head as uri
     uri = (MEDIA_TYPE_URI_MAPS.count(GetMediaType(name)) == 0) ? MEDIA_TYPE_URI_MAPS.at(FILE_MEDIA_TYPE) :
         MEDIA_TYPE_URI_MAPS.at(GetMediaType(name));
     uri += "/" + to_string(index);
+
     return SUCCESS;
 }
 
@@ -338,11 +350,7 @@ bool MediaFileUtils::InitMediaTableColIndexMap(shared_ptr<NativeRdb::AbsSharedRe
         };
         for (auto i : mediaData) {
             int columnIndex = 0;
-            int ret = result->GetColumnIndex(i.first, columnIndex);
-            if (ret != NativeRdb::E_OK) {
-                ERR_LOG("NativeRdb returns fail");
-                return false;
-            }
+            GET_COLUMN_INDEX_FROM_NAME(result, i.first, columnIndex);
             mediaTableMap.emplace_back(columnIndex, i.second);
         }
     }
@@ -380,28 +388,6 @@ bool MediaFileUtils::PushFileInfo(shared_ptr<NativeRdb::AbsSharedResultSet> resu
     return true;
 }
 
-bool MediaFileUtils::PopFileInfo(FileInfo &file, MessageParcel &reply)
-{
-    string path;
-    string name;
-    string type;
-    int64_t size = 0;
-    int64_t at = 0;
-    int64_t mt = 0;
-
-    reply.ReadString(path);
-    reply.ReadString(type);
-    reply.ReadString(name);
-    reply.ReadInt64(size);
-    reply.ReadInt64(at);
-    reply.ReadInt64(mt);
-    file = FileInfo(name, path, type);
-    file.SetSize(size);
-    file.SetAddedTime(at);
-    file.SetModifiedTime(mt);
-    return true;
-}
-
 int MediaFileUtils::GetFileInfoFromResult(shared_ptr<NativeRdb::AbsSharedResultSet> result,
     MessageParcel &reply, int res)
 {
@@ -424,6 +410,18 @@ int MediaFileUtils::GetFileInfoFromResult(shared_ptr<NativeRdb::AbsSharedResultS
         result->GoToNextRow();
     }
     return SUCCESS;
+}
+
+bool MediaFileUtils::InitHelper(sptr<IRemoteObject> obj)
+{
+    if (abilityHelper == nullptr) {
+        abilityHelper =  AppExecFwk::DataAbilityHelper::Creator(obj, make_shared<Uri>(Media::MEDIALIBRARY_DATA_URI));
+        if (abilityHelper == nullptr) {
+            DEBUG_LOG("get %{public}s helper fail", Media::MEDIALIBRARY_DATA_URI.c_str());
+            return false;
+        }
+    }
+    return true;
 }
 } // namespace FileManagerService
 } // namespace OHOS

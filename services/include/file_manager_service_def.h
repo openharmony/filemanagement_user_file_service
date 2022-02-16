@@ -46,7 +46,10 @@ constexpr int32_t CODE_MASK = 0xff;
 constexpr int32_t EQUIPMENT_SHIFT = 16;
 
 const std::string FISRT_LEVEL_ALBUM = "dataability:///album";
-const std::string ROOT_PATH = "/data/media";
+// use to find out album in the root dir
+const std::string RELATIVE_ROOT_PATH = "";
+
+const std::string MEDIA_ROOT_PATH = "/storage/media/local/files";
 const std::string IMAGE_ROOT_NAME = "image_album";
 const std::string VIDEO_ROOT_NAME = "video_album";
 const std::string AUDIO_ROOT_NAME = "audio_album";
@@ -71,10 +74,10 @@ const std::unordered_map<int, std::string> FILE_MIME_TYPE_MAPS = {
 };
 
 const std::unordered_map<int, std::string> MEDIA_TYPE_FOLDER_MAPS = {
-    {Media::MediaType::MEDIA_TYPE_IMAGE, ROOT_PATH + "/image"},
-    {Media::MediaType::MEDIA_TYPE_AUDIO, ROOT_PATH + "/audio"},
-    {Media::MediaType::MEDIA_TYPE_VIDEO, ROOT_PATH + "/video"},
-    {Media::MediaType::MEDIA_TYPE_FILE,  ROOT_PATH + "/document"},
+    {Media::MediaType::MEDIA_TYPE_IMAGE, "image/"},
+    {Media::MediaType::MEDIA_TYPE_AUDIO, "audio/"},
+    {Media::MediaType::MEDIA_TYPE_VIDEO, "video/"},
+    {Media::MediaType::MEDIA_TYPE_FILE,  "document/"},
 };
 
 const std::unordered_map<int, std::string> MEDIA_TYPE_URI_MAPS = {
@@ -83,6 +86,14 @@ const std::unordered_map<int, std::string> MEDIA_TYPE_URI_MAPS = {
     {Media::MediaType::MEDIA_TYPE_VIDEO, Media::MEDIALIBRARY_VIDEO_URI},
     {Media::MediaType::MEDIA_TYPE_FILE,  Media::MEDIALIBRARY_FILE_URI},
 };
+
+#define GET_COLUMN_INDEX_FROM_NAME(result, name, index)                                \
+    do {                                                                               \
+        if (result->GetColumnIndex(name, index) != NativeRdb::E_OK) {                  \
+            ERR_LOG("NativeRdb gets %{public}s index fail", name.c_str());             \
+            return false;                                                              \
+        }                                                                              \
+    } while (0)
 } // namespace FileManagerService
 } // namespace OHOS
 #endif // STORAGE_FILE_MANAGER_SERVICE_DEF_H
