@@ -41,7 +41,7 @@ enum VolumeState {
     MOUNTED,
     EJECTING
 };
-
+constexpr int32_t MAX_NUM = 200;
 constexpr int32_t CODE_MASK = 0xff;
 constexpr int32_t EQUIPMENT_SHIFT = 16;
 

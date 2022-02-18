@@ -15,6 +15,7 @@
 #ifndef STORAGE_SERIVCES_EXTERNAL_STORAGE_UTILS_H
 #define STORAGE_SERIVCES_EXTERNAL_STORAGE_UTILS_H
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -28,10 +29,11 @@ class ExternalStorageUtils {
 public:
     ExternalStorageUtils();
     ~ExternalStorageUtils();
-    static int DoListFile(const std::string &type, const std::string &uri, MessageParcel &reply);
-    static int DoCreateFile(const std::string &uri, const std::string &name, MessageParcel &reply);
-    static bool PopFileInfo(FileInfo &fileInfo, MessageParcel &reply);
-    static int DoGetRoot(const std::string &name, const std::string &path, MessageParcel &reply);
+    static int DoListFile(const std::string &type, const std::string &uri, const CmdOptions &option,
+        std::vector<std::unique_ptr<FileInfo>> &fileList);
+    static int DoCreateFile(const std::string &uri, const std::string &name, std::string &resultUri);
+    static int DoGetRoot(const std::string &name, const std::string &path,
+        std::vector<std::unique_ptr<FileInfo>> &fileList);
 };
 } // namespace FileManagerService
 } // namespace OHOS

@@ -357,7 +357,8 @@ bool MediaFileUtils::InitMediaTableColIndexMap(shared_ptr<NativeRdb::AbsSharedRe
     return true;
 }
 
-bool MediaFileUtils::PushFileInfo(shared_ptr<NativeRdb::AbsSharedResultSet> result, MessageParcel &reply)
+bool MediaFileUtils::GetFileInfo(shared_ptr<NativeRdb::AbsSharedResultSet> result,
+    unique_ptr<FileInfo> &fileInfo)
 {
     if (!InitMediaTableColIndexMap(result)) {
         ERR_LOG("InitMediaTableColIndexMap returns fail");
@@ -368,45 +369,39 @@ bool MediaFileUtils::PushFileInfo(shared_ptr<NativeRdb::AbsSharedResultSet> resu
     result->GetString(mediaTableMap[index++].first, id);
     string uri;
     result->GetString(mediaTableMap[index++].first, uri);
-    unique_ptr<FileInfo> file = make_unique<FileInfo>();
+
     string path = uri + "/" + id;
-    file->SetPath(path);
+    fileInfo->SetPath(path);
     string type;
     result->GetString(mediaTableMap[index++].first, type);
-    file->SetType(type);
+    fileInfo->SetType(type);
     string name;
     result->GetString(mediaTableMap[index++].first, name);
-    file->SetName(name);
+    fileInfo->SetName(name);
     int64_t value;
     result->GetLong(mediaTableMap[index++].first, value);
-    file->SetSize(value);
+    fileInfo->SetSize(value);
     result->GetLong(mediaTableMap[index++].first, value);
-    file->SetAddedTime(value);
+    fileInfo->SetAddedTime(value);
     result->GetLong(mediaTableMap[index++].first, value);
-    file->SetModifiedTime(value);
-    reply.WriteParcelable(file.get());
+    fileInfo->SetModifiedTime(value);
     return true;
 }
 
 int MediaFileUtils::GetFileInfoFromResult(shared_ptr<NativeRdb::AbsSharedResultSet> result,
-    MessageParcel &reply, int res)
+    std::vector<unique_ptr<FileInfo>> &fileList)
 {
     int count = 0;
-    if (res) {
-        // deal with status isn't succ;
-        ERR_LOG("AbsSharedResultSet status isn't succ");
-        reply.WriteInt32(count);
-        return res;
-    }
     result->GetRowCount(count);
-    reply.WriteInt32(count);
     if (count == 0) {
         ERR_LOG("AbsSharedResultSet null");
         return E_EMPTYFOLDER;
     }
     result->GoToFirstRow();
     for (int i = 0; i < count; i++) {
-        PushFileInfo(result, reply);
+        unique_ptr<FileInfo> fileInfo = make_unique<FileInfo>();
+        GetFileInfo(result, fileInfo);
+        fileList.push_back(move(fileInfo));
         result->GoToNextRow();
     }
     return SUCCESS;

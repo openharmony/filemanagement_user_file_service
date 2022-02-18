@@ -22,6 +22,7 @@ constexpr int32_t E_NOEXIST = -2;             // file not exist
 constexpr int32_t E_EMPTYFOLDER = -3;         // folder empty
 constexpr int32_t E_INVALID_OPERCODE = -4;    // not valid oper code
 constexpr int32_t E_CREATE_FAIL = -5;         // create file fail
+constexpr int32_t E_INVALID_FILE_NUMBER = -6;    // file count or offset invalid
 } // namespace FileManagerService
 } // namespace OHOS
 #endif // STORAGE_SERVICES_INCLUDE_ERRNO_H

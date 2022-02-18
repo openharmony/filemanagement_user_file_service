@@ -17,6 +17,7 @@
 
 #include <vector>
 
+#include "cmd_response.h"
 #include "external_storage_utils.h"
 #include "file_info.h"
 #include "file_manager_service_def.h"
@@ -66,18 +67,36 @@ int ExternalStorageOper::OperProcess(uint32_t code, MessageParcel &data, Message
 
 int ExternalStorageOper::GetRoot(const std::string &name, const std::string &path, MessageParcel &reply) const
 {
-    return ExternalStorageUtils::DoGetRoot(name, path, reply);
+    std::vector<std::unique_ptr<FileInfo>> fileList;
+    int ret = ExternalStorageUtils::DoGetRoot(name, path, fileList);
+    CmdResponse cmdResponse;
+    cmdResponse.SetErr(ret);
+    cmdResponse.SetFileInfoList(fileList);
+    reply.WriteParcelable(&cmdResponse);
+    return ret;
 }
 
 int ExternalStorageOper::CreateFile(const std::string &uri, const std::string &name, MessageParcel &reply) const
 {
-    return ExternalStorageUtils::DoCreateFile(uri, name, reply);
+    std::string resultUir;
+    int ret = ExternalStorageUtils::DoCreateFile(uri, name, resultUir);
+    CmdResponse cmdResponse;
+    cmdResponse.SetErr(ret);
+    cmdResponse.SetUri(resultUir);
+    reply.WriteParcelable(&cmdResponse);
+    return ret;
 }
 
 int ExternalStorageOper::ListFile(const std::string &type, const std::string &uri, const CmdOptions &option,
     MessageParcel &reply) const
 {
-    return ExternalStorageUtils::DoListFile(type, uri, reply);
+    std::vector<std::unique_ptr<FileInfo>> fileList;
+    int ret = ExternalStorageUtils::DoListFile(type, uri, option, fileList);
+    CmdResponse cmdResponse;
+    cmdResponse.SetErr(ret);
+    cmdResponse.SetFileInfoList(fileList);
+    reply.WriteParcelable(&cmdResponse);
+    return ret;
 }
 } // namespace FileManagerService
 } // namespace OHOS

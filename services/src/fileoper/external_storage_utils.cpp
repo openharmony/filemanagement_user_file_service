@@ -104,46 +104,55 @@ static bool ConvertUriToAbsolutePath(const std::string &uri, std::string &path)
     return true;
 }
 
-int ExternalStorageUtils::DoListFile(const std::string &type, const std::string &uri, MessageParcel &reply)
+int ExternalStorageUtils::DoListFile(const std::string &type, const std::string &uri, const CmdOptions &option,
+    std::vector<unique_ptr<FileInfo>> &fileList)
 {
+    int64_t count = option.GetCount();
+    int64_t offset = option.GetOffset();
+    if (count < 0 || count > MAX_NUM || offset < 0 || offset > MAX_NUM) {
+        ERR_LOG("invalid file count or offset.");
+        return E_INVALID_FILE_NUMBER;
+    }
+    count = (count == 0) ? MAX_NUM : count;
+
     std::string path;
-    int fileCount = 0;
     if (!ConvertUriToAbsolutePath(uri, path)) {
         ERR_LOG("invalid uri[%{public}s].", uri.c_str());
-        reply.WriteInt32(fileCount);
         return E_NOEXIST;
     }
 
     DIR *dir = opendir(path.c_str());
     if (!dir) {
         ERR_LOG("opendir path[%{public}s] fail.", path.c_str());
-        reply.WriteInt32(fileCount);
         return E_NOEXIST;
     }
-    std::vector<unique_ptr<FileInfo>> fileList;
+    int64_t index = 0;
     for (struct dirent *ent = readdir(dir); ent != nullptr; ent = readdir(dir)) {
         if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) {
             continue;
         }
-        unique_ptr<FileInfo> fileInfo = make_unique<FileInfo>();
-        if (!GetFileInfo(path, ent->d_name, fileInfo)) {
+        if (index < offset) {
+            index++;
             continue;
         }
-        fileList.push_back(move(fileInfo));
+        if (count > 0) {
+            unique_ptr<FileInfo> fileInfo = make_unique<FileInfo>();
+            if (!GetFileInfo(path, ent->d_name, fileInfo)) {
+                continue;
+            }
+            fileList.push_back(move(fileInfo));
+            count--;
+            if (count == 0) {
+                break;
+            }
+        }
+        index++;
     }
     closedir(dir);
-    fileCount = static_cast<int32_t>(fileList.size());
-    reply.WriteInt32(fileCount);
-    if (fileCount == 0) {
-        return E_EMPTYFOLDER;
-    }
-    for (int i = 0; i < fileCount; i++) {
-        reply.WriteParcelable(fileList[i].get());
-    }
     return SUCCESS;
 }
 
-int ExternalStorageUtils::DoCreateFile(const std::string &uri, const std::string &name, MessageParcel &reply)
+int ExternalStorageUtils::DoCreateFile(const std::string &uri, const std::string &name, std::string &resultUri)
 {
     std::string path;
     if (!ConvertUriToAbsolutePath(uri, path)) {
@@ -167,48 +176,23 @@ int ExternalStorageUtils::DoCreateFile(const std::string &uri, const std::string
         return E_CREATE_FAIL;
     }
     close(fd);
-
-    std::string fullUri(EXTERNAL_STORAGE_URI);
-    fullUri.append(path);
-    reply.WriteString(fullUri);
+    resultUri = EXTERNAL_STORAGE_URI + path;
     return SUCCESS;
 }
 
-int ExternalStorageUtils::DoGetRoot(const std::string &name, const std::string &path, MessageParcel &reply)
+int ExternalStorageUtils::DoGetRoot(const std::string &name, const std::string &path,
+    std::vector<unique_ptr<FileInfo>> &fileList)
 {
     vector<string> vecRootPath;
     if (!StorageManagerInf::GetMountedVolumes(vecRootPath)) {
         ERR_LOG("there is valid extorage storage");
-        reply.WriteInt32(0);
         return FAIL;
     }
-    reply.WriteInt32(vecRootPath.size());
     for (auto rootPath : vecRootPath) {
-        reply.WriteString(rootPath);
+        unique_ptr<FileInfo> fileInfo = make_unique<FileInfo>(FILE_ROOT_NAME, rootPath, ALBUM_TYPE);
+        fileList.push_back(move(fileInfo));
     }
     return SUCCESS;
-}
-
-bool ExternalStorageUtils::PopFileInfo(FileInfo &fileInfo, MessageParcel &reply)
-{
-    std::string path;
-    std::string type;
-    std::string name;
-    int64_t size = 0;
-    int64_t at = 0;
-    int64_t mt = 0;
-
-    reply.ReadString(path);
-    reply.ReadString(type);
-    reply.ReadString(name);
-    reply.ReadInt64(size);
-    reply.ReadInt64(at);
-    reply.ReadInt64(mt);
-    fileInfo = FileInfo(name, path, type);
-    fileInfo.SetSize(size);
-    fileInfo.SetAddedTime(at);
-    fileInfo.SetModifiedTime(mt);
-    return true;
 }
 } // namespace FileManagerService
 } // namespace OHOS
