@@ -24,7 +24,6 @@
 #include "file_manager_service_def.h"
 #include "abs_shared_result_set.h"
 #include "file_manager_service.h"
-#include "media_file_utils.h"
 
 namespace {
 using namespace std;
