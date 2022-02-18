@@ -1,0 +1,125 @@
+# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/test.gni")
+FMS_BASE_DIR = "//foundation/filemanagement/user_file_service/services"
+ohos_unittest("file_manager_proxy_test") {
+  module_out_path = "storage_manager/user_file_manager"
+
+  sources = [ "client/file_manager_proxy_test.cpp" ]
+
+  include_dirs = [
+    "//third_party/json/include",
+    "//base/security/huks/interfaces/innerkits/huks_standard/main/include",
+    "$FMS_BASE_DIR/include",
+    "$FMS_BASE_DIR/src/client",
+    "$FMS_BASE_DIR/src/server",
+    "$FMS_BASE_DIR/src/fileoper",
+    "//third_party/googletest/googlemock/include/gmock",
+    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_rdb/include",
+    "//foundation/multimedia/medialibrary_standard/interfaces/innerkits/native/include",
+  ]
+
+  configs = [ "//build/config/compiler:exceptions" ]
+
+  deps = [
+    "$FMS_BASE_DIR:fms_server",
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
+    "//utils/native/base:utils",
+  ]
+
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr_standard:samgr_proxy",
+  ]
+}
+
+ohos_unittest("oper_factory_test") {
+  module_out_path = "storage_manager/user_file_manager"
+
+  sources = [ "fileoper/oper_factory_test.cpp" ]
+
+  include_dirs = [
+    "//third_party/json/include",
+    "//base/security/huks/interfaces/innerkits/huks_standard/main/include",
+    "$FMS_BASE_DIR/include",
+    "$FMS_BASE_DIR/src/client",
+    "$FMS_BASE_DIR/src/server",
+    "$FMS_BASE_DIR/src/fileoper",
+    "//foundation/multimedia/medialibrary_standard/interfaces/innerkits/native/include",
+    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_rdb/include",
+  ]
+
+  configs = [ "//build/config/compiler:exceptions" ]
+
+  deps = [
+    "$FMS_BASE_DIR:fms_server",
+    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_appdatafwk:native_appdatafwk",
+    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_rdb:native_rdb",
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//utils/native/base:utils",
+  ]
+
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr_standard:samgr_proxy",
+  ]
+}
+
+ohos_unittest("file_manager_service_test") {
+  module_out_path = "storage_manager/user_file_manager"
+
+  sources = [ "server/file_manager_service_test.cpp" ]
+
+  include_dirs = [
+    "//third_party/json/include",
+    "//base/security/huks/interfaces/innerkits/huks_standard/main/include",
+    "$FMS_BASE_DIR/include",
+    "$FMS_BASE_DIR/src/client",
+    "$FMS_BASE_DIR/src/server",
+    "$FMS_BASE_DIR/src/fileoper",
+    "//foundation/multimedia/medialibrary_standard/interfaces/innerkits/native/include",
+    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_rdb/include",
+  ]
+
+  configs = [ "//build/config/compiler:exceptions" ]
+  deps = [
+    "$FMS_BASE_DIR:fms_server",
+    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_appdatafwk:native_appdatafwk",
+    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_rdb:native_rdb",
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//utils/native/base:utils",
+  ]
+
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr_standard:samgr_proxy",
+  ]
+}
+
+group("user_file_manager_test") {
+  testonly = true
+
+  deps = [
+    ":file_manager_proxy_test",
+    ":file_manager_service_test",
+    ":oper_factory_test",
+  ]
+}
