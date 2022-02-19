@@ -67,7 +67,7 @@ UniError DealWithErrno(int err)
     };
     if (errMap.count(err) == 0) {
         ERR_LOG("unhandler err number %{public}d", err);
-        return UniError(FAIL);
+        return UniError(EACCES);
     } else {
         return UniError(errMap[err]);
     }
