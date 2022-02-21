@@ -22,6 +22,7 @@
 
 #include "file_manager_napi_def.h"
 #include "file_manager_proxy.h"
+#include "file_manager_service_def.h"
 #include "file_manager_service_errno.h"
 #include "ifms_client.h"
 #include "log.h"
