@@ -109,7 +109,7 @@ int ExternalStorageUtils::DoListFile(const std::string &type, const std::string 
 {
     int64_t count = option.GetCount();
     int64_t offset = option.GetOffset();
-    if (count < 0 || count > MAX_NUM || offset < 0 || offset > MAX_NUM) {
+    if (count < 0 || count > MAX_NUM || offset < 0) {
         ERR_LOG("invalid file count or offset.");
         return E_INVALID_FILE_NUMBER;
     }
