@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "cmd_options.h"
+#include "cmd_response.h"
 #include "file_info.h"
 #include "file_manager_service_def.h"
 #include "file_manager_service_errno.h"
@@ -58,9 +59,7 @@ int MediaFileOper::OperProcess(uint32_t code, MessageParcel &data, MessageParcel
         case Operation::CREATE_FILE: {
             string name = data.ReadString();
             string path = data.ReadString();
-            string uri;
-            errCode = CreateFile(name, path, uri);
-            reply.WriteString(uri);
+            errCode = CreateFile(name, path, reply);
             break;
         }
         default: {
@@ -71,17 +70,33 @@ int MediaFileOper::OperProcess(uint32_t code, MessageParcel &data, MessageParcel
     return errCode;
 }
 
-int MediaFileOper::CreateFile(const std::string &name, const std::string &path, std::string &uri) const
+int MediaFileOper::CreateFile(const std::string &name, const std::string &path, MessageParcel &reply) const
 {
     string type = "file";
-    return MediaFileUtils::DoInsert(name, path, type, uri);
+    std::string uri;
+    int ret = MediaFileUtils::DoInsert(name, path, type, uri);
+    CmdResponse cmdResponse;
+    cmdResponse.SetErr(ret);
+    cmdResponse.SetUri(uri);
+    reply.WriteParcelable(&cmdResponse);
+    return ret;
 }
 
 int MediaFileOper::ListFile(const string &type, const string &path, int offset, int count, MessageParcel &reply) const
 {
     shared_ptr<NativeRdb::AbsSharedResultSet> result;
     int res = MediaFileUtils::DoListFile(type, path, offset, count, result);
-    return  MediaFileUtils::GetFileInfoFromResult(result, reply, res);
+    if (res != SUCCESS) {
+        return res;
+    }
+
+    std::vector<std::unique_ptr<FileInfo>> fileList;
+    res = MediaFileUtils::GetFileInfoFromResult(result, fileList);
+    CmdResponse cmdResponse;
+    cmdResponse.SetErr(res);
+    cmdResponse.SetFileInfoList(fileList);
+    reply.WriteParcelable(&cmdResponse);
+    return res;
 }
 
 int MediaFileOper::Mkdir(const string &name, const string &path) const

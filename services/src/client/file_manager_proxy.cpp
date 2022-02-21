@@ -14,6 +14,7 @@
  */
 #include "file_manager_proxy.h"
 
+#include "cmd_response.h"
 #include "file_info.h"
 #include "file_manager_service_def.h"
 #include "file_manager_service_errno.h"
@@ -25,6 +26,16 @@ using namespace std;
 
 namespace OHOS {
 namespace FileManagerService {
+static int GetCmdResponse(MessageParcel &reply, sptr<CmdResponse> &cmdResponse)
+{
+    cmdResponse = reply.ReadParcelable<CmdResponse>();
+    if (cmdResponse == nullptr) {
+        ERR_LOG("Unmarshalling cmdResponse fail");
+        return FAIL;
+    }
+    return cmdResponse->GetErr();
+}
+
 FileManagerProxy::FileManagerProxy(const sptr<IRemoteObject> &impl)
     : IRemoteProxy<IFileManagerService>(impl) {}
 int FileManagerProxy::GetRoot(const CmdOptions &option, vector<unique_ptr<FileInfo>> &fileRes)
@@ -41,15 +52,12 @@ int FileManagerProxy::GetRoot(const CmdOptions &option, vector<unique_ptr<FileIn
             ERR_LOG("GetRoot inner error send request fail %{public}d", err);
             return FAIL;
         }
-        int count = 0;
-        reply.ReadInt32(count);
-        for (int i = 0; i < count; i++) {
-            string rootPath;
-            reply.ReadString(rootPath);
-            unique_ptr<FileInfo> file = make_unique<FileInfo>(FILE_ROOT_NAME, rootPath, ALBUM_TYPE);
-            fileRes.emplace_back(move(file));
+        sptr<CmdResponse> cmdResponse;
+        err = GetCmdResponse(reply, cmdResponse);
+        if (err != ERR_NONE) {
+            return err;
         }
-        reply.ReadInt32(err);
+        fileRes = cmdResponse->GetFileInfoList();
         return err;
     } else {
         unique_ptr<FileInfo> image = make_unique<FileInfo>(IMAGE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
@@ -82,8 +90,12 @@ int FileManagerProxy::CreateFile(const std::string &path, const std::string &fil
         ERR_LOG("inner error send request fail %{public}d", err);
         return FAIL;
     }
-    reply.ReadString(uri);
-    reply.ReadInt32(err);
+    sptr<CmdResponse> cmdResponse;
+    err = GetCmdResponse(reply, cmdResponse);
+    if (err != ERR_NONE) {
+        return err;
+    }
+    uri = cmdResponse->GetUri();
     return err;
 }
 
@@ -104,21 +116,21 @@ IFmsClient *IFmsClient::GetFmsInstance()
 }
 
 int FileManagerProxy::ListFile(const std::string &type, const std::string &path, const CmdOptions &option,
-    std::vector<unique_ptr<FileInfo>> &fileRes)
+    std::vector<std::unique_ptr<FileInfo>> &fileRes)
 {
     MessageParcel data;
     CmdOptions op(option);
     std::string devName(op.GetDevInfo().GetName());
     std::string devPath(op.GetDevInfo().GetPath());
-    int32_t offset = op.GetOffset();
-    int32_t count = op.GetCount();
+    int64_t offset = op.GetOffset();
+    int64_t count = op.GetCount();
 
     data.WriteString(devName);
     data.WriteString(devPath);
     data.WriteString(type);
     data.WriteString(path);
-    data.WriteInt32(offset);
-    data.WriteInt32(count);
+    data.WriteInt64(offset);
+    data.WriteInt64(count);
     MessageParcel reply;
     MessageOption messageOption;
     uint32_t code = Operation::LIST_FILE;
@@ -130,14 +142,12 @@ int FileManagerProxy::ListFile(const std::string &type, const std::string &path,
         ERR_LOG("inner error send request fail %{public}d", err);
         return FAIL;
     }
-    int fileInfoNum = 0;
-    reply.ReadInt32(fileInfoNum);
-    while (fileInfoNum) {
-        unique_ptr<FileInfo> file(reply.ReadParcelable<FileInfo>());
-        fileRes.emplace_back(move(file));
-        fileInfoNum--;
+    sptr<CmdResponse> cmdResponse;
+    err = GetCmdResponse(reply, cmdResponse);
+    if (err != ERR_NONE) {
+        return err;
     }
-    reply.ReadInt32(err);
+    fileRes = cmdResponse->GetFileInfoList();
     return err;
 }
 

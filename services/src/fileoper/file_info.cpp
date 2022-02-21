@@ -28,11 +28,13 @@ bool FileInfo::Marshalling(Parcel &parcel) const
     parcel.WriteInt64(modifiedTime_);
     return true;
 }
+
 FileInfo* FileInfo::Unmarshalling(Parcel &parcel)
 {
     auto *obj = new (std::nothrow) FileInfo();
     if (obj == nullptr) {
         ERR_LOG("Unmarshalling fail");
+        return nullptr;
     }
     obj->path_ = parcel.ReadString();
     obj->name_ = parcel.ReadString();

@@ -16,7 +16,7 @@
 #define STORAGE_SERVICES_DEV_INFO_H
 
 #include <string>
-
+#include "file_manager_service_def.h"
 namespace OHOS {
 namespace FileManagerService {
 class DevInfo {
@@ -123,7 +123,7 @@ public:
 private:
     DevInfo dev_;
     int64_t offset_ {0};
-    int64_t count_ {0};
+    int64_t count_ {MAX_NUM};
     bool hasOpt_ {false};
 };
 } // namespace FileManagerService
