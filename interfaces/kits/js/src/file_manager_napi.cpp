@@ -92,7 +92,7 @@ tuple<bool, unique_ptr<char[]>, unique_ptr<char[]>, CmdOptions> GetCreateFileArg
     bool succ = false;
     unique_ptr<char[]> path;
     unique_ptr<char[]> fileName;
-    CmdOptions option("local", "", 0, 0, false);
+    CmdOptions option("local", "", 0, MAX_NUM, false);
     tie(succ, path, ignore) = NVal(env, funcArg[CreateFileArgs::CF_PATH]).ToUTF8String();
     if (!succ) {
         return {false, nullptr, nullptr, option};
@@ -223,7 +223,7 @@ napi_value FileManagerNapi::GetRoot(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    CmdOptions option("local", "", 0, 0, false);
+    CmdOptions option("local", "", 0, MAX_NUM, false);
     if (funcArg.GetArgc() != 0) {
         if (!GetRootArgs(env, funcArg, option)) {
             UniError(EINVAL).ThrowErr(env, "GetRoot func get dev para fails");
@@ -303,7 +303,7 @@ tuple<bool, unique_ptr<char[]>, unique_ptr<char[]>, CmdOptions> GetListFileArg(
     bool succ = false;
     unique_ptr<char[]> path;
     unique_ptr<char[]> type;
-    CmdOptions option("local", "", 0, 0, false);
+    CmdOptions option("local", "", 0, MAX_NUM, false);
     tie(succ, path, ignore) = NVal(env, funcArg[ListFileArgs::LF_PATH]).ToUTF8String();
     if (!succ) {
         ERR_LOG("ListFileArgs LF_PATH para fails");

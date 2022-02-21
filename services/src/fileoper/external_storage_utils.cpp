@@ -126,13 +126,20 @@ int ExternalStorageUtils::DoListFile(const std::string &type, const std::string 
         ERR_LOG("opendir path[%{public}s] fail.", path.c_str());
         return E_NOEXIST;
     }
-    int64_t index = 0;
-    for (struct dirent *ent = readdir(dir); ent != nullptr; ent = readdir(dir)) {
-        if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) {
-            continue;
-        }
-        if (index < offset) {
+    if (offset != 0) {
+        int64_t index = 0;
+        for (dirent *ent = readdir(dir); ent != nullptr; ent = readdir(dir)) {
+            if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) {
+                continue;
+            }
+            if (index == offset - 1) {
+                break;
+            }
             index++;
+        }
+    }
+    for (dirent *ent = readdir(dir); ent != nullptr; ent = readdir(dir)) {
+        if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) {
             continue;
         }
         if (count > 0) {
@@ -146,9 +153,11 @@ int ExternalStorageUtils::DoListFile(const std::string &type, const std::string 
                 break;
             }
         }
-        index++;
     }
     closedir(dir);
+    if (option.GetCount() == MAX_NUM && count == 0) {
+        DEBUG_LOG("get files with MAX_NUM:[%{public}lld].", MAX_NUM);
+    }
     return SUCCESS;
 }
 

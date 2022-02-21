@@ -19,6 +19,8 @@
 
 namespace OHOS {
 namespace FileManagerService {
+constexpr int64_t MAX_NUM = 200;
+
 class DevInfo {
 public:
     DevInfo() = default;
