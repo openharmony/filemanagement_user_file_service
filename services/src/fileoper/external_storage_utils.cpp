@@ -141,7 +141,7 @@ int ExternalStorageUtils::DoListFile(const std::string &type, const std::string 
             continue;
         }
         if (count > 0) {
-            shared_ptr<FileInfo> fileInfo = make_unique<FileInfo>();
+            shared_ptr<FileInfo> fileInfo = make_shared<FileInfo>();
             if (!GetFileInfo(path, ent->d_name, fileInfo)) {
                 continue;
             }
