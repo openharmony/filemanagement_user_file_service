@@ -30,10 +30,10 @@ public:
     ExternalStorageUtils();
     ~ExternalStorageUtils();
     static int DoListFile(const std::string &type, const std::string &uri, const CmdOptions &option,
-        std::vector<std::unique_ptr<FileInfo>> &fileList);
+        std::vector<std::shared_ptr<FileInfo>> &fileList);
     static int DoCreateFile(const std::string &uri, const std::string &name, std::string &resultUri);
     static int DoGetRoot(const std::string &name, const std::string &path,
-        std::vector<std::unique_ptr<FileInfo>> &fileList);
+        std::vector<std::shared_ptr<FileInfo>> &fileList);
 };
 } // namespace FileManagerService
 } // namespace OHOS

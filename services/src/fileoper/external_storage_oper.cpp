@@ -67,7 +67,7 @@ int ExternalStorageOper::OperProcess(uint32_t code, MessageParcel &data, Message
 
 int ExternalStorageOper::GetRoot(const std::string &name, const std::string &path, MessageParcel &reply) const
 {
-    std::vector<std::unique_ptr<FileInfo>> fileList;
+    std::vector<std::shared_ptr<FileInfo>> fileList;
     int ret = ExternalStorageUtils::DoGetRoot(name, path, fileList);
     CmdResponse cmdResponse;
     cmdResponse.SetErr(ret);
@@ -90,7 +90,7 @@ int ExternalStorageOper::CreateFile(const std::string &uri, const std::string &n
 int ExternalStorageOper::ListFile(const std::string &type, const std::string &uri, const CmdOptions &option,
     MessageParcel &reply) const
 {
-    std::vector<std::unique_ptr<FileInfo>> fileList;
+    std::vector<std::shared_ptr<FileInfo>> fileList;
     int ret = ExternalStorageUtils::DoListFile(type, uri, option, fileList);
     CmdResponse cmdResponse;
     cmdResponse.SetErr(ret);

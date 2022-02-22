@@ -40,9 +40,9 @@ public:
     static std::shared_ptr<NativeRdb::AbsSharedResultSet> DoQuery(const std::string &selection,
         const std::vector<std::string> &selectionArgs);
     static int DoInsert(const std::string &name, const std::string &path, const std::string &type, std::string &uri);
-    static bool GetFileInfo(std::shared_ptr<NativeRdb::AbsSharedResultSet> result, std::unique_ptr<FileInfo> &fileInfo);
+    static bool GetFileInfo(std::shared_ptr<NativeRdb::AbsSharedResultSet> result, std::shared_ptr<FileInfo> &fileInfo);
     static int GetFileInfoFromResult(std::shared_ptr<NativeRdb::AbsSharedResultSet> result,
-        std::vector<std::unique_ptr<FileInfo>> &fileList);
+        std::vector<std::shared_ptr<FileInfo>> &fileList);
     static bool InitMediaTableColIndexMap(std::shared_ptr<NativeRdb::AbsSharedResultSet> result);
     static bool InitHelper(sptr<IRemoteObject> obj);
 private:

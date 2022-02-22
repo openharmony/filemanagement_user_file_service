@@ -24,8 +24,8 @@ public:
     static IFmsClient *GetFmsInstance();
     virtual int Mkdir(const std::string &name, const std::string &path) = 0;
     virtual int ListFile(const std::string &type, const std::string &path, const CmdOptions &option,
-        std::vector<std::unique_ptr<FileInfo>> &fileRes) = 0;
-    virtual int GetRoot(const CmdOptions &option, std::vector<std::unique_ptr<FileInfo>> &fileRes) = 0;
+        std::vector<std::shared_ptr<FileInfo>> &fileRes) = 0;
+    virtual int GetRoot(const CmdOptions &option, std::vector<std::shared_ptr<FileInfo>> &fileRes) = 0;
     virtual int CreateFile(const std::string &path, const std::string &fileName,
         const CmdOptions &option, std::string &uri) = 0;
 };
