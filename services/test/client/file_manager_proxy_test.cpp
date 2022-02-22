@@ -57,7 +57,7 @@ HWTEST_F(FileManagerProxyTest, File_Manager_Proxy_GetRoot_0000, testing::ext::Te
 {
     GTEST_LOG_(INFO) << "FileManagerProxyTest-begin File_Manager_Proxy_GetRoot_0000";
     CmdOptions option;
-    std::vector<std::unique_ptr<FileInfo>> fileRes;
+    std::vector<std::shared_ptr<FileInfo>> fileRes;
     int ret = proxy_->GetRoot(option, fileRes);
     ASSERT_TRUE(ret == 0);
     GTEST_LOG_(INFO) << "FileManagerProxyTest-end File_Manager_Proxy_GetRoot_0000";
@@ -121,7 +121,7 @@ HWTEST_F(FileManagerProxyTest, File_Manager_Proxy_ListFile_0000, testing::ext::T
     std::string type = "file";
     std::string path = "dataability:///album";
     CmdOptions option;
-    std::vector<std::unique_ptr<FileInfo>> fileRes;
+    std::vector<std::shared_ptr<FileInfo>> fileRes;
     EXPECT_CALL(*mock_, SendRequest(testing::_, testing::_, testing::_, testing::_))
         .Times(1)
         .WillOnce(testing::Invoke(mock_.GetRefPtr(), &FmsManagerProxyMock::InvokeSendRequest));
