@@ -50,8 +50,8 @@ int MediaFileOper::OperProcess(uint32_t code, MessageParcel &data, MessageParcel
             string devPath = data.ReadString();
             string type = data.ReadString();
             string path = data.ReadString();
-            int off = data.ReadInt32();
-            int count = data.ReadInt32();
+            int off = data.ReadInt64();
+            int count = data.ReadInt64();
             // put fileInfo into reply
             errCode = ListFile(type, path, off, count, reply);
             break;
@@ -78,7 +78,9 @@ int MediaFileOper::CreateFile(const std::string &name, const std::string &path, 
     CmdResponse cmdResponse;
     cmdResponse.SetErr(ret);
     cmdResponse.SetUri(uri);
-    reply.WriteParcelable(&cmdResponse);
+    if (!reply.WriteParcelable(&cmdResponse)) {
+        ERR_LOG("reply write err parcel capacity:%{public}d", reply.GetDataCapacity());
+    }
     return ret;
 }
 
@@ -95,7 +97,9 @@ int MediaFileOper::ListFile(const string &type, const string &path, int offset, 
     CmdResponse cmdResponse;
     cmdResponse.SetErr(res);
     cmdResponse.SetFileInfoList(fileList);
-    reply.WriteParcelable(&cmdResponse);
+    if (!reply.WriteParcelable(&cmdResponse)) {
+        ERR_LOG("reply write err parcel capacity:%{public}d", reply.GetDataCapacity());
+    }
     return res;
 }
 

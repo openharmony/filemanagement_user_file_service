@@ -287,7 +287,7 @@ int MediaFileUtils::DoListFile(const string &type, const string &path, int offse
             return err;
         }
     }
-    result = DoQuery(selection, selectionArgs);
+    result = DoQuery(selection, selectionArgs, offset, count);
     if (result == nullptr) {
         ERR_LOG("ListFile folder is empty");
         return E_EMPTYFOLDER;
@@ -298,10 +298,19 @@ int MediaFileUtils::DoListFile(const string &type, const string &path, int offse
 shared_ptr<NativeRdb::AbsSharedResultSet> MediaFileUtils::DoQuery(const string &selection,
     const vector<string> &selectionArgs)
 {
+    return DoQuery(selection, selectionArgs, 0, MAX_NUM);
+}
+
+shared_ptr<NativeRdb::AbsSharedResultSet> MediaFileUtils::DoQuery(const string &selection,
+    const vector<string> &selectionArgs, int offset, int count)
+{
     ShowSelecArgs(selection, selectionArgs);
     NativeRdb::DataAbilityPredicates predicates;
     predicates.SetWhereClause(selection);
     predicates.SetWhereArgs(selectionArgs);
+    predicates.Limit(count);
+    predicates.Offset(offset);
+    DEBUG_LOG("limit %{public}d, offset %{public}d", count, offset);
     Uri uri = Uri(Media::MEDIALIBRARY_DATA_URI);
     vector<string> columns;
     return abilityHelper->Query(uri, columns, predicates);

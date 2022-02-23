@@ -113,6 +113,7 @@ int ExternalStorageUtils::DoListFile(const std::string &type, const std::string 
         ERR_LOG("invalid file count or offset.");
         return E_INVALID_FILE_NUMBER;
     }
+    DEBUG_LOG("limit %{public}d, offset %{public}d", count, offset);
     std::string path;
     if (!ConvertUriToAbsolutePath(uri, path)) {
         ERR_LOG("invalid uri[%{public}s].", uri.c_str());

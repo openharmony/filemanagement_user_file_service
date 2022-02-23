@@ -72,7 +72,9 @@ int ExternalStorageOper::GetRoot(const std::string &name, const std::string &pat
     CmdResponse cmdResponse;
     cmdResponse.SetErr(ret);
     cmdResponse.SetFileInfoList(fileList);
-    reply.WriteParcelable(&cmdResponse);
+    if (!reply.WriteParcelable(&cmdResponse)) {
+        ERR_LOG("reply write err parcel capacity%{public}d", reply.GetDataCapacity());
+    }
     return ret;
 }
 
@@ -83,7 +85,9 @@ int ExternalStorageOper::CreateFile(const std::string &uri, const std::string &n
     CmdResponse cmdResponse;
     cmdResponse.SetErr(ret);
     cmdResponse.SetUri(resultUir);
-    reply.WriteParcelable(&cmdResponse);
+    if (!reply.WriteParcelable(&cmdResponse)) {
+        ERR_LOG("reply write err parcel capacity:%{public}d", reply.GetDataCapacity());
+    }
     return ret;
 }
 
@@ -95,7 +99,9 @@ int ExternalStorageOper::ListFile(const std::string &type, const std::string &ur
     CmdResponse cmdResponse;
     cmdResponse.SetErr(ret);
     cmdResponse.SetFileInfoList(fileList);
-    reply.WriteParcelable(&cmdResponse);
+    if (!reply.WriteParcelable(&cmdResponse)) {
+        ERR_LOG("reply write err parcel capacity:%{public}d", reply.GetDataCapacity());
+    }
     return ret;
 }
 } // namespace FileManagerService
