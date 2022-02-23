@@ -59,7 +59,7 @@ static bool GetRealPath(string &path)
     return true;
 }
 
-static bool GetFileInfo(const std::string &path, const std::string &name, unique_ptr<FileInfo> &fileInfo)
+static bool GetFileInfo(const std::string &path, const std::string &name, shared_ptr<FileInfo> &fileInfo)
 {
     std::string fullPath(path);
     size_t len = fullPath.size();
@@ -105,7 +105,7 @@ static bool ConvertUriToAbsolutePath(const std::string &uri, std::string &path)
 }
 
 int ExternalStorageUtils::DoListFile(const std::string &type, const std::string &uri, const CmdOptions &option,
-    std::vector<unique_ptr<FileInfo>> &fileList)
+    std::vector<shared_ptr<FileInfo>> &fileList)
 {
     int64_t count = option.GetCount();
     int64_t offset = option.GetOffset();
@@ -141,11 +141,11 @@ int ExternalStorageUtils::DoListFile(const std::string &type, const std::string 
             continue;
         }
         if (count > 0) {
-            unique_ptr<FileInfo> fileInfo = make_unique<FileInfo>();
+            shared_ptr<FileInfo> fileInfo = make_shared<FileInfo>();
             if (!GetFileInfo(path, ent->d_name, fileInfo)) {
                 continue;
             }
-            fileList.push_back(move(fileInfo));
+            fileList.push_back(fileInfo);
             count--;
             if (count == 0) {
                 break;
@@ -188,7 +188,7 @@ int ExternalStorageUtils::DoCreateFile(const std::string &uri, const std::string
 }
 
 int ExternalStorageUtils::DoGetRoot(const std::string &name, const std::string &path,
-    std::vector<unique_ptr<FileInfo>> &fileList)
+    std::vector<shared_ptr<FileInfo>> &fileList)
 {
     vector<string> vecRootPath;
     if (!StorageManagerInf::GetMountedVolumes(vecRootPath)) {
@@ -196,8 +196,8 @@ int ExternalStorageUtils::DoGetRoot(const std::string &name, const std::string &
         return FAIL;
     }
     for (auto rootPath : vecRootPath) {
-        unique_ptr<FileInfo> fileInfo = make_unique<FileInfo>(FILE_ROOT_NAME, rootPath, ALBUM_TYPE);
-        fileList.push_back(move(fileInfo));
+        shared_ptr<FileInfo> fileInfo = make_shared<FileInfo>(FILE_ROOT_NAME, rootPath, ALBUM_TYPE);
+        fileList.push_back(fileInfo);
     }
     return SUCCESS;
 }

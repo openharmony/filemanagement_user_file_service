@@ -38,7 +38,7 @@ static int GetCmdResponse(MessageParcel &reply, sptr<CmdResponse> &cmdResponse)
 
 FileManagerProxy::FileManagerProxy(const sptr<IRemoteObject> &impl)
     : IRemoteProxy<IFileManagerService>(impl) {}
-int FileManagerProxy::GetRoot(const CmdOptions &option, vector<unique_ptr<FileInfo>> &fileRes)
+int FileManagerProxy::GetRoot(const CmdOptions &option, vector<shared_ptr<FileInfo>> &fileRes)
 {
     CmdOptions op(option);
     if (op.GetDevInfo().GetName() == "external_storage") {
@@ -60,14 +60,14 @@ int FileManagerProxy::GetRoot(const CmdOptions &option, vector<unique_ptr<FileIn
         fileRes = cmdResponse->GetFileInfoList();
         return err;
     } else {
-        unique_ptr<FileInfo> image = make_unique<FileInfo>(IMAGE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
-        fileRes.emplace_back(move(image));
-        unique_ptr<FileInfo> video = make_unique<FileInfo>(VIDEO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
-        fileRes.emplace_back(move(video));
-        unique_ptr<FileInfo> audio = make_unique<FileInfo>(AUDIO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
-        fileRes.emplace_back(move(audio));
-        unique_ptr<FileInfo> file = make_unique<FileInfo>(FILE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
-        fileRes.emplace_back(move(file));
+        shared_ptr<FileInfo> image = make_shared<FileInfo>(IMAGE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+        fileRes.emplace_back(image);
+        shared_ptr<FileInfo> video = make_shared<FileInfo>(VIDEO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+        fileRes.emplace_back(video);
+        shared_ptr<FileInfo> audio = make_shared<FileInfo>(AUDIO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+        fileRes.emplace_back(audio);
+        shared_ptr<FileInfo> file = make_shared<FileInfo>(FILE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+        fileRes.emplace_back(file);
         return SUCCESS;
     }
 }
@@ -116,7 +116,7 @@ IFmsClient *IFmsClient::GetFmsInstance()
 }
 
 int FileManagerProxy::ListFile(const std::string &type, const std::string &path, const CmdOptions &option,
-    std::vector<std::unique_ptr<FileInfo>> &fileRes)
+    std::vector<std::shared_ptr<FileInfo>> &fileRes)
 {
     MessageParcel data;
     CmdOptions op(option);

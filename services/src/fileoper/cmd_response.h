@@ -26,8 +26,8 @@ namespace FileManagerService {
 class CmdResponse : public Parcelable {
 public:
     CmdResponse() = default;
-    CmdResponse(int &err, std::string &uri, std::vector<std::unique_ptr<FileInfo>> &fileInfoList)
-        : err_(err), uri_(uri), vecFileInfo_(move(fileInfoList))
+    CmdResponse(int &err, std::string &uri, std::vector<std::shared_ptr<FileInfo>> &fileInfoList)
+        : err_(err), uri_(uri), vecFileInfo_(fileInfoList)
     {}
     ~CmdResponse() = default;
 
@@ -51,14 +51,14 @@ public:
         return uri_;
     }
 
-    void SetFileInfoList(std::vector<std::unique_ptr<FileInfo>> &fileInfoList)
+    void SetFileInfoList(std::vector<std::shared_ptr<FileInfo>> &fileInfoList)
     {
-        vecFileInfo_ = move(fileInfoList);
+        vecFileInfo_ = fileInfoList;
     }
 
-    std::vector<std::unique_ptr<FileInfo>> GetFileInfoList()
+    std::vector<std::shared_ptr<FileInfo>> GetFileInfoList()
     {
-        return move(vecFileInfo_);
+        return vecFileInfo_;
     }
 
     virtual bool Marshalling(Parcel &parcel) const override
@@ -83,15 +83,15 @@ public:
         obj->uri_ = parcel.ReadString();
         int fileCount = parcel.ReadInt32();
         for (int i = 0; i < fileCount; i++) {
-            std::unique_ptr<FileInfo> file(parcel.ReadParcelable<FileInfo>());
-            obj->vecFileInfo_.emplace_back(move(file));
+            std::shared_ptr<FileInfo> file(parcel.ReadParcelable<FileInfo>());
+            obj->vecFileInfo_.emplace_back(file);
         }
         return obj;
     }
 private:
     int err_;
     std::string uri_;
-    std::vector<std::unique_ptr<FileInfo>> vecFileInfo_;
+    std::vector<std::shared_ptr<FileInfo>> vecFileInfo_;
 };
 } // FileManagerService
 } // namespace OHOS

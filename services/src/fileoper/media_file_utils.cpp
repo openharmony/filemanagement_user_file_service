@@ -358,7 +358,7 @@ bool MediaFileUtils::InitMediaTableColIndexMap(shared_ptr<NativeRdb::AbsSharedRe
 }
 
 bool MediaFileUtils::GetFileInfo(shared_ptr<NativeRdb::AbsSharedResultSet> result,
-    unique_ptr<FileInfo> &fileInfo)
+    shared_ptr<FileInfo> &fileInfo)
 {
     if (!InitMediaTableColIndexMap(result)) {
         ERR_LOG("InitMediaTableColIndexMap returns fail");
@@ -389,7 +389,7 @@ bool MediaFileUtils::GetFileInfo(shared_ptr<NativeRdb::AbsSharedResultSet> resul
 }
 
 int MediaFileUtils::GetFileInfoFromResult(shared_ptr<NativeRdb::AbsSharedResultSet> result,
-    std::vector<unique_ptr<FileInfo>> &fileList)
+    std::vector<shared_ptr<FileInfo>> &fileList)
 {
     int count = 0;
     result->GetRowCount(count);
@@ -399,9 +399,9 @@ int MediaFileUtils::GetFileInfoFromResult(shared_ptr<NativeRdb::AbsSharedResultS
     }
     result->GoToFirstRow();
     for (int i = 0; i < count; i++) {
-        unique_ptr<FileInfo> fileInfo = make_unique<FileInfo>();
+        shared_ptr<FileInfo> fileInfo = make_shared<FileInfo>();
         GetFileInfo(result, fileInfo);
-        fileList.push_back(move(fileInfo));
+        fileList.push_back(fileInfo);
         result->GoToNextRow();
     }
     return SUCCESS;

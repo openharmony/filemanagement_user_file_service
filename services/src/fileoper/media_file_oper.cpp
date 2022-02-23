@@ -90,7 +90,7 @@ int MediaFileOper::ListFile(const string &type, const string &path, int offset, 
         return res;
     }
 
-    std::vector<std::unique_ptr<FileInfo>> fileList;
+    std::vector<std::shared_ptr<FileInfo>> fileList;
     res = MediaFileUtils::GetFileInfoFromResult(result, fileList);
     CmdResponse cmdResponse;
     cmdResponse.SetErr(res);

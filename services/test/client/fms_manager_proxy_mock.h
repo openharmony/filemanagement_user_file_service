@@ -38,11 +38,11 @@ public:
         return ERR_NONE;
     }
     virtual int ListFile(const std::string &type, const std::string &path, const CmdOptions &option,
-        std::vector<std::unique_ptr<FileInfo>> &fileRes) override
+        std::vector<std::shared_ptr<FileInfo>> &fileRes) override
     {
         return ERR_NONE;
     }
-    virtual int GetRoot(const CmdOptions &option, std::vector<std::unique_ptr<FileInfo>> &fileRes) override
+    virtual int GetRoot(const CmdOptions &option, std::vector<std::shared_ptr<FileInfo>> &fileRes) override
     {
         return ERR_NONE;
     }

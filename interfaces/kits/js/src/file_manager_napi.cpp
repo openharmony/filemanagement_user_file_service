@@ -32,7 +32,7 @@ using namespace std;
 using namespace DistributedFS;
 struct AsyncFileInfoArg {
     NRef ref_;
-    vector<unique_ptr<FileInfo>> fileRes_;
+    vector<shared_ptr<FileInfo>> fileRes_;
     explicit AsyncFileInfoArg(NVal ref) : ref_(ref), fileRes_() {};
     ~AsyncFileInfoArg() = default;
 };
@@ -182,7 +182,7 @@ void CreateFileArray(napi_env env, shared_ptr<AsyncFileInfoArg> arg)
 {
     for (unsigned int i = 0; i < arg->fileRes_.size(); i++) {
         NVal obj = NVal::CreateObject(env);
-        unique_ptr<FileInfo> &res = arg->fileRes_[i];
+        shared_ptr<FileInfo> &res = arg->fileRes_[i];
         obj.AddProp("name", NVal::CreateUTF8String(env, res->GetName()).val_);
         obj.AddProp("path", NVal::CreateUTF8String(env, res->GetPath()).val_);
         obj.AddProp("type", NVal::CreateUTF8String(env, res->GetType()).val_);
