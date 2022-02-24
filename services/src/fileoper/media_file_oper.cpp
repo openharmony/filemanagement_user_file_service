@@ -45,6 +45,13 @@ int MediaFileOper::OperProcess(uint32_t code, MessageParcel &data, MessageParcel
             errCode = Mkdir(name, path);
             break;
         }
+        case Operation::GET_ROOT: {
+            string path = data.ReadString();
+            // name for extension
+            string name = "name";
+            errCode = GetRoot(name, path, reply);
+            break;
+        }
         case Operation::LIST_FILE: {
             string devName = data.ReadString();
             string devPath = data.ReadString();
@@ -80,6 +87,19 @@ int MediaFileOper::CreateFile(const std::string &name, const std::string &path, 
     cmdResponse.SetUri(uri);
     if (!reply.WriteParcelable(&cmdResponse)) {
         ERR_LOG("reply write err parcel capacity:%{public}d", reply.GetDataCapacity());
+    }
+    return ret;
+}
+
+int MediaFileOper::GetRoot(const std::string &name, const std::string &path, MessageParcel &reply) const
+{
+    std::vector<std::shared_ptr<FileInfo>> fileList;
+    int ret = MediaFileUtils::DoGetRoot(name, path, fileList);
+    CmdResponse cmdResponse;
+    cmdResponse.SetErr(ret);
+    cmdResponse.SetFileInfoList(fileList);
+    if (!reply.WriteParcelable(&cmdResponse)) {
+        ERR_LOG("reply write err parcel capacity%{public}d", reply.GetDataCapacity());
     }
     return ret;
 }

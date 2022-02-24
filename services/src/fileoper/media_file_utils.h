@@ -35,6 +35,8 @@ class MediaFileUtils  {
 public:
     MediaFileUtils();
     ~MediaFileUtils();
+    static int DoGetRoot(const std::string &name, const std::string &path,
+        std::vector<std::shared_ptr<FileInfo>> &fileList);
     static int DoListFile(const std::string &type, const std::string &path, int offset, int count,
         std::shared_ptr<NativeRdb::AbsSharedResultSet> &result);
     static std::shared_ptr<NativeRdb::AbsSharedResultSet> DoQuery(const std::string &selection,

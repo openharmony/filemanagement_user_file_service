@@ -427,5 +427,19 @@ bool MediaFileUtils::InitHelper(sptr<IRemoteObject> obj)
     }
     return true;
 }
+
+int MediaFileUtils::DoGetRoot(const std::string &name, const std::string &path,
+    std::vector<shared_ptr<FileInfo>> &fileList)
+{
+    shared_ptr<FileInfo> image = make_shared<FileInfo>(IMAGE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+    fileList.emplace_back(image);
+    shared_ptr<FileInfo> video = make_shared<FileInfo>(VIDEO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+    fileList.emplace_back(video);
+    shared_ptr<FileInfo> audio = make_shared<FileInfo>(AUDIO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+    fileList.emplace_back(audio);
+    shared_ptr<FileInfo> file = make_shared<FileInfo>(FILE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+    fileList.emplace_back(file);
+    return SUCCESS;
+}
 } // namespace FileManagerService
 } // namespace OHOS
