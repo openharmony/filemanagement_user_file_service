@@ -27,6 +27,7 @@ public:
 private:
     int CreateFile(const std::string &name, const std::string &path, MessageParcel &reply) const;
     int ListFile(const std::string &type, const std::string &path, int offset, int count, MessageParcel &data) const;
+    int GetRoot(const std::string &name, const std::string &path, MessageParcel &reply) const;
     int Mkdir(const std::string &name, const std::string &path) const;
 };
 } // namespace FileManagerService

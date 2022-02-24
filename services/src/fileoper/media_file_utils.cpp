@@ -287,7 +287,7 @@ int MediaFileUtils::DoListFile(const string &type, const string &path, int offse
             return err;
         }
     }
-    result = DoQuery(selection, selectionArgs);
+    result = DoQuery(selection, selectionArgs, offset, count);
     if (result == nullptr) {
         ERR_LOG("ListFile folder is empty");
         return E_EMPTYFOLDER;
@@ -298,10 +298,19 @@ int MediaFileUtils::DoListFile(const string &type, const string &path, int offse
 shared_ptr<NativeRdb::AbsSharedResultSet> MediaFileUtils::DoQuery(const string &selection,
     const vector<string> &selectionArgs)
 {
+    return DoQuery(selection, selectionArgs, 0, MAX_NUM);
+}
+
+shared_ptr<NativeRdb::AbsSharedResultSet> MediaFileUtils::DoQuery(const string &selection,
+    const vector<string> &selectionArgs, int offset, int count)
+{
     ShowSelecArgs(selection, selectionArgs);
     NativeRdb::DataAbilityPredicates predicates;
     predicates.SetWhereClause(selection);
     predicates.SetWhereArgs(selectionArgs);
+    predicates.Limit(count);
+    predicates.Offset(offset);
+    DEBUG_LOG("limit %{public}d, offset %{public}d", count, offset);
     Uri uri = Uri(Media::MEDIALIBRARY_DATA_URI);
     vector<string> columns;
     return abilityHelper->Query(uri, columns, predicates);
@@ -417,6 +426,20 @@ bool MediaFileUtils::InitHelper(sptr<IRemoteObject> obj)
         }
     }
     return true;
+}
+
+int MediaFileUtils::DoGetRoot(const std::string &name, const std::string &path,
+    std::vector<shared_ptr<FileInfo>> &fileList)
+{
+    shared_ptr<FileInfo> image = make_shared<FileInfo>(IMAGE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+    fileList.emplace_back(image);
+    shared_ptr<FileInfo> video = make_shared<FileInfo>(VIDEO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+    fileList.emplace_back(video);
+    shared_ptr<FileInfo> audio = make_shared<FileInfo>(AUDIO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+    fileList.emplace_back(audio);
+    shared_ptr<FileInfo> file = make_shared<FileInfo>(FILE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
+    fileList.emplace_back(file);
+    return SUCCESS;
 }
 } // namespace FileManagerService
 } // namespace OHOS

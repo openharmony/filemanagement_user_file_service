@@ -178,11 +178,15 @@ napi_value FileManagerNapi::CreateFile(napi_env env, napi_callback_info info)
     }
 }
 
-void CreateFileArray(napi_env env, shared_ptr<AsyncFileInfoArg> arg)
+static bool CreateFileArray(napi_env env, shared_ptr<AsyncFileInfoArg> arg)
 {
     for (unsigned int i = 0; i < arg->fileRes_.size(); i++) {
         NVal obj = NVal::CreateObject(env);
-        shared_ptr<FileInfo> &res = arg->fileRes_[i];
+        shared_ptr<FileInfo> res = arg->fileRes_[i];
+        if (res == nullptr) {
+            ERR_LOG("inner error, lack of memory, file count %{public}d", arg->fileRes_.size());
+            return false;
+        }
         obj.AddProp("name", NVal::CreateUTF8String(env, res->GetName()).val_);
         obj.AddProp("path", NVal::CreateUTF8String(env, res->GetPath()).val_);
         obj.AddProp("type", NVal::CreateUTF8String(env, res->GetType()).val_);
@@ -191,6 +195,7 @@ void CreateFileArray(napi_env env, shared_ptr<AsyncFileInfoArg> arg)
         obj.AddProp("modified_time", NVal::CreateInt64(env, res->GetModifiedTime()).val_);
         napi_set_property(env, arg->ref_.Deref(env).val_, NVal::CreateInt32(env, i).val_, obj.val_);
     }
+    return true;
 }
 
 bool GetRootArgs(napi_env env, NFuncArg &funcArg, CmdOptions &option)
@@ -246,7 +251,9 @@ napi_value FileManagerNapi::GetRoot(napi_env env, napi_callback_info info)
         return DealWithErrno(err);
     };
     auto cbComplete = [arg](napi_env env, UniError err) -> NVal {
-        CreateFileArray(env, arg);
+        if (!err && !CreateFileArray(env, arg)) {
+            err = UniError(ENOMEM);
+        }
         if (err) {
             return { env, err.GetNapiErr(env) };
         } else {
@@ -359,10 +366,12 @@ napi_value FileManagerNapi::ListFile(napi_env env, napi_callback_info info)
     };
 
     auto cbComplete = [arg](napi_env env, UniError err) -> NVal {
+        if (!err && !CreateFileArray(env, arg)) {
+            err = UniError(ENOMEM);
+        }
         if (err) {
             return { env, err.GetNapiErr(env) };
         } else {
-            CreateFileArray(env, arg);
             return NVal(env, arg->ref_.Deref(env).val_);
         }
     };

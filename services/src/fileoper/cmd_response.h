@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "file_info.h"
+#include "log.h"
 #include "parcel.h"
 namespace OHOS {
 namespace FileManagerService {
@@ -68,7 +69,10 @@ public:
         int fileCount = vecFileInfo_.size();
         parcel.WriteInt32(fileCount);
         for (int i = 0; i < fileCount; i++) {
-            parcel.WriteParcelable(vecFileInfo_[i].get());
+            if (parcel.WriteParcelable(vecFileInfo_[i].get()) != true) {
+                ERR_LOG("Marshalling fail total:%{public}d i:%{public}d", fileCount, i);
+                return false;
+            }
         }
         return true;
     }

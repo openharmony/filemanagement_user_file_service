@@ -41,35 +41,26 @@ FileManagerProxy::FileManagerProxy(const sptr<IRemoteObject> &impl)
 int FileManagerProxy::GetRoot(const CmdOptions &option, vector<shared_ptr<FileInfo>> &fileRes)
 {
     CmdOptions op(option);
+    int code = Operation::GET_ROOT;
     if (op.GetDevInfo().GetName() == "external_storage") {
-        MessageParcel data;
-        data.WriteString(op.GetDevInfo().GetName());
-        MessageParcel reply;
-        MessageOption messageOption;
-        int code = (Equipment::EXTERNAL_STORAGE << EQUIPMENT_SHIFT) | Operation::GET_ROOT;
-        int err = Remote()->SendRequest(code, data, reply, messageOption);
-        if (err != ERR_NONE) {
-            ERR_LOG("GetRoot inner error send request fail %{public}d", err);
-            return FAIL;
-        }
-        sptr<CmdResponse> cmdResponse;
-        err = GetCmdResponse(reply, cmdResponse);
-        if (err != ERR_NONE) {
-            return err;
-        }
-        fileRes = cmdResponse->GetFileInfoList();
-        return err;
-    } else {
-        shared_ptr<FileInfo> image = make_shared<FileInfo>(IMAGE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
-        fileRes.emplace_back(image);
-        shared_ptr<FileInfo> video = make_shared<FileInfo>(VIDEO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
-        fileRes.emplace_back(video);
-        shared_ptr<FileInfo> audio = make_shared<FileInfo>(AUDIO_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
-        fileRes.emplace_back(audio);
-        shared_ptr<FileInfo> file = make_shared<FileInfo>(FILE_ROOT_NAME, FISRT_LEVEL_ALBUM, ALBUM_TYPE);
-        fileRes.emplace_back(file);
-        return SUCCESS;
+        code = (Equipment::EXTERNAL_STORAGE << EQUIPMENT_SHIFT) | Operation::GET_ROOT;
     }
+    MessageParcel data;
+    data.WriteString(op.GetDevInfo().GetName());
+    MessageParcel reply;
+    MessageOption messageOption;
+    int err = Remote()->SendRequest(code, data, reply, messageOption);
+    if (err != ERR_NONE) {
+        ERR_LOG("GetRoot inner error send request fail %{public}d", err);
+        return FAIL;
+    }
+    sptr<CmdResponse> cmdResponse;
+    err = GetCmdResponse(reply, cmdResponse);
+    if (err != ERR_NONE) {
+        return err;
+    }
+    fileRes = cmdResponse->GetFileInfoList();
+    return err;
 }
 
 int FileManagerProxy::CreateFile(const std::string &path, const std::string &fileName,

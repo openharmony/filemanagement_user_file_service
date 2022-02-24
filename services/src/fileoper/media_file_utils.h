@@ -35,10 +35,14 @@ class MediaFileUtils  {
 public:
     MediaFileUtils();
     ~MediaFileUtils();
+    static int DoGetRoot(const std::string &name, const std::string &path,
+        std::vector<std::shared_ptr<FileInfo>> &fileList);
     static int DoListFile(const std::string &type, const std::string &path, int offset, int count,
         std::shared_ptr<NativeRdb::AbsSharedResultSet> &result);
     static std::shared_ptr<NativeRdb::AbsSharedResultSet> DoQuery(const std::string &selection,
         const std::vector<std::string> &selectionArgs);
+    static std::shared_ptr<NativeRdb::AbsSharedResultSet> DoQuery(const std::string &selection,
+        const std::vector<std::string> &selectionArgs, int offset, int count);
     static int DoInsert(const std::string &name, const std::string &path, const std::string &type, std::string &uri);
     static bool GetFileInfo(std::shared_ptr<NativeRdb::AbsSharedResultSet> result, std::shared_ptr<FileInfo> &fileInfo);
     static int GetFileInfoFromResult(std::shared_ptr<NativeRdb::AbsSharedResultSet> result,

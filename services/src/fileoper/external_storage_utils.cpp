@@ -113,6 +113,7 @@ int ExternalStorageUtils::DoListFile(const std::string &type, const std::string 
         ERR_LOG("invalid file count or offset.");
         return E_INVALID_FILE_NUMBER;
     }
+    DEBUG_LOG("limit %{public}lld, offset %{public}lld", count, offset);
     std::string path;
     if (!ConvertUriToAbsolutePath(uri, path)) {
         ERR_LOG("invalid uri[%{public}s].", uri.c_str());
@@ -192,7 +193,7 @@ int ExternalStorageUtils::DoGetRoot(const std::string &name, const std::string &
 {
     vector<string> vecRootPath;
     if (!StorageManagerInf::GetMountedVolumes(vecRootPath)) {
-        ERR_LOG("there is valid extorage storage");
+        ERR_LOG("none valid extorage storage");
         return FAIL;
     }
     for (auto rootPath : vecRootPath) {
