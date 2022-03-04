@@ -57,8 +57,11 @@ HWTEST_F(FileManagerProxyTest, File_Manager_Proxy_GetRoot_0000, testing::ext::Te
 {
     GTEST_LOG_(INFO) << "FileManagerProxyTest-begin File_Manager_Proxy_GetRoot_0000";
     CmdOptions option;
+    DevInfo dev("local", "");
+    option.SetDevInfo(dev);
     std::vector<std::shared_ptr<FileInfo>> fileRes;
-    int ret = proxy_->GetRoot(option, fileRes);
+    IFmsClient* result = IFmsClient::GetFmsInstance();
+    int ret = result->GetRoot(option, fileRes);
     ASSERT_TRUE(ret == 0);
     GTEST_LOG_(INFO) << "FileManagerProxyTest-end File_Manager_Proxy_GetRoot_0000";
 }
@@ -102,7 +105,7 @@ HWTEST_F(FileManagerProxyTest, File_Manager_Proxy_Mkdir_0000, testing::ext::Test
         .Times(1)
         .WillOnce(testing::Invoke(mock_.GetRefPtr(), &FmsManagerProxyMock::InvokeSendRequest));
     int ret = proxy_->Mkdir(name, path);
-    EXPECT_TRUE(ret == ERR_NONE);
+    EXPECT_EQ(ret, 1);
     GTEST_LOG_(INFO) << "FileManagerProxyTest-end File_Manager_Proxy_Mkdir_0000";
 }
 
@@ -126,7 +129,7 @@ HWTEST_F(FileManagerProxyTest, File_Manager_Proxy_ListFile_0000, testing::ext::T
         .Times(1)
         .WillOnce(testing::Invoke(mock_.GetRefPtr(), &FmsManagerProxyMock::InvokeSendRequest));
     int ret = proxy_->ListFile(type, path, option, fileRes);
-    ASSERT_TRUE(ret == ERR_NONE);
+    EXPECT_EQ(ret, 0);
     GTEST_LOG_(INFO) << "FileManagerProxyTest-end File_Manager_Proxy_ListFile_0000";
 }
 
@@ -150,7 +153,7 @@ HWTEST_F(FileManagerProxyTest, File_Manager_Proxy_CreateFile_0000, testing::ext:
         .Times(1)
         .WillOnce(testing::Invoke(mock_.GetRefPtr(), &FmsManagerProxyMock::InvokeSendRequest));
     int ret = proxy_->CreateFile(path, fileName, option, uri);
-    ASSERT_TRUE(ret == ERR_NONE);
+    EXPECT_EQ(ret, 0);
     GTEST_LOG_(INFO) << "FileManagerProxyTest-end File_Manager_Proxy_CreateFile_0000";
 }
 } // namespace

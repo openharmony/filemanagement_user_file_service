@@ -20,6 +20,7 @@
 #include "iremote_stub.h"
 #include "iremote_proxy.h"
 #include "ifms_client.h"
+#include "cmd_response.h"
 
 namespace OHOS {
 namespace FileManagerService {
@@ -31,6 +32,8 @@ public:
     MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel &, MessageParcel &, MessageOption &));
     int32_t InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
     {
+        sptr<CmdResponse> cmdResponse = new CmdResponse();
+        reply.WriteParcelable(cmdResponse);
         return ERR_NONE;
     }
     virtual int Mkdir(const std::string &name, const std::string &path) override

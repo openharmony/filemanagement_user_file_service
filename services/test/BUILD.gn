@@ -14,7 +14,7 @@
 import("//build/test.gni")
 FMS_BASE_DIR = "//foundation/filemanagement/user_file_service/services"
 ohos_unittest("file_manager_proxy_test") {
-  module_out_path = "storage_manager/user_file_manager"
+  module_out_path = "filemanagement/user_file_service"
 
   sources = [ "client/file_manager_proxy_test.cpp" ]
 
@@ -48,7 +48,7 @@ ohos_unittest("file_manager_proxy_test") {
 }
 
 ohos_unittest("oper_factory_test") {
-  module_out_path = "storage_manager/user_file_manager"
+  module_out_path = "filemanagement/user_file_service"
 
   sources = [ "fileoper/oper_factory_test.cpp" ]
 
@@ -82,7 +82,7 @@ ohos_unittest("oper_factory_test") {
 }
 
 ohos_unittest("file_manager_service_test") {
-  module_out_path = "storage_manager/user_file_manager"
+  module_out_path = "filemanagement/user_file_service"
 
   sources = [ "server/file_manager_service_test.cpp" ]
 
