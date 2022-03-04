@@ -47,96 +47,6 @@ ohos_unittest("file_manager_proxy_test") {
   ]
 }
 
-ohos_unittest("media_file_oper_test") {
-  module_out_path = "filemanagement/user_file_service"
-
-  sources = [
-    "fileoper/media_file_oper_test.cpp",
-  ]
-
-  include_dirs = [
-    "//third_party/json/include",
-    "//base/security/huks/interfaces/innerkits/huks_standard/main/include",
-    "$FMS_BASE_DIR/include",
-    "$FMS_BASE_DIR/src/client",
-    "$FMS_BASE_DIR/src/server",
-    "$FMS_BASE_DIR/src/fileoper",
-    "//foundation/appexecfwk/standard/kits/appkit/native/app/include",
-    "//foundation/aafwk/standard/interfaces/innerkits/want/include/ohos/aafwk/content",
-    "//foundation/aafwk/standard/interfaces/innerkits/base/include/ohos/aafwk/base",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native/include/continuation/kits",
-    "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/include",
-    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_rdb/include",
-    "//foundation/multimedia/medialibrary_standard/interfaces/innerkits/native/include",
-    "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/test/unittest/mediathumbnail_test/include",
-    "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/medialibrary_data_ability/include",
-  ]
-
-  configs = [ "//build/config/compiler:exceptions" ]
-
-  deps = [
-    "$FMS_BASE_DIR:fms_server",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/medialibrary_data_ability:medialibrary_data_ability",
-    "//utils/native/base:utils",
-  ]
-
-  external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "native_appdatamgr:native_dataability",
-    "native_appdatamgr:native_rdb",
-    "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
-  ]
-}
-
-ohos_unittest("media_file_utils_test") {
-  module_out_path = "filemanagement/user_file_service"
-
-  sources = [
-    "fileoper/media_file_utils_test.cpp",
-  ]
-
-  include_dirs = [
-    "//third_party/json/include",
-    "//base/security/huks/interfaces/innerkits/huks_standard/main/include",
-    "$FMS_BASE_DIR/include",
-    "$FMS_BASE_DIR/src/client",
-    "$FMS_BASE_DIR/src/server",
-    "$FMS_BASE_DIR/src/fileoper",
-    "//foundation/appexecfwk/standard/kits/appkit/native/app/include",
-    "//foundation/aafwk/standard/interfaces/innerkits/want/include/ohos/aafwk/content",
-    "//foundation/aafwk/standard/interfaces/innerkits/base/include/ohos/aafwk/base",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native/include/continuation/kits",
-    "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/include",
-    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_rdb/include",
-    "//foundation/multimedia/medialibrary_standard/interfaces/innerkits/native/include",
-    "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/test/unittest/mediathumbnail_test/include",
-    "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/medialibrary_data_ability/include",
-  ]
-
-  configs = [ "//build/config/compiler:exceptions" ]
-
-  deps = [
-    "$FMS_BASE_DIR:fms_server",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/medialibrary_data_ability:medialibrary_data_ability",
-    "//utils/native/base:utils",
-  ]
-
-  external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "native_appdatamgr:native_dataability",
-    "native_appdatamgr:native_rdb",
-    "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
-  ]
-}
-
 ohos_unittest("oper_factory_test") {
   module_out_path = "filemanagement/user_file_service"
 
@@ -166,51 +76,6 @@ ohos_unittest("oper_factory_test") {
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
-  ]
-}
-
-ohos_unittest("file_manager_service_stub_test") {
-  module_out_path = "filemanagement/user_file_service"
-
-  sources = [
-    "server/file_manager_service_stub_test.cpp",
-  ]
-
-  include_dirs = [
-    "//third_party/json/include",
-    "//base/security/huks/interfaces/innerkits/huks_standard/main/include",
-    "$FMS_BASE_DIR/include",
-    "$FMS_BASE_DIR/src/client",
-    "$FMS_BASE_DIR/src/server",
-    "$FMS_BASE_DIR/src/fileoper",
-    "//foundation/appexecfwk/standard/kits/appkit/native/app/include",
-    "//foundation/aafwk/standard/interfaces/innerkits/want/include/ohos/aafwk/content",
-    "//foundation/aafwk/standard/interfaces/innerkits/base/include/ohos/aafwk/base",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native/include/continuation/kits",
-    "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/include",
-    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_rdb/include",
-    "//foundation/multimedia/medialibrary_standard/interfaces/innerkits/native/include",
-    "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/test/unittest/mediathumbnail_test/include",
-    "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/medialibrary_data_ability/include",
-  ]
-
-  configs = [ "//build/config/compiler:exceptions" ]
-
-  deps = [
-    "$FMS_BASE_DIR:fms_server",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/medialibrary_data_ability:medialibrary_data_ability",
-    "//utils/native/base:utils",
-  ]
-
-  external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "native_appdatamgr:native_dataability",
-    "native_appdatamgr:native_rdb",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
   ]
@@ -254,10 +119,7 @@ group("user_file_manager_test") {
 
   deps = [
     ":file_manager_proxy_test",
-    ":file_manager_service_stub_test",
     ":file_manager_service_test",
-    ":media_file_oper_test",
-    ":media_file_utils_test",
     ":oper_factory_test",
   ]
 }
