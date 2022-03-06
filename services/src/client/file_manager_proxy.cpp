@@ -46,6 +46,7 @@ int FileManagerProxy::GetRoot(const CmdOptions &option, vector<shared_ptr<FileIn
         code = (Equipment::EXTERNAL_STORAGE << EQUIPMENT_SHIFT) | Operation::GET_ROOT;
     }
     MessageParcel data;
+    data.WriteInterfaceToken(GetDescriptor());
     data.WriteString(op.GetDevInfo().GetName());
     MessageParcel reply;
     MessageOption messageOption;
@@ -67,6 +68,7 @@ int FileManagerProxy::CreateFile(const std::string &path, const std::string &fil
     const CmdOptions &option, std::string &uri)
 {
     MessageParcel data;
+    data.WriteInterfaceToken(GetDescriptor());
     data.WriteString(fileName);
     data.WriteString(path);
     MessageParcel reply;
@@ -109,13 +111,13 @@ IFmsClient *IFmsClient::GetFmsInstance()
 int FileManagerProxy::ListFile(const std::string &type, const std::string &path, const CmdOptions &option,
     std::vector<std::shared_ptr<FileInfo>> &fileRes)
 {
-    MessageParcel data;
     CmdOptions op(option);
     std::string devName(op.GetDevInfo().GetName());
     std::string devPath(op.GetDevInfo().GetPath());
     int64_t offset = op.GetOffset();
     int64_t count = op.GetCount();
-
+    MessageParcel data;
+    data.WriteInterfaceToken(GetDescriptor());
     data.WriteString(devName);
     data.WriteString(devPath);
     data.WriteString(type);
@@ -145,6 +147,7 @@ int FileManagerProxy::ListFile(const std::string &type, const std::string &path,
 int FileManagerProxy::Mkdir(const string &name, const string &path)
 {
     MessageParcel data;
+    data.WriteInterfaceToken(GetDescriptor());
     data.WriteString(name);
     data.WriteString(path);
     MessageParcel reply;
