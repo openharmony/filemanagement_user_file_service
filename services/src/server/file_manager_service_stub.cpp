@@ -116,17 +116,23 @@ bool CheckClientPermission(const std::string& permissionStr)
 int FileManagerServiceStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
+    // check whether request from fms proxy
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        ERR_LOG("reject error remote request");
+        reply.WriteInt32(FAIL);
+        return FAIL;
+    }
     // change permission string after finishing accessToken
     string permission = "permission";
     if (!CheckClientPermission(permission)) {
         ERR_LOG("checkpermission error FAIL");
     }
     if (!MediaFileUtils::InitHelper(AsObject())) {
-        ERR_LOG("InitHelper error %{public}d", FAIL);
+        ERR_LOG("Init MediaLibraryDataAbility Helper error");
         reply.WriteInt32(FAIL);
         return FAIL;
     }
-    // do file process
+    // do request process
     int32_t errCode = OperProcess(code, data, reply);
     reply.WriteInt32(errCode);
     return errCode;
