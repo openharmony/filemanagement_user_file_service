@@ -16,7 +16,6 @@
 
 #include <cinttypes>
 
-#include "app_log_wrapper.h"
 #include "appexecfwk_errors.h"
 #include "bundle_info.h"
 #include "common_event_manager.h"
