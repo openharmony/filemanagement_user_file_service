@@ -63,7 +63,6 @@ ohos_shared_library("fms_server") {
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/aafwk/standard/interfaces/innerkits/base:base",
     "//foundation/aafwk/standard/services/abilitymgr:abilityms",
-    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/filemanagement/storage_service/interfaces/innerkits/storage_manager/native:storage_manager_sa_proxy",
     "//foundation/filemanagement/storage_service/services/storage_manager:storage_manager",
     "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/media_library:media_library",
@@ -76,6 +75,7 @@ ohos_shared_library("fms_server") {
   }
   external_deps = [
     "ability_base:want",
+    "ability_base:zuri",
     "ability_runtime:ability_manager",
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
