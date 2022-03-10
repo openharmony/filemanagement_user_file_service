@@ -308,8 +308,7 @@ shared_ptr<NativeRdb::AbsSharedResultSet> MediaFileUtils::DoQuery(const string &
     NativeRdb::DataAbilityPredicates predicates;
     predicates.SetWhereClause(selection);
     predicates.SetWhereArgs(selectionArgs);
-    predicates.Limit(count);
-    predicates.Offset(offset);
+    predicates.SetOrder("date_taken DESC LIMIT " + ToString(offset) + "," + ToString(count));
     DEBUG_LOG("limit %{public}d, offset %{public}d", count, offset);
     Uri uri = Uri(Media::MEDIALIBRARY_DATA_URI);
     vector<string> columns;

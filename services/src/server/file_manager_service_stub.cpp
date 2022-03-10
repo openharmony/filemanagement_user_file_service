@@ -55,6 +55,12 @@ int FileManagerServiceStub::OperProcess(uint32_t code, MessageParcel &data,
     return errCode;
 }
 
+static bool GetClientUid(int &uid)
+{
+    uid = IPCSkeleton::GetCallingUid();
+    return true;
+}
+
 static sptr<AppExecFwk::IBundleMgr> GetSysBundleManager()
 {
     auto bundleObj =
@@ -67,22 +73,12 @@ static sptr<AppExecFwk::IBundleMgr> GetSysBundleManager()
     return bms;
 }
 
-static bool GetClientUid(int &uid)
-{
-    auto bms = GetSysBundleManager();
-    if (bms == nullptr) {
-        ERR_LOG("GetClientBundleName bms is %{public}d", (bms == nullptr));
-        return false;
-    }
-    uid = IPCSkeleton::GetCallingUid();
-    return true;
-}
-
 static string GetClientBundleName(int uid)
 {
     std::string bundleName = "";
     auto bms = GetSysBundleManager();
     if (bms == nullptr) {
+        ERR_LOG("failed to get bundle manager service bms == nullptr");
         return bundleName;
     }
     auto result = bms->GetBundleNameForUid(uid, bundleName);
@@ -120,19 +116,23 @@ bool CheckClientPermission(const std::string& permissionStr)
 int FileManagerServiceStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
+    // check whether request from fms proxy
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        ERR_LOG("reject error remote request");
+        reply.WriteInt32(FAIL);
+        return FAIL;
+    }
     // change permission string after finishing accessToken
     string permission = "permission";
     if (!CheckClientPermission(permission)) {
         ERR_LOG("checkpermission error FAIL");
-        reply.WriteInt32(FAIL);
-        return FAIL;
     }
     if (!MediaFileUtils::InitHelper(AsObject())) {
-        ERR_LOG("InitHelper error %{public}d", FAIL);
+        ERR_LOG("Init MediaLibraryDataAbility Helper error");
         reply.WriteInt32(FAIL);
         return FAIL;
     }
-    // do file process
+    // do request process
     int32_t errCode = OperProcess(code, data, reply);
     reply.WriteInt32(errCode);
     return errCode;
