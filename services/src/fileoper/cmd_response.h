@@ -66,11 +66,11 @@ public:
     {
         parcel.WriteInt32(err_);
         parcel.WriteString(uri_);
-        int fileCount = vecFileInfo_.size();
-        parcel.WriteInt32(fileCount);
-        for (int i = 0; i < fileCount; i++) {
+        size_t fileCount = vecFileInfo_.size();
+        parcel.WriteUint64(fileCount);
+        for (size_t i = 0; i < fileCount; i++) {
             if (parcel.WriteParcelable(vecFileInfo_[i].get()) != true) {
-                ERR_LOG("Marshalling fail total:%{public}d i:%{public}d", fileCount, i);
+                ERR_LOG("Marshalling FileInfo fails!");
                 return false;
             }
         }
@@ -85,8 +85,8 @@ public:
         }
         obj->err_ = parcel.ReadInt32();
         obj->uri_ = parcel.ReadString();
-        int fileCount = parcel.ReadInt32();
-        for (int i = 0; i < fileCount; i++) {
+        size_t fileCount = parcel.ReadUint64();
+        for (size_t i = 0; i < fileCount; i++) {
             std::shared_ptr<FileInfo> file(parcel.ReadParcelable<FileInfo>());
             obj->vecFileInfo_.emplace_back(file);
         }
