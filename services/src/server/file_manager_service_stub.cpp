@@ -107,10 +107,8 @@ bool CheckClientPermission(const std::string& permissionStr)
     }
     DEBUG_LOG("GetClientBundleName: uid is %{public}d ", uid);
     std::string bundleName = GetClientBundleName(uid);
-    if (IsSameTextStr(bundleName, "ohos.acts.distributeddatamgr.distributedfile") ||
-        IsSameTextStr(bundleName, "ohos.acts.storage.filemanager") ||
-        IsSameTextStr(bundleName, "com.ohos.filepicker") ||
-        IsSameTextStr(bundleName, "com.example.filemanager")) {
+    if (IsSameTextStr(bundleName, "ohos.acts.storage.filemanager") ||
+        IsSameTextStr(bundleName, "com.ohos.filepicker")) {
         DEBUG_LOG("CheckClientPermission: Pass the white list");
         return true;
     }
