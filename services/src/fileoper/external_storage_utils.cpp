@@ -52,7 +52,7 @@ static bool GetRealPath(string &path)
 {
     char filePath[PATH_MAX + 1] = { 0 };
     if (realpath(path.c_str(), filePath) == nullptr) {
-        ERR_LOG("untrustPath invalid %{public}d %{public}s \n", errno, strerror(errno));
+        ERR_LOG("untrustPath invalid %{public}d\n", errno);
         return false;
     }
     path = string(filePath);
@@ -168,7 +168,7 @@ int ExternalStorageUtils::DoCreateFile(const std::string &uri, const std::string
         return E_NOEXIST;
     }
     size_t len = path.size();
-    if (path.at(len -1) != '/') {
+    if (path.at(len - 1) != '/') {
         path.append("/").append(name);
     } else {
         path.append(name);
