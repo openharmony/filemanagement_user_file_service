@@ -15,6 +15,7 @@
 
 #include "file_manager_service_stub.h"
 
+#include "accesstoken_kit.h"
 #include "file_manager_service_def.h"
 #include "file_manager_service_errno.h"
 #include "file_manager_service.h"
@@ -26,7 +27,6 @@
 #include "sa_mgr_client.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
-
 using namespace std;
 namespace OHOS {
 namespace FileManagerService {
@@ -55,62 +55,17 @@ int FileManagerServiceStub::OperProcess(uint32_t code, MessageParcel &data,
     return errCode;
 }
 
-static bool GetClientUid(int &uid)
-{
-    uid = IPCSkeleton::GetCallingUid();
-    return true;
-}
-
-static sptr<AppExecFwk::IBundleMgr> GetSysBundleManager()
-{
-    auto bundleObj =
-        OHOS::DelayedSingleton<AAFwk::SaMgrClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (bundleObj == nullptr) {
-        ERR_LOG("failed to get bundle manager service");
-        return nullptr;
-    }
-    sptr<AppExecFwk::IBundleMgr> bms = iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
-    return bms;
-}
-
-static string GetClientBundleName(int uid)
-{
-    std::string bundleName = "";
-    auto bms = GetSysBundleManager();
-    if (bms == nullptr) {
-        ERR_LOG("failed to get bundle manager service bms == nullptr");
-        return bundleName;
-    }
-    auto result = bms->GetBundleNameForUid(uid, bundleName);
-    DEBUG_LOG("GetClientBundleName: bundleName is %{public}s ", bundleName.c_str());
-    if (!result) {
-        ERR_LOG("GetBundleNameForUid fail");
-        return "";
-    }
-    return bundleName;
-}
-
 bool CheckClientPermission(const std::string& permissionStr)
 {
-    int uid = 0;
-    if (!GetClientUid(uid)) {
-        ERR_LOG("GetClientUid: fail ");
+    Security::AccessToken::AccessTokenID tokenCaller = IPCSkeleton::GetCallingTokenID();
+    int res = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenCaller,
+        permissionStr);
+    if (res != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
+        ERR_LOG("Have no media permission");
         return false;
     }
-    if (uid == 0) {
-        ERR_LOG("uid as root, white list pass");
-        return true;
-    }
-    DEBUG_LOG("GetClientBundleName: uid is %{public}d ", uid);
-    std::string bundleName = GetClientBundleName(uid);
-    if (IsSameTextStr(bundleName, "ohos.acts.distributeddatamgr.distributedfile") ||
-        IsSameTextStr(bundleName, "ohos.acts.storage.filemanager") ||
-        IsSameTextStr(bundleName, "com.ohos.filepicker") ||
-        IsSameTextStr(bundleName, "com.example.filemanager")) {
-        DEBUG_LOG("CheckClientPermission: Pass the white list");
-        return true;
-    }
-    return false;
+    ERR_LOG("permission check success");
+    return true;
 }
 
 int FileManagerServiceStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
@@ -123,9 +78,11 @@ int FileManagerServiceStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
         return FAIL;
     }
     // change permission string after finishing accessToken
-    string permission = "permission";
+    string permission = "ohos.permission.READ_MEDIA";
     if (!CheckClientPermission(permission)) {
         ERR_LOG("checkpermission error FAIL");
+        reply.WriteInt32(FAIL);
+        return FAIL;
     }
     if (!MediaFileUtils::InitHelper(AsObject())) {
         ERR_LOG("Init MediaLibraryDataAbility Helper error");
