@@ -166,7 +166,7 @@ napi_value FileManagerNapi::CreateFile(napi_env env, napi_callback_info info)
         }
     };
     string procedureName = "CreateFile";
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     NVal thisVar(env, funcArg.GetThisVar());
     if (argc == CREATE_FILE_PARA_MIN || (argc != CREATE_FILE_PARA_MAX && option.GetHasOpt())) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -180,7 +180,7 @@ napi_value FileManagerNapi::CreateFile(napi_env env, napi_callback_info info)
 
 static bool CreateFileArray(napi_env env, shared_ptr<AsyncFileInfoArg> arg)
 {
-    for (unsigned int i = 0; i < arg->fileRes_.size(); i++) {
+    for (size_t i = 0; i < arg->fileRes_.size(); i++) {
         NVal obj = NVal::CreateObject(env);
         shared_ptr<FileInfo> res = arg->fileRes_[i];
         if (res == nullptr) {
@@ -261,7 +261,7 @@ napi_value FileManagerNapi::GetRoot(napi_env env, napi_callback_info info)
         }
     };
     string procedureName = "GetRoot";
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     NVal thisVar(env, funcArg.GetThisVar());
     if (argc == GET_ROOT_PARA_MIN || (argc != GET_ROOT_PARA_MAX && option.GetHasOpt())) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -353,8 +353,7 @@ napi_value FileManagerNapi::ListFile(napi_env env, napi_callback_info info)
     napi_value fileArr;
     napi_create_array(env, &fileArr);
     auto arg = make_shared<AsyncFileInfoArg>(NVal(env, fileArr));
-    auto cbExec = [type = string(type.get()), path = string(path.get()), option, arg]
-        (napi_env env) -> UniError {
+    auto cbExec = [type = string(type.get()), path = string(path.get()), option, arg](napi_env env) -> UniError {
         IFmsClient* client = nullptr;
         bool succ = false;
         tie(succ, client) = GetFmsClient();
@@ -376,7 +375,7 @@ napi_value FileManagerNapi::ListFile(napi_env env, napi_callback_info info)
         }
     };
     string procedureName = "ListFile";
-    int argc = funcArg.GetArgc();
+    size_t argc = funcArg.GetArgc();
     NVal thisVar(env, funcArg.GetThisVar());
     if (argc == LIST_FILE_PARA_MIN || (argc != LIST_FILE_PARA_MAX && option.GetHasOpt())) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
