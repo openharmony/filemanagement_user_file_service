@@ -45,28 +45,6 @@ void FileManagerProxyTest::SetUp()
 }
 
 /**
- * @tc.number: SUB_STORAGE_File_Manager_Proxy_GetRoot_0000
- * @tc.name: File_Manager_Proxy_GetRoot_0000
- * @tc.desc: Test function of GetRoot interface for SUCCESS.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: AR000GJ9T3
- */
-HWTEST_F(FileManagerProxyTest, File_Manager_Proxy_GetRoot_0000, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileManagerProxyTest-begin File_Manager_Proxy_GetRoot_0000";
-    CmdOptions option;
-    DevInfo dev("local", "");
-    option.SetDevInfo(dev);
-    std::vector<std::shared_ptr<FileInfo>> fileRes;
-    IFmsClient* result = IFmsClient::GetFmsInstance();
-    int ret = result->GetRoot(option, fileRes);
-    ASSERT_TRUE(ret == 0);
-    GTEST_LOG_(INFO) << "FileManagerProxyTest-end File_Manager_Proxy_GetRoot_0000";
-}
-
-/**
  * @tc.number: SUB_STORAGE_File_Manager_Proxy_GetFmsInstance_0000
  * @tc.name: File_Manager_Proxy_GetFmsInstance_0000
  * @tc.desc: Test function of GetFmsInstance interface for SUCCESS.
@@ -107,53 +85,5 @@ HWTEST_F(FileManagerProxyTest, File_Manager_Proxy_Mkdir_0000, testing::ext::Test
     int ret = proxy_->Mkdir(name, path);
     EXPECT_EQ(ret, 1);
     GTEST_LOG_(INFO) << "FileManagerProxyTest-end File_Manager_Proxy_Mkdir_0000";
-}
-
-/**
- * @tc.number: SUB_STORAGE_File_Manager_Proxy_ListFile_0000
- * @tc.name: File_Manager_Proxy_ListFile_0000
- * @tc.desc: Test function of ListFile interface for SUCCESS.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: AR000GJ9T3
- */
-HWTEST_F(FileManagerProxyTest, File_Manager_Proxy_ListFile_0000, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileManagerProxyTest-begin File_Manager_Proxy_ListFile_0000";
-    std::string type = "file";
-    std::string path = "dataability:///album";
-    CmdOptions option;
-    std::vector<std::shared_ptr<FileInfo>> fileRes;
-    EXPECT_CALL(*mock_, SendRequest(testing::_, testing::_, testing::_, testing::_))
-        .Times(1)
-        .WillOnce(testing::Invoke(mock_.GetRefPtr(), &FmsManagerProxyMock::InvokeSendRequest));
-    int ret = proxy_->ListFile(type, path, option, fileRes);
-    EXPECT_EQ(ret, 0);
-    GTEST_LOG_(INFO) << "FileManagerProxyTest-end File_Manager_Proxy_ListFile_0000";
-}
-
-/**
- * @tc.number: SUB_STORAGE_File_Manager_Proxy_CreateFile_0000
- * @tc.name: File_Manager_Proxy_CreateFile_0000
- * @tc.desc: Test function of CreateFile interface for SUCCESS.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: AR000GJ9T3
- */
-HWTEST_F(FileManagerProxyTest, File_Manager_Proxy_CreateFile_0000, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileManagerProxyTest-begin File_Manager_Proxy_CreateFile_0000";
-    std::string path = "dataability:///album";
-    std::string fileName = "FMS_File_ManagerProxy_Mkdir_0000";
-    CmdOptions option;
-    std::string uri;
-    EXPECT_CALL(*mock_, SendRequest(testing::_, testing::_, testing::_, testing::_))
-        .Times(1)
-        .WillOnce(testing::Invoke(mock_.GetRefPtr(), &FmsManagerProxyMock::InvokeSendRequest));
-    int ret = proxy_->CreateFile(path, fileName, option, uri);
-    EXPECT_EQ(ret, 0);
-    GTEST_LOG_(INFO) << "FileManagerProxyTest-end File_Manager_Proxy_CreateFile_0000";
 }
 } // namespace
