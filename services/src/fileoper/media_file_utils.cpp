@@ -81,12 +81,12 @@ bool GetPathID(const string &uriPath, string &index)
 {
     string::size_type pos = uriPath.find_last_of('/');
     if (pos == string::npos) {
-        ERR_LOG("invalid uri %{public}s", uriPath.c_str());
+        ERR_LOG("invalid uri %{private}s", uriPath.c_str());
         return false;
     }
     index = uriPath.substr(pos + 1);
     if (!IsNumber(index)) {
-        ERR_LOG("invalid uri %{public}s invalid id %{public}s", uriPath.c_str(), index.c_str());
+        ERR_LOG("invalid uri %{private}s invalid id %{public}s", uriPath.c_str(), index.c_str());
         return false;
     }
     return true;
@@ -420,7 +420,7 @@ bool MediaFileUtils::InitHelper(sptr<IRemoteObject> obj)
     if (abilityHelper == nullptr) {
         abilityHelper =  AppExecFwk::DataAbilityHelper::Creator(obj, make_shared<Uri>(Media::MEDIALIBRARY_DATA_URI));
         if (abilityHelper == nullptr) {
-            DEBUG_LOG("get %{public}s helper fail", Media::MEDIALIBRARY_DATA_URI.c_str());
+            DEBUG_LOG("get %{private}s helper fail", Media::MEDIALIBRARY_DATA_URI.c_str());
             return false;
         }
     }
