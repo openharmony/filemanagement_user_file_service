@@ -331,7 +331,7 @@ int MediaFileUtils::DoInsert(const string &name, const string &path, const strin
         Media::MEDIA_FILEOPRN_CREATEASSET);
     int index = abilityHelper->Insert(createAsset, values);
     if (index < 0) {
-        ERR_LOG("Fail to create fail file %{public}s uri %{public}s album %{public}s", name.c_str(),
+        ERR_LOG("Fail to create fail file %{public}s uri %{private}s album %{public}s", name.c_str(),
             path.c_str(), albumPath.c_str());
         return E_CREATE_FAIL;
     }
