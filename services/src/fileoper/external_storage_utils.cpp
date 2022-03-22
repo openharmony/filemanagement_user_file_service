@@ -37,11 +37,11 @@ static bool GetPathFromUri(const string &uri, string &path)
     uint len = EXTERNAL_STORAGE_URI.size();
     string head = uri.substr(0, len);
     if (head != EXTERNAL_STORAGE_URI) {
-        ERR_LOG("invalid format uri %{public}s, head check fail", uri.c_str());
+        ERR_LOG("invalid format uri %{private}s, head check fail", uri.c_str());
         return false;
     }
     if (uri.size() == len) {
-        ERR_LOG("uri content is invalid %{public}s", uri.c_str());
+        ERR_LOG("uri content is invalid %{private}s", uri.c_str());
         return false;
     }
     path = uri.substr(len);
@@ -116,13 +116,13 @@ int ExternalStorageUtils::DoListFile(const std::string &type, const std::string 
     DEBUG_LOG("limit %{public}lld, offset %{public}lld", count, offset);
     std::string path;
     if (!ConvertUriToAbsolutePath(uri, path)) {
-        ERR_LOG("invalid uri[%{public}s].", uri.c_str());
+        ERR_LOG("invalid uri[%{private}s].", uri.c_str());
         return E_NOEXIST;
     }
 
     DIR *dir = opendir(path.c_str());
     if (!dir) {
-        ERR_LOG("opendir path[%{public}s] fail.", path.c_str());
+        ERR_LOG("opendir path[%{private}s] fail.", path.c_str());
         return E_NOEXIST;
     }
     if (offset != 0) {
