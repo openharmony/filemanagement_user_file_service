@@ -70,7 +70,7 @@ int MediaFileOper::OperProcess(uint32_t code, MessageParcel &data, MessageParcel
             break;
         }
         default: {
-            DEBUG_LOG("not valid code %{public}d.", code);
+            DEBUG_LOG("not valid code %{public}u.", code);
             break;
         }
     }
@@ -125,6 +125,7 @@ int MediaFileOper::ListFile(const string &type, const string &path, int offset, 
 
 int MediaFileOper::Mkdir(const string &name, const string &path) const
 {
+    (void)name;
     DEBUG_LOG("MediaFileOper::mkdir path %{public}s.", path.c_str());
     return SUCCESS;
 }
