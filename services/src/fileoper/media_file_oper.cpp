@@ -86,7 +86,7 @@ int MediaFileOper::CreateFile(const std::string &name, const std::string &path, 
     cmdResponse.SetErr(ret);
     cmdResponse.SetUri(uri);
     if (!reply.WriteParcelable(&cmdResponse)) {
-        ERR_LOG("reply write err parcel capacity:%{public}d", reply.GetDataCapacity());
+        ERR_LOG("reply write err parcel capacity:%{public}zu", reply.GetDataCapacity());
     }
     return ret;
 }
@@ -99,7 +99,7 @@ int MediaFileOper::GetRoot(const std::string &name, const std::string &path, Mes
     cmdResponse.SetErr(ret);
     cmdResponse.SetFileInfoList(fileList);
     if (!reply.WriteParcelable(&cmdResponse)) {
-        ERR_LOG("reply write err parcel capacity%{public}d", reply.GetDataCapacity());
+        ERR_LOG("reply write err parcel capacity%{public}zu", reply.GetDataCapacity());
     }
     return ret;
 }
@@ -118,7 +118,7 @@ int MediaFileOper::ListFile(const string &type, const string &path, int offset, 
     cmdResponse.SetErr(res);
     cmdResponse.SetFileInfoList(fileList);
     if (!reply.WriteParcelable(&cmdResponse)) {
-        ERR_LOG("reply write err parcel capacity:%{public}d", reply.GetDataCapacity());
+        ERR_LOG("reply write err parcel capacity:%{public}zu", reply.GetDataCapacity());
     }
     return res;
 }

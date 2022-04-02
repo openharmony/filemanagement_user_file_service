@@ -184,7 +184,7 @@ static bool CreateFileArray(napi_env env, shared_ptr<AsyncFileInfoArg> arg)
         NVal obj = NVal::CreateObject(env);
         shared_ptr<FileInfo> res = arg->fileRes_[i];
         if (res == nullptr) {
-            ERR_LOG("inner error, lack of memory, file count %{public}d", arg->fileRes_.size());
+            ERR_LOG("inner error, lack of memory, file count %{public}zu", arg->fileRes_.size());
             return false;
         }
         obj.AddProp("name", NVal::CreateUTF8String(env, res->GetName()).val_);
