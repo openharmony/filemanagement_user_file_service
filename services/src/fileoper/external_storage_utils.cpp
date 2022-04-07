@@ -113,7 +113,7 @@ int ExternalStorageUtils::DoListFile(const std::string &type, const std::string 
         ERR_LOG("invalid file count or offset.");
         return E_INVALID_FILE_NUMBER;
     }
-    DEBUG_LOG("limit %{public}lld, offset %{public}lld", count, offset);
+    DEBUG_LOG("limit %{public}lld, offset %{public}lld", (long long)count, (long long)offset);
     std::string path;
     if (!ConvertUriToAbsolutePath(uri, path)) {
         ERR_LOG("invalid uri[%{private}s].", uri.c_str());
@@ -155,7 +155,7 @@ int ExternalStorageUtils::DoListFile(const std::string &type, const std::string 
     }
     closedir(dir);
     if (option.GetCount() == MAX_NUM && count == 0) {
-        DEBUG_LOG("get files with MAX_NUM:[%{public}lld].", MAX_NUM);
+        DEBUG_LOG("get files with MAX_NUM:[%{public}lld].", (long long)MAX_NUM);
     }
     return SUCCESS;
 }

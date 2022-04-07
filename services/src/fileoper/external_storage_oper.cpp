@@ -73,7 +73,7 @@ int ExternalStorageOper::GetRoot(const std::string &name, const std::string &pat
     cmdResponse.SetErr(ret);
     cmdResponse.SetFileInfoList(fileList);
     if (!reply.WriteParcelable(&cmdResponse)) {
-        ERR_LOG("reply write err parcel capacity%{public}d", reply.GetDataCapacity());
+        ERR_LOG("reply write err parcel capacity%{public}zu", reply.GetDataCapacity());
     }
     return ret;
 }
@@ -86,7 +86,7 @@ int ExternalStorageOper::CreateFile(const std::string &uri, const std::string &n
     cmdResponse.SetErr(ret);
     cmdResponse.SetUri(resultUir);
     if (!reply.WriteParcelable(&cmdResponse)) {
-        ERR_LOG("reply write err parcel capacity:%{public}d", reply.GetDataCapacity());
+        ERR_LOG("reply write err parcel capacity:%{public}zu", reply.GetDataCapacity());
     }
     return ret;
 }
@@ -100,7 +100,7 @@ int ExternalStorageOper::ListFile(const std::string &type, const std::string &ur
     cmdResponse.SetErr(ret);
     cmdResponse.SetFileInfoList(fileList);
     if (!reply.WriteParcelable(&cmdResponse)) {
-        ERR_LOG("reply write err parcel capacity:%{public}d", reply.GetDataCapacity());
+        ERR_LOG("reply write err parcel capacity:%{public}zu", reply.GetDataCapacity());
     }
     return ret;
 }
