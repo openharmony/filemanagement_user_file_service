@@ -16,11 +16,11 @@
 <info>
     <process>fms_service</process>
     <loadlibs>
-        <libpath>/system/lib/libfms_server.z.so</libpath>
+        <libpath>libfms_server.z.so</libpath>
     </loadlibs>
     <systemability>
        <name>5010</name>
-       <libpath>/system/lib/libfms_server.z.so</libpath>
+       <libpath>libfms_server.z.so</libpath>
        <run-on-create>true</run-on-create>
        <distributed>false</distributed>
        <dump-level>1</dump-level>
