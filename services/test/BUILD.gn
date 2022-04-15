@@ -26,7 +26,7 @@ ohos_unittest("file_manager_proxy_test") {
     "$FMS_BASE_DIR/src/server",
     "$FMS_BASE_DIR/src/fileoper",
     "//third_party/googletest/googlemock/include/gmock",
-    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_rdb/include",
+    "//foundation/distributeddatamgr/appdatamgr/interfaces/inner_api/native/rdb/include",
     "//foundation/multimedia/medialibrary_standard/interfaces/innerkits/native/include",
   ]
 
@@ -60,15 +60,15 @@ ohos_unittest("oper_factory_test") {
     "$FMS_BASE_DIR/src/server",
     "$FMS_BASE_DIR/src/fileoper",
     "//foundation/multimedia/medialibrary_standard/interfaces/innerkits/native/include",
-    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_rdb/include",
+    "//foundation/distributeddatamgr/appdatamgr/interfaces/inner_api/native/rdb/include",
   ]
 
   configs = [ "//build/config/compiler:exceptions" ]
 
   deps = [
     "$FMS_BASE_DIR:fms_server",
-    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_appdatafwk:native_appdatafwk",
-    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_rdb:native_rdb",
+    "//foundation/distributeddatamgr/appdatamgr/interfaces/inner_api/native/appdatafwk:native_appdatafwk",
+    "//foundation/distributeddatamgr/appdatamgr/interfaces/inner_api/native/rdb:native_rdb",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//utils/native/base:utils",
   ]
@@ -94,14 +94,14 @@ ohos_unittest("file_manager_service_test") {
     "$FMS_BASE_DIR/src/server",
     "$FMS_BASE_DIR/src/fileoper",
     "//foundation/multimedia/medialibrary_standard/interfaces/innerkits/native/include",
-    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_rdb/include",
+    "//foundation/distributeddatamgr/appdatamgr/interfaces/inner_api/native/rdb/include",
   ]
 
   configs = [ "//build/config/compiler:exceptions" ]
   deps = [
     "$FMS_BASE_DIR:fms_server",
-    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_appdatafwk:native_appdatafwk",
-    "//foundation/distributeddatamgr/appdatamgr/interfaces/innerkits/native_rdb:native_rdb",
+    "//foundation/distributeddatamgr/appdatamgr/interfaces/inner_api/native/appdatafwk:native_appdatafwk",
+    "//foundation/distributeddatamgr/appdatamgr/interfaces/inner_api/native/rdb:native_rdb",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//utils/native/base:utils",
   ]
