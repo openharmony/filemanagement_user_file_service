@@ -44,7 +44,7 @@ ohos_shared_library("filemanager") {
     "$FMS_BASE_DIR:fms_server",
     "//foundation/ace/napi:ace_napi",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js:fileio",
-    "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/medialibrary_data_ability:medialibrary_data_ability",
+    "//foundation/multimedia/medialibrary_standard/frameworks/services/media_library:medialibrary_data_ability",
     "//utils/native/base:utils",
   ]
   cflags = []

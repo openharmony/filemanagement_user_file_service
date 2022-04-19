@@ -65,8 +65,8 @@ ohos_shared_library("fms_server") {
     "//foundation/aafwk/standard/services/abilitymgr:abilityms",
     "//foundation/filemanagement/storage_service/interfaces/innerkits/storage_manager/native:storage_manager_sa_proxy",
     "//foundation/filemanagement/storage_service/services/storage_manager:storage_manager",
-    "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/media_library:media_library",
-    "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/medialibrary_data_ability:medialibrary_data_ability",
+    "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/media_library_helper:media_library",
+    "//foundation/multimedia/medialibrary_standard/frameworks/services/media_library:medialibrary_data_ability",
     "//utils/native/base:utils",
   ]
   cflags = []
