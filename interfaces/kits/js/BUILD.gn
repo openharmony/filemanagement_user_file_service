@@ -32,7 +32,7 @@ ohos_shared_library("filemanager") {
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi/n_async",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common",
-    "//foundation/multimedia/medialibrary_standard/interfaces/innerkits/native/include",
+    "//foundation/multimedia/medialibrary_standard/interfaces/inner_api/media_library_helper/include",
   ]
 
   sources = [
