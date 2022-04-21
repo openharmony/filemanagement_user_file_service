@@ -22,7 +22,7 @@ ohos_shared_library("filemanager") {
 
   include_dirs = [
     "//third_party/node/src",
-    "//foundation/ace/napi/interfaces/kits",
+    "//foundation/arkui/napi/interfaces/kits",
     "//utils/native/base/include",
     "//third_party/libuv/include",
     "$FMS_BASE_DIR/include",
@@ -42,7 +42,7 @@ ohos_shared_library("filemanager") {
 
   deps = [
     "$FMS_BASE_DIR:fms_server",
-    "//foundation/ace/napi:ace_napi",
+    "//foundation/arkui/napi:ace_napi",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js:fileio",
     "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/medialibrary_data_ability:medialibrary_data_ability",
     "//utils/native/base:utils",
