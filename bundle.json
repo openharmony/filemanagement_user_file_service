@@ -35,7 +35,10 @@
             "sub_component": [
                 "//foundation/filemanagement/user_file_service/services:fms",
                 "//foundation/filemanagement/user_file_service/services/sa_profile:filemanager_service_sa_profile",
-                "//foundation/filemanagement/user_file_service/interfaces/kits/js:filemanager"
+                "//foundation/filemanagement/user_file_service/interfaces/kits/js:filemanager",
+                "//foundation/filemanagement/user_file_service/frameworks/innerkits:frameworks_innerkits",
+                "//foundation/filemanagement/user_file_service/interfaces/kits/napi/file_access_module:fileaccess",
+                "//foundation/filemanagement/user_file_service/interfaces/kits/napi/file_ext_ability:fileextensionability_napi"
             ],
             "test": [
               "//foundation/filemanagement/user_file_service/services/test:user_file_manager_test"
