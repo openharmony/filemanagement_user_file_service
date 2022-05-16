@@ -13,7 +13,6 @@
 
 import("//build/ohos.gni")
 FMS_BASE_DIR = "//foundation/filemanagement/user_file_service/services"
-aainnerkits_path = "//foundation/aafwk/standard/interfaces/innerkits"
 aaservices_path = "//foundation/aafwk/standard/services"
 aakits_path = "//foundation/aafwk/standard/frameworks/kits"
 
@@ -44,7 +43,6 @@ ohos_shared_library("fms_server") {
     "//base/hiviewdfx/hilog/interfaces/native/innerkits/include/hilog",
     "//foundation/filemanagement/storage_service/services/storage_manager/include",
     "//foundation/filemanagement/storage_service/interfaces/innerkits/storage_manager/native",
-    "${aainnerkits_path}/base/include/ohos/aafwk/base",
   ]
 
   sources = [
@@ -62,7 +60,6 @@ ohos_shared_library("fms_server") {
   ]
 
   deps = [
-    "${aainnerkits_path}/base:base",
     "${aakits_path}/ability/native:abilitykit_native",
     "${aaservices_path}/abilitymgr:abilityms",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
@@ -77,6 +74,7 @@ ohos_shared_library("fms_server") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   external_deps = [
+    "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_manager",
