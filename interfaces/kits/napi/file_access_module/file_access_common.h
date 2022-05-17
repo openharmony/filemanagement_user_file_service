@@ -107,6 +107,12 @@ struct FileAccessHelperCloseFileCB {
     int result;
     int execResult;
 };
+
+struct FileAccessHelperReleaseCB {
+    CBBase cbBase;
+    FileAccessHelper *fileAccessHelper = nullptr;
+    bool result = false;
+};
 }
 }
 #endif

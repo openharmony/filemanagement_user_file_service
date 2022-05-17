@@ -27,10 +27,7 @@ using AbilityRuntime::JsFileExtAbility;
 class FileExtStubImpl : public FileExtStub {
 public:
     explicit FileExtStubImpl(const std::shared_ptr<JsFileExtAbility>& extension, napi_env env)
-        : extension_(extension)
-    {
-        //uvQueue_ = std::make_shared<AbilityRuntime::DataShareUvQueue>(env);
-    }
+        : extension_(extension) {}
 
     virtual ~FileExtStubImpl() {}
 
@@ -46,9 +43,8 @@ private:
 
 private:
     std::shared_ptr<JsFileExtAbility> extension_;
-    //std::shared_ptr<AbilityRuntime::DataShareUvQueue> uvQueue_;
 };
 } // namespace AppExecFwk
 } // namespace OHOS
-#endif // OHOS_APPEXECFWK_DATASHARE_STUB_IMPL_H
+#endif // OHOS_APPEXECFWK_FILEEXT_STUB_IMPL_H
 

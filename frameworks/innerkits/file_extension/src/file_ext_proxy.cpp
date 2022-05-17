@@ -67,8 +67,8 @@ int FileExtProxy::CloseFile(int fd, const std::string &uri)
         return ret;
     }
 
-    if (!data.WriteInt32(fd)) {
-        HILOG_ERROR("tag dsa fail to WriteParcelable sourceFileUri");
+    if (!data.WriteFileDescriptor(fd)) {
+        HILOG_ERROR("tag dsa fail to WriteFileDescriptor fd");
         return ret;
     }
 
@@ -329,6 +329,7 @@ int FileExtProxy::Rename(const Uri &sourceFileUri, const std::string &displayNam
     std::unique_ptr<Uri> tempUri(reply.ReadParcelable<Uri>());
     if (!tempUri) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
+        ret = -1;
         return ret;
     }
 

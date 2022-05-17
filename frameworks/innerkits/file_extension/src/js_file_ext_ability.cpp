@@ -66,7 +66,6 @@ void JsFileExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     moduleName.append("::").append(abilityInfo_->name);
     HILOG_INFO("tag dsa %{public}s module:%{public}s, srcPath:%{public}s.", __func__, moduleName.c_str(), srcPath.c_str());
     HandleScope handleScope(jsRuntime_);
-    //auto& engine = jsRuntime_.GetNativeEngine();
 
     jsObj_ = jsRuntime_.LoadModule(moduleName, srcPath);
     if (jsObj_ == nullptr) {
@@ -79,38 +78,6 @@ void JsFileExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &record,
         HILOG_ERROR("tag dsa Failed to get JsFileExtAbility object");
         return;
     }
-
-    /*
-    auto context = GetContext();
-    if (context == nullptr) {
-        HILOG_ERROR("tag dsa Failed to get context");
-        return;
-    }
-
-    HILOG_INFO("tag dsa JsFileExtAbility::Init CreateJsDataShareExtAbilityContext.");
-    NativeValue* contextObj = CreateJsDataShareExtAbilityContext(engine, context);
-    auto contextRef = jsRuntime_.LoadSystemModule("application.DataShareExtensionAbilityContext",
-        &contextObj, ARGC_ONE);
-    contextObj = contextRef->Get();
-    HILOG_INFO("tag dsa JsFileExtAbility::Init Bind.");
-    context->Bind(jsRuntime_, contextRef.release());
-    HILOG_INFO("tag dsa JsFileExtAbility::SetProperty.");
-    obj->SetProperty("context", contextObj);
-
-    auto nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
-    if (nativeObj == nullptr) {
-        HILOG_ERROR("tag dsa Failed to get datashare extension ability native object");
-        return;
-    }
-
-    HILOG_INFO("tag dsa Set datashare extension ability context");
-
-    nativeObj->SetNativePointer(new std::weak_ptr<AbilityRuntime::Context>(context),
-        [](NativeEngine*, void* data, void*) {
-            HILOG_INFO("tag dsa Finalizer for weak_ptr datashare extension ability context is called");
-            delete static_cast<std::weak_ptr<AbilityRuntime::Context>*>(data);
-        }, nullptr);
-    */
     HILOG_INFO("tag dsa JsFileExtAbility::Init end.");
 }
 
@@ -270,7 +237,7 @@ int JsFileExtAbility::CreateFile(const Uri &parentUri, const std::string &displa
         HILOG_ERROR("tag dsa %{public}s call Mkdir with return empty.", __func__);
         return ret;
     } else {
-        ret = 0;
+        ret = NO_ERROR;
     }
     newFileUri = Uri(uriStr);
     HILOG_INFO("tag dsa %{public}s end. return fd:%{public}d, newFileUri = %{public}s", __func__, ret, uriStr.c_str());
@@ -302,7 +269,7 @@ int JsFileExtAbility::Mkdir(const Uri &parentUri, const std::string &displayName
         HILOG_ERROR("tag dsa %{public}s call Mkdir with return empty.", __func__);
         return ret;
     } else {
-        ret = 0;
+        ret = NO_ERROR;
     }
     newFileUri = Uri(uriStr);
     HILOG_INFO("tag dsa %{public}s end. return fd:%{public}d, newFileUri = %{public}s", __func__, ret, uriStr.c_str());
@@ -356,7 +323,7 @@ int JsFileExtAbility::Move(const Uri &sourceFileUri, const Uri &targetParentUri,
         HILOG_ERROR("tag dsa %{public}s call move with return empty.", __func__);
         return ret;
     } else {
-        ret = 0;
+        ret = NO_ERROR;
     }
     newFileUri = Uri(uriStr);
     HILOG_INFO("tag dsa %{public}s end. return fd:%{public}d, newFileUri = %{public}s", __func__, ret, uriStr.c_str());
@@ -388,7 +355,7 @@ int JsFileExtAbility::Rename(const Uri &sourceFileUri, const std::string &displa
         HILOG_ERROR("tag dsa %{public}s call rename with return empty.", __func__);
         return ret;
     } else {
-        ret = 0;
+        ret = NO_ERROR;
     }
     newFileUri = Uri(uriStr);
     HILOG_INFO("tag dsa %{public}s end. return fd:%{public}d, newFileUri = %{public}s", __func__, ret, uriStr.c_str());

@@ -27,7 +27,7 @@ export default class FileExtAbility extends Extension {
 
     closeFile(fd, uri) {
         console.log('js server tag dsa delete, fd:' + fd + ",uri: " + uri);
-        return 268;
+        return 0;
     }
 
     createFile(parentUri, displayName) {
@@ -42,7 +42,7 @@ export default class FileExtAbility extends Extension {
 
     delete(sourceFileUri) {
         console.log('js server tag dsa delete, sourceFileUri:' + sourceFileUri);
-        return 132;
+        return 0;
     }
 
     move(sourceFileUri, targetParentUri) {

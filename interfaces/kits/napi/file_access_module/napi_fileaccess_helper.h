@@ -16,7 +16,6 @@
 #ifndef FILE_ACCESS_NAPI_H
 #define FILE_ACCESS_NAPI_H
 
-//#include "n_exporter.h"
 #include "file_access_common.h"
 
 namespace OHOS {
@@ -78,6 +77,14 @@ namespace AppExecFwk {
     void CloseFileExecuteCB(napi_env env, void *data);
     void CloseFileAsyncCompleteCB(napi_env env, napi_status status, void *data);
     void CloseFilePromiseCompleteCB(napi_env env, napi_status status, void *data);
+
+    napi_value NAPI_Release(napi_env env, napi_callback_info info);
+    napi_value ReleaseWrap(napi_env env, napi_callback_info info, FileAccessHelperReleaseCB *releaseCB);
+    napi_value ReleaseAsync(napi_env env, napi_value *args, const size_t argCallback, FileAccessHelperReleaseCB *releaseCB);
+    napi_value ReleasePromise(napi_env env, FileAccessHelperReleaseCB *releaseCB);
+    void ReleaseExecuteCB(napi_env env, void *data);
+    void ReleaseAsyncCompleteCB(napi_env env, napi_status status, void *data);
+    void ReleasePromiseCompleteCB(napi_env env, napi_status status, void *data);
 }
 }
 #endif

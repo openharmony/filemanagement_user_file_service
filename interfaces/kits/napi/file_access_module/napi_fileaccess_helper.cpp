@@ -47,12 +47,6 @@ int NapiValueToInt32Utf8(napi_env env, napi_value value)
     int result = 0;
     return UnwrapInt32FromJS(env, value, result);
 }
-/*
-bool NapiValueToArrayStringUtf8(napi_env env, napi_value param, std::vector<std::string> &result)
-{
-    return UnwrapArrayStringFromJS(env, param, result);
-}
-*/
 }
 
 std::list<std::shared_ptr<OHOS::AppExecFwk::FileAccessHelper>> g_fileAccessHelperList;
@@ -145,6 +139,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("move", NAPI_Move),
         DECLARE_NAPI_FUNCTION("rename", NAPI_Rename),
         DECLARE_NAPI_FUNCTION("closeFile", NAPI_CloseFile),
+        DECLARE_NAPI_FUNCTION("release", NAPI_Release),
     };
     napi_value cons = nullptr;
     NAPI_CALL(env,
@@ -259,7 +254,7 @@ napi_value OpenFileWrap(napi_env env, napi_callback_info info, FileAccessHelperO
 
     FileAccessHelper *objectInfo = nullptr;
     napi_unwrap(env, thisVar, (void **)&objectInfo);
-    HILOG_INFO("tag dsa %{public}s,DataShareHelper objectInfo", __func__);
+    HILOG_INFO("tag dsa %{public}s,FileAccessHelper objectInfo", __func__);
     openFileCB->fileAccessHelper = objectInfo;
 
     if (argcAsync > argcPromise) {
@@ -390,7 +385,7 @@ napi_value NAPI_CreateFile(napi_env env, napi_callback_info info)
     HILOG_INFO("tag dsa %{public}s,called", __func__);
     FileAccessHelperCreateFileCB *createFileCB = new (std::nothrow) FileAccessHelperCreateFileCB;
     if (createFileCB == nullptr) {
-        HILOG_ERROR("tag dsa %{public}s, openFileCB == nullptr.", __func__);
+        HILOG_ERROR("tag dsa %{public}s, createFileCB == nullptr.", __func__);
         return WrapVoidToJS(env);
     }
     createFileCB->cbBase.cbInfo.env = env;
@@ -431,13 +426,13 @@ napi_value CreateFileWrap(napi_env env, napi_callback_info info, FileAccessHelpe
     NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valuetype));
     if (valuetype == napi_string) {
         createFileCB->parentUri = NapiValueToStringUtf8(env, args[PARAM0]);
-        HILOG_INFO("tag dsa %{public}s,uri=%{public}s", __func__, createFileCB->parentUri.c_str());
+        HILOG_INFO("tag dsa %{public}s,parentUri=%{public}s", __func__, createFileCB->parentUri.c_str());
     }
 
     NAPI_CALL(env, napi_typeof(env, args[PARAM1], &valuetype));
     if (valuetype == napi_string) {
         createFileCB->name = NapiValueToStringUtf8(env, args[PARAM1]);
-        HILOG_INFO("tag dsa %{public}s,mode=%{public}s", __func__, createFileCB->name.c_str());
+        HILOG_INFO("tag dsa %{public}s,name=%{public}s", __func__, createFileCB->name.c_str());
     }
 
     FileAccessHelper *objectInfo = nullptr;
@@ -546,7 +541,6 @@ void CreateFileAsyncCompleteCB(napi_env env, napi_status status, void *data)
     NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, CreateFileCB->cbBase.cbInfo.callback, &callback));
 
     result[PARAM0] = GetCallbackErrorValue(env, CreateFileCB->execResult);
-    // napi_create_int32(env, CreateFileCB->result, &result[PARAM1]);
     NAPI_CALL_RETURN_VOID(
         env, napi_create_string_utf8(env, CreateFileCB->result.c_str(), NAPI_AUTO_LENGTH, &result[PARAM1]));
     NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
@@ -565,7 +559,6 @@ void CreateFilePromiseCompleteCB(napi_env env, napi_status status, void *data)
     HILOG_INFO("tag dsa NAPI_CreateFile,  main event thread complete.");
     FileAccessHelperCreateFileCB *CreateFileCB = static_cast<FileAccessHelperCreateFileCB *>(data);
     napi_value result = nullptr;
-    // napi_create_int32(env, CreateFileCB->result, &result);
     NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, CreateFileCB->result.c_str(), NAPI_AUTO_LENGTH, &result));
     NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, CreateFileCB->cbBase.deferred, result));
     NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, CreateFileCB->cbBase.asyncWork));
@@ -620,13 +613,13 @@ napi_value MkdirWrap(napi_env env, napi_callback_info info, FileAccessHelperMkdi
     NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valuetype));
     if (valuetype == napi_string) {
         mkdirCB->parentUri = NapiValueToStringUtf8(env, args[PARAM0]);
-        HILOG_INFO("tag dsa%{public}s,uri=%{public}s", __func__, mkdirCB->parentUri.c_str());
+        HILOG_INFO("tag dsa%{public}s,parentUri=%{public}s", __func__, mkdirCB->parentUri.c_str());
     }
 
     NAPI_CALL(env, napi_typeof(env, args[PARAM1], &valuetype));
     if (valuetype == napi_string) {
         mkdirCB->name = NapiValueToStringUtf8(env, args[PARAM1]);
-        HILOG_INFO("tag dsa%{public}s,mode=%{public}s", __func__, mkdirCB->name.c_str());
+        HILOG_INFO("tag dsa%{public}s,name=%{public}s", __func__, mkdirCB->name.c_str());
     }
 
     FileAccessHelper *objectInfo = nullptr;
@@ -715,7 +708,7 @@ void MkdirExecuteCB(napi_env env, void *data)
             MkdirCB->result = newDirUri.ToString();
             MkdirCB->execResult = err;
         } else {
-            HILOG_ERROR("tag dsaNAPI_Mkdir, fileAccessHelper uri is empty");
+            HILOG_ERROR("tag dsaNAPI_Mkdir, fileAccessHelper parentUri is empty");
         }
     } else {
         HILOG_ERROR("tag dsaNAPI_Mkdir, fileAccessHelper == nullptr");
@@ -807,7 +800,7 @@ napi_value DeleteWrap(napi_env env, napi_callback_info info, FileAccessHelperDel
     NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valuetype));
     if (valuetype == napi_string) {
         deleteCB->selectFileUri = NapiValueToStringUtf8(env, args[PARAM0]);
-        HILOG_INFO("tag dsa %{public}s,uri=%{public}s", __func__, deleteCB->selectFileUri.c_str());
+        HILOG_INFO("tag dsa %{public}s,selectFileUri=%{public}s", __func__, deleteCB->selectFileUri.c_str());
     }
 
     FileAccessHelper *objectInfo = nullptr;
@@ -816,13 +809,9 @@ napi_value DeleteWrap(napi_env env, napi_callback_info info, FileAccessHelperDel
     deleteCB->fileAccessHelper = objectInfo;
 
     if (argcAsync > argcPromise) {
-        HILOG_INFO("tag dsa DeleteWrap_DeleteAsync start");
         ret = DeleteAsync(env, args, ARGS_ONE, deleteCB);
-        HILOG_INFO("tag dsa DeleteWrap_DeleteAsync ,end");
     } else {
-        HILOG_INFO("tag dsa DeleteWrap_DeletePromise start");
         ret = DeletePromise(env, deleteCB);
-        HILOG_INFO("tag dsa DeleteWrap_DeletePromise,end");
     }
     HILOG_INFO("tag dsa %{public}s,end", __func__);
     return ret;
@@ -897,7 +886,7 @@ void DeleteExecuteCB(napi_env env, void *data)
             DeleteCB->result = DeleteCB->fileAccessHelper->Delete(selectFileUri);
             DeleteCB->execResult = NO_ERROR;
         } else {
-            HILOG_ERROR("tag dsa NAPI_Delete, fileAccessHelper uri is empty");
+            HILOG_ERROR("tag dsa NAPI_Delete, fileAccessHelper selectFileUri is empty");
         }
     } else {
         HILOG_ERROR("tag dsa NAPI_Delete, fileAccessHelper == nullptr");
@@ -988,13 +977,13 @@ napi_value MoveWrap(napi_env env, napi_callback_info info, FileAccessHelperMoveC
     NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valuetype));
     if (valuetype == napi_string) {
         moveCB->sourceFileUri = NapiValueToStringUtf8(env, args[PARAM0]);
-        HILOG_INFO("tag dsa %{public}s,uri=%{public}s", __func__, moveCB->sourceFileUri.c_str());
+        HILOG_INFO("tag dsa %{public}s,sourceFileUri=%{public}s", __func__, moveCB->sourceFileUri.c_str());
     }
 
     NAPI_CALL(env, napi_typeof(env, args[PARAM1], &valuetype));
     if (valuetype == napi_string) {
         moveCB->targetParentUri = NapiValueToStringUtf8(env, args[PARAM1]);
-        HILOG_INFO("tag dsa %{public}s,mode=%{public}s", __func__, moveCB->targetParentUri.c_str());
+        HILOG_INFO("tag dsa %{public}s,targetParentUri=%{public}s", __func__, moveCB->targetParentUri.c_str());
     }
 
     FileAccessHelper *objectInfo = nullptr;
@@ -1084,7 +1073,7 @@ void MoveExecuteCB(napi_env env, void *data)
             MoveCB->result = newFileUri.ToString();
             MoveCB->execResult = err;
         } else {
-            HILOG_ERROR("tag dsa NAPI_Move, fileAccessHelper uri is empty");
+            HILOG_ERROR("tag dsa NAPI_Move, fileAccessHelper sourceFileUri is empty");
         }
     } else {
         HILOG_ERROR("tag dsa NAPI_Move, fileAccessHelper == nullptr");
@@ -1176,13 +1165,13 @@ napi_value RenameWrap(napi_env env, napi_callback_info info, FileAccessHelperRen
     NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valuetype));
     if (valuetype == napi_string) {
         renameCB->sourceFileUri = NapiValueToStringUtf8(env, args[PARAM0]);
-        HILOG_INFO("tag dsa %{public}s,uri=%{public}s", __func__, renameCB->sourceFileUri.c_str());
+        HILOG_INFO("tag dsa %{public}s,sourceFileUri=%{public}s", __func__, renameCB->sourceFileUri.c_str());
     }
 
     NAPI_CALL(env, napi_typeof(env, args[PARAM1], &valuetype));
     if (valuetype == napi_string) {
         renameCB->displayName = NapiValueToStringUtf8(env, args[PARAM1]);
-        HILOG_INFO("tag dsa %{public}s,mode=%{public}s", __func__, renameCB->displayName.c_str());
+        HILOG_INFO("tag dsa %{public}s,displayName=%{public}s", __func__, renameCB->displayName.c_str());
     }
 
     FileAccessHelper *objectInfo = nullptr;
@@ -1271,7 +1260,7 @@ void RenameExecuteCB(napi_env env, void *data)
             renameCB->result = newFileUri.ToString();
             renameCB->execResult = err;
         } else {
-            HILOG_ERROR("tag dsa NAPI_Rename, fileAccessHelper uri is empty");
+            HILOG_ERROR("tag dsa NAPI_Rename, fileAccessHelper sourceFileUri is empty");
         }
     } else {
         HILOG_ERROR("tag dsa NAPI_Rename, fileAccessHelper == nullptr");
@@ -1454,7 +1443,7 @@ void CloseFileExecuteCB(napi_env env, void *data)
             CloseFileCB->result = CloseFileCB->fileAccessHelper->CloseFile(CloseFileCB->fd, CloseFileCB->uri);
             CloseFileCB->execResult = NO_ERROR;
         } else {
-            HILOG_ERROR("tag dsa NAPI_CloseFile, fileAccessHelper uri is empty");
+            HILOG_ERROR("tag dsa NAPI_CloseFile, fileAccessHelper fd != NO_ERROR");
         }
     } else {
         HILOG_ERROR("tag dsa NAPI_CloseFile, fileAccessHelper == nullptr");
@@ -1499,5 +1488,164 @@ void CloseFilePromiseCompleteCB(napi_env env, napi_status status, void *data)
     HILOG_INFO("tag dsa NAPI_CloseFile,  main event thread complete end.");
 }
 
+napi_value NAPI_Release(napi_env env, napi_callback_info info)
+{
+    HILOG_INFO("tag dsa %{public}s,called", __func__);
+    FileAccessHelperReleaseCB *releaseCB = new (std::nothrow) FileAccessHelperReleaseCB;
+    if (releaseCB == nullptr) {
+        HILOG_ERROR("tag dsa %{public}s, releaseCB == nullptr.", __func__);
+        return WrapVoidToJS(env);
+    }
+    releaseCB->cbBase.cbInfo.env = env;
+    releaseCB->cbBase.asyncWork = nullptr;
+    releaseCB->cbBase.deferred = nullptr;
+
+    napi_value ret = ReleaseWrap(env, info, releaseCB);
+    if (ret == nullptr) {
+        HILOG_ERROR("tag dsa %{public}s,ret == nullptr", __func__);
+        delete releaseCB;
+        releaseCB = nullptr;
+        ret = WrapVoidToJS(env);
+    }
+    HILOG_INFO("tag dsa %{public}s,end", __func__);
+    return ret;
+}
+
+napi_value ReleaseWrap(napi_env env, napi_callback_info info, FileAccessHelperReleaseCB *releaseCB)
+{
+    HILOG_INFO("tag dsa %{public}s,called", __func__);
+    size_t argcAsync = ARGS_ONE;
+    const size_t argcPromise = ARGS_ZERO;
+    const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
+    napi_value args[ARGS_MAX_COUNT] = {nullptr};
+    napi_value ret = nullptr;
+    napi_value thisVar = nullptr;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
+    if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
+        HILOG_ERROR("tag dsa %{public}s, Wrong argument count.", __func__);
+        return nullptr;
+    }
+
+    FileAccessHelper *objectInfo = nullptr;
+    napi_unwrap(env, thisVar, (void **)&objectInfo);
+    HILOG_INFO("tag dsa FileAccessHelper ReleaseWrap objectInfo = %{public}p", objectInfo);
+    releaseCB->fileAccessHelper = objectInfo;
+
+    if (argcAsync > argcPromise) {
+        ret = ReleaseAsync(env, args, PARAM0, releaseCB);
+    } else {
+        ret = ReleasePromise(env, releaseCB);
+    }
+    HILOG_INFO("tag dsa %{public}s,end", __func__);
+    return ret;
+}
+
+napi_value ReleaseAsync(napi_env env, napi_value *args, const size_t argCallback, FileAccessHelperReleaseCB *releaseCB)
+{
+    HILOG_INFO("tag dsa %{public}s, asyncCallback.", __func__);
+    if (args == nullptr || releaseCB == nullptr) {
+        HILOG_ERROR("tag dsa %{public}s, param == nullptr.", __func__);
+        return nullptr;
+    }
+    napi_value resourceName = 0;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+
+    napi_valuetype valuetype = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[argCallback], &valuetype));
+    if (valuetype == napi_function) {
+        NAPI_CALL(env, napi_create_reference(env, args[argCallback], 1, &releaseCB->cbBase.cbInfo.callback));
+    }
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            ReleaseExecuteCB,
+            ReleaseAsyncCompleteCB,
+            (void *)releaseCB,
+            &releaseCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, releaseCB->cbBase.asyncWork));
+    napi_value result = 0;
+    NAPI_CALL(env, napi_get_null(env, &result));
+    HILOG_INFO("tag dsa %{public}s, asyncCallback end.", __func__);
+    return result;
+}
+
+napi_value ReleasePromise(napi_env env, FileAccessHelperReleaseCB *releaseCB)
+{
+    HILOG_INFO("tag dsa %{public}s, promise.", __func__);
+    if (releaseCB == nullptr) {
+        HILOG_ERROR("tag dsa %{public}s, param == nullptr.", __func__);
+        return nullptr;
+    }
+    napi_value resourceName;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+    napi_deferred deferred;
+    napi_value promise = 0;
+    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    releaseCB->cbBase.deferred = deferred;
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            ReleaseExecuteCB,
+            ReleasePromiseCompleteCB,
+            (void *)releaseCB,
+            &releaseCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, releaseCB->cbBase.asyncWork));
+    HILOG_INFO("tag dsa %{public}s, promise end.", __func__);
+    return promise;
+}
+
+void ReleaseExecuteCB(napi_env env, void *data)
+{
+    HILOG_INFO("tag dsa NAPI_Release, worker pool thread execute.");
+    FileAccessHelperReleaseCB *releaseCB = static_cast<FileAccessHelperReleaseCB *>(data);
+    if (releaseCB->fileAccessHelper != nullptr) {
+        releaseCB->result = releaseCB->fileAccessHelper->Release();
+    } else {
+        HILOG_ERROR("tag dsa NAPI_Release, fileAccessHelper == nullptr");
+    }
+    HILOG_INFO("tag dsa NAPI_Release, worker pool thread execute end.");
+}
+
+void ReleaseAsyncCompleteCB(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("tag dsa NAPI_Release, main event thread complete.");
+    FileAccessHelperReleaseCB *releaseCB = static_cast<FileAccessHelperReleaseCB *>(data);
+    napi_value callback = nullptr;
+    napi_value undefined = nullptr;
+    napi_value result[ARGS_TWO] = {nullptr};
+    napi_value callResult = nullptr;
+    NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
+    NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, releaseCB->cbBase.cbInfo.callback, &callback));
+
+    result[PARAM0] = GetCallbackErrorValue(env, NO_ERROR);
+    napi_get_boolean(env, releaseCB->result, &result[PARAM1]);
+    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+
+    if (releaseCB->cbBase.cbInfo.callback != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, releaseCB->cbBase.cbInfo.callback));
+    }
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, releaseCB->cbBase.asyncWork));
+    delete releaseCB;
+    releaseCB = nullptr;
+    HILOG_INFO("tag dsa NAPI_Release, main event thread complete end.");
+}
+
+void ReleasePromiseCompleteCB(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("tag dsa NAPI_Release,  main event thread complete.");
+    FileAccessHelperReleaseCB *releaseCB = static_cast<FileAccessHelperReleaseCB *>(data);
+    napi_value result = nullptr;
+    napi_get_boolean(env, releaseCB->result, &result);
+    NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, releaseCB->cbBase.deferred, result));
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, releaseCB->cbBase.asyncWork));
+    delete releaseCB;
+    releaseCB = nullptr;
+    HILOG_INFO("tag dsa NAPI_Release,  main event thread complete end.");
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

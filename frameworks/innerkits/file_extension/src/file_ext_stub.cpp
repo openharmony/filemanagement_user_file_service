@@ -88,7 +88,7 @@ ErrCode FileExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply)
 ErrCode FileExtStub::CmdCloseFile(MessageParcel &data, MessageParcel &reply)
 {
     HILOG_INFO("tag dsa %{public}s begin.", __func__);
-    int fd = data.ReadInt32();
+    int fd = data.ReadFileDescriptor();
     if (fd < 0) {
         HILOG_ERROR("tag dsa FileExtStub fd is invalid");
         return ERR_INVALID_VALUE;
@@ -106,7 +106,7 @@ ErrCode FileExtStub::CmdCloseFile(MessageParcel &data, MessageParcel &reply)
     }
 
     if (!reply.WriteInt32(ret)) {
-        HILOG_ERROR("tag dsa fail to WriteFileDescriptor ret");
+        HILOG_ERROR("tag dsa fail to WriteInt32 ret");
         return ERR_INVALID_VALUE;
     }
     HILOG_INFO("tag dsa %{public}s end.", __func__);

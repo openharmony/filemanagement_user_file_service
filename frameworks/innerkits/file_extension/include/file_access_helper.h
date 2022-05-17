@@ -20,7 +20,6 @@
 #include <map>
 #include <string>
 
-#include "context.h"
 #include "file_ext_connection.h"
 #include "foundation/aafwk/standard/frameworks/kits/appkit/native/ability_runtime/context/context.h"
 #include "ifile_ext_base.h"
@@ -57,7 +56,6 @@ private:
     sptr<IRemoteObject> token_ = {};
     AAFwk::Want want_ = {};
     sptr<IFileExtBase> fileExtProxy_ = nullptr;
-    static std::mutex oplock_;
     bool isSystemCaller_ = false;
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
     sptr<FileExtConnection> fileExtConnection_ = nullptr;

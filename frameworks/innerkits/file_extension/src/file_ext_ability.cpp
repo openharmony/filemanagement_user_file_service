@@ -50,7 +50,6 @@ void FileExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const sptr<IRemoteObject> &token)
 {
     HILOG_INFO("tag dsa %{public}s begin.", __func__);
-    //ExtensionBase<DataShareExtAbilityContext>::Init(record, application, handler, token);
     ExtensionBase<>::Init(record, application, handler, token);
     HILOG_INFO("tag dsa %{public}s end.", __func__);
 }

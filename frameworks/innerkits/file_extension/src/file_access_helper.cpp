@@ -24,7 +24,6 @@ namespace {
 constexpr int INVALID_VALUE = -1;
 }  // namespace
 
-std::mutex FileAccessHelper::oplock_;
 
 FileAccessHelper::FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
     const AAFwk::Want &want, const sptr<IFileExtBase> &fileExtProxy)
@@ -156,10 +155,10 @@ int FileAccessHelper::CreateFile(Uri &parentUri, const std::string &displayName,
         return index;
     }
 
-    HILOG_INFO("tag dsa FileAccessHelper::CreateFile before fileExtProxy_->Mkdir.");
+    HILOG_INFO("tag dsa FileAccessHelper::CreateFile before fileExtProxy_->CreateFile.");
     index = fileExtProxy_->CreateFile(parentUri, displayName, newFileUri);
     HILOG_INFO("tag dsa FileAccessHelper::CreateFile end. index = %{public}d", index);
-    HILOG_INFO("tag dsa FileAccessHelper::Mkdir end. newDirUri = %{public}s", newFileUri.ToString().c_str());
+    HILOG_INFO("tag dsa FileAccessHelper::CreateFile end. newDirUri = %{public}s", newFileUri.ToString().c_str());
     return index;
 }
 
@@ -210,7 +209,7 @@ int FileAccessHelper::Delete(Uri &selectFileUri)
         return index;
     }
 
-    HILOG_INFO("tag dsa FileAccessHelper::OpenFile before fileExtProxy_->OpenFile.");
+    HILOG_INFO("tag dsa FileAccessHelper::Delete before fileExtProxy_->Delete.");
     index = fileExtProxy_->Delete(selectFileUri);
     HILOG_INFO("tag dsa %{public}s begin.", __func__);
     return index;
@@ -275,12 +274,12 @@ int FileAccessHelper::CloseFile(int fd, const std::string &uri)
     HILOG_INFO("tag dsa %{public}s begin.", __func__);
     int index = INVALID_VALUE;
 
-    HILOG_INFO("tag dsa FileAccessHelper::Delete before ConnectFileExtAbility.");
+    HILOG_INFO("tag dsa FileAccessHelper::CloseFile before ConnectFileExtAbility.");
     if (!fileExtConnection_->IsExtAbilityConnected()) {
         fileExtConnection_->ConnectFileExtAbility(want_, token_);
     }
     fileExtProxy_ = fileExtConnection_->GetFileExtProxy();
-    HILOG_INFO("tag dsa FileAccessHelper::Delete after ConnectFileExtAbility.");
+    HILOG_INFO("tag dsa FileAccessHelper::CloseFile after ConnectFileExtAbility.");
     if (isSystemCaller_ && fileExtProxy_) {
         AddFileAccessDeathRecipient(fileExtProxy_->AsObject());
     }
@@ -290,7 +289,7 @@ int FileAccessHelper::CloseFile(int fd, const std::string &uri)
         return index;
     }
 
-    HILOG_INFO("tag dsa FileAccessHelper::OpenFile before fileExtProxy_->OpenFile.");
+    HILOG_INFO("tag dsa FileAccessHelper::CloseFile before fileExtProxy_->CloseFile.");
     index = fileExtProxy_->CloseFile(fd, uri);
     HILOG_INFO("tag dsa %{public}s begin.", __func__);
     return index;
