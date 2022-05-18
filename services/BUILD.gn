@@ -12,9 +12,8 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
 FMS_BASE_DIR = "//foundation/filemanagement/user_file_service/services"
-aaservices_path = "//foundation/aafwk/standard/services"
-aakits_path = "//foundation/aafwk/standard/frameworks/kits"
 
 group("fms") {
   deps = [
@@ -60,8 +59,8 @@ ohos_shared_library("fms_server") {
   ]
 
   deps = [
-    "${aakits_path}/ability/native:abilitykit_native",
-    "${aaservices_path}/abilitymgr:abilityms",
+    "${aafwk_kits_path}/ability/native:abilitykit_native",
+    "${aafwk_services_path}/abilitymgr:abilityms",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
     "//foundation/filemanagement/storage_service/interfaces/innerkits/storage_manager/native:storage_manager_sa_proxy",
     "//foundation/filemanagement/storage_service/services/storage_manager:storage_manager",
