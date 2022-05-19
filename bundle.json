@@ -26,7 +26,8 @@
                 "ability_runtime",
                 "hiviewdfx",
                 "ipc",
-                "native_appdatamgr",
+                "relational_store",
+                "dataability",
                 "safwk",
                 "samgr_standard"
             ]
