@@ -377,6 +377,10 @@ bool MediaFileUtils::GetFileInfo(shared_ptr<NativeRdb::AbsSharedResultSet> resul
     result->GetString(mediaTableMap[index++].first, id);
     string uri;
     result->GetString(mediaTableMap[index++].first, uri);
+    if (uri.empty()) {
+        DEBUG_LOG("empty uri from medialibrary");
+        uri = Media::MEDIALIBRARY_FILE_URI;
+    }
 
     string path = uri + "/" + id;
     fileInfo->SetPath(path);
