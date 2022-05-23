@@ -21,6 +21,8 @@
 namespace OHOS {
 namespace AbilityRuntime {
 class Runtime;
+class FileExtAbility;
+using CreatorFunc = std::function<FileExtAbility* (const std::unique_ptr<Runtime>& runtime)>;
 class FileExtAbility : public ExtensionBase<> {
 public:
     FileExtAbility() = default;
@@ -40,6 +42,15 @@ public:
     virtual int Delete(const Uri &sourceFileUri);
     virtual int Move(const Uri &sourceFileUri, const Uri &targetParentUri, Uri &newFileUri);
     virtual int Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri);
+
+    /**
+     * @brief Set a creator function.
+     *
+     * @param creator The function for create a file extension ability.
+     */
+    static void SetCreator(const CreatorFunc& creator);
+private:
+    static CreatorFunc creator_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

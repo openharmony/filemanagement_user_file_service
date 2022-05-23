@@ -25,11 +25,21 @@
 namespace OHOS {
 namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
+
+CreatorFunc FileExtAbility::creator_ = nullptr;
+void FileExtAbility::SetCreator(const CreatorFunc& creator)
+{
+    creator_ = creator;
+}
+
 FileExtAbility* FileExtAbility::Create(const std::unique_ptr<Runtime>& runtime)
 {
     HILOG_INFO("tag dsa %{public}s begin.", __func__);
     if (!runtime) {
         return new FileExtAbility();
+    }
+    if (creator_) {
+        return creator_(runtime);
     }
     HILOG_INFO("tag dsa FileExtAbility::Create runtime");
     switch (runtime->GetLanguage()) {
