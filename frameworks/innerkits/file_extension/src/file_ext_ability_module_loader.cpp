@@ -31,4 +31,9 @@ extern "C" __attribute__((visibility("default"))) void* OHOS_EXTENSION_GetExtens
     HILOG_INFO("tag dsa %{public}s begin.", __func__);
     return &FileExtAbilityModuleLoader::GetInstance();
 }
+
+extern "C" __attribute__((visibility("default"))) void SetCreator(const CreatorFunc& creator)
+{
+    return FileExtAbility::SetCreator(creator);
+}
 } // namespace OHOS::AbilityRuntime
