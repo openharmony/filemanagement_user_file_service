@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-#include "abs_shared_result_set.h"
+#include "datashare_abs_result_set.h"
 #include "file_info.h"
 #include "file_oper.h"
 
@@ -27,7 +27,7 @@
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
 
-#include "data_ability_helper.h"
+#include "datashare_helper.h"
 
 namespace OHOS {
 namespace FileManagerService {
@@ -38,16 +38,16 @@ public:
     static int DoGetRoot(const std::string &name, const std::string &path,
         std::vector<std::shared_ptr<FileInfo>> &fileList);
     static int DoListFile(const std::string &type, const std::string &path, int offset, int count,
-        std::shared_ptr<NativeRdb::AbsSharedResultSet> &result);
-    static std::shared_ptr<NativeRdb::AbsSharedResultSet> DoQuery(const std::string &selection,
+        std::shared_ptr<DataShare::DataShareResultSet> &result);
+    static std::shared_ptr<DataShare::DataShareResultSet> DoQuery(const std::string &selection,
         const std::vector<std::string> &selectionArgs);
-    static std::shared_ptr<NativeRdb::AbsSharedResultSet> DoQuery(const std::string &selection,
+    static std::shared_ptr<DataShare::DataShareResultSet> DoQuery(const std::string &selection,
         const std::vector<std::string> &selectionArgs, int offset, int count);
     static int DoInsert(const std::string &name, const std::string &path, const std::string &type, std::string &uri);
-    static bool GetFileInfo(std::shared_ptr<NativeRdb::AbsSharedResultSet> result, std::shared_ptr<FileInfo> &fileInfo);
-    static int GetFileInfoFromResult(std::shared_ptr<NativeRdb::AbsSharedResultSet> result,
+    static bool GetFileInfo(std::shared_ptr<DataShare::DataShareResultSet> result, std::shared_ptr<FileInfo> &fileInfo);
+    static int GetFileInfoFromResult(std::shared_ptr<DataShare::DataShareResultSet> result,
         std::vector<std::shared_ptr<FileInfo>> &fileList);
-    static bool InitMediaTableColIndexMap(std::shared_ptr<NativeRdb::AbsSharedResultSet> result);
+    static bool InitMediaTableColIndexMap(std::shared_ptr<DataShare::DataShareResultSet> result);
     static bool InitHelper(sptr<IRemoteObject> obj);
 private:
     inline static std::vector<std::pair<int, std::string>> mediaTableMap = {};
