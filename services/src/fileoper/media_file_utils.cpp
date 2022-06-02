@@ -16,8 +16,10 @@
 #include "media_file_utils.h"
 
 #include <algorithm>
-
-#include "data_ability_predicates.h"
+#include "datashare_values_bucket.h"
+#include "datashare_predicates.h"
+#include "datashare_abs_result_set.h"
+#include "datashare_helper.h"
 #include "file_manager_service_def.h"
 #include "file_manager_service_errno.h"
 #include "log.h"
@@ -305,19 +307,20 @@ shared_ptr<NativeRdb::AbsSharedResultSet> MediaFileUtils::DoQuery(const string &
     const vector<string> &selectionArgs, int offset, int count)
 {
     ShowSelecArgs(selection, selectionArgs);
-    NativeRdb::DataAbilityPredicates predicates;
+    DataShare::DataSharePredicates predicates;
     predicates.SetWhereClause(selection);
     predicates.SetWhereArgs(selectionArgs);
     predicates.SetOrder("date_taken DESC LIMIT " + ToString(offset) + "," + ToString(count));
     DEBUG_LOG("limit %{public}d, offset %{public}d", count, offset);
     Uri uri = Uri(Media::MEDIALIBRARY_DATA_URI);
     vector<string> columns;
-    return abilityHelper->Query(uri, columns, predicates);
+    // return abilityHelper->Query(uri, predicates, columns);
+    return nullptr;
 }
 
 int MediaFileUtils::DoInsert(const string &name, const string &path, const string &type, string &uri)
 {
-    NativeRdb::ValuesBucket values;
+    DataShare::DataShareValuesBucket values;
     string albumPath;
     if (!GetAlbumPath(name, path, albumPath)) {
         ERR_LOG("path not exsit");
@@ -422,7 +425,7 @@ int MediaFileUtils::GetFileInfoFromResult(shared_ptr<NativeRdb::AbsSharedResultS
 bool MediaFileUtils::InitHelper(sptr<IRemoteObject> obj)
 {
     if (abilityHelper == nullptr) {
-        abilityHelper =  AppExecFwk::DataAbilityHelper::Creator(obj, make_shared<Uri>(Media::MEDIALIBRARY_DATA_URI));
+        // abilityHelper =  DataShare::DataShareHelper::Creator(obj, MEDIALIBRARY_DATA_URI);
         if (abilityHelper == nullptr) {
             DEBUG_LOG("get %{private}s helper fail", Media::MEDIALIBRARY_DATA_URI.c_str());
             return false;

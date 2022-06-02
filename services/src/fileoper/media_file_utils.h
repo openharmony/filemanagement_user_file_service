@@ -51,7 +51,7 @@ public:
     static bool InitHelper(sptr<IRemoteObject> obj);
 private:
     inline static std::vector<std::pair<int, std::string>> mediaTableMap = {};
-    inline static std::shared_ptr<AppExecFwk::DataAbilityHelper> abilityHelper = nullptr;
+    inline static std::shared_ptr<DataShare::DataShareHelper> abilityHelper = nullptr;
 };
 } // namespace FileManagerService
 } // namespace OHOS
