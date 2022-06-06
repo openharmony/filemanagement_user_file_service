@@ -106,7 +106,7 @@ int MediaFileOper::GetRoot(const std::string &name, const std::string &path, Mes
 
 int MediaFileOper::ListFile(const string &type, const string &path, int offset, int count, MessageParcel &reply) const
 {
-    shared_ptr<NativeRdb::AbsSharedResultSet> result;
+    shared_ptr<DataShare::DataShareResultSet> result;
     int res = MediaFileUtils::DoListFile(type, path, offset, count, result);
     if (res != SUCCESS) {
         return res;

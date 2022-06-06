@@ -16,8 +16,8 @@
 #include "media_file_utils.h"
 
 #include <algorithm>
-
-#include "data_ability_predicates.h"
+#include "datashare_values_bucket.h"
+#include "datashare_predicates.h"
 #include "file_manager_service_def.h"
 #include "file_manager_service_errno.h"
 #include "log.h"
@@ -29,12 +29,12 @@
 using namespace std;
 namespace OHOS {
 namespace FileManagerService {
-bool GetPathFromResult(shared_ptr<NativeRdb::AbsSharedResultSet> result, string &path)
+bool GetPathFromResult(shared_ptr<DataShare::DataShareResultSet> result, string &path)
 {
     int count = 0;
     result->GetRowCount(count);
     if (count == RESULTSET_EMPTY) {
-        ERR_LOG("AbsSharedResultSet null");
+        ERR_LOG("DataShareResultSet null");
         return false;
     }
     int32_t columnIndex = 0;
@@ -121,9 +121,9 @@ bool GetPathFromAlbumPath(const string &albumUri, string &path)
     }
     string selection = Media::MEDIA_DATA_DB_ID + " LIKE ? ";
     vector<string> selectionArgs = {id};
-    shared_ptr<NativeRdb::AbsSharedResultSet> result = MediaFileUtils::DoQuery(selection, selectionArgs);
+    shared_ptr<DataShare::DataShareResultSet> result = MediaFileUtils::DoQuery(selection, selectionArgs);
     if (result == nullptr) {
-        ERR_LOG("AbsSharedResultSet null");
+        ERR_LOG("DataShareResultSet null");
         return false;
     }
     return GetPathFromResult(result, path);
@@ -150,7 +150,7 @@ bool IsFirstLevelUriPath(const string &path)
     return path == FISRT_LEVEL_ALBUM;
 }
 
-bool GetAlbumFromResult(shared_ptr<NativeRdb::AbsSharedResultSet> &result, vector<string> &album)
+bool GetAlbumFromResult(shared_ptr<DataShare::DataShareResultSet> &result, vector<string> &album)
 {
     int count = 0;
     result->GetRowCount(count);
@@ -181,7 +181,7 @@ vector<string> FindAlbumByType(string type)
     // then get the album
     string selection = Media::MEDIA_DATA_DB_MEDIA_TYPE + " LIKE ?";
     vector<string> selectionArgs = {type};
-    shared_ptr<NativeRdb::AbsSharedResultSet> result = MediaFileUtils::DoQuery(selection, selectionArgs);
+    shared_ptr<DataShare::DataShareResultSet> result = MediaFileUtils::DoQuery(selection, selectionArgs);
     vector<string> album;
     if (result == nullptr) {
         ERR_LOG("query album type returns fail");
@@ -273,7 +273,7 @@ static void ShowSelecArgs(const string &selection, const vector<string> &selecti
 }
 
 int MediaFileUtils::DoListFile(const string &type, const string &path, int offset, int count,
-    shared_ptr<NativeRdb::AbsSharedResultSet> &result)
+    shared_ptr<DataShare::DataShareResultSet> &result)
 {
     string selection;
     vector<string> selectionArgs;
@@ -295,29 +295,29 @@ int MediaFileUtils::DoListFile(const string &type, const string &path, int offse
     return SUCCESS;
 }
 
-shared_ptr<NativeRdb::AbsSharedResultSet> MediaFileUtils::DoQuery(const string &selection,
+shared_ptr<DataShare::DataShareResultSet> MediaFileUtils::DoQuery(const string &selection,
     const vector<string> &selectionArgs)
 {
     return DoQuery(selection, selectionArgs, 0, MAX_NUM);
 }
 
-shared_ptr<NativeRdb::AbsSharedResultSet> MediaFileUtils::DoQuery(const string &selection,
+shared_ptr<DataShare::DataShareResultSet> MediaFileUtils::DoQuery(const string &selection,
     const vector<string> &selectionArgs, int offset, int count)
 {
     ShowSelecArgs(selection, selectionArgs);
-    NativeRdb::DataAbilityPredicates predicates;
+    DataShare::DataSharePredicates predicates;
     predicates.SetWhereClause(selection);
     predicates.SetWhereArgs(selectionArgs);
     predicates.SetOrder("date_taken DESC LIMIT " + ToString(offset) + "," + ToString(count));
     DEBUG_LOG("limit %{public}d, offset %{public}d", count, offset);
     Uri uri = Uri(Media::MEDIALIBRARY_DATA_URI);
     vector<string> columns;
-    return abilityHelper->Query(uri, columns, predicates);
+    return abilityHelper->Query(uri, predicates, columns);
 }
 
 int MediaFileUtils::DoInsert(const string &name, const string &path, const string &type, string &uri)
 {
-    NativeRdb::ValuesBucket values;
+    DataShare::DataShareValuesBucket values;
     string albumPath;
     if (!GetAlbumPath(name, path, albumPath)) {
         ERR_LOG("path not exsit");
@@ -343,7 +343,7 @@ int MediaFileUtils::DoInsert(const string &name, const string &path, const strin
     return SUCCESS;
 }
 
-bool MediaFileUtils::InitMediaTableColIndexMap(shared_ptr<NativeRdb::AbsSharedResultSet> result)
+bool MediaFileUtils::InitMediaTableColIndexMap(shared_ptr<DataShare::DataShareResultSet> result)
 {
     if (mediaTableMap.size() == 0) {
         DEBUG_LOG("init mediaTableMap");
@@ -365,7 +365,7 @@ bool MediaFileUtils::InitMediaTableColIndexMap(shared_ptr<NativeRdb::AbsSharedRe
     return true;
 }
 
-bool MediaFileUtils::GetFileInfo(shared_ptr<NativeRdb::AbsSharedResultSet> result,
+bool MediaFileUtils::GetFileInfo(shared_ptr<DataShare::DataShareResultSet> result,
     shared_ptr<FileInfo> &fileInfo)
 {
     if (!InitMediaTableColIndexMap(result)) {
@@ -400,13 +400,13 @@ bool MediaFileUtils::GetFileInfo(shared_ptr<NativeRdb::AbsSharedResultSet> resul
     return true;
 }
 
-int MediaFileUtils::GetFileInfoFromResult(shared_ptr<NativeRdb::AbsSharedResultSet> result,
+int MediaFileUtils::GetFileInfoFromResult(shared_ptr<DataShare::DataShareResultSet> result,
     std::vector<shared_ptr<FileInfo>> &fileList)
 {
     int count = 0;
     result->GetRowCount(count);
     if (count == 0) {
-        ERR_LOG("AbsSharedResultSet null");
+        ERR_LOG("DataShareResultSet null");
         return E_EMPTYFOLDER;
     }
     result->GoToFirstRow();
@@ -422,7 +422,7 @@ int MediaFileUtils::GetFileInfoFromResult(shared_ptr<NativeRdb::AbsSharedResultS
 bool MediaFileUtils::InitHelper(sptr<IRemoteObject> obj)
 {
     if (abilityHelper == nullptr) {
-        abilityHelper =  AppExecFwk::DataAbilityHelper::Creator(obj, make_shared<Uri>(Media::MEDIALIBRARY_DATA_URI));
+        abilityHelper =  DataShare::DataShareHelper::Creator(obj, Media::MEDIALIBRARY_DATA_URI);
         if (abilityHelper == nullptr) {
             DEBUG_LOG("get %{private}s helper fail", Media::MEDIALIBRARY_DATA_URI.c_str());
             return false;
