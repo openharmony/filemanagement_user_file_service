@@ -27,7 +27,7 @@ ohos_unittest("file_manager_proxy_test") {
     "$FMS_BASE_DIR/src/fileoper",
     "//third_party/googletest/googlemock/include/gmock",
     "//foundation/distributeddatamgr/appdatamgr/interfaces/inner_api/native/rdb/include",
-    "//foundation/multimedia/medialibrary_standard/interfaces/inner_api/media_library_helper/include",
+    "//foundation/multimedia/media_library/interfaces/inner_api/media_library_helper/include",
   ]
 
   configs = [ "//build/config/compiler:exceptions" ]
@@ -59,7 +59,7 @@ ohos_unittest("oper_factory_test") {
     "$FMS_BASE_DIR/src/client",
     "$FMS_BASE_DIR/src/server",
     "$FMS_BASE_DIR/src/fileoper",
-    "//foundation/multimedia/medialibrary_standard/interfaces/inner_api/media_library_helper/include",
+    "//foundation/multimedia/media_library/interfaces/inner_api/media_library_helper/include",
     "//foundation/distributeddatamgr/appdatamgr/interfaces/inner_api/native/rdb/include",
   ]
 
@@ -93,7 +93,7 @@ ohos_unittest("file_manager_service_test") {
     "$FMS_BASE_DIR/src/client",
     "$FMS_BASE_DIR/src/server",
     "$FMS_BASE_DIR/src/fileoper",
-    "//foundation/multimedia/medialibrary_standard/interfaces/inner_api/media_library_helper/include",
+    "//foundation/multimedia/media_library/interfaces/inner_api/media_library_helper/include",
     "//foundation/distributeddatamgr/appdatamgr/interfaces/inner_api/native/rdb/include",
   ]
 

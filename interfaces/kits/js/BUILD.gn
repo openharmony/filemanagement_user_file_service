@@ -32,7 +32,7 @@ ohos_shared_library("filemanager") {
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi/n_async",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common",
-    "//foundation/multimedia/medialibrary_standard/interfaces/inner_api/media_library_helper/include",
+    "//foundation/multimedia/media_library/interfaces/inner_api/media_library_helper/include",
   ]
 
   sources = [
@@ -44,7 +44,7 @@ ohos_shared_library("filemanager") {
     "$FMS_BASE_DIR:fms_server",
     "//foundation/arkui/napi:ace_napi",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js:fileio",
-    "//foundation/multimedia/medialibrary_standard/frameworks/innerkitsimpl/medialibrary_data_extension:medialibrary_data_extension",
+    "//foundation/multimedia/media_library/frameworks/innerkitsimpl/medialibrary_data_extension:medialibrary_data_extension",
     "//utils/native/base:utils",
   ]
   cflags = []
