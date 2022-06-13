@@ -27,7 +27,6 @@
                 "hiviewdfx",
                 "ipc",
                 "relational_store",
-                "dataability",
                 "safwk",
                 "samgr_standard"
             ]
