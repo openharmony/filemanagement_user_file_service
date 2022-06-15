@@ -52,6 +52,8 @@ ohos_shared_library("file_access_ability_kit") {
   sources = [
     "src/file_ext_ability.cpp",
     "src/js_file_ext_ability.cpp",
+    "src/file_access_helper.cpp",
+    "src/file_ext_connection.cpp",
   ]
   configs = [ ":ability_config" ]
   public_configs = [
