@@ -19,6 +19,5 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-
 } // namespace FileAccessFwk
 } // namespace OHOS
