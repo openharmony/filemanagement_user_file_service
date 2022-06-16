@@ -21,23 +21,25 @@ namespace OHOS {
 namespace FileAccessFwk {
 FileExtStub::FileExtStub()
 {
-    HILOG_INFO("tag dsa %{public}s begin.", __func__);
+    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_INFO("%{public}s end.", __func__);
 }
 
 FileExtStub::~FileExtStub()
 {
-    HILOG_INFO("tag dsa %{public}s begin.", __func__);
+    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_INFO("%{public}s end.", __func__);
     stubFuncMap_.clear();
 }
 
 int FileExtStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,
     MessageOption& option)
 {
-    HILOG_INFO("tag dsa %{public}s Received stub message: %{public}d", __func__, code);
+    HILOG_INFO("%{public}s Received stub message: %{public}d", __func__, code);
     std::u16string descriptor = FileExtStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_INFO("tag dsa local descriptor is not equal to remote");
+        HILOG_INFO("%{public}s local descriptor is not equal to remote", __func__);
         return ERR_INVALID_STATE;
     }
 
@@ -46,7 +48,7 @@ int FileExtStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParc
         return (this->*(itFunc->second))(data, reply);
     }
 
-    HILOG_INFO("tag dsa %{public}s remote request unhandled: %{public}d", __func__, code);
+    HILOG_INFO("%{public}s remote request unhandled: %{public}d", __func__, code);
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 } // namespace FileAccessFwk

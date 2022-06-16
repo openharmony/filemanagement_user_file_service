@@ -48,24 +48,24 @@ uint32_t UnwrapUint32FromJS(napi_env env, napi_value param, uint32_t defaultValu
 
 bool UnwrapUint32FromJS2(napi_env env, napi_value param, uint32_t &value)
 {
-    HILOG_INFO("tag dsa %{public}s,called begin", __func__);
+    HILOG_INFO("%{public}s,called begin", __func__);
     bool result = false;
     if (napi_get_value_uint32(env, param, &value) == napi_ok) {
         result = true;
     }
-    HILOG_INFO("tag dsa %{public}s,called end, value: %{public}u", __func__, value);
+    HILOG_INFO("%{public}s,called end, value: %{public}u", __func__, value);
     return result;
 }
 
 bool UnwrapUint32ByPropertyName(napi_env env, napi_value param, const char *propertyName, uint32_t &value)
 {
-    HILOG_INFO("tag dsa %{public}s,called begin", __func__);
+    HILOG_INFO("%{public}s,called begin", __func__);
     napi_value jsValue = GetPropertyValueByPropertyName(env, param, propertyName, napi_number);
     if (jsValue != nullptr) {
-        HILOG_INFO("tag dsa %{public}s,called end.", __func__);
+        HILOG_INFO("%{public}s,called end.", __func__);
         return UnwrapUint32FromJS2(env, jsValue, value);
     } else {
-        HILOG_INFO("tag dsa %{public}s,called faild.", __func__);
+        HILOG_INFO("%{public}s,called faild.", __func__);
         return false;
     }
 }
@@ -79,53 +79,53 @@ napi_value WrapBigIntUint64ToJS(napi_env env, uint64_t value)
 
 uint64_t UnwrapBigIntUint64FromJS(napi_env env, napi_value param, uint64_t defaultValue)
 {
-    HILOG_INFO("tag dsa %{public}s,called begin", __func__);
+    HILOG_INFO("%{public}s,called begin", __func__);
     bool lossless = true;
     uint64_t value = defaultValue;
     if (napi_get_value_bigint_uint64(env, param, &value, &lossless) == napi_ok) {
-        HILOG_INFO("tag dsa %{public}s,called value: %{public}llu.", __func__, defaultValue);
+        HILOG_INFO("%{public}s,called value: %{public}llu.", __func__, defaultValue);
         return value;
     } else {
-        HILOG_INFO("tag dsa %{public}s,called end with faild.", __func__);
+        HILOG_INFO("%{public}s,called end with faild.", __func__);
         return defaultValue;
     }
 }
 
 bool UnwrapBigIntUint64FromJS2(napi_env env, napi_value param, uint64_t &defaultValue)
 {
-    HILOG_INFO("tag dsa %{public}s,called begin", __func__);
+    HILOG_INFO("%{public}s,called begin", __func__);
     bool lossless = true;
     if (napi_get_value_bigint_uint64(env, param, &defaultValue, &lossless) == napi_ok) {
-        HILOG_INFO("tag dsa %{public}s,called value: %{public}llu.", __func__, defaultValue);
+        HILOG_INFO("%{public}s,called value: %{public}llu.", __func__, defaultValue);
         return true;
     } else {
-        HILOG_INFO("tag dsa %{public}s,called end with faild.", __func__);
+        HILOG_INFO("%{public}s,called end with faild.", __func__);
         return false;
     }
 }
 
 bool UnwrapBigIntUint64ByPropertyName(napi_env env, napi_value param, const char *propertyName, uint64_t &value)
 {
-    HILOG_INFO("tag dsa %{public}s,called begin", __func__);
+    HILOG_INFO("%{public}s,called begin", __func__);
     napi_value jsValue = GetPropertyValueByPropertyName(env, param, propertyName, napi_bigint);
     if (jsValue != nullptr) {
-        HILOG_INFO("tag dsa %{public}s,called end.", __func__);
+        HILOG_INFO("%{public}s,called end.", __func__);
         return UnwrapBigIntUint64FromJS2(env, jsValue, value);
     } else {
-        HILOG_INFO("tag dsa %{public}s,called faild.", __func__);
+        HILOG_INFO("%{public}s,called faild.", __func__);
         return false;
     }
 }
 
 napi_value WrapFileInfo(napi_env env, const FileInfo &fileInfo)
 {
-    HILOG_INFO("tag dsa %{public}s,called begin", __func__);
-    HILOG_INFO("tag dsa %{public}s,uri: %{public}s", __func__, fileInfo.uri.ToString().c_str());
-    HILOG_INFO("tag dsa %{public}s,fileName: %{public}s", __func__, fileInfo.fileName.c_str());
-    HILOG_INFO("tag dsa %{public}s,mode: %{public}s", __func__, fileInfo.mode.c_str());
-    HILOG_INFO("tag dsa %{public}s,size: %{public}lld", __func__, fileInfo.size);
-    HILOG_INFO("tag dsa %{public}s,mtime: %{public}lld", __func__, fileInfo.mtime);
-    HILOG_INFO("tag dsa %{public}s,mimiType: %{public}s", __func__, fileInfo.mimiType.c_str());
+    HILOG_INFO("%{public}s,called begin", __func__);
+    HILOG_INFO("%{public}s,uri: %{public}s", __func__, fileInfo.uri.ToString().c_str());
+    HILOG_INFO("%{public}s,fileName: %{public}s", __func__, fileInfo.fileName.c_str());
+    HILOG_INFO("%{public}s,mode: %{public}s", __func__, fileInfo.mode.c_str());
+    HILOG_INFO("%{public}s,size: %{public}lld", __func__, fileInfo.size);
+    HILOG_INFO("%{public}s,mtime: %{public}lld", __func__, fileInfo.mtime);
+    HILOG_INFO("%{public}s,mimiType: %{public}s", __func__, fileInfo.mimiType.c_str());
     napi_value jsObject = nullptr;
     napi_value jsValue = nullptr;
 
@@ -155,13 +155,13 @@ napi_value WrapFileInfo(napi_env env, const FileInfo &fileInfo)
     jsValue = OHOS::AppExecFwk::WrapStringToJS(env, fileInfo.mimiType);
     SetPropertyValueByPropertyName(env, jsObject, "mimiType", jsValue);
 
-    HILOG_INFO("tag dsa %{public}s,called end", __func__);
+    HILOG_INFO("%{public}s,called end", __func__);
     return jsObject;
 }
 
 bool UnwrapFileInfo(napi_env env, napi_value param, FileInfo &fileInfo)
 {
-    HILOG_INFO("tag dsa %{public}s,called begin", __func__);
+    HILOG_INFO("%{public}s,called begin", __func__);
     if (!IsTypeForNapiValue(env, param, napi_object)) {
         HILOG_INFO("%{public}s called. Params is invalid.", __func__);
         return false;
@@ -197,13 +197,13 @@ bool UnwrapFileInfo(napi_env env, napi_value param, FileInfo &fileInfo)
         fileInfo.mimiType = natValueString;
     }
 
-    HILOG_INFO("tag dsa %{public}s,uri: %{public}s", __func__, fileInfo.uri.ToString().c_str());
-    HILOG_INFO("tag dsa %{public}s,fileName: %{public}s", __func__, fileInfo.fileName.c_str());
-    HILOG_INFO("tag dsa %{public}s,mode: %{public}s", __func__, fileInfo.mode.c_str());
-    HILOG_INFO("tag dsa %{public}s,size: %{public}lld", __func__, fileInfo.size);
-    HILOG_INFO("tag dsa %{public}s,mtime: %{public}lld", __func__, fileInfo.mtime);
-    HILOG_INFO("tag dsa %{public}s,mimiType: %{public}s", __func__, fileInfo.mimiType.c_str());
-    HILOG_INFO("tag dsa %{public}s,end", __func__);
+    HILOG_INFO("%{public}s,uri: %{public}s", __func__, fileInfo.uri.ToString().c_str());
+    HILOG_INFO("%{public}s,fileName: %{public}s", __func__, fileInfo.fileName.c_str());
+    HILOG_INFO("%{public}s,mode: %{public}s", __func__, fileInfo.mode.c_str());
+    HILOG_INFO("%{public}s,size: %{public}lld", __func__, fileInfo.size);
+    HILOG_INFO("%{public}s,mtime: %{public}lld", __func__, fileInfo.mtime);
+    HILOG_INFO("%{public}s,mimiType: %{public}s", __func__, fileInfo.mimiType.c_str());
+    HILOG_INFO("%{public}s,end", __func__);
     return true;
 }
 
@@ -251,11 +251,11 @@ bool UnwrapArrayFileInfoFromJS(napi_env env, napi_value param, std::vector<FileI
 
 napi_value WrapDeviceInfo(napi_env env, const DeviceInfo &deviceInfo)
 {
-    HILOG_INFO("tag dsa %{public}s,called begin", __func__);
-    HILOG_INFO("tag dsa %{public}s,uri: %{public}s", __func__, deviceInfo.uri.ToString().c_str());
-    HILOG_INFO("tag dsa %{public}s,displayName: %{public}s", __func__, deviceInfo.displayName.c_str());
-    HILOG_INFO("tag dsa %{public}s,deviceId: %{public}s", __func__, deviceInfo.deviceId.c_str());
-    HILOG_INFO("tag dsa %{public}s,flags: %{public}u", __func__, deviceInfo.flags);
+    HILOG_INFO("%{public}s,called begin", __func__);
+    HILOG_INFO("%{public}s,uri: %{public}s", __func__, deviceInfo.uri.ToString().c_str());
+    HILOG_INFO("%{public}s,displayName: %{public}s", __func__, deviceInfo.displayName.c_str());
+    HILOG_INFO("%{public}s,deviceId: %{public}s", __func__, deviceInfo.deviceId.c_str());
+    HILOG_INFO("%{public}s,flags: %{public}u", __func__, deviceInfo.flags);
     napi_value jsObject = nullptr;
     napi_value jsValue = nullptr;
 
@@ -277,13 +277,13 @@ napi_value WrapDeviceInfo(napi_env env, const DeviceInfo &deviceInfo)
     jsValue = WrapUint32ToJS(env, deviceInfo.flags);
     SetPropertyValueByPropertyName(env, jsObject, "flags", jsValue);
 
-    HILOG_INFO("tag dsa %{public}s,called end", __func__);
+    HILOG_INFO("%{public}s,called end", __func__);
     return jsObject;
 }
 
 bool UnwrapDeviceInfo(napi_env env, napi_value param, DeviceInfo &deviceInfo)
 {
-    HILOG_INFO("tag dsa %{public}s,called begin", __func__);
+    HILOG_INFO("%{public}s,called begin", __func__);
     if (!IsTypeForNapiValue(env, param, napi_object)) {
         HILOG_INFO("%{public}s called. Params is invalid.", __func__);
         return false;
@@ -309,11 +309,11 @@ bool UnwrapDeviceInfo(napi_env env, napi_value param, DeviceInfo &deviceInfo)
         HILOG_INFO("tag dsa %{public}s,flags: %{public}zu", __func__, natValueUint32);
         deviceInfo.flags = natValueUint32;
     }
-    HILOG_INFO("tag dsa %{public}s,uri: %{public}s", __func__, deviceInfo.uri.ToString().c_str());
-    HILOG_INFO("tag dsa %{public}s,displayName: %{public}s", __func__, deviceInfo.displayName.c_str());
-    HILOG_INFO("tag dsa %{public}s,deviceId: %{public}s", __func__, deviceInfo.deviceId.c_str());
-    HILOG_INFO("tag dsa %{public}s,flags: %{public}u", __func__, deviceInfo.flags);
-    HILOG_INFO("tag dsa %{public}s,end", __func__);
+    HILOG_INFO("%{public}s,uri: %{public}s", __func__, deviceInfo.uri.ToString().c_str());
+    HILOG_INFO("%{public}s,displayName: %{public}s", __func__, deviceInfo.displayName.c_str());
+    HILOG_INFO("%{public}s,deviceId: %{public}s", __func__, deviceInfo.deviceId.c_str());
+    HILOG_INFO("%{public}s,flags: %{public}u", __func__, deviceInfo.flags);
+    HILOG_INFO("%{public}s,end", __func__);
     return true;
 }
 

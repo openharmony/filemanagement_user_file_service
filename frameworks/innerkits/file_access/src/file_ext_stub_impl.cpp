@@ -21,7 +21,8 @@ namespace OHOS {
 namespace FileAccessFwk {
 std::shared_ptr<FileExtAbility> FileExtStubImpl::GetOwner()
 {
-    HILOG_INFO("tag dsa %{public}s begin.", __func__);
+    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_INFO("%{public}s end.", __func__);
     return extension_;
 }
 } // namespace FileAccessFwk

@@ -28,18 +28,6 @@ namespace FileAccessFwk {
 class IFileExtBase : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.AppExecFwk.IFileExtBase");
-
-    enum {
-        CMD_OPEN_FILE = 1,
-        CMD_CLOSE_FILE = 2,
-        CMD_CREATE_FILE = 3,
-        CMD_MKDIR = 4,
-        CMD_DELETE = 5,
-        CMD_MOVE = 6,
-        CMD_RENAME = 7,
-        CMD_LIST_FILE = 8,
-        CMD_GET_ROOTS = 9
-    };
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
