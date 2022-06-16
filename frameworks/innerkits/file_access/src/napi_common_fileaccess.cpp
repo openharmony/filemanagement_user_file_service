@@ -306,7 +306,7 @@ bool UnwrapDeviceInfo(napi_env env, napi_value param, DeviceInfo &deviceInfo)
 
     uint32_t natValueUint32 = 0;
     if (UnwrapUint32ByPropertyName(env, param, "flags", natValueUint32)) {
-        HILOG_INFO("tag dsa %{public}s,flags: %{public}zu", __func__, natValueUint32);
+        HILOG_INFO("%{public}s,flags: %{public}zu", __func__, natValueUint32);
         deviceInfo.flags = natValueUint32;
     }
     HILOG_INFO("%{public}s,uri: %{public}s", __func__, deviceInfo.uri.ToString().c_str());
