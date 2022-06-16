@@ -13,21 +13,27 @@
  * limitations under the License.
  */
 
-#ifndef I_FILE_EXT_BASE_H
-#define I_FILE_EXT_BASE_H
+#ifndef FILE_EXT_STUB_H
+#define FILE_EXT_STUB_H
 
-#include <bitset>
-#include <string_ex.h>
-#include <iremote_broker.h>
+#include <iremote_stub.h>
+#include <map>
 
-#include "uri.h"
+#include "file_extension_info.h"
+#include "ifile_ext_base.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
-class IFileExtBase : public IRemoteBroker {
+class FileExtStub : public IRemoteStub<IFileExtBase> {
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.AppExecFwk.IFileExtBase");
+    FileExtStub();
+    ~FileExtStub();
+    int OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
+private:
+    using RequestFuncType = int (FileExtStub::*)(MessageParcel &data, MessageParcel &reply);
+    std::map<uint32_t, RequestFuncType> stubFuncMap_;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // I_FILE_EXT_BASE_H
+#endif // FILE_EXT_STUB_H
+

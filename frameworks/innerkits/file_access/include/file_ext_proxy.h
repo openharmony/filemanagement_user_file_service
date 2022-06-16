@@ -13,21 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef I_FILE_EXT_BASE_H
-#define I_FILE_EXT_BASE_H
+#ifndef FILE_EXT_PROXY_H
+#define FILE_EXT_PROXY_H
 
-#include <bitset>
-#include <string_ex.h>
-#include <iremote_broker.h>
+#include <iremote_proxy.h>
 
-#include "uri.h"
+#include "file_extension_info.h"
+#include "ifile_ext_base.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
-class IFileExtBase : public IRemoteBroker {
+class FileExtProxy : public IRemoteProxy<IFileExtBase> {
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.AppExecFwk.IFileExtBase");
+    explicit FileExtProxy(const sptr<IRemoteObject>& remote) : IRemoteProxy<IFileExtBase>(remote) {}
+
+    virtual ~FileExtProxy() {}
+
+private:
+    static inline BrokerDelegator<FileExtProxy> delegator_;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // I_FILE_EXT_BASE_H
+#endif // FILE_EXT_PROXY_H
+

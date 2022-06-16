@@ -13,21 +13,17 @@
  * limitations under the License.
  */
 
-#ifndef I_FILE_EXT_BASE_H
-#define I_FILE_EXT_BASE_H
+#include "file_ext_stub_impl.h"
 
-#include <bitset>
-#include <string_ex.h>
-#include <iremote_broker.h>
-
-#include "uri.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
-class IFileExtBase : public IRemoteBroker {
-public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.AppExecFwk.IFileExtBase");
-};
+std::shared_ptr<FileExtAbility> FileExtStubImpl::GetOwner()
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_INFO("%{public}s end.", __func__);
+    return extension_;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // I_FILE_EXT_BASE_H

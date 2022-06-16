@@ -13,21 +13,11 @@
  * limitations under the License.
  */
 
-#ifndef I_FILE_EXT_BASE_H
-#define I_FILE_EXT_BASE_H
+#include "file_ext_proxy.h"
 
-#include <bitset>
-#include <string_ex.h>
-#include <iremote_broker.h>
-
-#include "uri.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
-class IFileExtBase : public IRemoteBroker {
-public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.AppExecFwk.IFileExtBase");
-};
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // I_FILE_EXT_BASE_H

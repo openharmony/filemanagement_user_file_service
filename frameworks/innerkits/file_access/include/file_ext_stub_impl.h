@@ -13,21 +13,30 @@
  * limitations under the License.
  */
 
-#ifndef I_FILE_EXT_BASE_H
-#define I_FILE_EXT_BASE_H
+#ifndef FILE_EXT_STUB_IMPL_H
+#define FILE_EXT_STUB_IMPL_H
 
-#include <bitset>
-#include <string_ex.h>
-#include <iremote_broker.h>
-
-#include "uri.h"
+#include <memory>
+#include "file_ext_stub.h"
+#include "file_extension_info.h"
+#include "file_ext_ability.h"
+#include "native_engine/native_value.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
-class IFileExtBase : public IRemoteBroker {
+class FileExtStubImpl : public FileExtStub {
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.AppExecFwk.IFileExtBase");
+    explicit FileExtStubImpl(const std::shared_ptr<FileExtAbility>& extension, napi_env env)
+        : extension_(extension) {}
+
+    virtual ~FileExtStubImpl() {}
+
+private:
+    std::shared_ptr<FileExtAbility> GetOwner();
+
+private:
+    std::shared_ptr<FileExtAbility> extension_;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // I_FILE_EXT_BASE_H
+#endif // FILE_EXT_STUB_IMPL_H
