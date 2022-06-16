@@ -34,24 +34,24 @@ void FileExtAbility::SetCreator(const CreatorFunc& creator)
 
 FileExtAbility* FileExtAbility::Create(const std::unique_ptr<Runtime>& runtime)
 {
-    HILOG_INFO("tag dsa %{public}s begin.", __func__);
+    HILOG_INFO("%{public}s begin.", __func__);
     if (!runtime) {
         return new FileExtAbility();
     }
     if (creator_) {
         return creator_(runtime);
     }
-    HILOG_INFO("tag dsa FileExtAbility::Create runtime");
+    HILOG_INFO("%{public}s runtime", __func__);
     switch (runtime->GetLanguage()) {
         case Runtime::Language::JS:
-            HILOG_INFO("tag dsa Runtime::Language::JS --> JsFileExtAbility");
+            HILOG_INFO("%{public}s Runtime::Language::JS --> JsFileExtAbility", __func__);
             return JsFileExtAbility::Create(runtime);
 
         default:
-            HILOG_INFO("tag dsa default --> FileExtAbility");
+            HILOG_INFO("%{public}s default --> FileExtAbility", __func__);
             return new FileExtAbility();
     }
-    HILOG_INFO("tag dsa %{public}s begin.", __func__);
+    HILOG_INFO("%{public}s begin.", __func__);
 }
 
 void FileExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &record,
@@ -59,9 +59,44 @@ void FileExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("tag dsa %{public}s begin.", __func__);
+    HILOG_INFO("%{public}s begin.", __func__);
     ExtensionBase<>::Init(record, application, handler, token);
-    HILOG_INFO("tag dsa %{public}s end.", __func__);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+int FileExtAbility::OpenFile(const Uri &uri, int flags)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_INFO("%{public}s end.", __func__);
+    return 0;
+}
+
+int FileExtAbility::CreateFile(const Uri &parentUri, const std::string &displayName,  Uri &newFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_INFO("%{public}s end.", __func__);
+    return 0;
+}
+
+int FileExtAbility::Mkdir(const Uri &parentUri, const std::string &displayName, Uri &newFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_INFO("%{public}s end.", __func__);
+    return 0;
+}
+
+int FileExtAbility::Delete(const Uri &sourceFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_INFO("%{public}s end.", __func__);
+    return 0;
+}
+
+int FileExtAbility::Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_INFO("%{public}s end.", __func__);
+    return 0;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS

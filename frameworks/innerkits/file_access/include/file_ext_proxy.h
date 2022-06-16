@@ -29,6 +29,11 @@ public:
 
     virtual ~FileExtProxy() {}
 
+    virtual int OpenFile(const Uri &uri, int flags) override;
+    virtual int CreateFile(const Uri &parentUri, const std::string &displayName,  Uri &newFileUri) override;
+    virtual int Mkdir(const Uri &parentUri, const std::string &displayName, Uri &newFileUri) override;
+    virtual int Delete(const Uri &sourceFileUri) override;
+    virtual int Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri) override;
 private:
     static inline BrokerDelegator<FileExtProxy> delegator_;
 };

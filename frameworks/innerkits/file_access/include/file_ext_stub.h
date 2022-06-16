@@ -30,6 +30,12 @@ public:
     ~FileExtStub();
     int OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
 private:
+    ErrCode CmdOpenFile(MessageParcel &data, MessageParcel &reply);
+    ErrCode CmdCreateFile(MessageParcel &data, MessageParcel &reply);
+    ErrCode CmdMkdir(MessageParcel &data, MessageParcel &reply);
+    ErrCode CmdDelete(MessageParcel &data, MessageParcel &reply);
+    ErrCode CmdRename(MessageParcel &data, MessageParcel &reply);
+    
     using RequestFuncType = int (FileExtStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, RequestFuncType> stubFuncMap_;
 };

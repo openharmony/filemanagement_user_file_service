@@ -25,5 +25,78 @@ std::shared_ptr<FileExtAbility> FileExtStubImpl::GetOwner()
     HILOG_INFO("%{public}s end.", __func__);
     return extension_;
 }
+
+int FileExtStubImpl::OpenFile(const Uri &uri, int flags)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    int ret = -1;
+    auto extension = GetOwner();
+    if (extension == nullptr) {
+        HILOG_ERROR("%{public}s end failed.", __func__);
+        return ret;
+    }
+    ret = extension->OpenFile(uri, flags);
+    HILOG_INFO("%{public}s end successfully, return fd:%{public}d", __func__, ret);
+    return ret;
+}
+
+int FileExtStubImpl::CreateFile(const Uri &parentUri, const std::string &displayName,  Uri &newFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    int ret = -1;
+    auto extension = GetOwner();
+    if (extension == nullptr) {
+        HILOG_ERROR("%{public}s end failed.", __func__);
+        return ret;
+    }
+    ret = extension->CreateFile(parentUri, displayName, newFileUri);
+    HILOG_INFO("%{public}s end successfully, return ret:%{public}d, %{public}s",
+        __func__, ret, newFileUri.ToString().c_str());
+    return ret;
+}
+
+int FileExtStubImpl::Mkdir(const Uri &parentUri, const std::string &displayName, Uri &newFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    int ret = -1;
+    auto extension = GetOwner();
+    if (extension == nullptr) {
+        HILOG_ERROR("%{public}s end failed.", __func__);
+        return ret;
+    }
+    ret = extension->Mkdir(parentUri, displayName, newFileUri);
+    HILOG_INFO("%{public}s end successfully, return ret:%{public}d, %{public}s",
+        __func__, ret, newFileUri.ToString().c_str());
+    return ret;
+}
+
+int FileExtStubImpl::Delete(const Uri &sourceFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    int ret = -1;
+    auto extension = GetOwner();
+    if (extension == nullptr) {
+        HILOG_ERROR("%{public}s end failed.", __func__);
+        return ret;
+    }
+    ret = extension->Delete(sourceFileUri);
+    HILOG_INFO("%{public}s end successfully, return fd:%{public}d", __func__, ret);
+    return ret;
+}
+
+int FileExtStubImpl::Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    int ret = -1;
+    auto extension = GetOwner();
+    if (extension == nullptr) {
+        HILOG_ERROR("%{public}s end failed.", __func__);
+        return ret;
+    }
+    ret = extension->Rename(sourceFileUri, displayName, newFileUri);
+    HILOG_INFO("%{public}s end successfully, return ret:%{public}d, %{public}s",
+        __func__, ret, newFileUri.ToString().c_str());
+    return ret;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

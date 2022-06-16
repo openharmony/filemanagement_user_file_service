@@ -22,6 +22,11 @@ namespace FileAccessFwk {
 FileExtStub::FileExtStub()
 {
     HILOG_INFO("%{public}s begin.", __func__);
+    stubFuncMap_[CMD_OPEN_FILE] = &FileExtStub::CmdOpenFile;
+    stubFuncMap_[CMD_CREATE_FILE] = &FileExtStub::CmdCreateFile;
+    stubFuncMap_[CMD_MKDIR] = &FileExtStub::CmdMkdir;
+    stubFuncMap_[CMD_DELETE] = &FileExtStub::CmdDelete;
+    stubFuncMap_[CMD_RENAME] = &FileExtStub::CmdRename;
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -50,6 +55,176 @@ int FileExtStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParc
 
     HILOG_INFO("%{public}s remote request unhandled: %{public}d", __func__, code);
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+}
+
+ErrCode FileExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
+    if (uri == nullptr) {
+        HILOG_ERROR("%{public}s  uri is nullptr", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    int flags = data.ReadInt32();
+    if (flags < 0) {
+        HILOG_ERROR("%{public}s mode is invalid", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    int fd = OpenFile(*uri, flags);
+    if (fd < 0) {
+        HILOG_ERROR("%{public}s  OpenFile fail, fd is %{pubilc}d", __func__, fd);
+        return ERR_INVALID_VALUE;
+    }
+    HILOG_INFO("%{public}s retutn fd: %{public}d.", __func__, fd);
+
+    if (!reply.WriteFileDescriptor(fd)) {
+        HILOG_ERROR("%{public}s  fail to WriteFileDescriptor fd", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    HILOG_INFO("%{public}s end.", __func__);
+    return NO_ERROR;
+}
+
+ErrCode FileExtStub::CmdCreateFile(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    std::shared_ptr<Uri> parentUri(data.ReadParcelable<Uri>());
+    if (parentUri == nullptr) {
+        HILOG_ERROR("%{public}s parentUri is nullptr", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    std::string displayName = data.ReadString();
+    if (displayName.empty()) {
+        HILOG_ERROR("%{public}s mode is nullptr", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    std::shared_ptr<Uri> fileUriNew(data.ReadParcelable<Uri>());
+    if (fileUriNew == nullptr) {
+        HILOG_ERROR("%{public}s fileUriNew is nullptr", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    int ret = CreateFile(*parentUri, displayName, *fileUriNew);
+    if (ret < 0) {
+        HILOG_ERROR("%{public}s CreateFile fail, ret is %{pubilc}d", __func__, ret);
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("%{public}s fail to WriteInt32 ret", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteParcelable(&(*fileUriNew))) {
+        HILOG_ERROR("%{public}s fail to WriteParcelable type", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    HILOG_INFO("%{public}s end. ret:%d, fileUriNew = %{public}s", __func__, ret, fileUriNew->ToString().c_str());
+    HILOG_INFO("%{public}s end. fileUriNew = %{public}s", __func__, fileUriNew->ToString().c_str());
+    return NO_ERROR;
+}
+
+ErrCode FileExtStub::CmdMkdir(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    std::shared_ptr<Uri> parentUri(data.ReadParcelable<Uri>());
+    if (parentUri == nullptr) {
+        HILOG_ERROR("%{public}s parentUri is nullptr", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    std::string displayName = data.ReadString();
+    if (displayName.empty()) {
+        HILOG_ERROR("%{public}s mode is nullptr", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    std::shared_ptr<Uri> fileUriNew(data.ReadParcelable<Uri>());
+    if (fileUriNew == nullptr) {
+        HILOG_ERROR("%{public}s fileUriNew is nullptr", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    int ret = Mkdir(*parentUri, displayName, *fileUriNew);
+    if (ret < 0) {
+        HILOG_ERROR("%{public}s Mkdir fail, ret is %{pubilc}d", __func__, ret);
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("%{public}s fail to WriteInt32 ret", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteParcelable(&(*fileUriNew))) {
+        HILOG_ERROR("%{public}s fail to WriteParcelable type", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    HILOG_INFO("%{public}s end. ret:%d, fileUriNew = %{public}s", __func__, ret, fileUriNew->ToString().c_str());
+    HILOG_INFO("%{public}s end. fileUriNew = %{public}s", __func__, fileUriNew->ToString().c_str());
+    return NO_ERROR;
+}
+
+ErrCode FileExtStub::CmdDelete(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
+    if (uri == nullptr) {
+        HILOG_ERROR("%{public}s uri is nullptr", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    int ret = Delete(*uri);
+    if (ret < 0) {
+        HILOG_ERROR("%{public}s Delete fail, ret is %{pubilc}d", __func__, ret);
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("%{public}s fail to WriteFileDescriptor ret", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    HILOG_INFO("%{public}s end.", __func__);
+    return NO_ERROR;
+}
+
+ErrCode FileExtStub::CmdRename(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    std::shared_ptr<Uri> sourceFileUri(data.ReadParcelable<Uri>());
+    if (sourceFileUri == nullptr) {
+        HILOG_ERROR("%{public}s sourceFileUri is nullptr", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    std::string displayName = data.ReadString();
+    if (displayName.empty()) {
+        HILOG_ERROR("%{public}s mode is nullptr", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    std::shared_ptr<Uri> fileUriNew(data.ReadParcelable<Uri>());
+    if (fileUriNew == nullptr) {
+        HILOG_ERROR("%{public}s fileUriNew is nullptr", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    int ret = Rename(*sourceFileUri, displayName, *fileUriNew);
+    if (ret < 0) {
+        HILOG_ERROR("%{public}s Rename fail, ret is %{pubilc}d", __func__, ret);
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("%{public}s fail to WriteInt32 ret", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteParcelable(&(*fileUriNew))) {
+        HILOG_ERROR("%{public}s fail to WriteParcelable type", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    HILOG_INFO("%{public}s end. ret:%d, fileUriNew = %{public}s", __func__, ret, fileUriNew->ToString().c_str());
+    HILOG_INFO("%{public}s end. fileUriNew = %{public}s", __func__, fileUriNew->ToString().c_str());
+    return NO_ERROR;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS

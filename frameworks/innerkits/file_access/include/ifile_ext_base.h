@@ -26,7 +26,21 @@ namespace OHOS {
 namespace FileAccessFwk {
 class IFileExtBase : public IRemoteBroker {
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.AppExecFwk.IFileExtBase");
+    DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.FileAccessFwk.IFileExtBase");
+
+    enum {
+        CMD_OPEN_FILE = 1,
+        CMD_CREATE_FILE = 2,
+        CMD_MKDIR = 3,
+        CMD_DELETE = 4,
+        CMD_RENAME = 5
+    };
+
+    virtual int OpenFile(const Uri &uri, int flags) = 0;
+    virtual int CreateFile(const Uri &parentUri, const std::string &displayName, Uri &newFileUri) = 0;
+    virtual int Mkdir(const Uri &parentUri, const std::string &displayName, Uri &newFileUri) = 0;
+    virtual int Delete(const Uri &sourceFileUri) = 0;
+    virtual int Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri) = 0;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

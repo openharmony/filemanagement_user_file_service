@@ -41,6 +41,11 @@ public:
 
     sptr<IRemoteObject> OnConnect(const AAFwk::Want &want) override;
 
+    int OpenFile(const Uri &uri, int flags) override;
+    int CreateFile(const Uri &parentUri, const std::string &displayName,  Uri &newFileUri) override;
+    int Mkdir(const Uri &parentUri, const std::string &displayName, Uri &newFileUri) override;
+    int Delete(const Uri &sourceFileUri) override;
+    int Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri) override;
 private:
     NativeValue* CallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
     void GetSrcPath(std::string &srcPath);
