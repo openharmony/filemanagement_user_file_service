@@ -27,7 +27,7 @@ FileExtStub::FileExtStub()
     stubFuncMap_[CMD_MKDIR] = &FileExtStub::CmdMkdir;
     stubFuncMap_[CMD_DELETE] = &FileExtStub::CmdDelete;
     stubFuncMap_[CMD_RENAME] = &FileExtStub::CmdRename;
-	HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("%{public}s end.", __func__);
 }
 
 FileExtStub::~FileExtStub()
