@@ -31,6 +31,11 @@ public:
 
     virtual ~FileExtStubImpl() {}
 
+    int OpenFile(const Uri &uri, int flags) override;
+    int CreateFile(const Uri &parentUri, const std::string &displayName,  Uri &newFileUri) override;
+    int Mkdir(const Uri &parentUri, const std::string &displayName, Uri &newFileUri) override;
+    int Delete(const Uri &sourceFileUri) override;
+    int Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri) override;
 private:
     std::shared_ptr<FileExtAbility> GetOwner();
 

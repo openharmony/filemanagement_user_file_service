@@ -19,5 +19,234 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
+int FileExtProxy::OpenFile(const Uri &uri, int flags)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    int fd = -1;
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileExtProxy::GetDescriptor())) {
+        HILOG_ERROR("%{public}s WriteInterfaceToken failed", __func__);
+        return fd;
+    }
+
+    if (!data.WriteParcelable(&uri)) {
+        HILOG_ERROR("%{public}s fail to WriteParcelable uri", __func__);
+        return fd;
+    }
+
+    if (!data.WriteInt32(flags)) {
+        HILOG_ERROR("%{public}s fail to WriteString mode", __func__);
+        return fd;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t err = Remote()->SendRequest(CMD_OPEN_FILE, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("%{public}s fail to SendRequest. err: %d", __func__, err);
+        return fd;
+    }
+
+    fd = reply.ReadFileDescriptor();
+    if (fd == -1) {
+        HILOG_ERROR("%{public}s fail to ReadFileDescriptor fd", __func__);
+        return fd;
+    }
+
+    HILOG_INFO("%{public}s end successfully, return fd=%{public}d", __func__, fd);
+    return fd;
+}
+
+int FileExtProxy::CreateFile(const Uri &parentUri, const std::string &displayName,  Uri &newFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    int ret = -1;
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileExtProxy::GetDescriptor())) {
+        HILOG_ERROR("%{public}s WriteInterfaceToken failed", __func__);
+        return ret;
+    }
+
+    if (!data.WriteParcelable(&parentUri)) {
+        HILOG_ERROR("%{public}s fail to WriteParcelable parentUri", __func__);
+        return ret;
+    }
+
+    if (!data.WriteString(displayName)) {
+        HILOG_ERROR("%{public}s fail to WriteString mode", __func__);
+        return ret;
+    }
+
+    if (!data.WriteParcelable(&newFileUri)) {
+        HILOG_ERROR("%{public}s fail to WriteParcelable newFileUri", __func__);
+        return ret;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t err = Remote()->SendRequest(CMD_CREATE_FILE, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("%{public}s fail to SendRequest. err: %d", __func__, err);
+        return ret;
+    }
+
+    ret = reply.ReadInt32();
+    if (ret < 0) {
+        HILOG_ERROR("%{public}s fail to ReadInt32 ret", __func__);
+        return ret;
+    }
+
+    std::unique_ptr<Uri> tempUri(reply.ReadParcelable<Uri>());
+    if (!tempUri) {
+        HILOG_ERROR("%{public}s ReadParcelable value is nullptr.", __func__);
+        ret = -1;
+        return ret;
+    }
+
+    HILOG_INFO("%{public}s end successfully, return ret=%{public}d, newFileUri=%{public}s", __func__, ret, newFileUri.ToString().c_str());
+    newFileUri = Uri(*tempUri);
+    HILOG_INFO("%{public}s end successfully, return ret=%{public}d, newFileUri=%{public}s", __func__, ret, newFileUri.ToString().c_str());
+    HILOG_INFO("%{public}s end successfully, tempUri=%{public}s", __func__, tempUri->ToString().c_str());
+    return ret;
+}
+
+int FileExtProxy::Mkdir(const Uri &parentUri, const std::string &displayName, Uri &newFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    int ret = -1;
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileExtProxy::GetDescriptor())) {
+        HILOG_ERROR("%{public}s WriteInterfaceToken failed", __func__);
+        return ret;
+    }
+
+    if (!data.WriteParcelable(&parentUri)) {
+        HILOG_ERROR("%{public}s fail to WriteParcelable parentUri", __func__);
+        return ret;
+    }
+
+    if (!data.WriteString(displayName)) {
+        HILOG_ERROR("%{public}s fail to WriteString displayName", __func__);
+        return ret;
+    }
+
+    if (!data.WriteParcelable(&newFileUri)) {
+        HILOG_ERROR("%{public}s fail to WriteParcelable newFileUri", __func__);
+        return ret;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t err = Remote()->SendRequest(CMD_MKDIR, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("%{public}s fail to SendRequest. err: %d", __func__, err);
+        return ret;
+    }
+
+    ret = reply.ReadInt32();
+    if (ret < 0) {
+        HILOG_ERROR("%{public}s fail to ReadInt32 ret", __func__);
+        return ret;
+    }
+
+    std::unique_ptr<Uri> tempUri(reply.ReadParcelable<Uri>());
+    if (!tempUri) {
+        HILOG_ERROR("%{public}s ReadParcelable value is nullptr.", __func__);
+        ret = -1;
+        return ret;
+    }
+
+    HILOG_INFO("%{public}s end successfully, return ret=%{public}d, newFileUri=%{public}s", __func__, ret, newFileUri.ToString().c_str());
+    newFileUri = Uri(*tempUri);
+    HILOG_INFO("%{public}s end successfully, return ret=%{public}d, newFileUri=%{public}s", __func__, ret, newFileUri.ToString().c_str());
+    HILOG_INFO("%{public}s end successfully, tempUri=%{public}s", __func__, tempUri->ToString().c_str());
+    return ret;
+}
+
+int FileExtProxy::Delete(const Uri &sourceFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    int ret = -1;
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileExtProxy::GetDescriptor())) {
+        HILOG_ERROR("%{public}s WriteInterfaceToken failed", __func__);
+        return ret;
+    }
+
+    if (!data.WriteParcelable(&sourceFileUri)) {
+        HILOG_ERROR("%{public}s fail to WriteParcelable sourceFileUri", __func__);
+        return ret;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t err = Remote()->SendRequest(CMD_DELETE, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("%{public}s fail to SendRequest. err: %d", __func__, err);
+        return ret;
+    }
+
+    ret = reply.ReadInt32();
+    if (ret < 0) {
+        HILOG_ERROR("%{public}s fail to ReadInt32 ret", __func__);
+        return ret;
+    }
+
+    HILOG_INFO("%{public}s end successfully, return ret=%{public}d", __func__, ret);
+    return ret;
+}
+
+int FileExtProxy::Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    int ret = -1;
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileExtProxy::GetDescriptor())) {
+        HILOG_ERROR("%{public}s WriteInterfaceToken failed", __func__);
+        return ret;
+    }
+
+    if (!data.WriteParcelable(&sourceFileUri)) {
+        HILOG_ERROR("%{public}s fail to WriteParcelable sourceFileUri", __func__);
+        return ret;
+    }
+
+    if (!data.WriteString(displayName)) {
+        HILOG_ERROR("%{public}s fail to WriteString displayName", __func__);
+        return ret;
+    }
+
+    if (!data.WriteParcelable(&newFileUri)) {
+        HILOG_ERROR("%{public}s fail to WriteParcelable newFileUri", __func__);
+        return ret;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t err = Remote()->SendRequest(CMD_RENAME, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("%{public}s fail to SendRequest. err: %d", __func__, err);
+        return ret;
+    }
+
+    ret = reply.ReadInt32();
+    if (ret < 0) {
+        HILOG_ERROR("%{public}s fail to ReadInt32 ret", __func__);
+        return ret;
+    }
+
+    std::unique_ptr<Uri> tempUri(reply.ReadParcelable<Uri>());
+    if (!tempUri) {
+        HILOG_ERROR("%{public}s ReadParcelable value is nullptr.", __func__);
+        ret = -1;
+        return ret;
+    }
+
+    HILOG_INFO("%{public}s end successfully, return ret=%{public}d, newFileUri=%{public}s", __func__, ret, newFileUri.ToString().c_str());
+    newFileUri = Uri(*tempUri);
+    HILOG_INFO("%{public}s end successfully, return ret=%{public}d, newFileUri=%{public}s", __func__, ret, newFileUri.ToString().c_str());
+    HILOG_INFO("%{public}s end successfully, tempUri=%{public}s", __func__, tempUri->ToString().c_str());
+    return ret;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

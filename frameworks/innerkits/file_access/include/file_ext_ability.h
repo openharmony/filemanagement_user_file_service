@@ -37,6 +37,18 @@ public:
         const sptr<IRemoteObject> &token) override;
 
     static FileExtAbility* Create(const std::unique_ptr<Runtime>& runtime);
+
+    virtual int OpenFile(const Uri &uri, int flags);
+    virtual int CreateFile(const Uri &parentUri, const std::string &displayName,  Uri &newFileUri);
+    virtual int Mkdir(const Uri &parentUri, const std::string &displayName, Uri &newFileUri);
+    virtual int Delete(const Uri &sourceFileUri);
+    virtual int Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri);
+
+    /**
+     * @brief Set a creator function.
+     *
+     * @param creator The function for create a file extension ability.
+     */
     static void SetCreator(const CreatorFunc& creator);
 private:
     static CreatorFunc creator_;
