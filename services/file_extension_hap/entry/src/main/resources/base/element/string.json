@@ -1,0 +1,12 @@
+{
+  "string": [
+    {
+      "name": "entry_desc",
+      "value": "description"
+    },
+    {
+      "name": "description_serviceability",
+      "value": "description_serviceability"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "module": {
+    "name": "entry",
+    "type": "entry",
+    "srcEntrance": "./ets/Application/AbilityStage.ts",
+    "mainElement": "FileExtensionAbility",
+    "deviceTypes": [
+      "phone",
+      "tablet"
+    ],
+    "deliveryWithInstall": true,
+    "installationFree": false,
+    "pages": "$profile:main_pages",
+    "uiSyntax": "ets",
+    "abilities": [],
+    "extensionAbilities": [
+      {
+        "srcEntrance": "./ets/FileExtensionAbility/FileExtensionAbility.ts",
+        "name": "FileExtensionAbility",
+        "type": "fileAccess",
+        "visible": true
+      }
+    ]
+  }
+}
