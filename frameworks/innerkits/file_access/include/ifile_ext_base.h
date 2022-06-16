@@ -20,7 +20,6 @@
 #include <string_ex.h>
 #include <iremote_broker.h>
 
-#include "file_extension_info.h"
 #include "uri.h"
 
 namespace OHOS {
