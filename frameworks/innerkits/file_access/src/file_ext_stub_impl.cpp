@@ -50,7 +50,8 @@ int FileExtStubImpl::CreateFile(const Uri &parentUri, const std::string &display
         return ret;
     }
     ret = extension->CreateFile(parentUri, displayName, newFileUri);
-    HILOG_INFO("%{public}s end successfully, return ret:%{public}d, %{public}s", __func__, ret,newFileUri.ToString().c_str());
+    HILOG_INFO("%{public}s end successfully, return ret:%{public}d, %{public}s",
+        __func__, ret, newFileUri.ToString().c_str());
     return ret;
 }
 
@@ -64,7 +65,8 @@ int FileExtStubImpl::Mkdir(const Uri &parentUri, const std::string &displayName,
         return ret;
     }
     ret = extension->Mkdir(parentUri, displayName, newFileUri);
-    HILOG_INFO("%{public}s end successfully, return ret:%{public}d, %{public}s", __func__, ret,newFileUri.ToString().c_str());
+    HILOG_INFO("%{public}s end successfully, return ret:%{public}d, %{public}s",
+        __func__, ret, newFileUri.ToString().c_str());
     return ret;
 }
 
@@ -92,7 +94,8 @@ int FileExtStubImpl::Rename(const Uri &sourceFileUri, const std::string &display
         return ret;
     }
     ret = extension->Rename(sourceFileUri, displayName, newFileUri);
-    HILOG_INFO("%{public}s end successfully, return ret:%{public}d, %{public}s", __func__, ret,newFileUri.ToString().c_str());
+    HILOG_INFO("%{public}s end successfully, return ret:%{public}d, %{public}s",
+        __func__, ret, newFileUri.ToString().c_str());
     return ret;
 }
 } // namespace FileAccessFwk

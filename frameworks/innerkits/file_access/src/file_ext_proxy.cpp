@@ -103,9 +103,7 @@ int FileExtProxy::CreateFile(const Uri &parentUri, const std::string &displayNam
         return ret;
     }
 
-    HILOG_INFO("%{public}s end successfully, return ret=%{public}d, newFileUri=%{public}s", __func__, ret, newFileUri.ToString().c_str());
     newFileUri = Uri(*tempUri);
-    HILOG_INFO("%{public}s end successfully, return ret=%{public}d, newFileUri=%{public}s", __func__, ret, newFileUri.ToString().c_str());
     HILOG_INFO("%{public}s end successfully, tempUri=%{public}s", __func__, tempUri->ToString().c_str());
     return ret;
 }
@@ -156,9 +154,7 @@ int FileExtProxy::Mkdir(const Uri &parentUri, const std::string &displayName, Ur
         return ret;
     }
 
-    HILOG_INFO("%{public}s end successfully, return ret=%{public}d, newFileUri=%{public}s", __func__, ret, newFileUri.ToString().c_str());
     newFileUri = Uri(*tempUri);
-    HILOG_INFO("%{public}s end successfully, return ret=%{public}d, newFileUri=%{public}s", __func__, ret, newFileUri.ToString().c_str());
     HILOG_INFO("%{public}s end successfully, tempUri=%{public}s", __func__, tempUri->ToString().c_str());
     return ret;
 }
@@ -242,9 +238,7 @@ int FileExtProxy::Rename(const Uri &sourceFileUri, const std::string &displayNam
         return ret;
     }
 
-    HILOG_INFO("%{public}s end successfully, return ret=%{public}d, newFileUri=%{public}s", __func__, ret, newFileUri.ToString().c_str());
     newFileUri = Uri(*tempUri);
-    HILOG_INFO("%{public}s end successfully, return ret=%{public}d, newFileUri=%{public}s", __func__, ret, newFileUri.ToString().c_str());
     HILOG_INFO("%{public}s end successfully, tempUri=%{public}s", __func__, tempUri->ToString().c_str());
     return ret;
 }
