@@ -20,7 +20,7 @@
 ```
 /foundation/storage/user_file_service
 ├── figures                                     # 插图文件
-├── serivce                                     # 服务实现
+├── service                                     # 服务实现
 │   ├── etc                                     # 内部接口实现
 │   ├── src                                     # 内部接口实现
 ├── interfaces                                  # 接口代码

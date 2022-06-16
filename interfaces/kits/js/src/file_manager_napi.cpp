@@ -225,7 +225,7 @@ napi_value FileManagerNapi::GetRoot(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(GET_ROOT_PARA_MIN, GET_ROOT_PARA_MAX)) {
-        UniError(EINVAL).ThrowErr(env, "Number of argments unmatched");
+        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
@@ -338,7 +338,7 @@ napi_value FileManagerNapi::ListFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(LIST_FILE_PARA_MIN, LIST_FILE_PARA_MAX)) {
-        UniError(EINVAL).ThrowErr(env, "Number of argments unmatched");
+        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
     bool succ = false;
@@ -347,7 +347,7 @@ napi_value FileManagerNapi::ListFile(napi_env env, napi_callback_info info)
     CmdOptions option;
     tie(succ, type, path, option) = GetListFileArg(env, funcArg);
     if (!succ) {
-        UniError(EINVAL).ThrowErr(env, "Get argments fails");
+        UniError(EINVAL).ThrowErr(env, "Get arguments fails");
         return nullptr;
     }
     napi_value fileArr;

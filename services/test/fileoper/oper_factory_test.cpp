@@ -89,7 +89,7 @@ HWTEST_F(OperFactoryTest, oper_factory_GetFileOper_0001, testing::ext::TestSize.
 /**
  * @tc.number: SUB_STORAGE_oper_factory_GetFileOper_0002
  * @tc.name: oper_factory_GetFileOper_0002
- * @tc.desc: Test function of  GetFileOper interface for SUCCESS wich default.
+ * @tc.desc: Test function of  GetFileOper interface for SUCCESS which default.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1

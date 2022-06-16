@@ -236,7 +236,7 @@ int CreateSelectionAndArgsOtherLevel(const string &type, const string &albumUri,
     // get the album path from the album uri
     string albumPath;
     if (!GetPathFromAlbumPath(albumUri, albumPath)) {
-        ERR_LOG("path not exsit");
+        ERR_LOG("path not exist");
         return E_NOEXIST;
     }
     if (type == "file") {
@@ -320,7 +320,7 @@ int MediaFileUtils::DoInsert(const string &name, const string &path, const strin
     DataShare::DataShareValuesBucket values;
     string albumPath;
     if (!GetAlbumPath(name, path, albumPath)) {
-        ERR_LOG("path not exsit");
+        ERR_LOG("path not exist");
         return E_NOEXIST;
     }
     values.PutString(Media::MEDIA_DATA_DB_RELATIVE_PATH, albumPath);
