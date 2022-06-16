@@ -23,19 +23,19 @@ namespace FileAccessFwk {
 FileAccessHelper::FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
     const AAFwk::Want &want, const sptr<IFileExtBase> &fileExtProxy)
 {
-    HILOG_INFO("tag dsa FileAccessHelper::FileAccessHelper start");
+    HILOG_INFO("%{public}s start", __func__);
     token_ = context->GetToken();
     want_ = want;
     fileExtProxy_ = fileExtProxy;
     fileExtConnection_ = FileExtConnection::GetInstance();
-    HILOG_INFO("tag dsa FileAccessHelper::FileAccessHelper end");
+    HILOG_INFO("%{public}s end", __func__);
 }
 
 void FileAccessHelper::AddFileAccessDeathRecipient(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("tag dsa %{public}s called begin", __func__);
+    HILOG_INFO("%{public}s called begin", __func__);
     if (token != nullptr && callerDeathRecipient_ != nullptr) {
-        HILOG_INFO("tag dsa token RemoveDeathRecipient.");
+        HILOG_INFO("token RemoveDeathRecipient.");
         token->RemoveDeathRecipient(callerDeathRecipient_);
     }
     if (callerDeathRecipient_ == nullptr) {
@@ -43,31 +43,31 @@ void FileAccessHelper::AddFileAccessDeathRecipient(const sptr<IRemoteObject> &to
             new FileAccessDeathRecipient(std::bind(&FileAccessHelper::OnSchedulerDied, this, std::placeholders::_1));
     }
     if (token != nullptr) {
-        HILOG_INFO("tag dsa token AddDeathRecipient.");
+        HILOG_INFO("token AddDeathRecipient.");
         token->AddDeathRecipient(callerDeathRecipient_);
     }
-    HILOG_INFO("tag dsa %{public}s called end", __func__);
+    HILOG_INFO("%{public}s called end", __func__);
 }
 
 void FileAccessHelper::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_INFO("tag dsa %{public}s called begin", __func__);
+    HILOG_INFO("%{public}s called begin", __func__);
     auto object = remote.promote();
     object = nullptr;
     fileExtProxy_ = nullptr;
-    HILOG_INFO("tag dsa %{public}s called end", __func__);
+    HILOG_INFO("%{public}s called end", __func__);
 }
 
 std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const AAFwk::Want &want)
 {
-    HILOG_INFO("tag dsa FileAccessHelper::Creator with runtime context, want and uri called start.");
+    HILOG_INFO("%{public}s with runtime context, want and uri called start.", __func__);
     if (context == nullptr) {
-        HILOG_ERROR("tag dsa ileAccessHelper::Creator failed, context == nullptr");
+        HILOG_ERROR("%{public}s failed, context == nullptr", __func__);
         return nullptr;
     }
 
-    HILOG_INFO("tag dsa FileAccessHelper::Creator before ConnectFileExtAbility.");
+    HILOG_INFO("%{public}s before ConnectFileExtAbility.", __func__);
     sptr<IFileExtBase> fileExtProxy = nullptr;
 
     sptr<FileExtConnection> fileExtConnection = FileExtConnection::GetInstance();
@@ -76,37 +76,37 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     }
     fileExtProxy = fileExtConnection->GetFileExtProxy();
     if (fileExtProxy == nullptr) {
-        HILOG_WARN("tag dsa FileAccessHelper::Creator get invalid fileExtProxy");
+        HILOG_WARN("%{public}s get invalid fileExtProxy", __func__);
     }
-    HILOG_INFO("tag dsa FileAccessHelper::Creator after ConnectFileExtAbility.");
+    HILOG_INFO("%{public}s after ConnectFileExtAbility.", __func__);
 
     FileAccessHelper *ptrFileAccessHelper = new (std::nothrow) FileAccessHelper(context, want, fileExtProxy);
     if (ptrFileAccessHelper == nullptr) {
-        HILOG_ERROR("tag dsa FileAccessHelper::Creator failed, create FileAccessHelper failed");
+        HILOG_ERROR("%{public}s failed, create FileAccessHelper failed", __func__);
         return nullptr;
     }
 
-    HILOG_INFO("tag dsa FileAccessHelper::Creator with runtime context, want and uri called end.");
+    HILOG_INFO("%{public}s with runtime context, want and uri called end.", __func__);
     return std::shared_ptr<FileAccessHelper>(ptrFileAccessHelper);
 }
 
 void FileAccessDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_INFO("tag dsa %{public}s begin.", __func__);
+    HILOG_INFO("%{public}s begin.", __func__);
     if (handler_) {
         handler_(remote);
     }
-    HILOG_INFO("tag dsa %{public}s begin.", __func__);
+    HILOG_INFO("%{public}s end.", __func__);
 }
 
 FileAccessDeathRecipient::FileAccessDeathRecipient(RemoteDiedHandler handler) : handler_(handler)
 {
-    HILOG_INFO("tag dsa %{public}s begin.", __func__);
+    HILOG_INFO("%{public}s .", __func__);
 }
 
 FileAccessDeathRecipient::~FileAccessDeathRecipient()
 {
-    HILOG_INFO("tag dsa %{public}s begin.", __func__);
+    HILOG_INFO("%{public}s .", __func__);
 }
 } // namespace FileAccessFwk
 } // namespace OHOS

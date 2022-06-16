@@ -25,66 +25,66 @@ std::mutex FileExtConnection::mutex_;
 
 sptr<FileExtConnection> FileExtConnection::GetInstance()
 {
-    HILOG_INFO("tag dsa %{public}s begin.", __func__);
+    HILOG_INFO("%{public}s begin.", __func__);
     if (instance_ == nullptr) {
         std::lock_guard<std::mutex> lock(mutex_);
         if (instance_ == nullptr) {
             instance_ = sptr<FileExtConnection>(new (std::nothrow) FileExtConnection());
         }
     }
-    HILOG_INFO("tag dsa %{public}s end.", __func__);
+    HILOG_INFO("%{public}s end.", __func__);
     return instance_;
 }
 
 void FileExtConnection::OnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    HILOG_INFO("tag dsa %{public}s called begin", __func__);
+    HILOG_INFO("%{public}s called begin", __func__);
     if (remoteObject == nullptr) {
-        HILOG_ERROR("tag dsa FileExtConnection::OnAbilityConnectDone failed, remote is nullptr");
+        HILOG_ERROR("%{public}s failed, remote is nullptr", __func__);
         return;
     }
     if (fileExtProxy_ == nullptr) {
-        HILOG_ERROR("tag dsa FileExtConnection::OnAbilityConnectDone failed, fileExtProxy_ is nullptr");
+        HILOG_ERROR("%{public}s failed, fileExtProxy_ is nullptr", __func__);
         return;
     }
     isConnected_.store(true);
-    HILOG_INFO("tag dsa %{public}s end.", __func__);
+    HILOG_INFO("%{public}s end.", __func__);
 }
 
 void FileExtConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
-    HILOG_INFO("tag dsa %{public}s called begin", __func__);
+    HILOG_INFO("%{public}s called begin", __func__);
     fileExtProxy_ = nullptr;
     isConnected_.store(false);
-    HILOG_INFO("tag dsa %{public}s called end", __func__);
+    HILOG_INFO("%{public}s called end", __func__);
 }
 
 void FileExtConnection::ConnectFileExtAbility(const AAFwk::Want &want, const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("tag dsa %{public}s called begin", __func__);
+    HILOG_INFO("%{public}s called begin", __func__);
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, this, token);
-    HILOG_INFO("tag dsa %{public}s called end, ret=%{public}d", __func__, ret);
+    HILOG_INFO("%{public}s called end, ret=%{public}d", __func__, ret);
 }
 
 void FileExtConnection::DisconnectFileExtAbility()
 {
-    HILOG_INFO("tag dsa %{public}s called begin", __func__);
+    HILOG_INFO("%{public}s called begin", __func__);
     fileExtProxy_ = nullptr;
     isConnected_.store(false);
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(this);
-    HILOG_INFO("tag dsa %{public}s called end, ret=%{public}d", __func__, ret);
+    HILOG_INFO("%{public}s called end, ret=%{public}d", __func__, ret);
 }
 
 bool FileExtConnection::IsExtAbilityConnected()
 {
-    HILOG_INFO("tag dsa %{public}s called begin", __func__);
+    HILOG_INFO("%{public}s called ", __func__);
     return isConnected_.load();
 }
 
 sptr<IFileExtBase> FileExtConnection::GetFileExtProxy()
 {
-    HILOG_INFO("tag dsa %{public}s called begin", __func__);
+    HILOG_INFO("%{public}s called ", __func__);
     return fileExtProxy_;
 }
 } // namespace FileAccessFwk
