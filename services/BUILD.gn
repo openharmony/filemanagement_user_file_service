@@ -19,6 +19,7 @@ group("fms") {
   deps = [
     ":fms_server",
     ":fms_service.cfg",
+    ":external_file_manager_hap",
   ]
 }
 
@@ -91,3 +92,39 @@ ohos_shared_library("fms_server") {
     "samgr_standard:samgr_proxy",
   ]
 }
+
+### external file manager hap
+ohos_hap("external_file_manager_hap") {
+  hap_profile = "file_extension_hap/entry/src/main/module.json"
+    deps = [
+    ":external_file_manager_js_assets",
+    ":external_file_manager_resources",
+  ]
+  certificate_profile = "signature/fileextension.p7b"
+  hap_name = "external_file_manager"
+  subsystem_name = "filemanagement"
+  part_name = "user_file_service"
+  module_install_dir = "app/com.ohos.UserFile.ExternalFileManager"
+}
+
+ohos_js_assets("external_file_manager_js_assets") {
+  hap_profile = "file_extension_hap/entry/src/main/module.json"
+  ets2abc = true
+  source_dir = "file_extension_hap/entry/src/main/ets"
+}
+
+ohos_app_scope("external_file_manager_app_profile") {
+  app_profile = "file_extension_hap/AppScope/app.json"
+  sources = [ "file_extension_hap/AppScope/resources" ]
+}
+
+ohos_resources("external_file_manager_resources") {
+  sources = [
+    "file_extension_hap/entry/src/main/resources",
+  ]
+  deps = [
+    ":external_file_manager_app_profile",
+  ]
+  hap_profile = "file_extension_hap/entry/src/main/module.json"
+}
+### external file manager hap
