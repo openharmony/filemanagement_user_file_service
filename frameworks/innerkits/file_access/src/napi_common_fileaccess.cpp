@@ -83,7 +83,7 @@ uint64_t UnwrapBigIntUint64FromJS(napi_env env, napi_value param, uint64_t defau
     bool lossless = true;
     uint64_t value = defaultValue;
     if (napi_get_value_bigint_uint64(env, param, &value, &lossless) == napi_ok) {
-        HILOG_INFO("%{public}s,called value: %{public}llu.", __func__, defaultValue);
+        HILOG_INFO("%{public}s,called value: %{public}" PRIu64 ".", __func__, defaultValue);
         return value;
     } else {
         HILOG_INFO("%{public}s,called end with faild.", __func__);
@@ -96,7 +96,7 @@ bool UnwrapBigIntUint64FromJS2(napi_env env, napi_value param, uint64_t &default
     HILOG_INFO("%{public}s,called begin", __func__);
     bool lossless = true;
     if (napi_get_value_bigint_uint64(env, param, &defaultValue, &lossless) == napi_ok) {
-        HILOG_INFO("%{public}s,called value: %{public}llu.", __func__, defaultValue);
+        HILOG_INFO("%{public}s,called value: %{public}" PRIu64 ".", __func__, defaultValue);
         return true;
     } else {
         HILOG_INFO("%{public}s,called end with faild.", __func__);
@@ -123,8 +123,8 @@ napi_value WrapFileInfo(napi_env env, const FileInfo &fileInfo)
     HILOG_INFO("%{public}s,uri: %{public}s", __func__, fileInfo.uri.ToString().c_str());
     HILOG_INFO("%{public}s,fileName: %{public}s", __func__, fileInfo.fileName.c_str());
     HILOG_INFO("%{public}s,mode: %{public}s", __func__, fileInfo.mode.c_str());
-    HILOG_INFO("%{public}s,size: %{public}lld", __func__, fileInfo.size);
-    HILOG_INFO("%{public}s,mtime: %{public}lld", __func__, fileInfo.mtime);
+    HILOG_INFO("%{public}s,size: %{public}" PRId64 "", __func__, fileInfo.size);
+    HILOG_INFO("%{public}s,mtime: %{public}" PRId64 "", __func__, fileInfo.mtime);
     HILOG_INFO("%{public}s,mimiType: %{public}s", __func__, fileInfo.mimiType.c_str());
     napi_value jsObject = nullptr;
     napi_value jsValue = nullptr;
@@ -200,8 +200,8 @@ bool UnwrapFileInfo(napi_env env, napi_value param, FileInfo &fileInfo)
     HILOG_INFO("%{public}s,uri: %{public}s", __func__, fileInfo.uri.ToString().c_str());
     HILOG_INFO("%{public}s,fileName: %{public}s", __func__, fileInfo.fileName.c_str());
     HILOG_INFO("%{public}s,mode: %{public}s", __func__, fileInfo.mode.c_str());
-    HILOG_INFO("%{public}s,size: %{public}lld", __func__, fileInfo.size);
-    HILOG_INFO("%{public}s,mtime: %{public}lld", __func__, fileInfo.mtime);
+    HILOG_INFO("%{public}s,size: %{public}" PRId64 "", __func__, fileInfo.size);
+    HILOG_INFO("%{public}s,mtime: %{public}" PRId64 "", __func__, fileInfo.mtime);
     HILOG_INFO("%{public}s,mimiType: %{public}s", __func__, fileInfo.mimiType.c_str());
     HILOG_INFO("%{public}s,end", __func__);
     return true;
@@ -306,7 +306,7 @@ bool UnwrapDeviceInfo(napi_env env, napi_value param, DeviceInfo &deviceInfo)
 
     uint32_t natValueUint32 = 0;
     if (UnwrapUint32ByPropertyName(env, param, "flags", natValueUint32)) {
-        HILOG_INFO("%{public}s,flags: %{public}zu", __func__, natValueUint32);
+        HILOG_INFO("%{public}s,flags: %{public}u", __func__, natValueUint32);
         deviceInfo.flags = natValueUint32;
     }
     HILOG_INFO("%{public}s,uri: %{public}s", __func__, deviceInfo.uri.ToString().c_str());

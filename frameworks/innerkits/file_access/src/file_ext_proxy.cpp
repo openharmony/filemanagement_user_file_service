@@ -275,7 +275,7 @@ std::vector<FileInfo> FileExtProxy::ListFile(const Uri &sourceFileUri)
         }
     }
 
-    HILOG_INFO("%{public}s end successfully, return vec.size=%{public}d", __func__, vec.size());
+    HILOG_INFO("%{public}s end successfully, return vec.size=%{public}zu", __func__, vec.size());
     return vec;
 }
 
@@ -306,7 +306,7 @@ std::vector<DeviceInfo> FileExtProxy::GetRoots()
         }
     }
 
-    HILOG_INFO("%{public}s end successfully, return vec.size=%{public}d", __func__, vec.size());
+    HILOG_INFO("%{public}s end successfully, return vec.size=%{public}zu", __func__, vec.size());
     return vec;
 }
 } // namespace FileAccessFwk
