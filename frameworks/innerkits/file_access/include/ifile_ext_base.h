@@ -20,6 +20,7 @@
 #include <string_ex.h>
 #include <iremote_broker.h>
 
+#include "file_extension_info.h"
 #include "uri.h"
 
 namespace OHOS {
@@ -33,7 +34,9 @@ public:
         CMD_CREATE_FILE = 2,
         CMD_MKDIR = 3,
         CMD_DELETE = 4,
-        CMD_RENAME = 5
+        CMD_RENAME = 5,
+        CMD_LIST_FILE = 6,
+        CMD_GET_ROOTS = 7
     };
 
     virtual int OpenFile(const Uri &uri, int flags) = 0;
@@ -41,6 +44,9 @@ public:
     virtual int Mkdir(const Uri &parentUri, const std::string &displayName, Uri &newFileUri) = 0;
     virtual int Delete(const Uri &sourceFileUri) = 0;
     virtual int Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri) = 0;
+
+    virtual std::vector<FileInfo> ListFile(const Uri &sourceFileUri) = 0;
+    virtual std::vector<DeviceInfo> GetRoots() = 0;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

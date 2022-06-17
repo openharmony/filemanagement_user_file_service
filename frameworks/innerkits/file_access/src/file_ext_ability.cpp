@@ -98,5 +98,17 @@ int FileExtAbility::Rename(const Uri &sourceFileUri, const std::string &displayN
     HILOG_INFO("%{public}s end.", __func__);
     return 0;
 }
+
+std::vector<FileInfo> FileExtAbility::ListFile(const Uri &sourceFileUri)
+{
+    std::vector<FileInfo> vec;
+    return vec;
+}
+
+std::vector<DeviceInfo> FileExtAbility::GetRoots()
+{
+    std::vector<DeviceInfo> vec;
+    return vec;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

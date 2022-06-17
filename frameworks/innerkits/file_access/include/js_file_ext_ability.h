@@ -18,6 +18,8 @@
 
 #include "file_ext_ability.h"
 
+#include "napi_common_fileaccess.h"
+#include "file_extension_info.h"
 #include "js_runtime.h"
 #include "native_engine/native_reference.h"
 #include "native_engine/native_value.h"
@@ -46,6 +48,9 @@ public:
     int Mkdir(const Uri &parentUri, const std::string &displayName, Uri &newFileUri) override;
     int Delete(const Uri &sourceFileUri) override;
     int Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri) override;
+
+    std::vector<FileInfo> ListFile(const Uri &sourceFileUri) override;
+    std::vector<DeviceInfo> GetRoots() override;
 private:
     NativeValue* CallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
     void GetSrcPath(std::string &srcPath);

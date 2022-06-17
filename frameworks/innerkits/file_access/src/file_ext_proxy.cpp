@@ -242,5 +242,72 @@ int FileExtProxy::Rename(const Uri &sourceFileUri, const std::string &displayNam
     HILOG_INFO("%{public}s end successfully, tempUri=%{public}s", __func__, tempUri->ToString().c_str());
     return ret;
 }
+
+std::vector<FileInfo> FileExtProxy::ListFile(const Uri &sourceFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    std::vector<FileInfo> vec;
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileExtProxy::GetDescriptor())) {
+        HILOG_ERROR("%{public}s WriteInterfaceToken failed", __func__);
+        return vec;
+    }
+
+    if (!data.WriteParcelable(&sourceFileUri)) {
+        HILOG_ERROR("%{public}s fail to WriteParcelable sourceFileUri", __func__);
+        return vec;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t err = Remote()->SendRequest(CMD_LIST_FILE, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("%{public}s fail to SendRequest. err: %d", __func__, err);
+        return vec;
+    }
+
+    vec.clear();
+    int32_t count = reply.ReadInt32();
+    for (int32_t i = 0; i < count; i++) {
+        std::unique_ptr<FileInfo> fileInfo(reply.ReadParcelable<FileInfo>());
+        if (fileInfo != nullptr) {
+            vec.push_back(*fileInfo);
+        }
+    }
+
+    HILOG_INFO("%{public}s end successfully, return vec.size=%{public}d", __func__, vec.size());
+    return vec;
+}
+
+std::vector<DeviceInfo> FileExtProxy::GetRoots()
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    std::vector<DeviceInfo> vec;
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileExtProxy::GetDescriptor())) {
+        HILOG_ERROR("%{public}s WriteInterfaceToken failed", __func__);
+        return vec;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t err = Remote()->SendRequest(CMD_GET_ROOTS, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("%{public}s fail to SendRequest. err: %d", __func__, err);
+        return vec;
+    }
+
+    vec.clear();
+    uint64_t count = reply.ReadUint32();
+    for (uint64_t i = 0; i < count; i++) {
+        std::unique_ptr<DeviceInfo> deviceInfo(reply.ReadParcelable<DeviceInfo>());
+        if (deviceInfo != nullptr) {
+            vec.push_back(*deviceInfo);
+        }
+    }
+
+    HILOG_INFO("%{public}s end successfully, return vec.size=%{public}d", __func__, vec.size());
+    return vec;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

@@ -17,6 +17,7 @@
 #define FILE_EXT_ABILITY_H
 
 #include "extension_base.h"
+#include "file_extension_info.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -43,6 +44,9 @@ public:
     virtual int Mkdir(const Uri &parentUri, const std::string &displayName, Uri &newFileUri);
     virtual int Delete(const Uri &sourceFileUri);
     virtual int Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri);
+
+    virtual std::vector<FileInfo> ListFile(const Uri &sourceFileUri);
+    virtual std::vector<DeviceInfo> GetRoots();
 
     /**
      * @brief Set a creator function.

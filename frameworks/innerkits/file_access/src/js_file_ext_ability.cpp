@@ -33,6 +33,7 @@
 namespace OHOS {
 namespace FileAccessFwk {
 namespace {
+constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 }
@@ -305,6 +306,54 @@ int JsFileExtAbility::Rename(const Uri &sourceFileUri, const std::string &displa
     newFileUri = Uri(uriStr);
     HILOG_INFO("%{public}s end. return fd:%{public}d, newFileUri = %{public}s", __func__, ret, uriStr.c_str());
     return ret;
+}
+
+std::vector<FileInfo> JsFileExtAbility::ListFile(const Uri &sourceFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    HandleScope handleScope(jsRuntime_);
+    napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
+
+    napi_value napiUri = nullptr;
+    std::vector<FileInfo> vec;
+    napi_create_string_utf8(env, sourceFileUri.ToString().c_str(), NAPI_AUTO_LENGTH, &napiUri);
+
+    NativeValue* nativeUri = reinterpret_cast<NativeValue*>(napiUri);
+    NativeValue* argv[] = {nativeUri};
+    NativeValue* nativeResult = CallObjectMethod("listFile", argv, ARGC_ONE);
+    if (nativeResult == nullptr) {
+        HILOG_ERROR("%{public}s call listFile with return null.", __func__);
+        return vec;
+    }
+    if (UnwrapArrayFileInfoFromJS(env, reinterpret_cast<napi_value>(nativeResult), vec)) {
+        HILOG_INFO("%{public}s end vec.size:%{public}d.", __func__, vec.size());
+        return vec;
+    } else {
+        HILOG_ERROR("%{public}s end with faild.", __func__);
+        return vec;
+    }
+}
+
+std::vector<DeviceInfo> JsFileExtAbility::GetRoots()
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    HandleScope handleScope(jsRuntime_);
+    napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
+
+    std::vector<DeviceInfo> vec;
+    NativeValue* argv[] = {};
+    NativeValue* nativeResult = CallObjectMethod("getRoots", argv, ARGC_ZERO);
+    if (nativeResult == nullptr) {
+        HILOG_ERROR("%{public}s call getRoots with return null.", __func__);
+        return vec;
+    }
+    if (UnwrapArrayDeviceInfoFromJS(env, reinterpret_cast<napi_value>(nativeResult), vec)) {
+        HILOG_INFO("%{public}s end vec.size:%{public}d.", __func__, vec.size());
+        return vec;
+    } else {
+        HILOG_ERROR("%{public}s end with faild.", __func__);
+        return vec;
+    }
 }
 } // namespace FileAccessFwk
 } // namespace OHOS
