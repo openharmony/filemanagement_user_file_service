@@ -23,6 +23,7 @@
 #include "file_ext_connection.h"
 #include "foundation/ability/ability_runtime/frameworks/kits/appkit/native/ability_runtime/context/context.h"
 #include "ifile_ext_base.h"
+#include "file_extension_info.h"
 #include "uri.h"
 #include "want.h"
 #include "hilog_wrapper.h"
@@ -44,6 +45,9 @@ public:
     int Mkdir(Uri &parentUri, const std::string &displayName, Uri &newDirUri);
     int Delete(Uri &selectFileUri);
     int Rename(Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri);
+
+    std::vector<FileInfo> ListFile(Uri &sourceFileUri);
+    std::vector<DeviceInfo> GetRoots();
 private:
     FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const AAFwk::Want &want,
         const sptr<IFileExtBase> &fileExtProxy);
