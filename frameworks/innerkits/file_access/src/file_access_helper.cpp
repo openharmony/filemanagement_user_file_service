@@ -230,6 +230,56 @@ int FileAccessHelper::Rename(Uri &sourceFileUri, const std::string &displayName,
     return index;
 }
 
+std::vector<FileInfo> FileAccessHelper::ListFile(Uri &sourceFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    std::vector<FileInfo> results;
+
+    HILOG_INFO("FileAccessHelper::ListFile before ConnectFileExtAbility.");
+    if (!fileExtConnection_->IsExtAbilityConnected()) {
+        fileExtConnection_->ConnectFileExtAbility(want_, token_);
+    }
+    fileExtProxy_ = fileExtConnection_->GetFileExtProxy();
+    HILOG_INFO("FileAccessHelper::ListFile after ConnectFileExtAbility.");
+    if (isSystemCaller_ && fileExtProxy_) {
+        AddFileAccessDeathRecipient(fileExtProxy_->AsObject());
+    }
+
+    if (fileExtProxy_ == nullptr) {
+        HILOG_ERROR("%{public}s failed with invalid fileExtProxy_", __func__);
+        return results;
+    }
+
+    results = fileExtProxy_->ListFile(sourceFileUri);
+    HILOG_INFO("%{public}s end size=%{public}d.", __func__, results.size());
+    return results;
+}
+
+std::vector<DeviceInfo> FileAccessHelper::GetRoots()
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    std::vector<DeviceInfo> results;
+
+    HILOG_INFO("FileAccessHelper::GetRoots before ConnectFileExtAbility.");
+    if (!fileExtConnection_->IsExtAbilityConnected()) {
+        fileExtConnection_->ConnectFileExtAbility(want_, token_);
+    }
+    fileExtProxy_ = fileExtConnection_->GetFileExtProxy();
+    HILOG_INFO("FileAccessHelper::GetRoots after ConnectFileExtAbility.");
+    if (isSystemCaller_ && fileExtProxy_) {
+        AddFileAccessDeathRecipient(fileExtProxy_->AsObject());
+    }
+
+    if (fileExtProxy_ == nullptr) {
+        HILOG_ERROR("%{public}s failed with invalid fileExtProxy_", __func__);
+        return results;
+    }
+
+    results = fileExtProxy_->GetRoots();
+    HILOG_INFO("%{public}s end.", __func__);
+    return results;
+}
+
 void FileAccessDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     HILOG_INFO("%{public}s begin.", __func__);
