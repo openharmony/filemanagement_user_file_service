@@ -336,7 +336,7 @@ void OpenFileExecuteCB(napi_env env, void *data)
         if (!openFileCB->uri.empty()) {
             OHOS::Uri uri(openFileCB->uri);
             openFileCB->result = openFileCB->fileAccessHelper->OpenFile(uri, openFileCB->flags);
-            openFileCB->execResult = ERR_OK; 
+            openFileCB->execResult = ERR_OK;
         } else {
             HILOG_ERROR(" NAPI_OpenFile, fileAccessHelper uri is empty");
         }
