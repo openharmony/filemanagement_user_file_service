@@ -13,10 +13,8 @@
  * limitations under the License.
  */
 import AbilityStage from "@ohos.application.AbilityStage"
-import hilog from '@ohos.hilog'
 
 export default class MyAbilityStage extends AbilityStage {
     onCreate() {
-        hilog.info(0x0001, 'js server tag dsa', "MyAbilityStage onCreate")
     }
 }

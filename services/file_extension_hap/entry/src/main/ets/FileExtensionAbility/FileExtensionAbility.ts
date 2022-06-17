@@ -16,19 +16,40 @@ import Extension from '@ohos.application.FileExtensionAbility'
 import uriClass from '@ohos.uri'
 import fileio from '@ohos.fileio'
 import hilog from '@ohos.hilog'
+import { init, addVolumeInfo, delVolumeInfo, path2uri, getVolumeInfoList } from './VolumeManager'
+import { onReceiveEvent } from './Subcriber'
 import fileExtensionInfo from "@ohos.fileExtensionInfo"
 
 const FLAG = fileExtensionInfo.FLAG;
 
 export default class FileExtAbility extends Extension {
     onCreate(want) {
-        hilog.info(0x0001, 'js server tag dsa', 'FileExtAbility onCreate, want:' + want.abilityName);
+        init();
+        onReceiveEvent(function (data) {
+            let parameters = data.parameters;
+            let flag = FLAG.SUPPORTS_WRITE | FLAG.SUPPORTS_DELETE | FLAG.SUPPORTS_RENAME | FLAG.SUPPORTS_COPY
+                | FLAG.SUPPORTS_MOVE | FLAG.SUPPORTS_REMOVE | FLAG.DIR_SUPPORTS_CREATE | FLAG.DIR_PREFERS_LAST_MODIFIED;
+            if (data.event == 'usual.event.data.VOLUME_MOUNTED') {
+                let volumeInfo = {
+                    'volumeId': parameters.id,
+                    'fsUuid': parameters.fsUuid,
+                    'path': parameters.path,
+                    'uri': path2uri(parameters.id, parameters.path),
+                    'flags': flag,
+                    'deviceId': '',
+                    'displayName': parameters.id,
+                    'type': 'SD'
+                }
+                addVolumeInfo(volumeInfo);
+            } else {
+                delVolumeInfo(parameters.id);
+            }
+        });
     }
 
     getPath(uri) {
         let uriObj = new uriClass.URI(uri);
         let path = uriObj.path;
-        hilog.info(0x0001, 'js server tag dsa', 'getPath is ' + path);
         return path;
     }
 
@@ -40,7 +61,6 @@ export default class FileExtAbility extends Extension {
         } else {
             newFileUri += '/' + displayName;
         }
-        hilog.info(0x0001, 'js server tag dsa', 'genNewFileUri is ' + newFileUri);
         return newFileUri;
     }
 
@@ -72,12 +92,10 @@ export default class FileExtAbility extends Extension {
                 newFileUri += arr[index] + '/';
             }
         }
-        hilog.info(0x0001, 'js server tag dsa', 'renameUri is ' + newFileUri);
         return newFileUri;
     }
 
     listDir(path, cb) {
-        hilog.info(0x0001, 'js server tag dsa', 'listDir: ' + path);
         try {
             let stat = fileio.statSync(path);
             if (stat.isDirectory()) {
@@ -88,7 +106,7 @@ export default class FileExtAbility extends Extension {
                         let dirent = dir.readSync();
                         this.listDir(path + '/' + dirent.name, cb);
                     } catch (e) {
-                        hilog.info(0x0001, 'js server tag dsa', 'listDir dir.readSync catch' + e);
+                        hilog.debug(0x0001, 'jsserver', 'listDir dir.readSync catch' + e);
                         hasNextFile = false;
                         cb(path);
                     }
@@ -97,19 +115,18 @@ export default class FileExtAbility extends Extension {
                 cb(path);
             }
         } catch (e) {
-            hilog.info(0x0001, 'js server tag dsa', 'listDir catch ' + e + ' ' + path);
+            hilog.debug(0x0001, 'jsserver', 'listDir catch ' + e + ' ' + path);
             cb(path);
         }
     }
 
     openFile(sourceFileUri, flags) {
-        hilog.info(0x0001, 'js server tag dsa', 'openFile, uri:' + sourceFileUri + ',flags:' + flags);
         let fd = 0;
         try {
             let path = this.getPath(sourceFileUri);
             fd = fileio.openSync(path, flags, 0o666);
         } catch (e) {
-            hilog.info(0x0001, 'js server tag dsa', 'openFile catch' + e);
+            hilog.debug(0x0001, 'jsserver', 'openFile catch' + e);
             fd = -1;
         }
 
@@ -121,46 +138,43 @@ export default class FileExtAbility extends Extension {
             fileio.closeSync(fd);
             return true;
         } catch (e) {
-            hilog.info(0x0001, 'js server tag dsa', 'closeFile catch' + e);
+            hilog.debug(0x0001, 'jsserver', 'closeFile catch' + e);
             return false;
         }
     }
 
     createFile(parentUri, displayName) {
-        hilog.info(0x0001, 'js server tag dsa', 'createFile, uri:' + parentUri + ', displayName:' + displayName);
         try {
             let newFileUri = this.genNewFileUri(parentUri, displayName);
             let path = this.getPath(newFileUri);
             fileio.openSync(path, 0o100, 0o666);
             return newFileUri;
         } catch (e) {
-            hilog.info(0x0001, 'js server tag dsa', 'createFile catch' + e);
+            hilog.debug(0x0001, 'jsserver', 'createFile catch' + e);
             return '';
         }
     }
 
     mkdir(parentUri, displayName) {
-        hilog.info(0x0001, 'js server tag dsa', 'mkdir, uri:' + parentUri + ', displayName:' + displayName);
         try {
             let newFileUri = this.genNewFileUri(parentUri, displayName);
             let path = this.getPath(newFileUri);
             fileio.mkdirSync(path);
             return newFileUri;
         } catch (e) {
-            hilog.info(0x0001, 'js server tag dsa', 'mkdir catch' + e);
+            hilog.debug(0x0001, 'jsserver', 'mkdir catch' + e);
             return '';
         }
     }
 
     delete(selectFileUri) {
-        hilog.info(0x0001, 'js server tag dsa', 'delete, uri:' + selectFileUri);
         let path = this.getPath(selectFileUri);
         let code = 0;
         this.listDir(path, function (filePath) {
             try {
                 fileio.unlinkSync(filePath);
             } catch (e) {
-                hilog.info(0x0001, 'js server tag dsa', 'delete catch' + e);
+                hilog.debug(0x0001, 'jsserver', 'delete catch' + e);
                 code = -1;
             }
         });
@@ -169,7 +183,6 @@ export default class FileExtAbility extends Extension {
     }
 
     move(sourceFileUri, targetParentUri) {
-        hilog.info(0x0001, 'js server tag dsa', 'move, sourceFileUri:' + sourceFileUri + ', targetParentUri:' + targetParentUri);
         try {
             let displayName = this.getFileName(sourceFileUri);
             let newFileUri = this.genNewFileUri(targetParentUri, displayName);
@@ -178,13 +191,12 @@ export default class FileExtAbility extends Extension {
             fileio.renameSync(oldPath, newPath);
             return newFileUri;
         } catch (e) {
-            hilog.info(0x0001, 'js server tag dsa', 'rename catch' + e);
+            hilog.debug(0x0001, 'jsserver', 'rename catch' + e);
             return '';
         }
     }
 
     rename(sourceFileUri, displayName) {
-        hilog.info(0x0001, 'js server tag dsa', 'rename, sourceFileUri:' + sourceFileUri + ', displayName:' + displayName);
         try {
             let newFileUri = this.renameUri(sourceFileUri, displayName);
             let oldPath = this.getPath(sourceFileUri);
@@ -192,13 +204,12 @@ export default class FileExtAbility extends Extension {
             fileio.renameSync(oldPath, newPath);
             return newFileUri;
         } catch (e) {
-            hilog.info(0x0001, 'js server tag dsa', 'rename catch' + e);
+            hilog.debug(0x0001, 'jsserver', 'rename catch' + e);
             return '';
         }
     }
 
     query(sourceFileUri) {
-        hilog.info(0x0001, 'js server tag dsa', 'query, sourceFileUri:' + sourceFileUri);
         try {
             let path = this.getPath(sourceFileUri);
             let stat = fileio.statSync(path);
@@ -211,13 +222,12 @@ export default class FileExtAbility extends Extension {
                 mimiType: '',
             };
         } catch (e) {
-            hilog.info(0x0001, 'js server tag dsa', 'query catch' + e);
+            hilog.debug(0x0001, 'jsserver', 'query catch' + e);
             return null;
         }
     }
 
     listFile(sourceFileUri) {
-        hilog.info(0x0001, 'js server tag dsa', 'listFile, sourceFileUri: ' + sourceFileUri);
 
         let infos = [];
         try {
@@ -237,27 +247,25 @@ export default class FileExtAbility extends Extension {
                         mimiType: '',
                     });
                 } catch (e) {
-                    hilog.info(0x0001, 'js server tag dsa', 'dir.readSync catch' + e);
+                    hilog.debug(0x0001, 'jsserver', 'dir.readSync catch' + e);
                     hasNextFile = false;
                 }
             }
         } catch (e) {
-            hilog.info(0x0001, 'js server tag dsa', 'listFile catch' + e);
+            hilog.debug(0x0001, 'jsserver', 'listFile catch' + e);
         }
 
-        hilog.info(0x0001, 'js server tag dsa', 'listFile return: ' + JSON.stringify(infos));
         return infos;
     }
 
     getRoots() {
-        hilog.info(0x0001, 'js server tag dsa', 'getRoots');
-        let roots = [{
+        let roots = getVolumeInfoList().concat({
             uri: 'fileAccess:///data/storage/el1/bundle/storage_daemon',
             displayName: 'storage_daemon',
             deviceId: '',
             flags: FLAG.SUPPORTS_WRITE | FLAG.SUPPORTS_DELETE | FLAG.SUPPORTS_RENAME | FLAG.SUPPORTS_COPY
                 | FLAG.SUPPORTS_MOVE | FLAG.SUPPORTS_REMOVE | FLAG.DIR_SUPPORTS_CREATE | FLAG.DIR_PREFERS_LAST_MODIFIED,
-        }];
+        });
         return roots;
     }
 };
