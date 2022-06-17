@@ -325,7 +325,7 @@ std::vector<FileInfo> JsFileExtAbility::ListFile(const Uri &sourceFileUri)
         HILOG_ERROR("%{public}s call listFile with return null.", __func__);
         return vec;
     }
-    if(UnwrapArrayFileInfoFromJS(env, reinterpret_cast<napi_value>(nativeResult), vec)) {
+    if (UnwrapArrayFileInfoFromJS(env, reinterpret_cast<napi_value>(nativeResult), vec)) {
         HILOG_INFO("%{public}s end vec.size:%{public}d.", __func__, vec.size());
         return vec;
     } else {
@@ -347,7 +347,7 @@ std::vector<DeviceInfo> JsFileExtAbility::GetRoots()
         HILOG_ERROR("%{public}s call getRoots with return null.", __func__);
         return vec;
     }
-    if(UnwrapArrayDeviceInfoFromJS(env, reinterpret_cast<napi_value>(nativeResult), vec)) {
+    if (UnwrapArrayDeviceInfoFromJS(env, reinterpret_cast<napi_value>(nativeResult), vec)) {
         HILOG_INFO("%{public}s end vec.size:%{public}d.", __func__, vec.size());
         return vec;
     } else {
