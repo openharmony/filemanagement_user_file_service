@@ -17,6 +17,7 @@
 
 #include "ability_manager_client.h"
 #include "hilog_wrapper.h"
+#include "file_ext_proxy.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -44,6 +45,7 @@ void FileExtConnection::OnAbilityConnectDone(
         HILOG_ERROR("%{public}s failed, remote is nullptr", __func__);
         return;
     }
+    fileExtProxy_ = iface_cast<FileExtProxy>(remoteObject);
     if (fileExtProxy_ == nullptr) {
         HILOG_ERROR("%{public}s failed, fileExtProxy_ is nullptr", __func__);
         return;
