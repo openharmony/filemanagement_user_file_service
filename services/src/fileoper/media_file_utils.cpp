@@ -16,8 +16,9 @@
 #include "media_file_utils.h"
 
 #include <algorithm>
-#include "datashare_values_bucket.h"
+
 #include "datashare_predicates.h"
+#include "datashare_values_bucket.h"
 #include "file_manager_service_def.h"
 #include "file_manager_service_errno.h"
 #include "log.h"

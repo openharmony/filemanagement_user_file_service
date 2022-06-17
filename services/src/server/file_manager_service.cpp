@@ -15,10 +15,10 @@
 
 #include "file_manager_service.h"
 
+#include "ext_storage/ext_storage_subscriber.h"
 #include "iservice_registry.h"
 #include "log.h"
 #include "system_ability_definition.h"
-#include "ext_storage/ext_storage_subscriber.h"
 
 namespace OHOS {
 namespace FileManagerService {

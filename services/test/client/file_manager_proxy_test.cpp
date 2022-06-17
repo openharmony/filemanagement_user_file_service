@@ -14,12 +14,11 @@
  */
 
 #include <cstdio>
-
 #include <gtest/gtest.h>
 
-#include "ifms_client.h"
 #include "file_manager_proxy.h"
 #include "fms_manager_proxy_mock.h"
+#include "ifms_client.h"
 
 namespace {
 using namespace std;

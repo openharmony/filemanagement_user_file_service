@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "ext_storage_subscriber.h"
 
 #include <cinttypes>
@@ -20,9 +21,9 @@
 #include "bundle_info.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#include "int_wrapper.h"
 #include "log.h"
 #include "string_wrapper.h"
-#include "int_wrapper.h"
 #include "want.h"
 
 using namespace OHOS::AAFwk;

@@ -16,9 +16,9 @@
 #include "file_manager_service_stub.h"
 
 #include "accesstoken_kit.h"
+#include "file_manager_service.h"
 #include "file_manager_service_def.h"
 #include "file_manager_service_errno.h"
-#include "file_manager_service.h"
 #include "ipc_singleton.h"
 #include "ipc_skeleton.h"
 #include "log.h"
@@ -27,6 +27,7 @@
 #include "sa_mgr_client.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
+
 using namespace std;
 namespace OHOS {
 namespace FileManagerService {
