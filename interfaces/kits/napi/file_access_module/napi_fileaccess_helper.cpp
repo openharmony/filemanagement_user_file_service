@@ -251,7 +251,7 @@ napi_value OpenFileWrap(napi_env env, napi_callback_info info, FileAccessHelperO
         openFileCB->flags = NapiValueToInt32Utf8(env, args[PARAM1]);
         HILOG_INFO("%{public}s,flags=%d", __func__, openFileCB->flags);
     }
-    HILOG_INFO("NAPIFileAccessHelper::OpenFileWrap end. flags = %{public}d", openFileCB->flags); 
+    
     FileAccessHelper *objectInfo = nullptr;
     napi_unwrap(env, thisVar, (void **)&objectInfo);
     HILOG_INFO("%{public}s,FileAccessHelper objectInfo", __func__);
@@ -266,7 +266,10 @@ napi_value OpenFileWrap(napi_env env, napi_callback_info info, FileAccessHelperO
     return ret;
 }
 
-napi_value OpenFileAsync(napi_env env, napi_value *args, const size_t argCallback, FileAccessHelperOpenFileCB *openFileCB)
+napi_value OpenFileAsync(napi_env env,
+                         napi_value *args,
+                         const size_t argCallback,
+                         FileAccessHelperOpenFileCB *openFileCB)
 {
     HILOG_INFO("%{public}s, asyncCallback start.", __func__);
     if (args == nullptr || openFileCB == nullptr) {
@@ -450,7 +453,10 @@ napi_value CreateFileWrap(napi_env env, napi_callback_info info, FileAccessHelpe
     return ret;
 }
 
-napi_value CreateFileAsync(napi_env env, napi_value *args, const size_t argCallback, FileAccessHelperCreateFileCB *createFileCB)
+napi_value CreateFileAsync(napi_env env,
+                           napi_value *args,
+                           const size_t argCallback,
+                           FileAccessHelperCreateFileCB *createFileCB)
 {
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
     if (args == nullptr || createFileCB == nullptr) {
@@ -1181,7 +1187,10 @@ napi_value ListFileWrap(napi_env env, napi_callback_info info, FileAccessHelperL
     return ret;
 }
 
-napi_value ListFileAsync(napi_env env, napi_value *args, const size_t argCallback, FileAccessHelperListFileCB *listFileCB)
+napi_value ListFileAsync(napi_env env,
+                         napi_value *args,
+                         const size_t argCallback,
+                         FileAccessHelperListFileCB *listFileCB)
 {
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
     if (args == nullptr || listFileCB == nullptr) {
@@ -1351,7 +1360,10 @@ napi_value GetRootsWrap(napi_env env, napi_callback_info info, FileAccessHelperG
     return ret;
 }
 
-napi_value GetRootsAsync(napi_env env, napi_value *args, const size_t argCallback, FileAccessHelperGetRootsCB *getRootsCB)
+napi_value GetRootsAsync(napi_env env,
+                         napi_value *args,
+                         const size_t argCallback,
+                         FileAccessHelperGetRootsCB *getRootsCB)
 {
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
     if (args == nullptr || getRootsCB == nullptr) {

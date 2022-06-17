@@ -16,7 +16,7 @@
 #ifndef MODULE_EXPORT_NAPI_H
 #define MODULE_EXPORT_NAPI_H
 namespace OHOS {
-namespace FileAccessFwk{
+namespace FileAccessFwk {
 } // namespace FileAccessFwk
 } // namespace OHOS
 #endif // MODULE_EXPORT_NAPI_H

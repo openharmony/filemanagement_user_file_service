@@ -18,8 +18,7 @@
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 namespace OHOS {
-namespace FileAccessFwk{
-
+namespace FileAccessFwk {
 void InitFlag(napi_env env, napi_value exports);
 void InitFileInfo(napi_env env, napi_value exports);
 void InitDeviceInfo(napi_env env, napi_value exports);

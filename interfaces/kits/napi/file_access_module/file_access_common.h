@@ -25,7 +25,6 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-
 struct CBBase {
     AppExecFwk::CallbackInfo cbInfo;
     napi_async_work asyncWork;
