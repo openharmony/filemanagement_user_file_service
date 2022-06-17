@@ -23,9 +23,11 @@
 #include "file_ext_connection.h"
 #include "foundation/ability/ability_runtime/frameworks/kits/appkit/native/ability_runtime/context/context.h"
 #include "ifile_ext_base.h"
+#include "uri.h"
 #include "want.h"
 #include "hilog_wrapper.h"
 
+using Uri = OHOS::Uri;
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -37,6 +39,11 @@ public:
     static std::shared_ptr<FileAccessHelper> Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
         const AAFwk::Want &want);
 
+    int OpenFile(Uri &uri, int flags);
+    int CreateFile(Uri &parentUri, const std::string &displayName, Uri &newFileUri);
+    int Mkdir(Uri &parentUri, const std::string &displayName, Uri &newDirUri);
+    int Delete(Uri &selectFileUri);
+    int Rename(Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri);
 private:
     FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const AAFwk::Want &want,
         const sptr<IFileExtBase> &fileExtProxy);
@@ -46,6 +53,7 @@ private:
     sptr<IRemoteObject> token_ = {};
     AAFwk::Want want_ = {};
     sptr<IFileExtBase> fileExtProxy_ = nullptr;
+    bool isSystemCaller_ = false;
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
     sptr<FileExtConnection> fileExtConnection_ = nullptr;
 };

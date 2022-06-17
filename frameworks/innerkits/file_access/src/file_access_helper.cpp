@@ -90,6 +90,146 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     return std::shared_ptr<FileAccessHelper>(ptrFileAccessHelper);
 }
 
+int FileAccessHelper::OpenFile(Uri &uri, int flags)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+
+    int fd = -1;
+
+    HILOG_INFO("FileAccessHelper::OpenFile before ConnectFileExtAbility.");
+    if (!fileExtConnection_->IsExtAbilityConnected()) {
+        fileExtConnection_->ConnectFileExtAbility(want_, token_);
+    }
+    fileExtProxy_ = fileExtConnection_->GetFileExtProxy();
+    HILOG_INFO("FileAccessHelper::OpenFile after ConnectFileExtAbility.");
+    if (isSystemCaller_ && fileExtProxy_) {
+        AddFileAccessDeathRecipient(fileExtProxy_->AsObject());
+    }
+
+    if (fileExtProxy_ == nullptr) {
+        HILOG_ERROR("%{public}s failed with invalid fileExtProxy_", __func__);
+        return fd;
+    }
+
+    HILOG_INFO("FileAccessHelper::OpenFile before fileExtProxy_->OpenFile.");
+    fd = fileExtProxy_->OpenFile(uri, flags);
+    HILOG_INFO("FileAccessHelper::OpenFile after fileExtProxy_->OpenFile.");
+    HILOG_INFO("%{public}s end.", __func__);
+    return fd;
+}
+
+int FileAccessHelper::CreateFile(Uri &parentUri, const std::string &displayName, Uri &newFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+
+    int index = -1;
+
+    HILOG_INFO("FileAccessHelper::CreateFile before ConnectDataShareExtAbility.");
+    if (!fileExtConnection_->IsExtAbilityConnected()) {
+        fileExtConnection_->ConnectFileExtAbility(want_, token_);
+    }
+    fileExtProxy_ = fileExtConnection_->GetFileExtProxy();
+    HILOG_INFO("FileAccessHelper::CreateFile after ConnectDataShareExtAbility.");
+    if (isSystemCaller_ && fileExtProxy_) {
+        AddFileAccessDeathRecipient(fileExtProxy_->AsObject());
+    }
+
+    if (fileExtProxy_ == nullptr) {
+        HILOG_ERROR("%{public}s failed with invalid fileExtProxy_", __func__);
+        return index;
+    }
+
+    HILOG_INFO("FileAccessHelper::CreateFile before fileExtProxy_->CreateFile.");
+    index = fileExtProxy_->CreateFile(parentUri, displayName, newFileUri);
+    HILOG_INFO("FileAccessHelper::CreateFile after fileExtProxy_->CreateFile.");
+    HILOG_INFO("%{public}s end.", __func__);
+    return index;
+}
+
+int FileAccessHelper::Mkdir(Uri &parentUri, const std::string &displayName, Uri &newDirUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+
+    int index = -1;
+
+    HILOG_INFO("FileAccessHelper::Mkdir before ConnectFileExtAbility.");
+    if (!fileExtConnection_->IsExtAbilityConnected()) {
+        fileExtConnection_->ConnectFileExtAbility(want_, token_);
+    }
+    fileExtProxy_ = fileExtConnection_->GetFileExtProxy();
+    HILOG_INFO("FileAccessHelper::Mkdir after ConnectFileExtAbility.");
+    if (isSystemCaller_ && fileExtProxy_) {
+        AddFileAccessDeathRecipient(fileExtProxy_->AsObject());
+    }
+
+    if (fileExtProxy_ == nullptr) {
+        HILOG_ERROR("%{public}s failed with invalid fileExtProxy_", __func__);
+        return index;
+    }
+
+    HILOG_INFO("FileAccessHelper::Mkdir before fileExtProxy_->Mkdir.");
+    index = fileExtProxy_->Mkdir(parentUri, displayName, newDirUri);
+    HILOG_INFO("FileAccessHelper::Mkdir after fileExtProxy_->Mkdir.");
+    HILOG_INFO("%{public}s end.", __func__);
+    return index;
+}
+
+int FileAccessHelper::Delete(Uri &selectFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+
+    int index = -1;
+
+    HILOG_INFO("FileAccessHelper::Delete before ConnectFileExtAbility.");
+    if (!fileExtConnection_->IsExtAbilityConnected()) {
+        fileExtConnection_->ConnectFileExtAbility(want_, token_);
+    }
+    fileExtProxy_ = fileExtConnection_->GetFileExtProxy();
+    HILOG_INFO("FileAccessHelper::Delete after ConnectFileExtAbility.");
+    if (isSystemCaller_ && fileExtProxy_) {
+        AddFileAccessDeathRecipient(fileExtProxy_->AsObject());
+    }
+
+    if (fileExtProxy_ == nullptr) {
+        HILOG_ERROR("%{public}s failed with invalid fileExtProxy_", __func__);
+        return index;
+    }
+
+    HILOG_INFO("FileAccessHelper::Delete before fileExtProxy_->Delete.");
+    index = fileExtProxy_->Delete(selectFileUri);
+    HILOG_INFO("FileAccessHelper::Delete after fileExtProxy_->Delete.");
+    HILOG_INFO("%{public}s end.", __func__);
+    return index;
+}
+
+int FileAccessHelper::Rename(Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+
+    int index = -1;
+
+    HILOG_INFO("FileAccessHelper::Rename before ConnectFileExtAbility.");
+    if (!fileExtConnection_->IsExtAbilityConnected()) {
+        fileExtConnection_->ConnectFileExtAbility(want_, token_);
+    }
+    fileExtProxy_ = fileExtConnection_->GetFileExtProxy();
+    HILOG_INFO("FileAccessHelper::Rename after ConnectFileExtAbility.");
+    if (isSystemCaller_ && fileExtProxy_) {
+        AddFileAccessDeathRecipient(fileExtProxy_->AsObject());
+    }
+
+    if (fileExtProxy_ == nullptr) {
+        HILOG_ERROR("%{public}s failed with invalid fileExtProxy_", __func__);
+        return index;
+    }
+
+    HILOG_INFO("FileAccessHelper::Rename before fileExtProxy_->Rename.");
+    index = fileExtProxy_->Rename(sourceFileUri, displayName, newFileUri);
+    HILOG_INFO("FileAccessHelper::Rename after fileExtProxy_->Rename.");
+    HILOG_INFO("%{public}s end.", __func__);
+    return index;
+}
+
 void FileAccessDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     HILOG_INFO("%{public}s begin.", __func__);
