@@ -34,6 +34,9 @@ public:
     virtual int Mkdir(const Uri &parentUri, const std::string &displayName, Uri &newFileUri) override;
     virtual int Delete(const Uri &sourceFileUri) override;
     virtual int Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri) override;
+
+    virtual std::vector<FileInfo> ListFile(const Uri &sourceFileUri) override;
+    virtual std::vector<DeviceInfo> GetRoots() override;
 private:
     static inline BrokerDelegator<FileExtProxy> delegator_;
 };

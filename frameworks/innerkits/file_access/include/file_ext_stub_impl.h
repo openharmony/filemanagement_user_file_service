@@ -36,6 +36,9 @@ public:
     int Mkdir(const Uri &parentUri, const std::string &displayName, Uri &newFileUri) override;
     int Delete(const Uri &sourceFileUri) override;
     int Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri) override;
+
+    std::vector<FileInfo> ListFile(const Uri &sourceFileUri) override;
+    std::vector<DeviceInfo> GetRoots() override;
 private:
     std::shared_ptr<FileExtAbility> GetOwner();
 

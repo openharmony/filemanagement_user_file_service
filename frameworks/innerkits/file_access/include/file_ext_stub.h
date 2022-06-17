@@ -35,7 +35,10 @@ private:
     ErrCode CmdMkdir(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdDelete(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdRename(MessageParcel &data, MessageParcel &reply);
-    
+
+    ErrCode CmdListFile(MessageParcel &data, MessageParcel &reply);
+    ErrCode CmdGetRoots(MessageParcel &data, MessageParcel &reply);
+
     using RequestFuncType = int (FileExtStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, RequestFuncType> stubFuncMap_;
 };

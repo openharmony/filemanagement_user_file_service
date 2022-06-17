@@ -98,5 +98,33 @@ int FileExtStubImpl::Rename(const Uri &sourceFileUri, const std::string &display
         __func__, ret, newFileUri.ToString().c_str());
     return ret;
 }
+
+std::vector<FileInfo> FileExtStubImpl::ListFile(const Uri &sourceFileUri)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    std::vector<FileInfo> vec;
+    auto extension = GetOwner();
+    if (extension == nullptr) {
+        HILOG_ERROR("%{public}s end failed.", __func__);
+        return vec;
+    }
+    vec = extension->ListFile(sourceFileUri);
+    HILOG_INFO("%{public}s end", __func__);
+    return vec;
+}
+
+std::vector<DeviceInfo> FileExtStubImpl::GetRoots()
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    std::vector<DeviceInfo> vec;
+    auto extension = GetOwner();
+    if (extension == nullptr) {
+        HILOG_ERROR("%{public}s end failed.", __func__);
+        return vec;
+    }
+    vec = extension->GetRoots();
+    HILOG_INFO("%{public}s end.", __func__);
+    return vec;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

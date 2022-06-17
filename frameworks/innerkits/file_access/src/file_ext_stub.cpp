@@ -21,13 +21,13 @@ namespace OHOS {
 namespace FileAccessFwk {
 FileExtStub::FileExtStub()
 {
-    HILOG_INFO("%{public}s begin.", __func__);
     stubFuncMap_[CMD_OPEN_FILE] = &FileExtStub::CmdOpenFile;
     stubFuncMap_[CMD_CREATE_FILE] = &FileExtStub::CmdCreateFile;
     stubFuncMap_[CMD_MKDIR] = &FileExtStub::CmdMkdir;
     stubFuncMap_[CMD_DELETE] = &FileExtStub::CmdDelete;
     stubFuncMap_[CMD_RENAME] = &FileExtStub::CmdRename;
-    HILOG_INFO("%{public}s end.", __func__);
+    stubFuncMap_[CMD_LIST_FILE] = &FileExtStub::CmdListFile;
+    stubFuncMap_[CMD_GET_ROOTS] = &FileExtStub::CmdGetRoots;
 }
 
 FileExtStub::~FileExtStub()
@@ -224,6 +224,53 @@ ErrCode FileExtStub::CmdRename(MessageParcel &data, MessageParcel &reply)
 
     HILOG_INFO("%{public}s end. ret:%d, fileUriNew = %{public}s", __func__, ret, fileUriNew->ToString().c_str());
     HILOG_INFO("%{public}s end. fileUriNew = %{public}s", __func__, fileUriNew->ToString().c_str());
+    return NO_ERROR;
+}
+
+ErrCode FileExtStub::CmdListFile(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
+    if (uri == nullptr) {
+        HILOG_ERROR("%{public}s uri is nullptr", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    std::vector<FileInfo> vec = ListFile(*uri);
+    uint64_t count {vec.size()};
+    if (!reply.WriteUint64(count)) {
+        HILOG_ERROR("%{public}s fail to WriteInt32 count", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    for (uint64_t i = 0; i < count; i++) {
+        if (!reply.WriteParcelable(&vec[i])) {
+            HILOG_ERROR("%{public}s fail to WriteParcelable vec, index = %{public}llu", __func__, i);
+            return ERR_INVALID_VALUE;
+        }
+    }
+
+    HILOG_INFO("%{public}s end.", __func__);
+    return NO_ERROR;
+}
+
+ErrCode FileExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+
+    std::vector<DeviceInfo> vec = GetRoots();
+    uint64_t count {vec.size()};
+    if (!reply.WriteUint64(count)) {
+        HILOG_ERROR("%{public}s fail to WriteInt32 count", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    for (uint64_t i = 0; i < count; i++) {
+        if (!reply.WriteParcelable(&vec[i])) {
+            HILOG_ERROR("%{public}s fail to WriteParcelable ret, index = %{public}llu", __func__, i);
+            return ERR_INVALID_VALUE;
+        }
+    }
+
+    HILOG_INFO("%{public}s end.", __func__);
     return NO_ERROR;
 }
 } // namespace FileAccessFwk
