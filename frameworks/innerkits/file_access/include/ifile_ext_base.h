@@ -17,6 +17,7 @@
 #define I_FILE_EXT_BASE_H
 
 #include <bitset>
+#include <cstdint>
 #include <string_ex.h>
 #include <iremote_broker.h>
 

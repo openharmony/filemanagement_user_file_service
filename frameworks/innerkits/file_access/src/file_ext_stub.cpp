@@ -244,7 +244,7 @@ ErrCode FileExtStub::CmdListFile(MessageParcel &data, MessageParcel &reply)
     }
     for (uint64_t i = 0; i < count; i++) {
         if (!reply.WriteParcelable(&vec[i])) {
-            HILOG_ERROR("%{public}s fail to WriteParcelable vec, index = %{public}llu", __func__, i);
+            HILOG_ERROR("%{public}s fail to WriteParcelable vec", __func__);
             return ERR_INVALID_VALUE;
         }
     }
@@ -265,7 +265,7 @@ ErrCode FileExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply)
     }
     for (uint64_t i = 0; i < count; i++) {
         if (!reply.WriteParcelable(&vec[i])) {
-            HILOG_ERROR("%{public}s fail to WriteParcelable ret, index = %{public}llu", __func__, i);
+            HILOG_ERROR("%{public}s fail to WriteParcelable ret", __func__);
             return ERR_INVALID_VALUE;
         }
     }
