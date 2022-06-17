@@ -251,7 +251,7 @@ std::vector<FileInfo> FileAccessHelper::ListFile(Uri &sourceFileUri)
     }
 
     results = fileExtProxy_->ListFile(sourceFileUri);
-    HILOG_INFO("%{public}s end size=%{public}d.", __func__, results.size());
+    HILOG_INFO("%{public}s end size=%{public}zu.", __func__, results.size());
     return results;
 }
 

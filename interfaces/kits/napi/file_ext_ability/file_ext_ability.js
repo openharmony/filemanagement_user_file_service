@@ -15,6 +15,42 @@
 
 class FileExtensionAbility {
     onCreate(want) {
+        console.log('js c++ tag dsa onCreate, want:' + want.abilityName);
+    }
+
+    openFile(uri, mode) {
+        console.log('js c++ tag dsa openFile, uri:' + uri + ',flags: ' + flags);
+        return 0;
+    }
+
+    createFile(parentUri, displayName) {
+        console.log('js c++ tag dsa CreateFile, parentUri:' + parentUri + ',displayName:' + displayName );
+        return "filetest://fileext.share/temp/test/CreateFile000.txt";
+    }
+
+    mkdir(parentUri, displayName) {
+        console.log('js c++ tag dsa mkdir, parentUri:' + parentUri + ',displayName:' + displayName);
+        return "filetest://fileext.share/temp/test/Mkdir000";
+    }
+
+    delete(sourceFileUri) {
+        console.log('js c++ tag dsa delete, sourceFileUri:' + sourceFileUri);
+        return 0;
+    }
+
+    rename(sourceFileUri, displayName) {
+        console.log('js c++ tag dsa rename, sourceFileUri:' + sourceFileUri + ',displayName:' + displayName);
+        return "filetest://fileext.share/temp/test/rename000.ttt";
+    }
+
+    listFile(sourceFileUri) {
+        let infos = [];
+        return infos;
+    }
+
+    getRoots() {
+        let roots = [];
+        return roots;
     }
 }
 

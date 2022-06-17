@@ -15,7 +15,7 @@ import("//build/ohos.gni")
 
 group("frameworks_innerkits") {
   deps = [
-    "file_access:file_access_ability_kit",
-    "file_access:file_access_ability_module",
+    "file_access:file_extension_ability_kit",
+    "file_access:file_extension_ability_module",
   ]
 }

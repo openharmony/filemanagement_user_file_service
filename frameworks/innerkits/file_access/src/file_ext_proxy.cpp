@@ -267,7 +267,7 @@ std::vector<FileInfo> FileExtProxy::ListFile(const Uri &sourceFileUri)
     }
 
     vec.clear();
-    int32_t count = reply.ReadInt32();
+    int64_t count = reply.ReadInt64();
     for (int32_t i = 0; i < count; i++) {
         std::unique_ptr<FileInfo> fileInfo(reply.ReadParcelable<FileInfo>());
         if (fileInfo != nullptr) {
@@ -298,7 +298,7 @@ std::vector<DeviceInfo> FileExtProxy::GetRoots()
     }
 
     vec.clear();
-    uint64_t count = reply.ReadUint32();
+    uint64_t count = reply.ReadUint64();
     for (uint64_t i = 0; i < count; i++) {
         std::unique_ptr<DeviceInfo> deviceInfo(reply.ReadParcelable<DeviceInfo>());
         if (deviceInfo != nullptr) {
