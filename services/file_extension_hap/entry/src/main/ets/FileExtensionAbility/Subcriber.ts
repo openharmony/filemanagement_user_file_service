@@ -14,7 +14,6 @@
 */
 import CommonEvent from '@ohos.commonevent'
 async function onReceiveEvent(callBack) {
-    //订阅者信息
     var subscribeInfo = {
         events: [
             "usual.event.data.VOLUME_REMOVED",
@@ -25,7 +24,6 @@ async function onReceiveEvent(callBack) {
         ]
     };
     let subscriber = await CommonEvent.createSubscriber(subscribeInfo);
-    //订阅公共事件
     CommonEvent.subscribe(subscriber, function (err, data) {
         callBack(data)
     })
