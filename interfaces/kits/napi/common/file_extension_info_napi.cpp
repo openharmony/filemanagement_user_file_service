@@ -113,7 +113,8 @@ void InitDeviceInfo(napi_env env, napi_value exports)
     char className[] = "DeviceInfo";
     napi_property_descriptor desc[] = {
         { "uri", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "uri"), napi_writable, nullptr },
-        { "displayName", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "displayName"), napi_writable, nullptr },
+        { "displayName", nullptr, nullptr, nullptr, nullptr,
+            CreateStringUtf8(env, "displayName"), napi_writable, nullptr },
         { "deviceId", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "deviceId"), napi_writable, nullptr },
         { "flags", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "flags"), napi_writable, nullptr }
     };

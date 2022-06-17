@@ -251,7 +251,7 @@ napi_value OpenFileWrap(napi_env env, napi_callback_info info, FileAccessHelperO
         openFileCB->flags = NapiValueToInt32Utf8(env, args[PARAM1]);
         HILOG_INFO("%{public}s,flags=%d", __func__, openFileCB->flags);
     }
-    
+
     FileAccessHelper *objectInfo = nullptr;
     napi_unwrap(env, thisVar, (void **)&objectInfo);
     HILOG_INFO("%{public}s,FileAccessHelper objectInfo", __func__);
@@ -336,8 +336,7 @@ void OpenFileExecuteCB(napi_env env, void *data)
         if (!openFileCB->uri.empty()) {
             OHOS::Uri uri(openFileCB->uri);
             openFileCB->result = openFileCB->fileAccessHelper->OpenFile(uri, openFileCB->flags);
-            openFileCB->execResult = ERR_OK;
-        HILOG_INFO(" NAPIFileAccessHelper::OpenFileExecuteCB end. flags = %{public}d", openFileCB->flags);   
+            openFileCB->execResult = ERR_OK; 
         } else {
             HILOG_ERROR(" NAPI_OpenFile, fileAccessHelper uri is empty");
         }
