@@ -58,6 +58,45 @@ void FileAccessHelper::OnSchedulerDied(const wptr<IRemoteObject> &remote)
     HILOG_INFO("%{public}s called end", __func__);
 }
 
+FileAccessHelper::FileAccessHelper(const sptr<IRemoteObject> &token,
+    const AAFwk::Want &want, const sptr<IFileExtBase> &fileExtProxy)
+{
+    HILOG_INFO("FileAccessHelper::FileAccessHelper start");
+    token_ = token;
+    want_ = want;
+    fileExtProxy_ = fileExtProxy;
+    fileExtConnection_ = FileExtConnection::GetInstance();
+    HILOG_INFO("FileAccessHelper::FileAccessHelper end");
+}
+
+std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
+    const sptr<IRemoteObject> &token, const AAFwk::Want &want)
+{
+    HILOG_INFO("FileAccessHelper::Creator with runtime context, want and uri called start.");
+
+    HILOG_INFO("FileAccessHelper::Creator before ConnectFileExtAbility.");
+    sptr<IFileExtBase> fileExtProxy = nullptr;
+
+    sptr<FileExtConnection> fileExtConnection = FileExtConnection::GetInstance();
+    if (!fileExtConnection->IsExtAbilityConnected()) {
+        fileExtConnection->ConnectFileExtAbility(want, token);
+    }
+    fileExtProxy = fileExtConnection->GetFileExtProxy();
+    if (fileExtProxy == nullptr) {
+        HILOG_WARN("FileAccessHelper::Creator get invalid fileExtProxy");
+    }
+    HILOG_INFO("FileAccessHelper::Creator after ConnectFileExtAbility.");
+
+    FileAccessHelper *ptrDataShareHelper = new (std::nothrow) FileAccessHelper(token, want, fileExtProxy);
+    if (ptrDataShareHelper == nullptr) {
+        HILOG_ERROR("FileAccessHelper::Creator failed, create FileAccessHelper failed");
+        return nullptr;
+    }
+
+    HILOG_INFO("FileAccessHelper::Creator with runtime context, want and uri called end.");
+    return std::shared_ptr<FileAccessHelper>(ptrDataShareHelper);
+}
+
 std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const AAFwk::Want &want)
 {
@@ -88,6 +127,20 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
 
     HILOG_INFO("%{public}s with runtime context, want and uri called end.", __func__);
     return std::shared_ptr<FileAccessHelper>(ptrFileAccessHelper);
+}
+
+bool FileAccessHelper::Release()
+{
+    HILOG_INFO("%{public}s called begin", __func__);
+
+    HILOG_INFO("FileAccessHelper::Release before DisconnectFileExtAbility.");
+    if (fileExtConnection_->IsExtAbilityConnected()) {
+        fileExtConnection_->DisconnectFileExtAbility();
+    }
+    HILOG_INFO("FileAccessHelper::Release after DisconnectFileExtAbility.");
+    fileExtProxy_ = nullptr;
+    HILOG_INFO("%{public}s called end", __func__);
+    return true;
 }
 
 int FileAccessHelper::OpenFile(Uri &uri, int flags)

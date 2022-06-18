@@ -40,6 +40,8 @@ public:
     static std::shared_ptr<FileAccessHelper> Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
         const AAFwk::Want &want);
 
+    static std::shared_ptr<FileAccessHelper> Creator(const sptr<IRemoteObject> &token, const AAFwk::Want &want);
+    bool Release();
     int OpenFile(Uri &uri, int flags);
     int CreateFile(Uri &parentUri, const std::string &displayName, Uri &newFileUri);
     int Mkdir(Uri &parentUri, const std::string &displayName, Uri &newDirUri);
@@ -51,6 +53,8 @@ public:
 private:
     FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const AAFwk::Want &want,
         const sptr<IFileExtBase> &fileExtProxy);
+    FileAccessHelper(const sptr<IRemoteObject> &token,
+        const AAFwk::Want &want, const sptr<IFileExtBase> &fileExtProxy);
     void AddFileAccessDeathRecipient(const sptr<IRemoteObject> &token);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
 
@@ -61,7 +65,6 @@ private:
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
     sptr<FileExtConnection> fileExtConnection_ = nullptr;
 };
-
 
 class FileAccessDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
