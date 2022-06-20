@@ -16,14 +16,14 @@
 #include <cstdio>
 #include <gtest/gtest.h>
 
-#include "ifms_client.h"
-#include "file_info.h"
-#include "media_file_oper.h"
-#include "file_manager_service_stub.h"
-#include "media_data_ability_const.h"
-#include "file_manager_service_def.h"
 #include "abs_shared_result_set.h"
+#include "file_info.h"
 #include "file_manager_service.h"
+#include "file_manager_service_def.h"
+#include "file_manager_service_stub.h"
+#include "ifms_client.h"
+#include "media_data_ability_const.h"
+#include "media_file_oper.h"
 
 namespace {
 using namespace std;
