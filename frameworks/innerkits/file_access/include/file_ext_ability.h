@@ -43,6 +43,7 @@ public:
     virtual int CreateFile(const Uri &parentUri, const std::string &displayName,  Uri &newFileUri);
     virtual int Mkdir(const Uri &parentUri, const std::string &displayName, Uri &newFileUri);
     virtual int Delete(const Uri &sourceFileUri);
+    virtual int Move(const Uri &sourceFileUri, const Uri &targetParentUri, Uri &newFileUri);
     virtual int Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri);
 
     virtual std::vector<FileInfo> ListFile(const Uri &sourceFileUri);

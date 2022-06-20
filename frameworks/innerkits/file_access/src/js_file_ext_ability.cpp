@@ -276,6 +276,37 @@ int JsFileExtAbility::Delete(const Uri &sourceFileUri)
     return ret;
 }
 
+int JsFileExtAbility::Move(const Uri &sourceFileUri, const Uri &targetParentUri, Uri &newFileUri)
+{
+    HandleScope handleScope(jsRuntime_);
+    napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
+
+    napi_value napiSourceFileUri = nullptr;
+    napi_create_string_utf8(env, sourceFileUri.ToString().c_str(), NAPI_AUTO_LENGTH, &napiSourceFileUri);
+    napi_value napiTargetParentUri = nullptr;
+    napi_create_string_utf8(env, targetParentUri.ToString().c_str(), NAPI_AUTO_LENGTH, &napiTargetParentUri);
+
+    NativeValue* nativeSourceFileUri = reinterpret_cast<NativeValue*>(napiSourceFileUri);
+    NativeValue* nativeTargetParentUri = reinterpret_cast<NativeValue*>(napiTargetParentUri);
+    NativeValue* argv[] = {nativeSourceFileUri, nativeTargetParentUri};
+    NativeValue* nativeResult = CallObjectMethod("move", argv, ARGC_TWO);
+    int ret = -1;
+    if (nativeResult == nullptr) {
+        HILOG_ERROR("%{public}s call move with return null.", __func__);
+        return ret;
+    }
+    std::string uriStr = OHOS::AppExecFwk::UnwrapStringFromJS(env, reinterpret_cast<napi_value>(nativeResult));
+    if (uriStr.empty()) {
+        HILOG_ERROR("%{public}s call move with return empty.", __func__);
+        return ret;
+    } else {
+        ret = NO_ERROR;
+    }
+    newFileUri = Uri(uriStr);
+    HILOG_INFO("%{public}s end. return fd:%{public}d, newFileUri = %{public}s", __func__, ret, uriStr.c_str());
+    return ret;
+}
+
 int JsFileExtAbility::Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri)
 {
     HILOG_INFO("%{public}s begin.", __func__);

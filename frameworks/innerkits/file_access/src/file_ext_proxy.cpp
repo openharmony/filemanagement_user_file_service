@@ -192,6 +192,56 @@ int FileExtProxy::Delete(const Uri &sourceFileUri)
     return ret;
 }
 
+int FileExtProxy::Move(const Uri &sourceFileUri, const Uri &targetParentUri, Uri &newFileUri)
+{
+    int ret = -1;
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileExtProxy::GetDescriptor())) {
+        HILOG_ERROR("%{public}s WriteInterfaceToken failed", __func__);
+        return ret;
+    }
+
+    if (!data.WriteParcelable(&sourceFileUri)) {
+        HILOG_ERROR("%{public}s fail to WriteParcelable sourceFileUri", __func__);
+        return ret;
+    }
+
+    if (!data.WriteParcelable(&targetParentUri)) {
+        HILOG_ERROR("%{public}s fail to WriteParcelable targetParentUri", __func__);
+        return ret;
+    }
+
+    if (!data.WriteParcelable(&newFileUri)) {
+        HILOG_ERROR("%{public}s fail to WriteParcelable newFileUri", __func__);
+        return ret;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t err = Remote()->SendRequest(CMD_MOVE, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("%{public}s fail to SendRequest. err: %d", __func__, err);
+        return ret;
+    }
+
+    ret = reply.ReadInt32();
+    if (ret < 0) {
+        HILOG_ERROR("%{public}s fail to ReadInt32 ret", __func__);
+        return ret;
+    }
+
+    std::unique_ptr<Uri> tempUri(reply.ReadParcelable<Uri>());
+    if (!tempUri) {
+        HILOG_ERROR("%{public}s ReadParcelable value is nullptr.", __func__);
+        ret = -1;
+        return ret;
+    }
+
+    newFileUri = Uri(*tempUri);
+    HILOG_INFO("%{public}s end successfully, newFileUri=%{public}s", __func__, tempUri->ToString().c_str());
+    return ret;
+}
+
 int FileExtProxy::Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri)
 {
     HILOG_INFO("%{public}s begin.", __func__);

@@ -33,6 +33,7 @@ public:
     virtual int CreateFile(const Uri &parentUri, const std::string &displayName,  Uri &newFileUri) override;
     virtual int Mkdir(const Uri &parentUri, const std::string &displayName, Uri &newFileUri) override;
     virtual int Delete(const Uri &sourceFileUri) override;
+    virtual int Move(const Uri &sourceFileUri, const Uri &targetParentUri, Uri &newFileUri) override;
     virtual int Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri) override;
 
     virtual std::vector<FileInfo> ListFile(const Uri &sourceFileUri) override;

@@ -35,6 +35,7 @@ public:
     int CreateFile(const Uri &parentUri, const std::string &displayName,  Uri &newFileUri) override;
     int Mkdir(const Uri &parentUri, const std::string &displayName, Uri &newFileUri) override;
     int Delete(const Uri &sourceFileUri) override;
+    int Move(const Uri &sourceFileUri, const Uri &targetParentUri, Uri &newFileUri) override;
     int Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri) override;
 
     std::vector<FileInfo> ListFile(const Uri &sourceFileUri) override;

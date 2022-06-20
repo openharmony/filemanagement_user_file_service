@@ -92,6 +92,11 @@ int FileExtAbility::Delete(const Uri &sourceFileUri)
     return 0;
 }
 
+int FileExtAbility::Move(const Uri &sourceFileUri, const Uri &targetParentUri, Uri &newFileUri)
+{
+    return 0;
+}
+
 int FileExtAbility::Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri)
 {
     HILOG_INFO("%{public}s begin.", __func__);

@@ -84,6 +84,20 @@ int FileExtStubImpl::Delete(const Uri &sourceFileUri)
     return ret;
 }
 
+int FileExtStubImpl::Move(const Uri &sourceFileUri, const Uri &targetParentUri, Uri &newFileUri)
+{
+    int ret = -1;
+    auto extension = GetOwner();
+    if (extension == nullptr) {
+        HILOG_ERROR("%{public}s end failed.", __func__);
+        return ret;
+    }
+    ret = extension->Move(sourceFileUri, targetParentUri, newFileUri);
+    HILOG_INFO("%{public}s end successfully, return ret:%{public}d, %{public}s",
+        __func__, ret, newFileUri.ToString().c_str());
+    return ret;
+}
+
 int FileExtStubImpl::Rename(const Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri)
 {
     HILOG_INFO("%{public}s begin.", __func__);
