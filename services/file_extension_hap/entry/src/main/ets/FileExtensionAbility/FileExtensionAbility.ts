@@ -108,15 +108,15 @@ export default class FileExtAbility extends Extension {
                     } catch (e) {
                         hilog.debug(0x0001, 'jsserver', 'listDir dir.readSync catch' + e);
                         hasNextFile = false;
-                        cb(path);
+                        cb(path, true);
                     }
                 }
             } else {
-                cb(path);
+                cb(path, false);
             }
         } catch (e) {
             hilog.debug(0x0001, 'jsserver', 'listDir catch ' + e + ' ' + path);
-            cb(path);
+            cb(path, true);
         }
     }
 
@@ -170,9 +170,13 @@ export default class FileExtAbility extends Extension {
     delete(selectFileUri) {
         let path = this.getPath(selectFileUri);
         let code = 0;
-        this.listDir(path, function (filePath) {
+        this.listDir(path, function (filePath, isDirectory) {
             try {
-                fileio.unlinkSync(filePath);
+                if (isDirectory) {
+                    fileio.rmdirSync(filePath);
+                } else {
+                    fileio.unlinkSync(filePath);
+                }
             } catch (e) {
                 hilog.debug(0x0001, 'jsserver', 'delete catch' + e);
                 code = -1;
