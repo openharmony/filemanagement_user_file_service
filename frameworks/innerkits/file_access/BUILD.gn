@@ -75,7 +75,6 @@ ohos_shared_library("file_extension_ability_kit") {
     "access_token:libaccesstoken_sdk",
     "ipc:ipc_core",
     "ipc_js:rpc",
-    "permission_standard:libpermissionsdk_standard",
     "utils_base:utils",
   ]
 
