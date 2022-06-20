@@ -200,13 +200,13 @@ ErrCode FileExtStub::CmdMove(MessageParcel &data, MessageParcel &reply)
         HILOG_ERROR("%{public}s targetParentUri is nullptr", __func__);
         return ERR_INVALID_VALUE;
     }
-    std::shared_ptr<Uri> newFileUri(data.ReadParcelable<Uri>());
-    if (newFileUri == nullptr) {
-        HILOG_ERROR("%{public}s newFileUri is nullptr", __func__);
+    std::shared_ptr<Uri> fileUriNew(data.ReadParcelable<Uri>());
+    if (fileUriNew == nullptr) {
+        HILOG_ERROR("%{public}s fileUriNew is nullptr", __func__);
         return ERR_INVALID_VALUE;
     }
 
-    int ret = Move(*sourceFileUri, *targetParentUri, *newFileUri);
+    int ret = Move(*sourceFileUri, *targetParentUri, *fileUriNew);
     if (ret < 0) {
         HILOG_ERROR("%{public}s fail, ret is %{pubilc}d", __func__, ret);
         return ERR_INVALID_VALUE;
@@ -217,12 +217,12 @@ ErrCode FileExtStub::CmdMove(MessageParcel &data, MessageParcel &reply)
         return ERR_INVALID_VALUE;
     }
 
-    if (!reply.WriteParcelable(&(*newFileUri))) {
+    if (!reply.WriteParcelable(&(*fileUriNew))) {
         HILOG_ERROR("%{public}s fail to WriteParcelable type", __func__);
         return ERR_INVALID_VALUE;
     }
 
-    HILOG_INFO("%{public}s end. ret:%d, newFileUri = %{public}s", __func__, ret, newFileUri->ToString().c_str());
+    HILOG_INFO("%{public}s end. ret:%d, newFileUri = %{public}s", __func__, ret, fileUriNew->ToString().c_str());
     return NO_ERROR;
 }
 

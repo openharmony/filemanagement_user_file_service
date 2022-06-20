@@ -94,7 +94,7 @@ int FileExtStubImpl::Move(const Uri &sourceFileUri, const Uri &targetParentUri, 
     }
     ret = extension->Move(sourceFileUri, targetParentUri, newFileUri);
     HILOG_INFO("%{public}s end successfully, return ret:%{public}d, %{public}s",
-        __func__, ret,newFileUri.ToString().c_str());
+        __func__, ret, newFileUri.ToString().c_str());
     return ret;
 }
 
