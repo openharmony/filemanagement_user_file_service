@@ -25,6 +25,7 @@ FileExtStub::FileExtStub()
     stubFuncMap_[CMD_CREATE_FILE] = &FileExtStub::CmdCreateFile;
     stubFuncMap_[CMD_MKDIR] = &FileExtStub::CmdMkdir;
     stubFuncMap_[CMD_DELETE] = &FileExtStub::CmdDelete;
+    stubFuncMap_[CMD_MOVE] = &FileExtStub::CmdMove;
     stubFuncMap_[CMD_RENAME] = &FileExtStub::CmdRename;
     stubFuncMap_[CMD_LIST_FILE] = &FileExtStub::CmdListFile;
     stubFuncMap_[CMD_GET_ROOTS] = &FileExtStub::CmdGetRoots;
@@ -184,6 +185,44 @@ ErrCode FileExtStub::CmdDelete(MessageParcel &data, MessageParcel &reply)
         return ERR_INVALID_VALUE;
     }
     HILOG_INFO("%{public}s end.", __func__);
+    return NO_ERROR;
+}
+
+ErrCode FileExtStub::CmdMove(MessageParcel &data, MessageParcel &reply)
+{
+    std::shared_ptr<Uri> sourceFileUri(data.ReadParcelable<Uri>());
+    if (sourceFileUri == nullptr) {
+        HILOG_ERROR("%{public}s sourceFileUri is nullptr", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    std::shared_ptr<Uri> targetParentUri(data.ReadParcelable<Uri>());
+    if (targetParentUri == nullptr) {
+        HILOG_ERROR("%{public}s targetParentUri is nullptr", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    std::shared_ptr<Uri> newFileUri(data.ReadParcelable<Uri>());
+    if (newFileUri == nullptr) {
+        HILOG_ERROR("%{public}s newFileUri is nullptr", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    int ret = Move(*sourceFileUri, *targetParentUri, *newFileUri);
+    if (ret < 0) {
+        HILOG_ERROR("%{public}s fail, ret is %{pubilc}d", __func__, ret);
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("%{public}s fail to WriteInt32 ret", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteParcelable(&(*newFileUri))) {
+        HILOG_ERROR("%{public}s fail to WriteParcelable type", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    HILOG_INFO("%{public}s end. ret:%d, newFileUri = %{public}s", __func__, ret, newFileUri->ToString().c_str());
     return NO_ERROR;
 }
 
