@@ -14,5 +14,5 @@
 aafwk_inner_api_path =
     "//foundation/ability/ability_runtime/interfaces/inner_api"
 aafwk_kits_path = "//foundation/ability/ability_runtime/frameworks/kits"
-aafwk_path = "//foundation/ability/ability_runtime"
+ability_runtime_path = "//foundation/ability/ability_runtime"
 aafwk_services_path = "//foundation/ability/ability_runtime/services"
