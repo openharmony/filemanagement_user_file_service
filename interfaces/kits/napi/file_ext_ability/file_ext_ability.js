@@ -38,6 +38,11 @@ class FileExtensionAbility {
         return 0;
     }
 
+    move(sourceFileUri, targetParentUri) {
+        console.log('js c++ tag dsa move, sourceFileUri:' + sourceFileUri + ',targetParentUri:' + targetParentUri);
+        return "filetest://fileext.share/temp/test/move000.xl";
+    }
+    
     rename(sourceFileUri, displayName) {
         console.log('js c++ tag dsa rename, sourceFileUri:' + sourceFileUri + ',displayName:' + displayName);
         return "filetest://fileext.share/temp/test/rename000.ttt";

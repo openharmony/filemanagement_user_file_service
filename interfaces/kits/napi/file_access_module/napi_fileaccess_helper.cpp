@@ -135,6 +135,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("mkdir", NAPI_Mkdir),
         DECLARE_NAPI_FUNCTION("createFile", NAPI_CreateFile),
         DECLARE_NAPI_FUNCTION("delete", NAPI_Delete),
+        DECLARE_NAPI_FUNCTION("move", NAPI_Move),
         DECLARE_NAPI_FUNCTION("rename", NAPI_Rename),
         DECLARE_NAPI_FUNCTION("listFile", NAPI_ListFile),
         DECLARE_NAPI_FUNCTION("getRoots", NAPI_GetRoots),
@@ -934,6 +935,194 @@ void DeletePromiseCompleteCB(napi_env env, napi_status status, void *data)
     delete deleteCB;
     deleteCB = nullptr;
     HILOG_INFO("NAPI_Delete, %{public}s end.", __func__);
+}
+
+napi_value NAPI_Move(napi_env env, napi_callback_info info)
+{
+    HILOG_INFO("%{public}s,called", __func__);
+    FileAccessHelperMoveCB *moveCB = new (std::nothrow) FileAccessHelperMoveCB;
+    if (moveCB == nullptr) {
+        HILOG_ERROR("%{public}s, moveCB == nullptr.", __func__);
+        return WrapVoidToJS(env);
+    }
+    moveCB->cbBase.cbInfo.env = env;
+    moveCB->cbBase.asyncWork = nullptr;
+    moveCB->cbBase.deferred = nullptr;
+    moveCB->cbBase.ability = nullptr;
+
+    napi_value ret = MoveWrap(env, info, moveCB);
+    if (ret == nullptr) {
+        HILOG_ERROR("%{public}s,ret == nullptr", __func__);
+        if (moveCB != nullptr) {
+            delete moveCB;
+            moveCB = nullptr;
+        }
+        ret = WrapVoidToJS(env);
+    }
+    HILOG_INFO("%{public}s,end", __func__);
+    return ret;
+}
+
+napi_value MoveWrap(napi_env env, napi_callback_info info, FileAccessHelperMoveCB *moveCB)
+{
+    HILOG_INFO("%{public}s,called", __func__);
+    size_t argcAsync = ARGS_THREE;
+    const size_t argcPromise = ARGS_TWO;
+    const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
+    napi_value args[ARGS_MAX_COUNT] = {nullptr};
+    napi_value ret = 0;
+    napi_value thisVar = nullptr;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
+    if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
+        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        return nullptr;
+    }
+
+    napi_valuetype valuetype = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valuetype));
+    if (valuetype == napi_string) {
+        moveCB->sourceFileUri = NapiValueToStringUtf8(env, args[PARAM0]);
+        HILOG_INFO("%{public}s,sourceFileUri=%{public}s", __func__, moveCB->sourceFileUri.c_str());
+    }
+
+    NAPI_CALL(env, napi_typeof(env, args[PARAM1], &valuetype));
+    if (valuetype == napi_string) {
+        moveCB->targetParentUri = NapiValueToStringUtf8(env, args[PARAM1]);
+        HILOG_INFO("%{public}s,targetParentUri=%{public}s", __func__, moveCB->targetParentUri.c_str());
+    }
+
+    FileAccessHelper *objectInfo = nullptr;
+    napi_unwrap(env, thisVar, (void **)&objectInfo);
+    HILOG_INFO("%{public}s,FileAccessHelper objectInfo", __func__);
+    moveCB->fileAccessHelper = objectInfo;
+
+    if (argcAsync > argcPromise) {
+        ret = MoveAsync(env, args, ARGS_TWO, moveCB);
+    } else {
+        ret = MovePromise(env, moveCB);
+    }
+    HILOG_INFO("%{public}s,end", __func__);
+    return ret;
+}
+
+napi_value MoveAsync(napi_env env, napi_value *args, const size_t argCallback, FileAccessHelperMoveCB *moveCB)
+{
+    HILOG_INFO("%{public}s, asyncCallback.", __func__);
+    if (args == nullptr || moveCB == nullptr) {
+        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        return nullptr;
+    }
+    napi_value resourceName = 0;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+
+    napi_valuetype valuetype = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[argCallback], &valuetype));
+    if (valuetype == napi_function) {
+        NAPI_CALL(env, napi_create_reference(env, args[argCallback], 1, &moveCB->cbBase.cbInfo.callback));
+    }
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            MoveExecuteCB,
+            MoveAsyncCompleteCB,
+            (void *)moveCB,
+            &moveCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, moveCB->cbBase.asyncWork));
+    napi_value result = 0;
+    NAPI_CALL(env, napi_get_null(env, &result));
+    HILOG_INFO("%{public}s, asyncCallback end.", __func__);
+    return result;
+}
+
+napi_value MovePromise(napi_env env, FileAccessHelperMoveCB *moveCB)
+{
+    HILOG_INFO("%{public}s, promise.", __func__);
+    if (moveCB == nullptr) {
+        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        return nullptr;
+    }
+    napi_value resourceName;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+    napi_deferred deferred;
+    napi_value promise = 0;
+    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    moveCB->cbBase.deferred = deferred;
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            MoveExecuteCB,
+            MovePromiseCompleteCB,
+            (void *)moveCB,
+            &moveCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, moveCB->cbBase.asyncWork));
+    HILOG_INFO("%{public}s, promise end.", __func__);
+    return promise;
+}
+
+void MoveExecuteCB(napi_env env, void *data)
+{
+    HILOG_INFO("NAPI_Move, worker pool thread execute.");
+    FileAccessHelperMoveCB *moveCB = static_cast<FileAccessHelperMoveCB *>(data);
+    if (moveCB->fileAccessHelper != nullptr) {
+        moveCB->execResult = -1;
+        if (!moveCB->sourceFileUri.empty()) {
+            OHOS::Uri sourceFileUri(moveCB->sourceFileUri);
+            OHOS::Uri targetParentUri(moveCB->targetParentUri);
+            std::string newFile = "";
+            OHOS::Uri newFileUri(newFile);
+            int err = moveCB->fileAccessHelper->Move(sourceFileUri, targetParentUri, newFileUri);
+            moveCB->result = newFileUri.ToString();
+            moveCB->execResult = err;
+        } else {
+            HILOG_ERROR("NAPI_Move, fileAccessHelper sourceFileUri is empty");
+        }
+    } else {
+        HILOG_ERROR("NAPI_Move, fileAccessHelper == nullptr");
+    }
+    HILOG_INFO("NAPI_Move, worker pool thread execute end.");
+}
+
+void MoveAsyncCompleteCB(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("NAPI_Move, main event thread complete.");
+    FileAccessHelperMoveCB *moveCB = static_cast<FileAccessHelperMoveCB *>(data);
+    napi_value callback = nullptr;
+    napi_value undefined = nullptr;
+    napi_value result[ARGS_TWO] = {nullptr};
+    napi_value callResult = nullptr;
+    NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
+    NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, moveCB->cbBase.cbInfo.callback, &callback));
+
+    result[PARAM0] = GetCallbackErrorValue(env, moveCB->execResult);
+    NAPI_CALL_RETURN_VOID(
+        env, napi_create_string_utf8(env, moveCB->result.c_str(), NAPI_AUTO_LENGTH, &result[PARAM1]));
+    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+
+    if (moveCB->cbBase.cbInfo.callback != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, moveCB->cbBase.cbInfo.callback));
+    }
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, moveCB->cbBase.asyncWork));
+    delete moveCB;
+    moveCB = nullptr;
+    HILOG_INFO("NAPI_Move, main event thread complete end.");
+}
+
+void MovePromiseCompleteCB(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("NAPI_Move,  main event thread complete.");
+    FileAccessHelperMoveCB *moveCB = static_cast<FileAccessHelperMoveCB *>(data);
+    napi_value result = nullptr;
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, moveCB->result.c_str(), NAPI_AUTO_LENGTH, &result));
+    NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, moveCB->cbBase.deferred, result));
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, moveCB->cbBase.asyncWork));
+    delete moveCB;
+    moveCB = nullptr;
+    HILOG_INFO("NAPI_Move,  main event thread complete end.");
 }
 
 napi_value NAPI_Rename(napi_env env, napi_callback_info info)

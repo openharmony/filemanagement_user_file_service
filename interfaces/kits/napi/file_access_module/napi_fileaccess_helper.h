@@ -66,6 +66,17 @@ namespace FileAccessFwk {
     void DeleteAsyncCompleteCB(napi_env env, napi_status status, void *data);
     void DeletePromiseCompleteCB(napi_env env, napi_status status, void *data);
 
+    napi_value NAPI_Move(napi_env env, napi_callback_info info);
+    napi_value MoveWrap(napi_env env, napi_callback_info info, FileAccessHelperMoveCB *moveCB);
+    napi_value MoveAsync(napi_env env,
+                         napi_value *args,
+                         const size_t argCallback,
+                         FileAccessHelperMoveCB *moveCB);
+    napi_value MovePromise(napi_env env, FileAccessHelperMoveCB *moveCB);
+    void MoveExecuteCB(napi_env env, void *data);
+    void MoveAsyncCompleteCB(napi_env env, napi_status status, void *data);
+    void MovePromiseCompleteCB(napi_env env, napi_status status, void *data);
+    
     napi_value NAPI_Rename(napi_env env, napi_callback_info info);
     napi_value RenameWrap(napi_env env, napi_callback_info info, FileAccessHelperRenameCB *renameCB);
     napi_value RenameAsync(napi_env env,

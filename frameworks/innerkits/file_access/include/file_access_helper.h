@@ -46,6 +46,7 @@ public:
     int CreateFile(Uri &parentUri, const std::string &displayName, Uri &newFileUri);
     int Mkdir(Uri &parentUri, const std::string &displayName, Uri &newDirUri);
     int Delete(Uri &selectFileUri);
+    int Move(Uri &sourceFileUri, Uri &targetParentUri, Uri &newFileUri);
     int Rename(Uri &sourceFileUri, const std::string &displayName, Uri &newFileUri);
 
     std::vector<FileInfo> ListFile(Uri &sourceFileUri);
