@@ -126,7 +126,7 @@ NativeValue* JsFileExtAbility::CallObjectMethod(const char* name, NativeValue* c
 
 void JsFileExtAbility::GetSrcPath(std::string &srcPath)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_INFO("JsFileExtAbility %{public}s .", __func__);
     if (!Extension::abilityInfo_->isStageBasedModel) {
         /* temporary compatibility api8 + config.json */
         srcPath.append(Extension::abilityInfo_->package);

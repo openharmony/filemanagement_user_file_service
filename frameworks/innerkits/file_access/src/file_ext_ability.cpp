@@ -51,7 +51,7 @@ FileExtAbility* FileExtAbility::Create(const std::unique_ptr<Runtime>& runtime)
             HILOG_INFO("%{public}s default --> FileExtAbility", __func__);
             return new FileExtAbility();
     }
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_INFO("%{public}s end.", __func__);
 }
 
 void FileExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &record,

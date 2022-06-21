@@ -23,13 +23,13 @@ FileExtAbilityModuleLoader::~FileExtAbilityModuleLoader() = default;
 
 Extension *FileExtAbilityModuleLoader::Create(const std::unique_ptr<Runtime>& runtime) const
 {
-    HILOG_INFO("tag dsa %{public}s begin.", __func__);
+    HILOG_INFO("FileExtAbilityModuleLoader %{public}s.", __func__);
     return FileExtAbility::Create(runtime);
 }
 
 extern "C" __attribute__((visibility("default"))) void* OHOS_EXTENSION_GetExtensionModule()
 {
-    HILOG_INFO("tag dsa %{public}s begin.", __func__);
+    HILOG_INFO("FileExtAbilityModuleLoader %{public}s .", __func__);
     return &FileExtAbilityModuleLoader::GetInstance();
 }
 
