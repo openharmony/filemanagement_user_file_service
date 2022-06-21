@@ -75,6 +75,15 @@ struct FileAccessHelperDeleteCB {
     int execResult;
 };
 
+struct FileAccessHelperMoveCB {
+    CBBase cbBase;
+    FileAccessHelper *fileAccessHelper = nullptr;
+    std::string sourceFileUri;
+    std::string targetParentUri;
+    std::string result;
+    int execResult;
+};
+
 struct FileAccessHelperRenameCB {
     CBBase cbBase;
     FileAccessHelper *fileAccessHelper = nullptr;
