@@ -40,8 +40,7 @@ using OHOS::Security::AccessToken::AccessTokenKit;
 
 JsFileExtAbility* JsFileExtAbility::Create(const std::unique_ptr<Runtime>& runtime)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("%{public}s.", __func__);
     return new JsFileExtAbility(static_cast<JsRuntime&>(*runtime));
 }
 
@@ -83,7 +82,6 @@ void JsFileExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &record,
 
 void JsFileExtAbility::OnStart(const AAFwk::Want &want)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
     Extension::OnStart(want);
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
@@ -91,7 +89,6 @@ void JsFileExtAbility::OnStart(const AAFwk::Want &want)
     NativeValue* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
     NativeValue* argv[] = {nativeWant};
     CallObjectMethod("onCreate", argv, ARGC_ONE);
-    HILOG_INFO("%{public}s end.", __func__);
 }
 
 sptr<IRemoteObject> JsFileExtAbility::OnConnect(const AAFwk::Want &want)
@@ -104,10 +101,8 @@ sptr<IRemoteObject> JsFileExtAbility::OnConnect(const AAFwk::Want &want)
 
 NativeValue* JsFileExtAbility::CallObjectMethod(const char* name, NativeValue* const* argv, size_t argc)
 {
-    HILOG_INFO("%{public}s name = %{public}s, begin", __func__, name);
-
     if (!jsObj_) {
-        HILOG_WARN("%{public}s Not found FileExtAbility.js", __func__);
+        HILOG_WARN("JsFileExtAbility::CallObjectMethod jsObj Not found FileExtAbility.js");
         return nullptr;
     }
 
@@ -126,7 +121,6 @@ NativeValue* JsFileExtAbility::CallObjectMethod(const char* name, NativeValue* c
         HILOG_ERROR("%{public}s Failed to get '%{public}s' from FileExtAbility object", __func__, name);
         return nullptr;
     }
-    HILOG_INFO("%{public}s, name = %{public}s, success", __func__, name);
     return handleScope.Escape(nativeEngine.CallFunction(value, method, argv, argc));
 }
 
@@ -141,7 +135,6 @@ void JsFileExtAbility::GetSrcPath(std::string &srcPath)
             srcPath.append(Extension::abilityInfo_->srcPath);
         }
         srcPath.append("/").append(Extension::abilityInfo_->name).append(".abc");
-        HILOG_INFO("%{public}s end1, srcPath:%{public}s", __func__, srcPath.c_str());
         return;
     }
 
@@ -151,7 +144,6 @@ void JsFileExtAbility::GetSrcPath(std::string &srcPath)
         srcPath.erase(srcPath.rfind('.'));
         srcPath.append(".abc");
     }
-    HILOG_INFO("%{public}s end2, srcPath:%{public}s", __func__, srcPath.c_str());
 }
 } // namespace FileAccessFwk
 } // namespace OHOS
