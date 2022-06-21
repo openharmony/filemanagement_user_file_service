@@ -258,15 +258,12 @@ int FileAccessHelper::Delete(Uri &selectFileUri)
 int FileAccessHelper::Move(Uri &sourceFileUri, Uri &targetParentUri, Uri &newFileUri)
 {
     HILOG_INFO("FileAccessHelper::Move start.");
-
     int index = -1;
 
-    HILOG_INFO("FileAccessHelper::Move before ConnectFileExtAbility.");
     if (!fileExtConnection_->IsExtAbilityConnected()) {
         fileExtConnection_->ConnectFileExtAbility(want_, token_);
     }
     fileExtProxy_ = fileExtConnection_->GetFileExtProxy();
-    HILOG_INFO("FileAccessHelper::Move after ConnectFileExtAbility.");
     if (isSystemCaller_ && fileExtProxy_) {
         AddFileAccessDeathRecipient(fileExtProxy_->AsObject());
     }
@@ -276,7 +273,6 @@ int FileAccessHelper::Move(Uri &sourceFileUri, Uri &targetParentUri, Uri &newFil
         return index;
     }
 
-    HILOG_INFO("FileAccessHelper::Move before fileExtProxy_->Move.");
     index = fileExtProxy_->Move(sourceFileUri, targetParentUri, newFileUri);
     return index;
 }
