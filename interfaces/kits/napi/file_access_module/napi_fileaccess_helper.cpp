@@ -1091,7 +1091,7 @@ void MoveAsyncCompleteCB(napi_env env, napi_status status, void *data)
 {
     HILOG_INFO("NAPI_Move, main event thread complete.");
     FileAccessHelperMoveCB *moveCB = static_cast<FileAccessHelperMoveCB *>(data);
-    if(moveCB == nullptr) {
+    if( moveCB == nullptr ) {
         return ;
     }
     napi_value callback = nullptr;
