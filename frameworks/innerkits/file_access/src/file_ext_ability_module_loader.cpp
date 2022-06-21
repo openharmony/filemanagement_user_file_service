@@ -37,5 +37,13 @@ extern "C" __attribute__((visibility("default"))) void SetCreator(const CreatorF
 {
     return FileExtAbility::SetCreator(creator);
 }
+
+std::map<std::string, std::string> FileExtAbilityModuleLoader::GetParams()
+{
+    std::map<std::string, std::string> params;
+    params.insert(std::pair<std::string, std::string>("type", "11"));
+    params.insert(std::pair<std::string, std::string>("name", "FileExtAbility"));
+    return params;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

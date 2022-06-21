@@ -26,6 +26,7 @@ class FileExtAbilityModuleLoader : public ExtensionModuleLoader,
 
 public:
     virtual Extension *Create(const std::unique_ptr<Runtime>& runtime) const override;
+    virtual std::map<std::string, std::string> GetParams() override;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
