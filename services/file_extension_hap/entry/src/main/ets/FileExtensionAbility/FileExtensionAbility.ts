@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 import Extension from '@ohos.application.FileExtensionAbility'
-import uriClass from '@ohos.uri'
 import fileio from '@ohos.fileio'
 import hilog from '@ohos.hilog'
 import { init, addVolumeInfo, delVolumeInfo, path2uri, getVolumeInfoList } from './VolumeManager'
@@ -48,8 +47,15 @@ export default class FileExtAbility extends Extension {
     }
 
     getPath(uri) {
-        let uriObj = new uriClass.URI(uri);
-        let path = uriObj.path;
+        let sep = '://';
+        let arr = uri.split(sep);
+        if (arr.length < 2) {
+            return uri;
+        }
+        let path = uri.replace(arr[0] + sep, '');
+        if (arr[1].indexOf('/') > 0) {
+            path = path.replace(arr[1].split('/')[0], '');
+        }
         return path;
     }
 
@@ -108,15 +114,15 @@ export default class FileExtAbility extends Extension {
                     } catch (e) {
                         hilog.debug(0x0001, 'jsserver', 'listDir dir.readSync catch' + e);
                         hasNextFile = false;
-                        cb(path);
+                        cb(path, true);
                     }
                 }
             } else {
-                cb(path);
+                cb(path, false);
             }
         } catch (e) {
             hilog.debug(0x0001, 'jsserver', 'listDir catch ' + e + ' ' + path);
-            cb(path);
+            cb(path, true);
         }
     }
 
@@ -170,9 +176,13 @@ export default class FileExtAbility extends Extension {
     delete(selectFileUri) {
         let path = this.getPath(selectFileUri);
         let code = 0;
-        this.listDir(path, function (filePath) {
+        this.listDir(path, function (filePath, isDirectory) {
             try {
-                fileio.unlinkSync(filePath);
+                if (isDirectory) {
+                    fileio.rmdirSync(filePath);
+                } else {
+                    fileio.unlinkSync(filePath);
+                }
             } catch (e) {
                 hilog.debug(0x0001, 'jsserver', 'delete catch' + e);
                 code = -1;
