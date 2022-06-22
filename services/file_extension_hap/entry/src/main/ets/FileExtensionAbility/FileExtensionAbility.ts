@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 import Extension from '@ohos.application.FileExtensionAbility'
-import uriClass from '@ohos.uri'
 import fileio from '@ohos.fileio'
 import hilog from '@ohos.hilog'
 import { init, addVolumeInfo, delVolumeInfo, path2uri, getVolumeInfoList } from './VolumeManager'
@@ -48,8 +47,15 @@ export default class FileExtAbility extends Extension {
     }
 
     getPath(uri) {
-        let uriObj = new uriClass.URI(uri);
-        let path = uriObj.path;
+        let sep = '://';
+        let arr = uri.split(sep);
+        if (arr.length < 2) {
+            return uri;
+        }
+        let path = uri.replace(arr[0] + sep, '');
+        if (arr[1].indexOf('/') > 0) {
+            path = path.replace(arr[1].split('/')[0], '');
+        }
         return path;
     }
 
