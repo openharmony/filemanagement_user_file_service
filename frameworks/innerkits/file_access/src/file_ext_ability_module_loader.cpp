@@ -42,7 +42,7 @@ std::map<std::string, std::string> FileExtAbilityModuleLoader::GetParams()
 {
     std::map<std::string, std::string> params;
     params.insert(std::pair<std::string, std::string>("type", "11"));
-    params.insert(std::pair<std::string, std::string>("name", "FileExtAbility"));
+    params.insert(std::pair<std::string, std::string>("name", "FileAccessExtension"));
     return params;
 }
 } // namespace FileAccessFwk
