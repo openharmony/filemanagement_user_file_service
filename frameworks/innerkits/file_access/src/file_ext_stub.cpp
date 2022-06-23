@@ -45,7 +45,7 @@ int FileExtStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParc
 {
     HILOG_INFO("%{public}s Received stub message: %{public}d", __func__, code);
     std::string permission = "ohos.permission.FILE_ACCESS_MANAGER";
-    if(!CheckCallingPermission(permission)) {
+    if (!CheckCallingPermission(permission)) {
         HILOG_ERROR("FileExtStub::%{public}s  permission error", __func__);
         return ERR_UNKNOWN_REASON;
     }
