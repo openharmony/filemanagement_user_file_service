@@ -53,11 +53,26 @@ public:
     std::vector<FileInfo> ListFile(const Uri &sourceFileUri) override;
     std::vector<DeviceInfo> GetRoots() override;
 private:
+    struct ThreadLockInfo {
+        std::mutex mutex;
+        std::condition_variable condition;
+        bool ready = false;
+    };
+    struct CallbackParam {
+        ThreadLockInfo *lockInfo;
+        JsRuntime& jsRuntime;
+        std::shared_ptr<NativeReference> jsObj;
+        const char* name;
+        NativeValue* const* argv;
+        size_t argc;
+        NativeValue* result;
+    };
+    NativeValue* AsnycCallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
     NativeValue* CallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
     void GetSrcPath(std::string &srcPath);
 
     JsRuntime& jsRuntime_;
-    std::unique_ptr<NativeReference> jsObj_;
+    std::shared_ptr<NativeReference> jsObj_;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

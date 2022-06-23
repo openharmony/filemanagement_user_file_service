@@ -141,6 +141,63 @@ NativeValue* JsFileExtAbility::CallObjectMethod(const char* name, NativeValue* c
     return handleScope.Escape(nativeEngine.CallFunction(value, method, argv, argc));
 }
 
+NativeValue* JsFileExtAbility::AsnycCallObjectMethod(const char* name, NativeValue* const* argv, size_t argc)
+{
+    std::shared_ptr<struct ThreadLockInfo> lockInfo = std::make_shared<struct ThreadLockInfo>();
+    CallbackParam *param = new(std::nothrow) CallbackParam {
+        .lockInfo = lockInfo.get(),
+        .jsRuntime = jsRuntime_,
+        .jsObj = jsObj_,
+        .name = name,
+        .argv = argv,
+        .argc = argc,
+        .result = nullptr
+    };
+    if (param == nullptr) {
+        HILOG_ERROR("failed to new param");
+        return nullptr;
+    }
+    uv_loop_s *loop = nullptr;
+    napi_get_uv_event_loop(reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine()), &loop);
+    uv_work_t *work = new(std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        HILOG_ERROR("failed to new uv_work_t");
+        delete param;
+        return nullptr;
+    }
+    work->data = reinterpret_cast<void *>(param);
+    uv_queue_work(loop, work, [](uv_work_t *work) {}, [](uv_work_t *work, int status) {
+        CallbackParam *param = reinterpret_cast<CallbackParam *>(work->data);
+        do {
+            if (!param->jsObj) {
+                HILOG_ERROR("Not found js file object");
+                break;
+            }
+            HandleScope handleScope(param->jsRuntime);
+            NativeValue* value = param->jsObj->Get();
+            NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+            if (obj == nullptr) {
+                HILOG_ERROR("%{public}s Failed to get FileExtAbility object", __func__);
+                break;
+            }
+            NativeValue* method = obj->GetProperty(param->name);
+            if (method == nullptr) {
+                HILOG_ERROR("%{public}s Failed to get '%{public}s' from FileExtAbility object", __func__, param->name);
+                break;
+            }
+            auto& nativeEngine = param->jsRuntime.GetNativeEngine();
+            param->result = handleScope.Escape(nativeEngine.CallFunction(value, method, param->argv, param->argc));
+        } while(false);
+
+        std::unique_lock<std::mutex> lock(param->lockInfo->mutex);
+        param->lockInfo->ready = true;
+        param->lockInfo->condition.notify_all();
+    });
+    std::unique_lock<std::mutex> lock(param->lockInfo->mutex);
+    param->lockInfo->condition.wait(lock, [&param] { return param->lockInfo->ready; });
+    return param->result;
+}
+
 void JsFileExtAbility::GetSrcPath(std::string &srcPath)
 {
     HILOG_INFO("%{public}s begin.", __func__);
@@ -179,7 +236,7 @@ int JsFileExtAbility::OpenFile(const Uri &uri, int flags)
     NativeValue* nativeUri = reinterpret_cast<NativeValue*>(napiUri);
     NativeValue* nativeFlags = reinterpret_cast<NativeValue*>(napiFlags);
     NativeValue* argv[] = {nativeUri, nativeFlags};
-    NativeValue* nativeResult = CallObjectMethod("openFile", argv, ARGC_TWO);
+    NativeValue* nativeResult = AsnycCallObjectMethod("openFile", argv, ARGC_TWO);
     int ret = -1;
     if (nativeResult == nullptr) {
         HILOG_ERROR("%{public}s call openFile with return null.", __func__);
@@ -204,7 +261,7 @@ int JsFileExtAbility::CreateFile(const Uri &parentUri, const std::string &displa
     NativeValue* nativeParentUri = reinterpret_cast<NativeValue*>(napiParentUri);
     NativeValue* nativeDisplayName = reinterpret_cast<NativeValue*>(napiDisplayName);
     NativeValue* argv[] = {nativeParentUri, nativeDisplayName};
-    NativeValue* nativeResult = CallObjectMethod("createFile", argv, ARGC_TWO);
+    NativeValue* nativeResult = AsnycCallObjectMethod("createFile", argv, ARGC_TWO);
     int ret = -1;
     if (nativeResult == nullptr) {
         HILOG_ERROR("%{public}s call createFile with return null.", __func__);
@@ -236,7 +293,7 @@ int JsFileExtAbility::Mkdir(const Uri &parentUri, const std::string &displayName
     NativeValue* nativeParentUri = reinterpret_cast<NativeValue*>(napiParentUri);
     NativeValue* nativeDisplayName = reinterpret_cast<NativeValue*>(napiDisplayName);
     NativeValue* argv[] = {nativeParentUri, nativeDisplayName};
-    NativeValue* nativeResult = CallObjectMethod("mkdir", argv, ARGC_TWO);
+    NativeValue* nativeResult = AsnycCallObjectMethod("mkdir", argv, ARGC_TWO);
     int ret = -1;
     if (nativeResult == nullptr) {
         HILOG_ERROR("%{public}s call Mkdir with return null.", __func__);
@@ -265,7 +322,7 @@ int JsFileExtAbility::Delete(const Uri &sourceFileUri)
 
     NativeValue* nativeUri = reinterpret_cast<NativeValue*>(napiUri);
     NativeValue* argv[] = {nativeUri};
-    NativeValue* nativeResult = CallObjectMethod("delete", argv, ARGC_ONE);
+    NativeValue* nativeResult = AsnycCallObjectMethod("delete", argv, ARGC_ONE);
     int ret = -1;
     if (nativeResult == nullptr) {
         HILOG_ERROR("%{public}s call delete with return null.", __func__);
@@ -289,7 +346,7 @@ int JsFileExtAbility::Move(const Uri &sourceFileUri, const Uri &targetParentUri,
     NativeValue* nativeSourceFileUri = reinterpret_cast<NativeValue*>(napiSourceFileUri);
     NativeValue* nativeTargetParentUri = reinterpret_cast<NativeValue*>(napiTargetParentUri);
     NativeValue* argv[] = {nativeSourceFileUri, nativeTargetParentUri};
-    NativeValue* nativeResult = CallObjectMethod("move", argv, ARGC_TWO);
+    NativeValue* nativeResult = AsnycCallObjectMethod("move", argv, ARGC_TWO);
     int ret = -1;
     if (nativeResult == nullptr) {
         HILOG_ERROR("%{public}s call move with return null.", __func__);
@@ -321,7 +378,7 @@ int JsFileExtAbility::Rename(const Uri &sourceFileUri, const std::string &displa
     NativeValue* nativeSourceFileUri = reinterpret_cast<NativeValue*>(napiSourceFileUri);
     NativeValue* nativeDisplayName = reinterpret_cast<NativeValue*>(napiDisplayName);
     NativeValue* argv[] = {nativeSourceFileUri, nativeDisplayName};
-    NativeValue* nativeResult = CallObjectMethod("rename", argv, ARGC_TWO);
+    NativeValue* nativeResult = AsnycCallObjectMethod("rename", argv, ARGC_TWO);
     int ret = -1;
     if (nativeResult == nullptr) {
         HILOG_ERROR("%{public}s call rename with return null.", __func__);
@@ -351,7 +408,7 @@ std::vector<FileInfo> JsFileExtAbility::ListFile(const Uri &sourceFileUri)
 
     NativeValue* nativeUri = reinterpret_cast<NativeValue*>(napiUri);
     NativeValue* argv[] = {nativeUri};
-    NativeValue* nativeResult = CallObjectMethod("listFile", argv, ARGC_ONE);
+    NativeValue* nativeResult = AsnycCallObjectMethod("listFile", argv, ARGC_ONE);
     if (nativeResult == nullptr) {
         HILOG_ERROR("%{public}s call listFile with return null.", __func__);
         return vec;
@@ -373,7 +430,7 @@ std::vector<DeviceInfo> JsFileExtAbility::GetRoots()
 
     std::vector<DeviceInfo> vec;
     NativeValue* argv[] = {};
-    NativeValue* nativeResult = CallObjectMethod("getRoots", argv, ARGC_ZERO);
+    NativeValue* nativeResult = AsnycCallObjectMethod("getRoots", argv, ARGC_ZERO);
     if (nativeResult == nullptr) {
         HILOG_ERROR("%{public}s call getRoots with return null.", __func__);
         return vec;
