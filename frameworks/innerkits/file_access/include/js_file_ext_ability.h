@@ -39,7 +39,7 @@ struct CallbackParam {
     JsRuntime& jsRuntime;
     std::shared_ptr<NativeReference> jsObj;
     const char *name;
-    NativeValue* const *argv;
+    NativeValue * const *argv;
     size_t argc;
     NativeValue *result;
 };
@@ -70,8 +70,8 @@ public:
     std::vector<FileInfo> ListFile(const Uri &sourceFileUri) override;
     std::vector<DeviceInfo> GetRoots() override;
 private:
-    NativeValue* AsnycCallObjectMethod(const char *name, NativeValue* const *argv = nullptr, size_t argc = 0);
-    NativeValue* CallObjectMethod(const char *name, NativeValue* const *argv = nullptr, size_t argc = 0);
+    NativeValue* AsnycCallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
+    NativeValue* CallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
     void GetSrcPath(std::string &srcPath);
 
     JsRuntime &jsRuntime_;
