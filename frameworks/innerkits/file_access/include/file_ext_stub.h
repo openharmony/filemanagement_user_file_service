@@ -40,6 +40,8 @@ private:
     ErrCode CmdListFile(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdGetRoots(MessageParcel &data, MessageParcel &reply);
 
+    bool CheckCallingPermission(const std::string &permission);
+
     using RequestFuncType = int (FileExtStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, RequestFuncType> stubFuncMap_;
 };
