@@ -24,19 +24,19 @@ class Runtime;
 }
 namespace FileAccessFwk {
 using namespace AbilityRuntime;
-class FileExtAbility;
-using CreatorFunc = std::function<FileExtAbility* (const std::unique_ptr<Runtime>& runtime)>;
-class FileExtAbility : public ExtensionBase<> {
+class FileAccessExtAbility;
+using CreatorFunc = std::function<FileAccessExtAbility* (const std::unique_ptr<Runtime>& runtime)>;
+class FileAccessExtAbility : public ExtensionBase<> {
 public:
-    FileExtAbility() = default;
-    virtual ~FileExtAbility() = default;
+    FileAccessExtAbility() = default;
+    virtual ~FileAccessExtAbility() = default;
 
     virtual void Init(const std::shared_ptr<AbilityLocalRecord> &record,
         const std::shared_ptr<OHOSApplication> &application,
         std::shared_ptr<AbilityHandler> &handler,
         const sptr<IRemoteObject> &token) override;
 
-    static FileExtAbility* Create(const std::unique_ptr<Runtime>& runtime);
+    static FileAccessExtAbility* Create(const std::unique_ptr<Runtime>& runtime);
     static void SetCreator(const CreatorFunc& creator);
 private:
     static CreatorFunc creator_;

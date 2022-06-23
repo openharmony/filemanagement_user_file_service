@@ -13,30 +13,30 @@
  * limitations under the License.
  */
 
-#include "file_ext_ability.h"
+#include "file_access_ext_ability.h"
 
 #include "ability_loader.h"
 #include "connection_manager.h"
 #include "extension_context.h"
 #include "hilog_wrapper.h"
-#include "js_file_ext_ability.h"
+#include "js_file_access_ext_ability.h"
 #include "runtime.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
 using namespace OHOS::AppExecFwk;
 
-CreatorFunc FileExtAbility::creator_ = nullptr;
-void FileExtAbility::SetCreator(const CreatorFunc& creator)
+CreatorFunc FileAccessExtAbility::creator_ = nullptr;
+void FileAccessExtAbility::SetCreator(const CreatorFunc& creator)
 {
     creator_ = creator;
 }
 
-FileExtAbility* FileExtAbility::Create(const std::unique_ptr<Runtime>& runtime)
+FileAccessExtAbility* FileAccessExtAbility::Create(const std::unique_ptr<Runtime>& runtime)
 {
     HILOG_INFO("%{public}s begin.", __func__);
     if (!runtime) {
-        return new FileExtAbility();
+        return new FileAccessExtAbility();
     }
     if (creator_) {
         return creator_(runtime);
@@ -44,17 +44,17 @@ FileExtAbility* FileExtAbility::Create(const std::unique_ptr<Runtime>& runtime)
     HILOG_INFO("%{public}s runtime", __func__);
     switch (runtime->GetLanguage()) {
         case Runtime::Language::JS:
-            HILOG_INFO("%{public}s Runtime::Language::JS --> JsFileExtAbility", __func__);
-            return JsFileExtAbility::Create(runtime);
+            HILOG_INFO("%{public}s Runtime::Language::JS --> JsFileAccessExtAbility", __func__);
+            return JsFileAccessExtAbility::Create(runtime);
 
         default:
-            HILOG_INFO("%{public}s default --> FileExtAbility", __func__);
-            return new FileExtAbility();
+            HILOG_INFO("%{public}s default --> FileAccessExtAbility", __func__);
+            return new FileAccessExtAbility();
     }
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-void FileExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &record,
+void FileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const std::shared_ptr<OHOSApplication> &application,
     std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)

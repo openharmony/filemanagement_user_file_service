@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-class FileExtensionAbility {
+class FileAccessExtensionAbility {
     onCreate(want) {
     }
 }
 
-export default FileExtensionAbility
+export default FileAccessExtensionAbility

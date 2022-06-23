@@ -20,9 +20,9 @@
 namespace OHOS {
 namespace FileAccessFwk {
 using namespace AbilityRuntime;
-class FileExtAbilityModuleLoader : public ExtensionModuleLoader,
-    public Singleton<FileExtAbilityModuleLoader> {
-    DECLARE_SINGLETON(FileExtAbilityModuleLoader);
+class FileAccessExtAbilityModuleLoader : public ExtensionModuleLoader,
+    public Singleton<FileAccessExtAbilityModuleLoader> {
+    DECLARE_SINGLETON(FileAccessExtAbilityModuleLoader);
 
 public:
     virtual Extension *Create(const std::unique_ptr<Runtime>& runtime) const override;

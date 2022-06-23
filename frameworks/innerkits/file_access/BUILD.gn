@@ -46,12 +46,12 @@ config("ability_public_config") {
   ]
 }
 
-ohos_shared_library("file_extension_ability_kit") {
+ohos_shared_library("file_access_extension_ability_kit") {
   include_dirs = []
 
   sources = [
-    "src/file_ext_ability.cpp",
-    "src/js_file_ext_ability.cpp",
+    "src/file_access_ext_ability.cpp",
+    "src/js_file_access_ext_ability.cpp",
   ]
   configs = [ ":ability_config" ]
   public_configs = [
@@ -87,14 +87,14 @@ ohos_shared_library("file_extension_ability_kit") {
   part_name = "user_file_service"
 }
 
-ohos_shared_library("file_extension_ability_module") {
-  sources = [ "src/file_ext_ability_module_loader.cpp" ]
+ohos_shared_library("file_access_extension_ability_module") {
+  sources = [ "src/file_access_ext_ability_module_loader.cpp" ]
 
   configs = [ ":ability_config" ]
   public_configs = [ ":ability_public_config" ]
 
   deps = [
-    ":file_extension_ability_kit",
+    ":file_access_extension_ability_kit",
     "${aafwk_kits_path}/ability/native:abilitykit_native",
   ]
 

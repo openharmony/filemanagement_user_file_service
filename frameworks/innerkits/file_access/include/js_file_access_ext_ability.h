@@ -16,7 +16,7 @@
 #ifndef JS_FILE_EXT_ABILITY_H
 #define JS_FILE_EXT_ABILITY_H
 
-#include "file_ext_ability.h"
+#include "file_access_ext_ability.h"
 
 #include "js_runtime.h"
 #include "native_engine/native_reference.h"
@@ -25,12 +25,12 @@
 namespace OHOS {
 namespace FileAccessFwk {
 using namespace AbilityRuntime;
-class JsFileExtAbility : public FileExtAbility {
+class JsFileAccessExtAbility : public FileAccessExtAbility {
 public:
-    JsFileExtAbility(JsRuntime& jsRuntime);
-    virtual ~JsFileExtAbility() override;
+    JsFileAccessExtAbility(JsRuntime& jsRuntime);
+    virtual ~JsFileAccessExtAbility() override;
 
-    static JsFileExtAbility* Create(const std::unique_ptr<Runtime>& runtime);
+    static JsFileAccessExtAbility* Create(const std::unique_ptr<Runtime>& runtime);
 
     void Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &record,
         const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
@@ -46,7 +46,7 @@ private:
     void GetSrcPath(std::string &srcPath);
 
     JsRuntime& jsRuntime_;
-    std::unique_ptr<NativeReference> jsObj_;
+    std::shared_ptr<NativeReference> jsObj_;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

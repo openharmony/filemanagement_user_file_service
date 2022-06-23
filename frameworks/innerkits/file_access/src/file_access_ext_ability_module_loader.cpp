@@ -13,32 +13,32 @@
  * limitations under the License.
  */
 
-#include "file_ext_ability_module_loader.h"
-#include "file_ext_ability.h"
+#include "file_access_ext_ability_module_loader.h"
+#include "file_access_ext_ability.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
-FileExtAbilityModuleLoader::FileExtAbilityModuleLoader() = default;
-FileExtAbilityModuleLoader::~FileExtAbilityModuleLoader() = default;
+FileAccessExtAbilityModuleLoader::FileAccessExtAbilityModuleLoader() = default;
+FileAccessExtAbilityModuleLoader::~FileAccessExtAbilityModuleLoader() = default;
 
-Extension *FileExtAbilityModuleLoader::Create(const std::unique_ptr<Runtime>& runtime) const
+Extension *FileAccessExtAbilityModuleLoader::Create(const std::unique_ptr<Runtime>& runtime) const
 {
-    HILOG_INFO("FileExtAbilityModuleLoader %{public}s.", __func__);
-    return FileExtAbility::Create(runtime);
+    HILOG_INFO("FileAccessExtAbilityModuleLoader %{public}s.", __func__);
+    return FileAccessExtAbility::Create(runtime);
 }
 
 extern "C" __attribute__((visibility("default"))) void* OHOS_EXTENSION_GetExtensionModule()
 {
-    HILOG_INFO("FileExtAbilityModuleLoader %{public}s .", __func__);
-    return &FileExtAbilityModuleLoader::GetInstance();
+    HILOG_INFO("FileAccessExtAbilityModuleLoader %{public}s .", __func__);
+    return &FileAccessExtAbilityModuleLoader::GetInstance();
 }
 
 extern "C" __attribute__((visibility("default"))) void SetCreator(const CreatorFunc& creator)
 {
-    return FileExtAbility::SetCreator(creator);
+    return FileAccessExtAbility::SetCreator(creator);
 }
 
-std::map<std::string, std::string> FileExtAbilityModuleLoader::GetParams()
+std::map<std::string, std::string> FileAccessExtAbilityModuleLoader::GetParams()
 {
     std::map<std::string, std::string> params;
     params.insert(std::pair<std::string, std::string>("type", "11"));
