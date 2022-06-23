@@ -141,6 +141,28 @@ NativeValue* JsFileExtAbility::CallObjectMethod(const char* name, NativeValue* c
     return handleScope.Escape(nativeEngine.CallFunction(value, method, argv, argc));
 }
 
+static void DoAsnycWork(CallbackParam *param)
+{
+    if (param == nullptr || param->jsObj == nullptr) {
+        HILOG_ERROR("Not found js file object");
+        return;
+    }
+    HandleScope handleScope(param->jsRuntime);
+    NativeValue* value = param->jsObj->Get();
+    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("%{public}s Failed to get FileExtAbility object", __func__);
+        return;
+    }
+    NativeValue* method = obj->GetProperty(param->name);
+    if (method == nullptr) {
+        HILOG_ERROR("%{public}s Failed to get '%{public}s' from FileExtAbility object", __func__, param->name);
+        return;
+    }
+    auto& nativeEngine = param->jsRuntime.GetNativeEngine();
+    param->result = handleScope.Escape(nativeEngine.CallFunction(value, method, param->argv, param->argc));
+}
+
 NativeValue* JsFileExtAbility::AsnycCallObjectMethod(const char* name, NativeValue* const* argv, size_t argc)
 {
     std::shared_ptr<struct ThreadLockInfo> lockInfo = std::make_shared<struct ThreadLockInfo>();
@@ -168,27 +190,7 @@ NativeValue* JsFileExtAbility::AsnycCallObjectMethod(const char* name, NativeVal
     work->data = reinterpret_cast<void *>(param);
     uv_queue_work(loop, work, [](uv_work_t *work) {}, [](uv_work_t *work, int status) {
         CallbackParam *param = reinterpret_cast<CallbackParam *>(work->data);
-        do {
-            if (!param->jsObj) {
-                HILOG_ERROR("Not found js file object");
-                break;
-            }
-            HandleScope handleScope(param->jsRuntime);
-            NativeValue* value = param->jsObj->Get();
-            NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
-            if (obj == nullptr) {
-                HILOG_ERROR("%{public}s Failed to get FileExtAbility object", __func__);
-                break;
-            }
-            NativeValue* method = obj->GetProperty(param->name);
-            if (method == nullptr) {
-                HILOG_ERROR("%{public}s Failed to get '%{public}s' from FileExtAbility object", __func__, param->name);
-                break;
-            }
-            auto& nativeEngine = param->jsRuntime.GetNativeEngine();
-            param->result = handleScope.Escape(nativeEngine.CallFunction(value, method, param->argv, param->argc));
-        } while(false);
-
+        DoAsnycWork(param);
         std::unique_lock<std::mutex> lock(param->lockInfo->mutex);
         param->lockInfo->ready = true;
         param->lockInfo->condition.notify_all();
