@@ -27,6 +27,23 @@
 namespace OHOS {
 namespace FileAccessFwk {
 using namespace AbilityRuntime;
+
+struct ThreadLockInfo {
+    std::mutex fileOperateMutex;
+    std::condition_variable fileOperateCondition;
+    bool isReady = false;
+};
+
+struct CallbackParam {
+    ThreadLockInfo *lockInfo;
+    JsRuntime &jsRuntime;
+    std::shared_ptr<NativeReference> jsObj;
+    const char *funcName;
+    NativeValue * const *argv;
+    size_t argc;
+    NativeValue *result;
+};
+
 class JsFileExtAbility : public FileExtAbility {
 public:
     JsFileExtAbility(JsRuntime& jsRuntime);
@@ -53,11 +70,12 @@ public:
     std::vector<FileInfo> ListFile(const Uri &sourceFileUri) override;
     std::vector<DeviceInfo> GetRoots() override;
 private:
+    NativeValue* AsnycCallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
     NativeValue* CallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
     void GetSrcPath(std::string &srcPath);
 
-    JsRuntime& jsRuntime_;
-    std::unique_ptr<NativeReference> jsObj_;
+    JsRuntime &jsRuntime_;
+    std::shared_ptr<NativeReference> jsObj_;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
