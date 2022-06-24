@@ -42,11 +42,9 @@ FileAccessExtAbility* FileAccessExtAbility::Create(const std::unique_ptr<Runtime
     }
     switch (runtime->GetLanguage()) {
         case Runtime::Language::JS:
-            HILOG_INFO("%{public}s Runtime::Language::JS --> JsFileAccessExtAbility", __func__);
             return JsFileAccessExtAbility::Create(runtime);
 
         default:
-            HILOG_INFO("%{public}s default --> FileAccessExtAbility", __func__);
             return new FileAccessExtAbility();
     }
 }

@@ -60,8 +60,6 @@ void JsFileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &rec
 
     std::string moduleName(Extension::abilityInfo_->moduleName);
     moduleName.append("::").append(abilityInfo_->name);
-    HILOG_INFO("%{public}s module:%{public}s, srcPath:%{public}s.",
-        __func__, moduleName.c_str(), srcPath.c_str());
     HandleScope handleScope(jsRuntime_);
 
     jsObj_ = jsRuntime_.LoadModule(moduleName, srcPath);
@@ -96,7 +94,7 @@ sptr<IRemoteObject> JsFileAccessExtAbility::OnConnect(const AAFwk::Want &want)
 NativeValue* JsFileAccessExtAbility::CallObjectMethod(const char* name, NativeValue* const* argv, size_t argc)
 {
     if (!jsObj_) {
-        HILOG_WARN("JsFileAccessExtAbility::CallObjectMethod jsObj Not found FileAccessExtAbility.js");
+        HILOG_ERROR("JsFileAccessExtAbility::CallObjectMethod jsObj Not found FileAccessExtAbility.js");
         return nullptr;
     }
 
