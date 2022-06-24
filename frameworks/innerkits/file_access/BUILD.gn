@@ -56,12 +56,12 @@ ohos_shared_library("file_access_extension_ability_kit") {
   configs = [ ":ability_config" ]
   public_configs = [
     ":ability_public_config",
-    "${aafwk_kits_path}/ability/ability_runtime:ability_context_public_config",
+    "${aafwk_path}/frameworks/native/ability:ability_context_public_config",
   ]
 
   deps = [
-    "${aafwk_kits_path}/ability/native:abilitykit_native",
-    "${aafwk_kits_path}/appkit:app_context",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/appkit:app_context",
   ]
 
   external_deps = [
@@ -95,7 +95,7 @@ ohos_shared_library("file_access_extension_ability_module") {
 
   deps = [
     ":file_access_extension_ability_kit",
-    "${aafwk_kits_path}/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
   ]
 
   external_deps = [
