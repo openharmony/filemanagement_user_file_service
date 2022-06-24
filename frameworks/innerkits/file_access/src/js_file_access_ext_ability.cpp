@@ -102,7 +102,7 @@ NativeValue* JsFileAccessExtAbility::CallObjectMethod(const char* name, NativeVa
     auto& nativeEngine = jsRuntime_.GetNativeEngine();
 
     NativeValue* value = jsObj_->Get();
-    if(value == nullptr) {
+    if (value == nullptr) {
         HILOG_ERROR("%{public}s Failed to get FileAccessExtAbility value", __func__);
         return nullptr;
     }
