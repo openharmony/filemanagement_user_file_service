@@ -41,7 +41,6 @@ FileAccessExtAbility* FileAccessExtAbility::Create(const std::unique_ptr<Runtime
     if (creator_) {
         return creator_(runtime);
     }
-    HILOG_INFO("%{public}s runtime", __func__);
     switch (runtime->GetLanguage()) {
         case Runtime::Language::JS:
             HILOG_INFO("%{public}s Runtime::Language::JS --> JsFileAccessExtAbility", __func__);

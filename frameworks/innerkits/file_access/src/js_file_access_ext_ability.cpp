@@ -71,7 +71,6 @@ void JsFileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &rec
         HILOG_ERROR("%{public}s Failed to get jsObj_", __func__);
         return;
     }
-    HILOG_INFO("%{public}s ConvertNativeValueTo.", __func__);
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(jsObj_->Get());
     if (obj == nullptr) {
         HILOG_ERROR("%{public}s Failed to get JsFileAccessExtAbility object", __func__);
