@@ -150,17 +150,17 @@ static bool DoAsnycWork(CallbackParam *param)
     HandleScope handleScope(param->jsRuntime);
     NativeValue* value = param->jsObj->Get();
     if (value == nullptr) {
-        HILOG_ERROR("%{public}s Failed to get native value object", __func__);
+        HILOG_ERROR("Failed to get native value object");
         return false;
     }
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
-        HILOG_ERROR("%{public}s Failed to get FileExtAbility object", __func__);
+        HILOG_ERROR("Failed to get FileExtAbility object");
         return false;
     }
     NativeValue* method = obj->GetProperty(param->funcName);
     if (method == nullptr) {
-        HILOG_ERROR("%{public}s Failed to get '%{public}s' from FileExtAbility object", __func__, param->funcName);
+        HILOG_ERROR("Failed to get '%{public}s' from FileExtAbility object",  param->funcName);
         return false;
     }
     auto& nativeEngine = param->jsRuntime.GetNativeEngine();
@@ -197,12 +197,12 @@ NativeValue* JsFileExtAbility::AsnycCallObjectMethod(const char* name, NativeVal
         if (!DoAsnycWork(param)) {
             HILOG_ERROR("failed to call DoAsnycWork");
         }
-        std::unique_lock<std::mutex> lock(param->lockInfo->threadExecMutex);
+        std::unique_lock<std::mutex> lock(param->lockInfo->fileOperateMutex);
         param->lockInfo->isReady = true;
-        param->lockInfo->threadExecCondition.notify_all();
+        param->lockInfo->fileOperateCondition.notify_all();
     });
-    std::unique_lock<std::mutex> lock(param->lockInfo->threadExecMutex);
-    param->lockInfo->threadExecCondition.wait(lock, [param]() { return param->lockInfo->isReady; });
+    std::unique_lock<std::mutex> lock(param->lockInfo->fileOperateMutex);
+    param->lockInfo->fileOperateCondition.wait(lock, [param]() { return param->lockInfo->isReady; });
     return std::move(param->result);
 }
 

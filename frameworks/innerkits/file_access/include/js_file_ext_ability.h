@@ -29,8 +29,8 @@ namespace FileAccessFwk {
 using namespace AbilityRuntime;
 
 struct ThreadLockInfo {
-    std::mutex threadExecMutex;
-    std::condition_variable threadExecCondition;
+    std::mutex fileOperateMutex;
+    std::condition_variable fileOperateCondition;
     bool isReady = false;
 };
 
