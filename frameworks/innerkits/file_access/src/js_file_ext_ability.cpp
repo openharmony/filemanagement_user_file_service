@@ -141,62 +141,64 @@ NativeValue* JsFileExtAbility::CallObjectMethod(const char* name, NativeValue* c
     return handleScope.Escape(nativeEngine.CallFunction(value, method, argv, argc));
 }
 
-static void DoAsnycWork(CallbackParam *param)
+static bool DoAsnycWork(CallbackParam *param)
 {
     if (param == nullptr || param->jsObj == nullptr) {
         HILOG_ERROR("Not found js file object");
-        return;
+        return false;
     }
     HandleScope handleScope(param->jsRuntime);
     NativeValue* value = param->jsObj->Get();
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("%{public}s Failed to get FileExtAbility object", __func__);
-        return;
+        return false;
     }
-    NativeValue* method = obj->GetProperty(param->name);
+    NativeValue* method = obj->GetProperty(param->funcName);
     if (method == nullptr) {
-        HILOG_ERROR("%{public}s Failed to get '%{public}s' from FileExtAbility object", __func__, param->name);
-        return;
+        HILOG_ERROR("%{public}s Failed to get '%{public}s' from FileExtAbility object", __func__, param->funcName);
+        return false;
     }
     auto& nativeEngine = param->jsRuntime.GetNativeEngine();
     param->result = handleScope.Escape(nativeEngine.CallFunction(value, method, param->argv, param->argc));
+    return true;
 }
 
 NativeValue* JsFileExtAbility::AsnycCallObjectMethod(const char* name, NativeValue* const* argv, size_t argc)
 {
-    std::shared_ptr<struct ThreadLockInfo> lockInfo = std::make_shared<struct ThreadLockInfo>();
-    CallbackParam *param = new(std::nothrow) CallbackParam {
+    std::shared_ptr<ThreadLockInfo> lockInfo = std::make_shared<ThreadLockInfo>();
+    std::shared_ptr<CallbackParam> param(new CallbackParam {
         .lockInfo = lockInfo.get(),
         .jsRuntime = jsRuntime_,
         .jsObj = jsObj_,
-        .name = name,
+        .funcName = name,
         .argv = argv,
         .argc = argc,
         .result = nullptr
-    };
+    });
     if (param == nullptr) {
         HILOG_ERROR("failed to new param");
         return nullptr;
     }
     uv_loop_s *loop = nullptr;
     napi_get_uv_event_loop(reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine()), &loop);
-    uv_work_t *work = new(std::nothrow) uv_work_t;
+    std::shared_ptr<uv_work_t> work = std::make_shared<uv_work_t>();
     if (work == nullptr) {
         HILOG_ERROR("failed to new uv_work_t");
-        delete param;
         return nullptr;
     }
-    work->data = reinterpret_cast<void *>(param);
-    uv_queue_work(loop, work, [](uv_work_t *work) {}, [](uv_work_t *work, int status) {
+    work->data = reinterpret_cast<void *>(param.get());
+    uv_queue_work(loop, work.get(), [](uv_work_t *work) {}, [](uv_work_t *work, int status) {
         CallbackParam *param = reinterpret_cast<CallbackParam *>(work->data);
-        DoAsnycWork(param);
-        std::unique_lock<std::mutex> lock(param->lockInfo->mutex);
-        param->lockInfo->ready = true;
-        param->lockInfo->condition.notify_all();
+        if (!DoAsnycWork(param)) {
+            HILOG_ERROR("failed to call DoAsnycWork");
+        }
+        std::unique_lock<std::mutex> lock(param->lockInfo->threadExecMutex);
+        param->lockInfo->isReady = true;
+        param->lockInfo->threadExecCondition.notify_all();
     });
-    std::unique_lock<std::mutex> lock(param->lockInfo->mutex);
-    param->lockInfo->condition.wait(lock, [&param] { return param->lockInfo->ready; });
+    std::unique_lock<std::mutex> lock(param->lockInfo->threadExecMutex);
+    param->lockInfo->threadExecCondition.wait(lock, [param]() { return param->lockInfo->isReady; });
     return param->result;
 }
 

@@ -29,16 +29,16 @@ namespace FileAccessFwk {
 using namespace AbilityRuntime;
 
 struct ThreadLockInfo {
-    std::mutex mutex;
-    std::condition_variable condition;
-    bool ready = false;
+    std::mutex threadExecMutex;
+    std::condition_variable threadExecCondition;
+    bool isReady = false;
 };
 
 struct CallbackParam {
     ThreadLockInfo *lockInfo;
     JsRuntime& jsRuntime;
     std::shared_ptr<NativeReference> jsObj;
-    const char *name;
+    const char *funcName;
     NativeValue * const *argv;
     size_t argc;
     NativeValue *result;
