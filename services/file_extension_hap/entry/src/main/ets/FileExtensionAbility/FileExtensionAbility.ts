@@ -15,7 +15,7 @@
 import Extension from '@ohos.application.FileExtensionAbility'
 import fileio from '@ohos.fileio'
 import hilog from '@ohos.hilog'
-import { init, addVolumeInfo, delVolumeInfo, path2uri, getVolumeInfoList } from './VolumeManager'
+import { init, delVolumeInfo, getVolumeInfoList } from './VolumeManager'
 import { onReceiveEvent } from './Subcriber'
 import fileExtensionInfo from "@ohos.fileExtensionInfo"
 import appManager from '@ohos.application.appManager';
@@ -218,7 +218,7 @@ export default class FileExtAbility extends Extension {
                 mode: '' + stat.mode,
                 size: stat.size,
                 mtime: stat.mtime,
-                mimiType: '',
+                mimeType: '',
             };
         } catch (e) {
             hilog.debug(0x0001, 'jsserver', 'query catch' + e);
@@ -227,7 +227,6 @@ export default class FileExtAbility extends Extension {
     }
 
     listFile(sourceFileUri) {
-
         let infos = [];
         try {
             let path = this.getPath(sourceFileUri);
@@ -243,7 +242,7 @@ export default class FileExtAbility extends Extension {
                         mode: '' + stat.mode,
                         size: stat.size,
                         mtime: stat.mtime,
-                        mimiType: '',
+                        mimeType: '',
                     });
                 } catch (e) {
                     hilog.debug(0x0001, 'jsserver', 'dir.readSync catch' + e);
