@@ -18,30 +18,19 @@ import hilog from '@ohos.hilog'
 import { init, addVolumeInfo, delVolumeInfo, path2uri, getVolumeInfoList } from './VolumeManager'
 import { onReceiveEvent } from './Subcriber'
 import fileExtensionInfo from "@ohos.fileExtensionInfo"
+import appManager from '@ohos.application.appManager';
 
 const FLAG = fileExtensionInfo.FLAG;
+const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
 
 export default class FileExtAbility extends Extension {
     onCreate(want) {
         init();
         onReceiveEvent(function (data) {
-            let parameters = data.parameters;
-            let flag = FLAG.SUPPORTS_WRITE | FLAG.SUPPORTS_DELETE | FLAG.SUPPORTS_RENAME | FLAG.SUPPORTS_COPY
-                | FLAG.SUPPORTS_MOVE | FLAG.SUPPORTS_REMOVE | FLAG.DIR_SUPPORTS_CREATE | FLAG.DIR_PREFERS_LAST_MODIFIED;
             if (data.event == 'usual.event.data.VOLUME_MOUNTED') {
-                let volumeInfo = {
-                    'volumeId': parameters.id,
-                    'fsUuid': parameters.fsUuid,
-                    'path': parameters.path,
-                    'uri': path2uri(parameters.id, parameters.path),
-                    'flags': flag,
-                    'deviceId': '',
-                    'displayName': parameters.id,
-                    'type': 'SD'
-                }
-                addVolumeInfo(volumeInfo);
+                appManager.killProcessesByBundleName(BUNDLE_NAME);
             } else {
-                delVolumeInfo(parameters.id);
+                delVolumeInfo(data.parameters.id);
             }
         });
     }
@@ -226,7 +215,7 @@ export default class FileExtAbility extends Extension {
             return {
                 uri: sourceFileUri,
                 fileName: this.getFileName(sourceFileUri),
-                mode: stat.mode,
+                mode: '' + stat.mode,
                 size: stat.size,
                 mtime: stat.mtime,
                 mimiType: '',
@@ -251,7 +240,7 @@ export default class FileExtAbility extends Extension {
                     infos.push({
                         uri: this.genNewFileUri(sourceFileUri, dirent.name),
                         fileName: dirent.name,
-                        mode: stat.mode,
+                        mode: '' + stat.mode,
                         size: stat.size,
                         mtime: stat.mtime,
                         mimiType: '',

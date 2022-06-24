@@ -52,7 +52,7 @@ function addVolumeInfo(volumeInfo) {
 }
 
 function path2uri(id, path) {
-    return `fileAccess://${id}/${path}`;
+    return `fileAccess://${id}${path}`;
 }
 
 function delVolumeInfo(volumeId) {
