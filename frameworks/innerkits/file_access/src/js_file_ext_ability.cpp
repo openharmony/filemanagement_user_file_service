@@ -149,6 +149,10 @@ static bool DoAsnycWork(CallbackParam *param)
     }
     HandleScope handleScope(param->jsRuntime);
     NativeValue* value = param->jsObj->Get();
+    if (value == nullptr) {
+        HILOG_ERROR("%{public}s Failed to get native value object", __func__);
+        return false;
+    }
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("%{public}s Failed to get FileExtAbility object", __func__);
@@ -167,7 +171,7 @@ static bool DoAsnycWork(CallbackParam *param)
 NativeValue* JsFileExtAbility::AsnycCallObjectMethod(const char* name, NativeValue* const* argv, size_t argc)
 {
     std::shared_ptr<ThreadLockInfo> lockInfo = std::make_shared<ThreadLockInfo>();
-    std::shared_ptr<CallbackParam> param(new CallbackParam {
+    std::shared_ptr<CallbackParam> param = std::make_shared<CallbackParam>(CallbackParam {
         .lockInfo = lockInfo.get(),
         .jsRuntime = jsRuntime_,
         .jsObj = jsObj_,
@@ -199,7 +203,7 @@ NativeValue* JsFileExtAbility::AsnycCallObjectMethod(const char* name, NativeVal
     });
     std::unique_lock<std::mutex> lock(param->lockInfo->threadExecMutex);
     param->lockInfo->threadExecCondition.wait(lock, [param]() { return param->lockInfo->isReady; });
-    return param->result;
+    return std::move(param->result);
 }
 
 void JsFileExtAbility::GetSrcPath(std::string &srcPath)

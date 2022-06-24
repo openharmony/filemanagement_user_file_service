@@ -36,7 +36,7 @@ struct ThreadLockInfo {
 
 struct CallbackParam {
     ThreadLockInfo *lockInfo;
-    JsRuntime& jsRuntime;
+    JsRuntime &jsRuntime;
     std::shared_ptr<NativeReference> jsObj;
     const char *funcName;
     NativeValue * const *argv;
