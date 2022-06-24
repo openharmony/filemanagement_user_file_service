@@ -40,7 +40,6 @@ using OHOS::Security::AccessToken::AccessTokenKit;
 
 JsFileAccessExtAbility* JsFileAccessExtAbility::Create(const std::unique_ptr<Runtime>& runtime)
 {
-    HILOG_INFO("%{public}s.", __func__);
     return new JsFileAccessExtAbility(static_cast<JsRuntime&>(*runtime));
 }
 
@@ -51,7 +50,6 @@ void JsFileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &rec
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
     FileAccessExtAbility::Init(record, application, handler, token);
     std::string srcPath = "";
     GetSrcPath(srcPath);
@@ -76,7 +74,6 @@ void JsFileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &rec
         HILOG_ERROR("%{public}s Failed to get JsFileAccessExtAbility object", __func__);
         return;
     }
-    HILOG_INFO("%{public}s end.", __func__);
 }
 
 void JsFileAccessExtAbility::OnStart(const AAFwk::Want &want)
@@ -92,9 +89,7 @@ void JsFileAccessExtAbility::OnStart(const AAFwk::Want &want)
 
 sptr<IRemoteObject> JsFileAccessExtAbility::OnConnect(const AAFwk::Want &want)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
     Extension::OnConnect(want);
-    HILOG_INFO("%{public}s end. ", __func__);
     return nullptr;
 }
 
@@ -109,6 +104,11 @@ NativeValue* JsFileAccessExtAbility::CallObjectMethod(const char* name, NativeVa
     auto& nativeEngine = jsRuntime_.GetNativeEngine();
 
     NativeValue* value = jsObj_->Get();
+    if(value == nullptr) {
+        HILOG_ERROR("%{public}s Failed to get FileAccessExtAbility value", __func__);
+        return nullptr;
+    }
+
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("%{public}s Failed to get FileAccessExtAbility object", __func__);
@@ -125,7 +125,6 @@ NativeValue* JsFileAccessExtAbility::CallObjectMethod(const char* name, NativeVa
 
 void JsFileAccessExtAbility::GetSrcPath(std::string &srcPath)
 {
-    HILOG_INFO("JsFileAccessExtAbility %{public}s .", __func__);
     if (!Extension::abilityInfo_->isStageBasedModel) {
         /* temporary compatibility api8 + config.json */
         srcPath.append(Extension::abilityInfo_->package);

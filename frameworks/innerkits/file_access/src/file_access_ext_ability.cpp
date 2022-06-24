@@ -34,7 +34,6 @@ void FileAccessExtAbility::SetCreator(const CreatorFunc& creator)
 
 FileAccessExtAbility* FileAccessExtAbility::Create(const std::unique_ptr<Runtime>& runtime)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
     if (!runtime) {
         return new FileAccessExtAbility();
     }
@@ -50,7 +49,6 @@ FileAccessExtAbility* FileAccessExtAbility::Create(const std::unique_ptr<Runtime
             HILOG_INFO("%{public}s default --> FileAccessExtAbility", __func__);
             return new FileAccessExtAbility();
     }
-    HILOG_INFO("%{public}s end.", __func__);
 }
 
 void FileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &record,
@@ -58,9 +56,7 @@ void FileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &recor
     std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
     ExtensionBase<>::Init(record, application, handler, token);
-    HILOG_INFO("%{public}s end.", __func__);
 }
 } // namespace FileAccessFwk
 } // namespace OHOS
