@@ -20,6 +20,14 @@
         "type": "fileAccess",
         "visible": true
       }
+    ],
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.CLEAN_BACKGROUND_PROCESSES"
+      },
+      {
+        "name": "ohos.permission.STORAGE_MANAGER"
+      }
     ]
   }
 }

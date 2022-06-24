@@ -24,7 +24,7 @@ const FLAG = fileExtensionInfo.FLAG;
 function init() {
     try {
         volumeManager.getAllVolumes().then((volumes) => {
-            let flag = FLAG.SUPPORTS_WRITE | FLAG.SUPPORTS_DELETE | FLAG.SUPPORTS_RENAME | FLAG.SUPPORTS_COPY
+            let flags = FLAG.SUPPORTS_WRITE | FLAG.SUPPORTS_DELETE | FLAG.SUPPORTS_RENAME | FLAG.SUPPORTS_COPY
                 | FLAG.SUPPORTS_MOVE | FLAG.SUPPORTS_REMOVE | FLAG.DIR_SUPPORTS_CREATE | FLAG.DIR_PREFERS_LAST_MODIFIED;
             for (let i = 0; i < volumes.length; i++) {
                 let volume = volumes[i];
@@ -32,10 +32,10 @@ function init() {
                     'volumeId': volume.id,
                     'fsUuid': volume.uuid,
                     'path': volume.path,
-                    'uri': path2uri(volume.id, volume.path),
+                    'uri': path2uri('', volume.path),
                     'displayName': volume.id,
                     'deviceId': '',
-                    'flags': flag,
+                    'flags': flags,
                     'type': 'SD'
                 }
                 globalThis.volumeInfoList.push(volumeInfo);
@@ -52,23 +52,15 @@ function addVolumeInfo(volumeInfo) {
 }
 
 function path2uri(id, path) {
-    return `fileAccess://${id}/${path}`;
+    return `fileAccess://${id}${path}`;
 }
 
 function delVolumeInfo(volumeId) {
     globalThis.volumeInfoList = globalThis.volumeInfoList.filter((volume) => volume.volumeId !== volumeId);
 }
 
-function getVolumeInfo(volumeId) {
-    let volumeInfo = globalThis.volumeInfoList.filter((volume) => volume.volumeId === volumeId);
-    return volumeInfo;
-}
-
 function getVolumeInfoList() {
     return globalThis.volumeInfoList;
 }
 
-function notifyChange() {
-
-}
 export { init, addVolumeInfo, delVolumeInfo, getVolumeInfoList, path2uri }
