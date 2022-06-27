@@ -566,8 +566,5 @@ void CreateFilePromiseCompleteCB(napi_env env, napi_status status, void *data)
     delete createFileCB;
     createFileCB = nullptr;
 }
-
-
-
 }  // namespace AppExecFwk
 }  // namespace OHOS
