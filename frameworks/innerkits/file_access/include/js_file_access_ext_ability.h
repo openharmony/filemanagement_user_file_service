@@ -17,14 +17,32 @@
 #define JS_FILE_EXT_ABILITY_H
 
 #include "file_access_ext_ability.h"
-
+#include "file_access_extension_info.h"
 #include "js_runtime.h"
+#include "napi_common_fileaccess.h"
 #include "native_engine/native_reference.h"
 #include "native_engine/native_value.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
 using namespace AbilityRuntime;
+
+struct ThreadLockInfo {
+    std::mutex fileOperateMutex;
+    std::condition_variable fileOperateCondition;
+    bool isReady = false;
+};
+
+struct CallbackParam {
+    ThreadLockInfo *lockInfo;
+    JsRuntime &jsRuntime;
+    std::shared_ptr<NativeReference> jsObj;
+    const char *funcName;
+    NativeValue * const *argv;
+    size_t argc;
+    NativeValue *result;
+};
+
 class JsFileAccessExtAbility : public FileAccessExtAbility {
 public:
     JsFileAccessExtAbility(JsRuntime& jsRuntime);
@@ -41,11 +59,21 @@ public:
 
     sptr<IRemoteObject> OnConnect(const AAFwk::Want &want) override;
 
+    int OpenFile(const Uri &uri, int flags) override;
+    int CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile) override;
+    int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile) override;
+    int Delete(const Uri &sourceFile) override;
+    int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) override;
+    int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) override;
+
+    std::vector<FileInfo> ListFile(const Uri &sourceFile) override;
+    std::vector<DeviceInfo> GetRoots() override;
 private:
+    NativeValue* AsnycCallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
     NativeValue* CallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
     void GetSrcPath(std::string &srcPath);
 
-    JsRuntime& jsRuntime_;
+    JsRuntime &jsRuntime_;
     std::shared_ptr<NativeReference> jsObj_;
 };
 } // namespace FileAccessFwk

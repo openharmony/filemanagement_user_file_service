@@ -18,6 +18,7 @@
 #include "ability_loader.h"
 #include "connection_manager.h"
 #include "extension_context.h"
+#include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
 #include "js_file_access_ext_ability.h"
 #include "runtime.h"
@@ -55,6 +56,48 @@ void FileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &recor
     const sptr<IRemoteObject> &token)
 {
     ExtensionBase<>::Init(record, application, handler, token);
+}
+
+int FileAccessExtAbility::OpenFile(const Uri &uri, int flags)
+{
+    return ERR_OK;
+}
+
+int FileAccessExtAbility::CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile)
+{
+    return ERR_OK;
+}
+
+int FileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile)
+{
+    return ERR_OK;
+}
+
+int FileAccessExtAbility::Delete(const Uri &sourceFile)
+{
+    return ERR_OK;
+}
+
+int FileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile)
+{
+    return ERR_OK;
+}
+
+int FileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
+{
+    return ERR_OK;
+}
+
+std::vector<FileInfo> FileAccessExtAbility::ListFile(const Uri &sourceFile)
+{
+    std::vector<FileInfo> vec;
+    return vec;
+}
+
+std::vector<DeviceInfo> FileAccessExtAbility::GetRoots()
+{
+    std::vector<DeviceInfo> vec;
+    return vec;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS
