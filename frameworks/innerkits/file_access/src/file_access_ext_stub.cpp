@@ -270,7 +270,6 @@ ErrCode FileAccessExtStub::CmdListFile(MessageParcel &data, MessageParcel &reply
 
 ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply)
 {
-
     std::vector<DeviceInfo> vec = GetRoots();
     uint64_t count {vec.size()};
     if (!reply.WriteUint64(count)) {
