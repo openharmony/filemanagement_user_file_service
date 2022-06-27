@@ -15,7 +15,6 @@
 #include "file_extension_info_napi.h"
 
 #include <string>
-
 #include "file_access_extension_info.h"
 
 namespace OHOS {

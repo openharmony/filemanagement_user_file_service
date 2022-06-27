@@ -15,6 +15,7 @@
 
 #ifndef FILE_EXTENSION_INFO_NAPI_H
 #define FILE_EXTENSION_INFO_NAPI_H
+
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 namespace OHOS {

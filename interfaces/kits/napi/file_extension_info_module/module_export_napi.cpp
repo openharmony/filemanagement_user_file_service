@@ -16,7 +16,6 @@
 #include "module_export_napi.h"
 
 #include <string>
-
 #include "file_extension_info_napi.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
