@@ -16,6 +16,7 @@
 
 #include <string>
 #include "file_access_extension_info.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -23,6 +24,7 @@ napi_value CreateStringUtf8(napi_env env, const std::string &str)
 {
     napi_value value = nullptr;
     if (napi_create_string_utf8(env, str.c_str(), str.length(), &value) != napi_ok) {
+        HILOG_ERROR("%{public}s, value is not napi_ok", __func__);
         return nullptr;
     }
     return value;
@@ -32,6 +34,7 @@ napi_value CreateUint32(napi_env env, uint32_t val)
 {
     napi_value value = nullptr;
     if (napi_create_uint32(env, val, &value) != napi_ok) {
+        HILOG_ERROR("%{public}s, value is not napi_ok", __func__);
         return nullptr;
     }
     return value;
@@ -46,6 +49,7 @@ napi_value FileInfoConstructor(napi_env env, napi_callback_info info)
 
     napi_status status = napi_get_cb_info(env, info, &argc, args, &res, &data);
     if (status != napi_ok) {
+        HILOG_ERROR("%{public}s, status is not napi_ok", __func__);
         return nullptr;
     }
 
@@ -61,6 +65,7 @@ napi_value DeviceInfoConstructor(napi_env env, napi_callback_info info)
 
     napi_status status = napi_get_cb_info(env, info, &argc, args, &res, &data);
     if (status != napi_ok) {
+        HILOG_ERROR("%{public}s, status is not napi_ok", __func__);s
         return nullptr;
     }
 
