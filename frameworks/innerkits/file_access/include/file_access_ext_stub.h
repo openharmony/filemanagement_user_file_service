@@ -36,10 +36,9 @@ private:
     ErrCode CmdDelete(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdMove(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdRename(MessageParcel &data, MessageParcel &reply);
-
     ErrCode CmdListFile(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdGetRoots(MessageParcel &data, MessageParcel &reply);
-
+    bool CheckCallingPermission(const std::string &permission);
     using RequestFuncType = int (FileAccessExtStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, RequestFuncType> stubFuncMap_;
 };

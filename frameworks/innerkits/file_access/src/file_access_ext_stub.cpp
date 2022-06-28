@@ -15,7 +15,9 @@
 
 #include "file_access_ext_stub.h"
 
+#include "accesstoken_kit.h"
 #include "hilog_wrapper.h"
+#include "ipc_skeleton.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -39,6 +41,12 @@ FileAccessExtStub::~FileAccessExtStub()
 int FileAccessExtStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,
     MessageOption& option)
 {
+    std::string permission = "ohos.permission.FILE_ACCESS_MANAGER";
+    if (!CheckCallingPermission(permission)) {
+        HILOG_ERROR("FileAccessExtStub::%{public}s  permission error", __func__);
+        return ERR_UNKNOWN_REASON;
+    }
+
     std::u16string descriptor = FileAccessExtStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
@@ -284,6 +292,17 @@ ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply
     }
 
     return NO_ERROR;
+}
+
+bool FileAccessExtStub::CheckCallingPermission(const std::string &permission)
+{
+    Security::AccessToken::AccessTokenID tokenCaller = IPCSkeleton::GetCallingTokenID();
+    int res = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenCaller, permission);
+    if (res != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
+        HILOG_ERROR("FileAccessExtStub::CheckCallingPermission have no fileAccess permission");
+        return false;
+    }
+    return true;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS
