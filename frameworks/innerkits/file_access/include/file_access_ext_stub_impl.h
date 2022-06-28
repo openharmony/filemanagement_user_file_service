@@ -17,6 +17,7 @@
 #define FILE_EXT_STUB_IMPL_H
 
 #include <memory>
+
 #include "file_access_ext_stub.h"
 #include "file_access_extension_info.h"
 #include "file_access_ext_ability.h"
@@ -37,13 +38,11 @@ public:
     int Delete(const Uri &sourceFile) override;
     int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) override;
     int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) override;
-
     std::vector<FileInfo> ListFile(const Uri &sourceFileUri) override;
     std::vector<DeviceInfo> GetRoots() override;
-private:
-    std::shared_ptr<FileAccessExtAbility> GetOwner();
 
 private:
+    std::shared_ptr<FileAccessExtAbility> GetOwner();
     std::shared_ptr<FileAccessExtAbility> extension_;
 };
 } // namespace FileAccessFwk

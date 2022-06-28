@@ -16,6 +16,7 @@
 #include "file_access_ext_stub_impl.h"
 
 #include "hilog_wrapper.h"
+#include "file_access_framework_errno.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -26,7 +27,7 @@ std::shared_ptr<FileAccessExtAbility> FileAccessExtStubImpl::GetOwner()
 
 int FileAccessExtStubImpl::OpenFile(const Uri &uri, int flags)
 {
-    int ret = -1;
+    int ret = ERR_ERROR;
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
@@ -38,7 +39,7 @@ int FileAccessExtStubImpl::OpenFile(const Uri &uri, int flags)
 
 int FileAccessExtStubImpl::CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile)
 {
-    int ret = -1;
+    int ret = ERR_ERROR;
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
@@ -50,7 +51,7 @@ int FileAccessExtStubImpl::CreateFile(const Uri &parent, const std::string &disp
 
 int FileAccessExtStubImpl::Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
-    int ret = -1;
+    int ret = ERR_ERROR;
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
@@ -62,7 +63,7 @@ int FileAccessExtStubImpl::Mkdir(const Uri &parent, const std::string &displayNa
 
 int FileAccessExtStubImpl::Delete(const Uri &sourceFile)
 {
-    int ret = -1;
+    int ret = ERR_ERROR;
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
@@ -74,7 +75,7 @@ int FileAccessExtStubImpl::Delete(const Uri &sourceFile)
 
 int FileAccessExtStubImpl::Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile)
 {
-    int ret = -1;
+    int ret = ERR_ERROR;
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
@@ -86,7 +87,7 @@ int FileAccessExtStubImpl::Move(const Uri &sourceFile, const Uri &targetParent, 
 
 int FileAccessExtStubImpl::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
-    int ret = -1;
+    int ret = ERR_ERROR;
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
@@ -104,6 +105,7 @@ std::vector<FileInfo> FileAccessExtStubImpl::ListFile(const Uri &sourceFile)
         HILOG_ERROR("get extension failed.");
         return vec;
     }
+
     vec = extension->ListFile(sourceFile);
     return vec;
 }
@@ -116,6 +118,7 @@ std::vector<DeviceInfo> FileAccessExtStubImpl::GetRoots()
         HILOG_ERROR("get extension failed.");
         return vec;
     }
+
     vec = extension->GetRoots();
     return vec;
 }
