@@ -60,8 +60,7 @@ FileAccessHelper::FileAccessHelper(const sptr<IRemoteObject> &token,
     fileAccessExtConnection_ = FileAccessExtConnection::GetInstance();
 }
 
-std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
-    const sptr<IRemoteObject> &token, const AAFwk::Want &want)
+std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteObject> &token, const AAFwk::Want &want)
 {
     sptr<IFileAccessExtBase> fileAccessExtProxy = nullptr;
 
@@ -69,18 +68,19 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     if (!fileAccessExtConnection->IsExtAbilityConnected()) {
         fileAccessExtConnection->ConnectFileExtAbility(want, token);
     }
+
     fileAccessExtProxy = fileAccessExtConnection->GetFileExtProxy();
     if (fileAccessExtProxy == nullptr) {
         HILOG_WARN("FileAccessHelper::Creator get invalid fileAccessExtProxy");
     }
 
-    FileAccessHelper *ptrDataShareHelper = new (std::nothrow) FileAccessHelper(token, want, fileAccessExtProxy);
-    if (ptrDataShareHelper == nullptr) {
+    FileAccessHelper *ptrFileAccessHelper = new (std::nothrow) FileAccessHelper(token, want, fileAccessExtProxy);
+    if (ptrFileAccessHelper == nullptr) {
         HILOG_ERROR("FileAccessHelper::Creator failed, create FileAccessHelper failed");
         return nullptr;
     }
 
-    return std::shared_ptr<FileAccessHelper>(ptrDataShareHelper);
+    return std::shared_ptr<FileAccessHelper>(ptrFileAccessHelper);
 }
 
 std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
@@ -96,6 +96,7 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     if (!fileAccessExtConnection->IsExtAbilityConnected()) {
         fileAccessExtConnection->ConnectFileExtAbility(want, context->GetToken());
     }
+
     fileAccessExtProxy = fileAccessExtConnection->GetFileExtProxy();
     if (fileAccessExtProxy == nullptr) {
         HILOG_WARN("%{public}s get invalid fileAccessExtProxy", __func__);
@@ -124,11 +125,12 @@ bool FileAccessHelper::GetProxy()
     if (!fileAccessExtConnection_->IsExtAbilityConnected()) {
         fileAccessExtConnection_->ConnectFileExtAbility(want_, token_);
     }
+
     fileAccessExtProxy_ = fileAccessExtConnection_->GetFileExtProxy();
     if (isSystemCaller_ && fileAccessExtProxy_) {
         AddFileAccessDeathRecipient(fileAccessExtProxy_->AsObject());
     }
-    
+
     if (fileAccessExtProxy_ == nullptr) {
         HILOG_ERROR("%{public}s failed with invalid fileAccessExtProxy_", __func__);
         return false;
@@ -223,7 +225,6 @@ std::vector<FileInfo> FileAccessHelper::ListFile(Uri &sourceFile)
 std::vector<DeviceInfo> FileAccessHelper::GetRoots()
 {
     std::vector<DeviceInfo> results;
-
     if (!GetProxy()) {
         HILOG_ERROR("%{public}s failed with invalid fileAccessExtProxy_", __func__);
         return results;

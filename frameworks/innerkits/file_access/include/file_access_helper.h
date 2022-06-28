@@ -38,8 +38,8 @@ public:
 
     static std::shared_ptr<FileAccessHelper> Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
         const AAFwk::Want &want);
-
     static std::shared_ptr<FileAccessHelper> Creator(const sptr<IRemoteObject> &token, const AAFwk::Want &want);
+
     bool GetProxy();
     bool Release();
     int OpenFile(Uri &uri, int flags);
@@ -48,9 +48,9 @@ public:
     int Delete(Uri &selectFile);
     int Move(Uri &sourceFile, Uri &targetParent, Uri &newFile);
     int Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile);
-
     std::vector<FileInfo> ListFile(Uri &sourceFile);
     std::vector<DeviceInfo> GetRoots();
+
 private:
     FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const AAFwk::Want &want,
         const sptr<IFileAccessExtBase> &fileAccessExtProxy);
@@ -70,11 +70,8 @@ private:
 class FileAccessDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
     using RemoteDiedHandler = std::function<void(const wptr<IRemoteObject> &)>;
-
     explicit FileAccessDeathRecipient(RemoteDiedHandler handler);
-
     virtual ~FileAccessDeathRecipient();
-
     virtual void OnRemoteDied(const wptr<IRemoteObject> &remote);
 
 private:

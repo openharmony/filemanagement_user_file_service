@@ -183,8 +183,8 @@ napi_value WrapArrayFileInfoToJS(napi_env env, const std::vector<FileInfo> &file
     napi_value jsArray = nullptr;
     napi_value jsValue = nullptr;
     uint32_t index = ERR_OK;
-
     NAPI_CALL(env, napi_create_array(env, &jsArray));
+
     for (uint32_t i = 0; i < fileInfoVec.size(); i++) {
         jsValue = WrapFileInfo(env, fileInfoVec[i]);
         if (napi_set_element(env, jsArray, index, jsValue) == napi_ok) {
@@ -198,7 +198,6 @@ bool UnwrapArrayFileInfoFromJS(napi_env env, napi_value param, std::vector<FileI
 {
     uint32_t arraySize = ERR_OK;
     napi_value jsValue = nullptr;
-
     if (!IsArrayForNapiValue(env, param, arraySize)) {
         return false;
     }
@@ -279,8 +278,8 @@ napi_value WrapArrayDeviceInfoToJS(napi_env env, const std::vector<DeviceInfo> &
     napi_value jsArray = nullptr;
     napi_value jsValue = nullptr;
     uint32_t index = ERR_OK;
-
     NAPI_CALL(env, napi_create_array(env, &jsArray));
+
     for (uint32_t i = 0; i < deviceInfoVec.size(); i++) {
         jsValue = WrapDeviceInfo(env, deviceInfoVec[i]);
         if (napi_set_element(env, jsArray, index, jsValue) == napi_ok) {

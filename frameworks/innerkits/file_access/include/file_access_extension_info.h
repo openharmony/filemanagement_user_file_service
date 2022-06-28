@@ -12,8 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FILE_EXTENSION_INFO_H
-#define FILE_EXTENSION_INFO_H
+
+#ifndef FILE_ACCESS_EXTENSION_INFO_H
+#define FILE_ACCESS_EXTENSION_INFO_H
 
 #include <bitset>
 #include <string>
@@ -47,6 +48,7 @@ public:
         mimeType = parcel.ReadString();
         return true;
     }
+
     virtual bool Marshalling(Parcel &parcel) const override
     {
         if (!parcel.WriteParcelable(&uri)) {
@@ -69,6 +71,7 @@ public:
         }
         return true;
     }
+
     static FileInfo *Unmarshalling(Parcel &parcel)
     {
         FileInfo *info = new (std::nothrow) FileInfo();
@@ -104,6 +107,7 @@ public:
         flags = parcel.ReadUint32();
         return true;
     }
+
     virtual bool Marshalling(Parcel &parcel) const override
     {
         if (!parcel.WriteParcelable(&uri)) {
@@ -120,6 +124,7 @@ public:
         }
         return true;
     }
+
     static DeviceInfo *Unmarshalling(Parcel &parcel)
     {
         DeviceInfo *info = new (std::nothrow) DeviceInfo();
@@ -143,4 +148,4 @@ const uint32_t FLAG_SUPPORTS_RENAME = 1 << 4;
 const uint32_t FLAG_SUPPORTS_MOVE = 1 << 5;
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FILE_EXTENSION_INFO_H
+#endif // FILE_ACCESS_EXTENSION_INFO_H
