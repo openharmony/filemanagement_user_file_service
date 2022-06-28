@@ -36,7 +36,6 @@
                 "//foundation/filemanagement/user_file_service/services:fms",
                 "//foundation/filemanagement/user_file_service/services/sa_profile:filemanager_service_sa_profile",
                 "//foundation/filemanagement/user_file_service/interfaces/kits/js:filemanager"
-
             ],
             "test": [
               "//foundation/filemanagement/user_file_service/services/test:user_file_manager_test"
