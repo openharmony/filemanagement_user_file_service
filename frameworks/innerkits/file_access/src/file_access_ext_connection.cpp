@@ -19,7 +19,6 @@
 #include "file_access_ext_proxy.h"
 #include "hilog_wrapper.h"
 
-
 namespace OHOS {
 namespace FileAccessFwk {
 sptr<FileAccessExtConnection> FileAccessExtConnection::instance_ = nullptr;

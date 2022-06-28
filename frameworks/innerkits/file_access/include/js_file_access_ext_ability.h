@@ -54,18 +54,14 @@ public:
         const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         std::shared_ptr<AppExecFwk::AbilityHandler> &handler,
         const sptr<IRemoteObject> &token) override;
-
     void OnStart(const AAFwk::Want &want) override;
-
     sptr<IRemoteObject> OnConnect(const AAFwk::Want &want) override;
-
     int OpenFile(const Uri &uri, int flags) override;
     int CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile) override;
     int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile) override;
     int Delete(const Uri &sourceFile) override;
     int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) override;
     int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) override;
-
     std::vector<FileInfo> ListFile(const Uri &sourceFile) override;
     std::vector<DeviceInfo> GetRoots() override;
 private:

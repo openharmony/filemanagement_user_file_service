@@ -44,4 +44,3 @@ private:
 } // namespace FileAccessFwk
 } // namespace OHOS
 #endif // FILE_EXT_PROXY_H
-
