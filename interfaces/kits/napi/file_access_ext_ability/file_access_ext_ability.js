@@ -16,6 +16,40 @@
 class FileAccessExtensionAbility {
     onCreate(want) {
     }
+
+    openFile(uri, mode) {
+        return 0;
+    }
+
+    createFile(parentUri, displayName) {
+        return "";
+    }
+
+    mkdir(parentUri, displayName) {
+        return "";
+    }
+
+    delete(sourceFileUri) {
+        return 0;
+    }
+
+    move(sourceFileUri, targetParentUri) {
+        return "";
+    }
+    
+    rename(sourceFileUri, displayName) {
+        return "";
+    }
+
+    listFile(sourceFileUri) {
+        let infos = [];
+        return infos;
+    }
+
+    getRoots() {
+        let roots = [];
+        return roots;
+    }
 }
 
 export default FileAccessExtensionAbility
