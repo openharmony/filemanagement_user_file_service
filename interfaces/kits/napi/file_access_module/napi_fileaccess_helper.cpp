@@ -36,6 +36,8 @@ namespace OHOS {
 namespace FileAccessFwk {
 namespace {
 const std::string FILEACCESS_CLASS_NAME = "FileAccessHelper";
+static napi_ref g_constructorRef = nullptr;
+constexpr uint32_t initial_refcount = 1;
 
 std::string NapiValueToStringUtf8(napi_env env, napi_value value)
 {
@@ -51,7 +53,6 @@ int NapiValueToInt32Utf8(napi_env env, napi_value value)
 }
 
 std::list<std::shared_ptr<FileAccessHelper>> g_fileAccessHelperList;
-static napi_ref g_constructorRef = nullptr;
 
 napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info, FileAccessHelperCB *fileAccessHelperCB)
 {
@@ -94,6 +95,43 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info, Fi
     delete fileAccessHelperCB;
     fileAccessHelperCB = nullptr;
     return result;
+}
+
+static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info info)
+{
+    size_t argc = ARGS_TWO;
+    napi_value argv[ARGS_TWO] = {nullptr};
+    napi_value thisVar = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
+    NAPI_ASSERT(env, argc > 0, "Wrong number of arguments");
+    AAFwk::Want want;
+    OHOS::AppExecFwk::UnwrapWant(env, argv[PARAM1], want);
+    std::shared_ptr<FileAccessHelper> fileAccessHelper = nullptr;
+    bool isStageMode = false;
+    napi_status status = AbilityRuntime::IsStageContext(env, argv[PARAM0], isStageMode);
+    if (status != napi_ok || !isStageMode) {
+        HILOG_INFO("No support FA Model");
+        return nullptr;
+    }
+
+    auto context = OHOS::AbilityRuntime::GetStageModeContext(env, argv[PARAM0]);
+    NAPI_ASSERT(env, context != nullptr, " FileAccessHelperConstructor: failed to get native context");
+    fileAccessHelper = FileAccessHelper::Creator(context, want);
+
+    NAPI_ASSERT(env, fileAccessHelper != nullptr, " FileAccessHelperConstructor: fileAccessHelper is nullptr");
+    g_fileAccessHelperList.emplace_back(fileAccessHelper);
+
+    napi_wrap(env, thisVar, fileAccessHelper.get(), [](napi_env env, void *data, void *hint) {
+            FileAccessHelper *objectInfo = static_cast<FileAccessHelper *>(data);
+            g_fileAccessHelperList.remove_if([objectInfo](const std::shared_ptr<FileAccessHelper> &fileAccessHelper) {
+                    return objectInfo == fileAccessHelper.get();
+                });
+            if (objectInfo != nullptr) {
+                objectInfo->Release();
+                delete objectInfo;
+            }
+        }, nullptr, nullptr);
+    return thisVar;
 }
 
 napi_value NAPI_AcquireFileAccessHelperCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
@@ -147,7 +185,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
             properties,
             &cons));
     g_fileAccessHelperList.clear();
-    NAPI_CALL(env, napi_create_reference(env, cons, 1, &g_constructorRef));
+    NAPI_CALL(env, napi_create_reference(env, cons, initial_refcount, &g_constructorRef));
     NAPI_CALL(env, napi_set_named_property(env, exports, FILEACCESS_CLASS_NAME.c_str(), cons));
 
     napi_property_descriptor export_properties[] = {
@@ -158,85 +196,121 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
     return exports;
 }
 
-napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info info)
+static void OpenFilePromiseCompleteCB(napi_env env, napi_status status, void *data)
 {
-    size_t argc = ARGS_TWO;
-    napi_value argv[ARGS_TWO] = {nullptr};
-    napi_value thisVar = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    NAPI_ASSERT(env, argc > 0, "Wrong number of arguments");
-    AAFwk::Want want;
-    OHOS::AppExecFwk::UnwrapWant(env, argv[PARAM1], want);
-    std::shared_ptr<FileAccessHelper> fileAccessHelper = nullptr;
-    bool isStageMode = false;
-    napi_status status = AbilityRuntime::IsStageContext(env, argv[PARAM0], isStageMode);
-    if (status != napi_ok || !isStageMode) {
-        HILOG_INFO(" FA Model");
-        return nullptr;
-    }
-
-    auto context = OHOS::AbilityRuntime::GetStageModeContext(env, argv[PARAM0]);
-    NAPI_ASSERT(env, context != nullptr, " FileAccessHelperConstructor: failed to get native context");
-    HILOG_INFO(" Stage Model");
-    fileAccessHelper = FileAccessHelper::Creator(context, want);
-
-    NAPI_ASSERT(env, fileAccessHelper != nullptr, " FileAccessHelperConstructor: fileAccessHelper is nullptr");
-    g_fileAccessHelperList.emplace_back(fileAccessHelper);
-
-    napi_wrap(env, thisVar, fileAccessHelper.get(), [](napi_env env, void *data, void *hint) {
-            FileAccessHelper *objectInfo = static_cast<FileAccessHelper *>(data);
-            g_fileAccessHelperList.remove_if([objectInfo](const std::shared_ptr<FileAccessHelper> &fileAccessHelper) {
-                    return objectInfo == fileAccessHelper.get();
-                });
-            if (objectInfo != nullptr) {
-                objectInfo->Release();
-                delete objectInfo;
-            }
-        }, nullptr, nullptr);
-    return thisVar;
+    FileAccessHelperOpenFileCB *openFileCB = static_cast<FileAccessHelperOpenFileCB *>(data);
+    napi_value result = nullptr;
+    napi_create_int32(env, openFileCB->result, &result);
+    NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, openFileCB->cbBase.deferred, result));
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, openFileCB->cbBase.asyncWork));
+    delete openFileCB;
+    openFileCB = nullptr;
 }
 
-napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
+static void OpenFileAsyncCompleteCB(napi_env env, napi_status status, void *data)
 {
-    NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
-        HILOG_ERROR("%{public}s, Number of arguments unmatched.", __func__);
-        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
-        return nullptr;
+    FileAccessHelperOpenFileCB *openFileCB = static_cast<FileAccessHelperOpenFileCB *>(data);
+    napi_value callback = nullptr;
+    napi_value undefined = nullptr;
+    napi_value result[ARGS_TWO] = {nullptr};
+    napi_value callResult = nullptr;
+    NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
+    NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, openFileCB->cbBase.cbInfo.callback, &callback));
+
+    result[PARAM0] = GetCallbackErrorValue(env, openFileCB->execResult);
+    napi_create_int32(env, openFileCB->result, &result[PARAM1]);
+    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+
+    if (openFileCB->cbBase.cbInfo.callback != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, openFileCB->cbBase.cbInfo.callback));
     }
-    if (funcArg.GetArgc() == NARG_CNT::THREE && !NVal(env, funcArg[NARG_POS::THIRD]).TypeIs(napi_function)) {
-        UniError(EINVAL).ThrowErr(env, "Type of arguments unmatched");
-        return nullptr;
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, openFileCB->cbBase.asyncWork));
+    delete openFileCB;
+    openFileCB = nullptr;
+}
+
+static void OpenFileExecuteCB(napi_env env, void *data)
+{
+    FileAccessHelperOpenFileCB *openFileCB = static_cast<FileAccessHelperOpenFileCB *>(data);
+    openFileCB->execResult = ERR_ERROR;
+
+    if (openFileCB->fileAccessHelper == nullptr) {
+        HILOG_ERROR(" NAPI_OpenFile, fileAccessHelper uri is empty");
+        return ;
     }
-    FileAccessHelperOpenFileCB *openFileCB = new (std::nothrow) FileAccessHelperOpenFileCB;
+
+    if (openFileCB->uri.empty()) {
+        HILOG_ERROR(" NAPI_OpenFile, fileAccessHelper uri is empty");
+        return ;
+    }
+    OHOS::Uri uri(openFileCB->uri);
+    openFileCB->result = openFileCB->fileAccessHelper->OpenFile(uri, openFileCB->flags);
+    openFileCB->execResult = ERR_OK;
+}
+
+static napi_value OpenFilePromise(napi_env env, FileAccessHelperOpenFileCB *openFileCB)
+{
     if (openFileCB == nullptr) {
-        HILOG_ERROR("%{public}s, openFileCB == nullptr.", __func__);
-        return WrapVoidToJS(env);
+        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        return nullptr;
     }
-    openFileCB->cbBase.cbInfo.env = env;
-    openFileCB->cbBase.asyncWork = nullptr;
-    openFileCB->cbBase.deferred = nullptr;
-    openFileCB->cbBase.ability = nullptr;
+    napi_value resourceName = nullptr;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+    napi_deferred deferred;
+    napi_value promise = nullptr;
+    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    openFileCB->cbBase.deferred = deferred;
 
-    napi_value ret = OpenFileWrap(env, info, openFileCB);
-    if (ret == nullptr) {
-        HILOG_ERROR("%{public}s,ret == nullptr", __func__);
-        if (openFileCB != nullptr) {
-            delete openFileCB;
-            openFileCB = nullptr;
-        }
-        ret = WrapVoidToJS(env);
-    }
-    return ret;
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            OpenFileExecuteCB,
+            OpenFilePromiseCompleteCB,
+            (void *)openFileCB,
+            &openFileCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, openFileCB->cbBase.asyncWork));
+    return promise;
 }
 
-napi_value OpenFileWrap(napi_env env, napi_callback_info info, FileAccessHelperOpenFileCB *openFileCB)
+static napi_value OpenFileAsync(napi_env env,
+                         napi_value *args,
+                         const size_t argCallback,
+                         FileAccessHelperOpenFileCB *openFileCB)
+{
+    if (args == nullptr || openFileCB == nullptr) {
+        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        return nullptr;
+    }
+
+    napi_value resourceName = nullptr;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[argCallback], &valueType));
+    if (valueType == napi_function) {
+        NAPI_CALL(env, napi_create_reference(env, args[argCallback], initial_refcount, &openFileCB->cbBase.cbInfo.callback));
+    }
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            OpenFileExecuteCB,
+            OpenFileAsyncCompleteCB,
+            (void *)openFileCB,
+            &openFileCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, openFileCB->cbBase.asyncWork));
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_null(env, &result));
+    return result;
+}
+
+static napi_value OpenFileWrap(napi_env env, napi_callback_info info, FileAccessHelperOpenFileCB *openFileCB)
 {
     size_t argcAsync = ARGS_THREE;
     const size_t argcPromise = ARGS_TWO;
     const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
-    napi_value ret = 0;
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
@@ -264,6 +338,7 @@ napi_value OpenFileWrap(napi_env env, napi_callback_info info, FileAccessHelperO
     napi_unwrap(env, thisVar, (void **)&objectInfo);
     openFileCB->fileAccessHelper = objectInfo;
 
+    napi_value ret = nullptr;
     if (argcAsync > argcPromise) {
         ret = OpenFileAsync(env, args, ARGS_TWO, openFileCB);
     } else {
@@ -272,114 +347,7 @@ napi_value OpenFileWrap(napi_env env, napi_callback_info info, FileAccessHelperO
     return ret;
 }
 
-napi_value OpenFileAsync(napi_env env,
-                         napi_value *args,
-                         const size_t argCallback,
-                         FileAccessHelperOpenFileCB *openFileCB)
-{
-    if (args == nullptr || openFileCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
-        return nullptr;
-    }
-    napi_value resourceName = 0;
-    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
-
-    napi_valuetype valueType = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, args[argCallback], &valueType));
-    if (valueType == napi_function) {
-        NAPI_CALL(env, napi_create_reference(env, args[argCallback], 1, &openFileCB->cbBase.cbInfo.callback));
-    }
-
-    NAPI_CALL(env,
-        napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            OpenFileExecuteCB,
-            OpenFileAsyncCompleteCB,
-            (void *)openFileCB,
-            &openFileCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, openFileCB->cbBase.asyncWork));
-    napi_value result = 0;
-    NAPI_CALL(env, napi_get_null(env, &result));
-    return result;
-}
-
-napi_value OpenFilePromise(napi_env env, FileAccessHelperOpenFileCB *openFileCB)
-{
-    if (openFileCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
-        return nullptr;
-    }
-    napi_value resourceName;
-    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
-    napi_deferred deferred;
-    napi_value promise = 0;
-    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
-    openFileCB->cbBase.deferred = deferred;
-
-    NAPI_CALL(env,
-        napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            OpenFileExecuteCB,
-            OpenFilePromiseCompleteCB,
-            (void *)openFileCB,
-            &openFileCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, openFileCB->cbBase.asyncWork));
-    return promise;
-}
-
-void OpenFileExecuteCB(napi_env env, void *data)
-{
-    FileAccessHelperOpenFileCB *openFileCB = static_cast<FileAccessHelperOpenFileCB *>(data);
-    openFileCB->execResult = ERR_ERROR;
-    if (openFileCB->fileAccessHelper == nullptr) {
-        HILOG_ERROR(" NAPI_OpenFile, fileAccessHelper uri is empty");
-        return ;
-    }
-    if (openFileCB->uri.empty()) {
-        HILOG_ERROR(" NAPI_OpenFile, fileAccessHelper uri is empty");
-        return ;
-    }
-    OHOS::Uri uri(openFileCB->uri);
-    openFileCB->result = openFileCB->fileAccessHelper->OpenFile(uri, openFileCB->flags);
-    openFileCB->execResult = ERR_OK;
-}
-
-void OpenFileAsyncCompleteCB(napi_env env, napi_status status, void *data)
-{
-    FileAccessHelperOpenFileCB *openFileCB = static_cast<FileAccessHelperOpenFileCB *>(data);
-    napi_value callback = nullptr;
-    napi_value undefined = nullptr;
-    napi_value result[ARGS_TWO] = {nullptr};
-    napi_value callResult = nullptr;
-    NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
-    NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, openFileCB->cbBase.cbInfo.callback, &callback));
-
-    result[PARAM0] = GetCallbackErrorValue(env, openFileCB->execResult);
-    napi_create_int32(env, openFileCB->result, &result[PARAM1]);
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
-
-    if (openFileCB->cbBase.cbInfo.callback != nullptr) {
-        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, openFileCB->cbBase.cbInfo.callback));
-    }
-    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, openFileCB->cbBase.asyncWork));
-    delete openFileCB;
-    openFileCB = nullptr;
-}
-
-void OpenFilePromiseCompleteCB(napi_env env, napi_status status, void *data)
-{
-    FileAccessHelperOpenFileCB *openFileCB = static_cast<FileAccessHelperOpenFileCB *>(data);
-    napi_value result = nullptr;
-    napi_create_int32(env, openFileCB->result, &result);
-    NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, openFileCB->cbBase.deferred, result));
-    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, openFileCB->cbBase.asyncWork));
-    delete openFileCB;
-    openFileCB = nullptr;
-}
-
-napi_value NAPI_CreateFile(napi_env env, napi_callback_info info)
+napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
@@ -387,40 +355,153 @@ napi_value NAPI_CreateFile(napi_env env, napi_callback_info info)
         UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
+
     if (funcArg.GetArgc() == NARG_CNT::THREE && !NVal(env, funcArg[NARG_POS::THIRD]).TypeIs(napi_function)) {
         UniError(EINVAL).ThrowErr(env, "Type of arguments unmatched");
         return nullptr;
     }
 
-    FileAccessHelperCreateFileCB *createFileCB = new (std::nothrow) FileAccessHelperCreateFileCB;
-    if (createFileCB == nullptr) {
-        HILOG_ERROR("%{public}s, createFileCB == nullptr.", __func__);
+    FileAccessHelperOpenFileCB *openFileCB = new (std::nothrow) FileAccessHelperOpenFileCB;
+    if (openFileCB == nullptr) {
+        HILOG_ERROR("%{public}s, openFileCB == nullptr.", __func__);
         return WrapVoidToJS(env);
     }
-    createFileCB->cbBase.cbInfo.env = env;
-    createFileCB->cbBase.asyncWork = nullptr;
-    createFileCB->cbBase.deferred = nullptr;
-    createFileCB->cbBase.ability = nullptr;
+    openFileCB->cbBase.cbInfo.env = env;
+    openFileCB->cbBase.asyncWork = nullptr;
+    openFileCB->cbBase.deferred = nullptr;
+    openFileCB->cbBase.ability = nullptr;
 
-    napi_value ret = CreateFileWrap(env, info, createFileCB);
+    napi_value ret = OpenFileWrap(env, info, openFileCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s,ret == nullptr", __func__);
-        if (createFileCB != nullptr) {
-            delete createFileCB;
-            createFileCB = nullptr;
+        if (openFileCB != nullptr) {
+            delete openFileCB;
+            openFileCB = nullptr;
         }
         ret = WrapVoidToJS(env);
     }
     return ret;
 }
 
-napi_value CreateFileWrap(napi_env env, napi_callback_info info, FileAccessHelperCreateFileCB *createFileCB)
+static void CreateFilePromiseCompleteCB(napi_env env, napi_status status, void *data)
+{
+    FileAccessHelperCreateFileCB *createFileCB = static_cast<FileAccessHelperCreateFileCB *>(data);
+    napi_value result = nullptr;
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, createFileCB->result.c_str(), NAPI_AUTO_LENGTH, &result));
+    NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, createFileCB->cbBase.deferred, result));
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, createFileCB->cbBase.asyncWork));
+    delete createFileCB;
+    createFileCB = nullptr;
+}
+
+static void CreateFileAsyncCompleteCB(napi_env env, napi_status status, void *data)
+{
+    FileAccessHelperCreateFileCB *createFileCB = static_cast<FileAccessHelperCreateFileCB *>(data);
+    napi_value callback = nullptr;
+    napi_value undefined = nullptr;
+    napi_value result[ARGS_TWO] = {nullptr};
+    napi_value callResult = nullptr;
+    NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
+    NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, createFileCB->cbBase.cbInfo.callback, &callback));
+
+    result[PARAM0] = GetCallbackErrorValue(env, createFileCB->execResult);
+    NAPI_CALL_RETURN_VOID(
+        env, napi_create_string_utf8(env, createFileCB->result.c_str(), NAPI_AUTO_LENGTH, &result[PARAM1]));
+    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+
+    if (createFileCB->cbBase.cbInfo.callback != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, createFileCB->cbBase.cbInfo.callback));
+    }
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, createFileCB->cbBase.asyncWork));
+    delete createFileCB;
+    createFileCB = nullptr;
+}
+
+static void CreateFileExecuteCB(napi_env env, void *data)
+{
+    FileAccessHelperCreateFileCB *createFileCB = static_cast<FileAccessHelperCreateFileCB *>(data);
+    createFileCB->execResult = ERR_ERROR;
+    if (createFileCB->fileAccessHelper == nullptr) {
+        HILOG_ERROR(" NAPI_CreateFile, fileAccessHelper is nullptr");
+        return ;
+    }
+
+    if (createFileCB->parentUri.empty()) {
+        HILOG_ERROR(" NAPI_CreateFile, parentUri uri is empty");
+        return ;
+    }
+    OHOS::Uri parentUri(createFileCB->parentUri);
+    std::string newFile = "";
+    OHOS::Uri newFileUri(newFile);
+    int err = createFileCB->fileAccessHelper->CreateFile(parentUri, createFileCB->name, newFileUri);
+    createFileCB->result = newFileUri.ToString();
+    createFileCB->execResult = err;
+}
+
+static napi_value CreateFilePromise(napi_env env, FileAccessHelperCreateFileCB *createFileCB)
+{
+    if (createFileCB == nullptr) {
+        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        return nullptr;
+    }
+    napi_value resourceName = nullptr;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+    napi_deferred deferred;
+    napi_value promise = nullptr;
+    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    createFileCB->cbBase.deferred = deferred;
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            CreateFileExecuteCB,
+            CreateFilePromiseCompleteCB,
+            (void *)createFileCB,
+            &createFileCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, createFileCB->cbBase.asyncWork));
+    return promise;
+}
+
+static napi_value CreateFileAsync(napi_env env,
+                           napi_value *args,
+                           const size_t argCallback,
+                           FileAccessHelperCreateFileCB *createFileCB)
+{
+    if (args == nullptr || createFileCB == nullptr) {
+        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        return nullptr;
+    }
+
+    napi_value resourceName = nullptr;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[argCallback], &valueType));
+    if (valueType == napi_function) {
+        NAPI_CALL(env, napi_create_reference(env, args[argCallback], initial_refcount, &createFileCB->cbBase.cbInfo.callback));
+    }
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            CreateFileExecuteCB,
+            CreateFileAsyncCompleteCB,
+            (void *)createFileCB,
+            &createFileCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, createFileCB->cbBase.asyncWork));
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_null(env, &result));
+    return result;
+}
+
+static napi_value CreateFileWrap(napi_env env, napi_callback_info info, FileAccessHelperCreateFileCB *createFileCB)
 {
     size_t argcAsync = ARGS_THREE;
     const size_t argcPromise = ARGS_TWO;
     const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
-    napi_value ret = 0;
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
@@ -447,7 +528,8 @@ napi_value CreateFileWrap(napi_env env, napi_callback_info info, FileAccessHelpe
     FileAccessHelper *objectInfo = nullptr;
     napi_unwrap(env, thisVar, (void **)&objectInfo);
     createFileCB->fileAccessHelper = objectInfo;
-
+    
+    napi_value ret = nullptr;
     if (argcAsync > argcPromise) {
         ret = CreateFileAsync(env, args, ARGS_TWO, createFileCB);
     } else {
@@ -456,115 +538,40 @@ napi_value CreateFileWrap(napi_env env, napi_callback_info info, FileAccessHelpe
     return ret;
 }
 
-napi_value CreateFileAsync(napi_env env,
-                           napi_value *args,
-                           const size_t argCallback,
-                           FileAccessHelperCreateFileCB *createFileCB)
+napi_value NAPI_CreateFile(napi_env env, napi_callback_info info)
 {
-    if (args == nullptr || createFileCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
+        HILOG_ERROR("%{public}s, Number of arguments unmatched.", __func__);
+        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
-    napi_value resourceName = 0;
-    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
 
-    napi_valuetype valueType = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, args[argCallback], &valueType));
-    if (valueType == napi_function) {
-        NAPI_CALL(env, napi_create_reference(env, args[argCallback], 1, &createFileCB->cbBase.cbInfo.callback));
+    if (funcArg.GetArgc() == NARG_CNT::THREE && !NVal(env, funcArg[NARG_POS::THIRD]).TypeIs(napi_function)) {
+        UniError(EINVAL).ThrowErr(env, "Type of arguments unmatched");
+        return nullptr;
     }
 
-    NAPI_CALL(env,
-        napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            CreateFileExecuteCB,
-            CreateFileAsyncCompleteCB,
-            (void *)createFileCB,
-            &createFileCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, createFileCB->cbBase.asyncWork));
-    napi_value result = 0;
-    NAPI_CALL(env, napi_get_null(env, &result));
-    return result;
-}
-
-napi_value CreateFilePromise(napi_env env, FileAccessHelperCreateFileCB *createFileCB)
-{
+    FileAccessHelperCreateFileCB *createFileCB = new (std::nothrow) FileAccessHelperCreateFileCB;
     if (createFileCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
-        return nullptr;
+        HILOG_ERROR("%{public}s, createFileCB == nullptr.", __func__);
+        return WrapVoidToJS(env);
     }
-    napi_value resourceName;
-    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
-    napi_deferred deferred;
-    napi_value promise = 0;
-    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
-    createFileCB->cbBase.deferred = deferred;
+    createFileCB->cbBase.cbInfo.env = env;
+    createFileCB->cbBase.asyncWork = nullptr;
+    createFileCB->cbBase.deferred = nullptr;
+    createFileCB->cbBase.ability = nullptr;
 
-    NAPI_CALL(env,
-        napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            CreateFileExecuteCB,
-            CreateFilePromiseCompleteCB,
-            (void *)createFileCB,
-            &createFileCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, createFileCB->cbBase.asyncWork));
-    return promise;
-}
-
-void CreateFileExecuteCB(napi_env env, void *data)
-{
-    FileAccessHelperCreateFileCB *createFileCB = static_cast<FileAccessHelperCreateFileCB *>(data);
-    createFileCB->execResult = ERR_ERROR;
-    if (createFileCB->fileAccessHelper == nullptr) {
-        HILOG_ERROR(" NAPI_OpenFile, fileAccessHelper uri is empty");
-        return ;
+    napi_value ret = CreateFileWrap(env, info, createFileCB);
+    if (ret == nullptr) {
+        HILOG_ERROR("%{public}s,ret == nullptr", __func__);
+        if (createFileCB != nullptr) {
+            delete createFileCB;
+            createFileCB = nullptr;
+        }
+        ret = WrapVoidToJS(env);
     }
-    if (createFileCB->parentUri.empty()) {
-        HILOG_ERROR(" NAPI_OpenFile, fileAccessHelper uri is empty");
-        return ;
-    }
-    OHOS::Uri parentUri(createFileCB->parentUri);
-    std::string newFile = "";
-    OHOS::Uri newFileUri(newFile);
-    int err = createFileCB->fileAccessHelper->CreateFile(parentUri, createFileCB->name, newFileUri);
-    createFileCB->result = newFileUri.ToString();
-    createFileCB->execResult = err;
-}
-
-void CreateFileAsyncCompleteCB(napi_env env, napi_status status, void *data)
-{
-    FileAccessHelperCreateFileCB *createFileCB = static_cast<FileAccessHelperCreateFileCB *>(data);
-    napi_value callback = nullptr;
-    napi_value undefined = nullptr;
-    napi_value result[ARGS_TWO] = {nullptr};
-    napi_value callResult = nullptr;
-    NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
-    NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, createFileCB->cbBase.cbInfo.callback, &callback));
-
-    result[PARAM0] = GetCallbackErrorValue(env, createFileCB->execResult);
-    NAPI_CALL_RETURN_VOID(
-        env, napi_create_string_utf8(env, createFileCB->result.c_str(), NAPI_AUTO_LENGTH, &result[PARAM1]));
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
-
-    if (createFileCB->cbBase.cbInfo.callback != nullptr) {
-        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, createFileCB->cbBase.cbInfo.callback));
-    }
-    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, createFileCB->cbBase.asyncWork));
-    delete createFileCB;
-    createFileCB = nullptr;
-}
-
-void CreateFilePromiseCompleteCB(napi_env env, napi_status status, void *data)
-{
-    FileAccessHelperCreateFileCB *createFileCB = static_cast<FileAccessHelperCreateFileCB *>(data);
-    napi_value result = nullptr;
-    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, createFileCB->result.c_str(), NAPI_AUTO_LENGTH, &result));
-    NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, createFileCB->cbBase.deferred, result));
-    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, createFileCB->cbBase.asyncWork));
-    delete createFileCB;
-    createFileCB = nullptr;
+    return ret;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
