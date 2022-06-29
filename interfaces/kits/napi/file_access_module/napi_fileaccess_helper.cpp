@@ -579,5 +579,578 @@ napi_value NAPI_CreateFile(napi_env env, napi_callback_info info)
     }
     return ret;
 }
+
+static void MkdirPromiseCompleteCB(napi_env env, napi_status status, void *data)
+{
+    FileAccessHelperMkdirCB *mkdirCB = static_cast<FileAccessHelperMkdirCB *>(data);
+    napi_value result = nullptr;
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, mkdirCB->result.c_str(), NAPI_AUTO_LENGTH, &result));
+    NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, mkdirCB->cbBase.deferred, result));
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, mkdirCB->cbBase.asyncWork));
+    delete mkdirCB;
+    mkdirCB = nullptr;
+}
+
+static void MkdirAsyncCompleteCB(napi_env env, napi_status status, void *data)
+{
+    FileAccessHelperMkdirCB *mkdirCB = static_cast<FileAccessHelperMkdirCB *>(data);
+    napi_value callback = nullptr;
+    napi_value undefined = nullptr;
+    napi_value result[ARGS_TWO] = {nullptr};
+    napi_value callResult = nullptr;
+    NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
+    NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, mkdirCB->cbBase.cbInfo.callback, &callback));
+
+    result[PARAM0] = GetCallbackErrorValue(env, mkdirCB->execResult);
+    NAPI_CALL_RETURN_VOID(
+        env, napi_create_string_utf8(env, mkdirCB->result.c_str(), NAPI_AUTO_LENGTH, &result[PARAM1]));
+    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+
+    if (mkdirCB->cbBase.cbInfo.callback != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, mkdirCB->cbBase.cbInfo.callback));
+    }
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, mkdirCB->cbBase.asyncWork));
+    delete mkdirCB;
+    mkdirCB = nullptr;
+}
+
+static void MkdirExecuteCB(napi_env env, void *data)
+{
+    FileAccessHelperMkdirCB *mkdirCB = static_cast<FileAccessHelperMkdirCB *>(data);
+    mkdirCB->execResult = ERR_ERROR;
+    if (mkdirCB->fileAccessHelper == nullptr) {
+        HILOG_ERROR(" NAPI_mkdirCB, fileAccessHelper uri is empty");
+        return ;
+    }
+
+    if (mkdirCB->parentUri.empty()) {
+        HILOG_ERROR(" NAPI_mkdirCB, fileAccessHelper uri is empty");
+        return ;
+    }
+    OHOS::Uri parentUri(mkdirCB->parentUri);
+    std::string newDir = "";
+    OHOS::Uri newDirUri(newDir);
+    int err = mkdirCB->fileAccessHelper->Mkdir(parentUri, mkdirCB->name, newDirUri);
+    mkdirCB->result = newDirUri.ToString();
+    mkdirCB->execResult = err;
+}
+
+static napi_value MkdirPromise(napi_env env, FileAccessHelperMkdirCB *mkdirCB)
+{
+    if (mkdirCB == nullptr) {
+        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        return nullptr;
+    }
+    napi_value resourceName = nullptr;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+    napi_deferred deferred;
+    napi_value promise = nullptr;
+    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    mkdirCB->cbBase.deferred = deferred;
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            MkdirExecuteCB,
+            MkdirPromiseCompleteCB,
+            (void *)mkdirCB,
+            &mkdirCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, mkdirCB->cbBase.asyncWork));
+    return promise;
+}
+
+static napi_value MkdirAsync(napi_env env,
+                             napi_value *args,
+                             const size_t argCallback,
+                             FileAccessHelperMkdirCB *mkdirCB)
+{
+    if (args == nullptr || mkdirCB == nullptr) {
+        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        return nullptr;
+    }
+    napi_value resourceName = nullptr;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[argCallback], &valueType));
+    if (valueType == napi_function) {
+        NAPI_CALL(env, napi_create_reference(env,
+                                             args[argCallback],
+                                             INITIAL_REFCOUNT,
+                                             &mkdirCB->cbBase.cbInfo.callback));
+    }
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            MkdirExecuteCB,
+            MkdirAsyncCompleteCB,
+            (void *)mkdirCB,
+            &mkdirCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, mkdirCB->cbBase.asyncWork));
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_null(env, &result));
+    return result;
+}
+
+static napi_value MkdirWrap(napi_env env, napi_callback_info info, FileAccessHelperMkdirCB *mkdirCB)
+{
+    size_t argcAsync = ARGS_THREE;
+    const size_t argcPromise = ARGS_TWO;
+    const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
+    napi_value args[ARGS_MAX_COUNT] = {nullptr};
+    napi_value thisVar = nullptr;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
+    if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
+        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        return nullptr;
+    }
+
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valueType));
+    if (valueType != napi_string) {
+        UniError(EINVAL).ThrowErr(env, "Type of arguments unmatched");
+        return nullptr;
+    }
+    mkdirCB->parentUri = NapiValueToStringUtf8(env, args[PARAM0]);
+
+    NAPI_CALL(env, napi_typeof(env, args[PARAM1], &valueType));
+    if (valueType != napi_string) {
+        UniError(EINVAL).ThrowErr(env, "Type of arguments unmatched");
+        return nullptr;
+    }
+    mkdirCB->name = NapiValueToStringUtf8(env, args[PARAM1]);
+
+    FileAccessHelper *objectInfo = nullptr;
+    napi_unwrap(env, thisVar, (void **)&objectInfo);
+    mkdirCB->fileAccessHelper = objectInfo;
+    
+    napi_value ret = nullptr;
+    if (argcAsync > argcPromise) {
+        ret = MkdirAsync(env, args, ARGS_TWO, mkdirCB);
+    } else {
+        ret = MkdirPromise(env, mkdirCB);
+    }
+    return ret;
+}
+
+napi_value NAPI_Mkdir(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
+        HILOG_ERROR("%{public}s, Number of arguments unmatched.", __func__);
+        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        return nullptr;
+    }
+
+    if (funcArg.GetArgc() == NARG_CNT::THREE && !NVal(env, funcArg[NARG_POS::THIRD]).TypeIs(napi_function)) {
+        UniError(EINVAL).ThrowErr(env, "Type of arguments unmatched");
+        return nullptr;
+    }
+
+    FileAccessHelperMkdirCB *mkdirCB = new (std::nothrow) FileAccessHelperMkdirCB;
+    if (mkdirCB == nullptr) {
+        HILOG_ERROR("%{public}s, mkdirCB == nullptr.", __func__);
+        return WrapVoidToJS(env);
+    }
+    mkdirCB->cbBase.cbInfo.env = env;
+    mkdirCB->cbBase.asyncWork = nullptr;
+    mkdirCB->cbBase.deferred = nullptr;
+    mkdirCB->cbBase.ability = nullptr;
+
+    napi_value ret = MkdirWrap(env, info, mkdirCB);
+    if (ret == nullptr) {
+        HILOG_ERROR("%{public}s,ret == nullptr", __func__);
+        if (mkdirCB != nullptr) {
+            delete mkdirCB;
+            mkdirCB = nullptr;
+        }
+        ret = WrapVoidToJS(env);
+    }
+    return ret;
+}
+
+static void DeleteAsyncCompleteCB(napi_env env, napi_status status, void *data)
+{
+    FileAccessHelperDeleteCB *deleteCB = static_cast<FileAccessHelperDeleteCB *>(data);
+    napi_value callback = nullptr;
+    napi_value undefined = nullptr;
+    napi_value result[ARGS_TWO] = {nullptr};
+    napi_value callResult = nullptr;
+    NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
+    NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, deleteCB->cbBase.cbInfo.callback, &callback));
+
+    result[PARAM0] = GetCallbackErrorValue(env, deleteCB->execResult);
+    napi_create_int32(env, deleteCB->result, &result[PARAM1]);
+    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+
+    if (deleteCB->cbBase.cbInfo.callback != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, deleteCB->cbBase.cbInfo.callback));
+    }
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, deleteCB->cbBase.asyncWork));
+    delete deleteCB;
+    deleteCB = nullptr;
+}
+
+static void DeletePromiseCompleteCB(napi_env env, napi_status status, void *data)
+{
+    FileAccessHelperDeleteCB *deleteCB = static_cast<FileAccessHelperDeleteCB *>(data);
+    napi_value result = nullptr;
+    napi_create_int32(env, deleteCB->result, &result);
+    NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, deleteCB->cbBase.deferred, result));
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, deleteCB->cbBase.asyncWork));
+    delete deleteCB;
+    deleteCB = nullptr;
+}
+
+static void DeleteExecuteCB(napi_env env, void *data)
+{
+    FileAccessHelperDeleteCB *deleteCB = static_cast<FileAccessHelperDeleteCB *>(data);
+    deleteCB->execResult = ERR_ERROR;
+    if (deleteCB->fileAccessHelper == nullptr) {
+        HILOG_ERROR(" NAPI_deleteCB, fileAccessHelper uri is empty");
+        return ;
+    }
+
+    if (deleteCB->selectFileUri.empty()) {
+        HILOG_ERROR(" NAPI_deleteCB, fileAccessHelper uri is empty");
+        return ;
+    }
+
+    OHOS::Uri selectFileUri(deleteCB->selectFileUri);
+    deleteCB->result = deleteCB->fileAccessHelper->Delete(selectFileUri);
+    deleteCB->execResult = ERR_OK;
+}
+
+static napi_value DeletePromise(napi_env env, FileAccessHelperDeleteCB *deleteCB)
+{
+    if (deleteCB == nullptr) {
+        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        return nullptr;
+    }
+    napi_value resourceName = nullptr;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+    napi_deferred deferred;
+    napi_value promise = nullptr;
+    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    deleteCB->cbBase.deferred = deferred;
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            DeleteExecuteCB,
+            DeletePromiseCompleteCB,
+            (void *)deleteCB,
+            &deleteCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, deleteCB->cbBase.asyncWork));
+    return promise;
+}
+
+static napi_value DeleteAsync(napi_env env,
+                              napi_value *args,
+                              const size_t argCallback,
+                              FileAccessHelperDeleteCB *deleteCB)
+{
+    if (args == nullptr || deleteCB == nullptr) {
+        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        return nullptr;
+    }
+    napi_value resourceName = nullptr;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[argCallback], &valueType));
+    if (valueType == napi_function) {
+        NAPI_CALL(env, napi_create_reference(env,
+                                             args[argCallback],
+                                             INITIAL_REFCOUNT,
+                                             &deleteCB->cbBase.cbInfo.callback));
+    }
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            DeleteExecuteCB,
+            DeleteAsyncCompleteCB,
+            (void *)deleteCB,
+            &deleteCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, deleteCB->cbBase.asyncWork));
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_null(env, &result));
+    return result;
+}
+
+static napi_value DeleteWrap(napi_env env, napi_callback_info info, FileAccessHelperDeleteCB *deleteCB)
+{
+    size_t argcAsync = ARGS_TWO;
+    const size_t argcPromise = ARGS_ONE;
+    const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
+    napi_value args[ARGS_MAX_COUNT] = {nullptr};
+    napi_value thisVar = nullptr;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
+    if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
+        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        return nullptr;
+    }
+
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valueType));
+    if (valueType != napi_string) {
+        UniError(EINVAL).ThrowErr(env, "Type of arguments unmatched");
+        return nullptr;
+    }
+    deleteCB->selectFileUri = NapiValueToStringUtf8(env, args[PARAM0]);
+
+    FileAccessHelper *objectInfo = nullptr;
+    napi_unwrap(env, thisVar, (void **)&objectInfo);
+    deleteCB->fileAccessHelper = objectInfo;
+    
+    napi_value ret = nullptr;
+    if (argcAsync > argcPromise) {
+        ret = DeleteAsync(env, args, ARGS_ONE, deleteCB);
+    } else {
+        ret = DeletePromise(env, deleteCB);
+    }
+    return ret;
+}
+
+napi_value NAPI_Delete(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
+        HILOG_ERROR("%{public}s, Number of arguments unmatched.", __func__);
+        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        return nullptr;
+    }
+
+    if (funcArg.GetArgc() == NARG_CNT::TWO && !NVal(env, funcArg[NARG_POS::SECOND]).TypeIs(napi_function)) {
+        UniError(EINVAL).ThrowErr(env, "Type of arguments unmatched");
+        return nullptr;
+    }
+
+    FileAccessHelperDeleteCB *deleteCB = new (std::nothrow) FileAccessHelperDeleteCB;
+    if (deleteCB == nullptr) {
+        HILOG_ERROR("%{public}s, deleteCB == nullptr.", __func__);
+        return WrapVoidToJS(env);
+    }
+    deleteCB->cbBase.cbInfo.env = env;
+    deleteCB->cbBase.asyncWork = nullptr;
+    deleteCB->cbBase.deferred = nullptr;
+    deleteCB->cbBase.ability = nullptr;
+
+    napi_value ret = DeleteWrap(env, info, deleteCB);
+    if (ret == nullptr) {
+        HILOG_ERROR("%{public}s,ret == nullptr", __func__);
+        if (deleteCB != nullptr) {
+            delete deleteCB;
+            deleteCB = nullptr;
+        }
+        ret = WrapVoidToJS(env);
+    }
+    return ret;
+}
+
+static void MovePromiseCompleteCB(napi_env env, napi_status status, void *data)
+{
+    FileAccessHelperMoveCB *moveCB = static_cast<FileAccessHelperMoveCB *>(data);
+    napi_value result = nullptr;
+    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, moveCB->result.c_str(), NAPI_AUTO_LENGTH, &result));
+    NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, moveCB->cbBase.deferred, result));
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, moveCB->cbBase.asyncWork));
+    delete moveCB;
+    moveCB = nullptr;
+}
+
+static void MoveAsyncCompleteCB(napi_env env, napi_status status, void *data)
+{
+    FileAccessHelperMoveCB *moveCB = static_cast<FileAccessHelperMoveCB *>(data);
+    if (moveCB == nullptr) {
+        return ;
+    }
+    napi_value callback = nullptr;
+    napi_value undefined = nullptr;
+    napi_value result[ARGS_TWO] = {nullptr};
+    napi_value callResult = nullptr;
+    NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
+    NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, moveCB->cbBase.cbInfo.callback, &callback));
+
+    result[PARAM0] = GetCallbackErrorValue(env, moveCB->execResult);
+    NAPI_CALL_RETURN_VOID(
+        env, napi_create_string_utf8(env, moveCB->result.c_str(), NAPI_AUTO_LENGTH, &result[PARAM1]));
+    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+
+    if (moveCB->cbBase.cbInfo.callback != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, moveCB->cbBase.cbInfo.callback));
+    }
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, moveCB->cbBase.asyncWork));
+    delete moveCB;
+    moveCB = nullptr;
+}
+
+static void MoveExecuteCB(napi_env env, void *data)
+{
+    FileAccessHelperMoveCB *moveCB = static_cast<FileAccessHelperMoveCB *>(data);
+    moveCB->execResult = ERR_ERROR;
+    if (moveCB->fileAccessHelper == nullptr) {
+        HILOG_ERROR("NAPI_move, fileAccessHelper is nullptr");
+        return ;
+    }
+
+    if (moveCB->sourceFileUri.empty()) {
+        HILOG_ERROR("NAPI_move, fileAccessHelper uri is empty");
+        return ;
+    }
+    OHOS::Uri sourceFileUri(moveCB->sourceFileUri);
+    OHOS::Uri targetParentUri(moveCB->targetParentUri);
+    std::string newFile = "";
+    OHOS::Uri newFileUri(newFile);
+    int err = moveCB->fileAccessHelper->Move(sourceFileUri, targetParentUri, newFileUri);
+    moveCB->result = newFileUri.ToString();
+    moveCB->execResult = err;
+}
+
+static napi_value MovePromise(napi_env env, FileAccessHelperMoveCB *moveCB)
+{
+    if (moveCB == nullptr) {
+        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        return nullptr;
+    }
+    napi_value resourceName = nullptr;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+    napi_deferred deferred;
+    napi_value promise = nullptr;
+    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    moveCB->cbBase.deferred = deferred;
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            MoveExecuteCB,
+            MovePromiseCompleteCB,
+            (void *)moveCB,
+            &moveCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, moveCB->cbBase.asyncWork));
+    return promise;
+}
+
+static napi_value MoveAsync(napi_env env,
+                            napi_value *args,
+                            const size_t argCallback,
+                            FileAccessHelperMoveCB *moveCB)
+{
+    if (args == nullptr || moveCB == nullptr) {
+        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        return nullptr;
+    }
+    napi_value resourceName = nullptr;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[argCallback], &valueType));
+    if (valueType == napi_function) {
+        NAPI_CALL(env, napi_create_reference(env,
+                                             args[argCallback],
+                                             INITIAL_REFCOUNT,
+                                             &moveCB->cbBase.cbInfo.callback));
+    }
+
+    NAPI_CALL(env,
+        napi_create_async_work(env,
+            nullptr,
+            resourceName,
+            MoveExecuteCB,
+            MoveAsyncCompleteCB,
+            (void *)moveCB,
+            &moveCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, moveCB->cbBase.asyncWork));
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_null(env, &result));
+    return result;
+}
+
+static napi_value MoveWrap(napi_env env, napi_callback_info info, FileAccessHelperMoveCB *moveCB)
+{
+    size_t argcAsync = ARGS_THREE;
+    const size_t argcPromise = ARGS_TWO;
+    const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
+    napi_value args[ARGS_MAX_COUNT] = {nullptr};
+    napi_value thisVar = nullptr;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
+    if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
+        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        return nullptr;
+    }
+
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valueType));
+    if (valueType != napi_string) {
+        UniError(EINVAL).ThrowErr(env, "Type of arguments unmatched");
+        return nullptr;
+    }
+    moveCB->sourceFileUri = NapiValueToStringUtf8(env, args[PARAM0]);
+
+    NAPI_CALL(env, napi_typeof(env, args[PARAM1], &valueType));
+    if (valueType != napi_string) {
+        UniError(EINVAL).ThrowErr(env, "Type of arguments unmatched");
+        return nullptr;
+    }
+    moveCB->targetParentUri = NapiValueToStringUtf8(env, args[PARAM1]);
+
+    FileAccessHelper *objectInfo = nullptr;
+    napi_unwrap(env, thisVar, (void **)&objectInfo);
+    moveCB->fileAccessHelper = objectInfo;
+    
+    napi_value ret = nullptr;
+    if (argcAsync > argcPromise) {
+        ret = MoveAsync(env, args, ARGS_TWO, moveCB);
+    } else {
+        ret = MovePromise(env, moveCB);
+    }
+    return ret;
+}
+
+napi_value NAPI_Move(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
+        HILOG_ERROR("%{public}s, Number of arguments unmatched.", __func__);
+        UniError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        return nullptr;
+    }
+
+    if (funcArg.GetArgc() == NARG_CNT::THREE && !NVal(env, funcArg[NARG_POS::THIRD]).TypeIs(napi_function)) {
+        UniError(EINVAL).ThrowErr(env, "Type of arguments unmatched");
+        return nullptr;
+    }
+
+    FileAccessHelperMoveCB *moveCB = new (std::nothrow) FileAccessHelperMoveCB;
+    if (moveCB == nullptr) {
+        HILOG_ERROR("%{public}s, moveCB == nullptr.", __func__);
+        return WrapVoidToJS(env);
+    }
+    moveCB->cbBase.cbInfo.env = env;
+    moveCB->cbBase.asyncWork = nullptr;
+    moveCB->cbBase.deferred = nullptr;
+    moveCB->cbBase.ability = nullptr;
+
+    napi_value ret = MoveWrap(env, info, moveCB);
+    if (ret == nullptr) {
+        HILOG_ERROR("%{public}s,ret == nullptr", __func__);
+        if (moveCB != nullptr) {
+            delete moveCB;
+            moveCB = nullptr;
+        }
+        ret = WrapVoidToJS(env);
+    }
+    return ret;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
