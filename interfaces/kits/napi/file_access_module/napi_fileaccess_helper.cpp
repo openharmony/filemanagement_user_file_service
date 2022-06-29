@@ -37,7 +37,7 @@ namespace FileAccessFwk {
 namespace {
 const std::string FILEACCESS_CLASS_NAME = "FileAccessHelper";
 static napi_ref g_constructorRef = nullptr;
-constexpr uint32_t initial_refcount = 1;
+constexpr uint32_t INITIAL_REFCOUNT = 1;
 
 std::string NapiValueToStringUtf8(napi_env env, napi_value value)
 {
@@ -185,7 +185,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
             properties,
             &cons));
     g_fileAccessHelperList.clear();
-    NAPI_CALL(env, napi_create_reference(env, cons, initial_refcount, &g_constructorRef));
+    NAPI_CALL(env, napi_create_reference(env, cons, INITIAL_REFCOUNT, &g_constructorRef));
     NAPI_CALL(env, napi_set_named_property(env, exports, FILEACCESS_CLASS_NAME.c_str(), cons));
 
     napi_property_descriptor export_properties[] = {
@@ -274,9 +274,9 @@ static napi_value OpenFilePromise(napi_env env, FileAccessHelperOpenFileCB *open
 }
 
 static napi_value OpenFileAsync(napi_env env,
-                         napi_value *args,
-                         const size_t argCallback,
-                         FileAccessHelperOpenFileCB *openFileCB)
+                                napi_value *args,
+                                const size_t argCallback,
+                                FileAccessHelperOpenFileCB *openFileCB)
 {
     if (args == nullptr || openFileCB == nullptr) {
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
@@ -288,7 +288,10 @@ static napi_value OpenFileAsync(napi_env env,
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, args[argCallback], &valueType));
     if (valueType == napi_function) {
-        NAPI_CALL(env, napi_create_reference(env, args[argCallback], initial_refcount, &openFileCB->cbBase.cbInfo.callback));
+        NAPI_CALL(env, napi_create_reference(env,
+                                             args[argCallback],
+                                             INITIAL_REFCOUNT,
+                                             &openFileCB->cbBase.cbInfo.callback));
     }
 
     NAPI_CALL(env,
@@ -464,9 +467,9 @@ static napi_value CreateFilePromise(napi_env env, FileAccessHelperCreateFileCB *
 }
 
 static napi_value CreateFileAsync(napi_env env,
-                           napi_value *args,
-                           const size_t argCallback,
-                           FileAccessHelperCreateFileCB *createFileCB)
+                                  napi_value *args,
+                                  const size_t argCallback,
+                                  FileAccessHelperCreateFileCB *createFileCB)
 {
     if (args == nullptr || createFileCB == nullptr) {
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
@@ -479,7 +482,10 @@ static napi_value CreateFileAsync(napi_env env,
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, args[argCallback], &valueType));
     if (valueType == napi_function) {
-        NAPI_CALL(env, napi_create_reference(env, args[argCallback], initial_refcount, &createFileCB->cbBase.cbInfo.callback));
+        NAPI_CALL(env, napi_create_reference(env,
+                                             args[argCallback],
+                                             INITIAL_REFCOUNT,
+                                             &createFileCB->cbBase.cbInfo.callback));
     }
 
     NAPI_CALL(env,
