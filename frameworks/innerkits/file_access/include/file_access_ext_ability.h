@@ -17,6 +17,7 @@
 #define FILE_EXT_ABILITY_H
 
 #include "extension_base.h"
+#include "file_access_extension_info.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -37,6 +38,16 @@ public:
         const sptr<IRemoteObject> &token) override;
 
     static FileAccessExtAbility* Create(const std::unique_ptr<Runtime>& runtime);
+
+    virtual int OpenFile(const Uri &uri, int flags);
+    virtual int CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile);
+    virtual int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile);
+    virtual int Delete(const Uri &sourceFile);
+    virtual int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile);
+    virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile);
+
+    virtual std::vector<FileInfo> ListFile(const Uri &sourceFile);
+    virtual std::vector<DeviceInfo> GetRoots();
     static void SetCreator(const CreatorFunc& creator);
 private:
     static CreatorFunc creator_;
