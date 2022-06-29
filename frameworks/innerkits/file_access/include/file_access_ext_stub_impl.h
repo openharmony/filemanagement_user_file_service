@@ -18,9 +18,9 @@
 
 #include <memory>
 
+#include "file_access_ext_ability.h"
 #include "file_access_ext_stub.h"
 #include "file_access_extension_info.h"
-#include "file_access_ext_ability.h"
 #include "native_engine/native_value.h"
 
 namespace OHOS {
