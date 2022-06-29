@@ -60,7 +60,7 @@ ohos_shared_library("fms_server") {
   ]
 
   deps = [
-    "${aafwk_kits_path}/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
     "${aafwk_services_path}/abilitymgr:abilityms",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
     "//foundation/filemanagement/storage_service/interfaces/innerkits/storage_manager/native:storage_manager_sa_proxy",
