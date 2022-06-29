@@ -26,7 +26,6 @@ const DEFAULT_MODE = 0o666;
 const CREATE_FILE_FLAGS = 0o100;
 const FILE_ACCESS = 'fileAccess://';
 
-
 export default class FileExtAbility extends Extension {
     onCreate(want) {
         init();
@@ -139,7 +138,6 @@ export default class FileExtAbility extends Extension {
             hilog.debug(0x0001, 'jsserver', 'openFile error ' + e.message);
             fd = -1;
         }
-
         return fd;
     }
 
@@ -201,7 +199,6 @@ export default class FileExtAbility extends Extension {
                 code = -1;
             }
         });
-
         return code;
     }
 
@@ -289,7 +286,6 @@ export default class FileExtAbility extends Extension {
             hilog.debug(0x0001, 'jsserver', 'listFile error ' + e.message);
             infos = [];
         }
-
         return infos;
     }
 
