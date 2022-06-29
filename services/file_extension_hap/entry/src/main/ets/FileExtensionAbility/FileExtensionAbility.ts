@@ -18,6 +18,7 @@ import { init, delVolumeInfo, getVolumeInfoList } from './VolumeManager'
 import { onReceiveEvent } from './Subcriber'
 import fileExtensionInfo from "@ohos.fileExtensionInfo"
 import appManager from '@ohos.application.appManager';
+import hilog from '@ohos.hilog'
 
 const FLAG = fileExtensionInfo.FLAG;
 const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
@@ -121,6 +122,7 @@ export default class FileExtAbility extends Extension {
                 cb(path, false);
             }
         } catch (e) {
+            hilog.debug(0x0001, 'jsserver', 'listDir error ' + e.message);
             cb(path, true);
         }
     }
@@ -134,6 +136,7 @@ export default class FileExtAbility extends Extension {
             let path = this.getPath(sourceFileUri);
             fd = fileio.openSync(path, flags, DEFAULT_MODE);
         } catch (e) {
+            hilog.debug(0x0001, 'jsserver', 'openFile error ' + e.message);
             fd = -1;
         }
 
@@ -145,6 +148,7 @@ export default class FileExtAbility extends Extension {
             fileio.closeSync(fd);
             return true;
         } catch (e) {
+            hilog.debug(0x0001, 'jsserver', 'closeFile error ' + e.message);
             return false;
         }
     }
@@ -159,6 +163,7 @@ export default class FileExtAbility extends Extension {
             fileio.openSync(path, CREATE_FILE_FLAGS, DEFAULT_MODE);
             return newFileUri;
         } catch (e) {
+            hilog.debug(0x0001, 'jsserver', 'createFile error ' + e.message);
             return '';
         }
     }
@@ -173,6 +178,7 @@ export default class FileExtAbility extends Extension {
             fileio.mkdirSync(path);
             return newFileUri;
         } catch (e) {
+            hilog.debug(0x0001, 'jsserver', 'mkdir error ' + e.message);
             return '';
         }
     }
@@ -191,6 +197,7 @@ export default class FileExtAbility extends Extension {
                     fileio.unlinkSync(filePath);
                 }
             } catch (e) {
+                hilog.debug(0x0001, 'jsserver', 'delete error ' + e.message);
                 code = -1;
             }
         });
@@ -210,6 +217,7 @@ export default class FileExtAbility extends Extension {
             fileio.renameSync(oldPath, newPath);
             return newFileUri;
         } catch (e) {
+            hilog.debug(0x0001, 'jsserver', 'move error ' + e.message);
             return '';
         }
     }
@@ -225,6 +233,7 @@ export default class FileExtAbility extends Extension {
             fileio.renameSync(oldPath, newPath);
             return newFileUri;
         } catch (e) {
+            hilog.debug(0x0001, 'jsserver', 'rename error ' + e.message);
             return '';
         }
     }
@@ -245,6 +254,7 @@ export default class FileExtAbility extends Extension {
                 mimeType: '',
             };
         } catch (e) {
+            hilog.debug(0x0001, 'jsserver', 'query error ' + e.message);
             return null;
         }
     }
@@ -271,10 +281,12 @@ export default class FileExtAbility extends Extension {
                         mimeType: '',
                     });
                 } catch (e) {
+                    hilog.debug(0x0001, 'jsserver', 'listFile error ' + e.message);
                     hasNextFile = false;
                 }
             }
         } catch (e) {
+            hilog.debug(0x0001, 'jsserver', 'listFile error ' + e.message);
             infos = [];
         }
 
