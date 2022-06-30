@@ -1224,7 +1224,7 @@ static napi_value RenamePromise(napi_env env, FileAccessHelperRenameCB *renameCB
 
     NAPI_CALL(env,
         napi_create_async_work(env,
-		                       nullptr,
+                               nullptr,
 							   resourceName,
 							   RenameExecuteCB,
 							   RenamePromiseCompleteCB,
@@ -1250,7 +1250,7 @@ static napi_value RenameAsync(napi_env env,
     NAPI_CALL(env, napi_typeof(env, args[argCallback], &valueType));
     if (valueType == napi_function) {
         NAPI_CALL(env, napi_create_reference(env,
-		                                     args[argCallback],
+                                             args[argCallback],
 											 INITIAL_REFCOUNT,
 											 &renameCB->cbBase.cbInfo.callback));
     }
