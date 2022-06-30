@@ -1224,12 +1224,12 @@ static napi_value RenamePromise(napi_env env, FileAccessHelperRenameCB *renameCB
 
     NAPI_CALL(env,
         napi_create_async_work(env,
-            				   nullptr,
-				               resourceName,
-				               RenameExecuteCB,
-				               RenamePromiseCompleteCB,
-				               (void *)renameCB,
-				               &renameCB->cbBase.asyncWork));
+		                       nullptr,
+							   resourceName,
+							   RenameExecuteCB,
+							   RenamePromiseCompleteCB,
+							   (void *)renameCB,
+							   &renameCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, renameCB->cbBase.asyncWork));
     return promise;
 }
@@ -1257,8 +1257,8 @@ static napi_value RenameAsync(napi_env env,
 
     NAPI_CALL(env,
         napi_create_async_work(env,
-           			   		   nullptr,
-                               resourceName,
+		                       nullptr,
+							   resourceName,
 							   RenameExecuteCB,
 							   RenameAsyncCompleteCB,
 							   (void *)renameCB,
@@ -1413,7 +1413,7 @@ static napi_value ListFilePromise(napi_env env, FileAccessHelperListFileCB *list
 
     NAPI_CALL(env,
         napi_create_async_work(env,
-                               nullptr,
+		                       nullptr,
 							   resourceName,
 							   ListFileExecuteCB,
 							   ListFilePromiseCompleteCB,
@@ -1446,7 +1446,7 @@ static napi_value ListFileAsync(napi_env env,
 
     NAPI_CALL(env,
         napi_create_async_work(env,
-                               nullptr,
+		                       nullptr,
 							   resourceName,
 							   ListFileExecuteCB,
 							   ListFileAsyncCompleteCB,
@@ -1589,7 +1589,7 @@ static napi_value GetRootsPromise(napi_env env, FileAccessHelperGetRootsCB *getR
 
     NAPI_CALL(env,
         napi_create_async_work(env,
-                               nullptr,
+		                       nullptr,
 							   resourceName,
 							   GetRootsExecuteCB,
 							   GetRootsPromiseCompleteCB,
@@ -1622,7 +1622,7 @@ static napi_value GetRootsAsync(napi_env env,
 
     NAPI_CALL(env,
         napi_create_async_work(env,
-                               nullptr,
+		                       nullptr,
 							   resourceName,
 							   GetRootsExecuteCB,
 							   GetRootsAsyncCompleteCB,
