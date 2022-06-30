@@ -65,7 +65,7 @@ napi_value DeviceInfoConstructor(napi_env env, napi_callback_info info)
 
     napi_status status = napi_get_cb_info(env, info, &argc, args, &res, &data);
     if (status != napi_ok) {
-        HILOG_ERROR("%{public}s, status is not napi_ok", __func__);s
+        HILOG_ERROR("%{public}s, status is not napi_ok", __func__);
         return nullptr;
     }
 
