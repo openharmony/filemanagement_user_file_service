@@ -1225,11 +1225,11 @@ static napi_value RenamePromise(napi_env env, FileAccessHelperRenameCB *renameCB
     NAPI_CALL(env,
         napi_create_async_work(env,
                                nullptr,
-							   resourceName,
-							   RenameExecuteCB,
-							   RenamePromiseCompleteCB,
-							   (void *)renameCB,
-							   &renameCB->cbBase.asyncWork));
+                               resourceName,
+                               RenameExecuteCB,
+                               RenamePromiseCompleteCB,
+                               (void *)renameCB,
+                               &renameCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, renameCB->cbBase.asyncWork));
     return promise;
 }
@@ -1251,18 +1251,18 @@ static napi_value RenameAsync(napi_env env,
     if (valueType == napi_function) {
         NAPI_CALL(env, napi_create_reference(env,
                                              args[argCallback],
-											 INITIAL_REFCOUNT,
-											 &renameCB->cbBase.cbInfo.callback));
+                                             INITIAL_REFCOUNT,
+                                             &renameCB->cbBase.cbInfo.callback));
     }
 
     NAPI_CALL(env,
         napi_create_async_work(env,
-		                       nullptr,
-							   resourceName,
-							   RenameExecuteCB,
-							   RenameAsyncCompleteCB,
-							   (void *)renameCB,
-							   &renameCB->cbBase.asyncWork));
+                               nullptr,
+                               resourceName,
+                               RenameExecuteCB,
+                               RenameAsyncCompleteCB,
+                               (void *)renameCB,
+                               &renameCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, renameCB->cbBase.asyncWork));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
@@ -1413,20 +1413,20 @@ static napi_value ListFilePromise(napi_env env, FileAccessHelperListFileCB *list
 
     NAPI_CALL(env,
         napi_create_async_work(env,
-		                       nullptr,
-							   resourceName,
-							   ListFileExecuteCB,
-							   ListFilePromiseCompleteCB,
-							   (void *)listFileCB,
-							   &listFileCB->cbBase.asyncWork));
+                               nullptr,
+                               resourceName,
+                               ListFileExecuteCB,
+                               ListFilePromiseCompleteCB,
+                               (void *)listFileCB,
+                               &listFileCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, listFileCB->cbBase.asyncWork));
     return promise;
 }
 
 static napi_value ListFileAsync(napi_env env,
                                 napi_value *args,
-								const size_t argCallback,
-								FileAccessHelperListFileCB *listFileCB)
+                                const size_t argCallback,
+                                FileAccessHelperListFileCB *listFileCB)
 {
     if (args == nullptr || listFileCB == nullptr) {
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
@@ -1440,18 +1440,18 @@ static napi_value ListFileAsync(napi_env env,
     if (valueType == napi_function) {
         NAPI_CALL(env, napi_create_reference(env,
                                              args[argCallback],
-											 INITIAL_REFCOUNT,
-											 &listFileCB->cbBase.cbInfo.callback));
+                                             INITIAL_REFCOUNT,
+                                             &listFileCB->cbBase.cbInfo.callback));
     }
 
     NAPI_CALL(env,
         napi_create_async_work(env,
-		                       nullptr,
-							   resourceName,
-							   ListFileExecuteCB,
-							   ListFileAsyncCompleteCB,
-							   (void *)listFileCB,
-							   &listFileCB->cbBase.asyncWork));
+                               nullptr,
+                               resourceName,
+                               ListFileExecuteCB,
+                               ListFileAsyncCompleteCB,
+                               (void *)listFileCB,
+                               &listFileCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, listFileCB->cbBase.asyncWork));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
@@ -1589,20 +1589,20 @@ static napi_value GetRootsPromise(napi_env env, FileAccessHelperGetRootsCB *getR
 
     NAPI_CALL(env,
         napi_create_async_work(env,
-		                       nullptr,
-							   resourceName,
-							   GetRootsExecuteCB,
-							   GetRootsPromiseCompleteCB,
-							   (void *)getRootsCB,
-							   &getRootsCB->cbBase.asyncWork));
+                               nullptr,
+                               resourceName,
+                               GetRootsExecuteCB,
+                               GetRootsPromiseCompleteCB,
+                               (void *)getRootsCB,
+                               &getRootsCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, getRootsCB->cbBase.asyncWork));
     return promise;
 }
 
 static napi_value GetRootsAsync(napi_env env,
                                 napi_value *args,
-								const size_t argCallback,
-								FileAccessHelperGetRootsCB *getRootsCB)
+                                const size_t argCallback,
+                                FileAccessHelperGetRootsCB *getRootsCB)
 {
     if (args == nullptr || getRootsCB == nullptr) {
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
@@ -1615,19 +1615,19 @@ static napi_value GetRootsAsync(napi_env env,
     NAPI_CALL(env, napi_typeof(env, args[argCallback], &valueType));
     if (valueType == napi_function) {
         NAPI_CALL(env, napi_create_reference(env,
-		                                     args[argCallback],
-											 INITIAL_REFCOUNT,
-											 &getRootsCB->cbBase.cbInfo.callback));
+                                             args[argCallback],
+                                             INITIAL_REFCOUNT,
+                                             &getRootsCB->cbBase.cbInfo.callback));
     }
 
     NAPI_CALL(env,
         napi_create_async_work(env,
-		                       nullptr,
-							   resourceName,
-							   GetRootsExecuteCB,
-							   GetRootsAsyncCompleteCB,
-							   (void *)getRootsCB,
-							   &getRootsCB->cbBase.asyncWork));
+                               nullptr,
+                               resourceName,
+                               GetRootsExecuteCB,
+                               GetRootsAsyncCompleteCB,
+                               (void *)getRootsCB,
+                               &getRootsCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, getRootsCB->cbBase.asyncWork));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
