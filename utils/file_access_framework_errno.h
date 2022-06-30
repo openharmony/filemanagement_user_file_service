@@ -30,10 +30,7 @@ enum {
     ERR_INVALID_FD,                         // invalid fd
     ERR_INVALID_URI,                        // invalid uri
     ERR_URI_CHECK,                          // check uri head fail
-    ERR_CREATE,                             // create file/dir fail
-    ERR_DELETE,                             // delete file/dir fail
-    ERR_MOVE,                               // move file/dir fail
-    ERR_RENAME,                             // rename file/dir fail
+    ERR_FILEIO_FAIL,                        // fileio fail
     ERR_INVALID_PARAM                       // invalid parameter
 };
 } // namespace FileAccessFwk

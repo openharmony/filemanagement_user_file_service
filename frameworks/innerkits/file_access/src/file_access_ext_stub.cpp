@@ -114,7 +114,7 @@ ErrCode FileAccessExtStub::CmdCreateFile(MessageParcel &data, MessageParcel &rep
     int ret = CreateFile(*parent, displayName, *fileNew);
     if (ret < 0) {
         HILOG_ERROR("CreateFile fail, ret is %{pubilc}d", ret);
-        return ERR_CREATE;
+        return ERR_FILEIO_FAIL;
     }
 
     if (!reply.WriteInt32(ret)) {
@@ -152,7 +152,7 @@ ErrCode FileAccessExtStub::CmdMkdir(MessageParcel &data, MessageParcel &reply)
     int ret = Mkdir(*parent, displayName, *fileNew);
     if (ret < 0) {
         HILOG_ERROR("Mkdir fail, ret is %{pubilc}d", ret);
-        return ERR_CREATE;
+        return ERR_FILEIO_FAIL;
     }
 
     if (!reply.WriteInt32(ret)) {
@@ -178,7 +178,7 @@ ErrCode FileAccessExtStub::CmdDelete(MessageParcel &data, MessageParcel &reply)
     int ret = Delete(*uri);
     if (ret < 0) {
         HILOG_ERROR("Delete fail, ret is %{pubilc}d", ret);
-        return ERR_DELETE;
+        return ERR_FILEIO_FAIL;
     }
 
     if (!reply.WriteInt32(ret)) {
@@ -211,7 +211,7 @@ ErrCode FileAccessExtStub::CmdMove(MessageParcel &data, MessageParcel &reply)
     int ret = Move(*sourceFile, *targetParent, *fileNew);
     if (ret < 0) {
         HILOG_ERROR("Move fail, ret is %{pubilc}d", ret);
-        return ERR_MOVE;
+        return ERR_FILEIO_FAIL;
     }
 
     if (!reply.WriteInt32(ret)) {
@@ -249,7 +249,7 @@ ErrCode FileAccessExtStub::CmdRename(MessageParcel &data, MessageParcel &reply)
     int ret = Rename(*sourceFile, displayName, *fileNew);
     if (ret < 0) {
         HILOG_ERROR("Rename fail, ret is %{pubilc}d", ret);
-        return ERR_RENAME;
+        return ERR_FILEIO_FAIL;
     }
 
     if (!reply.WriteInt32(ret)) {
