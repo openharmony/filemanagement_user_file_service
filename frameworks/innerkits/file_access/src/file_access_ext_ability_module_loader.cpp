@@ -19,7 +19,7 @@
 namespace OHOS {
 namespace FileAccessFwk {
 namespace {
-const std::string FILE_ACCESS_TYPE = 12;
+const std::string FILE_ACCESS_TYPE = "12";
 }
 FileAccessExtAbilityModuleLoader::FileAccessExtAbilityModuleLoader() = default;
 FileAccessExtAbilityModuleLoader::~FileAccessExtAbilityModuleLoader() = default;

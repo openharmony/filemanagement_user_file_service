@@ -1337,7 +1337,7 @@ napi_value NAPI_Rename(napi_env env, napi_callback_info info)
 
     napi_value ret = RenameWrap(env, info, renameCB);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s,ret == nullptr", __func__);
+        HILOG_ERROR("%{public}s, ret == nullptr", __func__);
         if (renameCB != nullptr) {
             delete renameCB;
             renameCB = nullptr;
@@ -1404,6 +1404,7 @@ static napi_value ListFilePromise(napi_env env, FileAccessHelperListFileCB *list
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
         return nullptr;
     }
+
     napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     napi_deferred deferred;
@@ -1432,6 +1433,7 @@ static napi_value ListFileAsync(napi_env env,
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
         return nullptr;
     }
+
     napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
 
@@ -1519,7 +1521,7 @@ napi_value NAPI_ListFile(napi_env env, napi_callback_info info)
 
     napi_value ret = ListFileWrap(env, info, listFileCB);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s,ret == nullptr", __func__);
+        HILOG_ERROR("%{public}s, ret == nullptr", __func__);
         if (listFileCB != nullptr) {
             delete listFileCB;
             listFileCB = nullptr;
@@ -1580,6 +1582,7 @@ static napi_value GetRootsPromise(napi_env env, FileAccessHelperGetRootsCB *getR
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
         return nullptr;
     }
+
     napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     napi_deferred deferred;
@@ -1608,6 +1611,7 @@ static napi_value GetRootsAsync(napi_env env,
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
         return nullptr;
     }
+
     napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
 
@@ -1687,7 +1691,7 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
 
     napi_value ret = GetRootsWrap(env, info, getRootsCB);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s,ret == nullptr", __func__);
+        HILOG_ERROR("%{public}s, ret == nullptr", __func__);
         if (getRootsCB != nullptr) {
             delete getRootsCB;
             getRootsCB = nullptr;
