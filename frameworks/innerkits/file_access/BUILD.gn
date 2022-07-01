@@ -21,11 +21,11 @@ config("ability_config") {
   include_dirs = [
     "include",
     "${BASE_DIR}/utils",
-    "${aafwk_services_path}/common/include",
-    "${aafwk_kits_path}/ability/native/include/continuation/distributed",
-    "${aafwk_kits_path}/ability/native/include/continuation/kits",
-    "${aafwk_kits_path}/appkit/native/app/include",
-    "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common",
+    "${ability_runtime_services_path}/common/include",
+    "${ability_runtime_kits_path}/ability/native/include/continuation/distributed",
+    "${ability_runtime_kits_path}/ability/native/include/continuation/kits",
+    "${ability_runtime_kits_path}/appkit/native/app/include",
+    "${ability_runtime_path}/frameworks/js/napi/aafwk/inner/napi_common",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base/include",
   ]
 
@@ -40,9 +40,9 @@ config("ability_public_config") {
   include_dirs = [
     "include",
     "${BASE_DIR}/utils",
-    "${aafwk_kits_path}/appkit/native/ability_runtime/app",
-    "${aafwk_kits_path}/appkit/native/app/include",
-    "${aafwk_kits_path}/appkit/native/ability_runtime/context",
+    "${ability_runtime_kits_path}/appkit/native/ability_runtime/app",
+    "${ability_runtime_kits_path}/appkit/native/app/include",
+    "${ability_runtime_kits_path}/appkit/native/ability_runtime/context",
   ]
 }
 
@@ -62,12 +62,12 @@ ohos_shared_library("file_access_extension_ability_kit") {
   configs = [ ":ability_config" ]
   public_configs = [
     ":ability_public_config",
-    "${aafwk_path}/frameworks/native/ability:ability_context_public_config",
+    "${ability_runtime_path}/frameworks/native/ability:ability_context_public_config",
   ]
 
   deps = [
-    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/native/appkit:app_context",
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_path}/frameworks/native/appkit:app_context",
   ]
 
   external_deps = [
@@ -101,7 +101,7 @@ ohos_shared_library("file_access_extension_ability_module") {
 
   deps = [
     ":file_access_extension_ability_kit",
-    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
   ]
 
   external_deps = [
