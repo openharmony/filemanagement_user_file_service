@@ -74,10 +74,10 @@ const std::unordered_map<int, std::string> FILE_MIME_TYPE_MAPS = {
 };
 
 const std::unordered_map<int, std::string> MEDIA_TYPE_FOLDER_MAPS = {
-    {Media::MediaType::MEDIA_TYPE_IMAGE, "image/"},
-    {Media::MediaType::MEDIA_TYPE_AUDIO, "audio/"},
-    {Media::MediaType::MEDIA_TYPE_VIDEO, "video/"},
-    {Media::MediaType::MEDIA_TYPE_FILE,  "document/"},
+    {Media::MediaType::MEDIA_TYPE_IMAGE, "Pictures/"},
+    {Media::MediaType::MEDIA_TYPE_AUDIO, "Audios/"},
+    {Media::MediaType::MEDIA_TYPE_VIDEO, "Videos/"},
+    {Media::MediaType::MEDIA_TYPE_FILE,  "Documents/"},
 };
 
 const std::unordered_map<int, std::string> MEDIA_TYPE_URI_MAPS = {
