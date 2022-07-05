@@ -25,7 +25,7 @@ config("ability_config") {
     "${ability_runtime_kits_path}/ability/native/include/continuation/distributed",
     "${ability_runtime_kits_path}/ability/native/include/continuation/kits",
     "${ability_runtime_kits_path}/appkit/native/app/include",
-    "${ability_runtime_path}/frameworks/js/napi/aafwk/inner/napi_common",
+    "${ability_runtime_napi_path}/inner/napi_common",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base/include",
   ]
 
