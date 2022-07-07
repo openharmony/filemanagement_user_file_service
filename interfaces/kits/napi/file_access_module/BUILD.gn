@@ -24,8 +24,6 @@ ohos_shared_library("fileaccess") {
     "./",
     "${BASE_DIR}/utils",
     "${BASE_DIR}/interfaces/kits/napi/common",
-    "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common/napi",
-    "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common",
   ]
 
   sources = [
