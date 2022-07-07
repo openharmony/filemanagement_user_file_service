@@ -239,7 +239,7 @@ std::vector<FileInfo> FileAccessHelper::ListFile(Uri &sourceFile)
 
 std::vector<DeviceInfo> FileAccessHelper::GetRoots()
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");;
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
     std::vector<DeviceInfo> results;
     if (!GetProxy()) {
         HILOG_ERROR("%{public}s failed with invalid fileAccessExtProxy_", __func__);
