@@ -142,7 +142,6 @@ bool FileAccessHelper::GetProxy()
 int FileAccessHelper::OpenFile(Uri &uri, int flags)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
-
     int fd = ERR_ERROR;
     if (!GetProxy()) {
         HILOG_ERROR("%{public}s failed with invalid fileAccessExtProxy_", __func__);
@@ -150,7 +149,6 @@ int FileAccessHelper::OpenFile(Uri &uri, int flags)
     }
 
     fd = fileAccessExtProxy_->OpenFile(uri, flags);
-
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return fd;
 }
@@ -158,7 +156,6 @@ int FileAccessHelper::OpenFile(Uri &uri, int flags)
 int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
-
     int index = ERR_ERROR;
     if (!GetProxy()) {
         HILOG_ERROR("%{public}s failed with invalid fileAccessExtProxy_", __func__);
@@ -166,7 +163,6 @@ int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Ur
     }
 
     index = fileAccessExtProxy_->CreateFile(parent, displayName, newFile);
-
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return index;
 }
@@ -174,7 +170,6 @@ int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Ur
 int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &newDir)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Mkdir");
-
     int index = ERR_ERROR;
     if (fileAccessExtProxy_ == nullptr) {
         HILOG_ERROR("%{public}s failed with invalid fileAccessExtProxy_", __func__);
@@ -182,7 +177,6 @@ int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &ne
     }
 
     index = fileAccessExtProxy_->Mkdir(parent, displayName, newDir);
-
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return index;
 }
@@ -190,7 +184,6 @@ int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &ne
 int FileAccessHelper::Delete(Uri &selectFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
-
     int index = ERR_ERROR;
     if (!GetProxy()) {
         HILOG_ERROR("%{public}s failed with invalid fileAccessExtProxy_", __func__);
@@ -198,7 +191,6 @@ int FileAccessHelper::Delete(Uri &selectFile)
     }
 
     index = fileAccessExtProxy_->Delete(selectFile);
-
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return index;
 }
@@ -206,7 +198,6 @@ int FileAccessHelper::Delete(Uri &selectFile)
 int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move");
-
     int index = ERR_ERROR;
     if (!GetProxy()) {
         HILOG_ERROR("%{public}s failed with invalid fileAccessExtProxy_", __func__);
@@ -214,7 +205,6 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
     }
 
     index = fileAccessExtProxy_->Move(sourceFile, targetParent, newFile);
-
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return index;
 }
@@ -222,7 +212,6 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
 int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Rename");
-
     int index = ERR_ERROR;
     if (!GetProxy()) {
         HILOG_ERROR("%{public}s failed with invalid fileAccessExtProxy_", __func__);
@@ -230,7 +219,6 @@ int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Ur
     }
 
     index = fileAccessExtProxy_->Rename(sourceFile, displayName, newFile);
-
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return index;
 }
@@ -238,7 +226,6 @@ int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Ur
 std::vector<FileInfo> FileAccessHelper::ListFile(Uri &sourceFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
-
     std::vector<FileInfo> results;
     if (!GetProxy()) {
         HILOG_ERROR("%{public}s failed with invalid fileAccessExtProxy_", __func__);
@@ -246,7 +233,6 @@ std::vector<FileInfo> FileAccessHelper::ListFile(Uri &sourceFile)
     }
 
     results = fileAccessExtProxy_->ListFile(sourceFile);
-
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return results;
 }
@@ -254,7 +240,6 @@ std::vector<FileInfo> FileAccessHelper::ListFile(Uri &sourceFile)
 std::vector<DeviceInfo> FileAccessHelper::GetRoots()
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");;
-
     std::vector<DeviceInfo> results;
     if (!GetProxy()) {
         HILOG_ERROR("%{public}s failed with invalid fileAccessExtProxy_", __func__);
@@ -262,7 +247,6 @@ std::vector<DeviceInfo> FileAccessHelper::GetRoots()
     }
 
     results = fileAccessExtProxy_->GetRoots();
-
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return results;
 }

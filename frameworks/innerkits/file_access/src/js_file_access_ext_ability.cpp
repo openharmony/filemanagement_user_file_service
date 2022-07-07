@@ -57,7 +57,6 @@ void JsFileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &rec
     const sptr<IRemoteObject> &token)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Init");
-
     FileAccessExtAbility::Init(record, application, handler, token);
     std::string srcPath = "";
     GetSrcPath(srcPath);
@@ -75,6 +74,7 @@ void JsFileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &rec
         HILOG_ERROR("%{public}s Failed to get jsObj_", __func__);
         return;
     }
+
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(jsObj_->Get());
     if (obj == nullptr) {
         HILOG_ERROR("%{public}s Failed to get JsFileAccessExtAbility object", __func__);
@@ -87,7 +87,6 @@ void JsFileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &rec
 void JsFileAccessExtAbility::OnStart(const AAFwk::Want &want)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OnStart");
-
     Extension::OnStart(want);
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
@@ -95,14 +94,12 @@ void JsFileAccessExtAbility::OnStart(const AAFwk::Want &want)
     NativeValue* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
     NativeValue* argv[] = {nativeWant};
     CallObjectMethod("onCreate", argv, ARGC_ONE);
-
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
 }
 
 sptr<IRemoteObject> JsFileAccessExtAbility::OnConnect(const AAFwk::Want &want)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OnConnect");
-
     Extension::OnConnect(want);
     sptr<FileAccessExtStubImpl> remoteObject = new (std::nothrow) FileAccessExtStubImpl(
         std::static_pointer_cast<JsFileAccessExtAbility>(shared_from_this()),
@@ -119,7 +116,6 @@ sptr<IRemoteObject> JsFileAccessExtAbility::OnConnect(const AAFwk::Want &want)
 NativeValue* JsFileAccessExtAbility::CallObjectMethod(const char* name, NativeValue* const* argv, size_t argc)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CallObjectMethod");
-
     if (!jsObj_) {
         HILOG_ERROR("JsFileAccessExtAbility::CallObjectMethod jsObj Not found FileAccessExtAbility.js");
         return nullptr;
@@ -153,30 +149,32 @@ NativeValue* JsFileAccessExtAbility::CallObjectMethod(const char* name, NativeVa
 static bool DoAsnycWork(CallbackParam *param)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "DoAsnycWork");
-
     if (param == nullptr || param->jsObj == nullptr) {
         HILOG_ERROR("Not found js file object");
         return false;
     }
+
     HandleScope handleScope(param->jsRuntime);
     NativeValue* value = param->jsObj->Get();
     if (value == nullptr) {
         HILOG_ERROR("Failed to get native value object");
         return false;
     }
+
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("Failed to get FileExtAbility object");
         return false;
     }
+
     NativeValue* method = obj->GetProperty(param->funcName);
     if (method == nullptr) {
         HILOG_ERROR("Failed to get '%{public}s' from FileExtAbility object",  param->funcName);
         return false;
     }
+
     auto& nativeEngine = param->jsRuntime.GetNativeEngine();
     param->result = handleScope.Escape(nativeEngine.CallFunction(value, method, param->argv, param->argc));
-
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return true;
 }
@@ -184,7 +182,6 @@ static bool DoAsnycWork(CallbackParam *param)
 NativeValue* JsFileAccessExtAbility::AsnycCallObjectMethod(const char* name, NativeValue* const* argv, size_t argc)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "AsnycCallObjectMethod");
-
     std::shared_ptr<ThreadLockInfo> lockInfo = std::make_shared<ThreadLockInfo>();
     std::shared_ptr<CallbackParam> param = std::make_shared<CallbackParam>(CallbackParam {
         .lockInfo = lockInfo.get(),
@@ -216,9 +213,9 @@ NativeValue* JsFileAccessExtAbility::AsnycCallObjectMethod(const char* name, Nat
         param->lockInfo->isReady = true;
         param->lockInfo->fileOperateCondition.notify_all();
     });
+
     std::unique_lock<std::mutex> lock(param->lockInfo->fileOperateMutex);
     param->lockInfo->fileOperateCondition.wait(lock, [param]() { return param->lockInfo->isReady; });
-
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return std::move(param->result);
 }
@@ -226,7 +223,6 @@ NativeValue* JsFileAccessExtAbility::AsnycCallObjectMethod(const char* name, Nat
 void JsFileAccessExtAbility::GetSrcPath(std::string &srcPath)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetSrcPath");
-
     if (!Extension::abilityInfo_->isStageBasedModel) {
         /* temporary compatibility api8 + config.json */
         srcPath.append(Extension::abilityInfo_->package);
@@ -251,7 +247,6 @@ void JsFileAccessExtAbility::GetSrcPath(std::string &srcPath)
 int JsFileAccessExtAbility::OpenFile(const Uri &uri, int flags)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
-
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
 
@@ -269,8 +264,8 @@ int JsFileAccessExtAbility::OpenFile(const Uri &uri, int flags)
         HILOG_ERROR("%{public}s call openFile with return null.", __func__);
         return ret;
     }
-    ret = OHOS::AppExecFwk::UnwrapInt32FromJS(env, reinterpret_cast<napi_value>(nativeResult));
 
+    ret = OHOS::AppExecFwk::UnwrapInt32FromJS(env, reinterpret_cast<napi_value>(nativeResult));
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -278,7 +273,6 @@ int JsFileAccessExtAbility::OpenFile(const Uri &uri, int flags)
 int JsFileAccessExtAbility::CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
-
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
 
@@ -303,8 +297,8 @@ int JsFileAccessExtAbility::CreateFile(const Uri &parent, const std::string &dis
     } else {
         ret = NO_ERROR;
     }
-    newFile = Uri(uriStr);
 
+    newFile = Uri(uriStr);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -312,7 +306,6 @@ int JsFileAccessExtAbility::CreateFile(const Uri &parent, const std::string &dis
 int JsFileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Mkdir");
-
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
 
@@ -337,8 +330,8 @@ int JsFileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayN
     } else {
         ret = NO_ERROR;
     }
-    newFile = Uri(uriStr);
 
+    newFile = Uri(uriStr);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -346,7 +339,6 @@ int JsFileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayN
 int JsFileAccessExtAbility::Delete(const Uri &sourceFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
-
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
 
@@ -361,8 +353,8 @@ int JsFileAccessExtAbility::Delete(const Uri &sourceFile)
         HILOG_ERROR("%{public}s call delete with return null.", __func__);
         return ret;
     }
-    ret = OHOS::AppExecFwk::UnwrapInt32FromJS(env, reinterpret_cast<napi_value>(nativeResult));
 
+    ret = OHOS::AppExecFwk::UnwrapInt32FromJS(env, reinterpret_cast<napi_value>(nativeResult));
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -370,7 +362,6 @@ int JsFileAccessExtAbility::Delete(const Uri &sourceFile)
 int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move");
-
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
 
@@ -395,8 +386,8 @@ int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent,
     } else {
         ret = NO_ERROR;
     }
-    newFile = Uri(uriStr);
 
+    newFile = Uri(uriStr);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -404,7 +395,6 @@ int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent,
 int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Rename");
-
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
 
@@ -429,8 +419,8 @@ int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &dis
     } else {
         ret = NO_ERROR;
     }
-    newFile = Uri(uriStr);
 
+    newFile = Uri(uriStr);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -438,7 +428,6 @@ int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &dis
 std::vector<FileInfo> JsFileAccessExtAbility::ListFile(const Uri &sourceFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
-
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
 
@@ -466,7 +455,6 @@ std::vector<FileInfo> JsFileAccessExtAbility::ListFile(const Uri &sourceFile)
 std::vector<DeviceInfo> JsFileAccessExtAbility::GetRoots()
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
-
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
 

@@ -24,7 +24,6 @@ namespace FileAccessFwk {
 int FileAccessExtProxy::OpenFile(const Uri &uri, int flags)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
-
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("%{public}s WriteInterfaceToken failed", __func__);
@@ -62,7 +61,6 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, int flags)
 int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
-
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("%{public}s WriteInterfaceToken failed", __func__);
@@ -105,7 +103,6 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
     }
 
     newFile = Uri(*tempUri);
-
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -113,7 +110,6 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
 int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Mkdir");
-
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("%{public}s WriteInterfaceToken failed", __func__);
@@ -157,7 +153,6 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
     }
 
     newFile = Uri(*tempUri);
-
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -165,7 +160,6 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
 int FileAccessExtProxy::Delete(const Uri &sourceFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
-
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("%{public}s WriteInterfaceToken failed", __func__);
@@ -197,8 +191,7 @@ int FileAccessExtProxy::Delete(const Uri &sourceFile)
 
 int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move");
-
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move")
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR(" %{public}s WriteInterfaceToken failed", __func__);
@@ -241,7 +234,6 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
     }
 
     newFile = Uri(*tempUri);
-
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -249,7 +241,6 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
 int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Rename");
-
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("%{public}s WriteInterfaceToken failed", __func__);
@@ -292,7 +283,6 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
     }
 
     newFile = Uri(*tempUri);
-
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -300,7 +290,6 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
 std::vector<FileInfo> FileAccessExtProxy::ListFile(const Uri &sourceFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
-
     std::vector<FileInfo> vec;
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
@@ -337,7 +326,6 @@ std::vector<FileInfo> FileAccessExtProxy::ListFile(const Uri &sourceFile)
 std::vector<DeviceInfo> FileAccessExtProxy::GetRoots()
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
-
     std::vector<DeviceInfo> vec;
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {

@@ -29,15 +29,14 @@ std::shared_ptr<FileAccessExtAbility> FileAccessExtStubImpl::GetOwner()
 int FileAccessExtStubImpl::OpenFile(const Uri &uri, int flags)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
-
     int ret = ERR_ERROR;
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
         return ret;
     }
-    ret = extension->OpenFile(uri, flags);
 
+    ret = extension->OpenFile(uri, flags);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -45,15 +44,14 @@ int FileAccessExtStubImpl::OpenFile(const Uri &uri, int flags)
 int FileAccessExtStubImpl::CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
-
     int ret = ERR_ERROR;
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
         return ret;
     }
-    ret = extension->CreateFile(parent, displayName, newFile);
 
+    ret = extension->CreateFile(parent, displayName, newFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -61,15 +59,14 @@ int FileAccessExtStubImpl::CreateFile(const Uri &parent, const std::string &disp
 int FileAccessExtStubImpl::Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Mkdir");
-
     int ret = ERR_ERROR;
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
         return ret;
     }
-    ret = extension->Mkdir(parent, displayName, newFile);
 
+    ret = extension->Mkdir(parent, displayName, newFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -77,15 +74,14 @@ int FileAccessExtStubImpl::Mkdir(const Uri &parent, const std::string &displayNa
 int FileAccessExtStubImpl::Delete(const Uri &sourceFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
-
     int ret = ERR_ERROR;
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
         return ret;
     }
-    ret = extension->Delete(sourceFile);
 
+    ret = extension->Delete(sourceFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -93,15 +89,14 @@ int FileAccessExtStubImpl::Delete(const Uri &sourceFile)
 int FileAccessExtStubImpl::Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move");
-
     int ret = ERR_ERROR;
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
         return ret;
     }
-    ret = extension->Move(sourceFile, targetParent, newFile);
 
+    ret = extension->Move(sourceFile, targetParent, newFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -109,15 +104,14 @@ int FileAccessExtStubImpl::Move(const Uri &sourceFile, const Uri &targetParent, 
 int FileAccessExtStubImpl::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Rename");
-
     int ret = ERR_ERROR;
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
         return ret;
     }
-    ret = extension->Rename(sourceFile, displayName, newFile);
 
+    ret = extension->Rename(sourceFile, displayName, newFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -125,7 +119,6 @@ int FileAccessExtStubImpl::Rename(const Uri &sourceFile, const std::string &disp
 std::vector<FileInfo> FileAccessExtStubImpl::ListFile(const Uri &sourceFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
-
     std::vector<FileInfo> vec;
     auto extension = GetOwner();
     if (extension == nullptr) {
@@ -134,7 +127,6 @@ std::vector<FileInfo> FileAccessExtStubImpl::ListFile(const Uri &sourceFile)
     }
 
     vec = extension->ListFile(sourceFile);
-
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return vec;
 }
@@ -142,7 +134,6 @@ std::vector<FileInfo> FileAccessExtStubImpl::ListFile(const Uri &sourceFile)
 std::vector<DeviceInfo> FileAccessExtStubImpl::GetRoots()
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
-
     std::vector<DeviceInfo> vec;
     auto extension = GetOwner();
     if (extension == nullptr) {
@@ -151,7 +142,6 @@ std::vector<DeviceInfo> FileAccessExtStubImpl::GetRoots()
     }
 
     vec = extension->GetRoots();
-
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return vec;
 }

@@ -47,7 +47,6 @@ int FileAccessExtStub::OnRemoteRequest(uint32_t code, MessageParcel& data, Messa
     MessageOption& option)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OnRemoteRequest");
-
     if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
         HILOG_ERROR("permission error");
         return ERR_PERMISSION_DENIED;
@@ -71,7 +70,6 @@ int FileAccessExtStub::OnRemoteRequest(uint32_t code, MessageParcel& data, Messa
 ErrCode FileAccessExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdOpenFile");
-
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
         HILOG_ERROR("uri is nullptr");
@@ -102,7 +100,6 @@ ErrCode FileAccessExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply
 ErrCode FileAccessExtStub::CmdCreateFile(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdCreateFile");
-
     std::shared_ptr<Uri> parent(data.ReadParcelable<Uri>());
     if (parent == nullptr) {
         HILOG_ERROR("parent is nullptr");
@@ -144,7 +141,6 @@ ErrCode FileAccessExtStub::CmdCreateFile(MessageParcel &data, MessageParcel &rep
 ErrCode FileAccessExtStub::CmdMkdir(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdMkdir");
-
     std::shared_ptr<Uri> parent(data.ReadParcelable<Uri>());
     if (parent == nullptr) {
         HILOG_ERROR("parent is nullptr");
@@ -186,7 +182,6 @@ ErrCode FileAccessExtStub::CmdMkdir(MessageParcel &data, MessageParcel &reply)
 ErrCode FileAccessExtStub::CmdDelete(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdDelete");
-
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
         HILOG_ERROR("uri is nullptr");
@@ -211,7 +206,6 @@ ErrCode FileAccessExtStub::CmdDelete(MessageParcel &data, MessageParcel &reply)
 ErrCode FileAccessExtStub::CmdMove(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdMove");
-
     std::shared_ptr<Uri> sourceFile(data.ReadParcelable<Uri>());
     if (sourceFile == nullptr) {
         HILOG_ERROR("sourceFile is nullptr");
@@ -253,7 +247,6 @@ ErrCode FileAccessExtStub::CmdMove(MessageParcel &data, MessageParcel &reply)
 ErrCode FileAccessExtStub::CmdRename(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdRename");
-
     std::shared_ptr<Uri> sourceFile(data.ReadParcelable<Uri>());
     if (sourceFile == nullptr) {
         HILOG_ERROR("sourceFileUri is nullptr");
@@ -295,7 +288,6 @@ ErrCode FileAccessExtStub::CmdRename(MessageParcel &data, MessageParcel &reply)
 ErrCode FileAccessExtStub::CmdListFile(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdListFile");
-
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
         HILOG_ERROR("uri is nullptr");
@@ -323,7 +315,6 @@ ErrCode FileAccessExtStub::CmdListFile(MessageParcel &data, MessageParcel &reply
 ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdGetRoots");
-
     std::vector<DeviceInfo> vec = GetRoots();
     uint64_t count {vec.size()};
     if (!reply.WriteUint64(count)) {
@@ -345,7 +336,6 @@ ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply
 bool FileAccessExtStub::CheckCallingPermission(const std::string &permission)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdGetRoots");
-
     Security::AccessToken::AccessTokenID tokenCaller = IPCSkeleton::GetCallingTokenID();
     int res = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenCaller, permission);
     if (res != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
