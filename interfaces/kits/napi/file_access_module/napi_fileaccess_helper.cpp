@@ -204,8 +204,7 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
     }
 
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
-    if(fileAccessHelper == nullptr)
-    {
+    if (fileAccessHelper == nullptr) {
         return nullptr;
     }
 
@@ -258,8 +257,7 @@ napi_value NAPI_CreateFile(napi_env env, napi_callback_info info)
     }
 
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
-    if(fileAccessHelper == nullptr)
-    {
+    if (fileAccessHelper == nullptr) {
         return nullptr;
     }
 
@@ -315,8 +313,7 @@ napi_value NAPI_Mkdir(napi_env env, napi_callback_info info)
     }
 
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
-    if(fileAccessHelper == nullptr)
-    {
+    if (fileAccessHelper == nullptr) {
         return nullptr;
     }
 
@@ -365,8 +362,7 @@ napi_value NAPI_Delete(napi_env env, napi_callback_info info)
     }
 
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
-    if(fileAccessHelper == nullptr)
-    {
+    if (fileAccessHelper == nullptr) {
         return nullptr;
     }
 
@@ -419,8 +415,7 @@ napi_value NAPI_Move(napi_env env, napi_callback_info info)
     }
 
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
-    if(fileAccessHelper == nullptr)
-    {
+    if (fileAccessHelper == nullptr) {
         return nullptr;
     }
 
@@ -477,8 +472,7 @@ napi_value NAPI_Rename(napi_env env, napi_callback_info info)
     }
 
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
-    if(fileAccessHelper == nullptr)
-    {
+    if (fileAccessHelper == nullptr) {
         return nullptr;
     }
 
@@ -527,8 +521,7 @@ napi_value NAPI_ListFile(napi_env env, napi_callback_info info)
     }
 
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
-    if(fileAccessHelper == nullptr)
-    {
+    if (fileAccessHelper == nullptr) {
         return nullptr;
     }
 
@@ -566,8 +559,7 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
     }
 
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
-    if(fileAccessHelper == nullptr)
-    {
+    if (fileAccessHelper == nullptr) {
         return nullptr;
     }
 
