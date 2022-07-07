@@ -16,7 +16,10 @@
 #ifndef NAPI_FILEACCESS_HELPER_H
 #define NAPI_FILEACCESS_HELPER_H
 
-#include "file_access_common.h"
+#include "napi/native_api.h"
+#include "napi/native_common.h"
+#include "napi/native_node_api.h"
+#include "napi_common.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
