@@ -191,7 +191,7 @@ int FileAccessExtProxy::Delete(const Uri &sourceFile)
 
 int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move")
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR(" %{public}s WriteInterfaceToken failed", __func__);
