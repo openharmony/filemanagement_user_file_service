@@ -14,13 +14,17 @@
  */
 
 #include "file_access_ext_proxy.h"
+
 #include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
 int FileAccessExtProxy::OpenFile(const Uri &uri, int flags)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
+
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("%{public}s WriteInterfaceToken failed", __func__);
@@ -50,11 +54,15 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, int flags)
         HILOG_ERROR("%{public}s fail to ReadFileDescriptor fd", __func__);
         return ERR_IPC_ERROR;
     }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return fd;
 }
 
 int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
+
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("%{public}s WriteInterfaceToken failed", __func__);
@@ -97,11 +105,15 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
     }
 
     newFile = Uri(*tempUri);
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
 
 int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Mkdir");
+
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("%{public}s WriteInterfaceToken failed", __func__);
@@ -145,11 +157,15 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
     }
 
     newFile = Uri(*tempUri);
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
 
 int FileAccessExtProxy::Delete(const Uri &sourceFile)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
+
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("%{public}s WriteInterfaceToken failed", __func__);
@@ -175,11 +191,14 @@ int FileAccessExtProxy::Delete(const Uri &sourceFile)
         return ERR_IPC_ERROR;
     }
 
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
 
 int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move");
+
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR(" %{public}s WriteInterfaceToken failed", __func__);
@@ -222,11 +241,15 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
     }
 
     newFile = Uri(*tempUri);
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
 
 int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Rename");
+
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("%{public}s WriteInterfaceToken failed", __func__);
@@ -269,11 +292,15 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
     }
 
     newFile = Uri(*tempUri);
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
 
 std::vector<FileInfo> FileAccessExtProxy::ListFile(const Uri &sourceFile)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
+
     std::vector<FileInfo> vec;
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
@@ -303,11 +330,14 @@ std::vector<FileInfo> FileAccessExtProxy::ListFile(const Uri &sourceFile)
         }
     }
 
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return vec;
 }
 
 std::vector<DeviceInfo> FileAccessExtProxy::GetRoots()
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
+
     std::vector<DeviceInfo> vec;
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
@@ -332,6 +362,7 @@ std::vector<DeviceInfo> FileAccessExtProxy::GetRoots()
         }
     }
 
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return vec;
 }
 } // namespace FileAccessFwk

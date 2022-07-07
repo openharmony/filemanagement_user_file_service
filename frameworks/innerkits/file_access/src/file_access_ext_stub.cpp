@@ -18,6 +18,7 @@
 #include "accesstoken_kit.h"
 #include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "ipc_skeleton.h"
 
 namespace OHOS {
@@ -45,6 +46,8 @@ FileAccessExtStub::~FileAccessExtStub()
 int FileAccessExtStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,
     MessageOption& option)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OnRemoteRequest");
+
     if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
         HILOG_ERROR("permission error");
         return ERR_PERMISSION_DENIED;
@@ -61,11 +64,14 @@ int FileAccessExtStub::OnRemoteRequest(uint32_t code, MessageParcel& data, Messa
         return (this->*(itFunc->second))(data, reply);
     }
 
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
 ErrCode FileAccessExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdOpenFile");
+
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
         HILOG_ERROR("uri is nullptr");
@@ -88,11 +94,15 @@ ErrCode FileAccessExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply
         HILOG_ERROR("fail to WriteFileDescriptor fd");
         return ERR_IPC_ERROR;
     }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 ErrCode FileAccessExtStub::CmdCreateFile(MessageParcel &data, MessageParcel &reply)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdCreateFile");
+
     std::shared_ptr<Uri> parent(data.ReadParcelable<Uri>());
     if (parent == nullptr) {
         HILOG_ERROR("parent is nullptr");
@@ -126,11 +136,15 @@ ErrCode FileAccessExtStub::CmdCreateFile(MessageParcel &data, MessageParcel &rep
         HILOG_ERROR("fail to WriteParcelable type");
         return ERR_IPC_ERROR;
     }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 ErrCode FileAccessExtStub::CmdMkdir(MessageParcel &data, MessageParcel &reply)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdMkdir");
+
     std::shared_ptr<Uri> parent(data.ReadParcelable<Uri>());
     if (parent == nullptr) {
         HILOG_ERROR("parent is nullptr");
@@ -164,11 +178,15 @@ ErrCode FileAccessExtStub::CmdMkdir(MessageParcel &data, MessageParcel &reply)
         HILOG_ERROR("fail to WriteParcelable type");
         return ERR_IPC_ERROR;
     }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 ErrCode FileAccessExtStub::CmdDelete(MessageParcel &data, MessageParcel &reply)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdDelete");
+
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
         HILOG_ERROR("uri is nullptr");
@@ -185,11 +203,15 @@ ErrCode FileAccessExtStub::CmdDelete(MessageParcel &data, MessageParcel &reply)
         HILOG_ERROR("fail to WriteFileDescriptor ret");
         return ERR_IPC_ERROR;
     }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 ErrCode FileAccessExtStub::CmdMove(MessageParcel &data, MessageParcel &reply)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdMove");
+
     std::shared_ptr<Uri> sourceFile(data.ReadParcelable<Uri>());
     if (sourceFile == nullptr) {
         HILOG_ERROR("sourceFile is nullptr");
@@ -223,11 +245,15 @@ ErrCode FileAccessExtStub::CmdMove(MessageParcel &data, MessageParcel &reply)
         HILOG_ERROR("fail to WriteParcelable type");
         return ERR_IPC_ERROR;
     }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 ErrCode FileAccessExtStub::CmdRename(MessageParcel &data, MessageParcel &reply)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdRename");
+
     std::shared_ptr<Uri> sourceFile(data.ReadParcelable<Uri>());
     if (sourceFile == nullptr) {
         HILOG_ERROR("sourceFileUri is nullptr");
@@ -262,11 +288,14 @@ ErrCode FileAccessExtStub::CmdRename(MessageParcel &data, MessageParcel &reply)
         return ERR_IPC_ERROR;
     }
 
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 ErrCode FileAccessExtStub::CmdListFile(MessageParcel &data, MessageParcel &reply)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdListFile");
+
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
         HILOG_ERROR("uri is nullptr");
@@ -287,11 +316,14 @@ ErrCode FileAccessExtStub::CmdListFile(MessageParcel &data, MessageParcel &reply
         }
     }
 
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdGetRoots");
+
     std::vector<DeviceInfo> vec = GetRoots();
     uint64_t count {vec.size()};
     if (!reply.WriteUint64(count)) {
@@ -306,17 +338,22 @@ ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply
         }
     }
 
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 bool FileAccessExtStub::CheckCallingPermission(const std::string &permission)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdGetRoots");
+
     Security::AccessToken::AccessTokenID tokenCaller = IPCSkeleton::GetCallingTokenID();
     int res = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenCaller, permission);
     if (res != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
         HILOG_ERROR("FileAccessExtStub::CheckCallingPermission have no fileAccess permission");
         return false;
     }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return true;
 }
 } // namespace FileAccessFwk

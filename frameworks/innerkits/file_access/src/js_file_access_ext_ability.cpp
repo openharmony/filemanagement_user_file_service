@@ -223,7 +223,6 @@ void JsFileAccessExtAbility::GetSrcPath(std::string &srcPath)
 int JsFileAccessExtAbility::OpenFile(const Uri &uri, int flags)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
-    HILOG_ERROR("JsFileAccessExtAbility::OpenFile in");
 
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
@@ -244,16 +243,13 @@ int JsFileAccessExtAbility::OpenFile(const Uri &uri, int flags)
     }
     ret = OHOS::AppExecFwk::UnwrapInt32FromJS(env, reinterpret_cast<napi_value>(nativeResult));
 
-    HILOG_ERROR("JsFileAccessExtAbility::OpenFile out");
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-
     return ret;
 }
 
 int JsFileAccessExtAbility::CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
-    HILOG_ERROR("JsFileAccessExtAbility::CreateFile in");
 
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
@@ -281,16 +277,13 @@ int JsFileAccessExtAbility::CreateFile(const Uri &parent, const std::string &dis
     }
     newFile = Uri(uriStr);
 
-    HILOG_ERROR("JsFileAccessExtAbility::CreateFile out");
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-
     return ret;
 }
 
 int JsFileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Mkdir");
-    HILOG_ERROR("JsFileAccessExtAbility::Mkdir in");
 
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
@@ -318,16 +311,13 @@ int JsFileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayN
     }
     newFile = Uri(uriStr);
 
-    HILOG_ERROR("JsFileAccessExtAbility::Mkdir out");
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-
     return ret;
 }
 
 int JsFileAccessExtAbility::Delete(const Uri &sourceFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
-    HILOG_ERROR("JsFileAccessExtAbility::Delete in");
 
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
@@ -345,16 +335,13 @@ int JsFileAccessExtAbility::Delete(const Uri &sourceFile)
     }
     ret = OHOS::AppExecFwk::UnwrapInt32FromJS(env, reinterpret_cast<napi_value>(nativeResult));
 
-    HILOG_ERROR("JsFileAccessExtAbility::Delete out");
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-
     return ret;
 }
 
 int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move");
-    HILOG_ERROR("JsFileAccessExtAbility::Move in");
 
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
@@ -382,16 +369,13 @@ int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent,
     }
     newFile = Uri(uriStr);
 
-    HILOG_ERROR("JsFileAccessExtAbility::Move out");
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-
     return ret;
 }
 
 int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Rename");
-    HILOG_ERROR("JsFileAccessExtAbility::Rename in");
 
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
@@ -419,16 +403,13 @@ int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &dis
     }
     newFile = Uri(uriStr);
 
-    HILOG_ERROR("JsFileAccessExtAbility::Rename out");
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-
     return ret;
 }
 
 std::vector<FileInfo> JsFileAccessExtAbility::ListFile(const Uri &sourceFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
-    HILOG_ERROR("JsFileAccessExtAbility::ListFile in");
 
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
@@ -451,14 +432,12 @@ std::vector<FileInfo> JsFileAccessExtAbility::ListFile(const Uri &sourceFile)
         return vec;
     }
 
-    HILOG_ERROR("JsFileAccessExtAbility::ListFile out");
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
 }
 
 std::vector<DeviceInfo> JsFileAccessExtAbility::GetRoots()
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
-    HILOG_ERROR("JsFileAccessExtAbility::GetRoots in");
 
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
@@ -477,7 +456,6 @@ std::vector<DeviceInfo> JsFileAccessExtAbility::GetRoots()
         return vec;
     }
 
-    HILOG_ERROR("JsFileAccessExtAbility::GetRoots out");
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
 }
 } // namespace FileAccessFwk
