@@ -152,7 +152,6 @@ int FileAccessHelper::OpenFile(Uri &uri, int flags)
     fd = fileAccessExtProxy_->OpenFile(uri, flags);
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-
     return fd;
 }
 
@@ -169,7 +168,6 @@ int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Ur
     index = fileAccessExtProxy_->CreateFile(parent, displayName, newFile);
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-
     return index;
 }
 
@@ -186,7 +184,6 @@ int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &ne
     index = fileAccessExtProxy_->Mkdir(parent, displayName, newDir);
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-
     return index;
 }
 
@@ -203,7 +200,6 @@ int FileAccessHelper::Delete(Uri &selectFile)
     index = fileAccessExtProxy_->Delete(selectFile);
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-
     return index;
 }
 
@@ -220,7 +216,6 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
     index = fileAccessExtProxy_->Move(sourceFile, targetParent, newFile);
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-
     return index;
 }
 
@@ -237,7 +232,6 @@ int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Ur
     index = fileAccessExtProxy_->Rename(sourceFile, displayName, newFile);
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-
     return index;
 }
 
@@ -254,7 +248,6 @@ std::vector<FileInfo> FileAccessHelper::ListFile(Uri &sourceFile)
     results = fileAccessExtProxy_->ListFile(sourceFile);
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-
     return results;
 }
 
@@ -271,7 +264,6 @@ std::vector<DeviceInfo> FileAccessHelper::GetRoots()
     results = fileAccessExtProxy_->GetRoots();
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-
     return results;
 }
 
