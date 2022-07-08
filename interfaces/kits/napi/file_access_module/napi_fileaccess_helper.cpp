@@ -47,8 +47,15 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
     size_t argc = ARGS_TWO;
     napi_value argv[ARGS_TWO] = {nullptr};
     napi_value thisVar = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    NAPI_ASSERT(env, argc > 0, "Wrong number of arguments");
+    if (napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr) != napi_ok) {
+        return nullptr;
+    }
+
+    if (argc <= 0) {
+        HILOG_ERROR("Wrong number of arguments");
+        return nullptr;
+    }
+
     AAFwk::Want want;
     OHOS::AppExecFwk::UnwrapWant(env, argv[PARAM1], want);
     std::shared_ptr<FileAccessHelper> fileAccessHelper = nullptr;
@@ -60,10 +67,16 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
     }
 
     auto context = OHOS::AbilityRuntime::GetStageModeContext(env, argv[PARAM0]);
-    NAPI_ASSERT(env, context != nullptr, " FileAccessHelperConstructor: failed to get native context");
-    fileAccessHelper = FileAccessHelper::Creator(context, want);
+    if (context == nullptr) {
+        HILOG_ERROR("FileAccessHelperConstructor: failed to get native context");
+        return nullptr;
+    }
 
-    NAPI_ASSERT(env, fileAccessHelper != nullptr, " FileAccessHelperConstructor: fileAccessHelper is nullptr");
+    fileAccessHelper = FileAccessHelper::Creator(context, want);
+    if (fileAccessHelper == nullptr) {
+        HILOG_ERROR("FileAccessHelperConstructor: fileAccessHelper is nullptr");
+        return nullptr;
+    }
     g_fileAccessHelperList.emplace_back(fileAccessHelper);
     
     auto finalize = [](napi_env env, void *data, void *hint) {
@@ -88,7 +101,10 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
     size_t requireArgc = ARGS_THREE;
     size_t argc = ARGS_THREE;
     napi_value args[ARGS_THREE] = {nullptr};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
+    if (napi_get_cb_info(env, info, &argc, args, nullptr, nullptr) != napi_ok) {
+        return nullptr;
+    }
+
     if (argc > requireArgc) {
         HILOG_ERROR("Wrong argument count%{public}zu.", argc);
         return nullptr;
@@ -100,7 +116,9 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
         HILOG_ERROR("g_constructorRef reference is fail");
         return nullptr;
     }
-    NAPI_CALL(env, napi_new_instance(env, cons, ARGS_THREE, args, &result));
+    if (napi_new_instance(env, cons, ARGS_THREE, args, &result) != napi_ok) {
+        return nullptr;
+    }
 
     if (!IsTypeForNapiValue(env, result, napi_object)) {
         HILOG_ERROR("IsTypeForNapiValue isn`t object");
