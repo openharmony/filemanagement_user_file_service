@@ -76,7 +76,6 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
             delete objectInfo;
         }
     };
-
     if (napi_wrap(env, thisVar, fileAccessHelper.get(), finalize, nullptr, nullptr) != napi_ok) {
         finalize(env, fileAccessHelper.get(), nullptr);
         return nullptr;
@@ -91,7 +90,7 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
     napi_value args[ARGS_THREE] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
     if (argc > requireArgc) {
-        HILOG_ERROR("Wrong argument count%{public}zu.",argc);
+        HILOG_ERROR("Wrong argument count%{public}zu.", argc);
         return nullptr;
     }
 
@@ -213,7 +212,7 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
     auto cbExec = [uriString, flags, result, fileAccessHelper]() -> NError {
         OHOS::Uri uri(uriString);
         *result = fileAccessHelper->OpenFile(uri, flags);
-        return NError(ERRNO_NOERR);    
+        return NError(ERRNO_NOERR);
     };
     auto cbComplete = [result](napi_env env, NError err) -> NVal {
         if (err) {
