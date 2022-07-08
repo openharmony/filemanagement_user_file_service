@@ -33,6 +33,7 @@ int FileAccessExtStubImpl::OpenFile(const Uri &uri, int flags)
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
@@ -48,6 +49,7 @@ int FileAccessExtStubImpl::CreateFile(const Uri &parent, const std::string &disp
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
@@ -63,6 +65,7 @@ int FileAccessExtStubImpl::Mkdir(const Uri &parent, const std::string &displayNa
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
@@ -78,6 +81,7 @@ int FileAccessExtStubImpl::Delete(const Uri &sourceFile)
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
@@ -93,6 +97,7 @@ int FileAccessExtStubImpl::Move(const Uri &sourceFile, const Uri &targetParent, 
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
@@ -108,6 +113,7 @@ int FileAccessExtStubImpl::Rename(const Uri &sourceFile, const std::string &disp
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
@@ -123,6 +129,7 @@ std::vector<FileInfo> FileAccessExtStubImpl::ListFile(const Uri &sourceFile)
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return vec;
     }
 
@@ -138,6 +145,7 @@ std::vector<DeviceInfo> FileAccessExtStubImpl::GetRoots()
     auto extension = GetOwner();
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return vec;
     }
 

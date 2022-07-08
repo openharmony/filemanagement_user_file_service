@@ -145,6 +145,7 @@ int FileAccessHelper::OpenFile(Uri &uri, int flags)
     int fd = ERR_ERROR;
     if (!GetProxy()) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy_");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return fd;
     }
 
@@ -159,6 +160,7 @@ int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Ur
     int index = ERR_ERROR;
     if (!GetProxy()) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy_");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return index;
     }
 
@@ -173,6 +175,7 @@ int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &ne
     int index = ERR_ERROR;
     if (fileAccessExtProxy_ == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy_");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return index;
     }
 
@@ -187,6 +190,7 @@ int FileAccessHelper::Delete(Uri &selectFile)
     int index = ERR_ERROR;
     if (!GetProxy()) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy_");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return index;
     }
 
@@ -201,6 +205,7 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
     int index = ERR_ERROR;
     if (!GetProxy()) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy_");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return index;
     }
 
@@ -215,6 +220,7 @@ int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Ur
     int index = ERR_ERROR;
     if (!GetProxy()) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy_");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return index;
     }
 
@@ -229,6 +235,7 @@ std::vector<FileInfo> FileAccessHelper::ListFile(Uri &sourceFile)
     std::vector<FileInfo> results;
     if (!GetProxy()) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy_");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return results;
     }
 
@@ -243,6 +250,7 @@ std::vector<DeviceInfo> FileAccessHelper::GetRoots()
     std::vector<DeviceInfo> results;
     if (!GetProxy()) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy_");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return results;
     }
 
