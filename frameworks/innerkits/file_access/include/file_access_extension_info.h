@@ -43,7 +43,7 @@ public:
 
         fileName = parcel.ReadString();
         mode = parcel.ReadString();
-        size = parcel.ReadUint64();
+        size = parcel.ReadInt64();
         mtime = parcel.ReadInt64();
         mimeType = parcel.ReadString();
         return true;
@@ -60,7 +60,7 @@ public:
         if (!parcel.WriteString(mode)) {
             return false;
         }
-        if (!parcel.WriteUint64(size)) {
+        if (!parcel.WriteInt64(size)) {
             return false;
         }
         if (!parcel.WriteInt64(mtime)) {
