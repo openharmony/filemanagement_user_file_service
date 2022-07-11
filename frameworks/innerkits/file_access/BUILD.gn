@@ -79,6 +79,7 @@ ohos_shared_library("file_access_extension_ability_kit") {
     "ability_runtime:runtime",
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
+    "hitrace_native:hitrace_meter",
     "ipc:ipc_core",
     "ipc_js:rpc",
     "utils_base:utils",
