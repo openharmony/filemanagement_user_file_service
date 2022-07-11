@@ -35,9 +35,9 @@ using namespace OHOS::FileManagement::LibN;
 namespace OHOS {
 namespace FileAccessFwk {
 namespace {
-const std::string FILEACCESS_CLASS_NAME = "FileAccessHelper";
-static napi_ref g_constructorRef = nullptr;
-constexpr uint32_t INITIAL_REFCOUNT = 1;
+    const std::string FILEACCESS_CLASS_NAME = "FileAccessHelper";
+    static napi_ref g_constructorRef = nullptr;
+    constexpr uint32_t INITIAL_REFCOUNT = 1;
 }
 
 std::list<std::shared_ptr<FileAccessHelper>> g_fileAccessHelperList;
@@ -116,6 +116,7 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
         HILOG_ERROR("g_constructorRef reference is fail");
         return nullptr;
     }
+
     if (napi_new_instance(env, cons, ARGS_THREE, args, &result) != napi_ok) {
         return nullptr;
     }
@@ -200,21 +201,21 @@ static FileAccessHelper *GetFileAccessHelper(napi_env env, napi_value thisVar)
 napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs((int)NARG_CNT::TWO, (int)NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
         NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     bool succ = false;
     std::unique_ptr<char[]> uri;
-    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[(int)NARG_POS::FIRST]).ToUTF8String();
+    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
         NError(EINVAL).ThrowErr(env, "Invalid uri");
         return nullptr;
     }
 
     int flags;
-    std::tie(succ, flags) = NVal(env, funcArg[(int)NARG_POS::SECOND]).ToInt32();
+    std::tie(succ, flags) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
     if (!succ) {
         NError(EINVAL).ThrowErr(env, "Invalid flags");
         return nullptr;
@@ -241,10 +242,10 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
 
     std::string procedureName = "openFile";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == (int)NARG_CNT::TWO) {
+    if (funcArg.GetArgc() == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[(int)NARG_POS::THIRD]);
+        NVal cb(env, funcArg[NARG_POS::THIRD]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
     return NVal::CreateUndefined(env).val_;
@@ -253,21 +254,21 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
 napi_value NAPI_CreateFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs((int)NARG_CNT::TWO, (int)NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
         NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     bool succ = false;
     std::unique_ptr<char[]> uri;
-    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[(int)NARG_POS::FIRST]).ToUTF8String();
+    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
         NError(EINVAL).ThrowErr(env, "Invalid uri");
         return nullptr;
     }
 
     std::unique_ptr<char[]> displayName;
-    std::tie(succ, displayName, std::ignore) = NVal(env, funcArg[(int)NARG_POS::SECOND]).ToUTF8String();
+    std::tie(succ, displayName, std::ignore) = NVal(env, funcArg[NARG_POS::SECOND]).ToUTF8String();
     if (!succ) {
         NError(EINVAL).ThrowErr(env, "Invalid displayName");
         return nullptr;
@@ -297,10 +298,10 @@ napi_value NAPI_CreateFile(napi_env env, napi_callback_info info)
     };
     std::string procedureName = "createFile";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == (int)NARG_CNT::TWO) {
+    if (funcArg.GetArgc() == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[(int)NARG_POS::THIRD]);
+        NVal cb(env, funcArg[NARG_POS::THIRD]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
     return NVal::CreateUndefined(env).val_;
@@ -309,21 +310,21 @@ napi_value NAPI_CreateFile(napi_env env, napi_callback_info info)
 napi_value NAPI_Mkdir(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs((int)NARG_CNT::TWO, (int)NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
         NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     bool succ = false;
     std::unique_ptr<char[]> uri;
-    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[(int)NARG_POS::FIRST]).ToUTF8String();
+    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
         NError(EINVAL).ThrowErr(env, "Invalid uri");
         return nullptr;
     }
 
     std::unique_ptr<char[]> displayName;
-    std::tie(succ, displayName, std::ignore) = NVal(env, funcArg[(int)NARG_POS::SECOND]).ToUTF8String();
+    std::tie(succ, displayName, std::ignore) = NVal(env, funcArg[NARG_POS::SECOND]).ToUTF8String();
     if (!succ) {
         NError(EINVAL).ThrowErr(env, "Invalid displayName");
         return nullptr;
@@ -353,10 +354,10 @@ napi_value NAPI_Mkdir(napi_env env, napi_callback_info info)
     };
     std::string procedureName = "mkdir";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == (int)NARG_CNT::TWO) {
+    if (funcArg.GetArgc() == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[(int)NARG_POS::THIRD]);
+        NVal cb(env, funcArg[NARG_POS::THIRD]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
     return NVal::CreateUndefined(env).val_;
@@ -365,14 +366,14 @@ napi_value NAPI_Mkdir(napi_env env, napi_callback_info info)
 napi_value NAPI_Delete(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs((int)NARG_CNT::ONE, (int)NARG_CNT::TWO)) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
         NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     bool succ = false;
     std::unique_ptr<char[]> uri;
-    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[(int)NARG_POS::FIRST]).ToUTF8String();
+    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
         NError(EINVAL).ThrowErr(env, "Invalid uri");
         return nullptr;
@@ -399,10 +400,10 @@ napi_value NAPI_Delete(napi_env env, napi_callback_info info)
 
     std::string procedureName = "delete";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == (int)NARG_CNT::ONE) {
+    if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[(int)NARG_POS::SECOND]);
+        NVal cb(env, funcArg[NARG_POS::SECOND]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
     return NVal::CreateUndefined(env).val_;
@@ -411,21 +412,21 @@ napi_value NAPI_Delete(napi_env env, napi_callback_info info)
 napi_value NAPI_Move(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs((int)NARG_CNT::TWO, (int)NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
         NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     bool succ = false;
     std::unique_ptr<char[]> sourceFile;
-    std::tie(succ, sourceFile, std::ignore) = NVal(env, funcArg[(int)NARG_POS::FIRST]).ToUTF8String();
+    std::tie(succ, sourceFile, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
         NError(EINVAL).ThrowErr(env, "Invalid sourceFile");
         return nullptr;
     }
 
     std::unique_ptr<char[]> targetParent;
-    std::tie(succ, targetParent, std::ignore) = NVal(env, funcArg[(int)NARG_POS::SECOND]).ToUTF8String();
+    std::tie(succ, targetParent, std::ignore) = NVal(env, funcArg[NARG_POS::SECOND]).ToUTF8String();
     if (!succ) {
         NError(EINVAL).ThrowErr(env, "Invalid targetParent");
         return nullptr;
@@ -456,10 +457,10 @@ napi_value NAPI_Move(napi_env env, napi_callback_info info)
     };
     std::string procedureName = "move";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == (int)NARG_CNT::TWO) {
+    if (funcArg.GetArgc() == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[(int)NARG_POS::THIRD]);
+        NVal cb(env, funcArg[NARG_POS::THIRD]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
     return NVal::CreateUndefined(env).val_;
@@ -468,21 +469,21 @@ napi_value NAPI_Move(napi_env env, napi_callback_info info)
 napi_value NAPI_Rename(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs((int)NARG_CNT::TWO, (int)NARG_CNT::THREE)) {
+    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
         NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     bool succ = false;
     std::unique_ptr<char[]> uri;
-    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[(int)NARG_POS::FIRST]).ToUTF8String();
+    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
         NError(EINVAL).ThrowErr(env, "Invalid uri");
         return nullptr;
     }
 
     std::unique_ptr<char[]> displayName;
-    std::tie(succ, displayName, std::ignore) = NVal(env, funcArg[(int)NARG_POS::SECOND]).ToUTF8String();
+    std::tie(succ, displayName, std::ignore) = NVal(env, funcArg[NARG_POS::SECOND]).ToUTF8String();
     if (!succ) {
         NError(EINVAL).ThrowErr(env, "Invalid displayName");
         return nullptr;
@@ -512,10 +513,10 @@ napi_value NAPI_Rename(napi_env env, napi_callback_info info)
     };
     std::string procedureName = "rename";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == (int)NARG_CNT::TWO) {
+    if (funcArg.GetArgc() == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[(int)NARG_POS::THIRD]);
+        NVal cb(env, funcArg[NARG_POS::THIRD]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
     return NVal::CreateUndefined(env).val_;
@@ -524,14 +525,14 @@ napi_value NAPI_Rename(napi_env env, napi_callback_info info)
 napi_value NAPI_ListFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs((int)NARG_CNT::ONE, (int)NARG_CNT::TWO)) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
         NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     bool succ = false;
     std::unique_ptr<char[]> uri;
-    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[(int)NARG_POS::FIRST]).ToUTF8String();
+    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
         NError(EINVAL).ThrowErr(env, "Invalid uri");
         return nullptr;
@@ -558,10 +559,10 @@ napi_value NAPI_ListFile(napi_env env, napi_callback_info info)
     };
     std::string procedureName = "listFile";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == (int)NARG_CNT::ONE) {
+    if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[(int)NARG_POS::SECOND]);
+        NVal cb(env, funcArg[NARG_POS::SECOND]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
     return NVal::CreateUndefined(env).val_;
@@ -570,7 +571,7 @@ napi_value NAPI_ListFile(napi_env env, napi_callback_info info)
 napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs((int)NARG_CNT::ZERO, (int)NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
         NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -594,10 +595,10 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
     };
     std::string procedureName = "getRoots";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == (int)NARG_CNT::ZERO) {
+    if (funcArg.GetArgc() == NARG_CNT::ZERO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
-        NVal cb(env, funcArg[(int)NARG_POS::FIRST]);
+        NVal cb(env, funcArg[NARG_POS::FIRST]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
     return NVal::CreateUndefined(env).val_;
