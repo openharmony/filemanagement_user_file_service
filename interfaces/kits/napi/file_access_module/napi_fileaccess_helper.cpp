@@ -44,29 +44,25 @@ std::list<std::shared_ptr<FileAccessHelper>> g_fileAccessHelperList;
 
 static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info info)
 {
-    size_t argc = ARGS_TWO;
-    napi_value argv[ARGS_TWO] = {nullptr};
-    napi_value thisVar = nullptr;
-    if (napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr) != napi_ok) {
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::TWO)) {
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
-    if (argc <= 0) {
-        HILOG_ERROR("Wrong number of arguments");
-        return nullptr;
-    }
+    napi_value thisVar = funcArg.GetThisVar();
 
     AAFwk::Want want;
-    OHOS::AppExecFwk::UnwrapWant(env, argv[PARAM1], want);
+    OHOS::AppExecFwk::UnwrapWant(env, funcArg.GetArg(PARAM1), want);
     std::shared_ptr<FileAccessHelper> fileAccessHelper = nullptr;
     bool isStageMode = false;
-    napi_status status = AbilityRuntime::IsStageContext(env, argv[PARAM0], isStageMode);
+    napi_status status = AbilityRuntime::IsStageContext(env, funcArg.GetArg(PARAM0), isStageMode);
     if (status != napi_ok || !isStageMode) {
         HILOG_INFO("No support FA Model");
         return nullptr;
     }
 
-    auto context = OHOS::AbilityRuntime::GetStageModeContext(env, argv[PARAM0]);
+    auto context = OHOS::AbilityRuntime::GetStageModeContext(env, funcArg.GetArg(PARAM0));
     if (context == nullptr) {
         HILOG_ERROR("FileAccessHelperConstructor: failed to get native context");
         return nullptr;
@@ -98,9 +94,9 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
 
 napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
 {
-    size_t requireArgc = ARGS_THREE;
-    size_t argc = ARGS_THREE;
-    napi_value args[ARGS_THREE] = {nullptr};
+    size_t requireArgc = ARGS_TWO;
+    size_t argc = ARGS_TWO;
+    napi_value args[ARGS_TWO] = {nullptr};
     if (napi_get_cb_info(env, info, &argc, args, nullptr, nullptr) != napi_ok) {
         return nullptr;
     }
@@ -117,7 +113,7 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    if (napi_new_instance(env, cons, ARGS_THREE, args, &result) != napi_ok) {
+    if (napi_new_instance(env, cons, ARGS_TWO, args, &result) != napi_ok) {
         return nullptr;
     }
 
