@@ -40,11 +40,12 @@ public:
     sptr<IFileAccessExtBase> GetFileExtProxy();
 
 private:
-    struct ConnectCondition {
+    struct ThreadLockInfo {
         std::condition_variable condition;
         std::mutex mutex;
+        bool isReady = false;
     };
-    ConnectCondition condition_;
+    ThreadLockInfo connectLockInfo_;
 
     static sptr<FileAccessExtConnection> instance_;
     static std::mutex mutex_;
