@@ -69,7 +69,7 @@ void FileAccessExtConnection::ConnectFileExtAbility(const AAFwk::Want &want, con
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, this, token);
     std::unique_lock<std::mutex> lock(connectLockInfo_.mutex);
     if (!connectLockInfo_.condition.wait_for(lock, std::chrono::seconds(WAIT_TIME),
-            [this] { return fileExtProxy_ != nullptr && connectLockInfo_.isReady; })) {
+        [this] { return fileExtProxy_ != nullptr && connectLockInfo_.isReady; })) {
         HILOG_INFO("Wait connect timeout.");
     }
     HILOG_INFO("ConnectAbility ret=%{public}d", ret);
