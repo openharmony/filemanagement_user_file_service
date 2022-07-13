@@ -63,6 +63,11 @@ FileAccessHelper::FileAccessHelper(const sptr<IRemoteObject> &token,
 
 std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteObject> &token, const AAFwk::Want &want)
 {
+    if (token == nullptr) {
+        HILOG_ERROR("failed, token == nullptr");
+        return nullptr;
+    }
+
     sptr<IFileAccessExtBase> fileAccessExtProxy = nullptr;
 
     sptr<FileAccessExtConnection> fileAccessExtConnection = FileAccessExtConnection::GetInstance();
@@ -130,7 +135,7 @@ bool FileAccessHelper::GetProxy()
     if (fileAccessExtConnection_ == nullptr) {
         return false;
     }
-    
+
     if (!fileAccessExtConnection_->IsExtAbilityConnected()) {
         fileAccessExtConnection_->ConnectFileExtAbility(want_, token_);
     }
