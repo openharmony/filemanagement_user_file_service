@@ -32,13 +32,13 @@ public:
 
     enum {
         CMD_OPEN_FILE = 1,
-        CMD_CREATE_FILE = 2,
-        CMD_MKDIR = 3,
-        CMD_DELETE = 4,
-        CMD_MOVE = 5,
-        CMD_RENAME = 6,
-        CMD_LIST_FILE = 7,
-        CMD_GET_ROOTS = 8
+        CMD_CREATE_FILE,
+        CMD_MKDIR,
+        CMD_DELETE,
+        CMD_MOVE,
+        CMD_RENAME,
+        CMD_LIST_FILE,
+        CMD_GET_ROOTS
     };
 
     virtual int OpenFile(const Uri &uri, int flags) = 0;
