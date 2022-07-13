@@ -24,6 +24,15 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
+enum RootType {
+    DEVICE_LOCAL = 1,
+    DEVICE_DISTRIBUTED,
+    DEVICE_EXTERNAL_STORAGE,
+    DEVICE_MTP,
+    DEVICE_SHARE,
+    DEVICE_CLOUD_DISK
+};
+
 struct FileInfo : public virtual OHOS::Parcelable {
 public:
     Uri uri = Uri("");
@@ -93,6 +102,7 @@ public:
     std::string displayName;
     std::string deviceId;
     uint32_t flags {0};
+    RootType type;
 
     bool ReadFromParcel(Parcel &parcel)
     {
@@ -105,6 +115,7 @@ public:
         displayName = parcel.ReadString();
         deviceId = parcel.ReadString();
         flags = parcel.ReadUint32();
+        type = (RootType)parcel.ReadInt32();
         return true;
     }
 
@@ -120,6 +131,9 @@ public:
             return false;
         }
         if (!parcel.WriteUint32(flags)) {
+            return false;
+        }
+        if (!parcel.WriteInt32((int32_t)type)) {
             return false;
         }
         return true;

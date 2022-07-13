@@ -33,6 +33,7 @@ static napi_value Init(napi_env env, napi_value exports)
 {
     FileAccessHelperInit(env, exports);
     InitFlag(env, exports);
+    InitRootType(env, exports);
     InitFileInfo(env, exports);
     InitDeviceInfo(env, exports);
     return exports;
