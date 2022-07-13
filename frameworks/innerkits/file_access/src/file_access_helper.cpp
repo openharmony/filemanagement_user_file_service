@@ -114,6 +114,10 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
 
 bool FileAccessHelper::Release()
 {
+    if (fileAccessExtConnection_ == nullptr) {
+        return false;
+    }
+
     if (fileAccessExtConnection_->IsExtAbilityConnected()) {
         fileAccessExtConnection_->DisconnectFileExtAbility();
     }
@@ -123,6 +127,10 @@ bool FileAccessHelper::Release()
 
 bool FileAccessHelper::GetProxy()
 {
+    if (fileAccessExtConnection_ == nullptr) {
+        return false;
+    }
+    
     if (!fileAccessExtConnection_->IsExtAbilityConnected()) {
         fileAccessExtConnection_->ConnectFileExtAbility(want_, token_);
     }
