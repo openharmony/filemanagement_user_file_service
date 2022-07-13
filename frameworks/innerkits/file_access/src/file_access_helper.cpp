@@ -64,7 +64,7 @@ FileAccessHelper::FileAccessHelper(const sptr<IRemoteObject> &token,
 std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteObject> &token, const AAFwk::Want &want)
 {
     if (token == nullptr) {
-        HILOG_ERROR("failed, token == nullptr");
+        HILOG_ERROR("FileAccessHelper::Creator failed, token is nullptr");
         return nullptr;
     }
 
@@ -93,7 +93,7 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const AAFwk::Want &want)
 {
     if (context == nullptr) {
-        HILOG_ERROR("failed, context == nullptr");
+        HILOG_ERROR("FileAccessHelper::Creator failed, context is nullptr");
         return nullptr;
     }
 
