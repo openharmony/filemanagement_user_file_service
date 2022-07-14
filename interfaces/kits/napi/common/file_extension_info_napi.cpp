@@ -15,9 +15,8 @@
 
 #include "file_extension_info_napi.h"
 
-#include <stddef.h>
-#include <stdint.h>
-
+#include <cstddef>
+#include <cstdint>
 #include <string>
 
 #include "file_access_extension_info.h"
