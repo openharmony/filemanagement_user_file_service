@@ -106,9 +106,9 @@ void InitFileInfo(napi_env env, napi_value exports)
     napi_set_named_property(env, exports, className, obj);
 }
 
-void InitRootType(napi_env env, napi_value exports)
+void InitDeviceType(napi_env env, napi_value exports)
 {
-    char propertyName[] = "RootType";
+    char propertyName[] = "DeviceType";
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_STATIC_PROPERTY("LOCAL_DISK", CreateUint32(env, DEVICE_LOCAL_DISK)),
         DECLARE_NAPI_STATIC_PROPERTY("SHARED_DISK", CreateUint32(env, DEVICE_SHARED_DISK)),

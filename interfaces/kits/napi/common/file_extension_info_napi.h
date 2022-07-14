@@ -21,7 +21,7 @@
 namespace OHOS {
 namespace FileAccessFwk {
 void InitFlag(napi_env env, napi_value exports);
-void InitRootType(napi_env env, napi_value exports);
+void InitDeviceType(napi_env env, napi_value exports);
 void InitFileInfo(napi_env env, napi_value exports);
 void InitDeviceInfo(napi_env env, napi_value exports);
 } // namespace FileAccessFwk

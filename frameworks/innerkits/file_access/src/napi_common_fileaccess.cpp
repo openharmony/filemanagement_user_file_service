@@ -276,7 +276,7 @@ bool UnwrapDeviceInfo(napi_env env, napi_value param, DeviceInfo &deviceInfo)
 
     int32_t natValueInt32 = 0;
     if (UnwrapInt32ByPropertyName(env, param, "type", natValueInt32)) {
-        deviceInfo.type = (RootType)natValueInt32;
+        deviceInfo.type = (DeviceType)natValueInt32;
     }
     return true;
 }

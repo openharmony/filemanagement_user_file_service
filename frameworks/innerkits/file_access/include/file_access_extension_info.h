@@ -24,14 +24,14 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-enum RootType {
-    DEVICE_LOCAL_DISK = 1,
-    DEVICE_SHARED_DISK,
-    DEVICE_SHARED_TERMINAL,
-    DEVICE_NETWORK_NEIGHBORHOODS,
-    DEVICE_EXTERNAL_MTP,
-    DEVICE_EXTERNAL_USB,
-    DEVICE_EXTERNAL_CLOUD
+enum DeviceType {
+    DEVICE_LOCAL_DISK = 1,              // local c,d... disk
+    DEVICE_SHARED_DISK,                 // Multi user shared disk
+    DEVICE_SHARED_TERMINAL,             // Distributed networking terminal device
+    DEVICE_NETWORK_NEIGHBORHOODS,       // Network neighbor device
+    DEVICE_EXTERNAL_MTP,                // MTP
+    DEVICE_EXTERNAL_USB,                // SD card,U disk,External hard disk
+    DEVICE_EXTERNAL_CLOUD               // External cloud disk device
 };
 
 struct FileInfo : public virtual OHOS::Parcelable {
@@ -103,7 +103,7 @@ public:
     std::string displayName;
     std::string deviceId;
     uint32_t flags {0};
-    RootType type;
+    DeviceType type;
 
     bool ReadFromParcel(Parcel &parcel)
     {
@@ -116,7 +116,7 @@ public:
         displayName = parcel.ReadString();
         deviceId = parcel.ReadString();
         flags = parcel.ReadUint32();
-        type = (RootType)parcel.ReadInt32();
+        type = (DeviceType)parcel.ReadInt32();
         return true;
     }
 
