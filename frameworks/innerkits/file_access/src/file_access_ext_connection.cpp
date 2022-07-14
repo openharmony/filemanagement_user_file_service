@@ -21,6 +21,9 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
+namespace {
+    constexpr int WAIT_TIME = 1;    // second
+}
 sptr<FileAccessExtConnection> FileAccessExtConnection::instance_ = nullptr;
 std::mutex FileAccessExtConnection::mutex_;
 
@@ -39,15 +42,18 @@ void FileAccessExtConnection::OnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
     if (remoteObject == nullptr) {
-        HILOG_ERROR("%{public}s failed, remote is nullptr", __func__);
+        HILOG_ERROR("remote is nullptr");
         return;
     }
     fileExtProxy_ = iface_cast<FileAccessExtProxy>(remoteObject);
     if (fileExtProxy_ == nullptr) {
-        HILOG_ERROR("%{public}s failed, fileExtProxy_ is nullptr", __func__);
+        HILOG_ERROR("fileExtProxy_ is nullptr");
         return;
     }
     isConnected_.store(true);
+    std::lock_guard<std::mutex> lock(connectLockInfo_.mutex);
+    connectLockInfo_.isReady = true;
+    connectLockInfo_.condition.notify_all();
 }
 
 void FileAccessExtConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
@@ -59,7 +65,15 @@ void FileAccessExtConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementN
 void FileAccessExtConnection::ConnectFileExtAbility(const AAFwk::Want &want, const sptr<IRemoteObject> &token)
 {
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, this, token);
-    HILOG_INFO("%{public}s called end, ret=%{public}d", __func__, ret);
+    if (ret != ERR_OK) {
+        HILOG_INFO("ConnectAbility ret=%{public}d", ret);
+        return;
+    }
+    std::unique_lock<std::mutex> lock(connectLockInfo_.mutex);
+    if (!connectLockInfo_.condition.wait_for(lock, std::chrono::seconds(WAIT_TIME),
+        [this] { return fileExtProxy_ != nullptr && connectLockInfo_.isReady; })) {
+        HILOG_INFO("Wait connect timeout.");
+    }
 }
 
 void FileAccessExtConnection::DisconnectFileExtAbility()
