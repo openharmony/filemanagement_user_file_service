@@ -14,6 +14,7 @@
  */
 
 #include "native_engine/native_engine.h"
+#include "module_manager/native_module_manager.h"
 
 extern const char _binary_file_access_ext_ability_js_start[];
 extern const char _binary_file_access_ext_ability_js_end[];

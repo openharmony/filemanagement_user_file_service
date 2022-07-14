@@ -16,11 +16,14 @@
 #ifndef FILE_EXT_CONNECTION_H
 #define FILE_EXT_CONNECTION_H
 
-#include <memory>
+#include <atomic>
+#include <mutex>
 
 #include "ability_connect_callback_stub.h"
-#include "event_handler.h"
+#include "element_name.h"
 #include "ifile_access_ext_base.h"
+#include "iremote_object.h"
+#include "refbase.h"
 #include "want.h"
 
 namespace OHOS {

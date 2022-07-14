@@ -15,6 +15,8 @@
 
 #include "file_access_helper.h"
 
+#include <new>
+
 #include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"

@@ -12,11 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "file_extension_info_napi.h"
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <string>
+
 #include "file_access_extension_info.h"
 #include "hilog_wrapper.h"
+#include "js_native_api.h"
+#include "napi/native_common.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
