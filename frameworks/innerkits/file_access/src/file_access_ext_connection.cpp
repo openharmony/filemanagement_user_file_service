@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace FileAccessFwk {
 namespace {
-    constexpr int WAIT_TIME = 1;
+    constexpr int WAIT_TIME = 1;    // second
 }
 sptr<FileAccessExtConnection> FileAccessExtConnection::instance_ = nullptr;
 std::mutex FileAccessExtConnection::mutex_;
