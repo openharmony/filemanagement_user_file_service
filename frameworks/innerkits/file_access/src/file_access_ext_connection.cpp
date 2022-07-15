@@ -15,9 +15,13 @@
 
 #include "file_access_ext_connection.h"
 
+#include <errors.h>
+
+#include "ability_connect_callback_interface.h"
 #include "ability_manager_client.h"
 #include "file_access_ext_proxy.h"
 #include "hilog_wrapper.h"
+#include "iremote_broker.h"
 
 namespace OHOS {
 namespace FileAccessFwk {

@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "module_manager/native_module_manager.h"
 #include "native_engine/native_engine.h"
 
 extern const char _binary_file_access_ext_ability_js_start[];
