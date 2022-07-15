@@ -106,7 +106,7 @@ export default class FileExtAbility extends Extension {
         return newFileUri;
     }
 
-    listDir(path, cb) {
+    recurseDir(path, cb) {
         try {
             let stat = fileio.statSync(path);
             if (stat.isDirectory()) {
@@ -116,7 +116,7 @@ export default class FileExtAbility extends Extension {
                 while (hasNextFile) {
                     try {
                         let dirent = dir.readSync();
-                        this.listDir(path + '/' + dirent.name, cb);
+                        this.recurseDir(path + '/' + dirent.name, cb);
                     } catch (e) {
                         hasNextFile = false;
                         cb(path, true, hasNextFile);
@@ -126,7 +126,7 @@ export default class FileExtAbility extends Extension {
                 cb(path, false);
             }
         } catch (e) {
-            hilog.error(DOMAIN_CODE, TAG, 'listDir error ' + e.message);
+            hilog.error(DOMAIN_CODE, TAG, 'recurseDir error ' + e.message);
             cb(path, true);
         }
     }
@@ -192,7 +192,7 @@ export default class FileExtAbility extends Extension {
         }
         let path = this.getPath(selectFileUri);
         let code = 0;
-        this.listDir(path, function (filePath, isDirectory, hasNextFile) {
+        this.recurseDir(path, function (filePath, isDirectory, hasNextFile) {
             try {
                 if (isDirectory) {
                     if (!hasNextFile) {
@@ -222,13 +222,27 @@ export default class FileExtAbility extends Extension {
         } else if (newPath.indexOf(oldPath) == 0) {
             return '';
         }
+        try {
+            fileio.accessSync(oldPath);
+            let stat = fileio.statSync(this.getPath(targetParentUri));
+            if (!stat || !stat.isDirectory()) {
+                return '';
+            }
+        } catch (e) {
+            hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
+            return '';
+        }
         let hasError = false;
-        this.listDir(oldPath, function (filePath, isDirectory, hasNextFile) {
+        this.recurseDir(oldPath, function (filePath, isDirectory, hasNextFile) {
             try {
                 let newFilePath = filePath.replace(oldPath, newPath);
                 if (isDirectory) {
                     if (hasNextFile) {
-                        fileio.mkdirSync(newFilePath);
+                        try {
+                            fileio.accessSync(newFilePath);
+                        } catch (e) {
+                            fileio.mkdirSync(newFilePath);
+                        }
                     } else {
                         fileio.rmdirSync(filePath);
                     }
@@ -243,9 +257,8 @@ export default class FileExtAbility extends Extension {
         });
         if (hasError) {
             return '';
-        } else {
-            return newFileUri;
         }
+        return newFileUri;
     }
 
     rename(sourceFileUri, displayName) {
