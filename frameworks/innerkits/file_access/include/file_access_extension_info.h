@@ -25,13 +25,13 @@
 namespace OHOS {
 namespace FileAccessFwk {
 enum DeviceType {
-    DEVICE_LOCAL_DISK = 1,              // local c,d... disk
-    DEVICE_SHARED_DISK,                 // Multi user shared disk
+    DEVICE_LOCAL_DISK = 1,              // Local c,d... disk
+    DEVICE_SHARED_DISK,                 // Multi-user shared disk
     DEVICE_SHARED_TERMINAL,             // Distributed networking terminal device
     DEVICE_NETWORK_NEIGHBORHOODS,       // Network neighbor device
-    DEVICE_EXTERNAL_MTP,                // MTP
-    DEVICE_EXTERNAL_USB,                // SD card,U disk,External hard disk
-    DEVICE_EXTERNAL_CLOUD               // External cloud disk device
+    DEVICE_EXTERNAL_MTP,                // MTP device
+    DEVICE_EXTERNAL_USB,                // USB device
+    DEVICE_EXTERNAL_CLOUD               // Cloud disk device
 };
 
 struct FileInfo : public virtual OHOS::Parcelable {
