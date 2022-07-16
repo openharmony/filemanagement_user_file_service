@@ -32,6 +32,7 @@ namespace FileAccessFwk {
     napi_value NAPI_Rename(napi_env env, napi_callback_info info);
     napi_value NAPI_ListFile(napi_env env, napi_callback_info info);
     napi_value NAPI_GetRoots(napi_env env, napi_callback_info info);
+    napi_value NAPI_AddService(napi_env env, napi_callback_info info);
 }
 } // namespace FileAccessFwk
 #endif // FILE_ACCESS_NAPI_H

@@ -45,15 +45,12 @@ std::list<std::shared_ptr<FileAccessHelper>> g_fileAccessHelperList;
 static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::TWO)) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
         NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     napi_value thisVar = funcArg.GetThisVar();
-
-    AAFwk::Want want;
-    OHOS::AppExecFwk::UnwrapWant(env, funcArg.GetArg(PARAM1), want);
     std::shared_ptr<FileAccessHelper> fileAccessHelper = nullptr;
     bool isStageMode = false;
     napi_status status = AbilityRuntime::IsStageContext(env, funcArg.GetArg(PARAM0), isStageMode);
@@ -68,7 +65,18 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
         return nullptr;
     }
 
-    fileAccessHelper = FileAccessHelper::Creator(context, want);
+    if (funcArg.GetArgc() == NARG_CNT::ONE) {
+        fileAccessHelper = FileAccessHelper::Creator(context);
+    } else if (funcArg.GetArgc() == NARG_CNT::TWO) {
+        std::vector<AAFwk::Want> wants;
+        bool suss = UnwrapArrayWantFromJS(env, funcArg.GetArg(PARAM1), wants);
+        if (!suss) {
+            HILOG_ERROR("UnwrapArrayWantFromJS failed to get native wants");
+            return nullptr;
+        }
+        fileAccessHelper = FileAccessHelper::Creator(context, wants);
+    }
+
     if (fileAccessHelper == nullptr) {
         HILOG_ERROR("FileAccessHelperConstructor: fileAccessHelper is nullptr");
         return nullptr;
@@ -94,45 +102,94 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
 
 napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
 {
-    size_t requireArgc = ARGS_TWO;
-    size_t argc = ARGS_TWO;
-    napi_value args[ARGS_TWO] = {nullptr};
-    if (napi_get_cb_info(env, info, &argc, args, nullptr, nullptr) != napi_ok) {
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
-    if (argc > requireArgc) {
-        HILOG_ERROR("Wrong argument count%{public}zu.", argc);
-        return nullptr;
-    }
+    if (funcArg.GetArgc() == NARG_CNT::ONE) {
+        size_t requireArgc = ARGS_ONE;
+        size_t argc = ARGS_ONE;
+        napi_value args[ARGS_ONE] = {nullptr};
+        if (napi_get_cb_info(env, info, &argc, args, nullptr, nullptr) != napi_ok) {
+            return nullptr;
+        }
 
-    napi_value result = nullptr;
-    napi_value cons = nullptr;
-    if (napi_get_reference_value(env, g_constructorRef, &cons) != napi_ok) {
-        HILOG_ERROR("g_constructorRef reference is fail");
-        return nullptr;
-    }
+        if (argc > requireArgc) {
+            HILOG_ERROR("Wrong argument count%{public}zu.", argc);
+            return nullptr;
+        }
 
-    if (napi_new_instance(env, cons, ARGS_TWO, args, &result) != napi_ok) {
-        return nullptr;
-    }
+        napi_value result = nullptr;
+        napi_value cons = nullptr;
+        if (napi_get_reference_value(env, g_constructorRef, &cons) != napi_ok) {
+            HILOG_ERROR("g_constructorRef reference is fail");
+            return nullptr;
+        }
 
-    if (!IsTypeForNapiValue(env, result, napi_object)) {
-        HILOG_ERROR("IsTypeForNapiValue isn`t object");
-        return nullptr;
-    }
+        if (napi_new_instance(env, cons, ARGS_ONE, args, &result) != napi_ok) {
+            return nullptr;
+        }
 
-    if (IsTypeForNapiValue(env, result, napi_null)) {
-        HILOG_ERROR("IsTypeForNapiValue is null");
-        return nullptr;
-    }
+        if (!IsTypeForNapiValue(env, result, napi_object)) {
+            HILOG_ERROR("IsTypeForNapiValue isn`t object");
+            return nullptr;
+        }
 
-    if (IsTypeForNapiValue(env, result, napi_undefined)) {
-        HILOG_ERROR("IsTypeForNapiValue is undefined");
-        return nullptr;
-    }
+        if (IsTypeForNapiValue(env, result, napi_null)) {
+            HILOG_ERROR("IsTypeForNapiValue is null");
+            return nullptr;
+        }
 
-    return result;
+        if (IsTypeForNapiValue(env, result, napi_undefined)) {
+            HILOG_ERROR("IsTypeForNapiValue is undefined");
+            return nullptr;
+        }
+
+        return result;
+    } else {
+        size_t requireArgc = ARGS_TWO;
+        size_t argc = ARGS_TWO;
+        napi_value args[ARGS_TWO] = {nullptr};
+        if (napi_get_cb_info(env, info, &argc, args, nullptr, nullptr) != napi_ok) {
+            return nullptr;
+        }
+
+        if (argc > requireArgc) {
+            HILOG_ERROR("Wrong argument count%{public}zu.", argc);
+            return nullptr;
+        }
+
+        napi_value result = nullptr;
+        napi_value cons = nullptr;
+        if (napi_get_reference_value(env, g_constructorRef, &cons) != napi_ok) {
+            HILOG_ERROR("g_constructorRef reference is fail");
+            return nullptr;
+        }
+
+        if (napi_new_instance(env, cons, ARGS_TWO, args, &result) != napi_ok) {
+            return nullptr;
+        }
+
+        if (!IsTypeForNapiValue(env, result, napi_object)) {
+            HILOG_ERROR("IsTypeForNapiValue isn`t object");
+            return nullptr;
+        }
+
+        if (IsTypeForNapiValue(env, result, napi_null)) {
+            HILOG_ERROR("IsTypeForNapiValue is null");
+            return nullptr;
+        }
+
+        if (IsTypeForNapiValue(env, result, napi_undefined)) {
+            HILOG_ERROR("IsTypeForNapiValue is undefined");
+            return nullptr;
+        }
+
+        return result;
+    }
+    return nullptr;
 }
 
 napi_value NAPI_CreateFileAccessHelper(napi_env env, napi_callback_info info)
@@ -142,40 +199,6 @@ napi_value NAPI_CreateFileAccessHelper(napi_env env, napi_callback_info info)
         ret = WrapVoidToJS(env);
     }
     return ret;
-}
-
-napi_value FileAccessHelperInit(napi_env env, napi_value exports)
-{
-    napi_property_descriptor properties[] = {
-        DECLARE_NAPI_FUNCTION("openFile", NAPI_OpenFile),
-        DECLARE_NAPI_FUNCTION("mkdir", NAPI_Mkdir),
-        DECLARE_NAPI_FUNCTION("createFile", NAPI_CreateFile),
-        DECLARE_NAPI_FUNCTION("delete", NAPI_Delete),
-        DECLARE_NAPI_FUNCTION("move", NAPI_Move),
-        DECLARE_NAPI_FUNCTION("rename", NAPI_Rename),
-        DECLARE_NAPI_FUNCTION("listFile", NAPI_ListFile),
-        DECLARE_NAPI_FUNCTION("getRoots", NAPI_GetRoots),
-    };
-    napi_value cons = nullptr;
-    NAPI_CALL(env,
-        napi_define_class(env,
-            FILEACCESS_CLASS_NAME.c_str(),
-            NAPI_AUTO_LENGTH,
-            FileAccessHelperConstructor,
-            nullptr,
-            sizeof(properties) / sizeof(*properties),
-            properties,
-            &cons));
-    g_fileAccessHelperList.clear();
-    NAPI_CALL(env, napi_create_reference(env, cons, INITIAL_REFCOUNT, &g_constructorRef));
-    NAPI_CALL(env, napi_set_named_property(env, exports, FILEACCESS_CLASS_NAME.c_str(), cons));
-
-    napi_property_descriptor export_properties[] = {
-        DECLARE_NAPI_FUNCTION("createFileAccessHelper", NAPI_CreateFileAccessHelper),
-    };
-    NAPI_CALL(env, napi_define_properties(env, exports, sizeof(export_properties) / sizeof(export_properties[0]),
-        export_properties));
-    return exports;
 }
 
 static FileAccessHelper *GetFileAccessHelper(napi_env env, napi_value thisVar)
@@ -193,6 +216,75 @@ static FileAccessHelper *GetFileAccessHelper(napi_env env, napi_value thisVar)
     }
     return fileAccessHelper;
 }
+
+napi_value NAPI_GetRegisterFileAccessExtAbilityInfo(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        return nullptr;
+    }
+
+    auto result = std::make_shared<std::vector<AAFwk::Want>>();
+    auto cbExec = [result]() -> NError {
+        *result = FileAccessHelper::GetRegisterFileAccessExtAbilityInfo();
+        return NError(ERRNO_NOERR);
+    };
+    auto cbComplete = [result](napi_env env, NError err) -> NVal {
+        if (err) {
+            return { env, err.GetNapiErr(env) };
+        }
+        napi_value jsArray = WrapArrayWantToJS(env, *result);
+        return {env, jsArray};
+    };
+    std::string procedureName = "getRegisterFileAccessExtAbilityInfo";
+    NVal thisVar(env, funcArg.GetThisVar());
+    if (funcArg.GetArgc() == NARG_CNT::ZERO) {
+        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
+    } else {
+        NVal cb(env, funcArg[NARG_POS::FIRST]);
+        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
+    }
+    return NVal::CreateUndefined(env).val_;
+}
+
+napi_value FileAccessHelperInit(napi_env env, napi_value exports)
+{
+    napi_property_descriptor properties[] = {
+        DECLARE_NAPI_FUNCTION("openFile", NAPI_OpenFile),
+        DECLARE_NAPI_FUNCTION("mkdir", NAPI_Mkdir),
+        DECLARE_NAPI_FUNCTION("createFile", NAPI_CreateFile),
+        DECLARE_NAPI_FUNCTION("delete", NAPI_Delete),
+        DECLARE_NAPI_FUNCTION("move", NAPI_Move),
+        DECLARE_NAPI_FUNCTION("rename", NAPI_Rename),
+        DECLARE_NAPI_FUNCTION("listFile", NAPI_ListFile),
+        DECLARE_NAPI_FUNCTION("getRoots", NAPI_GetRoots),
+        DECLARE_NAPI_FUNCTION("addService", NAPI_AddService),
+    };
+    napi_value cons = nullptr;
+    NAPI_CALL(env,
+        napi_define_class(env,
+            FILEACCESS_CLASS_NAME.c_str(),
+            NAPI_AUTO_LENGTH,
+            FileAccessHelperConstructor,
+            nullptr,
+            sizeof(properties) / sizeof(*properties),
+            properties,
+            &cons));
+    g_fileAccessHelperList.clear();
+    NAPI_CALL(env, napi_create_reference(env, cons, INITIAL_REFCOUNT, &g_constructorRef));
+    NAPI_CALL(env, napi_set_named_property(env, exports, FILEACCESS_CLASS_NAME.c_str(), cons));
+
+    napi_property_descriptor export_properties[] = {
+        DECLARE_NAPI_FUNCTION("createFileAccessHelper", NAPI_CreateFileAccessHelper),
+        DECLARE_NAPI_FUNCTION("getRegisterFileAccessExtAbilityInfo", NAPI_GetRegisterFileAccessExtAbilityInfo),
+    };
+    NAPI_CALL(env, napi_define_properties(env, exports, sizeof(export_properties) / sizeof(export_properties[0]),
+        export_properties));
+    return exports;
+}
+
+
 
 napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
 {
@@ -553,6 +645,7 @@ napi_value NAPI_ListFile(napi_env env, napi_callback_info info)
         napi_value jsArray = WrapArrayFileInfoToJS(env, *result);
         return {env, jsArray};
     };
+
     std::string procedureName = "listFile";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
@@ -589,12 +682,60 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
         napi_value jsArray = WrapArrayDeviceInfoToJS(env, *result);
         return {env, jsArray};
     };
+
     std::string procedureName = "getRoots";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ZERO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } else {
         NVal cb(env, funcArg[NARG_POS::FIRST]);
+        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
+    }
+    return NVal::CreateUndefined(env).val_;
+}
+
+napi_value NAPI_AddService(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        return nullptr;
+    }
+
+    AAFwk::Want want;
+    bool succ = OHOS::AppExecFwk::UnwrapWant(env, funcArg.GetArg(PARAM0), want);
+    if (!succ) {
+        NError(EINVAL).ThrowErr(env, "Invalid want");
+        return nullptr;
+    }
+
+    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    if (fileAccessHelper == nullptr) {
+        return nullptr;
+    }
+
+    auto result = std::make_shared<bool>();
+    string bundleName = want.GetElement().GetBundleName();
+    string abilityName = want.GetElement().GetAbilityName();
+    auto cbExec = [bundleName, abilityName, result, fileAccessHelper]() -> NError {
+        AAFwk::Want wantTem;
+        wantTem.SetElementName(bundleName, abilityName);
+        *result = fileAccessHelper->AddService(wantTem);
+        return NError(ERRNO_NOERR);
+    };
+    auto cbComplete = [result](napi_env env, NError err) -> NVal {
+        if (err) {
+            return { env, err.GetNapiErr(env) };
+        }
+        return { NVal::CreateBool(env, *result) };
+    };
+
+    std::string procedureName = "addService";
+    NVal thisVar(env, funcArg.GetThisVar());
+    if (funcArg.GetArgc() == NARG_CNT::ONE) {
+        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
+    } else {
+        NVal cb(env, funcArg[NARG_POS::SECOND]);
         return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
     return NVal::CreateUndefined(env).val_;

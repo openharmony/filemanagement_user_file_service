@@ -21,6 +21,7 @@ config("ability_config") {
   include_dirs = [
     "include",
     "${BASE_DIR}/utils",
+    "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/include",
     "${ability_runtime_services_path}/common/include",
     "${ability_runtime_kits_path}/ability/native/include/continuation/distributed",
     "${ability_runtime_kits_path}/ability/native/include/continuation/kits",
@@ -79,9 +80,12 @@ ohos_shared_library("file_access_extension_ability_kit") {
     "ability_runtime:runtime",
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "hitrace_native:hitrace_meter",
     "ipc:ipc_core",
     "ipc_js:rpc",
+    "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
 
@@ -110,6 +114,9 @@ ohos_shared_library("file_access_extension_ability_module") {
     "ability_runtime:runtime",
     "hiviewdfx_hilog_native:libhilog",
     "utils_base:utils",
+    "bundle_framework:appexecfwk_core",
+    "ipc:ipc_core",
+    "samgr_standard:samgr_proxy",
   ]
 
   relative_install_dir = "extensionability/"

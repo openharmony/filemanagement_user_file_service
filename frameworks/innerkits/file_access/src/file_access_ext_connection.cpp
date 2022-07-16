@@ -21,30 +21,17 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-sptr<FileAccessExtConnection> FileAccessExtConnection::instance_ = nullptr;
-std::mutex FileAccessExtConnection::mutex_;
-
-sptr<FileAccessExtConnection> FileAccessExtConnection::GetInstance()
-{
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (instance_ == nullptr) {
-            instance_ = sptr<FileAccessExtConnection>(new (std::nothrow) FileAccessExtConnection());
-        }
-    }
-    return instance_;
-}
-
 void FileAccessExtConnection::OnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
     if (remoteObject == nullptr) {
-        HILOG_ERROR("%{public}s failed, remote is nullptr", __func__);
+        HILOG_ERROR("OnAbilityConnectDone failed, remote is nullptr");
         return;
     }
+
     fileExtProxy_ = iface_cast<FileAccessExtProxy>(remoteObject);
     if (fileExtProxy_ == nullptr) {
-        HILOG_ERROR("%{public}s failed, fileExtProxy_ is nullptr", __func__);
+        HILOG_ERROR("OnAbilityConnectDone fileExtProxy_ is nullptr");
         return;
     }
     isConnected_.store(true);
@@ -59,7 +46,7 @@ void FileAccessExtConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementN
 void FileAccessExtConnection::ConnectFileExtAbility(const AAFwk::Want &want, const sptr<IRemoteObject> &token)
 {
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, this, token);
-    HILOG_INFO("%{public}s called end, ret=%{public}d", __func__, ret);
+    HILOG_INFO("ConnectFileExtAbility ret=%{public}d", ret);
 }
 
 void FileAccessExtConnection::DisconnectFileExtAbility()
@@ -67,7 +54,7 @@ void FileAccessExtConnection::DisconnectFileExtAbility()
     fileExtProxy_ = nullptr;
     isConnected_.store(false);
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(this);
-    HILOG_INFO("%{public}s called end, ret=%{public}d", __func__, ret);
+    HILOG_INFO("DisconnectFileExtAbility ret=%{public}d", ret);
 }
 
 bool FileAccessExtConnection::IsExtAbilityConnected()
