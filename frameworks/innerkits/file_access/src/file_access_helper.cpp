@@ -63,7 +63,7 @@ std::shared_ptr<ConnectInfo> FileAccessHelper::GetConnectInfo(const std::string 
 
 std::shared_ptr<ConnectInfo> FileAccessHelper::GetConnectInfo(Uri &uri)
 {
-    for(auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
+    for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
         Uri key(iter->first);
         if (key.GetScheme().compare(uri.GetScheme()) == 0) {
             return iter->second;
@@ -76,7 +76,7 @@ std::shared_ptr<ConnectInfo> FileAccessHelper::GetConnectInfo(Uri &uri)
 
 std::shared_ptr<ConnectInfo> FileAccessHelper::GetConnectInfo(const AAFwk::Want &want)
 {
-    for(auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
+    for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
         auto element = iter->second->want.GetElement();
         auto elementTmp = want.GetElement();
         if (element.GetBundleName() == elementTmp.GetBundleName() &&
@@ -90,7 +90,7 @@ std::shared_ptr<ConnectInfo> FileAccessHelper::GetConnectInfo(const AAFwk::Want 
 
 std::string FileAccessHelper::GetKeyOfWantsMap(const AAFwk::Want &want)
 {
-    for(auto iter = FileAccessHelper::wantsMap_.begin(); iter != FileAccessHelper::wantsMap_.end(); ++iter) {
+    for (auto iter = FileAccessHelper::wantsMap_.begin(); iter != FileAccessHelper::wantsMap_.end(); ++iter) {
         auto element = iter->second.GetElement();
         auto elementTmp = want.GetElement();
         if (element.GetBundleName() == elementTmp.GetBundleName() &&
@@ -103,9 +103,9 @@ std::string FileAccessHelper::GetKeyOfWantsMap(const AAFwk::Want &want)
 }
 
 void FileAccessHelper::InsertConnectInfo(const std::string &key,
-                           const AAFwk::Want &want,
-                           const sptr<IFileAccessExtBase> &fileAccessExtProxy,
-                           std::shared_ptr<FileAccessExtConnection> fileAccessExtConnection)
+                                         const AAFwk::Want &want,
+                                         const sptr<IFileAccessExtBase> &fileAccessExtProxy,
+                                         std::shared_ptr<FileAccessExtConnection> fileAccessExtConnection)
 {
     Uri uri(key);
     std::shared_ptr<ConnectInfo> connectInfo = GetConnectInfo(uri);

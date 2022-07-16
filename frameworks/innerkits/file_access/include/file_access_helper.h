@@ -35,8 +35,7 @@ namespace OHOS {
 namespace FileAccessFwk {
 using string = std::string;
 
-struct ConnectInfo
-{
+struct ConnectInfo {
     AAFwk::Want want = {};
     sptr<IFileAccessExtBase> fileAccessExtProxy = nullptr;
     std::shared_ptr<FileAccessExtConnection> fileAccessExtConnection = nullptr;

@@ -108,6 +108,8 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
+    napi_value result = nullptr;
+    napi_value cons = nullptr;
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         size_t requireArgc = ARGS_ONE;
         size_t argc = ARGS_ONE;
@@ -121,8 +123,6 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
             return nullptr;
         }
 
-        napi_value result = nullptr;
-        napi_value cons = nullptr;
         if (napi_get_reference_value(env, g_constructorRef, &cons) != napi_ok) {
             HILOG_ERROR("g_constructorRef reference is fail");
             return nullptr;
@@ -131,23 +131,6 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
         if (napi_new_instance(env, cons, ARGS_ONE, args, &result) != napi_ok) {
             return nullptr;
         }
-
-        if (!IsTypeForNapiValue(env, result, napi_object)) {
-            HILOG_ERROR("IsTypeForNapiValue isn`t object");
-            return nullptr;
-        }
-
-        if (IsTypeForNapiValue(env, result, napi_null)) {
-            HILOG_ERROR("IsTypeForNapiValue is null");
-            return nullptr;
-        }
-
-        if (IsTypeForNapiValue(env, result, napi_undefined)) {
-            HILOG_ERROR("IsTypeForNapiValue is undefined");
-            return nullptr;
-        }
-
-        return result;
     } else {
         size_t requireArgc = ARGS_TWO;
         size_t argc = ARGS_TWO;
@@ -161,8 +144,6 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
             return nullptr;
         }
 
-        napi_value result = nullptr;
-        napi_value cons = nullptr;
         if (napi_get_reference_value(env, g_constructorRef, &cons) != napi_ok) {
             HILOG_ERROR("g_constructorRef reference is fail");
             return nullptr;
@@ -171,25 +152,24 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
         if (napi_new_instance(env, cons, ARGS_TWO, args, &result) != napi_ok) {
             return nullptr;
         }
-
-        if (!IsTypeForNapiValue(env, result, napi_object)) {
-            HILOG_ERROR("IsTypeForNapiValue isn`t object");
-            return nullptr;
-        }
-
-        if (IsTypeForNapiValue(env, result, napi_null)) {
-            HILOG_ERROR("IsTypeForNapiValue is null");
-            return nullptr;
-        }
-
-        if (IsTypeForNapiValue(env, result, napi_undefined)) {
-            HILOG_ERROR("IsTypeForNapiValue is undefined");
-            return nullptr;
-        }
-
-        return result;
     }
-    return nullptr;
+
+    if (!IsTypeForNapiValue(env, result, napi_object)) {
+        HILOG_ERROR("IsTypeForNapiValue isn`t object");
+        return nullptr;
+    }
+
+    if (IsTypeForNapiValue(env, result, napi_null)) {
+        HILOG_ERROR("IsTypeForNapiValue is null");
+        return nullptr;
+    }
+
+    if (IsTypeForNapiValue(env, result, napi_undefined)) {
+        HILOG_ERROR("IsTypeForNapiValue is undefined");
+        return nullptr;
+    }
+
+    return result;
 }
 
 napi_value NAPI_CreateFileAccessHelper(napi_env env, napi_callback_info info)
@@ -283,8 +263,6 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
         export_properties));
     return exports;
 }
-
-
 
 napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
 {

@@ -29,8 +29,7 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-class FileExtInfo
-{
+class FileExtInfo {
 public:
     FileExtInfo() = default;
     ~FileExtInfo() = default;
