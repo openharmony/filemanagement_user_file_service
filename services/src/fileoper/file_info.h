@@ -16,7 +16,9 @@
 #define STORAGE_SERVICES_FILE_INFO_H
 
 #include <cstdint>
+#include <iosfwd>
 #include <string>
+
 #include "parcel.h"
 
 namespace OHOS {

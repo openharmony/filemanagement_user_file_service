@@ -113,27 +113,21 @@ napi_value WrapFileInfo(napi_env env, const FileInfo &fileInfo)
 
     NAPI_CALL(env, napi_create_object(env, &jsObject));
 
-    jsValue = nullptr;
     jsValue = OHOS::AppExecFwk::WrapStringToJS(env, fileInfo.uri.ToString());
     SetPropertyValueByPropertyName(env, jsObject, "uri", jsValue);
 
-    jsValue = nullptr;
     jsValue = OHOS::AppExecFwk::WrapStringToJS(env, fileInfo.fileName);
     SetPropertyValueByPropertyName(env, jsObject, "fileName", jsValue);
 
-    jsValue = nullptr;
     jsValue = OHOS::AppExecFwk::WrapStringToJS(env, fileInfo.mode);
     SetPropertyValueByPropertyName(env, jsObject, "mode", jsValue);
 
-    jsValue = nullptr;
     jsValue = OHOS::AppExecFwk::WrapInt64ToJS(env, fileInfo.size);
     SetPropertyValueByPropertyName(env, jsObject, "size", jsValue);
 
-    jsValue = nullptr;
     jsValue = OHOS::AppExecFwk::WrapInt64ToJS(env, fileInfo.mtime);
     SetPropertyValueByPropertyName(env, jsObject, "mtime", jsValue);
 
-    jsValue = nullptr;
     jsValue = OHOS::AppExecFwk::WrapStringToJS(env, fileInfo.mimeType);
     SetPropertyValueByPropertyName(env, jsObject, "mimeType", jsValue);
 
@@ -151,12 +145,10 @@ bool UnwrapFileInfo(napi_env env, napi_value param, FileInfo &fileInfo)
         fileInfo.uri = Uri(natValueString);
     }
 
-    natValueString = "";
     if (OHOS::AppExecFwk::UnwrapStringByPropertyName(env, param, "fileName", natValueString)) {
         fileInfo.fileName = natValueString;
     }
 
-    natValueString = "";
     if (OHOS::AppExecFwk::UnwrapStringByPropertyName(env, param, "mode", natValueString)) {
         fileInfo.mode = natValueString;
     }
@@ -166,12 +158,10 @@ bool UnwrapFileInfo(napi_env env, napi_value param, FileInfo &fileInfo)
         fileInfo.size = natValueInt64;
     }
 
-    natValueInt64 = ERR_OK;
     if (UnwrapInt64ByPropertyName(env, param, "mtime", natValueInt64)) {
         fileInfo.mtime = natValueInt64;
     }
 
-    natValueString = "";
     if (OHOS::AppExecFwk::UnwrapStringByPropertyName(env, param, "mimeType", natValueString)) {
         fileInfo.mimeType = natValueString;
     }
@@ -227,19 +217,15 @@ napi_value WrapDeviceInfo(napi_env env, const DeviceInfo &deviceInfo)
 
     NAPI_CALL(env, napi_create_object(env, &jsObject));
 
-    jsValue = nullptr;
     jsValue = OHOS::AppExecFwk::WrapStringToJS(env, deviceInfo.uri.ToString());
     SetPropertyValueByPropertyName(env, jsObject, "uri", jsValue);
 
-    jsValue = nullptr;
     jsValue = OHOS::AppExecFwk::WrapStringToJS(env, deviceInfo.displayName);
     SetPropertyValueByPropertyName(env, jsObject, "displayName", jsValue);
 
-    jsValue = nullptr;
     jsValue = OHOS::AppExecFwk::WrapStringToJS(env, deviceInfo.deviceId);
     SetPropertyValueByPropertyName(env, jsObject, "deviceId", jsValue);
 
-    jsValue = nullptr;
     jsValue = WrapUint32ToJS(env, deviceInfo.flags);
     SetPropertyValueByPropertyName(env, jsObject, "flags", jsValue);
 
@@ -257,12 +243,10 @@ bool UnwrapDeviceInfo(napi_env env, napi_value param, DeviceInfo &deviceInfo)
         deviceInfo.uri = Uri(natValueString);
     }
 
-    natValueString = "";
     if (OHOS::AppExecFwk::UnwrapStringByPropertyName(env, param, "displayName", natValueString)) {
         deviceInfo.displayName = natValueString;
     }
 
-    natValueString = "";
     if (OHOS::AppExecFwk::UnwrapStringByPropertyName(env, param, "deviceId", natValueString)) {
         deviceInfo.deviceId = natValueString;
     }

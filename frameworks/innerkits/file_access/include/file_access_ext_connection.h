@@ -16,11 +16,14 @@
 #ifndef FILE_EXT_CONNECTION_H
 #define FILE_EXT_CONNECTION_H
 
-#include <memory>
+#include <atomic>
+#include <mutex>
 
 #include "ability_connect_callback_stub.h"
-#include "event_handler.h"
+#include "element_name.h"
 #include "ifile_access_ext_base.h"
+#include "iremote_object.h"
+#include "refbase.h"
 #include "want.h"
 
 namespace OHOS {
@@ -32,19 +35,21 @@ public:
 
     void OnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
-
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
-
     void ConnectFileExtAbility(const AAFwk::Want &want, const sptr<IRemoteObject> &token);
-
     void DisconnectFileExtAbility();
-
     bool IsExtAbilityConnected();
-
     sptr<IFileAccessExtBase> GetFileExtProxy();
 
 private:
+    struct ThreadLockInfo {
+        std::condition_variable condition;
+        std::mutex mutex;
+        bool isReady = false;
+    };
+    ThreadLockInfo connectLockInfo_;
 
+    static std::mutex mutex_;
     std::atomic<bool> isConnected_ = {false};
     sptr<IFileAccessExtBase> fileExtProxy_;
 };

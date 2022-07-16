@@ -16,15 +16,16 @@
 #ifndef FILE_ACCESS_HELPER_H
 #define FILE_ACCESS_HELPER_H
 
-#include <mutex>
 #include <unordered_map>
 #include <string>
+#include <vector>
 
 #include "context.h"
 #include "file_access_ext_connection.h"
 #include "file_access_extension_info.h"
-#include "hilog_wrapper.h"
 #include "ifile_access_ext_base.h"
+#include "iremote_object.h"
+#include "refbase.h"
 #include "uri.h"
 #include "want.h"
 
