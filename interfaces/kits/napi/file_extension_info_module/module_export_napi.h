@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-#ifndef MODULE_EXPORT_NAPI_H
-#define MODULE_EXPORT_NAPI_H
+#ifndef INTERFACES_KITS_NAPI_FILE_EXTENSION_INFO_MODULE_MODULE_EXPORT_NAPI_H
+#define INTERFACES_KITS_NAPI_FILE_EXTENSION_INFO_MODULE_MODULE_EXPORT_NAPI_H
 namespace OHOS {
 namespace FileAccessFwk {
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // MODULE_EXPORT_NAPI_H
+#endif // INTERFACES_KITS_NAPI_FILE_EXTENSION_INFO_MODULE_MODULE_EXPORT_NAPI_H

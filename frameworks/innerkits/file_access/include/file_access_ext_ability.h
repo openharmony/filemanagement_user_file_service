@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FILE_EXT_ABILITY_H
-#define FILE_EXT_ABILITY_H
+#ifndef FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_FILE_ACCESS_EXT_ABILITY_H
+#define FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_FILE_ACCESS_EXT_ABILITY_H
 
 #include "extension_base.h"
 #include "file_access_extension_info.h"
@@ -39,7 +39,7 @@ public:
 
     static FileAccessExtAbility* Create(const std::unique_ptr<Runtime>& runtime);
 
-    virtual int OpenFile(const Uri &uri, int flags);
+    virtual int OpenFile(const Uri &uri, const int flags);
     virtual int CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile);
     virtual int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile);
     virtual int Delete(const Uri &sourceFile);
@@ -54,4 +54,4 @@ private:
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FILE_EXT_ABILITY_H
+#endif // FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_FILE_ACCESS_EXT_ABILITY_H

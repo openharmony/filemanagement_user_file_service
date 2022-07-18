@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef JS_FILE_EXT_ABILITY_H
-#define JS_FILE_EXT_ABILITY_H
+#ifndef FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_JS_FILE_ACCESS_EXT_ABILITY_H
+#define FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_JS_FILE_ACCESS_EXT_ABILITY_H
 
 #include "file_access_ext_ability.h"
 #include "file_access_extension_info.h"
@@ -45,10 +45,10 @@ struct CallbackParam {
 
 class JsFileAccessExtAbility : public FileAccessExtAbility {
 public:
-    JsFileAccessExtAbility(JsRuntime& jsRuntime);
+    JsFileAccessExtAbility(JsRuntime &jsRuntime);
     virtual ~JsFileAccessExtAbility() override;
 
-    static JsFileAccessExtAbility* Create(const std::unique_ptr<Runtime>& runtime);
+    static JsFileAccessExtAbility* Create(const std::unique_ptr<Runtime> &runtime);
 
     void Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &record,
         const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
@@ -56,7 +56,7 @@ public:
         const sptr<IRemoteObject> &token) override;
     void OnStart(const AAFwk::Want &want) override;
     sptr<IRemoteObject> OnConnect(const AAFwk::Want &want) override;
-    int OpenFile(const Uri &uri, int flags) override;
+    int OpenFile(const Uri &uri, const int flags) override;
     int CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile) override;
     int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile) override;
     int Delete(const Uri &sourceFile) override;
@@ -74,4 +74,4 @@ private:
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // JS_FILE_EXT_ABILITY_H
+#endif // FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_JS_FILE_ACCESS_EXT_ABILITY_H

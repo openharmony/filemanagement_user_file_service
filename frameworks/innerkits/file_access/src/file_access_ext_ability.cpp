@@ -28,19 +28,21 @@ namespace FileAccessFwk {
 using namespace OHOS::AppExecFwk;
 
 CreatorFunc FileAccessExtAbility::creator_ = nullptr;
-void FileAccessExtAbility::SetCreator(const CreatorFunc& creator)
+void FileAccessExtAbility::SetCreator(const CreatorFunc &creator)
 {
     creator_ = creator;
 }
 
-FileAccessExtAbility* FileAccessExtAbility::Create(const std::unique_ptr<Runtime>& runtime)
+FileAccessExtAbility* FileAccessExtAbility::Create(const std::unique_ptr<Runtime> &runtime)
 {
-    if (!runtime) {
+    if (runtime == nullptr) {
         return new FileAccessExtAbility();
     }
+
     if (creator_) {
         return creator_(runtime);
     }
+
     switch (runtime->GetLanguage()) {
         case Runtime::Language::JS:
             return JsFileAccessExtAbility::Create(runtime);
@@ -58,7 +60,7 @@ void FileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &recor
     ExtensionBase<>::Init(record, application, handler, token);
 }
 
-int FileAccessExtAbility::OpenFile(const Uri &uri, int flags)
+int FileAccessExtAbility::OpenFile(const Uri &uri, const int flags)
 {
     return ERR_OK;
 }

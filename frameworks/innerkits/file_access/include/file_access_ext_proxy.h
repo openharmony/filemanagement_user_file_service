@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FILE_EXT_PROXY_H
-#define FILE_EXT_PROXY_H
+#ifndef FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_FILE_ACCESS_EXT_PROXY_H
+#define FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_FILE_ACCESS_EXT_PROXY_H
 
 #include <functional>
 #include <iosfwd>
@@ -32,11 +32,11 @@ namespace OHOS {
 namespace FileAccessFwk {
 class FileAccessExtProxy : public IRemoteProxy<IFileAccessExtBase> {
 public:
-    explicit FileAccessExtProxy(const sptr<IRemoteObject>& remote) : IRemoteProxy<IFileAccessExtBase>(remote) {}
+    explicit FileAccessExtProxy(const sptr<IRemoteObject> &remote) : IRemoteProxy<IFileAccessExtBase>(remote) {}
 
     virtual ~FileAccessExtProxy() {}
 
-    virtual int OpenFile(const Uri &uri, int flags) override;
+    virtual int OpenFile(const Uri &uri, const int flags) override;
     virtual int CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile) override;
     virtual int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile) override;
     virtual int Delete(const Uri &sourceFile) override;
@@ -50,4 +50,4 @@ private:
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FILE_EXT_PROXY_H
+#endif // FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_FILE_ACCESS_EXT_PROXY_H

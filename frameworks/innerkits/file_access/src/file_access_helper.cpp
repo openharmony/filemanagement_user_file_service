@@ -141,7 +141,7 @@ bool FileAccessHelper::GetProxy()
     }
 
     fileAccessExtProxy_ = fileAccessExtConnection_->GetFileExtProxy();
-    if (isSystemCaller_ && fileAccessExtProxy_) {
+    if (fileAccessExtProxy_) {
         AddFileAccessDeathRecipient(fileAccessExtProxy_->AsObject());
     }
 

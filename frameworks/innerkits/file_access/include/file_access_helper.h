@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FILE_ACCESS_HELPER_H
-#define FILE_ACCESS_HELPER_H
+#ifndef FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_FILE_ACCESS_HELPER_H
+#define FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_FILE_ACCESS_HELPER_H
 
 #include <functional>
 #include <memory>
@@ -65,7 +65,6 @@ private:
     sptr<IRemoteObject> token_ = {};
     AAFwk::Want want_ = {};
     sptr<IFileAccessExtBase> fileAccessExtProxy_ = nullptr;
-    bool isSystemCaller_ = false;
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
     sptr<FileAccessExtConnection> fileAccessExtConnection_ = nullptr;
 };
@@ -82,4 +81,4 @@ private:
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FILE_ACCESS_HELPER_H
+#endif // FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_FILE_ACCESS_HELPER_H

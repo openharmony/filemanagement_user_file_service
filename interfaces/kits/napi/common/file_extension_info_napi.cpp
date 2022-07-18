@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,7 +30,7 @@ napi_value CreateStringUtf8(napi_env env, const std::string &str)
 {
     napi_value value = nullptr;
     if (napi_create_string_utf8(env, str.c_str(), str.length(), &value) != napi_ok) {
-        HILOG_ERROR("%{public}s, value is not napi_ok", __func__);
+        HILOG_ERROR("CreateStringUtf8, value is not napi_ok");
         return nullptr;
     }
     return value;
@@ -40,7 +40,7 @@ napi_value CreateUint32(napi_env env, uint32_t val)
 {
     napi_value value = nullptr;
     if (napi_create_uint32(env, val, &value) != napi_ok) {
-        HILOG_ERROR("%{public}s, value is not napi_ok", __func__);
+        HILOG_ERROR("CreateUint32, value is not napi_ok");
         return nullptr;
     }
     return value;
@@ -55,7 +55,7 @@ napi_value FileInfoConstructor(napi_env env, napi_callback_info info)
 
     napi_status status = napi_get_cb_info(env, info, &argc, args, &res, &data);
     if (status != napi_ok) {
-        HILOG_ERROR("%{public}s, status is not napi_ok", __func__);
+        HILOG_ERROR("FileInfoConstructor, status is not napi_ok");
         return nullptr;
     }
 
@@ -71,7 +71,7 @@ napi_value DeviceInfoConstructor(napi_env env, napi_callback_info info)
 
     napi_status status = napi_get_cb_info(env, info, &argc, args, &res, &data);
     if (status != napi_ok) {
-        HILOG_ERROR("%{public}s, status is not napi_ok", __func__);
+        HILOG_ERROR("DeviceInfoConstructor, status is not napi_ok");
         return nullptr;
     }
 
