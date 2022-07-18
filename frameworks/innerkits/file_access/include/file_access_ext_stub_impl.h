@@ -17,11 +17,13 @@
 #define FILE_EXT_STUB_IMPL_H
 
 #include <memory>
+#include <vector>
 
 #include "file_access_ext_ability.h"
 #include "file_access_ext_stub.h"
 #include "file_access_extension_info.h"
-#include "native_engine/native_value.h"
+#include "js_native_api_types.h"
+#include "uri.h"
 
 namespace OHOS {
 namespace FileAccessFwk {

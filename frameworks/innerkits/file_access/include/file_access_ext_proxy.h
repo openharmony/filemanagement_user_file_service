@@ -16,10 +16,17 @@
 #ifndef FILE_EXT_PROXY_H
 #define FILE_EXT_PROXY_H
 
-#include <iremote_proxy.h>
+#include <functional>
+#include <iosfwd>
+#include <vector>
 
 #include "file_access_extension_info.h"
 #include "ifile_access_ext_base.h"
+#include "iremote_broker.h"
+#include "iremote_object.h"
+#include "iremote_proxy.h"
+#include "refbase.h"
+#include "uri.h"
 
 namespace OHOS {
 namespace FileAccessFwk {

@@ -17,8 +17,8 @@ import fileio from '@ohos.fileio'
 import { init, delVolumeInfo, getVolumeInfoList } from './VolumeManager'
 import { onReceiveEvent } from './Subcriber'
 import fileExtensionInfo from "@ohos.fileExtensionInfo"
-import appManager from '@ohos.application.appManager';
 import hilog from '@ohos.hilog'
+import process from '@ohos.process';
 
 const FLAG = fileExtensionInfo.FLAG;
 const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
@@ -33,7 +33,7 @@ export default class FileExtAbility extends Extension {
         init();
         onReceiveEvent(function (data) {
             if (data.event == 'usual.event.data.VOLUME_MOUNTED') {
-                appManager.killProcessesByBundleName(BUNDLE_NAME);
+                process.exit(0);
             } else {
                 delVolumeInfo(data.parameters.id);
             }

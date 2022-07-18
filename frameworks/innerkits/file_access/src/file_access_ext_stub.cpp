@@ -15,11 +15,23 @@
 
 #include "file_access_ext_stub.h"
 
+#include <cstdint>
+#include <map>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "access_token.h"
 #include "accesstoken_kit.h"
+#include "file_access_extension_info.h"
 #include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "ipc_object_stub.h"
 #include "ipc_skeleton.h"
+#include "ipc_types.h"
+#include "uri.h"
 
 namespace OHOS {
 namespace FileAccessFwk {

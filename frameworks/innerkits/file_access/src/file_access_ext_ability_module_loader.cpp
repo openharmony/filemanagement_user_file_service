@@ -14,6 +14,10 @@
  */
 
 #include "file_access_ext_ability_module_loader.h"
+
+#include <string>
+#include <utility>
+
 #include "file_access_ext_ability.h"
 
 namespace OHOS {

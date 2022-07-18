@@ -18,6 +18,9 @@
 #include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "ipc_types.h"
+#include "message_option.h"
+#include "message_parcel.h"
 
 namespace OHOS {
 namespace FileAccessFwk {

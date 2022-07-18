@@ -15,10 +15,9 @@
 
 #include "module_export_napi.h"
 
-#include <string>
 #include "file_extension_info_napi.h"
+#include "js_native_api_types.h"
 #include "napi/native_api.h"
-#include "napi/native_node_api.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
