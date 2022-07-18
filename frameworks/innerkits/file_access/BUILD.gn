@@ -112,11 +112,11 @@ ohos_shared_library("file_access_extension_ability_module") {
   external_deps = [
     "ability_base:want",
     "ability_runtime:runtime",
-    "hiviewdfx_hilog_native:libhilog",
-    "utils_base:utils",
     "bundle_framework:appexecfwk_core",
+    "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
+    "utils_base:utils",
   ]
 
   relative_install_dir = "extensionability/"
