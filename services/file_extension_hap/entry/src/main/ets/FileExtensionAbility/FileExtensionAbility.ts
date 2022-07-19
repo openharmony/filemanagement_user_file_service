@@ -218,11 +218,14 @@ export default class FileExtAbility extends Extension {
         let oldPath = this.getPath(sourceFileUri);
         let newPath = this.getPath(newFileUri);
         if (oldPath == newPath) {
+            // move to the same directory
             return newFileUri;
         } else if (newPath.indexOf(oldPath) == 0) {
+            // move to a subdirectory of the source directory
             return '';
         }
         try {
+            // The source file does not exist or the destination is not a directory
             fileio.accessSync(oldPath);
             let stat = fileio.statSync(this.getPath(targetParentUri));
             if (!stat || !stat.isDirectory()) {
@@ -233,12 +236,19 @@ export default class FileExtAbility extends Extension {
             return '';
         }
         let hasError = false;
+        /**
+         * Recursive source directory
+         * If it is a directory, create a new directory first and then delete the source directory.
+         * If it is a file, copy the file first and then delete the source file.
+         * The source directory will be deleted after the sub files are deleted
+         */
         this.recurseDir(oldPath, function (filePath, isDirectory, hasNextFile) {
             try {
                 let newFilePath = filePath.replace(oldPath, newPath);
                 if (isDirectory) {
                     if (hasNextFile) {
                         try {
+                            // If the target directory already has a directory with the same name, it will not be created
                             fileio.accessSync(newFilePath);
                         } catch (e) {
                             fileio.mkdirSync(newFilePath);
