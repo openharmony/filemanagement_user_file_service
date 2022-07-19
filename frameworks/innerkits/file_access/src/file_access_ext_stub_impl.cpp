@@ -26,7 +26,7 @@ std::shared_ptr<FileAccessExtAbility> FileAccessExtStubImpl::GetOwner()
     return extension_;
 }
 
-int FileAccessExtStubImpl::OpenFile(const Uri &uri, int flags)
+int FileAccessExtStubImpl::OpenFile(const Uri &uri, const int flags)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
     int ret = ERR_ERROR;

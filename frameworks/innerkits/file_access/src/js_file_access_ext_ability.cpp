@@ -259,7 +259,7 @@ void JsFileAccessExtAbility::GetSrcPath(std::string &srcPath)
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
 }
 
-int JsFileAccessExtAbility::OpenFile(const Uri &uri, int flags)
+int JsFileAccessExtAbility::OpenFile(const Uri &uri, const int flags)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
     HandleScope handleScope(jsRuntime_);
