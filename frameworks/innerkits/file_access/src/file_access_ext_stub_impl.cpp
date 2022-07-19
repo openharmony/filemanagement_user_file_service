@@ -41,7 +41,7 @@ int FileAccessExtStubImpl::OpenFile(const Uri &uri, const int flags)
     return ret;
 }
 
-int FileAccessExtStubImpl::CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile)
+int FileAccessExtStubImpl::CreateFile(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
     int ret = ERR_ERROR;

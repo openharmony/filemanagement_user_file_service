@@ -59,7 +59,7 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags)
     if (fd <= ERR_ERROR) {
         HILOG_ERROR("fail to ReadFileDescriptor fd");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return fd;
+        return ERR_INVALID_FD;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);

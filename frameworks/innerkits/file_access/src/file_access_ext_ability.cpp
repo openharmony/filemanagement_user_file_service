@@ -65,7 +65,7 @@ int FileAccessExtAbility::OpenFile(const Uri &uri, const int flags)
     return ERR_OK;
 }
 
-int FileAccessExtAbility::CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile)
+int FileAccessExtAbility::CreateFile(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
     return ERR_OK;
 }

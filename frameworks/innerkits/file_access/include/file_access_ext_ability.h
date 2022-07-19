@@ -40,7 +40,7 @@ public:
     static FileAccessExtAbility* Create(const std::unique_ptr<Runtime>& runtime);
 
     virtual int OpenFile(const Uri &uri, const int flags);
-    virtual int CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile);
+    virtual int CreateFile(const Uri &parent, const std::string &displayName, Uri &newFile);
     virtual int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile);
     virtual int Delete(const Uri &sourceFile);
     virtual int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile);
