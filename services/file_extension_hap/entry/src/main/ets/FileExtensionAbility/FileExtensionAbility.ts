@@ -21,7 +21,7 @@ import hilog from '@ohos.hilog'
 import process from '@ohos.process';
 
 const FLAG = fileExtensionInfo.FLAG;
-const DeviceType = fileExtensionInfo.DeviceType;
+const DEVICE_TYPE = fileExtensionInfo.DeviceType;
 const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
 const DEFAULT_MODE = 0o666;
 const CREATE_FILE_FLAGS = 0o100;
@@ -346,7 +346,7 @@ export default class FileExtAbility extends Extension {
             uri: 'fileAccess:///data/storage/el1/bundle/storage_daemon',
             displayName: 'storage_daemon',
             deviceId: '',
-            type: DeviceType.SHARED_DISK,
+            type: DEVICE_TYPE.SHARED_DISK,
             flags: FLAG.SUPPORTS_WRITE | FLAG.SUPPORTS_DELETE | FLAG.SUPPORTS_RENAME | FLAG.SUPPORTS_COPY |
                 FLAG.SUPPORTS_MOVE | FLAG.SUPPORTS_REMOVE | FLAG.DIR_SUPPORTS_CREATE | FLAG.DIR_PREFERS_LAST_MODIFIED,
         });

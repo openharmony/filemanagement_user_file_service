@@ -18,7 +18,7 @@ if (!globalThis.volumeInfoList) {
     globalThis.volumeInfoList = [];
 }
 const FLAG = fileExtensionInfo.FLAG;
-const DeviceType = fileExtensionInfo.DeviceType;
+const DEVICE_TYPE = fileExtensionInfo.DeviceType;
 function init() {
     volumeManager.getAllVolumes().then((volumes) => {
         let flags = FLAG.SUPPORTS_WRITE | FLAG.SUPPORTS_DELETE | FLAG.SUPPORTS_RENAME | FLAG.SUPPORTS_COPY |
@@ -33,7 +33,7 @@ function init() {
                 'displayName': volume.id,
                 'deviceId': '',
                 'flags': flags,
-                'type': DeviceType.EXTERNAL_USB
+                'type': DEVICE_TYPE.EXTERNAL_USB
             }
             globalThis.volumeInfoList.push(volumeInfo);
         }
