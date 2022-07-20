@@ -17,9 +17,8 @@ import fileExtensionInfo from "@ohos.fileExtensionInfo"
 if (!globalThis.volumeInfoList) {
     globalThis.volumeInfoList = [];
 }
-
 const FLAG = fileExtensionInfo.FLAG;
-
+const DeviceType = fileExtensionInfo.DeviceType;
 function init() {
     volumeManager.getAllVolumes().then((volumes) => {
         let flags = FLAG.SUPPORTS_WRITE | FLAG.SUPPORTS_DELETE | FLAG.SUPPORTS_RENAME | FLAG.SUPPORTS_COPY |
@@ -34,7 +33,7 @@ function init() {
                 'displayName': volume.id,
                 'deviceId': '',
                 'flags': flags,
-                'type': 'SD'
+                'type': DeviceType.EXTERNAL_USB
             }
             globalThis.volumeInfoList.push(volumeInfo);
         }
