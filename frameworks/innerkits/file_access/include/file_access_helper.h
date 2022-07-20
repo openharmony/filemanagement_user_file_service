@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_FILE_ACCESS_HELPER_H
-#define FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_FILE_ACCESS_HELPER_H
+#ifndef FILE_ACCESS_HELPER_H
+#define FILE_ACCESS_HELPER_H
 
 #include <functional>
 #include <memory>
@@ -81,4 +81,4 @@ private:
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_FILE_ACCESS_HELPER_H
+#endif // FILE_ACCESS_HELPER_H

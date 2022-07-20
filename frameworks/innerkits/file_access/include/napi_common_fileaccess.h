@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_NAPI_COMMON_FILE_ACCESS_H
-#define FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_NAPI_COMMON_FILE_ACCESS_H
+#ifndef NAPI_COMMON_FILE_ACCESS_H
+#define NAPI_COMMON_FILE_ACCESS_H
 
 #include <map>
 #include <string>
@@ -51,4 +51,4 @@ napi_value WrapArrayDeviceInfoToJS(napi_env env, const std::vector<DeviceInfo> &
 bool UnwrapArrayDeviceInfoFromJS(napi_env env, napi_value param, std::vector<DeviceInfo> &deviceInfoVec);
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_NAPI_COMMON_FILE_ACCESS_H
+#endif // NAPI_COMMON_FILE_ACCESS_H

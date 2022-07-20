@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_KITS_NAPI_FILE_ACCESS_EXT_ABILITY_NAPI_FILEACCESS_HELPER_H
-#define INTERFACES_KITS_NAPI_FILE_ACCESS_EXT_ABILITY_NAPI_FILEACCESS_HELPER_H
+#ifndef NAPI_FILEACCESS_HELPER_H
+#define NAPI_FILEACCESS_HELPER_H
 
 #include "napi/native_api.h"
 #include "napi/native_common.h"
@@ -34,4 +34,4 @@ namespace FileAccessFwk {
     napi_value NAPI_GetRoots(napi_env env, napi_callback_info info);
 }
 } // namespace FileAccessFwk
-#endif // INTERFACES_KITS_NAPI_FILE_ACCESS_EXT_ABILITY_NAPI_FILEACCESS_HELPER_H
+#endif // NAPI_FILEACCESS_HELPER_H

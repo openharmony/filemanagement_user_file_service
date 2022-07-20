@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef UTILS_FILE_ACCESS_FRAMEWORK_ERRNO_H
-#define UTILS_FILE_ACCESS_FRAMEWORK_ERRNO_H
+#ifndef FILE_ACCESS_FRAMEWORK_ERRNO_H
+#define FILE_ACCESS_FRAMEWORK_ERRNO_H
 
 #include "errors.h"
 
@@ -37,4 +37,4 @@ enum {
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // UTILS_FILE_ACCESS_FRAMEWORK_ERRNO_H
+#endif // FILE_ACCESS_FRAMEWORK_ERRNO_H

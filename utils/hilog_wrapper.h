@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef UTILS_HILOG_WRAPPER_H
-#define UTILS_HILOG_WRAPPER_H
+#ifndef HILOG_WRAPPER_H
+#define HILOG_WRAPPER_H
 
 #define CONFIG_HILOG
 #ifdef CONFIG_HILOG
@@ -78,4 +78,4 @@ static constexpr OHOS::HiviewDFX::HiLogLabel LOG_LABEL = {LOG_CORE, FAF_LOG_DOMA
 #define HILOG_DEBUG(...)
 #endif // CONFIG_HILOG
 
-#endif // UTILS_HILOG_WRAPPER_H
+#endif // HILOG_WRAPPER_H

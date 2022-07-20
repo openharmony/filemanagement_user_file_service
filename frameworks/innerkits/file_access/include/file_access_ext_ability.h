@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_FILE_ACCESS_EXT_ABILITY_H
-#define FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_FILE_ACCESS_EXT_ABILITY_H
+#ifndef FILE_ACCESS_EXT_ABILITY_H
+#define FILE_ACCESS_EXT_ABILITY_H
 
 #include "extension_base.h"
 #include "file_access_extension_info.h"
@@ -54,4 +54,4 @@ private:
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_FILE_ACCESS_EXT_ABILITY_H
+#endif // FILE_ACCESS_EXT_ABILITY_H

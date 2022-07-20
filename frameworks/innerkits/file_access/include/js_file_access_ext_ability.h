@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_JS_FILE_ACCESS_EXT_ABILITY_H
-#define FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_JS_FILE_ACCESS_EXT_ABILITY_H
+#ifndef JS_FILE_ACCESS_EXT_ABILITY_H
+#define JS_FILE_ACCESS_EXT_ABILITY_H
 
 #include "file_access_ext_ability.h"
 #include "file_access_extension_info.h"
@@ -74,4 +74,4 @@ private:
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_JS_FILE_ACCESS_EXT_ABILITY_H
+#endif // JS_FILE_ACCESS_EXT_ABILITY_H

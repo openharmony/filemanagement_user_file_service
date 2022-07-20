@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_FILE_ACCESS_EXT_STUB_IMPL_H
-#define FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_FILE_ACCESS_EXT_STUB_IMPL_H
+#ifndef FILE_ACCESS_EXT_STUB_IMPL_H
+#define FILE_ACCESS_EXT_STUB_IMPL_H
 
 #include <memory>
 #include <vector>
@@ -49,4 +49,4 @@ private:
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_FILE_ACCESS_EXT_STUB_IMPL_H
+#endif // FILE_ACCESS_EXT_STUB_IMPL_H

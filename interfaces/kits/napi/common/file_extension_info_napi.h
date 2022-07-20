@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_KITS_NAPI_COMMON_FILE_EXTENSION_INFO_NAPI_H
-#define INTERFACES_KITS_NAPI_COMMON_FILE_EXTENSION_INFO_NAPI_H
+#ifndef FILE_EXTENSION_INFO_NAPI_H
+#define FILE_EXTENSION_INFO_NAPI_H
 
 #include "napi/native_node_api.h"
 

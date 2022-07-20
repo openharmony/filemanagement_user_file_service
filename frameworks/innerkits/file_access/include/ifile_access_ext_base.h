@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_I_FILE_ACCESS_EXT_BASE_H
-#define FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_I_FILE_ACCESS_EXT_BASE_H
+#ifndef I_FILE_ACCESS_EXT_BASE_H
+#define I_FILE_ACCESS_EXT_BASE_H
 
 #include <bitset>
 #include <cstdint>
@@ -53,4 +53,4 @@ public:
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FRAMEWORK_INNERKITS_FILEACCESS_INCLUDE_I_FILE_ACCESS_EXT_BASE_H
+#endif // I_FILE_ACCESS_EXT_BASE_H
