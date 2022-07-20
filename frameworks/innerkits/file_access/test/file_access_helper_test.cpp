@@ -29,7 +29,7 @@ using namespace OHOS;
 using namespace FileAccessFwk;
 int uid = 5003;
 
-class FileAccessHelperTest : public testing::Test { 
+class FileAccessHelperTest : public testing::Test {
 public:
     static void SetUpTestCase(void)
     {
@@ -131,7 +131,8 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0000, testing::ext::T
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_OpenFile_0000";
     try {
         OHOS::Security::AccessToken::AccessTokenIDEx tokenIdEx = {0};
-        tokenIdEx = OHOS::Security::AccessToken::AccessTokenKit::AllocHapToken(g_infoManagerTestInfoParms, g_infoManagerTestPolicyPrams);
+        tokenIdEx = OHOS::Security::AccessToken::AccessTokenKit::AllocHapToken
+            (g_infoManagerTestInfoParms, g_infoManagerTestPolicyPrams);
         OHOS::Security::AccessToken::AccessTokenID tokenId = tokenIdEx.tokenIdExStruct.tokenID;
         SetSelfTokenID(tokenId);
         auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -143,7 +144,8 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0000, testing::ext::T
 
         vector<DeviceInfo> info = fah->GetRoots();
         Uri parentUri("");
-        if (info.size() > 0){
+        if (info.size() > 0)
+        {
             parentUri = info[0].uri;
             GTEST_LOG_(INFO) <<parentUri.ToString();
         }
@@ -447,7 +449,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0001, testing::ext:
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
 
         Uri newFileUri("");
-        Uri parentUri(""); 
+        Uri parentUri("");
         int result = fah->CreateFile(parentUri, "file_access_helper_CreateFile_0001.txt", newFileUri);
         EXPECT_NE(result, 0);
         GTEST_LOG_(INFO) << "CreateFile_0001 result:" << result << endl;

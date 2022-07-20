@@ -29,7 +29,7 @@ using namespace OHOS;
 using namespace FileAccessFwk;
 int uid = 5003;
 
-class FileExtensionHelperTest : public testing::Test { 
+class FileExtensionHelperTest : public testing::Test {
 public:
     static void SetUpTestCase(void)
     {
@@ -129,7 +129,8 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0000, testing::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_OpenFile_0000";
     try {
         OHOS::Security::AccessToken::AccessTokenIDEx tokenIdEx = {0};
-        tokenIdEx = OHOS::Security::AccessToken::AccessTokenKit::AllocHapToken(g_infoManagerTestInfoParms, g_infoManagerTestPolicyPrams);
+        tokenIdEx = OHOS::Security::AccessToken::AccessTokenKit::AllocHapToken
+            (g_infoManagerTestInfoParms, g_infoManagerTestPolicyPrams);
         OHOS::Security::AccessToken::AccessTokenID tokenId = tokenIdEx.tokenIdExStruct.tokenID;
         SetSelfTokenID(tokenId);
         auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -468,7 +469,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0001, testing
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
 
         Uri newFileUri("");
-        Uri parentUri(""); 
+        Uri parentUri("");
         int result = fah->CreateFile(parentUri, "file_extension_helper_CreateFile_0001.txt", newFileUri);
         EXPECT_NE(result, 0);
         GTEST_LOG_(INFO) << "CreateFile_0001 result:" << result << endl;
