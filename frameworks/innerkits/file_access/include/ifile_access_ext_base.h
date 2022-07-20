@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef I_FILE_EXT_BASE_H
-#define I_FILE_EXT_BASE_H
+#ifndef I_FILE_ACCESS_EXT_BASE_H
+#define I_FILE_ACCESS_EXT_BASE_H
 
 #include <bitset>
 #include <cstdint>
@@ -41,7 +41,7 @@ public:
         CMD_GET_ROOTS
     };
 
-    virtual int OpenFile(const Uri &uri, int flags) = 0;
+    virtual int OpenFile(const Uri &uri, const int flags) = 0;
     virtual int CreateFile(const Uri &parent, const std::string &displayName, Uri &newFile) = 0;
     virtual int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile) = 0;
     virtual int Delete(const Uri &sourceFile) = 0;
@@ -53,4 +53,4 @@ public:
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // I_FILE_EXT_BASE_H
+#endif // I_FILE_ACCESS_EXT_BASE_H

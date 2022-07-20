@@ -65,7 +65,6 @@ private:
     sptr<IRemoteObject> token_ = {};
     AAFwk::Want want_ = {};
     sptr<IFileAccessExtBase> fileAccessExtProxy_ = nullptr;
-    bool isSystemCaller_ = false;
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
     sptr<FileAccessExtConnection> fileAccessExtConnection_ = nullptr;
 };

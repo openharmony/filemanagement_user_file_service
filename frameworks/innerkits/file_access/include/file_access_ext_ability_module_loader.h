@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FILE_EXT_ABILITY_MODULE_LOADER_H
-#define FILE_EXT_ABILITY_MODULE_LOADER_H
+#ifndef FILE_ACCESS_EXT_ABILITY_MODULE_LOADER_H
+#define FILE_ACCESS_EXT_ABILITY_MODULE_LOADER_H
 
 #include <map>
 #include <memory>
@@ -37,4 +37,4 @@ public:
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FILE_EXT_ABILITY_MODULE_LOADER_H
+#endif // FILE_ACCESS_EXT_ABILITY_MODULE_LOADER_H

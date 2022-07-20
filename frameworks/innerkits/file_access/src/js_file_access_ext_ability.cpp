@@ -35,21 +35,21 @@
 namespace OHOS {
 namespace FileAccessFwk {
 namespace {
-constexpr size_t ARGC_ZERO = 0;
-constexpr size_t ARGC_ONE = 1;
-constexpr size_t ARGC_TWO = 2;
+    constexpr size_t ARGC_ZERO = 0;
+    constexpr size_t ARGC_ONE = 1;
+    constexpr size_t ARGC_TWO = 2;
 }
 
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::AbilityRuntime;
 using OHOS::Security::AccessToken::AccessTokenKit;
 
-JsFileAccessExtAbility* JsFileAccessExtAbility::Create(const std::unique_ptr<Runtime>& runtime)
+JsFileAccessExtAbility* JsFileAccessExtAbility::Create(const std::unique_ptr<Runtime> &runtime)
 {
     return new JsFileAccessExtAbility(static_cast<JsRuntime&>(*runtime));
 }
 
-JsFileAccessExtAbility::JsFileAccessExtAbility(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
+JsFileAccessExtAbility::JsFileAccessExtAbility(JsRuntime &jsRuntime) : jsRuntime_(jsRuntime) {}
 JsFileAccessExtAbility::~JsFileAccessExtAbility() = default;
 
 void JsFileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &record,
@@ -158,7 +158,7 @@ static bool DoAsnycWork(CallbackParam *param)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "DoAsnycWork");
     if (param == nullptr || param->jsObj == nullptr) {
-        HILOG_ERROR("Not found js file object");
+        HILOG_ERROR("pararm is nullptr or param->jsObj is nullptr");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return false;
     }
@@ -259,7 +259,7 @@ void JsFileAccessExtAbility::GetSrcPath(std::string &srcPath)
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
 }
 
-int JsFileAccessExtAbility::OpenFile(const Uri &uri, int flags)
+int JsFileAccessExtAbility::OpenFile(const Uri &uri, const int flags)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
     HandleScope handleScope(jsRuntime_);
@@ -307,15 +307,15 @@ int JsFileAccessExtAbility::CreateFile(const Uri &parent, const std::string &dis
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
+
     std::string uriStr = OHOS::AppExecFwk::UnwrapStringFromJS(env, reinterpret_cast<napi_value>(nativeResult));
     if (uriStr.empty()) {
         HILOG_ERROR("call createFile with return empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
-    } else {
-        ret = NO_ERROR;
     }
 
+    ret = NO_ERROR;
     newFile = Uri(uriStr);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
@@ -342,15 +342,15 @@ int JsFileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayN
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
+
     std::string uriStr = OHOS::AppExecFwk::UnwrapStringFromJS(env, reinterpret_cast<napi_value>(nativeResult));
     if (uriStr.empty()) {
         HILOG_ERROR("call Mkdir with return empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
-    } else {
-        ret = NO_ERROR;
     }
 
+    ret = NO_ERROR;
     newFile = Uri(uriStr);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
@@ -401,15 +401,15 @@ int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent,
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
+
     std::string uriStr = OHOS::AppExecFwk::UnwrapStringFromJS(env, reinterpret_cast<napi_value>(nativeResult));
     if (uriStr.empty()) {
         HILOG_ERROR("call move with return empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
-    } else {
-        ret = NO_ERROR;
     }
 
+    ret = NO_ERROR;
     newFile = Uri(uriStr);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
@@ -436,15 +436,15 @@ int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &dis
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
+
     std::string uriStr = OHOS::AppExecFwk::UnwrapStringFromJS(env, reinterpret_cast<napi_value>(nativeResult));
     if (uriStr.empty()) {
         HILOG_ERROR("call rename with return empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
-    } else {
-        ret = NO_ERROR;
     }
-
+    
+    ret = NO_ERROR;
     newFile = Uri(uriStr);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
@@ -468,14 +468,15 @@ std::vector<FileInfo> JsFileAccessExtAbility::ListFile(const Uri &sourceFile)
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return vec;
     }
+
     if (UnwrapArrayFileInfoFromJS(env, reinterpret_cast<napi_value>(nativeResult), vec)) {
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return vec;
-    } else {
-        HILOG_ERROR("end with faild.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return vec;
     }
+
+    HILOG_ERROR("listfile end with faild.");
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return vec;
 }
 
 std::vector<DeviceInfo> JsFileAccessExtAbility::GetRoots()
@@ -487,19 +488,21 @@ std::vector<DeviceInfo> JsFileAccessExtAbility::GetRoots()
     std::vector<DeviceInfo> vec;
     NativeValue* argv[] = {};
     NativeValue* nativeResult = AsnycCallObjectMethod("getRoots", argv, ARGC_ZERO);
+    
     if (nativeResult == nullptr) {
         HILOG_ERROR("call getRoots with return null.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return vec;
     }
+
     if (UnwrapArrayDeviceInfoFromJS(env, reinterpret_cast<napi_value>(nativeResult), vec)) {
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return vec;
-    } else {
-        HILOG_ERROR("end with faild.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return vec;
     }
+
+    HILOG_ERROR("getroots end with faild.");
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return vec;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS
