@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -143,8 +143,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0000, testing::
         sleep(1);
 
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             GTEST_LOG_(INFO) <<parentUri.ToString();
             
@@ -237,8 +236,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0002, testing::
         sleep(1);
 
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newFileUri("");
             int result = fah->CreateFile(parentUri, "file_extension_helper_OpenFile_0002.txt", newFileUri);
@@ -252,7 +250,6 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0002, testing::
             result = fah->Delete(newFileUri);
             EXPECT_GE(result, ok);
         }
-        
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
@@ -310,8 +307,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0004, testing::
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
 
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newFileUri("");
             int result = fah->CreateFile(parentUri, "file_extension_helper_OpenFile_0004.txt", newFileUri);
@@ -351,8 +347,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0005, testing::
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
 
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newFileUri("");
             int result = fah->CreateFile(parentUri, "file_extension_helper_OpenFile_0005.txt", newFileUri);
@@ -392,8 +387,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0006, testing::
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
 
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newFileUri("");
             int result = fah->CreateFile(parentUri, "file_extension_helper_OpenFile_0006.txt", newFileUri);
@@ -433,8 +427,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0000, testing
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
 
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newFileUri("");
             int result = fah->CreateFile(parentUri, "file_extension_helper_CreateFile_0000.txt", newFileUri);
@@ -564,8 +557,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0004, testing
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
 
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newFileUri("");
             string displayName = "";
@@ -600,8 +592,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0000, testing::ext
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest("");
             int result = fah->Mkdir(parentUri, "file_extension_helper_Mkdir_0000", newDirUriTest);
@@ -731,8 +722,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0004, testing::ext
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest("");
             string displayName = "";
@@ -767,8 +757,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0000, testing::ex
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
 
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest("");
             int result = fah->Mkdir(parentUri, "test", newDirUriTest);
@@ -812,8 +801,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0001, testing::ex
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest("");
             int result = fah->Mkdir(parentUri, "test", newDirUriTest);
@@ -880,8 +868,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0003, testing::ex
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest("");
             int result = fah->Mkdir(parentUri, "test", newDirUriTest);
@@ -953,8 +940,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0000, testing::ext:
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
@@ -1006,8 +992,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0001, testing::ext:
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
@@ -1056,8 +1041,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0002, testing::ext:
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest("");
             int result = fah->Mkdir(parentUri, "test", newDirUriTest);
@@ -1099,8 +1083,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0003, testing::ext:
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
@@ -1153,8 +1136,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0004, testing::ext:
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest("");
             int result = fah->Mkdir(parentUri, "test", newDirUriTest);
@@ -1196,8 +1178,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0005, testing::ext:
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest("");
             int result = fah->Mkdir(parentUri, "test1", newDirUriTest);
@@ -1243,8 +1224,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0006, testing::ext:
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
@@ -1297,8 +1277,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0007, testing::ext:
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
@@ -1351,8 +1330,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0008, testing::ext:
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
@@ -1397,8 +1375,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0009, testing::ext:
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
@@ -1450,8 +1427,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0010, testing::ext:
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
@@ -1463,7 +1439,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0010, testing::ext:
 
             Uri testUri("");
             fah->Mkdir(newDirUriTest1, "test", testUri);
-            for (size_t j = 0; j < 50; j++)
+            for (size_t j = 0; j < 64; j++)
             {
                 fah->Mkdir(testUri, "test", testUri);
             }
@@ -1503,8 +1479,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0011, testing::ext:
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
@@ -1514,8 +1489,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0011, testing::ext:
             Uri testUri("");
             fah->CreateFile(newDirUriTest1, "test.txt", testUri);
 
-            for (size_t j = 1; j < info.size(); j++)
-            {
+            for (size_t j = 1; j < info.size(); j++) {
                 Uri otherUri = info[j].uri;
                 result = fah->Mkdir(otherUri, "test2", newDirUriTest2);
                 EXPECT_EQ(result, ok);
@@ -1559,8 +1533,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0000, testing::ex
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest("");
             int result = fah->Mkdir(parentUri, "test", newDirUriTest);
@@ -1605,8 +1578,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0001, testing::ex
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest("");
             int result = fah->Mkdir(parentUri, "test", newDirUriTest);
@@ -1678,8 +1650,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0003, testing::ex
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest("");
             int result = fah->Mkdir(parentUri, "test", newDirUriTest);
@@ -1756,8 +1727,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0005, testing::ex
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest("");
             int result = fah->Mkdir(parentUri, "test", newDirUriTest);
@@ -1775,7 +1745,6 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0005, testing::ex
             result = fah->Delete(newDirUriTest);
             EXPECT_GE(result, ok);
         }
-        
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
@@ -1803,8 +1772,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0000, testing::
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest("");
             int result = fah->Mkdir(parentUri, "test", newDirUriTest);
@@ -1878,8 +1846,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0002, testing::
         std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
         
         vector<DeviceInfo> info = fah->GetRoots();
-        for (size_t i = 0; i < info.size(); i++)
-        {
+        for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri = info[i].uri;
             Uri newDirUriTest("");
             int result = fah->Mkdir(parentUri, "test", newDirUriTest);

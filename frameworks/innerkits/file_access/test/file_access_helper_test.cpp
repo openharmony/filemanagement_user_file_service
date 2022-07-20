@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -146,8 +146,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0000, testing::ext::T
 
         vector<DeviceInfo> info = fah->GetRoots();
         Uri parentUri("");
-        if (info.size() > 0)
-        {
+        if (info.size() > 0) {
             parentUri = info[0].uri;
             GTEST_LOG_(INFO) <<parentUri.ToString();
         }
@@ -1308,8 +1307,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0009, testing::ext::TestS
         result = fah->Mkdir(newDirUri, "test2", newDirUriTest2);
         EXPECT_EQ(result, ok);
 
-        for (size_t i = 0; i < 2000; i++)
-        {
+        for (size_t i = 0; i < 2000; i++) {
             Uri testUri("");
             string fileName = "test" + ToString(i) + ".txt";
             fah->CreateFile(newDirUriTest1, fileName, testUri);
@@ -1358,8 +1356,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0010, testing::ext::TestS
 
         Uri testUri("");
         fah->Mkdir(newDirUriTest1, "test", testUri);
-        for (size_t i = 0; i < 50; i++)
-        {
+        for (size_t i = 0; i < 50; i++) {
             fah->Mkdir(testUri, "test", testUri);
         }
 
