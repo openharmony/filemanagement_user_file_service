@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FILE_EXT_CONNECTION_H
-#define FILE_EXT_CONNECTION_H
+#ifndef FILE_ACCESS_EXT_CONNECTION_H
+#define FILE_ACCESS_EXT_CONNECTION_H
 
 #include <atomic>
 #include <mutex>
@@ -55,4 +55,4 @@ private:
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FILE_EXT_CONNECTION_H
+#endif // FILE_ACCESS_EXT_CONNECTION_H

@@ -229,6 +229,9 @@ napi_value WrapDeviceInfo(napi_env env, const DeviceInfo &deviceInfo)
     jsValue = WrapUint32ToJS(env, deviceInfo.flags);
     SetPropertyValueByPropertyName(env, jsObject, "flags", jsValue);
 
+    jsValue = nullptr;
+    jsValue = WrapInt32ToJS(env, (int32_t)deviceInfo.type);
+    SetPropertyValueByPropertyName(env, jsObject, "type", jsValue);
     return jsObject;
 }
 
@@ -254,6 +257,11 @@ bool UnwrapDeviceInfo(napi_env env, napi_value param, DeviceInfo &deviceInfo)
     uint32_t natValueUint32 = ERR_OK;
     if (UnwrapUint32ByPropertyName(env, param, "flags", natValueUint32)) {
         deviceInfo.flags = natValueUint32;
+    }
+
+    int32_t natValueInt32 = 0;
+    if (UnwrapInt32ByPropertyName(env, param, "type", natValueInt32)) {
+        deviceInfo.type = (DeviceType)natValueInt32;
     }
     return true;
 }

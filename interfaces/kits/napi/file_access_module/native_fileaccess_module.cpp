@@ -13,15 +13,11 @@
  * limitations under the License.
  */
 
-#include <memory>
-#include <vector>
-
 #include "file_extension_info_napi.h"
 #include "hilog_wrapper.h"
 #include "napi_fileaccess_helper.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
-using namespace std;
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -33,6 +29,7 @@ static napi_value Init(napi_env env, napi_value exports)
 {
     FileAccessHelperInit(env, exports);
     InitFlag(env, exports);
+    InitDeviceType(env, exports);
     InitFileInfo(env, exports);
     InitDeviceInfo(env, exports);
     return exports;

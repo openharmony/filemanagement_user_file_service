@@ -48,7 +48,7 @@ config("ability_public_config") {
 }
 
 ohos_shared_library("file_access_extension_ability_kit") {
-  include_dirs = [ "//foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context" ]
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context" ]
 
   sources = [
     "src/file_access_ext_ability.cpp",

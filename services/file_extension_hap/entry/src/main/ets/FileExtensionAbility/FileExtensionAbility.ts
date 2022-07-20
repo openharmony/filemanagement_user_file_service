@@ -21,6 +21,7 @@ import hilog from '@ohos.hilog'
 import process from '@ohos.process';
 
 const FLAG = fileExtensionInfo.FLAG;
+const DEVICE_TYPE = fileExtensionInfo.DeviceType;
 const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
 const DEFAULT_MODE = 0o666;
 const CREATE_FILE_FLAGS = 0o100;
@@ -41,10 +42,10 @@ export default class FileExtAbility extends Extension {
     }
 
     checkUri(uri) {
-        if(uri.indexOf(FILE_ACCESS) == 0) {
+        if (uri.indexOf(FILE_ACCESS) == 0) {
             uri = uri.replace(FILE_ACCESS, '');
             return /^\/([^\/]+\/?)+$/.test(uri);
-        } else{
+        } else {
             return false;
         }
     }
@@ -59,13 +60,15 @@ export default class FileExtAbility extends Extension {
         if (arr[1].indexOf('/') > 0) {
             path = path.replace(arr[1].split('/')[0], '');
         }
+        if (path.charAt(path.length - 1) == '/') {
+            path = path.substr(0, path.length - 1);
+        }
         return path;
     }
 
     genNewFileUri(uri, displayName) {
-        let arr = uri.split('/');
         let newFileUri = uri;
-        if (arr.pop() == '') {
+        if (uri.charAt(uri.length - 1) == '/') {
             newFileUri += displayName;
         } else {
             newFileUri += '/' + displayName;
@@ -104,32 +107,33 @@ export default class FileExtAbility extends Extension {
         return newFileUri;
     }
 
-    listDir(path, cb) {
+    recurseDir(path, cb) {
         try {
             let stat = fileio.statSync(path);
             if (stat.isDirectory()) {
                 let dir = fileio.opendirSync(path);
                 let hasNextFile = true;
+                cb(path, true, hasNextFile);
                 while (hasNextFile) {
                     try {
                         let dirent = dir.readSync();
-                        this.listDir(path + '/' + dirent.name, cb);
+                        this.recurseDir(path + '/' + dirent.name, cb);
                     } catch (e) {
                         hasNextFile = false;
-                        cb(path, true);
+                        cb(path, true, hasNextFile);
                     }
                 }
             } else {
                 cb(path, false);
             }
         } catch (e) {
-            hilog.error(DOMAIN_CODE, TAG, 'listDir error ' + e.message);
+            hilog.error(DOMAIN_CODE, TAG, 'recurseDir error ' + e.message);
             cb(path, true);
         }
     }
 
     openFile(sourceFileUri, flags) {
-        if(!this.checkUri(sourceFileUri)) {
+        if (!this.checkUri(sourceFileUri)) {
             return -1;
         }
         let fd = 0;
@@ -154,7 +158,7 @@ export default class FileExtAbility extends Extension {
     }
 
     createFile(parentUri, displayName) {
-        if(!this.checkUri(parentUri)) {
+        if (!this.checkUri(parentUri)) {
             return '';
         }
         try {
@@ -169,7 +173,7 @@ export default class FileExtAbility extends Extension {
     }
 
     mkdir(parentUri, displayName) {
-        if(!this.checkUri(parentUri)) {
+        if (!this.checkUri(parentUri)) {
             return '';
         }
         try {
@@ -184,15 +188,17 @@ export default class FileExtAbility extends Extension {
     }
 
     delete(selectFileUri) {
-        if(!this.checkUri(selectFileUri)) {
+        if (!this.checkUri(selectFileUri)) {
             return -1;
         }
         let path = this.getPath(selectFileUri);
         let code = 0;
-        this.listDir(path, function (filePath, isDirectory) {
+        this.recurseDir(path, function (filePath, isDirectory, hasNextFile) {
             try {
                 if (isDirectory) {
-                    fileio.rmdirSync(filePath);
+                    if (!hasNextFile) {
+                        fileio.rmdirSync(filePath);
+                    }
                 } else {
                     fileio.unlinkSync(filePath);
                 }
@@ -205,24 +211,69 @@ export default class FileExtAbility extends Extension {
     }
 
     move(sourceFileUri, targetParentUri) {
-        if(!this.checkUri(sourceFileUri) || !this.checkUri(targetParentUri)) {
+        if (!this.checkUri(sourceFileUri) || !this.checkUri(targetParentUri)) {
+            return '';
+        }
+        let displayName = this.getFileName(sourceFileUri);
+        let newFileUri = this.genNewFileUri(targetParentUri, displayName);
+        let oldPath = this.getPath(sourceFileUri);
+        let newPath = this.getPath(newFileUri);
+        if (oldPath == newPath) {
+            // move to the same directory
+            return newFileUri;
+        } else if (newPath.indexOf(oldPath) == 0) {
+            // move to a subdirectory of the source directory
             return '';
         }
         try {
-            let displayName = this.getFileName(sourceFileUri);
-            let newFileUri = this.genNewFileUri(targetParentUri, displayName);
-            let oldPath = this.getPath(sourceFileUri);
-            let newPath = this.getPath(newFileUri);
-            fileio.renameSync(oldPath, newPath);
-            return newFileUri;
+            // The source file does not exist or the destination is not a directory
+            fileio.accessSync(oldPath);
+            let stat = fileio.statSync(this.getPath(targetParentUri));
+            if (!stat || !stat.isDirectory()) {
+                return '';
+            }
         } catch (e) {
             hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
             return '';
         }
+        let hasError = false;
+        /**
+         * Recursive source directory
+         * If it is a directory, create a new directory first and then delete the source directory.
+         * If it is a file, copy the file first and then delete the source file.
+         * The source directory will be deleted after the sub files are deleted
+         */
+        this.recurseDir(oldPath, function (filePath, isDirectory, hasNextFile) {
+            try {
+                let newFilePath = filePath.replace(oldPath, newPath);
+                if (isDirectory) {
+                    if (hasNextFile) {
+                        try {
+                            // If the target directory already has a directory with the same name, it will not be created
+                            fileio.accessSync(newFilePath);
+                        } catch (e) {
+                            fileio.mkdirSync(newFilePath);
+                        }
+                    } else {
+                        fileio.rmdirSync(filePath);
+                    }
+                } else {
+                    fileio.copyFileSync(filePath, newFilePath);
+                    fileio.unlinkSync(filePath);
+                }
+            } catch (e) {
+                hasError = true;
+                hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
+            }
+        });
+        if (hasError) {
+            return '';
+        }
+        return newFileUri;
     }
 
     rename(sourceFileUri, displayName) {
-        if(!this.checkUri(sourceFileUri)) {
+        if (!this.checkUri(sourceFileUri)) {
             return '';
         }
         try {
@@ -238,7 +289,7 @@ export default class FileExtAbility extends Extension {
     }
 
     query(sourceFileUri) {
-        if(!this.checkUri(sourceFileUri)) {
+        if (!this.checkUri(sourceFileUri)) {
             return null;
         }
         try {
@@ -259,7 +310,7 @@ export default class FileExtAbility extends Extension {
     }
 
     listFile(sourceFileUri) {
-        if(!this.checkUri(sourceFileUri)) {
+        if (!this.checkUri(sourceFileUri)) {
             return [];
         }
         let infos = [];
@@ -280,7 +331,6 @@ export default class FileExtAbility extends Extension {
                         mimeType: '',
                     });
                 } catch (e) {
-                    hilog.error(DOMAIN_CODE, TAG, 'listFile error ' + e.message);
                     hasNextFile = false;
                 }
             }
@@ -296,6 +346,7 @@ export default class FileExtAbility extends Extension {
             uri: 'fileAccess:///data/storage/el1/bundle/storage_daemon',
             displayName: 'storage_daemon',
             deviceId: '',
+            type: DEVICE_TYPE.SHARED_DISK,
             flags: FLAG.SUPPORTS_WRITE | FLAG.SUPPORTS_DELETE | FLAG.SUPPORTS_RENAME | FLAG.SUPPORTS_COPY |
                 FLAG.SUPPORTS_MOVE | FLAG.SUPPORTS_REMOVE | FLAG.DIR_SUPPORTS_CREATE | FLAG.DIR_PREFERS_LAST_MODIFIED,
         });

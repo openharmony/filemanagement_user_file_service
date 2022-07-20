@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FILE_EXT_STUB_IMPL_H
-#define FILE_EXT_STUB_IMPL_H
+#ifndef FILE_ACCESS_EXT_STUB_IMPL_H
+#define FILE_ACCESS_EXT_STUB_IMPL_H
 
 #include <memory>
 #include <vector>
@@ -34,8 +34,8 @@ public:
 
     virtual ~FileAccessExtStubImpl() {}
 
-    int OpenFile(const Uri &uri, int flags) override;
-    int CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile) override;
+    int OpenFile(const Uri &uri, const int flags) override;
+    int CreateFile(const Uri &parent, const std::string &displayName, Uri &newFile) override;
     int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile) override;
     int Delete(const Uri &sourceFile) override;
     int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) override;
@@ -49,4 +49,4 @@ private:
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FILE_EXT_STUB_IMPL_H
+#endif // FILE_ACCESS_EXT_STUB_IMPL_H

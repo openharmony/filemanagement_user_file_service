@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 namespace OHOS {
 namespace FileAccessFwk {
 void InitFlag(napi_env env, napi_value exports);
+void InitDeviceType(napi_env env, napi_value exports);
 void InitFileInfo(napi_env env, napi_value exports);
 void InitDeviceInfo(napi_env env, napi_value exports);
 } // namespace FileAccessFwk

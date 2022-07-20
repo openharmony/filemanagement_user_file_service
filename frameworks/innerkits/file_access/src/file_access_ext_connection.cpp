@@ -74,7 +74,7 @@ void FileAccessExtConnection::DisconnectFileExtAbility()
     fileExtProxy_ = nullptr;
     isConnected_.store(false);
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(this);
-    HILOG_INFO("DisconnectFileExtAbility ret=%{public}d", ret);
+    HILOG_INFO("DisconnectFileExtAbility called end, ret=%{public}d", ret);
 }
 
 bool FileAccessExtConnection::IsExtAbilityConnected()

@@ -35,4 +35,4 @@ namespace FileAccessFwk {
     napi_value NAPI_AddService(napi_env env, napi_callback_info info);
 }
 } // namespace FileAccessFwk
-#endif // FILE_ACCESS_NAPI_H
+#endif // NAPI_FILEACCESS_HELPER_H

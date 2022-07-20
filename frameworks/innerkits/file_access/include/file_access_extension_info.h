@@ -51,6 +51,16 @@ public:
     }
 };
 
+enum DeviceType {
+    DEVICE_LOCAL_DISK = 1,              // Local c,d... disk
+    DEVICE_SHARED_DISK,                 // Multi-user shared disk
+    DEVICE_SHARED_TERMINAL,             // Distributed networking terminal device
+    DEVICE_NETWORK_NEIGHBORHOODS,       // Network neighbor device
+    DEVICE_EXTERNAL_MTP,                // MTP device
+    DEVICE_EXTERNAL_USB,                // USB device
+    DEVICE_EXTERNAL_CLOUD               // Cloud disk device
+};
+
 struct FileInfo : public virtual OHOS::Parcelable {
 public:
     Uri uri = Uri("");
@@ -120,6 +130,7 @@ public:
     std::string displayName;
     std::string deviceId;
     uint32_t flags {0};
+    DeviceType type;
 
     bool ReadFromParcel(Parcel &parcel)
     {
@@ -132,6 +143,7 @@ public:
         displayName = parcel.ReadString();
         deviceId = parcel.ReadString();
         flags = parcel.ReadUint32();
+        type = (DeviceType)parcel.ReadInt32();
         return true;
     }
 
@@ -147,6 +159,9 @@ public:
             return false;
         }
         if (!parcel.WriteUint32(flags)) {
+            return false;
+        }
+        if (!parcel.WriteInt32((int32_t)type)) {
             return false;
         }
         return true;

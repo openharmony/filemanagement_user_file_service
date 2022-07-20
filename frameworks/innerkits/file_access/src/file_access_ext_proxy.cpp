@@ -24,7 +24,7 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-int FileAccessExtProxy::OpenFile(const Uri &uri, int flags)
+int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
     MessageParcel data;
@@ -52,14 +52,14 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, int flags)
     if (err != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return err;
     }
 
     int fd = reply.ReadFileDescriptor();
     if (fd <= ERR_ERROR) {
         HILOG_ERROR("fail to ReadFileDescriptor fd");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return ERR_INVALID_FD;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -100,14 +100,14 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
     if (err != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return err;
     }
 
     int ret = reply.ReadInt32();
     if (ret < ERR_OK) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return ret;
     }
 
     std::unique_ptr<Uri> tempUri(reply.ReadParcelable<Uri>());
@@ -156,14 +156,14 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
     if (err != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return err;
     }
 
     int ret = reply.ReadInt32();
     if (ret < ERR_OK) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return ret;
     }
 
     std::unique_ptr<Uri> tempUri(reply.ReadParcelable<Uri>());
@@ -201,14 +201,14 @@ int FileAccessExtProxy::Delete(const Uri &sourceFile)
     if (err != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return err;
     }
 
     int ret = reply.ReadInt32();
     if (ret < ERR_OK) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return ret;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -249,7 +249,7 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
     if (err != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return err;
     }
 
     int ret = reply.ReadInt32();
@@ -305,14 +305,14 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
     if (err != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return err;
     }
 
     int ret = reply.ReadInt32();
     if (ret < ERR_OK) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return ret;
     }
 
     std::unique_ptr<Uri> tempUri(reply.ReadParcelable<Uri>());
