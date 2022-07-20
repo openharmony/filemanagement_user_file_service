@@ -16,12 +16,11 @@
 #include <cstdio>
 #include <unistd.h>
 
+#include "base/security/access_token/interfaces/innerkits/accesstoken/include/accesstoken_kit.h"
+#include "base/security/access_token/interfaces/innerkits/token_setproc/include/token_setproc.h"
+#include "file_access_helper.h"
 #include <gtest/gtest.h>
 #include "iservice_registry.h"
-#include "file_access_helper.h"
-
-#include "base/security/access_token/interfaces/innerkits/token_setproc/include/token_setproc.h"
-#include "base/security/access_token/interfaces/innerkits/accesstoken/include/accesstoken_kit.h"
 
 namespace {
 using namespace std;
