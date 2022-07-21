@@ -322,7 +322,6 @@ napi_value NAPI_CreateFile(napi_env env, napi_callback_info info)
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
-
 }
 
 napi_value NAPI_Mkdir(napi_env env, napi_callback_info info)
@@ -578,7 +577,6 @@ napi_value NAPI_ListFile(napi_env env, napi_callback_info info)
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
-
 }
 
 napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
@@ -608,11 +606,12 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
     };
     std::string procedureName = "getRoots";
     NVal thisVar(env, funcArg.GetThisVar());
+
     if (funcArg.GetArgc() == NARG_CNT::ZERO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     } 
-	
-	NVal cb(env, funcArg[NARG_POS::FIRST]);
+
+    NVal cb(env, funcArg[NARG_POS::FIRST]);
     if (!cb.TypeIs(napi_function)) {
         NError(EINVAL).ThrowErr(env, "not function type");
         return nullptr;
