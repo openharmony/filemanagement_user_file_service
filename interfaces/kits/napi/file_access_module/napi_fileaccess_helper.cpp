@@ -131,7 +131,7 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
         if (napi_new_instance(env, cons, ARGS_ONE, args, &result) != napi_ok) {
             return nullptr;
         }
-    } else {
+    } else if (funcArg.GetArgc() == NARG_CNT::TWO) {
         size_t requireArgc = ARGS_TWO;
         size_t argc = ARGS_TWO;
         napi_value args[ARGS_TWO] = {nullptr};
@@ -156,16 +156,6 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
 
     if (!IsTypeForNapiValue(env, result, napi_object)) {
         HILOG_ERROR("IsTypeForNapiValue isn`t object");
-        return nullptr;
-    }
-
-    if (IsTypeForNapiValue(env, result, napi_null)) {
-        HILOG_ERROR("IsTypeForNapiValue is null");
-        return nullptr;
-    }
-
-    if (IsTypeForNapiValue(env, result, napi_undefined)) {
-        HILOG_ERROR("IsTypeForNapiValue is undefined");
         return nullptr;
     }
 
