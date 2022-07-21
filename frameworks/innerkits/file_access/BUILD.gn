@@ -21,12 +21,12 @@ config("ability_config") {
   include_dirs = [
     "include",
     "${BASE_DIR}/utils",
-    "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/include",
     "${ability_runtime_services_path}/common/include",
     "${ability_runtime_kits_path}/ability/native/include/continuation/distributed",
     "${ability_runtime_kits_path}/ability/native/include/continuation/kits",
     "${ability_runtime_kits_path}/appkit/native/app/include",
     "${ability_runtime_napi_path}/inner/napi_common",
+    "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base/include",
   ]
 

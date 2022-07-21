@@ -19,38 +19,11 @@
 #include <bitset>
 #include <string>
 
-#include "bundle_mgr_interface.h"
-#include "bundle_mgr_proxy.h"
-#include "if_system_ability_manager.h"
-#include "iservice_registry.h"
 #include "parcel.h"
-#include "system_ability_definition.h"
 #include "uri.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
-class FileExtInfo {
-public:
-    FileExtInfo() = default;
-    ~FileExtInfo() = default;
-
-    static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy()
-    {
-        sptr<ISystemAbilityManager> systemAbilityManager =
-            SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        if (!systemAbilityManager) {
-            return nullptr;
-        }
-
-        sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-        if (!remoteObject) {
-            return nullptr;
-        }
-
-        return iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    }
-};
-
 enum DeviceType {
     DEVICE_LOCAL_DISK = 1,              // Local c,d... disk
     DEVICE_SHARED_DISK,                 // Multi-user shared disk

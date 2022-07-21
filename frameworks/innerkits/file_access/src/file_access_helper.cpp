@@ -15,14 +15,35 @@
 
 #include "file_access_helper.h"
 
+#include "bundle_mgr_proxy.h"
 #include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "if_system_ability_manager.h"
 #include "ifile_access_ext_base.h"
+#include "iservice_registry.h"
+#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
+const int32_t DEFAULT_USERID = 100;
 std::unordered_map<std::string, AAFwk::Want> FileAccessHelper::wantsMap_;
+
+sptr<AppExecFwk::IBundleMgr> FileAccessHelper::GetBundleMgrProxy()
+{
+    sptr<ISystemAbilityManager> systemAbilityManager =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (!systemAbilityManager) {
+        return nullptr;
+    }
+
+    sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (!remoteObject) {
+        return nullptr;
+    }
+
+    return iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+}
 
 FileAccessHelper::FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
     const std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> &cMap)
@@ -116,12 +137,10 @@ void FileAccessHelper::InsertConnectInfo(const std::string &key,
             return ;
         }
         connectInfo->want = want;
-        connectInfo->fileAccessExtProxy = fileAccessExtProxy;
         connectInfo->fileAccessExtConnection = fileAccessExtConnection;
         cMap_.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(key, connectInfo));
     } else {
         connectInfo->want = want;
-        connectInfo->fileAccessExtProxy = fileAccessExtProxy;
         connectInfo->fileAccessExtConnection = fileAccessExtConnection;
     }
 }
@@ -134,12 +153,12 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
         return nullptr;
     }
 
-    sptr<AppExecFwk::IBundleMgr> bm = FileExtInfo::GetBundleMgrProxy();
+    sptr<AppExecFwk::IBundleMgr> bm = FileAccessHelper::GetBundleMgrProxy();
     FileAccessHelper::wantsMap_.clear();
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap;
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     bool ret = bm->QueryExtensionAbilityInfos(
-        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, 100, extensionInfos);
+        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, DEFAULT_USERID, extensionInfos);
     if (!ret) {
         HILOG_ERROR("FileAccessHelper::Creator QueryExtensionAbilityInfos failed");
         return nullptr;
@@ -156,7 +175,8 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
 
         fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
         if (fileExtProxy == nullptr) {
-            HILOG_WARN("Creator get invalid fileExtProxy");
+            HILOG_ERROR("Creator get invalid fileExtProxy");
+            return nullptr;
         }
 
         std::shared_ptr<ConnectInfo> connectInfo = std::make_shared<ConnectInfo>();
@@ -167,7 +187,6 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
         FileAccessHelper::wantsMap_.insert(std::pair<std::string, AAFwk::Want>(extensionInfos[i].uri, wantTem));
 
         connectInfo->want = wantTem;
-        connectInfo->fileAccessExtProxy = fileExtProxy;
         connectInfo->fileAccessExtConnection = fileAccessExtConnection;
         cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(extensionInfos[i].uri, connectInfo));
     }
@@ -203,7 +222,8 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
 
         fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
         if (fileExtProxy == nullptr) {
-            HILOG_WARN("Creator get invalid fileExtProxy");
+            HILOG_ERROR("Creator get invalid fileExtProxy");
+            return nullptr;
         }
 
         std::shared_ptr<ConnectInfo> connectInfo = std::make_shared<ConnectInfo>();
@@ -213,7 +233,6 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
         }
 
         connectInfo->want = wants[i];
-        connectInfo->fileAccessExtProxy = fileExtProxy;
         connectInfo->fileAccessExtConnection = fileAccessExtConnection;
         string uriTmp = FileAccessHelper::GetKeyOfWantsMap(wants[i]);
         cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(uriTmp, connectInfo));
@@ -233,7 +252,6 @@ bool FileAccessHelper::Release()
         if (iter->second->fileAccessExtConnection->IsExtAbilityConnected()) {
             iter->second->fileAccessExtConnection->DisconnectFileExtAbility();
         }
-        iter->second->fileAccessExtProxy = nullptr;
     }
     cMap_.clear();
     token_ = nullptr;
@@ -253,17 +271,17 @@ sptr<IFileAccessExtBase> FileAccessHelper::GetProxy(Uri &uri)
         connectInfo->fileAccessExtConnection->ConnectFileExtAbility(connectInfo->want, token_);
     }
 
-    connectInfo->fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
-    if (isSystemCaller_ && connectInfo->fileAccessExtProxy) {
-        AddFileAccessDeathRecipient(connectInfo->fileAccessExtProxy->AsObject());
+    auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
+    if (fileAccessExtProxy) {
+        AddFileAccessDeathRecipient(fileAccessExtProxy->AsObject());
     }
 
-    if (connectInfo->fileAccessExtProxy == nullptr) {
+    if (fileAccessExtProxy == nullptr) {
         HILOG_ERROR("GetProxy failed with invalid fileAccessExtProxy");
         return nullptr;
     }
 
-    return connectInfo->fileAccessExtProxy;
+    return fileAccessExtProxy;
 }
 
 bool FileAccessHelper::GetProxy()
@@ -274,16 +292,18 @@ bool FileAccessHelper::GetProxy()
         if (!connectInfo->fileAccessExtConnection->IsExtAbilityConnected()) {
             connectInfo->fileAccessExtConnection->ConnectFileExtAbility(connectInfo->want, token_);
         }
-        connectInfo->fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
-        if (isSystemCaller_ && connectInfo->fileAccessExtProxy) {
-            AddFileAccessDeathRecipient(connectInfo->fileAccessExtProxy->AsObject());
+
+        auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
+        if (fileAccessExtProxy) {
+            AddFileAccessDeathRecipient(fileAccessExtProxy->AsObject());
         }
 
-        if (connectInfo->fileAccessExtProxy == nullptr) {
+        if (fileAccessExtProxy == nullptr) {
             HILOG_ERROR("GetProxy failed with invalid fileAccessExtProxy");
             return false;
         }
     }
+
     return true;
 }
 
@@ -411,11 +431,12 @@ std::vector<DeviceInfo> FileAccessHelper::GetRoots()
 
     for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
         auto connectInfo = iter->second;
+        auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
         std::vector<DeviceInfo> results;
-        if (isSystemCaller_ && connectInfo->fileAccessExtProxy) {
-            AddFileAccessDeathRecipient(connectInfo->fileAccessExtProxy->AsObject());
+        if (fileAccessExtProxy) {
+            AddFileAccessDeathRecipient(fileAccessExtProxy->AsObject());
         }
-        results = connectInfo->fileAccessExtProxy->GetRoots();
+        results = fileAccessExtProxy->GetRoots();
         rootsInfo.insert(rootsInfo.end(), results.begin(), results.end());
     }
 
@@ -426,9 +447,9 @@ std::vector<AAFwk::Want> FileAccessHelper::GetRegisterFileAccessExtAbilityInfo()
 {
     std::vector<AAFwk::Want> wants;
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
-    sptr<AppExecFwk::IBundleMgr> bm = FileExtInfo::GetBundleMgrProxy();
+    sptr<AppExecFwk::IBundleMgr> bm = FileAccessHelper::GetBundleMgrProxy();
     bool ret = bm->QueryExtensionAbilityInfos(
-        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, 100, extensionInfos);
+        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, DEFAULT_USERID, extensionInfos);
     if (!ret) {
         HILOG_ERROR("FileAccessHelper::GetRegisterFileAccessExtAbilityInfo QueryExtensionAbilityInfos error");
         return wants;
@@ -439,7 +460,7 @@ std::vector<AAFwk::Want> FileAccessHelper::GetRegisterFileAccessExtAbilityInfo()
         AAFwk::Want want;
         want.SetElementName(extensionInfos[i].bundleName, extensionInfos[i].name);
         FileAccessHelper::wantsMap_.insert(std::pair<std::string, AAFwk::Want>(extensionInfos[i].uri, want));
-        wants.push_back (want);
+        wants.push_back(want);
     }
 
     return wants;
@@ -454,7 +475,8 @@ bool FileAccessHelper::AddService(AAFwk::Want &want)
     }
     fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
     if (fileExtProxy == nullptr) {
-        HILOG_WARN("AddService get invalid fileExtProxy");
+        HILOG_ERROR("AddService get invalid fileExtProxy");
+        return false;
     }
 
     std::shared_ptr<ConnectInfo> connectInfo = std::make_shared<ConnectInfo>();

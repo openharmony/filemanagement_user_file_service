@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 
+#include "bundle_mgr_interface.h"
 #include "context.h"
 #include "file_access_ext_connection.h"
 #include "file_access_extension_info.h"
@@ -37,7 +38,6 @@ using string = std::string;
 
 struct ConnectInfo {
     AAFwk::Want want = {};
-    sptr<IFileAccessExtBase> fileAccessExtProxy = nullptr;
     std::shared_ptr<FileAccessExtConnection> fileAccessExtConnection = nullptr;
 };
 
@@ -66,6 +66,7 @@ public:
 
     bool AddService(AAFwk::Want &want);
 private:
+    static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
     FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
         const std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> &cMap);
     void AddFileAccessDeathRecipient(const sptr<IRemoteObject> &token);
@@ -92,7 +93,6 @@ private:
     // get key from wantsMap_ with want (key is configed in ability server)
     static std::string GetKeyOfWantsMap(const AAFwk::Want &want);
 
-    bool isSystemCaller_ = false;
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
 };
 

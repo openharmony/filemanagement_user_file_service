@@ -221,11 +221,13 @@ napi_value NAPI_GetRegisterFileAccessExtAbilityInfo(napi_env env, napi_callback_
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ZERO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-    } else {
-        NVal cb(env, funcArg[NARG_POS::FIRST]);
-        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
-    return NVal::CreateUndefined(env).val_;
+    NVal cb(env, funcArg[NARG_POS::FIRST]);
+    if (!cb.TypeIs(napi_function)) {
+        NError(EINVAL).ThrowErr(env, "argument type unmatched");
+        return nullptr;
+    }
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
 napi_value FileAccessHelperInit(napi_env env, napi_value exports)
@@ -712,11 +714,13 @@ napi_value NAPI_AddService(napi_env env, napi_callback_info info)
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-    } else {
-        NVal cb(env, funcArg[NARG_POS::SECOND]);
-        return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
     }
-    return NVal::CreateUndefined(env).val_;
+    NVal cb(env, funcArg[NARG_POS::SECOND]);
+    if (!cb.TypeIs(napi_function)) {
+        NError(EINVAL).ThrowErr(env, "argument type unmatched");
+        return nullptr;
+    }
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
