@@ -157,9 +157,9 @@ NativeValue* JsFileAccessExtAbility::CallObjectMethod(const char* name, NativeVa
 
 static bool DoCallJsMethod(CallJsParam *param)
 {
-    JsRuntime &jsRuntime_ = param->jsRuntime;
-    HandleScope handleScope(jsRuntime_);
-    napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
+    JsRuntime &jsRuntime = param->jsRuntime;
+    HandleScope handleScope(jsRuntime);
+    napi_env env = reinterpret_cast<napi_env>(&jsRuntime.GetNativeEngine());
     size_t argc = 0;
     NativeValue* argv[MAX_ARG_COUNT] = { nullptr };
     if (param->argParser != nullptr) {
@@ -192,7 +192,7 @@ static bool DoCallJsMethod(CallJsParam *param)
         param->errorMessage = "ResultValueParser must not null.";
         return false;
     }
-    auto& nativeEngine = param->jsRuntime.GetNativeEngine();
+    auto& nativeEngine = jsRuntime.GetNativeEngine();
     auto ret = param->retParser(env, handleScope.Escape(nativeEngine.CallFunction(value, method, argv, argc)));
     return ret;
 }
