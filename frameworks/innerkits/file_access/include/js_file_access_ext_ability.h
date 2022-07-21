@@ -18,6 +18,7 @@
 
 #include "file_access_ext_ability.h"
 #include "file_access_extension_info.h"
+#include "file_access_framework_errno.h"
 #include "js_runtime.h"
 #include "napi_common_fileaccess.h"
 #include "native_engine/native_reference.h"
@@ -27,20 +28,28 @@ namespace OHOS {
 namespace FileAccessFwk {
 using namespace AbilityRuntime;
 
-struct ThreadLockInfo {
+using InputArgsParser = std::function<bool(napi_env&, NativeValue* [], size_t&)>;
+using ResultValueParser = std::function<bool(napi_env&, NativeValue*)>;
+
+struct CallJsParam {
     std::mutex fileOperateMutex;
     std::condition_variable fileOperateCondition;
     bool isReady = false;
-};
 
-struct CallbackParam {
-    ThreadLockInfo *lockInfo;
+    std::string funcName;
     JsRuntime &jsRuntime;
-    std::shared_ptr<NativeReference> jsObj;
-    const char *funcName;
-    NativeValue * const *argv;
-    size_t argc;
-    NativeValue *result;
+    NativeReference *jsObj;
+    InputArgsParser &argParser;
+    ResultValueParser &retParser;
+
+    int errorCode = ERR_OK;
+    std::string errorMessage = "";
+
+    CallJsParam(const std::string &funcNameIn, JsRuntime &jsRuntimeIn, NativeReference *jsObjIn,
+        InputArgsParser &argParserIn, ResultValueParser &retParserIn)
+        : funcName(funcNameIn), jsRuntime(jsRuntimeIn), jsObj(jsObjIn),
+        argParser(argParserIn), retParser(retParserIn)
+    {}
 };
 
 class JsFileAccessExtAbility : public FileAccessExtAbility {
@@ -65,8 +74,9 @@ public:
     std::vector<FileInfo> ListFile(const Uri &sourceFile) override;
     std::vector<DeviceInfo> GetRoots() override;
 private:
-    NativeValue* AsnycCallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
     NativeValue* CallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
+    std::tuple<int, std::string> CallJsMethod(const std::string &funcName, JsRuntime& jsRuntime, NativeReference *jsObj,
+        InputArgsParser argParser, ResultValueParser retParser);
     void GetSrcPath(std::string &srcPath);
 
     JsRuntime &jsRuntime_;
