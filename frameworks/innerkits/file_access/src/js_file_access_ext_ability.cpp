@@ -430,7 +430,8 @@ int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent,
     auto uri = std::make_shared<std::string>();
     auto argParser = [sourceFile, targetParent](napi_env &env, NativeValue* argv[], size_t &argc) -> bool {
         napi_value napiSourceFile = nullptr;
-        napi_status status = napi_create_string_utf8(env, sourceFile.ToString().c_str(), NAPI_AUTO_LENGTH, &napiSourceFile);
+        napi_status status = napi_create_string_utf8(env, sourceFile.ToString().c_str(),
+            NAPI_AUTO_LENGTH, &napiSourceFile);
         if (status != napi_ok) {
             HILOG_ERROR("create sourceFile uri fail.");
             return false;
@@ -468,7 +469,8 @@ int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &dis
     auto uri = std::make_shared<std::string>();
     auto argParser = [sourceFile, displayName](napi_env &env, NativeValue* argv[], size_t &argc) -> bool {
         napi_value napiSourceFile = nullptr;
-        napi_status status = napi_create_string_utf8(env, sourceFile.ToString().c_str(), NAPI_AUTO_LENGTH, &napiSourceFile);
+        napi_status status = napi_create_string_utf8(env, sourceFile.ToString().c_str(),
+            NAPI_AUTO_LENGTH, &napiSourceFile);
         if (status != napi_ok) {
             HILOG_ERROR("create sourceFile uri fail.");
             return false;
