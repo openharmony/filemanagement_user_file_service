@@ -609,7 +609,7 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
 
     if (funcArg.GetArgc() == NARG_CNT::ZERO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-    } 
+    }
 
     NVal cb(env, funcArg[NARG_POS::FIRST]);
     if (!cb.TypeIs(napi_function)) {
