@@ -52,6 +52,13 @@ FileAccessHelper::FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::C
     cMap_ = cMap;
 }
 
+FileAccessHelper::FileAccessHelper(const sptr<IRemoteObject> &token,
+        const std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> &cMap)
+{
+    token_ = token;
+    cMap_ = cMap;
+}
+
 void FileAccessHelper::AddFileAccessDeathRecipient(const sptr<IRemoteObject> &token)
 {
     if (token != nullptr && callerDeathRecipient_ != nullptr) {
@@ -238,6 +245,53 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
         cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(uriTmp, connectInfo));
     }
     FileAccessHelper *ptrFileAccessHelper = new (std::nothrow) FileAccessHelper(context, cMap);
+    if (ptrFileAccessHelper == nullptr) {
+        HILOG_ERROR("Creator failed, create FileAccessHelper failed");
+        return nullptr;
+    }
+
+    return std::shared_ptr<FileAccessHelper>(ptrFileAccessHelper);
+}
+
+std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteObject> &token,
+        const std::vector<AAFwk::Want> &wants)
+{
+    if (token == nullptr) {
+        HILOG_ERROR("FileAccessHelper::Creator failed, token == nullptr");
+        return nullptr;
+    }
+
+    if (wants.size() == 0) {
+        HILOG_ERROR("FileAccessHelper::Creator failed, wants is empty");
+        return nullptr;
+    }
+
+    std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap;
+    for (size_t i = 0; i < wants.size(); i++) {
+        sptr<IFileAccessExtBase> fileExtProxy = nullptr;
+        std::shared_ptr<FileAccessExtConnection> fileAccessExtConnection =  std::make_shared<FileAccessExtConnection>();
+        if (!fileAccessExtConnection->IsExtAbilityConnected()) {
+            fileAccessExtConnection->ConnectFileExtAbility(wants[i], token);
+        }
+
+        fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
+        if (fileExtProxy == nullptr) {
+            HILOG_ERROR("Creator get invalid fileExtProxy");
+            return nullptr;
+        }
+
+        std::shared_ptr<ConnectInfo> connectInfo = std::make_shared<ConnectInfo>();
+        if (connectInfo == nullptr) {
+            HILOG_ERROR("Creator, connectInfo == nullptr");
+            return nullptr;
+        }
+
+        connectInfo->want = wants[i];
+        connectInfo->fileAccessExtConnection = fileAccessExtConnection;
+        string uriTmp = FileAccessHelper::GetKeyOfWantsMap(wants[i]);
+        cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(uriTmp, connectInfo));
+    }
+    FileAccessHelper *ptrFileAccessHelper = new (std::nothrow) FileAccessHelper(token, cMap);
     if (ptrFileAccessHelper == nullptr) {
         HILOG_ERROR("Creator failed, create FileAccessHelper failed");
         return nullptr;

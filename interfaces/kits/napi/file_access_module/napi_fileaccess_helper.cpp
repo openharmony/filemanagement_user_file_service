@@ -207,7 +207,7 @@ napi_value NAPI_GetRegisterFileAccessExtAbilityInfo(napi_env env, napi_callback_
         napi_value jsArray = WrapArrayWantToJS(env, *result);
         return {env, jsArray};
     };
-    std::string procedureName = "getRegisterFileAccessExtAbilityInfo";
+    const std::string procedureName = "getRegisterFileAccessExtAbilityInfo";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ZERO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -297,7 +297,7 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
         return { NVal::CreateInt32(env, *result) };
     };
 
-    std::string procedureName = "openFile";
+    const std::string procedureName = "openFile";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -353,7 +353,7 @@ napi_value NAPI_CreateFile(napi_env env, napi_callback_info info)
         }
         return { NVal::CreateUTF8String(env, *result) };
     };
-    std::string procedureName = "createFile";
+    const std::string procedureName = "createFile";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -409,7 +409,7 @@ napi_value NAPI_Mkdir(napi_env env, napi_callback_info info)
         }
         return { NVal::CreateUTF8String(env, *result) };
     };
-    std::string procedureName = "mkdir";
+    const std::string procedureName = "mkdir";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -455,7 +455,7 @@ napi_value NAPI_Delete(napi_env env, napi_callback_info info)
         return { NVal::CreateInt32(env, *result) };
     };
 
-    std::string procedureName = "delete";
+    const std::string procedureName = "delete";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -512,7 +512,7 @@ napi_value NAPI_Move(napi_env env, napi_callback_info info)
         }
         return { NVal::CreateUTF8String(env, *result) };
     };
-    std::string procedureName = "move";
+    const std::string procedureName = "move";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -568,7 +568,7 @@ napi_value NAPI_Rename(napi_env env, napi_callback_info info)
         }
         return { NVal::CreateUTF8String(env, *result) };
     };
-    std::string procedureName = "rename";
+    const std::string procedureName = "rename";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -615,7 +615,7 @@ napi_value NAPI_ListFile(napi_env env, napi_callback_info info)
         return {env, jsArray};
     };
 
-    std::string procedureName = "listFile";
+    const std::string procedureName = "listFile";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -652,7 +652,7 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
         return {env, jsArray};
     };
 
-    std::string procedureName = "getRoots";
+    const std::string procedureName = "getRoots";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ZERO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;

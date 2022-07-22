@@ -314,9 +314,8 @@ napi_value WrapArrayWantToJS(napi_env env, const std::vector<OHOS::AAFwk::Want> 
     napi_value jsValue = nullptr;
     uint32_t index = ERR_OK;
     NAPI_CALL(env, napi_create_array(env, &jsArray));
-
-    for (uint32_t i = 0; i < wantVec.size(); i++) {
-        jsValue = OHOS::AppExecFwk::WrapWant(env, wantVec[i]);
+    for (auto want : wantVec) {
+        jsValue = OHOS::AppExecFwk::WrapWant(env, want);
         if (napi_set_element(env, jsArray, index, jsValue) == napi_ok) {
             index++;
         }

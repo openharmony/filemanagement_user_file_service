@@ -51,6 +51,8 @@ public:
     // create and connect with want, if created, only connect with want
     static std::shared_ptr<FileAccessHelper> Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
         const std::vector<AAFwk::Want> &wants);
+    static std::shared_ptr<FileAccessHelper> Creator(const sptr<IRemoteObject> &token,
+        const std::vector<AAFwk::Want> &wants);
 
     sptr<IFileAccessExtBase> GetProxy(Uri &uri);
     bool GetProxy();
@@ -67,28 +69,24 @@ private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
     FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
         const std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> &cMap);
+    FileAccessHelper(const sptr<IRemoteObject> &token,
+        const std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> &cMap);
+
     void AddFileAccessDeathRecipient(const sptr<IRemoteObject> &token);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
 
-    // get ConnectInfo obj from cMap_ with key
     std::shared_ptr<ConnectInfo> GetConnectInfo(const std::string &key);
-    // get ConnectInfo obj from cMap_ with uri (key is part of uri)
     std::shared_ptr<ConnectInfo> GetConnectInfo(Uri &uri);
-    // get ConnectInfo obj from cMap_ with want (key is part of uri)
     std::shared_ptr<ConnectInfo> GetConnectInfo(const AAFwk::Want &want);
-    // insert connect info to cMap_
     void InsertConnectInfo(const std::string &key,
                            const AAFwk::Want &want,
                            const sptr<IFileAccessExtBase> &fileExtProxy,
                            std::shared_ptr<FileAccessExtConnection> fileExtConnection);
 
     sptr<IRemoteObject> token_ = nullptr;
-    // save connects info
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap_;
 
-    // save wants info
     static std::unordered_map<std::string, AAFwk::Want> wantsMap_;
-    // get key from wantsMap_ with want (key is configed in ability server)
     static std::string GetKeyOfWantsMap(const AAFwk::Want &want);
 
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
