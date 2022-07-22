@@ -33,7 +33,8 @@ enum {
     ERR_INVALID_URI,                        // invalid uri
     ERR_URI_CHECK,                          // check uri head fail
     ERR_FILEIO_FAIL,                        // fileio fail
-    ERR_INVALID_PARAM                       // invalid parameter
+    ERR_INVALID_PARAM,                      // invalid parameter
+    ERR_PARSER_FAIL                         // parser js result error
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

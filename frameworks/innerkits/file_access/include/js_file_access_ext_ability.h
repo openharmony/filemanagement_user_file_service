@@ -43,7 +43,7 @@ struct CallJsParam {
 
     CallJsParam(const std::string &funcNameIn, JsRuntime &jsRuntimeIn, NativeReference *jsObjIn,
         InputArgsParser &argParserIn, ResultValueParser &retParserIn)
-        : funcName(funcNameIn), jsRuntime(jsRuntimeIn), jsObj(jsObjIn),argParser(argParserIn), retParser(retParserIn)
+        : funcName(funcNameIn), jsRuntime(jsRuntimeIn), jsObj(jsObjIn), argParser(argParserIn), retParser(retParserIn)
     {}
 };
 
