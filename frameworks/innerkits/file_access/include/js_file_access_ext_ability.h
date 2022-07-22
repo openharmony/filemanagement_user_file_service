@@ -35,20 +35,15 @@ struct CallJsParam {
     std::mutex fileOperateMutex;
     std::condition_variable fileOperateCondition;
     bool isReady = false;
-
     std::string funcName;
     JsRuntime &jsRuntime;
     NativeReference *jsObj;
     InputArgsParser &argParser;
     ResultValueParser &retParser;
 
-    int errorCode = ERR_OK;
-    std::string errorMessage = "";
-
     CallJsParam(const std::string &funcNameIn, JsRuntime &jsRuntimeIn, NativeReference *jsObjIn,
         InputArgsParser &argParserIn, ResultValueParser &retParserIn)
-        : funcName(funcNameIn), jsRuntime(jsRuntimeIn), jsObj(jsObjIn),
-        argParser(argParserIn), retParser(retParserIn)
+        : funcName(funcNameIn), jsRuntime(jsRuntimeIn), jsObj(jsObjIn),argParser(argParserIn), retParser(retParserIn)
     {}
 };
 
@@ -75,7 +70,7 @@ public:
     std::vector<DeviceInfo> GetRoots() override;
 private:
     NativeValue* CallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
-    std::tuple<int, std::string> CallJsMethod(const std::string &funcName, JsRuntime& jsRuntime, NativeReference *jsObj,
+    int CallJsMethod(const std::string &funcName, JsRuntime& jsRuntime, NativeReference *jsObj,
         InputArgsParser argParser, ResultValueParser retParser);
     void GetSrcPath(std::string &srcPath);
 
