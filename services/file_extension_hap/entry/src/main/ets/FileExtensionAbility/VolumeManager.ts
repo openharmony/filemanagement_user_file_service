@@ -22,8 +22,14 @@ const FLAG = fileExtensionInfo.FLAG;
 
 function init() {
     volumeManager.getAllVolumes().then((volumes) => {
-        let flags = FLAG.SUPPORTS_WRITE | FLAG.SUPPORTS_DELETE | FLAG.SUPPORTS_RENAME | FLAG.SUPPORTS_COPY |
-            FLAG.SUPPORTS_MOVE | FLAG.SUPPORTS_REMOVE | FLAG.DIR_SUPPORTS_CREATE | FLAG.DIR_PREFERS_LAST_MODIFIED;
+        let flags = FLAG.SUPPORTS_WRITE |
+                FLAG.SUPPORTS_DELETE |
+                FLAG.SUPPORTS_RENAME |
+                FLAG.SUPPORTS_COPY |
+                FLAG.SUPPORTS_MOVE |
+                FLAG.SUPPORTS_REMOVE |
+                FLAG.DIR_SUPPORTS_CREATE |
+                FLAG.DIR_PREFERS_LAST_MODIFIED;
         for (let i = 0; i < volumes.length; i++) {
             let volume = volumes[i];
             let volumeInfo = {
