@@ -171,22 +171,6 @@ napi_value NAPI_CreateFileAccessHelper(napi_env env, napi_callback_info info)
     return ret;
 }
 
-static FileAccessHelper *GetFileAccessHelper(napi_env env, napi_value thisVar)
-{
-    if (thisVar == nullptr) {
-        NError(EINVAL).ThrowErr(env, "thisVar is nullper");
-        return nullptr;
-    }
-
-    FileAccessHelper *fileAccessHelper = nullptr;
-    napi_unwrap(env, thisVar, (void **)&fileAccessHelper);
-    if (fileAccessHelper == nullptr) {
-        NError(EINVAL).ThrowErr(env, "fileAccessHelper is nullper");
-        return nullptr;
-    }
-    return fileAccessHelper;
-}
-
 napi_value NAPI_GetRegisterFileAccessExtAbilityInfo(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
