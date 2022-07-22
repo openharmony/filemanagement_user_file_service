@@ -466,30 +466,6 @@ std::vector<AAFwk::Want> FileAccessHelper::GetRegisterFileAccessExtAbilityInfo()
     return wants;
 }
 
-bool FileAccessHelper::AddService(AAFwk::Want &want)
-{
-    sptr<IFileAccessExtBase> fileExtProxy = nullptr;
-    std::shared_ptr<FileAccessExtConnection> fileAccessExtConnection =  std::make_shared<FileAccessExtConnection>();
-    if (!fileAccessExtConnection->IsExtAbilityConnected()) {
-        fileAccessExtConnection->ConnectFileExtAbility(want, token_);
-    }
-    fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
-    if (fileExtProxy == nullptr) {
-        HILOG_ERROR("AddService get invalid fileExtProxy");
-        return false;
-    }
-
-    std::shared_ptr<ConnectInfo> connectInfo = std::make_shared<ConnectInfo>();
-    if (connectInfo == nullptr) {
-        HILOG_ERROR("AddService, connectInfo == nullptr");
-        return false;
-    }
-
-    string uriTmp = FileAccessHelper::GetKeyOfWantsMap(want);
-    InsertConnectInfo(uriTmp, want, fileExtProxy, fileAccessExtConnection);
-    return true;
-}
-
 void FileAccessDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     if (handler_) {

@@ -63,8 +63,6 @@ public:
     int Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile);
     std::vector<FileInfo> ListFile(Uri &sourceFile);
     std::vector<DeviceInfo> GetRoots();
-
-    bool AddService(AAFwk::Want &want);
 private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
     FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
