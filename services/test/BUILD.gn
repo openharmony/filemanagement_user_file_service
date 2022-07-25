@@ -26,7 +26,6 @@ ohos_unittest("file_manager_proxy_test") {
     "$FMS_BASE_DIR/src/server",
     "$FMS_BASE_DIR/src/fileoper",
     "//third_party/googletest/googlemock/include/gmock",
-    "//foundation/distributeddatamgr/appdatamgr/relational_store/interfaces/inner_api/rdb/include",
     "//foundation/multimedia/media_library/interfaces/inner_api/media_library_helper/include",
   ]
 
@@ -42,6 +41,7 @@ ohos_unittest("file_manager_proxy_test") {
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
   ]
@@ -60,15 +60,12 @@ ohos_unittest("oper_factory_test") {
     "$FMS_BASE_DIR/src/server",
     "$FMS_BASE_DIR/src/fileoper",
     "//foundation/multimedia/media_library/interfaces/inner_api/media_library_helper/include",
-    "//foundation/distributeddatamgr/appdatamgr/relational_store/interfaces/inner_api/rdb/include",
   ]
 
   configs = [ "//build/config/compiler:exceptions" ]
 
   deps = [
     "$FMS_BASE_DIR:fms_server",
-    "//foundation/distributeddatamgr/appdatamgr/relational_store/interfaces/inner_api/appdatafwk:native_appdatafwk",
-    "//foundation/distributeddatamgr/appdatamgr/relational_store/interfaces/inner_api/rdb:native_rdb",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//utils/native/base:utils",
   ]
@@ -76,6 +73,8 @@ ohos_unittest("oper_factory_test") {
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "relational_store:native_appdatafwk",
+    "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
   ]
@@ -94,14 +93,11 @@ ohos_unittest("file_manager_service_test") {
     "$FMS_BASE_DIR/src/server",
     "$FMS_BASE_DIR/src/fileoper",
     "//foundation/multimedia/media_library/interfaces/inner_api/media_library_helper/include",
-    "//foundation/distributeddatamgr/appdatamgr/relational_store/interfaces/inner_api/rdb/include",
   ]
 
   configs = [ "//build/config/compiler:exceptions" ]
   deps = [
     "$FMS_BASE_DIR:fms_server",
-    "//foundation/distributeddatamgr/appdatamgr/relational_store/interfaces/inner_api/appdatafwk:native_appdatafwk",
-    "//foundation/distributeddatamgr/appdatamgr/relational_store/interfaces/inner_api/rdb:native_rdb",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//utils/native/base:utils",
   ]
@@ -109,6 +105,8 @@ ohos_unittest("file_manager_service_test") {
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "relational_store:native_appdatafwk",
+    "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
   ]
