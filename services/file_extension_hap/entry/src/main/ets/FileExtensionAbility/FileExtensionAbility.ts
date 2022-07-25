@@ -296,8 +296,14 @@ export default class FileExtAbility extends Extension {
             uri: 'fileAccess:///data/storage/el1/bundle/storage_daemon',
             displayName: 'storage_daemon',
             deviceId: '',
-            flags: FLAG.SUPPORTS_WRITE | FLAG.SUPPORTS_DELETE | FLAG.SUPPORTS_RENAME | FLAG.SUPPORTS_COPY |
-                FLAG.SUPPORTS_MOVE | FLAG.SUPPORTS_REMOVE | FLAG.DIR_SUPPORTS_CREATE | FLAG.DIR_PREFERS_LAST_MODIFIED,
+            flags: FLAG.SUPPORTS_WRITE |
+                FLAG.SUPPORTS_DELETE |
+                FLAG.SUPPORTS_RENAME |
+                FLAG.SUPPORTS_COPY |
+                FLAG.SUPPORTS_MOVE |
+                FLAG.SUPPORTS_REMOVE |
+                FLAG.DIR_SUPPORTS_CREATE |
+                FLAG.DIR_PREFERS_LAST_MODIFIED,
         });
         return roots;
     }
