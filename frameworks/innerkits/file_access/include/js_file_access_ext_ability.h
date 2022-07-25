@@ -36,12 +36,12 @@ struct CallJsParam {
     std::condition_variable fileOperateCondition;
     bool isReady = false;
     std::string funcName;
-    JsRuntime &jsRuntime;
+    JsRuntime *jsRuntime;
     NativeReference *jsObj;
-    InputArgsParser &argParser;
-    ResultValueParser &retParser;
+    InputArgsParser argParser;
+    ResultValueParser retParser;
 
-    CallJsParam(const std::string &funcNameIn, JsRuntime &jsRuntimeIn, NativeReference *jsObjIn,
+    CallJsParam(const std::string &funcNameIn, JsRuntime *jsRuntimeIn, NativeReference *jsObjIn,
         InputArgsParser &argParserIn, ResultValueParser &retParserIn)
         : funcName(funcNameIn), jsRuntime(jsRuntimeIn), jsObj(jsObjIn), argParser(argParserIn), retParser(retParserIn)
     {}

@@ -158,9 +158,14 @@ NativeValue* JsFileAccessExtAbility::CallObjectMethod(const char* name, NativeVa
 static int DoCallJsMethod(CallJsParam *param)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "DoCallJsMethod");
-    JsRuntime &jsRuntime = param->jsRuntime;
-    HandleScope handleScope(jsRuntime);
-    napi_env env = reinterpret_cast<napi_env>(&jsRuntime.GetNativeEngine());
+    JsRuntime *jsRuntime = param->jsRuntime;
+    if (jsRuntime == nullptr) {
+        HILOG_ERROR("failed to get jsRuntime.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_INVALID_PARAM;
+    }
+    HandleScope handleScope(*jsRuntime);
+    napi_env env = reinterpret_cast<napi_env>(&jsRuntime->GetNativeEngine());
     size_t argc = 0;
     NativeValue *argv[MAX_ARG_COUNT] = { nullptr };
     if (param->argParser != nullptr) {
@@ -193,7 +198,7 @@ static int DoCallJsMethod(CallJsParam *param)
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_PARAM;
     }
-    auto& nativeEngine = jsRuntime.GetNativeEngine();
+    auto& nativeEngine = jsRuntime->GetNativeEngine();
     if (!param->retParser(env, handleScope.Escape(nativeEngine.CallFunction(value, method, argv, argc)))) {
         HILOG_INFO("Parser js result fail.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -213,7 +218,7 @@ int JsFileAccessExtAbility::CallJsMethod(const std::string &funcName, JsRuntime 
         HILOG_ERROR("failed to get uv event loop.");
         return ERR_ERROR;
     }
-    auto param = std::make_shared<CallJsParam>(funcName, jsRuntime, jsObj, argParser, retParser);
+    auto param = std::make_shared<CallJsParam>(funcName, &jsRuntime, jsObj, argParser, retParser);
     if (param == nullptr) {
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         HILOG_ERROR("failed to new param.");
