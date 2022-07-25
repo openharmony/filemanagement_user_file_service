@@ -132,6 +132,17 @@ export default class FileExtAbility extends Extension {
         }
     }
 
+    isCrossDeviceLink(sourceFileUri, targetParentUri) {
+        let roots = this.getRoots();
+        for (let index = 0; index < roots.length; index++) {
+            let uri = roots[index].uri;
+            if (sourceFileUri.indexOf(uri) == 0 && targetParentUri.indexOf(uri) == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     openFile(sourceFileUri, flags) {
         if (!this.checkUri(sourceFileUri)) {
             return -1;
@@ -231,6 +242,11 @@ export default class FileExtAbility extends Extension {
             let stat = fileio.statSync(this.getPath(targetParentUri));
             if (!stat || !stat.isDirectory()) {
                 return '';
+            }
+            // If not across devices, use fileio.renameSync to move
+            if (!this.isCrossDeviceLink(sourceFileUri, targetParentUri)) {
+                fileio.renameSync(oldPath, newPath);
+                return newFileUri;
             }
         } catch (e) {
             hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
