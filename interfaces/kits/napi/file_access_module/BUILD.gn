@@ -44,8 +44,8 @@ ohos_shared_library("fileaccess") {
     "ability_base:zuri",
     "ability_runtime:abilitykit_native",
     "ability_runtime:napi_base_context",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",
-    "utils_base:utils",
   ]
 }

@@ -23,7 +23,7 @@ ohos_shared_library("filemanager") {
   include_dirs = [
     "//third_party/node/src",
     "//foundation/arkui/napi/interfaces/kits",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "//third_party/libuv/include",
     "$FMS_BASE_DIR/include",
     "$FMS_BASE_DIR/src/client",
@@ -45,13 +45,13 @@ ohos_shared_library("filemanager") {
     "//foundation/arkui/napi:ace_napi",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js:fileio",
     "//foundation/multimedia/media_library/frameworks/innerkitsimpl/medialibrary_data_extension:medialibrary_data_extension",
-    "//utils/native/base:utils",
   ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   external_deps = [
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
