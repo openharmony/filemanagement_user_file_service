@@ -124,8 +124,6 @@ public:
         .instIndex = 0,
         .appIDDesc = "testtesttesttest"
     };
-
-    std::shared_ptr<FileAccessHelper> fah = nullptr;
 };
 
 /**
