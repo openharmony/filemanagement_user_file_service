@@ -31,15 +31,23 @@ using namespace FileAccessFwk;
 int uid = 5003;
 int ok = 0;
 int error = 102825986;
+shared_ptr<FileAccessHelper> fah = nullptr;
+Uri newDirUri("");
 
 class FileAccessHelperTest : public testing::Test {
 public:
     static void SetUpTestCase(void)
     {
         cout << "FileAccessHelperTest code test" << endl;
+
+        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        auto remoteObj = saManager->GetSystemAbility(uid);
+        AAFwk::Want want;
+        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
+        fah = FileAccessHelper::Creator(remoteObj, want);
     }
     static void TearDownTestCase() {};
-    void SetUp();
+    void SetUp() {};
     void TearDown() {};
 
     // permission state
@@ -120,17 +128,6 @@ public:
     std::shared_ptr<FileAccessHelper> fah = nullptr;
 };
 
-void FileAccessHelperTest::SetUp()
-{
-    auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    auto remoteObj = saManager->GetSystemAbility(uid);
-    AAFwk::Want want;
-    want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-    fah = FileAccessHelper::Creator(remoteObj, want);
-}
-
-Uri newDirUri("");
-
 /**
  * @tc.number: SUB_user_file_service_file_access_helper_OpenFile_0000
  * @tc.name: file_access_helper_OpenFile_0000
@@ -149,7 +146,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0000, testing::ext::T
             (g_infoManagerTestInfoParms, g_infoManagerTestPolicyPrams);
         OHOS::Security::AccessToken::AccessTokenID tokenId = tokenIdEx.tokenIdExStruct.tokenID;
         SetSelfTokenID(tokenId);
-        sleep(3);
+        sleep(3); // sleep 3 seconds
 
         vector<DeviceInfo> info = fah->GetRoots();
         Uri parentUri("");
@@ -1324,7 +1321,9 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0005, testing::ext::Tes
 
         Uri renameUri("");
         result = fah->Rename(testUri, "", renameUri);
-        EXPECT_EQ(result, 102825990);
+
+        int errorCode = 102825990;
+        EXPECT_EQ(result, errorCode);
         GTEST_LOG_(INFO) << "Rename_0005 result:" << result << endl;
 
         result = fah->Delete(newDirUriTest);
@@ -1462,7 +1461,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_GetRoots_0000, testing::ext::T
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_GetRoots_0000";
     try {
         uint64_t selfTokenId_ = GetSelfTokenID();
-
+        
         vector<DeviceInfo> info = fah->GetRoots();
         EXPECT_GT(info.size(), 0);
         GTEST_LOG_(INFO) << "GetRoots_0000 result:" << info.size() << endl;

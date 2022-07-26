@@ -30,15 +30,22 @@ using namespace FileAccessFwk;
 int uid = 5003;
 int ok = 0;
 int error = 102825986;
+shared_ptr<FileAccessHelper> fah = nullptr;
 
 class FileExtensionHelperTest : public testing::Test {
 public:
     static void SetUpTestCase(void)
     {
         cout << "FileExtensionHelperTest code test" << endl;
+
+        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        auto remoteObj = saManager->GetSystemAbility(uid);
+        AAFwk::Want want;
+        want.SetElementName("com.ohos.UserFile.ExternalFileManager", "FileExtensionAbility");
+        fah = FileAccessHelper::Creator(remoteObj, want);
     }
     static void TearDownTestCase() {};
-    void SetUp();
+    void SetUp() {};
     void TearDown() {};
 
     // permission state
@@ -115,18 +122,7 @@ public:
         .instIndex = 0,
         .appIDDesc = "testtesttesttest"
     };
-    
-    std::shared_ptr<FileAccessHelper> fah = nullptr;
 };
-
-void FileExtensionHelperTest::SetUp()
-{
-    auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    auto remoteObj = saManager->GetSystemAbility(uid);
-    AAFwk::Want want;
-    want.SetElementName("com.ohos.UserFile.ExternalFileManager", "FileExtensionAbility");
-    fah = FileAccessHelper::Creator(remoteObj, want);
-}
 
 /**
  * @tc.number: SUB_user_file_service_file_extension_helper_OpenFile_0000
@@ -146,7 +142,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0000, testing::
             (g_infoManagerTestInfoParms, g_infoManagerTestPolicyPrams);
         OHOS::Security::AccessToken::AccessTokenID tokenId = tokenIdEx.tokenIdExStruct.tokenID;
         SetSelfTokenID(tokenId);
-        sleep(2);
+        sleep(2); // sleep 2 seconds
 
         vector<DeviceInfo> info = fah->GetRoots();
         for (size_t i = 0; i < info.size(); i++) {
@@ -1473,7 +1469,9 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0005, testing::ex
 
             Uri renameUri("");
             result = fah->Rename(testUri, "", renameUri);
-            EXPECT_EQ(result, 102825990);
+
+            int errorCode = 102825990;
+            EXPECT_EQ(result, errorCode);
             GTEST_LOG_(INFO) << "Rename_0005 result:" << result << endl;
 
             result = fah->Delete(newDirUriTest);
@@ -1624,7 +1622,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_GetRoots_0000, testing::
         vector<DeviceInfo> info = fah->GetRoots();
         EXPECT_GT(info.size(), 0);
         GTEST_LOG_(INFO) << "GetRoots_0000 result:" << info.size() << endl;
-
+        
         SetSelfTokenID(selfTokenId_);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
