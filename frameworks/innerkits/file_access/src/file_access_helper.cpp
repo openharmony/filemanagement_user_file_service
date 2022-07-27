@@ -22,6 +22,9 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
+namespace {
+    const std::string SCHEME_DATASHARE = "datashare";
+} 
 FileAccessHelper::FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
     const AAFwk::Want &want, const sptr<IFileAccessExtBase> &fileAccessExtProxy)
 {
@@ -215,6 +218,19 @@ int FileAccessHelper::Delete(Uri &selectFile)
 int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move");
+    Uri sourceFileUri(sourceFile.ToString());
+    Uri targetParentUri(targetParent.ToString());
+
+    if (sourceFileUri.GetScheme() != targetParentUri.GetScheme()) {
+        if (sourceFileUri.GetScheme() == SCHEME_DATASHARE) {
+            return ERR_OPERATION_FAIL;
+        }
+
+        if (targetParentUri.GetScheme() == SCHEME_DATASHARE) {
+            return ERR_OPERATION_FAIL;
+        }
+    }
+
     int index = ERR_ERROR;
     if (!GetProxy()) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy_");
