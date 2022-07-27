@@ -404,13 +404,13 @@ ErrCode FileAccessExtStub::CmdIsFileExist(MessageParcel &data, MessageParcel &re
     }
 
     if (!reply.WriteInt32(ret)) {
-        HILOG_ERROR("IsFIleExist fail ");
+        HILOG_ERROR("parameter IsFileExist fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_IPC_ERROR;
     }
 
     if (!reply.WriteBool(isExist)) {
-        HILOG_ERROR("parameter Mkdir fail to WriteParcelable type");
+        HILOG_ERROR("parameter IsFileExist fail to WriteBool type");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_IPC_ERROR;
     }
