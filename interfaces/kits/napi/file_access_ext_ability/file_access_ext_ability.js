@@ -50,6 +50,10 @@ class FileAccessExtensionAbility {
         let roots = [];
         return roots;
     }
+
+    isFileExist() {
+        return true;
+    }
 }
 
 export default FileAccessExtensionAbility

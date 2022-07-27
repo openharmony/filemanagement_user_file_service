@@ -582,5 +582,36 @@ std::vector<DeviceInfo> JsFileAccessExtAbility::GetRoots()
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return std::move(*devVec);
 }
+
+int JsFileAccessExtAbility::IsFileExist(const Uri &uri, bool &isExist)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "isFileExist");
+    auto ret = std::make_shared<bool>();
+    auto argParser = [uri](napi_env &env, NativeValue *argv[], size_t &argc) -> bool {
+        napi_value napiUri = nullptr;
+        napi_status status = napi_create_string_utf8(env, uri.ToString().c_str(), NAPI_AUTO_LENGTH, &napiUri);
+        if (status != napi_ok) {
+            HILOG_ERROR("create parent uri fail.");
+            return false;
+        }
+        NativeValue *nativeUri = reinterpret_cast<NativeValue*>(napiUri);
+        argv[ARGC_ZERO] = nativeUri;
+        argc = ARGC_ONE;
+        return true;
+    };
+    auto retParser = [ret](napi_env &env, NativeValue *result) -> bool {
+        return UnwrapBoolFromJS2(env, reinterpret_cast<napi_value>(result), *ret);
+    };
+
+    auto errCode = CallJsMethod("isFileExist", jsRuntime_, jsObj_.get(), argParser, retParser);
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return errCode;
+    }
+    isExist = *ret;
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return errCode;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

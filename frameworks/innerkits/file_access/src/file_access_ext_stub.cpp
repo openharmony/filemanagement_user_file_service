@@ -48,6 +48,7 @@ FileAccessExtStub::FileAccessExtStub()
     stubFuncMap_[CMD_RENAME] = &FileAccessExtStub::CmdRename;
     stubFuncMap_[CMD_LIST_FILE] = &FileAccessExtStub::CmdListFile;
     stubFuncMap_[CMD_GET_ROOTS] = &FileAccessExtStub::CmdGetRoots;
+    stubFuncMap_[CMD_IS_FILE_EXIST] = &FileAccessExtStub::CmdIsFileExist;
 }
 
 FileAccessExtStub::~FileAccessExtStub()
@@ -378,6 +379,40 @@ ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply
             FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return ERR_IPC_ERROR;
         }
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
+ErrCode FileAccessExtStub::CmdIsFileExist(MessageParcel &data, MessageParcel &reply)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdIsFileExist");
+    std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
+    if (uri == nullptr) {
+        HILOG_ERROR("IsFIleExist uri is nullptr");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_INVALID_URI;
+    }
+
+    bool isExist = data.ReadBool();
+    int ret = IsFileExist(*uri, isExist);
+    if (ret < 0) {
+        HILOG_ERROR("parameter IsFileExist fail, ret is %{pubilc}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("IsFIleExist fail ");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_IPC_ERROR;
+    }
+
+    if (!reply.WriteBool(isExist)) {
+        HILOG_ERROR("parameter Mkdir fail to WriteParcelable type");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_IPC_ERROR;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);

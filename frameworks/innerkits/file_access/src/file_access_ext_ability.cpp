@@ -101,5 +101,10 @@ std::vector<DeviceInfo> FileAccessExtAbility::GetRoots()
     std::vector<DeviceInfo> vec;
     return vec;
 }
+
+int FileAccessExtAbility::IsFileExist(const Uri &uri, bool &isExist)
+{
+    return ERR_OK;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

@@ -145,5 +145,20 @@ std::vector<DeviceInfo> FileAccessExtStubImpl::GetRoots()
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return vec;
 }
+
+int FileAccessExtStubImpl::IsFileExist(const Uri &uri, bool &isExist)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "IsFileExist");
+    int ret = ERR_ERROR;
+    if (extension_ == nullptr) {
+        HILOG_ERROR("IsFileExist get extension failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    ret = extension_->IsFileExist(uri, isExist);
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

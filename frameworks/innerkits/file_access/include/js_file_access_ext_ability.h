@@ -68,6 +68,8 @@ public:
     int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) override;
     std::vector<FileInfo> ListFile(const Uri &sourceFile) override;
     std::vector<DeviceInfo> GetRoots() override;
+    int IsFileExist(const Uri &uri, bool &isExist) override;
+
 private:
     NativeValue* CallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
     int CallJsMethod(const std::string &funcName, JsRuntime& jsRuntime, NativeReference *jsObj,

@@ -45,6 +45,7 @@ public:
 
     virtual std::vector<FileInfo> ListFile(const Uri &sourceFile) override;
     virtual std::vector<DeviceInfo> GetRoots() override;
+    virtual int IsFileExist(const Uri &uri, bool &isExist) override;
 private:
     static inline BrokerDelegator<FileAccessExtProxy> delegator_;
 };

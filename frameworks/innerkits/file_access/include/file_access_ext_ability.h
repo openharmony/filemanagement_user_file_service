@@ -48,6 +48,7 @@ public:
 
     virtual std::vector<FileInfo> ListFile(const Uri &sourceFile);
     virtual std::vector<DeviceInfo> GetRoots();
+    virtual int IsFileExist(const Uri &uri, bool &isExist);
     static void SetCreator(const CreatorFunc& creator);
 private:
     static CreatorFunc creator_;

@@ -398,5 +398,48 @@ std::vector<DeviceInfo> FileAccessExtProxy::GetRoots()
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return vec;
 }
+
+int FileAccessExtProxy::IsFileExist(const Uri &uri, bool &isExist)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "IsFileExist");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_IPC_ERROR;
+    }
+
+    if (!data.WriteParcelable(&uri)) {
+        HILOG_ERROR("fail to WriteParcelable uri");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_IPC_ERROR;
+    }
+
+    if (!data.WriteBool(isExist)) {
+        HILOG_ERROR("fail to WriteBool isExist");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_IPC_ERROR;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t err = Remote()->SendRequest(CMD_IS_FILE_EXIST, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_IPC_ERROR;
+    }
+
+    int ret = reply.ReadInt32();
+    if (ret < ERR_OK) {
+        HILOG_ERROR("fail to ReadInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    isExist = reply.ReadBool();
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

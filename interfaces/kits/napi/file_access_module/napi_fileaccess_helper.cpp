@@ -155,6 +155,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("rename", NAPI_Rename),
         DECLARE_NAPI_FUNCTION("listFile", NAPI_ListFile),
         DECLARE_NAPI_FUNCTION("getRoots", NAPI_GetRoots),
+        DECLARE_NAPI_FUNCTION("isFileExist", NAPI_IsFileExist),
     };
     napi_value cons = nullptr;
     NAPI_CALL(env,
@@ -612,6 +613,56 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
     }
 
     NVal cb(env, funcArg[NARG_POS::FIRST]);
+    if (!cb.TypeIs(napi_function)) {
+        NError(EINVAL).ThrowErr(env, "not function type");
+        return nullptr;
+    }
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
+}
+
+napi_value NAPI_IsFileExist(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
+        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        return nullptr;
+    }
+
+    bool succ = false;
+    std::unique_ptr<char[]> uri;
+    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    if (!succ) {
+        NError(EINVAL).ThrowErr(env, "Invalid uri");
+        return nullptr;
+    }
+
+    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    if (fileAccessHelper == nullptr) {
+        return nullptr;
+    }
+
+    auto result = std::make_shared<bool>();
+    string uriString(uri.get());
+    auto cbExec = [uriString, result, fileAccessHelper]() -> NError {
+        OHOS::Uri uri(uriString);
+        bool isExist = false;
+        int ret = fileAccessHelper->IsFileExist(uri, isExist);
+        *result = isExist;
+        return NError(ret);
+    };
+    auto cbComplete = [result](napi_env env, NError err) -> NVal {
+        if (err) {
+            return { env, err.GetNapiErr(env) };
+        }
+        return { NVal::CreateBool(env, *result) };
+    };
+
+    const std::string procedureName = "isFileExist";
+    NVal thisVar(env, funcArg.GetThisVar());
+    if (funcArg.GetArgc() == NARG_CNT::ONE) {
+        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
+    }
+    NVal cb(env, funcArg[NARG_POS::SECOND]);
     if (!cb.TypeIs(napi_function)) {
         NError(EINVAL).ThrowErr(env, "not function type");
         return nullptr;

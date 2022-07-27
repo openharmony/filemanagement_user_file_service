@@ -174,6 +174,9 @@ export default class FileExtAbility extends Extension {
         }
         try {
             let newFileUri = this.genNewFileUri(parentUri, displayName);
+            if (this.isFileExist(newFileUri)) {
+                return '';
+            }
             let path = this.getPath(newFileUri);
             fileio.openSync(path, CREATE_FILE_FLAGS, DEFAULT_MODE);
             return newFileUri;
@@ -323,6 +326,21 @@ export default class FileExtAbility extends Extension {
             hilog.error(DOMAIN_CODE, TAG, 'query error ' + e.message);
             return null;
         }
+    }
+
+    isFileExist(sourceFileUri) {
+        if (!this.checkUri(sourceFileUri)) {
+            hilog.error(DOMAIN_CODE, TAG, 'isFileExist checkUri fail');
+            return false;
+        }
+        try {
+            let path = this.getPath(sourceFileUri);
+            fileio.accessSync(path);
+        } catch (e) {
+            hilog.error(DOMAIN_CODE, TAG, 'isFileExist error ' + e.message);
+            return false;
+        }
+        return true;
     }
 
     listFile(sourceFileUri) {

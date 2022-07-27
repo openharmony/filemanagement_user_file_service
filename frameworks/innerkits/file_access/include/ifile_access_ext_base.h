@@ -38,7 +38,8 @@ public:
         CMD_MOVE,
         CMD_RENAME,
         CMD_LIST_FILE,
-        CMD_GET_ROOTS
+        CMD_GET_ROOTS,
+        CMD_IS_FILE_EXIST
     };
 
     virtual int OpenFile(const Uri &uri, const int flags) = 0;
@@ -50,6 +51,7 @@ public:
 
     virtual std::vector<FileInfo> ListFile(const Uri &sourceFile) = 0;
     virtual std::vector<DeviceInfo> GetRoots() = 0;
+    virtual int IsFileExist(const Uri &uri, bool &isExist) = 0;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
