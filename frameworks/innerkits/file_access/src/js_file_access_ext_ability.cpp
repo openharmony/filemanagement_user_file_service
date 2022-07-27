@@ -585,7 +585,7 @@ std::vector<DeviceInfo> JsFileAccessExtAbility::GetRoots()
 
 int JsFileAccessExtAbility::IsFileExist(const Uri &uri, bool &isExist)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "isFileExist");
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "IsFileExist");
     auto ret = std::make_shared<bool>();
     auto argParser = [uri](napi_env &env, NativeValue *argv[], size_t &argc) -> bool {
         napi_value napiUri = nullptr;
