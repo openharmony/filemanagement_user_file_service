@@ -427,7 +427,7 @@ int FileAccessExtProxy::IsFileExist(const Uri &uri, bool &isExist)
     if (err != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return err;
     }
 
     int ret = reply.ReadInt32();
