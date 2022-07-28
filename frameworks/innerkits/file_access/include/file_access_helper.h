@@ -45,6 +45,7 @@ public:
 
     bool GetProxy();
     bool Release();
+    int IsFileExist(Uri &uri, bool &isExist);
     int OpenFile(Uri &uri, int flags);
     int CreateFile(Uri &parent, const std::string &displayName, Uri &newFile);
     int Mkdir(Uri &parent, const std::string &displayName, Uri &newDir);

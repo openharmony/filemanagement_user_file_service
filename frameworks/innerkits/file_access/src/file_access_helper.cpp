@@ -272,6 +272,22 @@ std::vector<DeviceInfo> FileAccessHelper::GetRoots()
     return results;
 }
 
+int FileAccessHelper::IsFileExist(Uri &uri, bool &isExist)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "IsFileExist");
+    int ret = ERR_ERROR;
+
+    if (!GetProxy()) {
+        HILOG_ERROR("failed with invalid fileAccessExtProxy_");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    ret = fileAccessExtProxy_->IsFileExist(uri, isExist);
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
+}
+
 void FileAccessDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     if (handler_) {
