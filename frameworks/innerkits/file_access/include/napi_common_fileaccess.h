@@ -23,7 +23,6 @@
 #include "file_access_extension_info.h"
 #include "napi_common_data.h"
 #include "napi_common_util.h"
-#include "want.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -50,9 +49,6 @@ bool UnwrapDeviceInfo(napi_env env, napi_value param, DeviceInfo &deviceInfo);
 
 napi_value WrapArrayDeviceInfoToJS(napi_env env, const std::vector<DeviceInfo> &deviceInfoVec);
 bool UnwrapArrayDeviceInfoFromJS(napi_env env, napi_value param, std::vector<DeviceInfo> &deviceInfoVec);
-
-napi_value WrapArrayWantToJS(napi_env env, const std::vector<OHOS::AAFwk::Want> &wantVec);
-bool UnwrapArrayWantFromJS(napi_env env, napi_value param, std::vector<OHOS::AAFwk::Want> &wantVec);
 } // namespace FileAccessFwk
 } // namespace OHOS
 #endif // NAPI_COMMON_FILE_ACCESS_H

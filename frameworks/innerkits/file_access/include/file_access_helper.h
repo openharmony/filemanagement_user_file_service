@@ -16,11 +16,11 @@
 #ifndef FILE_ACCESS_HELPER_H
 #define FILE_ACCESS_HELPER_H
 
-#include <unordered_map>
+#include <functional>
+#include <memory>
 #include <string>
 #include <vector>
 
-#include "bundle_mgr_interface.h"
 #include "context.h"
 #include "file_access_ext_connection.h"
 #include "file_access_extension_info.h"
@@ -35,26 +35,14 @@ using Uri = OHOS::Uri;
 namespace OHOS {
 namespace FileAccessFwk {
 using string = std::string;
-
-struct ConnectInfo {
-    AAFwk::Want want = {};
-    std::shared_ptr<FileAccessExtConnection> fileAccessExtConnection = nullptr;
-};
-
 class FileAccessHelper final : public std::enable_shared_from_this<FileAccessHelper> {
 public:
     ~FileAccessHelper() = default;
-    // get all ability want info
-    static std::vector<AAFwk::Want> GetRegisterFileAccessExtAbilityInfo();
-    // create and connect all ability
-    static std::shared_ptr<FileAccessHelper> Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context);
-    // create and connect with want, if created, only connect with want
-    static std::shared_ptr<FileAccessHelper> Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
-        const std::vector<AAFwk::Want> &wants);
-    static std::shared_ptr<FileAccessHelper> Creator(const sptr<IRemoteObject> &token,
-        const std::vector<AAFwk::Want> &wants);
 
-    sptr<IFileAccessExtBase> GetProxy(Uri &uri);
+    static std::shared_ptr<FileAccessHelper> Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
+        const AAFwk::Want &want);
+    static std::shared_ptr<FileAccessHelper> Creator(const sptr<IRemoteObject> &token, const AAFwk::Want &want);
+
     bool GetProxy();
     bool Release();
     int IsFileExist(Uri &uri, bool &isExist);
@@ -66,31 +54,20 @@ public:
     int Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile);
     std::vector<FileInfo> ListFile(Uri &sourceFile);
     std::vector<DeviceInfo> GetRoots();
-private:
-    static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
-    FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
-        const std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> &cMap);
-    FileAccessHelper(const sptr<IRemoteObject> &token,
-        const std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> &cMap);
 
+private:
+    FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const AAFwk::Want &want,
+        const sptr<IFileAccessExtBase> &fileAccessExtProxy);
+    FileAccessHelper(const sptr<IRemoteObject> &token,
+        const AAFwk::Want &want, const sptr<IFileAccessExtBase> &fileAccessExtProxy);
     void AddFileAccessDeathRecipient(const sptr<IRemoteObject> &token);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
 
-    std::shared_ptr<ConnectInfo> GetConnectInfo(const std::string &key);
-    std::shared_ptr<ConnectInfo> GetConnectInfo(Uri &uri);
-    std::shared_ptr<ConnectInfo> GetConnectInfo(const AAFwk::Want &want);
-    void InsertConnectInfo(const std::string &key,
-                           const AAFwk::Want &want,
-                           const sptr<IFileAccessExtBase> &fileExtProxy,
-                           std::shared_ptr<FileAccessExtConnection> fileExtConnection);
-
-    sptr<IRemoteObject> token_ = nullptr;
-    std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap_;
-
-    static std::unordered_map<std::string, AAFwk::Want> wantsMap_;
-    static std::string GetKeyOfWantsMap(const AAFwk::Want &want);
-
+    sptr<IRemoteObject> token_ = {};
+    AAFwk::Want want_ = {};
+    sptr<IFileAccessExtBase> fileAccessExtProxy_ = nullptr;
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
+    sptr<FileAccessExtConnection> fileAccessExtConnection_ = nullptr;
 };
 
 class FileAccessDeathRecipient : public IRemoteObject::DeathRecipient {
