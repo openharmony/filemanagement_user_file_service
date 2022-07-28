@@ -20,7 +20,6 @@
 
 #include "base/security/access_token/interfaces/innerkits/accesstoken/include/accesstoken_kit.h"
 #include "base/security/access_token/interfaces/innerkits/token_setproc/include/token_setproc.h"
-#include "file_access_framework_errno.h"
 #include "file_access_helper.h"
 #include "iservice_registry.h"
 
@@ -30,6 +29,8 @@ using namespace std;
 using namespace OHOS;
 using namespace FileAccessFwk;
 int uid = 5003;
+int ok = 0;
+int error = 102825986;
 shared_ptr<FileAccessHelper> fah = nullptr;
 Uri newDirUri("");
 
@@ -43,9 +44,7 @@ public:
         auto remoteObj = saManager->GetSystemAbility(uid);
         AAFwk::Want want;
         want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        vector<AAFwk::Want> wants {want};
-        FileAccessHelper::GetRegisterFileAccessExtAbilityInfo();
-        fah = FileAccessHelper::Creator(remoteObj, wants);
+        fah = FileAccessHelper::Creator(remoteObj, want);
     }
     static void TearDownTestCase() {};
     void SetUp() {};
@@ -151,27 +150,41 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0000, testing::ext::T
         Uri parentUri("");
         if (info.size() > 0) {
             parentUri = info[0].uri;
-            GTEST_LOG_(INFO) << parentUri.ToString();
+            GTEST_LOG_(INFO) <<parentUri.ToString();
         }
         
-        int result = fah->Mkdir(parentUri, "Download", newDirUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        
-        Uri newDirUriTest("");
-        result = fah->Mkdir(newDirUri, "test1", newDirUriTest);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri newFileUri("");
-        result = fah->CreateFile(newDirUriTest, "file_access_helper_OpenFile_0000.txt", newFileUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        int result = fah->Mkdir(parentUri, "Download", newDirUri);
+        EXPECT_EQ(result, ok);
+        
+        Uri newDirUriTest1("");
+        Uri newDirUriTest2("");
+        result = fah->Mkdir(newDirUri, "test1", newDirUriTest1);
+        EXPECT_EQ(result, ok);
+
+        result = fah->Mkdir(newDirUri, "test2", newDirUriTest2);
+        EXPECT_EQ(result, ok);
+
+        result = fah->CreateFile(newDirUri, "file_access_helper_OpenFile_0000.txt", newFileUri);
+        EXPECT_EQ(result, ok);
+
+        Uri testUri("");
+        result = fah->CreateFile(newDirUriTest1, "test.txt", testUri);
+        EXPECT_EQ(result, ok);
 
         result = fah->OpenFile(newFileUri, 0);
-        EXPECT_GT(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GT(result, ok);
 
         GTEST_LOG_(INFO) << "OpenFile_0000 result:" << result << endl;
+
+        result = fah->Delete(newFileUri);
+        EXPECT_GE(result, ok);
         
-        result = fah->Delete(newDirUri);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        result = fah->Delete(newDirUriTest1);
+        EXPECT_GE(result, ok);
+
+        result = fah->Delete(newDirUriTest2);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -193,7 +206,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0001, testing::ext::T
     try {
         Uri uri("");
         int result = fah->OpenFile(uri, 0);
-        EXPECT_EQ(result, ERR_INVALID_FD);
+        EXPECT_EQ(result, error);
         GTEST_LOG_(INFO) << "OpenFile_0001 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -216,15 +229,15 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0002, testing::ext::T
     try {
         Uri newFileUri("");
         int result = fah->CreateFile(newDirUri, "file_access_helper_OpenFile_0002.txt", newFileUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri uri("storage/media/100/local/files/Download/file_access_helper_OpenFile_0002.txt");
         result = fah->OpenFile(uri, 0);
-        EXPECT_EQ(result, ERR_INVALID_FD);
+        EXPECT_EQ(result, error);
         GTEST_LOG_(INFO) << "OpenFile_0002 result:" << result << endl;
 
         result = fah->Delete(newFileUri);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -246,7 +259,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0003, testing::ext::T
     try {
         Uri uri("~!@#$%^&*()_");
         int result = fah->OpenFile(uri, 0);
-        EXPECT_EQ(result, ERR_INVALID_FD);
+        EXPECT_EQ(result, error);
         GTEST_LOG_(INFO) << "OpenFile_0003 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -269,14 +282,14 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0004, testing::ext::T
     try {
         Uri newFileUri("");
         int result = fah->CreateFile(newDirUri, "file_access_helper_OpenFile_0004.txt", newFileUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         result = fah->OpenFile(newFileUri, -1);
-        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "OpenFile_0004 result:" << result << endl;
 
         result = fah->Delete(newFileUri);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -298,14 +311,14 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0005, testing::ext::T
     try {
         Uri newFileUri("");
         int result = fah->CreateFile(newDirUri, "file_access_helper_OpenFile_0005.txt", newFileUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         result = fah->OpenFile(newFileUri, 1);
-        EXPECT_GT(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GT(result, ok);
         GTEST_LOG_(INFO) << "OpenFile_0005 result:" << result << endl;
 
         result = fah->Delete(newFileUri);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -327,14 +340,14 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0006, testing::ext::T
     try {
         Uri newFileUri("");
         int result = fah->CreateFile(newDirUri, "file_access_helper_OpenFile_0006.txt", newFileUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         result = fah->OpenFile(newFileUri, 2);
-        EXPECT_GT(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GT(result, ok);
         GTEST_LOG_(INFO) << "OpenFile_0006 result:" << result << endl;
 
         result = fah->Delete(newFileUri);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -356,11 +369,11 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0000, testing::ext:
     try {
         Uri newFileUri("");
         int result = fah->CreateFile(newDirUri, "file_access_helper_CreateFile_0000.txt", newFileUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
         GTEST_LOG_(INFO) << "CreateFile_0000 result:" << result << endl;
 
         result = fah->Delete(newFileUri);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -383,7 +396,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0001, testing::ext:
         Uri newFileUri("");
         Uri parentUri("");
         int result = fah->CreateFile(parentUri, "file_access_helper_CreateFile_0001.txt", newFileUri);
-        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_NE(result, ok);
         GTEST_LOG_(INFO) << "CreateFile_0001 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -407,7 +420,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0002, testing::ext:
         Uri newFileUri("");
         Uri parentUri("storage/media/100/local/files/Download");
         int result = fah->CreateFile(parentUri, "file_access_helper_CreateFile_0002.txt", newFileUri);
-        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_NE(result, ok);
         GTEST_LOG_(INFO) << "CreateFile_0002 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -431,7 +444,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0003, testing::ext:
         Uri newFileUri("");
         Uri parentUri("~!@#$%^&*()_");
         int result = fah->CreateFile(parentUri, "file_access_helper_CreateFile_0003.txt", newFileUri);
-        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_NE(result, ok);
         GTEST_LOG_(INFO) << "CreateFile_0003 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -455,7 +468,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0004, testing::ext:
         Uri newFileUri("");
         string displayName = "";
         int result = fah->CreateFile(newDirUri, displayName, newFileUri);
-        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_NE(result, ok);
         GTEST_LOG_(INFO) << "CreateFile_0004 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -478,11 +491,11 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0000, testing::ext::Test
     try {
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "file_access_helper_Mkdir_0000", newDirUriTest);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
         GTEST_LOG_(INFO) << "Mkdir_0000 result:" << result << endl;
 
         result = fah->Delete(newDirUriTest);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -505,7 +518,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0001, testing::ext::Test
         Uri newDirUriTest("");
         Uri parentUri("");
         int result = fah->Mkdir(parentUri, "file_access_helper_Mkdir_0001", newDirUriTest);
-        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_NE(result, ok);
         GTEST_LOG_(INFO) << "Mkdir_0001 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -529,7 +542,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0002, testing::ext::Test
         Uri newDirUriTest("");
         Uri parentUri("storage/media/100/local/files/Download");
         int result = fah->Mkdir(parentUri, "file_access_helper_Mkdir_0002", newDirUriTest);
-        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_NE(result, ok);
         GTEST_LOG_(INFO) << "Mkdir_0002 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -553,7 +566,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0003, testing::ext::Test
         Uri newDirUriTest("");
         Uri parentUri("~!@#$%^&*()_");
         int result = fah->Mkdir(parentUri, "file_access_helper_Mkdir_0003", newDirUriTest);
-        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_NE(result, ok);
         GTEST_LOG_(INFO) << "Mkdir_0003 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -577,7 +590,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0004, testing::ext::Test
         Uri newDirUriTest("");
         string displayName = "";
         int result = fah->Mkdir(newDirUri, displayName, newDirUriTest);
-        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_NE(result, ok);
         GTEST_LOG_(INFO) << "Mkdir_0004 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -600,18 +613,18 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0000, testing::ext::Tes
     try {
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri newFileUri("");
         result = fah->CreateFile(newDirUriTest, "file_access_helper_Delete_0000.txt", newFileUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         result = fah->Delete(newFileUri);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
         GTEST_LOG_(INFO) << "Delete_0000 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -633,10 +646,10 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0001, testing::ext::Tes
     try {
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
         
         result = fah->Delete(newDirUriTest);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
         GTEST_LOG_(INFO) << "Delete_0001 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -659,7 +672,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0002, testing::ext::Tes
     try {
         Uri selectFileUri("");
         int result = fah->Delete(selectFileUri);
-        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Delete_0002 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -682,14 +695,14 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0003, testing::ext::Tes
     try {
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
         
         Uri selectFileUri("storage/media/100/local/files/Download/test");
         result = fah->Delete(selectFileUri);
-        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_LT(result, ok);
         
         result = fah->Delete(newDirUriTest);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
         GTEST_LOG_(INFO) << "Delete_0003 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -712,7 +725,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0004, testing::ext::Tes
     try {
         Uri selectFileUri("!@#$%^&*()");
         int result = fah->Delete(selectFileUri);
-        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Delete_0004 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -736,25 +749,25 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0000, testing::ext::TestS
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         int result = fah->Mkdir(newDirUri, "test1", newDirUriTest1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         result = fah->Mkdir(newDirUri, "test2", newDirUriTest2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri("");
         result = fah->CreateFile(newDirUriTest1, "test.txt", testUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri2("");
         result = fah->Move(testUri, newDirUriTest2, testUri2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
         GTEST_LOG_(INFO) << "Move_0000 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest1);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
 
         result = fah->Delete(newDirUriTest2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -777,22 +790,22 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0001, testing::ext::TestS
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         int result = fah->Mkdir(newDirUri, "test1", newDirUriTest1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         result = fah->Mkdir(newDirUri, "test2", newDirUriTest2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri("");
         result = fah->CreateFile(newDirUriTest1, "test.txt", testUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri2("");
         result = fah->Move(newDirUriTest1, newDirUriTest2, testUri2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
         GTEST_LOG_(INFO) << "Move_0001 result:" << result << endl;
 
         result = fah->Delete(newDirUriTest2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -814,16 +827,16 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0002, testing::ext::TestS
     try {
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri("");
         Uri sourceFileUri("");
         result = fah->Move(sourceFileUri, newDirUriTest, testUri);
-        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Move_0002 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -846,26 +859,26 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0003, testing::ext::TestS
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         int result = fah->Mkdir(newDirUri, "test1", newDirUriTest1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         result = fah->Mkdir(newDirUri, "test2", newDirUriTest2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri("");
         result = fah->CreateFile(newDirUriTest1, "test.txt", testUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri2("");
         Uri sourceFileUri("storage/media/100/local/files/Download/test1/test.txt");
         result = fah->Move(sourceFileUri, newDirUriTest2, testUri2);
-        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Move_0003 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest1);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
 
         result = fah->Delete(newDirUriTest2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -887,16 +900,16 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0004, testing::ext::TestS
     try {
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri("");
         Uri sourceFileUri("~!@#$%^&*()_");
         result = fah->Move(sourceFileUri, newDirUriTest, testUri);
-        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Move_0004 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -918,20 +931,20 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0005, testing::ext::TestS
     try {
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test1", newDirUriTest);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri("");
         result = fah->CreateFile(newDirUriTest, "test.txt", testUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri2("");
         Uri targetParentUri("");
         result = fah->Move(testUri, targetParentUri, testUri2);
-        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Move_0005 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -954,26 +967,26 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0006, testing::ext::TestS
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         int result = fah->Mkdir(newDirUri, "test1", newDirUriTest1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         result = fah->Mkdir(newDirUri, "test2", newDirUriTest2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri("");
         result = fah->CreateFile(newDirUriTest1, "test.txt", testUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri2("");
         Uri targetParentUri("storage/media/100/local/files/Download/test2");
         result = fah->Move(testUri, targetParentUri, testUri2);
-        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Move_0006 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest1);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
 
         result = fah->Delete(newDirUriTest2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -996,26 +1009,26 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0007, testing::ext::TestS
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         int result = fah->Mkdir(newDirUri, "test1", newDirUriTest1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         result = fah->Mkdir(newDirUri, "test2", newDirUriTest2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri("");
         result = fah->CreateFile(newDirUriTest1, "test.txt", testUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri2("");
         Uri targetParentUri("~!@#$^%&*()_");
         result = fah->Move(testUri, targetParentUri, testUri2);
-        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Move_0007 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest1);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
 
         result = fah->Delete(newDirUriTest2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -1038,18 +1051,18 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0008, testing::ext::TestS
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         int result = fah->Mkdir(newDirUri, "test1", newDirUriTest1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         result = fah->Mkdir(newDirUri, "test2", newDirUriTest2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri2("");
         result = fah->Move(newDirUriTest1, newDirUriTest2, testUri2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
         GTEST_LOG_(INFO) << "Move_0008 result:" << result << endl;
 
         result = fah->Delete(newDirUriTest2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -1072,10 +1085,10 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0009, testing::ext::TestS
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         int result = fah->Mkdir(newDirUri, "test1", newDirUriTest1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         result = fah->Mkdir(newDirUri, "test2", newDirUriTest2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         for (size_t i = 0; i < 2000; i++) {
             Uri testUri("");
@@ -1085,11 +1098,11 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0009, testing::ext::TestS
 
         Uri testUri2("");
         result = fah->Move(newDirUriTest1, newDirUriTest2, testUri2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
         GTEST_LOG_(INFO) << "Move_0009 result:" << result << endl;
 
         result = fah->Delete(newDirUriTest2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -1112,10 +1125,10 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0010, testing::ext::TestS
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         int result = fah->Mkdir(newDirUri, "test1", newDirUriTest1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         result = fah->Mkdir(newDirUri, "test2", newDirUriTest2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri("");
         fah->Mkdir(newDirUriTest1, "test", testUri);
@@ -1125,11 +1138,11 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0010, testing::ext::TestS
 
         Uri testUri2("");
         result = fah->Move(newDirUriTest1, newDirUriTest2, testUri2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
         GTEST_LOG_(INFO) << "Move_0010 result:" << result << endl;
 
         result = fah->Delete(newDirUriTest2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -1151,19 +1164,19 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0000, testing::ext::Tes
     try {
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri("");
         result = fah->CreateFile(newDirUriTest, "test.txt", testUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri renameUri("");
         result = fah->Rename(testUri, "test2.txt", renameUri);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
         GTEST_LOG_(INFO) << "Rename_0000 result:" << result << endl;
 
         result = fah->Delete(newDirUriTest);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -1185,15 +1198,15 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0001, testing::ext::Tes
     try {
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri renameUri("");
         result = fah->Rename(newDirUriTest, "testRename", renameUri);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
         GTEST_LOG_(INFO) << "Rename_0001 result:" << result << endl;
 
         result = fah->Delete(newDirUriTest);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -1216,7 +1229,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0002, testing::ext::Tes
         Uri renameUri("");
         Uri sourceFileUri("");
         int result = fah->Rename(sourceFileUri, "testRename.txt", renameUri);
-        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Rename_0002 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -1239,20 +1252,20 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0003, testing::ext::Tes
     try {
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri("");
         result = fah->CreateFile(newDirUriTest, "test.txt", testUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri renameUri("");
         Uri sourceFileUri("storage/media/100/local/files/Download/test/test.txt");
         result = fah->Rename(sourceFileUri, "testRename.txt", renameUri);
-        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Rename_0003 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -1275,7 +1288,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0004, testing::ext::Tes
         Uri renameUri("");
         Uri sourceFileUri("~!@#$%^&*()_");
         int result = fah->Rename(sourceFileUri, "testRename.txt", renameUri);
-        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Rename_0004 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -1298,11 +1311,11 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0005, testing::ext::Tes
     try {
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri("");
         result = fah->CreateFile(newDirUriTest, "test.txt", testUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri renameUri("");
         result = fah->Rename(testUri, "", renameUri);
@@ -1312,7 +1325,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0005, testing::ext::Tes
         GTEST_LOG_(INFO) << "Rename_0005 result:" << result << endl;
 
         result = fah->Delete(newDirUriTest);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -1334,18 +1347,18 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0000, testing::ext::T
     try {
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri("");
         result = fah->CreateFile(newDirUriTest, "file_access_helper_ListFile_0000.txt", testUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         std::vector<FileInfo> fileInfo = fah->ListFile(newDirUriTest);
         EXPECT_GT(fileInfo.size(), 0);
         GTEST_LOG_(INFO) << "ListFile_0000 result:" << fileInfo.size() << endl;
 
         result = fah->Delete(newDirUriTest);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -1390,11 +1403,11 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0002, testing::ext::T
     try {
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri testUri("");
         result = fah->CreateFile(newDirUriTest, "test.txt", testUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, ok);
 
         Uri sourceFileUri("storage/media/100/local/files/Download/test/test.txt");
         std::vector<FileInfo> fileInfo = fah->ListFile(sourceFileUri);
@@ -1402,7 +1415,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0002, testing::ext::T
         GTEST_LOG_(INFO) << "ListFile_0002 result:" << fileInfo.size() << endl;
 
         result = fah->Delete(newDirUriTest);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(result, ok);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -1450,11 +1463,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_GetRoots_0000, testing::ext::T
         vector<DeviceInfo> info = fah->GetRoots();
         EXPECT_GT(info.size(), 0);
         GTEST_LOG_(INFO) << "GetRoots_0000 result:" << info.size() << endl;
-        GTEST_LOG_(INFO) << info[0].uri.ToString();
-        GTEST_LOG_(INFO) << info[0].displayName;
-        GTEST_LOG_(INFO) << info[0].deviceId;
-        GTEST_LOG_(INFO) << info[0].flags;
-        GTEST_LOG_(INFO) << info[0].type;
 
         SetSelfTokenID(selfTokenId_);
     } catch (...) {

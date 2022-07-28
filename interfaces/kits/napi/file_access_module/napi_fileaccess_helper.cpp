@@ -45,12 +45,15 @@ std::list<std::shared_ptr<FileAccessHelper>> g_fileAccessHelperList;
 static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
+    if (!funcArg.InitArgs(NARG_CNT::TWO)) {
         NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
 
     napi_value thisVar = funcArg.GetThisVar();
+
+    AAFwk::Want want;
+    OHOS::AppExecFwk::UnwrapWant(env, funcArg.GetArg(PARAM1), want);
     std::shared_ptr<FileAccessHelper> fileAccessHelper = nullptr;
     bool isStageMode = false;
     napi_status status = AbilityRuntime::IsStageContext(env, funcArg.GetArg(PARAM0), isStageMode);
@@ -65,18 +68,7 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
         return nullptr;
     }
 
-    if (funcArg.GetArgc() == NARG_CNT::ONE) {
-        fileAccessHelper = FileAccessHelper::Creator(context);
-    } else if (funcArg.GetArgc() == NARG_CNT::TWO) {
-        std::vector<AAFwk::Want> wants;
-        bool suss = UnwrapArrayWantFromJS(env, funcArg.GetArg(PARAM1), wants);
-        if (!suss) {
-            HILOG_ERROR("UnwrapArrayWantFromJS failed to get native wants");
-            return nullptr;
-        }
-        fileAccessHelper = FileAccessHelper::Creator(context, wants);
-    }
-
+    fileAccessHelper = FileAccessHelper::Creator(context, want);
     if (fileAccessHelper == nullptr) {
         HILOG_ERROR("FileAccessHelperConstructor: fileAccessHelper is nullptr");
         return nullptr;
@@ -102,60 +94,41 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
 
 napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
 {
-    NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+    size_t requireArgc = ARGS_TWO;
+    size_t argc = ARGS_TWO;
+    napi_value args[ARGS_TWO] = {nullptr};
+    if (napi_get_cb_info(env, info, &argc, args, nullptr, nullptr) != napi_ok) {
+        return nullptr;
+    }
+
+    if (argc > requireArgc) {
+        HILOG_ERROR("Wrong argument count%{public}zu.", argc);
         return nullptr;
     }
 
     napi_value result = nullptr;
     napi_value cons = nullptr;
-    if (funcArg.GetArgc() == NARG_CNT::ONE) {
-        size_t requireArgc = ARGS_ONE;
-        size_t argc = ARGS_ONE;
-        napi_value args[ARGS_ONE] = {nullptr};
-        if (napi_get_cb_info(env, info, &argc, args, nullptr, nullptr) != napi_ok) {
-            return nullptr;
-        }
+    if (napi_get_reference_value(env, g_constructorRef, &cons) != napi_ok) {
+        HILOG_ERROR("g_constructorRef reference is fail");
+        return nullptr;
+    }
 
-        if (argc > requireArgc) {
-            HILOG_ERROR("Wrong argument count%{public}zu.", argc);
-            return nullptr;
-        }
-
-        if (napi_get_reference_value(env, g_constructorRef, &cons) != napi_ok) {
-            HILOG_ERROR("g_constructorRef reference is fail");
-            return nullptr;
-        }
-
-        if (napi_new_instance(env, cons, ARGS_ONE, args, &result) != napi_ok) {
-            return nullptr;
-        }
-    } else if (funcArg.GetArgc() == NARG_CNT::TWO) {
-        size_t requireArgc = ARGS_TWO;
-        size_t argc = ARGS_TWO;
-        napi_value args[ARGS_TWO] = {nullptr};
-        if (napi_get_cb_info(env, info, &argc, args, nullptr, nullptr) != napi_ok) {
-            return nullptr;
-        }
-
-        if (argc > requireArgc) {
-            HILOG_ERROR("Wrong argument count%{public}zu.", argc);
-            return nullptr;
-        }
-
-        if (napi_get_reference_value(env, g_constructorRef, &cons) != napi_ok) {
-            HILOG_ERROR("g_constructorRef reference is fail");
-            return nullptr;
-        }
-
-        if (napi_new_instance(env, cons, ARGS_TWO, args, &result) != napi_ok) {
-            return nullptr;
-        }
+    if (napi_new_instance(env, cons, ARGS_TWO, args, &result) != napi_ok) {
+        return nullptr;
     }
 
     if (!IsTypeForNapiValue(env, result, napi_object)) {
         HILOG_ERROR("IsTypeForNapiValue isn`t object");
+        return nullptr;
+    }
+
+    if (IsTypeForNapiValue(env, result, napi_null)) {
+        HILOG_ERROR("IsTypeForNapiValue is null");
+        return nullptr;
+    }
+
+    if (IsTypeForNapiValue(env, result, napi_undefined)) {
+        HILOG_ERROR("IsTypeForNapiValue is undefined");
         return nullptr;
     }
 
@@ -169,39 +142,6 @@ napi_value NAPI_CreateFileAccessHelper(napi_env env, napi_callback_info info)
         ret = WrapVoidToJS(env);
     }
     return ret;
-}
-
-napi_value NAPI_GetRegisterFileAccessExtAbilityInfo(napi_env env, napi_callback_info info)
-{
-    NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
-        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
-        return nullptr;
-    }
-
-    auto result = std::make_shared<std::vector<AAFwk::Want>>();
-    auto cbExec = [result]() -> NError {
-        *result = FileAccessHelper::GetRegisterFileAccessExtAbilityInfo();
-        return NError(ERRNO_NOERR);
-    };
-    auto cbComplete = [result](napi_env env, NError err) -> NVal {
-        if (err) {
-            return { env, err.GetNapiErr(env) };
-        }
-        napi_value jsArray = WrapArrayWantToJS(env, *result);
-        return {env, jsArray};
-    };
-    const std::string procedureName = "getRegisterFileAccessExtAbilityInfo";
-    NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == NARG_CNT::ZERO) {
-        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-    }
-    NVal cb(env, funcArg[NARG_POS::FIRST]);
-    if (!cb.TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env, "argument type unmatched");
-        return nullptr;
-    }
-    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
 napi_value FileAccessHelperInit(napi_env env, napi_value exports)
@@ -233,7 +173,6 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
 
     napi_property_descriptor export_properties[] = {
         DECLARE_NAPI_FUNCTION("createFileAccessHelper", NAPI_CreateFileAccessHelper),
-        DECLARE_NAPI_FUNCTION("getRegisterFileAccessExtAbilityInfo", NAPI_GetRegisterFileAccessExtAbilityInfo),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(export_properties) / sizeof(export_properties[0]),
         export_properties));
@@ -320,7 +259,7 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
         return { NVal::CreateInt32(env, *result) };
     };
 
-    const std::string procedureName = "openFile";
+    std::string procedureName = "openFile";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -372,7 +311,7 @@ napi_value NAPI_CreateFile(napi_env env, napi_callback_info info)
         }
         return { NVal::CreateUTF8String(env, *result) };
     };
-    const std::string procedureName = "createFile";
+    std::string procedureName = "createFile";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -424,7 +363,7 @@ napi_value NAPI_Mkdir(napi_env env, napi_callback_info info)
         }
         return { NVal::CreateUTF8String(env, *result) };
     };
-    const std::string procedureName = "mkdir";
+    std::string procedureName = "mkdir";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -473,7 +412,7 @@ napi_value NAPI_Delete(napi_env env, napi_callback_info info)
         return { NVal::CreateInt32(env, *result) };
     };
 
-    const std::string procedureName = "delete";
+    std::string procedureName = "delete";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -526,7 +465,7 @@ napi_value NAPI_Move(napi_env env, napi_callback_info info)
         }
         return { NVal::CreateUTF8String(env, *result) };
     };
-    const std::string procedureName = "move";
+    std::string procedureName = "move";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -578,7 +517,7 @@ napi_value NAPI_Rename(napi_env env, napi_callback_info info)
         }
         return { NVal::CreateUTF8String(env, *result) };
     };
-    const std::string procedureName = "rename";
+    std::string procedureName = "rename";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -627,8 +566,7 @@ napi_value NAPI_ListFile(napi_env env, napi_callback_info info)
         napi_value jsArray = WrapArrayFileInfoToJS(env, *result);
         return {env, jsArray};
     };
-
-    const std::string procedureName = "listFile";
+    std::string procedureName = "listFile";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -667,8 +605,7 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
         napi_value jsArray = WrapArrayDeviceInfoToJS(env, *result);
         return {env, jsArray};
     };
-
-    const std::string procedureName = "getRoots";
+    std::string procedureName = "getRoots";
     NVal thisVar(env, funcArg.GetThisVar());
 
     if (funcArg.GetArgc() == NARG_CNT::ZERO) {

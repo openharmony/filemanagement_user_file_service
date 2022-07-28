@@ -33,6 +33,7 @@ public:
     FileAccessExtConnection() = default;
     virtual ~FileAccessExtConnection() = default;
 
+    static sptr<FileAccessExtConnection> GetInstance();
     void OnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
@@ -49,6 +50,7 @@ private:
     };
     ThreadLockInfo connectLockInfo_;
 
+    static sptr<FileAccessExtConnection> instance_;
     static std::mutex mutex_;
     std::atomic<bool> isConnected_ = {false};
     sptr<IFileAccessExtBase> fileExtProxy_;
