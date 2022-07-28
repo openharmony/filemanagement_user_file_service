@@ -28,19 +28,7 @@ namespace FileAccessFwk {
 namespace {
     constexpr int WAIT_TIME = 1;    // second
 }
-sptr<FileAccessExtConnection> FileAccessExtConnection::instance_ = nullptr;
 std::mutex FileAccessExtConnection::mutex_;
-
-sptr<FileAccessExtConnection> FileAccessExtConnection::GetInstance()
-{
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (instance_ == nullptr) {
-            instance_ = sptr<FileAccessExtConnection>(new (std::nothrow) FileAccessExtConnection());
-        }
-    }
-    return instance_;
-}
 
 void FileAccessExtConnection::OnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
@@ -49,6 +37,7 @@ void FileAccessExtConnection::OnAbilityConnectDone(
         HILOG_ERROR("remote is nullptr");
         return;
     }
+
     fileExtProxy_ = iface_cast<FileAccessExtProxy>(remoteObject);
     if (fileExtProxy_ == nullptr) {
         HILOG_ERROR("fileExtProxy_ is nullptr");

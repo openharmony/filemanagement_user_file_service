@@ -17,6 +17,7 @@
 
 #include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
+#include "napi_common_want.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -303,6 +304,47 @@ bool UnwrapArrayDeviceInfoFromJS(napi_env env, napi_value param, std::vector<Dev
         }
 
         deviceInfoVec.push_back(deviceInfo);
+    }
+    return true;
+}
+
+napi_value WrapArrayWantToJS(napi_env env, const std::vector<OHOS::AAFwk::Want> &wantVec)
+{
+    napi_value jsArray = nullptr;
+    napi_value jsValue = nullptr;
+    uint32_t index = ERR_OK;
+    NAPI_CALL(env, napi_create_array(env, &jsArray));
+    for (auto want : wantVec) {
+        jsValue = OHOS::AppExecFwk::WrapWant(env, want);
+        if (napi_set_element(env, jsArray, index, jsValue) == napi_ok) {
+            index++;
+        }
+    }
+    return jsArray;
+}
+
+bool UnwrapArrayWantFromJS(napi_env env, napi_value param, std::vector<OHOS::AAFwk::Want> &wantVec)
+{
+    uint32_t arraySize = ERR_OK;
+    napi_value jsValue = nullptr;
+
+    if (!IsArrayForNapiValue(env, param, arraySize)) {
+        return false;
+    }
+
+    wantVec.clear();
+    for (uint32_t i = 0; i < arraySize; i++) {
+        jsValue = nullptr;
+        OHOS::AAFwk::Want want;
+        if (napi_get_element(env, param, i, &jsValue) != napi_ok) {
+            return false;
+        }
+
+        if (!OHOS::AppExecFwk::UnwrapWant(env, jsValue, want)) {
+            return false;
+        }
+
+        wantVec.push_back(want);
     }
     return true;
 }
