@@ -30,13 +30,21 @@ using namespace OHOS;
 using namespace FileAccessFwk;
 int uid = 5003;
 int ok = 0;
-int error = 102825984;
+int error = 102825986;
+shared_ptr<FileAccessHelper> fah = nullptr;
+Uri newDirUri("");
 
 class FileAccessHelperTest : public testing::Test {
 public:
     static void SetUpTestCase(void)
     {
         cout << "FileAccessHelperTest code test" << endl;
+
+        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        auto remoteObj = saManager->GetSystemAbility(uid);
+        AAFwk::Want want;
+        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
+        fah = FileAccessHelper::Creator(remoteObj, want);
     }
     static void TearDownTestCase() {};
     void SetUp() {};
@@ -118,8 +126,6 @@ public:
     };
 };
 
-Uri newDirUri("");
-
 /**
  * @tc.number: SUB_user_file_service_file_access_helper_OpenFile_0000
  * @tc.name: file_access_helper_OpenFile_0000
@@ -138,12 +144,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0000, testing::ext::T
             (g_infoManagerTestInfoParms, g_infoManagerTestPolicyPrams);
         OHOS::Security::AccessToken::AccessTokenID tokenId = tokenIdEx.tokenIdExStruct.tokenID;
         SetSelfTokenID(tokenId);
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(remoteObj, want);
-        sleep(3);
+        sleep(3); // sleep 3 seconds
 
         vector<DeviceInfo> info = fah->GetRoots();
         Uri parentUri("");
@@ -203,14 +204,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0001, testing::ext::T
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_OpenFile_0001";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        sleep(1);
-
         Uri uri("");
         int result = fah->OpenFile(uri, 0);
         EXPECT_EQ(result, error);
@@ -234,14 +227,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0002, testing::ext::T
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_OpenFile_0002";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        sleep(1);
-
         Uri newFileUri("");
         int result = fah->CreateFile(newDirUri, "file_access_helper_OpenFile_0002.txt", newFileUri);
         EXPECT_EQ(result, ok);
@@ -272,13 +257,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0003, testing::ext::T
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_OpenFile_0003";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-
         Uri uri("~!@#$%^&*()_");
         int result = fah->OpenFile(uri, 0);
         EXPECT_EQ(result, error);
@@ -302,19 +280,12 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0004, testing::ext::T
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_OpenFile_0004";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-
         Uri newFileUri("");
         int result = fah->CreateFile(newDirUri, "file_access_helper_OpenFile_0004.txt", newFileUri);
         EXPECT_EQ(result, ok);
 
         result = fah->OpenFile(newFileUri, -1);
-        EXPECT_EQ(result, error);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "OpenFile_0004 result:" << result << endl;
 
         result = fah->Delete(newFileUri);
@@ -338,13 +309,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0005, testing::ext::T
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_OpenFile_0005";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-
         Uri newFileUri("");
         int result = fah->CreateFile(newDirUri, "file_access_helper_OpenFile_0005.txt", newFileUri);
         EXPECT_EQ(result, ok);
@@ -374,13 +338,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0006, testing::ext::T
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_OpenFile_0006";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-
         Uri newFileUri("");
         int result = fah->CreateFile(newDirUri, "file_access_helper_OpenFile_0006.txt", newFileUri);
         EXPECT_EQ(result, ok);
@@ -410,13 +367,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0000, testing::ext:
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_CreateFile_0000";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-
         Uri newFileUri("");
         int result = fah->CreateFile(newDirUri, "file_access_helper_CreateFile_0000.txt", newFileUri);
         EXPECT_EQ(result, ok);
@@ -443,13 +393,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0001, testing::ext:
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_CreateFile_0001";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-
         Uri newFileUri("");
         Uri parentUri("");
         int result = fah->CreateFile(parentUri, "file_access_helper_CreateFile_0001.txt", newFileUri);
@@ -474,13 +417,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0002, testing::ext:
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_CreateFile_0002";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-
         Uri newFileUri("");
         Uri parentUri("storage/media/100/local/files/Download");
         int result = fah->CreateFile(parentUri, "file_access_helper_CreateFile_0002.txt", newFileUri);
@@ -505,13 +441,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0003, testing::ext:
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_CreateFile_0002";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-
         Uri newFileUri("");
         Uri parentUri("~!@#$%^&*()_");
         int result = fah->CreateFile(parentUri, "file_access_helper_CreateFile_0003.txt", newFileUri);
@@ -536,13 +465,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0004, testing::ext:
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_CreateFile_0004";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-
         Uri newFileUri("");
         string displayName = "";
         int result = fah->CreateFile(newDirUri, displayName, newFileUri);
@@ -567,13 +489,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0000, testing::ext::Test
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Mkdir_0000";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "file_access_helper_Mkdir_0000", newDirUriTest);
         EXPECT_EQ(result, ok);
@@ -600,13 +515,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0001, testing::ext::Test
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Mkdir_0001";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest("");
         Uri parentUri("");
         int result = fah->Mkdir(parentUri, "file_access_helper_Mkdir_0001", newDirUriTest);
@@ -631,13 +539,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0002, testing::ext::Test
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Mkdir_0002";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest("");
         Uri parentUri("storage/media/100/local/files/Download");
         int result = fah->Mkdir(parentUri, "file_access_helper_Mkdir_0002", newDirUriTest);
@@ -662,13 +563,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0003, testing::ext::Test
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Mkdir_0002";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest("");
         Uri parentUri("~!@#$%^&*()_");
         int result = fah->Mkdir(parentUri, "file_access_helper_Mkdir_0003", newDirUriTest);
@@ -693,13 +587,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0004, testing::ext::Test
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Mkdir_0004";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest("");
         string displayName = "";
         int result = fah->Mkdir(newDirUri, displayName, newDirUriTest);
@@ -724,13 +611,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0000, testing::ext::Tes
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Delete_0000";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, ok);
@@ -764,13 +644,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0001, testing::ext::Tes
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Delete_0001";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, ok);
@@ -797,16 +670,9 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0002, testing::ext::Tes
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Delete_0002";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri selectFileUri("");
         int result = fah->Delete(selectFileUri);
-        EXPECT_EQ(result, error);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Delete_0002 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -827,20 +693,13 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0003, testing::ext::Tes
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Delete_0003";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, ok);
         
         Uri selectFileUri("storage/media/100/local/files/Download/test");
         result = fah->Delete(selectFileUri);
-        EXPECT_EQ(result, error);
+        EXPECT_LT(result, ok);
         
         result = fah->Delete(newDirUriTest);
         EXPECT_GE(result, ok);
@@ -864,16 +723,9 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0004, testing::ext::Tes
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Delete_0004";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-
         Uri selectFileUri("!@#$%^&*()");
         int result = fah->Delete(selectFileUri);
-        EXPECT_EQ(result, error);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Delete_0004 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -894,13 +746,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0000, testing::ext::TestS
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0000";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         int result = fah->Mkdir(newDirUri, "test1", newDirUriTest1);
@@ -942,13 +787,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0001, testing::ext::TestS
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0001";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         int result = fah->Mkdir(newDirUri, "test1", newDirUriTest1);
@@ -987,13 +825,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0002, testing::ext::TestS
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0002";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, ok);
@@ -1001,7 +832,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0002, testing::ext::TestS
         Uri testUri("");
         Uri sourceFileUri("");
         result = fah->Move(sourceFileUri, newDirUriTest, testUri);
-        EXPECT_EQ(result, error);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Move_0002 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest);
@@ -1025,13 +856,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0003, testing::ext::TestS
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0003";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         int result = fah->Mkdir(newDirUri, "test1", newDirUriTest1);
@@ -1047,7 +871,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0003, testing::ext::TestS
         Uri testUri2("");
         Uri sourceFileUri("storage/media/100/local/files/Download/test1/test.txt");
         result = fah->Move(sourceFileUri, newDirUriTest2, testUri2);
-        EXPECT_EQ(result, error);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Move_0003 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest1);
@@ -1074,13 +898,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0004, testing::ext::TestS
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0004";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, ok);
@@ -1088,7 +905,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0004, testing::ext::TestS
         Uri testUri("");
         Uri sourceFileUri("~!@#$%^&*()_");
         result = fah->Move(sourceFileUri, newDirUriTest, testUri);
-        EXPECT_EQ(result, error);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Move_0004 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest);
@@ -1112,13 +929,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0005, testing::ext::TestS
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0005";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test1", newDirUriTest);
         EXPECT_EQ(result, ok);
@@ -1130,7 +940,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0005, testing::ext::TestS
         Uri testUri2("");
         Uri targetParentUri("");
         result = fah->Move(testUri, targetParentUri, testUri2);
-        EXPECT_EQ(result, error);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Move_0005 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest);
@@ -1154,13 +964,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0006, testing::ext::TestS
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0006";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         int result = fah->Mkdir(newDirUri, "test1", newDirUriTest1);
@@ -1176,7 +979,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0006, testing::ext::TestS
         Uri testUri2("");
         Uri targetParentUri("storage/media/100/local/files/Download/test2");
         result = fah->Move(testUri, targetParentUri, testUri2);
-        EXPECT_EQ(result, error);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Move_0006 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest1);
@@ -1203,13 +1006,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0007, testing::ext::TestS
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0007";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         int result = fah->Mkdir(newDirUri, "test1", newDirUriTest1);
@@ -1225,7 +1021,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0007, testing::ext::TestS
         Uri testUri2("");
         Uri targetParentUri("~!@#$^%&*()_");
         result = fah->Move(testUri, targetParentUri, testUri2);
-        EXPECT_EQ(result, error);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Move_0007 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest1);
@@ -1252,13 +1048,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0008, testing::ext::TestS
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0008";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         int result = fah->Mkdir(newDirUri, "test1", newDirUriTest1);
@@ -1293,13 +1082,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0009, testing::ext::TestS
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0009";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         int result = fah->Mkdir(newDirUri, "test1", newDirUriTest1);
@@ -1340,13 +1122,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0010, testing::ext::TestS
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0010";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         int result = fah->Mkdir(newDirUri, "test1", newDirUriTest1);
@@ -1387,13 +1162,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0000, testing::ext::Tes
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Rename_0000";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, ok);
@@ -1428,13 +1196,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0001, testing::ext::Tes
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Rename_0001";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, ok);
@@ -1465,17 +1226,10 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0002, testing::ext::Tes
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Rename_0002";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-
         Uri renameUri("");
         Uri sourceFileUri("");
         int result = fah->Rename(sourceFileUri, "testRename.txt", renameUri);
-        EXPECT_EQ(result, error);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Rename_0002 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -1496,13 +1250,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0003, testing::ext::Tes
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Rename_0003";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, ok);
@@ -1514,7 +1261,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0003, testing::ext::Tes
         Uri renameUri("");
         Uri sourceFileUri("storage/media/100/local/files/Download/test/test.txt");
         result = fah->Rename(sourceFileUri, "testRename.txt", renameUri);
-        EXPECT_EQ(result, error);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Rename_0003 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest);
@@ -1538,17 +1285,10 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0004, testing::ext::Tes
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Rename_0004";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-
         Uri renameUri("");
         Uri sourceFileUri("~!@#$%^&*()_");
         int result = fah->Rename(sourceFileUri, "testRename.txt", renameUri);
-        EXPECT_EQ(result, error);
+        EXPECT_LT(result, ok);
         GTEST_LOG_(INFO) << "Rename_0004 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
@@ -1569,13 +1309,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0005, testing::ext::Tes
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Rename_0005";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, ok);
@@ -1586,7 +1319,9 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0005, testing::ext::Tes
 
         Uri renameUri("");
         result = fah->Rename(testUri, "", renameUri);
-        EXPECT_EQ(result, error);
+
+        int errorCode = 102825990;
+        EXPECT_EQ(result, errorCode);
         GTEST_LOG_(INFO) << "Rename_0005 result:" << result << endl;
 
         result = fah->Delete(newDirUriTest);
@@ -1610,13 +1345,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0000, testing::ext::T
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ListFile_0000";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, ok);
@@ -1650,13 +1378,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0001, testing::ext::T
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ListFile_0001";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri sourceFileUri("");
         std::vector<FileInfo> fileInfo = fah->ListFile(sourceFileUri);
         EXPECT_EQ(fileInfo.size(), 0);
@@ -1680,13 +1401,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0002, testing::ext::T
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ListFile_0002";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, ok);
@@ -1721,13 +1435,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0003, testing::ext::T
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ListFile_0003";
     try {
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        
         Uri sourceFileUri("~!@#$%^&*()_");
         std::vector<FileInfo> fileInfo = fah->ListFile(sourceFileUri);
         EXPECT_EQ(fileInfo.size(), 0);
@@ -1752,14 +1459,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_GetRoots_0000, testing::ext::T
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_GetRoots_0000";
     try {
         uint64_t selfTokenId_ = GetSelfTokenID();
-        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
-        sptr<IRemoteObject> &token = remoteObj;
-        AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
-        std::shared_ptr<FileAccessHelper> fah = FileAccessHelper::Creator(token, want);
-        sleep(1);
-
+        
         vector<DeviceInfo> info = fah->GetRoots();
         EXPECT_GT(info.size(), 0);
         GTEST_LOG_(INFO) << "GetRoots_0000 result:" << info.size() << endl;
