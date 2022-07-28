@@ -25,6 +25,7 @@ namespace FileAccessFwk {
 namespace {
     const std::string SCHEME_DATASHARE = "datashare";
 } 
+
 FileAccessHelper::FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
     const AAFwk::Want &want, const sptr<IFileAccessExtBase> &fileAccessExtProxy)
 {
