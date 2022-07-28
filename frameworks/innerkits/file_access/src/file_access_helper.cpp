@@ -53,7 +53,7 @@ FileAccessHelper::FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::C
 }
 
 FileAccessHelper::FileAccessHelper(const sptr<IRemoteObject> &token,
-        const std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> &cMap)
+    const std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> &cMap)
 {
     token_ = token;
     cMap_ = cMap;
@@ -254,7 +254,7 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
 }
 
 std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteObject> &token,
-        const std::vector<AAFwk::Want> &wants)
+    const std::vector<AAFwk::Want> &wants)
 {
     if (token == nullptr) {
         HILOG_ERROR("FileAccessHelper::Creator failed, token == nullptr");
