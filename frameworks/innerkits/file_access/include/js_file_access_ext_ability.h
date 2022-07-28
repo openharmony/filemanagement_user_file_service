@@ -28,8 +28,8 @@ namespace OHOS {
 namespace FileAccessFwk {
 using namespace AbilityRuntime;
 
-using InputArgsParser = std::function<bool(napi_env&, NativeValue* [], size_t&)>;
-using ResultValueParser = std::function<bool(napi_env&, NativeValue*)>;
+using InputArgsParser = std::function<bool(NativeEngine&, NativeValue* [], size_t&)>;
+using ResultValueParser = std::function<bool(NativeEngine&, NativeValue*)>;
 
 struct CallJsParam {
     std::mutex fileOperateMutex;
@@ -72,7 +72,7 @@ public:
 
 private:
     NativeValue* CallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
-    int CallJsMethod(const std::string &funcName, JsRuntime& jsRuntime, NativeReference *jsObj,
+    int CallJsMethod(const std::string &funcName, JsRuntime &jsRuntime, NativeReference *jsObj,
         InputArgsParser argParser, ResultValueParser retParser);
     void GetSrcPath(std::string &srcPath);
 
