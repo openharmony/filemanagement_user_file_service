@@ -222,11 +222,7 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
     Uri targetParentUri(targetParent.ToString());
 
     if (sourceFileUri.GetScheme() != targetParentUri.GetScheme()) {
-        if (sourceFileUri.GetScheme() == SCHEME_DATASHARE) {
-            return ERR_OPERATION_FAIL;
-        }
-
-        if (targetParentUri.GetScheme() == SCHEME_DATASHARE) {
+        if (sourceFileUri.GetScheme() == SCHEME_DATASHARE || targetParentUri.GetScheme() == SCHEME_DATASHARE) {
             return ERR_OPERATION_FAIL;
         }
     }
