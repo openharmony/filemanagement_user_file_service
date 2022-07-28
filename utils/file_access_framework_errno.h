@@ -23,7 +23,7 @@ namespace FileAccessFwk {
 enum {
     MODULE_FILE_ACCESS_FRAMEWORK = 0x01
 };
-constexpr ErrCode BASE_OFFSET = ErrCodeOffset(SUBSYS_FILEMANAGEMENT, MODULE_FILE_ACCESS_FRAMEWORK);
+constexpr ErrCode BASE_OFFSET = -ErrCodeOffset(SUBSYS_FILEMANAGEMENT, MODULE_FILE_ACCESS_FRAMEWORK);
 enum {
     ERR_OK = 0,
     ERR_ERROR = -1,
@@ -34,7 +34,8 @@ enum {
     ERR_URI_CHECK,                          // check uri head fail
     ERR_FILEIO_FAIL,                        // fileio fail
     ERR_INVALID_PARAM,                      // invalid parameter
-    ERR_PARSER_FAIL                         // parser js result error
+    ERR_PARSER_FAIL,                        // parser js result error
+    ERR_OPERATION_FAIL                      // Operation not allowed
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
