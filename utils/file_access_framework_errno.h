@@ -23,7 +23,7 @@ namespace FileAccessFwk {
 enum {
     MODULE_FILE_ACCESS_FRAMEWORK = 0x01
 };
-constexpr ErrCode BASE_OFFSET = -ErrCodeOffset(SUBSYS_FILEMANAGEMENT, MODULE_FILE_ACCESS_FRAMEWORK);
+constexpr ErrCode BASE_OFFSET = ErrCodeOffset(SUBSYS_FILEMANAGEMENT, MODULE_FILE_ACCESS_FRAMEWORK);
 enum {
     ERR_OK = 0,
     ERR_ERROR = -1,
