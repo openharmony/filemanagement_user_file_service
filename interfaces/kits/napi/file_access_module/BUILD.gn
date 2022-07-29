@@ -50,6 +50,5 @@ ohos_shared_library("fileaccess") {
     "ipc:ipc_core",
     "napi:ace_napi",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
   ]
 }
