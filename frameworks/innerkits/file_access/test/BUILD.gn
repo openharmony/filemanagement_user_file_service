@@ -46,10 +46,10 @@ ohos_unittest("file_access_helper_test") {
     "ability_runtime:runtime",
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
+    "c_utils:utils",
     "ipc:ipc_core",
     "ipc_js:rpc",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
   ]
 }
 
@@ -85,10 +85,10 @@ ohos_unittest("file_extension_helper_test") {
     "ability_runtime:runtime",
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
+    "c_utils:utils",
     "ipc:ipc_core",
     "ipc_js:rpc",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
   ]
 }
 

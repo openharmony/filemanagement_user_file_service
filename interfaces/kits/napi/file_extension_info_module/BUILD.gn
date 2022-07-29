@@ -44,5 +44,6 @@ ohos_shared_library("fileextensioninfo") {
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
+    "c_utils:utils",
   ]
 }

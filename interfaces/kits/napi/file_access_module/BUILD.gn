@@ -45,6 +45,7 @@ ohos_shared_library("fileaccess") {
     "ability_runtime:abilitykit_native",
     "ability_runtime:napi_base_context",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",

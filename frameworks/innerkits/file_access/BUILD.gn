@@ -87,6 +87,7 @@ ohos_shared_library("file_access_extension_ability_kit") {
     "ipc_js:rpc",
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
+    "c_utils:utils",
   ]
 
   public_deps = [
@@ -117,6 +118,7 @@ ohos_shared_library("file_access_extension_ability_module") {
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
+    "c_utils:utils",
   ]
 
   relative_install_dir = "extensionability/"
