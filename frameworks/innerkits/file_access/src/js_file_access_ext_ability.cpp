@@ -579,13 +579,13 @@ int JsFileAccessExtAbility::IsFileExist(const Uri &uri, bool &isExist)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "IsFileExist");
     auto ret = std::make_shared<bool>();
-    auto argParser = [uri](napi_env &env, NativeValue *argv[], size_t &argc) -> bool {
+    auto argParser = [uri](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
         NativeValue *nativeUri = engine.CreateString(uri.ToString().c_str(), uri.ToString().length());
         argv[ARGC_ZERO] = nativeUri;
         argc = ARGC_ONE;
         return true;
     };
-    auto retParser = [ret](napi_env &env, NativeValue *result) -> bool {
+    auto retParser = [ret](NativeEngine &engine, NativeValue *result) -> bool {
         bool res = ConvertFromJsValue(engine, result, *ret);
         if (!res) {
             HILOG_ERROR("Convert js value fail.");
