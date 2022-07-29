@@ -524,13 +524,14 @@ int FileAccessHelper::IsFileExist(Uri &uri, bool &isExist)
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "IsFileExist");
     int ret = ERR_ERROR;
 
-    if (!GetProxy()) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy_");
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxy(uri);
+    if (fileExtProxy == nullptr) {
+        HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    ret = fileAccessExtProxy_->IsFileExist(uri, isExist);
+    ret = fileExtProxy->IsFileExist(uri, isExist);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
