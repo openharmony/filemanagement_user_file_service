@@ -37,7 +37,7 @@ ohos_shared_library("fileextensioninfo") {
 
   external_deps = [
     "ability_base:zuri",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    "utils_base:utils",
   ]
 }
