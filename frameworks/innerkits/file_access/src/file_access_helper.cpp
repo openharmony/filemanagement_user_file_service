@@ -220,7 +220,6 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move");
     Uri sourceFileUri(sourceFile.ToString());
     Uri targetParentUri(targetParent.ToString());
-
     if (sourceFileUri.GetScheme() != targetParentUri.GetScheme()) {
         if (sourceFileUri.GetScheme() == SCHEME_DATASHARE || targetParentUri.GetScheme() == SCHEME_DATASHARE) {
             return ERR_OPERATION_FAIL;
