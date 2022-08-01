@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// @ts-nocheck
 import volumeManager from '@ohos.volumeManager'
 import fileExtensionInfo from "@ohos.fileExtensionInfo"
 if (!globalThis.volumeInfoList) {

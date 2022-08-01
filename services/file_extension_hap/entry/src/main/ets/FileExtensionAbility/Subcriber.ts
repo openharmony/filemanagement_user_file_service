@@ -12,6 +12,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+// @ts-nocheck
 import CommonEvent from '@ohos.commonevent'
 async function onReceiveEvent(callBack) {
     var subscribeInfo = {
