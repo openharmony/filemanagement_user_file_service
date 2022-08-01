@@ -49,7 +49,7 @@ ohos_unittest("file_access_helper_test") {
     "c_utils:utils",
     "ipc:ipc_core",
     "ipc_js:rpc",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 }
 
@@ -88,7 +88,7 @@ ohos_unittest("file_extension_helper_test") {
     "c_utils:utils",
     "ipc:ipc_core",
     "ipc_js:rpc",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 }
 
