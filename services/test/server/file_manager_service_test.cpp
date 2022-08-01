@@ -22,7 +22,7 @@
 #include "file_manager_service_def.h"
 #include "file_manager_service_stub.h"
 #include "ifms_client.h"
-#include "media_data_ability_const.h"
+#include "medialibrary_db_const.h"
 #include "media_file_oper.h"
 
 namespace {

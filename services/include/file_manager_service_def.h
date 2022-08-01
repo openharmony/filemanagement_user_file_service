@@ -18,8 +18,8 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include "media_data_ability_const.h"
-#include "media_lib_service_const.h"
+#include "medialibrary_db_const.h"
+#include "medialibrary_type_const.h"
 
 namespace OHOS {
 namespace FileManagerService {
