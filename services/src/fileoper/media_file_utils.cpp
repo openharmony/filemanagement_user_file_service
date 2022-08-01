@@ -23,7 +23,7 @@
 #include "file_manager_service_errno.h"
 #include "log.h"
 #include "media_asset.h"
-#include "media_data_ability_const.h"
+#include "medialibrary_db_const.h"
 #include "rdb_errno.h"
 #include "values_bucket.h"
 

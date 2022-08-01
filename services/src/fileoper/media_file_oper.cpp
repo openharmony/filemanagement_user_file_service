@@ -27,7 +27,7 @@
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
 #include "log.h"
-#include "media_data_ability_const.h"
+#include "medialibrary_db_const.h"
 #include "media_file_utils.h"
 
 using namespace std;

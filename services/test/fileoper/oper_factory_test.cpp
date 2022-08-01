@@ -19,7 +19,7 @@
 #include "abs_shared_result_set.h"
 #include "file_manager_service_def.h"
 #include "file_manager_service_stub.h"
-#include "media_data_ability_const.h"
+#include "medialibrary_db_const.h"
 
 namespace {
 using namespace std;
