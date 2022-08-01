@@ -19,6 +19,7 @@
 #include "accesstoken_kit.h"
 #include "extension_context.h"
 #include "file_access_ext_stub_impl.h"
+#include "file_access_extension_info.h"
 #include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
@@ -27,7 +28,6 @@
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
-#include "napi_common_fileaccess.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
@@ -165,11 +165,11 @@ static int DoCallJsMethod(CallJsParam *param)
         return ERR_INVALID_PARAM;
     }
     HandleScope handleScope(*jsRuntime);
-    napi_env env = reinterpret_cast<napi_env>(&jsRuntime->GetNativeEngine());
+    auto& nativeEngine = jsRuntime->GetNativeEngine();
     size_t argc = 0;
     NativeValue *argv[MAX_ARG_COUNT] = { nullptr };
     if (param->argParser != nullptr) {
-        if (!param->argParser(env, argv, argc)) {
+        if (!param->argParser(nativeEngine, argv, argc)) {
             HILOG_ERROR("failed to get params.");
             FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return ERR_INVALID_PARAM;
@@ -198,8 +198,7 @@ static int DoCallJsMethod(CallJsParam *param)
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_PARAM;
     }
-    auto& nativeEngine = jsRuntime->GetNativeEngine();
-    if (!param->retParser(env, handleScope.Escape(nativeEngine.CallFunction(value, method, argv, argc)))) {
+    if (!param->retParser(nativeEngine, handleScope.Escape(nativeEngine.CallFunction(value, method, argv, argc)))) {
         HILOG_INFO("Parser js result fail.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARSER_FAIL;
@@ -239,7 +238,7 @@ int JsFileAccessExtAbility::CallJsMethod(const std::string &funcName, JsRuntime 
                 break;
             }
             if (DoCallJsMethod(param) != ERR_OK) {
-                HILOG_ERROR("failed to call DoAsnycWork.");
+                HILOG_ERROR("failed to call DoCallJsMethod.");
             }
         } while (false);
         std::unique_lock<std::mutex> lock(param->fileOperateMutex);
@@ -286,29 +285,28 @@ int JsFileAccessExtAbility::OpenFile(const Uri &uri, int flags)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
     auto fd = std::make_shared<int>();
-    auto argParser = [uri, flags](napi_env &env, NativeValue *argv[], size_t &argc) -> bool {
-        napi_value napiUri = nullptr;
-        napi_status status = napi_create_string_utf8(env, uri.ToString().c_str(), NAPI_AUTO_LENGTH, &napiUri);
-        if (status != napi_ok) {
-            HILOG_ERROR("create uri fail.");
+    auto argParser = [uri, flags](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
+        NativeValue *nativeUri = engine.CreateString(uri.ToString().c_str(), uri.ToString().length());
+        if (nativeUri == nullptr) {
+            HILOG_ERROR("create uri native js value fail.");
             return false;
         }
-        napi_value napiFlags = nullptr;
-        status = napi_create_int32(env, flags, &napiFlags);
-        if (status != napi_ok) {
-            HILOG_ERROR("create flags fail.");
+        NativeValue *nativeFlags = engine.CreateNumber((int32_t)flags);
+        if (nativeFlags == nullptr) {
+            HILOG_ERROR("create flags native js value fail.");
             return false;
         }
-        NativeValue *nativeUri = reinterpret_cast<NativeValue*>(napiUri);
-        NativeValue *nativeFlags = reinterpret_cast<NativeValue*>(napiFlags);
         argv[ARGC_ZERO] = nativeUri;
         argv[ARGC_ONE] = nativeFlags;
         argc = ARGC_TWO;
         return true;
     };
-    auto retParser = [fd](napi_env &env, NativeValue *result) -> bool {
-        *fd = UnwrapInt32FromJS(env, reinterpret_cast<napi_value>(result));
-        return true;
+    auto retParser = [fd](NativeEngine &engine, NativeValue *result) -> bool {
+        bool ret = ConvertFromJsValue(engine, result, *fd);
+        if (!ret) {
+            HILOG_ERROR("Convert js value fail.");
+        }
+        return ret;
     };
 
     auto errCode = CallJsMethod("openFile", jsRuntime_, jsObj_.get(), argParser, retParser);
@@ -325,29 +323,28 @@ int JsFileAccessExtAbility::CreateFile(const Uri &parent, const std::string &dis
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
     auto uri = std::make_shared<std::string>();
-    auto argParser = [parent, displayName](napi_env &env, NativeValue *argv[], size_t &argc) -> bool {
-        napi_value napiParent = nullptr;
-        napi_status status = napi_create_string_utf8(env, parent.ToString().c_str(), NAPI_AUTO_LENGTH, &napiParent);
-        if (status != napi_ok) {
-            HILOG_ERROR("create parent uri fail.");
+    auto argParser = [parent, displayName](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
+        NativeValue *nativeParent = engine.CreateString(parent.ToString().c_str(), parent.ToString().length());
+        if (nativeParent == nullptr) {
+            HILOG_ERROR("create parent uri native js value fail.");
             return false;
         }
-        napi_value napiDisplayName = nullptr;
-        status = napi_create_string_utf8(env, displayName.c_str(), NAPI_AUTO_LENGTH, &napiDisplayName);
-        if (status != napi_ok) {
-            HILOG_ERROR("create displayName fail.");
+        NativeValue *nativeDisplayName = engine.CreateString(displayName.c_str(), displayName.length());
+        if (nativeDisplayName == nullptr) {
+            HILOG_ERROR("create displayName native js value fail.");
             return false;
         }
-        NativeValue *nativeParent = reinterpret_cast<NativeValue*>(napiParent);
-        NativeValue *nativeDisplayName = reinterpret_cast<NativeValue*>(napiDisplayName);
         argv[ARGC_ZERO] = nativeParent;
         argv[ARGC_ONE] = nativeDisplayName;
         argc = ARGC_TWO;
         return true;
     };
-    auto retParser = [uri](napi_env &env, NativeValue *result) -> bool {
-        *uri = UnwrapStringFromJS(env, reinterpret_cast<napi_value>(result));
-        return true;
+    auto retParser = [uri](NativeEngine &engine, NativeValue *result) -> bool {
+        bool ret = ConvertFromJsValue(engine, result, *uri);
+        if (!ret) {
+            HILOG_ERROR("Convert js value fail.");
+        }
+        return ret;
     };
 
     auto errCode = CallJsMethod("createFile", jsRuntime_, jsObj_.get(), argParser, retParser);
@@ -370,29 +367,28 @@ int JsFileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayN
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Mkdir");
     auto uri = std::make_shared<std::string>();
-    auto argParser = [parent, displayName](napi_env &env, NativeValue *argv[], size_t &argc) -> bool {
-        napi_value napiParent = nullptr;
-        napi_status status = napi_create_string_utf8(env, parent.ToString().c_str(), NAPI_AUTO_LENGTH, &napiParent);
-        if (status != napi_ok) {
-            HILOG_ERROR("create parent uri fail.");
+    auto argParser = [parent, displayName](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
+        NativeValue *nativeParent = engine.CreateString(parent.ToString().c_str(), parent.ToString().length());
+        if (nativeParent == nullptr) {
+            HILOG_ERROR("create parent uri native js value fail.");
             return false;
         }
-        napi_value napiDisplayName = nullptr;
-        status = napi_create_string_utf8(env, displayName.c_str(), NAPI_AUTO_LENGTH, &napiDisplayName);
-        if (status != napi_ok) {
-            HILOG_ERROR("create displayName fail.");
+        NativeValue *nativeDisplayName = engine.CreateString(displayName.c_str(), displayName.length());
+        if (nativeDisplayName == nullptr) {
+            HILOG_ERROR("create displayName native js value fail.");
             return false;
         }
-        NativeValue *nativeParent = reinterpret_cast<NativeValue*>(napiParent);
-        NativeValue *nativeDisplayName = reinterpret_cast<NativeValue*>(napiDisplayName);
         argv[ARGC_ZERO] = nativeParent;
         argv[ARGC_ONE] = nativeDisplayName;
         argc = ARGC_TWO;
         return true;
     };
-    auto retParser = [uri](napi_env &env, NativeValue *result) -> bool {
-        *uri = UnwrapStringFromJS(env, reinterpret_cast<napi_value>(result));
-        return true;
+    auto retParser = [uri](NativeEngine &engine, NativeValue *result) -> bool {
+        bool ret = ConvertFromJsValue(engine, result, *uri);
+        if (!ret) {
+            HILOG_ERROR("Convert js value fail.");
+        }
+        return ret;
     };
 
     auto errCode = CallJsMethod("mkdir", jsRuntime_, jsObj_.get(), argParser, retParser);
@@ -415,22 +411,22 @@ int JsFileAccessExtAbility::Delete(const Uri &sourceFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
     auto ret = std::make_shared<int>();
-    auto argParser = [sourceFile](napi_env &env, NativeValue *argv[], size_t &argc) -> bool {
-        napi_value napiUri = nullptr;
-        napi_status status = napi_create_string_utf8(env, sourceFile.ToString().c_str(), NAPI_AUTO_LENGTH, &napiUri);
-        if (status != napi_ok) {
-            HILOG_ERROR("create parent uri fail.");
+    auto argParser = [uri = sourceFile](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
+        NativeValue *nativeUri = engine.CreateString(uri.ToString().c_str(), uri.ToString().length());
+        if (nativeUri == nullptr) {
+            HILOG_ERROR("create sourceFile uri native js value fail.");
             return false;
         }
-        NativeValue *nativeUri = reinterpret_cast<NativeValue*>(napiUri);
         argv[ARGC_ZERO] = nativeUri;
         argc = ARGC_ONE;
         return true;
     };
-    auto retParser = [ret](napi_env &env, NativeValue *result) -> bool {
-        *ret = UnwrapInt32FromJS(env, reinterpret_cast<napi_value>(result));
-        HILOG_INFO("delete ret code:%{public}d", *ret);
-        return true;
+    auto retParser = [ret](NativeEngine &engine, NativeValue *result) -> bool {
+        bool res = ConvertFromJsValue(engine, result, *ret);
+        if (!res) {
+            HILOG_ERROR("Convert js value fail.");
+        }
+        return res;
     };
 
     auto errCode = CallJsMethod("delete", jsRuntime_, jsObj_.get(), argParser, retParser);
@@ -447,30 +443,30 @@ int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent,
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move");
     auto uri = std::make_shared<std::string>();
-    auto argParser = [sourceFile, targetParent](napi_env &env, NativeValue* argv[], size_t &argc) -> bool {
-        napi_value napiSourceFile = nullptr;
-        napi_status status = napi_create_string_utf8(env, sourceFile.ToString().c_str(),
-            NAPI_AUTO_LENGTH, &napiSourceFile);
-        if (status != napi_ok) {
-            HILOG_ERROR("create sourceFile uri fail.");
+    auto argParser = [sourceFile, targetParent](NativeEngine &engine, NativeValue* argv[], size_t &argc) -> bool {
+        NativeValue *srcUri = engine.CreateString(sourceFile.ToString().c_str(),
+            sourceFile.ToString().length());
+        if (srcUri == nullptr) {
+            HILOG_ERROR("create sourceFile uri native js value fail.");
             return false;
         }
-        napi_value napiTargetParent = nullptr;
-        status = napi_create_string_utf8(env, targetParent.ToString().c_str(), NAPI_AUTO_LENGTH, &napiTargetParent);
-        if (status != napi_ok) {
-            HILOG_ERROR("create targetParent uri fail.");
+        NativeValue *dstUri = engine.CreateString(targetParent.ToString().c_str(),
+            targetParent.ToString().length());
+        if (dstUri == nullptr) {
+            HILOG_ERROR("create targetParent uri native js value fail.");
             return false;
         }
-        NativeValue *nativeSourceFile = reinterpret_cast<NativeValue*>(napiSourceFile);
-        NativeValue *nativeTargetParent = reinterpret_cast<NativeValue*>(napiTargetParent);
-        argv[ARGC_ZERO] = nativeSourceFile;
-        argv[ARGC_ONE] = nativeTargetParent;
+        argv[ARGC_ZERO] = srcUri;
+        argv[ARGC_ONE] = dstUri;
         argc = ARGC_TWO;
         return true;
     };
-    auto retParser = [uri](napi_env &env, NativeValue *result) -> bool {
-        *uri = UnwrapStringFromJS(env, reinterpret_cast<napi_value>(result));
-        return true;
+    auto retParser = [uri](NativeEngine &engine, NativeValue *result) -> bool {
+        bool ret = ConvertFromJsValue(engine, result, *uri);
+        if (!ret) {
+            HILOG_ERROR("Convert js value fail.");
+        }
+        return ret;
     };
 
     auto errCode = CallJsMethod("move", jsRuntime_, jsObj_.get(), argParser, retParser);
@@ -493,30 +489,29 @@ int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &dis
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Rename");
     auto uri = std::make_shared<std::string>();
-    auto argParser = [sourceFile, displayName](napi_env &env, NativeValue *argv[], size_t &argc) -> bool {
-        napi_value napiSourceFile = nullptr;
-        napi_status status = napi_create_string_utf8(env, sourceFile.ToString().c_str(),
-            NAPI_AUTO_LENGTH, &napiSourceFile);
-        if (status != napi_ok) {
-            HILOG_ERROR("create sourceFile uri fail.");
+    auto argParser = [sourceFile, displayName](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
+        NativeValue *nativeSourceFile = engine.CreateString(sourceFile.ToString().c_str(),
+            sourceFile.ToString().length());
+        if (nativeSourceFile == nullptr) {
+            HILOG_ERROR("create sourceFile uri native js value fail.");
             return false;
         }
-        napi_value napiDisplayName = nullptr;
-        status = napi_create_string_utf8(env, displayName.c_str(), NAPI_AUTO_LENGTH, &napiDisplayName);
-        if (status != napi_ok) {
-            HILOG_ERROR("create displayName fail.");
+        NativeValue *nativeDisplayName = engine.CreateString(displayName.c_str(), displayName.length());
+        if (nativeDisplayName == nullptr) {
+            HILOG_ERROR("create displayName native js value fail.");
             return false;
         }
-        NativeValue *nativeSourceFile = reinterpret_cast<NativeValue*>(napiSourceFile);
-        NativeValue *nativeDisplayName = reinterpret_cast<NativeValue*>(napiDisplayName);
         argv[ARGC_ZERO] = nativeSourceFile;
         argv[ARGC_ONE] = nativeDisplayName;
         argc = ARGC_TWO;
         return true;
     };
-    auto retParser = [uri](napi_env &env, NativeValue *result) -> bool {
-        *uri = UnwrapStringFromJS(env, reinterpret_cast<napi_value>(result));
-        return true;
+    auto retParser = [uri](NativeEngine &engine, NativeValue *result) -> bool {
+        bool ret = ConvertFromJsValue(engine, result, *uri);
+        if (!ret) {
+            HILOG_ERROR("Convert js value fail.");
+        }
+        return ret;
     };
 
     auto errCode = CallJsMethod("rename", jsRuntime_, jsObj_.get(), argParser, retParser);
@@ -539,20 +534,42 @@ std::vector<FileInfo> JsFileAccessExtAbility::ListFile(const Uri &sourceFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
     auto fileVec = std::make_shared<std::vector<FileInfo>>();
-    auto argParser = [sourceFile](napi_env &env, NativeValue *argv[], size_t &argc) -> bool {
-        napi_value napiUri = nullptr;
-        napi_status status = napi_create_string_utf8(env, sourceFile.ToString().c_str(), NAPI_AUTO_LENGTH, &napiUri);
-        if (status != napi_ok) {
-            HILOG_ERROR("create sourceFile uri fail.");
+    auto argParser = [sourceFile](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
+        NativeValue *uri = engine.CreateString(sourceFile.ToString().c_str(), sourceFile.ToString().length());
+        if (uri == nullptr) {
+            HILOG_ERROR("create sourceFile uri native js value fail.");
             return false;
         }
-        NativeValue *nativeUri = reinterpret_cast<NativeValue*>(napiUri);
-        argv[ARGC_ZERO] = nativeUri;
+        argv[ARGC_ZERO] = uri;
         argc = ARGC_ONE;
         return true;
     };
-    auto retParser = [fileVec](napi_env &env, NativeValue *result) -> bool {
-        return UnwrapArrayFileInfoFromJS(env, reinterpret_cast<napi_value>(result), *fileVec);
+    auto retParser = [fileVec](NativeEngine &engine, NativeValue *result) -> bool {
+        if (!result->IsArray()) {
+            HILOG_INFO("result is not array.");
+            return false;
+        }
+
+        NativeArray *nativeArray = ConvertNativeValueTo<NativeArray>(result);
+        for (uint32_t i = 0; i < nativeArray->GetLength(); i++) {
+            NativeValue *nativeFileInfo = nativeArray->GetElement(i);
+            NativeObject *obj = ConvertNativeValueTo<NativeObject>(nativeFileInfo);
+            FileInfo fileInfo;
+            std::string uri;
+            bool ret = ConvertFromJsValue(engine, obj->GetProperty("uri"), uri);
+            fileInfo.uri = Uri(uri);
+            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("fileName"), fileInfo.fileName);
+            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("mode"), fileInfo.mode);
+            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("size"), fileInfo.size);
+            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("mtime"), fileInfo.mtime);
+            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("mimeType"), fileInfo.mimeType);
+            if (!ret) {
+                HILOG_ERROR("Convert js value fail.");
+                return ret;
+            }
+            (*fileVec).emplace_back(std::move(fileInfo));
+        }
+        return true;
     };
 
     auto errCode = CallJsMethod("listFile", jsRuntime_, jsObj_.get(), argParser, retParser);
@@ -567,12 +584,34 @@ std::vector<DeviceInfo> JsFileAccessExtAbility::GetRoots()
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
     auto devVec = std::make_shared<std::vector<DeviceInfo>>();
-    auto argParser = [](napi_env &env, NativeValue *argv[], size_t &argc) -> bool {
+    auto argParser = [](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
         argc = ARGC_ZERO;
         return true;
     };
-    auto retParser = [devVec](napi_env &env, NativeValue *result) -> bool {
-        return UnwrapArrayDeviceInfoFromJS(env, reinterpret_cast<napi_value>(result), *devVec);
+    auto retParser = [devVec](NativeEngine &engine, NativeValue *result) -> bool {
+        if (!result->IsArray()) {
+            HILOG_INFO("result is not array.");
+            return false;
+        }
+        NativeArray *nativeArray = ConvertNativeValueTo<NativeArray>(result);
+        for (uint32_t i = 0; i < nativeArray->GetLength(); i++) {
+            NativeValue *nativeDeviceInfo = nativeArray->GetElement(i);
+            NativeObject *obj = ConvertNativeValueTo<NativeObject>(nativeDeviceInfo);
+            DeviceInfo deviceInfo;
+            std::string uri;
+            bool ret = ConvertFromJsValue(engine, obj->GetProperty("uri"), uri);
+            deviceInfo.uri = Uri(uri);
+            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("displayName"), deviceInfo.displayName);
+            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("deviceId"), deviceInfo.deviceId);
+            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("flags"), deviceInfo.flags);
+            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("type"), deviceInfo.type);
+            if (!ret) {
+                HILOG_ERROR("Convert js value fail.");
+                return ret;
+            }
+            (*devVec).emplace_back(std::move(deviceInfo));
+        }
+        return true;
     };
 
     auto errCode = CallJsMethod("getRoots", jsRuntime_, jsObj_.get(), argParser, retParser);
@@ -587,20 +626,18 @@ int JsFileAccessExtAbility::IsFileExist(const Uri &uri, bool &isExist)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "IsFileExist");
     auto ret = std::make_shared<bool>();
-    auto argParser = [uri](napi_env &env, NativeValue *argv[], size_t &argc) -> bool {
-        napi_value napiUri = nullptr;
-        napi_status status = napi_create_string_utf8(env, uri.ToString().c_str(), NAPI_AUTO_LENGTH, &napiUri);
-        if (status != napi_ok) {
-            HILOG_ERROR("create parent uri fail.");
-            return false;
-        }
-        NativeValue *nativeUri = reinterpret_cast<NativeValue*>(napiUri);
+    auto argParser = [uri](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
+        NativeValue *nativeUri = engine.CreateString(uri.ToString().c_str(), uri.ToString().length());
         argv[ARGC_ZERO] = nativeUri;
         argc = ARGC_ONE;
         return true;
     };
-    auto retParser = [ret](napi_env &env, NativeValue *result) -> bool {
-        return UnwrapBoolFromJS2(env, reinterpret_cast<napi_value>(result), *ret);
+    auto retParser = [ret](NativeEngine &engine, NativeValue *result) -> bool {
+        bool res = ConvertFromJsValue(engine, result, *ret);
+        if (!res) {
+            HILOG_ERROR("Convert js value fail.");
+        }
+        return res;
     };
 
     auto errCode = CallJsMethod("isFileExist", jsRuntime_, jsObj_.get(), argParser, retParser);
