@@ -34,7 +34,8 @@ enum {
     ERR_URI_CHECK,                          // check uri head fail
     ERR_FILEIO_FAIL,                        // fileio fail
     ERR_INVALID_PARAM,                      // invalid parameter
-    ERR_PARSER_FAIL                         // parser js result error
+    ERR_PARSER_FAIL,                        // parser js result error
+    ERR_OPERATION_NOT_PERMITTED             // Operation not permitted
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

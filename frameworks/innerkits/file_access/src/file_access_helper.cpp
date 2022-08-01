@@ -427,6 +427,13 @@ int FileAccessHelper::Delete(Uri &selectFile)
 int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move");
+    Uri sourceFileUri(sourceFile.ToString());
+    Uri targetParentUri(targetParent.ToString());
+    if (sourceFileUri.GetScheme() != targetParentUri.GetScheme()) {
+        HILOG_WARN("Operation failed, move not supported");
+        return ERR_OPERATION_NOT_PERMITTED;
+    }
+
     int index = ERR_ERROR;
     sptr<IFileAccessExtBase> fileExtProxy = GetProxy(sourceFile);
     if (fileExtProxy == nullptr) {
