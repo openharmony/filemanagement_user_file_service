@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// @ts-nocheck
 import Extension from '@ohos.application.FileAccessExtensionAbility'
 import fileio from '@ohos.fileio'
 import { init, delVolumeInfo, getVolumeInfoList } from './VolumeManager'
