@@ -57,10 +57,6 @@ void NapiNotifyCallback::OnNotify(const NotifyMessage& message)
         [](uv_work_t *work) {},
         [](uv_work_t *work, int status) {
             CallbackParam *param = reinterpret_cast<CallbackParam *>(work->data);
-            HILOG_INFO("CallBack Notify,device:%{public}d,notifyType:%{public}d,srcUri:%{public}s,dstUri:%{public}s",
-                (int)param->message_.deviceType, (int)param->message_.notifyType,
-                param->message_.srcUri.c_str(), param->message_.dstUri.c_str());
-
             NVal napiNotifyMessage = NVal::CreateObject(param->callback_->env_);
             napiNotifyMessage.AddProp("deviceType",
                 NVal::CreateInt32(param->callback_->env_, (int32_t)param->message_.deviceType).val_);
@@ -80,11 +76,8 @@ void NapiNotifyCallback::OnNotify(const NotifyMessage& message)
             napi_status ret = napi_call_function(param->callback_->env_, global, callback, ARGS_ONE, args, &result);
             if (ret != napi_ok) {
                 HILOG_ERROR("Notify failed, status:%{public}d.", ret);
-                delete param;
-                delete work;
-                return;
             }
-            HILOG_INFO("CallBack js notify success.");
+            HILOG_INFO("CallBack js notify end.");
             delete param;
             delete work;
         });

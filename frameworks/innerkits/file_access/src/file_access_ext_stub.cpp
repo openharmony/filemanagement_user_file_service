@@ -459,7 +459,6 @@ ErrCode FileAccessExtStub::CmdRegisterNotify(MessageParcel &data, MessageParcel 
 
 ErrCode FileAccessExtStub::CmdUnregisterNotify(MessageParcel &data, MessageParcel &reply)
 {
-
     auto remote = data.ReadRemoteObject();
     if (remote == nullptr) {
         HILOG_INFO("get remote obj fail.");

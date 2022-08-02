@@ -42,18 +42,6 @@ namespace {
     constexpr uint32_t INITIAL_REFCOUNT = 1;
 }
 
-static std::string NapiValueToStringUtf8(napi_env env, napi_value value)
-{
-    std::string result = "";
-    return UnwrapStringFromJS(env, value, result);
-}
-
-static int NapiValueToInt32Utf8(napi_env env, napi_value value)
-{
-    int result = ERR_OK;
-    return UnwrapInt32FromJS(env, value, result);
-}
-
 std::list<std::shared_ptr<FileAccessHelper>> g_fileAccessHelperList;
 
 static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info info)
