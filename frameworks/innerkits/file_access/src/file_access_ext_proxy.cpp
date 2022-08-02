@@ -441,5 +441,59 @@ int FileAccessExtProxy::IsFileExist(const Uri &uri, bool &isExist)
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
+
+int FileAccessExtProxy::RegisterNotify(sptr<IFileAccessNotify> &notify)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return ERR_IPC_ERROR;
+    }
+    if (!data.WriteRemoteObject(notify->AsObject())) {
+        HILOG_ERROR("write subscribe type or parcel failed.");
+        return ERR_IPC_ERROR;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int err = Remote()->SendRequest(CMD_REGISTER_NOTIFY, data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+        return err;
+    }
+    err = reply.ReadInt32();
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to RegisterNotify. err: %{public}d", err);
+        return err;
+    }
+    return err;
+}
+
+int FileAccessExtProxy::UnregisterNotify(sptr<IFileAccessNotify> &notify)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return ERR_IPC_ERROR;
+    }
+    if (!data.WriteRemoteObject(notify->AsObject())) {
+        HILOG_ERROR("write subscribe type or parcel failed.");
+        return ERR_IPC_ERROR;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int err = Remote()->SendRequest(CMD_UNREGISTER_NOTIFY, data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+        return err;
+    }
+    err = reply.ReadInt32();
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to UnregisterNotify. err: %{public}d", err);
+        return err;
+    }
+    return err;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

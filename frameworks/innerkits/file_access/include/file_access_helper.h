@@ -25,7 +25,9 @@
 #include "context.h"
 #include "file_access_ext_connection.h"
 #include "file_access_extension_info.h"
+#include "file_access_notify_client.h"
 #include "ifile_access_ext_base.h"
+#include "inotify_callback.h"
 #include "iremote_object.h"
 #include "refbase.h"
 #include "uri.h"
@@ -55,8 +57,6 @@ public:
     static std::shared_ptr<FileAccessHelper> Creator(const sptr<IRemoteObject> &token,
         const std::vector<AAFwk::Want> &wants);
 
-    sptr<IFileAccessExtBase> GetProxy(Uri &uri);
-    bool GetProxy();
     bool Release();
     int IsFileExist(Uri &uri, bool &isExist);
     int OpenFile(Uri &uri, int flags);
@@ -67,8 +67,11 @@ public:
     int Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile);
     std::vector<FileInfo> ListFile(Uri &sourceFile);
     std::vector<DeviceInfo> GetRoots();
-
+    int On(std::shared_ptr<INotifyCallback> &callback);
+    int Off();
 private:
+    sptr<IFileAccessExtBase> GetProxyByUri(Uri &uri);
+    bool GetProxy();
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
     FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
         const std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> &cMap);
@@ -93,6 +96,7 @@ private:
     static std::string GetKeyOfWantsMap(const AAFwk::Want &want);
 
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
+    sptr<IFileAccessNotify> notifyClient_ = nullptr;
 };
 
 class FileAccessDeathRecipient : public IRemoteObject::DeathRecipient {

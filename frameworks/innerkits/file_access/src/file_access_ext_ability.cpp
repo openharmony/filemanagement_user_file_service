@@ -106,5 +106,55 @@ int FileAccessExtAbility::IsFileExist(const Uri &uri, bool &isExist)
 {
     return ERR_OK;
 }
+
+bool FileAccessExtAbility::GetNotifyManager()
+{
+    if (notifyManager_ == nullptr) {
+        notifyManager_ = std::make_unique<FileAccessNotifyManager>();
+        if (notifyManager_ == nullptr) {
+            return false;
+        }
+    }
+    return true;
+}
+
+int FileAccessExtAbility::RegisterNotify(sptr<IFileAccessNotify> &notify)
+{
+    if (!GetNotifyManager()) {
+        HILOG_ERROR("GetNotifyManager fail.");
+        return ERR_ERROR;
+    }
+    int ret = notifyManager_->RegisterNotify(notify);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("NotifyManager register notify fail.");
+    }
+    return ret;
+}
+
+int FileAccessExtAbility::UnregisterNotify(sptr<IFileAccessNotify> &notify)
+{
+    if (!GetNotifyManager()) {
+        HILOG_ERROR("GetNotifyManager fail.");
+        return ERR_ERROR;
+    }
+    int ret = notifyManager_->UnregisterNotify(notify);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("NotifyManager unregister notify fail.");
+    }
+    return ret;
+}
+
+int FileAccessExtAbility::Notify(const NotifyMessage& message)
+{
+    if (!GetNotifyManager()) {
+        HILOG_ERROR("GetNotifyManager fail.");
+        return ERR_ERROR;
+    }
+    int ret = notifyManager_->Notify(message);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("NotifyManager handle notify fail.");
+    }
+    return ret;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

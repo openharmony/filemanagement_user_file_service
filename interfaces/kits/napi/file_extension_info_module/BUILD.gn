@@ -25,7 +25,8 @@ ohos_shared_library("fileextensioninfo") {
     ".",
     "${UFS_BASE_PATH}/interfaces/kits/napi/common",
     "${FRAMEWORK_PATH}/innerkits/file_access/include",
-    "//foundation/filemanagement/user_file_service/utils",
+    "${FRAMEWORK_PATH}/innerkits/file_access/include/notify",
+    "${UFS_BASE_PATH}/utils",
   ]
 
   sources = [

@@ -313,11 +313,11 @@ bool FileAccessHelper::Release()
     return true;
 }
 
-sptr<IFileAccessExtBase> FileAccessHelper::GetProxy(Uri &uri)
+sptr<IFileAccessExtBase> FileAccessHelper::GetProxyByUri(Uri &uri)
 {
     auto connectInfo = GetConnectInfo(uri);
     if (connectInfo == nullptr) {
-        HILOG_ERROR("GetProxy failed with invalid connectInfo");
+        HILOG_ERROR("GetProxyByUri failed with invalid connectInfo");
         return nullptr;
     }
 
@@ -331,7 +331,7 @@ sptr<IFileAccessExtBase> FileAccessHelper::GetProxy(Uri &uri)
     }
 
     if (fileAccessExtProxy == nullptr) {
-        HILOG_ERROR("GetProxy failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("GetProxyByUri failed with invalid fileAccessExtProxy");
         return nullptr;
     }
 
@@ -364,7 +364,7 @@ int FileAccessHelper::OpenFile(Uri &uri, int flags)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
     int fd = ERR_ERROR;
-    sptr<IFileAccessExtBase> fileExtProxy = GetProxy(uri);
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -380,7 +380,7 @@ int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Ur
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
     int index = ERR_ERROR;
-    sptr<IFileAccessExtBase> fileExtProxy = GetProxy(parent);
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(parent);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -396,7 +396,7 @@ int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &ne
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Mkdir");
     int index = ERR_ERROR;
-    sptr<IFileAccessExtBase> fileExtProxy = GetProxy(parent);
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(parent);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -412,7 +412,7 @@ int FileAccessHelper::Delete(Uri &selectFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
     int index = ERR_ERROR;
-    sptr<IFileAccessExtBase> fileExtProxy = GetProxy(selectFile);
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(selectFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -435,7 +435,7 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
     }
 
     int index = ERR_ERROR;
-    sptr<IFileAccessExtBase> fileExtProxy = GetProxy(sourceFile);
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -451,7 +451,7 @@ int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Ur
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Rename");
     int index = ERR_ERROR;
-    sptr<IFileAccessExtBase> fileExtProxy = GetProxy(sourceFile);
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -467,7 +467,7 @@ std::vector<FileInfo> FileAccessHelper::ListFile(Uri &sourceFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
     std::vector<FileInfo> results;
-    sptr<IFileAccessExtBase> fileExtProxy = GetProxy(sourceFile);
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -531,7 +531,7 @@ int FileAccessHelper::IsFileExist(Uri &uri, bool &isExist)
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "IsFileExist");
     int ret = ERR_ERROR;
 
-    sptr<IFileAccessExtBase> fileExtProxy = GetProxy(uri);
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -540,6 +540,60 @@ int FileAccessHelper::IsFileExist(Uri &uri, bool &isExist)
 
     ret = fileExtProxy->IsFileExist(uri, isExist);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
+}
+
+int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)
+{
+    Uri uri("fileAccess://");
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
+    if (fileExtProxy == nullptr) {
+        HILOG_ERROR("failed with invalid fileExtProxy");
+        return ERR_IPC_ERROR;
+    }
+    if (callback == nullptr) {
+        HILOG_ERROR("failed with invalid callback");
+        return ERR_ERROR;
+    }
+    if (notifyClient_ != nullptr) {
+        HILOG_INFO("notifyClient registered yet.");
+        int ret = fileExtProxy->UnregisterNotify(notifyClient_);
+        if (ret != ERR_OK) {
+            HILOG_INFO("fileExtProxy unregisterNotify fail");
+        }
+        notifyClient_.clear();
+    }
+    notifyClient_ = new (std::nothrow) FileAccessNotifyClient(callback);
+    if (notifyClient_ == nullptr) {
+        HILOG_INFO("new FileAccessNotifyClient fail");
+        return ERR_ERROR;
+    }
+
+    auto ret = fileExtProxy->RegisterNotify(notifyClient_);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("fileExtProxy RegisterNotify fail");
+    }
+    return ret;
+}
+
+int FileAccessHelper::Off()
+{
+    if (notifyClient_ == nullptr) {
+        HILOG_ERROR("not registered notify");
+        return ERR_NOTIFY_NOT_EXIST;
+    }
+    Uri uri("fileAccess://");
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
+    if (fileExtProxy == nullptr) {
+        HILOG_ERROR("failed with invalid fileExtProxy");
+        return ERR_IPC_ERROR;
+    }
+
+    auto ret = fileExtProxy->UnregisterNotify(notifyClient_);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("fileExtProxy unregisterNotify fail");
+    }
+    notifyClient_.clear();
     return ret;
 }
 
