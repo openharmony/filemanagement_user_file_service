@@ -143,7 +143,6 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0000, testing::
             (g_infoManagerTestInfoParms, g_infoManagerTestPolicyPrams);
         OHOS::Security::AccessToken::AccessTokenID tokenId = tokenIdEx.tokenIdExStruct.tokenID;
         SetSelfTokenID(tokenId);
-        sleep(2); // sleep 2 seconds
 
         vector<DeviceInfo> info = fah->GetRoots();
         for (size_t i = 0; i < info.size(); i++) {
@@ -187,7 +186,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0001, testing::
     try {
         Uri uri("");
         int result = fah->OpenFile(uri, 0);
-        EXPECT_EQ(result, ERR_INVALID_FD);
+        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0001 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
@@ -217,7 +216,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0002, testing::
 
             Uri uri("storage/media/100/local/files/Download/file_extension_helper_OpenFile_0002.txt");
             result = fah->OpenFile(uri, 0);
-            EXPECT_EQ(result, ERR_INVALID_FD);
+            EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "OpenFile_0002 result:" << result << endl;
 
             result = fah->Delete(newFileUri);
@@ -244,7 +243,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0003, testing::
     try {
         Uri uri("~!@#$%^&*()_");
         int result = fah->OpenFile(uri, 0);
-        EXPECT_EQ(result, ERR_INVALID_FD);
+        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0003 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
