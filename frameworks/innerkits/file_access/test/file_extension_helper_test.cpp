@@ -868,7 +868,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0002, testing::ext:
             Uri testUri("");
             Uri sourceFileUri("");
             result = fah->Move(sourceFileUri, newDirUriTest, testUri);
-            EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(result, ERR_OPERATION_NOT_PERMITTED);
             GTEST_LOG_(INFO) << "Move_0002 result:" << result << endl;
             
             result = fah->Delete(newDirUriTest);
@@ -911,7 +911,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0003, testing::ext:
             Uri testUri2("");
             Uri sourceFileUri("storage/media/100/local/files/Download/test1/test.txt");
             result = fah->Move(sourceFileUri, newDirUriTest2, testUri2);
-            EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(result, ERR_OPERATION_NOT_PERMITTED);
             GTEST_LOG_(INFO) << "Move_0003 result:" << result << endl;
             
             result = fah->Delete(newDirUriTest1);
@@ -949,7 +949,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0004, testing::ext:
             Uri testUri("");
             Uri sourceFileUri("~!@#$%^&*()_");
             result = fah->Move(sourceFileUri, newDirUriTest, testUri);
-            EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(result, ERR_OPERATION_NOT_PERMITTED);
             GTEST_LOG_(INFO) << "Move_0004 result:" << result << endl;
             
             result = fah->Delete(newDirUriTest);
@@ -988,7 +988,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0005, testing::ext:
             Uri testUri2("");
             Uri targetParentUri("");
             result = fah->Move(testUri, targetParentUri, testUri2);
-            EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(result, ERR_OPERATION_NOT_PERMITTED);
             GTEST_LOG_(INFO) << "Move_0005 result:" << result << endl;
             
             result = fah->Delete(newDirUriTest);
@@ -1031,7 +1031,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0006, testing::ext:
             Uri testUri2("");
             Uri targetParentUri("storage/media/100/local/files/Download/test2");
             result = fah->Move(testUri, targetParentUri, testUri2);
-            EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(result, ERR_OPERATION_NOT_PERMITTED);
             GTEST_LOG_(INFO) << "Move_0006 result:" << result << endl;
             
             result = fah->Delete(newDirUriTest1);
@@ -1077,7 +1077,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0007, testing::ext:
             Uri testUri2("");
             Uri targetParentUri("~!@#$^%&*()_");
             result = fah->Move(testUri, targetParentUri, testUri2);
-            EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(result, ERR_OPERATION_NOT_PERMITTED);
             GTEST_LOG_(INFO) << "Move_0007 result:" << result << endl;
             
             result = fah->Delete(newDirUriTest1);
@@ -1613,10 +1613,90 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_GetRoots_0000, testing::
             GTEST_LOG_(INFO) << info[i].deviceId;
             GTEST_LOG_(INFO) << info[i].flags;
             GTEST_LOG_(INFO) << info[i].type;
+
+            string uri = info[i].uri.ToString();
+            string findStr = "external";
+            uint32_t flag = 58;
+            DeviceType type = DEVICE_LOCAL_DISK;
+
+            if (uri.find(findStr) == string::npos) {
+                type = DEVICE_SHARED_DISK;
+            }
+
+            EXPECT_EQ(info[i].flags, flag);
+            EXPECT_EQ(info[i].type, type);
         }
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_GetRoots_0000";
+}
+
+/**
+ * @tc.number: SUB_user_file_service_file_extension_helper_allInterface_0000
+ * @tc.name: file_extension_helper_allInterface_0000
+ * @tc.desc: Test function of allInterface interface for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileExtensionHelperTest, file_extension_helper_allInterface_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_allInterface_0000";
+    try {
+        uint64_t selfTokenId_ = GetSelfTokenID();
+
+        auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        auto remoteObj = saManager->GetSystemAbility(uid);
+        vector<AAFwk::Want> wants = FileAccessHelper::GetRegisterFileAccessExtAbilityInfo();
+        shared_ptr<FileAccessHelper> fahs = FileAccessHelper::Creator(remoteObj, wants);
+
+        vector<DeviceInfo> info = fahs->GetRoots();
+        for (size_t i = 0; i < info.size(); i++) {
+            Uri parentUri = info[i].uri;
+            string uri = parentUri.ToString();
+            GTEST_LOG_(INFO) << uri;
+
+            Uri documentUri("");
+            int result = fahs->Mkdir(parentUri, "Documents", documentUri);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+            Uri newDirUriTest1("");
+            Uri newDirUriTest2("");
+            result = fahs->Mkdir(documentUri, "test1", newDirUriTest1);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+            result = fahs->Mkdir(documentUri, "test2", newDirUriTest2);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+            Uri newFileUri("");
+            result = fahs->CreateFile(newDirUriTest1, "file_extension_helper_allInterface_0000.txt", newFileUri);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+            result = fahs->Rename(newFileUri, "test1.txt", newFileUri);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+            Uri moveUri("");
+            result = fahs->Move(newFileUri, newDirUriTest2, moveUri);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+            result = fahs->OpenFile(moveUri, 0);
+            EXPECT_GT(result, OHOS::FileAccessFwk::ERR_OK);
+
+            GTEST_LOG_(INFO) << "OpenFile_0000 result:" << result << endl;
+            
+            result = fahs->Delete(newDirUriTest1);
+            EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+
+            result = fahs->Delete(newDirUriTest2);
+            EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        }
+
+        SetSelfTokenID(selfTokenId_);
+    } catch (...) {
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_allInterface_0000";
 }
 } // namespace
