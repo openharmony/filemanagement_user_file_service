@@ -33,7 +33,7 @@ ohos_unittest("file_manager_proxy_test") {
 
   deps = [
     "$FMS_BASE_DIR:fms_server",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
   ]
 
@@ -43,7 +43,7 @@ ohos_unittest("file_manager_proxy_test") {
     "ipc:ipc_core",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 }
 
@@ -66,7 +66,7 @@ ohos_unittest("oper_factory_test") {
 
   deps = [
     "$FMS_BASE_DIR:fms_server",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
   ]
 
   external_deps = [
@@ -76,7 +76,7 @@ ohos_unittest("oper_factory_test") {
     "relational_store:native_appdatafwk",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 }
 
@@ -98,7 +98,7 @@ ohos_unittest("file_manager_service_test") {
   configs = [ "//build/config/compiler:exceptions" ]
   deps = [
     "$FMS_BASE_DIR:fms_server",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
   ]
 
   external_deps = [
@@ -108,7 +108,7 @@ ohos_unittest("file_manager_service_test") {
     "relational_store:native_appdatafwk",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 }
 

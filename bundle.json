@@ -28,7 +28,7 @@
                 "ipc",
                 "relational_store",
                 "safwk",
-                "samgr_standard"
+                "samgr"
             ]
         },
         "build": {
