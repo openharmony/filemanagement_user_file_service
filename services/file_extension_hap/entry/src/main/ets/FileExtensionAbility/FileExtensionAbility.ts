@@ -413,7 +413,7 @@ export default class FileExtAbility extends Extension {
             hilog.error(DOMAIN_CODE, TAG, 'isFileExist error ' + e.message);
             return {
                 isExist: false,
-                code: -1,
+                code: 0,
             };
         }
         return {
