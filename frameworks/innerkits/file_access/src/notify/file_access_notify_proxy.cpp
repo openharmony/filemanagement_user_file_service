@@ -37,6 +37,7 @@ void FileAccessNotifyProxy::Notify(const NotifyMessage& message)
         HILOG_ERROR("write parcel message failed");
         return;
     }
+
     int error = Remote()->SendRequest(CMD_NOTIFY, data, reply, option);
     if (error != 0) {
         HILOG_ERROR("SendRequest failed, error %{public}d", error);

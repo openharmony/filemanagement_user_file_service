@@ -30,7 +30,7 @@ int32_t FileAccessNotifyStub::OnRemoteRequest(uint32_t code, MessageParcel &data
         HILOG_ERROR("local descriptor is not equal to remote");
         return ERR_ERROR;
     }
-
+    HILOG_INFO("FileAccessNotifyStub::OnRemoteRequest, code:%{public}u", code);
     switch (code) {
         case CMD_NOTIFY: {
             std::shared_ptr<NotifyMessage> message(data.ReadParcelable<NotifyMessage>());

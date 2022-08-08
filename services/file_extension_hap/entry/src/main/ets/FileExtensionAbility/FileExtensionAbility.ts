@@ -37,7 +37,9 @@ export default class FileExtAbility extends Extension {
         onReceiveEvent(function (data) {
             if (data.event == 'usual.event.data.VOLUME_MOUNTED') {
                 let uri = path2uri('', data.parameters.path);
-                callbackFun(data.parameters.type, NotifyType.DEVICE_ONLINE, uri);
+                if (callbackFun != null) {
+                    callbackFun(data.parameters.type, NotifyType.DEVICE_ONLINE, uri);
+                }
                 process.exit(0);
             } else {
                 let uri = '';
@@ -47,7 +49,9 @@ export default class FileExtAbility extends Extension {
                     uri = volumeInfo.uri;
                     deviceType = volumeInfo.type;
                 }
-                callbackFun(deviceType, NotifyType.DEVICE_OFFLINE, uri);
+                if (callbackFun != null) {
+                    callbackFun(deviceType, NotifyType.DEVICE_OFFLINE, uri);
+                }
                 delVolumeInfo(data.parameters.id);
             }
         });

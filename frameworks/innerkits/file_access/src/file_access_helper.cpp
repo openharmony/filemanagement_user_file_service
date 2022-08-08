@@ -545,14 +545,17 @@ int FileAccessHelper::IsFileExist(Uri &uri, bool &isExist)
 
 int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "On");
     Uri uri("fileAccess://");
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileExtProxy");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_IPC_ERROR;
     }
     if (callback == nullptr) {
         HILOG_ERROR("failed with invalid callback");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_ERROR;
     }
     if (notifyClient_ != nullptr) {
@@ -563,9 +566,10 @@ int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)
         }
         notifyClient_.clear();
     }
-    notifyClient_ = new (std::nothrow) FileAccessNotifyClient(callback);
+    notifyClient_ = new(std::nothrow) FileAccessNotifyClient(callback);
     if (notifyClient_ == nullptr) {
         HILOG_INFO("new FileAccessNotifyClient fail");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_ERROR;
     }
 
@@ -573,19 +577,23 @@ int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)
     if (ret != ERR_OK) {
         HILOG_ERROR("fileExtProxy RegisterNotify fail");
     }
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
 
 int FileAccessHelper::Off()
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Off");
     if (notifyClient_ == nullptr) {
         HILOG_ERROR("not registered notify");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_NOTIFY_NOT_EXIST;
     }
     Uri uri("fileAccess://");
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileExtProxy");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_IPC_ERROR;
     }
 
@@ -594,6 +602,7 @@ int FileAccessHelper::Off()
         HILOG_ERROR("fileExtProxy unregisterNotify fail");
     }
     notifyClient_.clear();
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
 

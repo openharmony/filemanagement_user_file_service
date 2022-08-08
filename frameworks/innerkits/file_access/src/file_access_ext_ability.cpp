@@ -20,6 +20,7 @@
 #include "extension_context.h"
 #include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "js_file_access_ext_ability.h"
 #include "runtime.h"
 
@@ -120,40 +121,49 @@ bool FileAccessExtAbility::GetNotifyManager()
 
 int FileAccessExtAbility::RegisterNotify(sptr<IFileAccessNotify> &notify)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "RegisterNotify");
     if (!GetNotifyManager()) {
         HILOG_ERROR("GetNotifyManager fail.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_ERROR;
     }
     int ret = notifyManager_->RegisterNotify(notify);
     if (ret != ERR_OK) {
         HILOG_ERROR("NotifyManager register notify fail.");
     }
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
 
 int FileAccessExtAbility::UnregisterNotify(sptr<IFileAccessNotify> &notify)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "UnregisterNotify");
     if (!GetNotifyManager()) {
         HILOG_ERROR("GetNotifyManager fail.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_ERROR;
     }
     int ret = notifyManager_->UnregisterNotify(notify);
     if (ret != ERR_OK) {
         HILOG_ERROR("NotifyManager unregister notify fail.");
     }
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
 
 int FileAccessExtAbility::Notify(const NotifyMessage& message)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Notify");
     if (!GetNotifyManager()) {
         HILOG_ERROR("GetNotifyManager fail.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_ERROR;
     }
     int ret = notifyManager_->Notify(message);
     if (ret != ERR_OK) {
         HILOG_ERROR("NotifyManager handle notify fail.");
     }
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
 } // namespace FileAccessFwk

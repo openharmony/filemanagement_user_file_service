@@ -25,11 +25,7 @@ namespace OHOS {
 namespace FileAccessFwk {
 enum NotifyType {
     NOTIFY_DEVICE_ONLINE = 1,
-    NOTIFY_DEVICE_OFFLINE,
-    NOTIFY_FILE_CREATE,
-    NOTIFY_FILE_DELETE,
-    NOTIFY_FILE_MOVE,
-    NOTIFY_FILE_RENAME
+    NOTIFY_DEVICE_OFFLINE
 };
 
 struct NotifyMessage : public virtual OHOS::Parcelable {
@@ -73,7 +69,7 @@ public:
 
     static NotifyMessage *Unmarshalling(Parcel &parcel)
     {
-        NotifyMessage *message = new (std::nothrow) NotifyMessage();
+        NotifyMessage *message = new(std::nothrow) NotifyMessage();
         if (message == nullptr) {
             return nullptr;
         }
