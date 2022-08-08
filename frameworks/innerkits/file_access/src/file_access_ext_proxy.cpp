@@ -52,7 +52,7 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags)
     if (err != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return err;
+        return ERR_IPC_ERROR;
     }
 
     int fd = reply.ReadFileDescriptor();
@@ -100,7 +100,7 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
     if (err != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return err;
+        return ERR_IPC_ERROR;
     }
 
     int ret = reply.ReadInt32();
@@ -156,7 +156,7 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
     if (err != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return err;
+        return ERR_IPC_ERROR;
     }
 
     int ret = reply.ReadInt32();
@@ -201,7 +201,7 @@ int FileAccessExtProxy::Delete(const Uri &sourceFile)
     if (err != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return err;
+        return ERR_IPC_ERROR;
     }
 
     int ret = reply.ReadInt32();
@@ -249,7 +249,7 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
     if (err != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return err;
+        return ERR_IPC_ERROR;
     }
 
     int ret = reply.ReadInt32();
@@ -305,7 +305,7 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
     if (err != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return err;
+        return ERR_IPC_ERROR;
     }
 
     int ret = reply.ReadInt32();
@@ -427,7 +427,7 @@ int FileAccessExtProxy::IsFileExist(const Uri &uri, bool &isExist)
     if (err != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return err;
+        return ERR_IPC_ERROR;
     }
 
     int ret = reply.ReadInt32();

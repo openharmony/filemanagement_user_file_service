@@ -363,15 +363,14 @@ bool FileAccessHelper::GetProxy()
 int FileAccessHelper::OpenFile(Uri &uri, int flags)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
-    int fd = ERR_ERROR;
     sptr<IFileAccessExtBase> fileExtProxy = GetProxy(uri);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return fd;
+        return ERR_FILEIO_FAIL;
     }
 
-    fd = fileExtProxy->OpenFile(uri, flags);
+    int fd = fileExtProxy->OpenFile(uri, flags);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return fd;
 }
@@ -379,15 +378,14 @@ int FileAccessHelper::OpenFile(Uri &uri, int flags)
 int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
-    int index = ERR_ERROR;
     sptr<IFileAccessExtBase> fileExtProxy = GetProxy(parent);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return index;
+        return ERR_FILEIO_FAIL;
     }
 
-    index = fileExtProxy->CreateFile(parent, displayName, newFile);
+    int index = fileExtProxy->CreateFile(parent, displayName, newFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return index;
 }
@@ -395,15 +393,14 @@ int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Ur
 int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &newDir)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Mkdir");
-    int index = ERR_ERROR;
     sptr<IFileAccessExtBase> fileExtProxy = GetProxy(parent);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return index;
+        return ERR_FILEIO_FAIL;
     }
 
-    index = fileExtProxy->Mkdir(parent, displayName, newDir);
+    int index = fileExtProxy->Mkdir(parent, displayName, newDir);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return index;
 }
@@ -411,15 +408,14 @@ int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &ne
 int FileAccessHelper::Delete(Uri &selectFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
-    int index = ERR_ERROR;
     sptr<IFileAccessExtBase> fileExtProxy = GetProxy(selectFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return index;
+        return ERR_FILEIO_FAIL;
     }
 
-    index = fileExtProxy->Delete(selectFile);
+    int index = fileExtProxy->Delete(selectFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return index;
 }
@@ -434,15 +430,14 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
         return ERR_OPERATION_NOT_PERMITTED;
     }
 
-    int index = ERR_ERROR;
     sptr<IFileAccessExtBase> fileExtProxy = GetProxy(sourceFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return index;
+        return ERR_FILEIO_FAIL;
     }
 
-    index = fileExtProxy->Move(sourceFile, targetParent, newFile);
+    int index = fileExtProxy->Move(sourceFile, targetParent, newFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return index;
 }
@@ -450,15 +445,14 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
 int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Rename");
-    int index = ERR_ERROR;
     sptr<IFileAccessExtBase> fileExtProxy = GetProxy(sourceFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return index;
+        return ERR_FILEIO_FAIL;
     }
 
-    index = fileExtProxy->Rename(sourceFile, displayName, newFile);
+    int index = fileExtProxy->Rename(sourceFile, displayName, newFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return index;
 }
@@ -529,16 +523,14 @@ std::vector<AAFwk::Want> FileAccessHelper::GetRegisterFileAccessExtAbilityInfo()
 int FileAccessHelper::IsFileExist(Uri &uri, bool &isExist)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "IsFileExist");
-    int ret = ERR_ERROR;
-
     sptr<IFileAccessExtBase> fileExtProxy = GetProxy(uri);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ret;
+        return ERR_FILEIO_FAIL;
     }
 
-    ret = fileExtProxy->IsFileExist(uri, isExist);
+    int ret = fileExtProxy->IsFileExist(uri, isExist);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
