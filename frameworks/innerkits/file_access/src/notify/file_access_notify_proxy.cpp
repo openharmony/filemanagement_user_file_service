@@ -25,7 +25,7 @@ FileAccessNotifyProxy::FileAccessNotifyProxy(const sptr<IRemoteObject> &impl) : 
 {
 }
 
-void FileAccessNotifyProxy::Notify(const NotifyMessage& message)
+int FileAccessNotifyProxy::Notify(const NotifyMessage& message)
 {
     MessageParcel data;
     MessageParcel reply;

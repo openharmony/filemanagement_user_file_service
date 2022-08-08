@@ -77,7 +77,6 @@ int NapiNotifyCallback::OnNotify(const NotifyMessage& message)
             if (ret != napi_ok) {
                 HILOG_ERROR("Notify failed, status:%{public}d.", ret);
             }
-            HILOG_INFO("CallBack js notify end.");
             delete param;
             delete work;
         });
