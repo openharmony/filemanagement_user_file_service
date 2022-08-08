@@ -146,17 +146,26 @@ export default class FileExtAbility extends Extension {
 
     openFile(sourceFileUri, flags) {
         if (!this.checkUri(sourceFileUri)) {
-            return -1;
+            return {
+                fd: -1,
+                code: -1,
+            };
         }
         let fd = 0;
         try {
             let path = this.getPath(sourceFileUri);
             fd = fileio.openSync(path, flags, DEFAULT_MODE);
+            return {
+                fd: fd,
+                code: 0,
+            };
         } catch (e) {
             hilog.error(DOMAIN_CODE, TAG, 'openFile error ' + e.message);
-            fd = -1;
+            return {
+                fd: -1,
+                code: -1,
+            };
         }
-        return fd;
     }
 
     closeFile(fd) {
@@ -171,40 +180,64 @@ export default class FileExtAbility extends Extension {
 
     createFile(parentUri, displayName) {
         if (!this.checkUri(parentUri)) {
-            return '';
+            return {
+                uri: '',
+                code: -1,
+            };
         }
         try {
             let newFileUri = this.genNewFileUri(parentUri, displayName);
-            if (this.isFileExist(newFileUri)) {
-                return '';
+            if (this.isFileExist(newFileUri).isExist) {
+                return {
+                    uri: '',
+                    code: -1,
+                };
             }
             let path = this.getPath(newFileUri);
             fileio.openSync(path, CREATE_FILE_FLAGS, DEFAULT_MODE);
-            return newFileUri;
+            return {
+                uri: newFileUri,
+                code: 0,
+            };
         } catch (e) {
             hilog.error(DOMAIN_CODE, TAG, 'createFile error ' + e.message);
-            return '';
+            return {
+                uri: '',
+                code: -1,
+            };
         }
     }
 
     mkdir(parentUri, displayName) {
         if (!this.checkUri(parentUri)) {
-            return '';
+            return {
+                uri: '',
+                code: -1,
+            };
         }
         try {
             let newFileUri = this.genNewFileUri(parentUri, displayName);
             let path = this.getPath(newFileUri);
             fileio.mkdirSync(path);
-            return newFileUri;
+            return {
+                uri: newFileUri,
+                code: 0,
+            };
         } catch (e) {
             hilog.error(DOMAIN_CODE, TAG, 'mkdir error ' + e.message);
-            return '';
+            return {
+                uri: '',
+                code: -1,
+            };
         }
     }
 
     delete(selectFileUri) {
         if (!this.checkUri(selectFileUri)) {
-            return -1;
+            return {
+                index: -1,
+                code: -1,
+            };
         }
         let path = this.getPath(selectFileUri);
         let code = 0;
@@ -222,12 +255,18 @@ export default class FileExtAbility extends Extension {
                 code = -1;
             }
         });
-        return code;
+        return {
+            index: code,
+            code: code,
+        };
     }
 
     move(sourceFileUri, targetParentUri) {
         if (!this.checkUri(sourceFileUri) || !this.checkUri(targetParentUri)) {
-            return '';
+            return {
+                uri: '',
+                code: -1,
+            };
         }
         let displayName = this.getFileName(sourceFileUri);
         let newFileUri = this.genNewFileUri(targetParentUri, displayName);
@@ -235,26 +274,41 @@ export default class FileExtAbility extends Extension {
         let newPath = this.getPath(newFileUri);
         if (oldPath == newPath) {
             // move to the same directory
-            return newFileUri;
+            return {
+                uri: newFileUri,
+                code: 0,
+            };
         } else if (newPath.indexOf(oldPath) == 0) {
             // move to a subdirectory of the source directory
-            return '';
+            return {
+                uri: '',
+                code: -1,
+            };
         }
         try {
             // The source file does not exist or the destination is not a directory
             fileio.accessSync(oldPath);
             let stat = fileio.statSync(this.getPath(targetParentUri));
             if (!stat || !stat.isDirectory()) {
-                return '';
+                return {
+                    uri: '',
+                    code: -1,
+                };
             }
             // If not across devices, use fileio.renameSync to move
             if (!this.isCrossDeviceLink(sourceFileUri, targetParentUri)) {
                 fileio.renameSync(oldPath, newPath);
-                return newFileUri;
+                return {
+                    uri: newFileUri,
+                    code: 0,
+                };
             }
         } catch (e) {
             hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
-            return '';
+            return {
+                uri: '',
+                code: -1,
+            };
         }
         let hasError = false;
         /**
@@ -287,24 +341,39 @@ export default class FileExtAbility extends Extension {
             }
         });
         if (hasError) {
-            return '';
+            return {
+                uri: '',
+                code: -1,
+            };
         }
-        return newFileUri;
+        return {
+            uri: newFileUri,
+            code: 0,
+        };
     }
 
     rename(sourceFileUri, displayName) {
         if (!this.checkUri(sourceFileUri)) {
-            return '';
+            return {
+                uri: '',
+                code: -1,
+            };
         }
         try {
             let newFileUri = this.renameUri(sourceFileUri, displayName);
             let oldPath = this.getPath(sourceFileUri);
             let newPath = this.getPath(newFileUri);
             fileio.renameSync(oldPath, newPath);
-            return newFileUri;
+            return {
+                uri: newFileUri,
+                code: 0,
+            };
         } catch (e) {
             hilog.error(DOMAIN_CODE, TAG, 'rename error ' + e.message);
-            return '';
+            return {
+                uri: '',
+                code: -1,
+            };
         }
     }
 
@@ -332,21 +401,33 @@ export default class FileExtAbility extends Extension {
     isFileExist(sourceFileUri) {
         if (!this.checkUri(sourceFileUri)) {
             hilog.error(DOMAIN_CODE, TAG, 'isFileExist checkUri fail');
-            return false;
+            return {
+                isExist: false,
+                code: -1,
+            };
         }
         try {
             let path = this.getPath(sourceFileUri);
             fileio.accessSync(path);
         } catch (e) {
             hilog.error(DOMAIN_CODE, TAG, 'isFileExist error ' + e.message);
-            return false;
+            return {
+                isExist: false,
+                code: -1,
+            };
         }
-        return true;
+        return {
+            isExist: true,
+            code: 0,
+        };
     }
 
     listFile(sourceFileUri) {
         if (!this.checkUri(sourceFileUri)) {
-            return [];
+            return {
+                infos: [],
+                code: -1,
+            };
         }
         let infos = [];
         try {
@@ -371,9 +452,15 @@ export default class FileExtAbility extends Extension {
             }
         } catch (e) {
             hilog.error(DOMAIN_CODE, TAG, 'listFile error ' + e.message);
-            infos = [];
+            return {
+                infos: [],
+                code: -1,
+            };
         }
-        return infos;
+        return {
+            infos: infos,
+            code: 0,
+        };
     }
 
     getRoots() {
@@ -391,6 +478,9 @@ export default class FileExtAbility extends Extension {
                 FLAG.DIR_SUPPORTS_CREATE |
                 FLAG.DIR_PREFERS_LAST_MODIFIED,
         });
-        return roots;
+        return {
+            roots: roots,
+            code: 0,
+        };
     }
 };
