@@ -16,6 +16,7 @@
 #ifndef NAPI_NOTIFY_CALLBACK_H
 #define NAPI_NOTIFY_CALLBACK_H
 
+#include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
 #include "inotify_callback.h"
 #include "napi/native_common.h"
@@ -29,7 +30,7 @@ class NapiNotifyCallback : public INotifyCallback {
 public:
     NapiNotifyCallback(napi_env env, napi_value callback);
     virtual ~NapiNotifyCallback();
-    void OnNotify(const NotifyMessage &message) override;
+    int OnNotify(const NotifyMessage &message) override;
 
 private:
     struct CallbackParam {

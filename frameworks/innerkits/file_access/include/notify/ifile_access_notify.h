@@ -29,7 +29,7 @@ public:
         CMD_NOTIFY = 1,
     };
 
-    virtual void Notify(const NotifyMessage &message) = 0;
+    virtual int Notify(const NotifyMessage &message) = 0;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

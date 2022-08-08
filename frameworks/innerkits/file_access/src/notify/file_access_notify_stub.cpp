@@ -38,8 +38,11 @@ int32_t FileAccessNotifyStub::OnRemoteRequest(uint32_t code, MessageParcel &data
                 HILOG_ERROR("read parcelable message fail");
                 return ERR_IPC_ERROR;
             }
-            Notify(*message);
-            return ERR_OK;
+            auto ret = Notify(*message);
+            if (ret != ERR_OK) {
+                HILOG_ERROR("FileAccessNotifyStub::OnRemoteRequest, Notify error, ret:%{public}d", ret);
+            }
+            return ret;
         }
         default:
             HILOG_DEBUG("FileAccessNotifyStub::OnRemoteRequest error code:%{public}u", code);

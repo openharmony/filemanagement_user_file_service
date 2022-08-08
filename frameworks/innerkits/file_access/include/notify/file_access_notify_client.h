@@ -28,7 +28,7 @@ class FileAccessNotifyClient final : public FileAccessNotifyStub {
 public:
     FileAccessNotifyClient(std::shared_ptr<INotifyCallback> &notifyCallback);
     ~FileAccessNotifyClient();
-    void Notify(const NotifyMessage &message) override;
+    int Notify(const NotifyMessage &message) override;
 
 private:
     std::shared_ptr<INotifyCallback> notifyCallback_;

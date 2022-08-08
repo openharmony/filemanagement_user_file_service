@@ -15,6 +15,7 @@
 
 #include "file_access_notify_proxy.h"
 
+#include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
 #include "message_parcel.h"
 
@@ -31,17 +32,18 @@ void FileAccessNotifyProxy::Notify(const NotifyMessage& message)
     MessageOption option;
     if (!data.WriteInterfaceToken(FileAccessNotifyProxy::GetDescriptor())) {
         HILOG_ERROR("write descriptor failed");
-        return;
+        return ERR_IPC_ERROR;
     }
     if (!data.WriteParcelable(&message)) {
         HILOG_ERROR("write parcel message failed");
-        return;
+        return ERR_IPC_ERROR;
     }
 
     int error = Remote()->SendRequest(CMD_NOTIFY, data, reply, option);
     if (error != 0) {
         HILOG_ERROR("SendRequest failed, error %{public}d", error);
     }
+    return error;
 }
 }  // namespace FileAccessFwk
 }  // namespace OHOS

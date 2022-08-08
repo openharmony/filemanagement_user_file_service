@@ -39,18 +39,18 @@ NapiNotifyCallback::~NapiNotifyCallback()
     napi_delete_reference(env_, callback_);
 }
 
-void NapiNotifyCallback::OnNotify(const NotifyMessage& message)
+int NapiNotifyCallback::OnNotify(const NotifyMessage& message)
 {
     uv_work_t* work = new uv_work_t();
     if (work == nullptr) {
         HILOG_ERROR("failed to new uv_work_t");
-        return;
+        return ERR_INVALID_PARAM;
     }
     CallbackParam* param = new CallbackParam(this, message);
     if (param == nullptr) {
         HILOG_ERROR("failed to new param");
         delete work;
-        return;
+        return ERR_INVALID_PARAM;
     }
     work->data = param;
     int ret = uv_queue_work(loop_, work,
@@ -90,7 +90,9 @@ void NapiNotifyCallback::OnNotify(const NotifyMessage& message)
             delete work;
             work = nullptr;
         }
+        return ERR_NOTIFY_FAIL;
     }
+    return ERR_OK;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS

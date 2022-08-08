@@ -27,11 +27,13 @@ FileAccessNotifyClient::~FileAccessNotifyClient()
 {
 }
 
-void FileAccessNotifyClient::Notify(const NotifyMessage &message)
+int FileAccessNotifyClient::Notify(const NotifyMessage &message)
 {
+    int ret = ERR_OK;
     if (notifyCallback_ != nullptr) {
-        notifyCallback_->OnNotify(message);
+        ret = notifyCallback_->OnNotify(message);
     }
+    return ret;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS

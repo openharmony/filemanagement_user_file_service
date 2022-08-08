@@ -26,7 +26,7 @@ class FileAccessNotifyProxy : public IRemoteProxy<IFileAccessNotify> {
 public:
     explicit FileAccessNotifyProxy(const sptr<IRemoteObject> &impl);
     ~FileAccessNotifyProxy() = default;
-    void Notify(const NotifyMessage &message) override;
+    int Notify(const NotifyMessage &message) override;
 private:
     static inline BrokerDelegator<FileAccessNotifyProxy> delegator_;
 };

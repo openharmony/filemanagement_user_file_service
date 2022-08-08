@@ -93,7 +93,7 @@ NativeValue* JsFileAccessExtAbility::FuncCallback(NativeEngine* engine, NativeCa
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "FuncCallback");
     if (engine == nullptr || info == nullptr) {
-        HILOG_INFO("invalid param.");
+        HILOG_ERROR("invalid param.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return engine->CreateUndefined();
     }
@@ -111,21 +111,23 @@ NativeValue* JsFileAccessExtAbility::FuncCallback(NativeEngine* engine, NativeCa
         reinterpret_cast<napi_value>(info->argv[ARGC_TWO]));
 
     if (info->functionInfo == nullptr || info->functionInfo->data == nullptr) {
-        HILOG_INFO("invalid object.");
+        HILOG_ERROR("invalid object.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return engine->CreateUndefined();
     }
 
     JsFileAccessExtAbility* jsExtension = static_cast<JsFileAccessExtAbility*>(info->functionInfo->data);
     if (jsExtension == nullptr) {
-        HILOG_INFO("invalid JsFileAccessExtAbility.");
+        HILOG_ERROR("invalid JsFileAccessExtAbility.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return engine->CreateUndefined();
     }
 
     NotifyMessage message(deviceType, notifyType, "", uri);
-    jsExtension->Notify(message);
-
+    auto ret = jsExtension->Notify(message);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("JsFileAccessExtAbility notify error, ret:%{public}d", ret);
+    }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return engine->CreateUndefined();
 }

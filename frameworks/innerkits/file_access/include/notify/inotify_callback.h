@@ -22,7 +22,7 @@ namespace OHOS {
 namespace FileAccessFwk {
 class INotifyCallback {
 public:
-    virtual void OnNotify(const NotifyMessage &message) = 0;
+    virtual int OnNotify(const NotifyMessage &message) = 0;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
