@@ -554,7 +554,7 @@ int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &dis
 
 std::vector<FileInfo> JsFileAccessExtAbility::ListFile(const Uri &sourceFile)
 {
-   StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
     auto value = std::make_shared<Value<std::vector<FileInfo>>>();
     auto argParser = [sourceFile](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
         NativeValue *uri = engine.CreateString(sourceFile.ToString().c_str(), sourceFile.ToString().length());

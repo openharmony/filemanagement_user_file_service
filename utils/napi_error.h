@@ -37,7 +37,8 @@ public:
         // Note that ace engine cannot thow errors created by napi_create_error so far
         napi_status throwStatus = napi_throw_error(env, std::to_string(errno_).c_str(), errMsg.c_str());
         if (throwStatus != napi_ok) {
-            HILOG_WARN("Failed to throw an exception, %{public}d, code = %{public}s", throwStatus, std::to_string(errno_).c_str());
+            HILOG_WARN("Failed to throw an exception, %{public}d, code = %{public}s",
+                throwStatus, std::to_string(errno_).c_str());
         }
     }
 private:
