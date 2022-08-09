@@ -56,7 +56,7 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags)
     }
 
     int fd = reply.ReadFileDescriptor();
-    if (fd <= ERR_ERROR) {
+    if (fd < ERR_OK) {
         HILOG_ERROR("fail to ReadFileDescriptor fd");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_FD;
