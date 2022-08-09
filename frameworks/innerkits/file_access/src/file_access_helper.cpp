@@ -367,7 +367,7 @@ int FileAccessHelper::OpenFile(Uri &uri, int flags)
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_FILEIO_FAIL;
+        return ERR_IPC_ERROR;
     }
 
     int fd = fileExtProxy->OpenFile(uri, flags);
@@ -382,7 +382,7 @@ int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Ur
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_FILEIO_FAIL;
+        return ERR_IPC_ERROR;
     }
 
     int index = fileExtProxy->CreateFile(parent, displayName, newFile);
@@ -397,7 +397,7 @@ int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &ne
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_FILEIO_FAIL;
+        return ERR_IPC_ERROR;
     }
 
     int index = fileExtProxy->Mkdir(parent, displayName, newDir);
@@ -412,7 +412,7 @@ int FileAccessHelper::Delete(Uri &selectFile)
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_FILEIO_FAIL;
+        return ERR_IPC_ERROR;
     }
 
     int index = fileExtProxy->Delete(selectFile);
@@ -434,7 +434,7 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_FILEIO_FAIL;
+        return ERR_IPC_ERROR;
     }
 
     int index = fileExtProxy->Move(sourceFile, targetParent, newFile);
@@ -449,7 +449,7 @@ int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Ur
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_FILEIO_FAIL;
+        return ERR_IPC_ERROR;
     }
 
     int index = fileExtProxy->Rename(sourceFile, displayName, newFile);
@@ -527,7 +527,7 @@ int FileAccessHelper::IsFileExist(Uri &uri, bool &isExist)
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_FILEIO_FAIL;
+        return ERR_IPC_ERROR;
     }
 
     int ret = fileExtProxy->IsFileExist(uri, isExist);

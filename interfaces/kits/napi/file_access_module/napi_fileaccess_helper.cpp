@@ -199,7 +199,7 @@ napi_value NAPI_GetRegisterFileAccessExtAbilityInfo(napi_env env, napi_callback_
     }
     NVal cb(env, funcArg[NARG_POS::FIRST]);
     if (!cb.TypeIs(napi_function)) {
-        NapiError(ERR_PARAM_FORMAT).ThrowErr(env);
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -244,7 +244,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
 static FileAccessHelper *GetFileAccessHelper(napi_env env, napi_value thisVar)
 {
     if (thisVar == nullptr) {
-        NapiError(ERR_PARAM_FORMAT).ThrowErr(env);
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
 
@@ -266,13 +266,13 @@ static std::tuple<bool, std::unique_ptr<char[]>, std::unique_ptr<char[]>> GetRea
     std::unique_ptr<char[]> name = nullptr;
     std::tie(succ, uri, std::ignore) = NVal(env, sourceFile).ToUTF8String();
     if (!succ) {
-        NapiError(ERR_PARAM_FORMAT).ThrowErr(env);
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return { false, std::move(uri), std::move(name) };
     }
 
     std::tie(succ, name, std::ignore) = NVal(env, targetParent).ToUTF8String();
     if (!succ) {
-        NapiError(ERR_PARAM_FORMAT).ThrowErr(env);
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return { false, std::move(uri), std::move(name) };
     }
 
@@ -291,14 +291,14 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
     std::unique_ptr<char[]> uri;
     std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        NapiError(ERR_PARAM_FORMAT).ThrowErr(env);
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
 
     int flags;
     std::tie(succ, flags) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
     if (!succ) {
-        NapiError(ERR_PARAM_FORMAT).ThrowErr(env);
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
 
@@ -329,7 +329,7 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
 
     NVal cb(env, funcArg[NARG_POS::THIRD]);
     if (!cb.TypeIs(napi_function)) {
-        NapiError(ERR_PARAM_FORMAT).ThrowErr(env);
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -381,7 +381,7 @@ napi_value NAPI_CreateFile(napi_env env, napi_callback_info info)
     
     NVal cb(env, funcArg[NARG_POS::THIRD]);
     if (!cb.TypeIs(napi_function)) {
-        NapiError(ERR_PARAM_FORMAT).ThrowErr(env);
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -433,7 +433,7 @@ napi_value NAPI_Mkdir(napi_env env, napi_callback_info info)
     
     NVal cb(env, funcArg[NARG_POS::THIRD]);
     if (!cb.TypeIs(napi_function)) {
-        NapiError(ERR_PARAM_FORMAT).ThrowErr(env);
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -451,7 +451,7 @@ napi_value NAPI_Delete(napi_env env, napi_callback_info info)
     std::unique_ptr<char[]> uri;
     std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        NapiError(ERR_PARAM_FORMAT).ThrowErr(env);
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
 
@@ -482,7 +482,7 @@ napi_value NAPI_Delete(napi_env env, napi_callback_info info)
     
     NVal cb(env, funcArg[NARG_POS::SECOND]);
     if (!cb.TypeIs(napi_function)) {
-        NapiError(ERR_PARAM_FORMAT).ThrowErr(env);
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -535,7 +535,7 @@ napi_value NAPI_Move(napi_env env, napi_callback_info info)
     
     NVal cb(env, funcArg[NARG_POS::THIRD]);
     if (!cb.TypeIs(napi_function)) {
-        NapiError(ERR_PARAM_FORMAT).ThrowErr(env);
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -587,7 +587,7 @@ napi_value NAPI_Rename(napi_env env, napi_callback_info info)
     
     NVal cb(env, funcArg[NARG_POS::THIRD]);
     if (!cb.TypeIs(napi_function)) {
-        NapiError(ERR_PARAM_FORMAT).ThrowErr(env);
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -605,7 +605,7 @@ napi_value NAPI_ListFile(napi_env env, napi_callback_info info)
     std::unique_ptr<char[]> uri;
     std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        NapiError(ERR_PARAM_FORMAT).ThrowErr(env);
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
 
@@ -637,7 +637,7 @@ napi_value NAPI_ListFile(napi_env env, napi_callback_info info)
     
     NVal cb(env, funcArg[NARG_POS::SECOND]);
     if (!cb.TypeIs(napi_function)) {
-        NapiError(ERR_PARAM_FORMAT).ThrowErr(env);
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -678,7 +678,7 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
 
     NVal cb(env, funcArg[NARG_POS::FIRST]);
     if (!cb.TypeIs(napi_function)) {
-        NapiError(ERR_PARAM_FORMAT).ThrowErr(env);
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -696,7 +696,7 @@ napi_value NAPI_IsFileExist(napi_env env, napi_callback_info info)
     std::unique_ptr<char[]> uri;
     std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        NapiError(ERR_PARAM_FORMAT).ThrowErr(env);
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
 
@@ -728,7 +728,7 @@ napi_value NAPI_IsFileExist(napi_env env, napi_callback_info info)
     }
     NVal cb(env, funcArg[NARG_POS::SECOND]);
     if (!cb.TypeIs(napi_function)) {
-        NapiError(ERR_PARAM_FORMAT).ThrowErr(env);
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;

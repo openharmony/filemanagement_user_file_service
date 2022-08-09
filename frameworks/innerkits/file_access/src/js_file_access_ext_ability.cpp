@@ -162,7 +162,7 @@ static int DoCallJsMethod(CallJsParam *param)
     if (jsRuntime == nullptr) {
         HILOG_ERROR("failed to get jsRuntime.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARAM_FORMAT;
+        return ERR_INVALID_PARAM;
     }
     HandleScope handleScope(*jsRuntime);
     auto& nativeEngine = jsRuntime->GetNativeEngine();
@@ -172,31 +172,31 @@ static int DoCallJsMethod(CallJsParam *param)
         if (!param->argParser(nativeEngine, argv, argc)) {
             HILOG_ERROR("failed to get params.");
             FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-            return ERR_PARAM_FORMAT;
+            return ERR_INVALID_PARAM;
         }
     }
     NativeValue *value = param->jsObj->Get();
     if (value == nullptr) {
         HILOG_ERROR("failed to get native value object.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("failed to get FileExtAbility object.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
     NativeValue *method = obj->GetProperty(param->funcName.c_str());
     if (method == nullptr) {
         HILOG_ERROR("failed to get %{public}s from FileExtAbility object.", param->funcName.c_str());
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
     if (param->retParser == nullptr) {
         HILOG_ERROR("ResultValueParser must not null.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARAM_FORMAT;
+        return ERR_INVALID_PARAM;
     }
     if (!param->retParser(nativeEngine, handleScope.Escape(nativeEngine.CallFunction(value, method, argv, argc)))) {
         HILOG_INFO("Parser js result fail.");
@@ -215,19 +215,19 @@ int JsFileAccessExtAbility::CallJsMethod(const std::string &funcName, JsRuntime 
     if (status != napi_ok) {
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         HILOG_ERROR("failed to get uv event loop.");
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
     auto param = std::make_shared<CallJsParam>(funcName, &jsRuntime, jsObj, argParser, retParser);
     if (param == nullptr) {
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         HILOG_ERROR("failed to new param.");
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
     auto work = std::make_shared<uv_work_t>();
     if (work == nullptr) {
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         HILOG_ERROR("failed to new uv_work_t.");
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
     work->data = reinterpret_cast<void *>(param.get());
     int ret = uv_queue_work(loop, work.get(), [](uv_work_t *work) {}, [](uv_work_t *work, int status) {
@@ -248,7 +248,7 @@ int JsFileAccessExtAbility::CallJsMethod(const std::string &funcName, JsRuntime 
     if (ret != 0) {
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         HILOG_ERROR("failed to exec uv_queue_work.");
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
     std::unique_lock<std::mutex> lock(param->fileOperateMutex);
     param->fileOperateCondition.wait(lock, [param]() { return param->isReady; });
@@ -284,7 +284,7 @@ void JsFileAccessExtAbility::GetSrcPath(std::string &srcPath)
 template <typename T>
 struct Value {
     T data;
-    int code {0};
+    int code {ERR_OK};
 };
 
 int JsFileAccessExtAbility::OpenFile(const Uri &uri, int flags)
@@ -378,7 +378,7 @@ int JsFileAccessExtAbility::CreateFile(const Uri &parent, const std::string &dis
     if ((value->data).empty()) {
         HILOG_ERROR("call CreateFile with return empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
 
     newFile = Uri(value->data);
@@ -431,7 +431,7 @@ int JsFileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayN
     if ((value->data).empty()) {
         HILOG_ERROR("call Mkdir with return empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
     newFile = Uri(value->data);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -525,7 +525,7 @@ int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent,
     if ((value->data).empty()) {
         HILOG_ERROR("call move with return empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
     newFile = Uri(value->data);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -578,7 +578,7 @@ int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &dis
     if ((value->data).empty()) {
         HILOG_ERROR("call Rename with return empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
     newFile = Uri(value->data);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);

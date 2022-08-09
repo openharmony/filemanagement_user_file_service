@@ -97,7 +97,7 @@ ErrCode FileAccessExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply
     if (flags < 0) {
         HILOG_ERROR("parameter OpenFile flags is invalid");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
 
     int fd = OpenFile(*uri, flags);
@@ -131,7 +131,7 @@ ErrCode FileAccessExtStub::CmdCreateFile(MessageParcel &data, MessageParcel &rep
     if (displayName.empty()) {
         HILOG_ERROR("parameter CreateFile displayName is nullptr");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARAM_FORMAT;
+        return ERR_INVALID_PARAM;
     }
 
     std::shared_ptr<Uri> fileNew(data.ReadParcelable<Uri>());
@@ -178,7 +178,7 @@ ErrCode FileAccessExtStub::CmdMkdir(MessageParcel &data, MessageParcel &reply)
     if (displayName.empty()) {
         HILOG_ERROR("parameter Mkdir mode is nullptr");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARAM_FORMAT;
+        return ERR_INVALID_PARAM;
     }
 
     std::shared_ptr<Uri> fileNew(data.ReadParcelable<Uri>());
@@ -299,7 +299,7 @@ ErrCode FileAccessExtStub::CmdRename(MessageParcel &data, MessageParcel &reply)
     if (displayName.empty()) {
         HILOG_ERROR("parameter Rename mode is nullptr");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARAM_FORMAT;
+        return ERR_INVALID_PARAM;
     }
 
     std::shared_ptr<Uri> fileNew(data.ReadParcelable<Uri>());

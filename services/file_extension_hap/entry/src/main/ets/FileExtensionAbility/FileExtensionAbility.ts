@@ -29,6 +29,8 @@ const CREATE_FILE_FLAGS = 0o100;
 const FILE_ACCESS = 'fileAccess://';
 const DOMAIN_CODE = 0x0001;
 const TAG = 'js_server';
+const ERR_OK = 0;
+const ERR_ERROR = -1;
 
 export default class FileExtAbility extends Extension {
     onCreate(want) {
@@ -147,8 +149,8 @@ export default class FileExtAbility extends Extension {
     openFile(sourceFileUri, flags) {
         if (!this.checkUri(sourceFileUri)) {
             return {
-                fd: -1,
-                code: -1,
+                fd: ERR_ERROR,
+                code: ERR_ERROR,
             };
         }
         let fd = 0;
@@ -157,13 +159,13 @@ export default class FileExtAbility extends Extension {
             fd = fileio.openSync(path, flags, DEFAULT_MODE);
             return {
                 fd: fd,
-                code: 0,
+                code: ERR_OK,
             };
         } catch (e) {
             hilog.error(DOMAIN_CODE, TAG, 'openFile error ' + e.message);
             return {
-                fd: -1,
-                code: -1,
+                fd: ERR_ERROR,
+                code: ERR_ERROR,
             };
         }
     }
@@ -182,7 +184,7 @@ export default class FileExtAbility extends Extension {
         if (!this.checkUri(parentUri)) {
             return {
                 uri: '',
-                code: -1,
+                code: ERR_ERROR,
             };
         }
         try {
@@ -190,20 +192,20 @@ export default class FileExtAbility extends Extension {
             if (this.isFileExist(newFileUri).isExist) {
                 return {
                     uri: '',
-                    code: -1,
+                    code: ERR_ERROR,
                 };
             }
             let path = this.getPath(newFileUri);
             fileio.openSync(path, CREATE_FILE_FLAGS, DEFAULT_MODE);
             return {
                 uri: newFileUri,
-                code: 0,
+                code: ERR_OK,
             };
         } catch (e) {
             hilog.error(DOMAIN_CODE, TAG, 'createFile error ' + e.message);
             return {
                 uri: '',
-                code: -1,
+                code: ERR_ERROR,
             };
         }
     }
@@ -212,7 +214,7 @@ export default class FileExtAbility extends Extension {
         if (!this.checkUri(parentUri)) {
             return {
                 uri: '',
-                code: -1,
+                code: ERR_ERROR,
             };
         }
         try {
@@ -221,13 +223,13 @@ export default class FileExtAbility extends Extension {
             fileio.mkdirSync(path);
             return {
                 uri: newFileUri,
-                code: 0,
+                code: ERR_OK,
             };
         } catch (e) {
             hilog.error(DOMAIN_CODE, TAG, 'mkdir error ' + e.message);
             return {
                 uri: '',
-                code: -1,
+                code: ERR_ERROR,
             };
         }
     }
@@ -235,12 +237,12 @@ export default class FileExtAbility extends Extension {
     delete(selectFileUri) {
         if (!this.checkUri(selectFileUri)) {
             return {
-                index: -1,
-                code: -1,
+                index: ERR_ERROR,
+                code: ERR_ERROR,
             };
         }
         let path = this.getPath(selectFileUri);
-        let code = 0;
+        let code = ERR_OK;
         this.recurseDir(path, function (filePath, isDirectory, hasNextFile) {
             try {
                 if (isDirectory) {
@@ -252,7 +254,7 @@ export default class FileExtAbility extends Extension {
                 }
             } catch (e) {
                 hilog.error(DOMAIN_CODE, TAG, 'delete error ' + e.message);
-                code = -1;
+                code = ERR_ERROR;
             }
         });
         return {
@@ -265,7 +267,7 @@ export default class FileExtAbility extends Extension {
         if (!this.checkUri(sourceFileUri) || !this.checkUri(targetParentUri)) {
             return {
                 uri: '',
-                code: -1,
+                code: ERR_ERROR,
             };
         }
         let displayName = this.getFileName(sourceFileUri);
@@ -276,13 +278,13 @@ export default class FileExtAbility extends Extension {
             // move to the same directory
             return {
                 uri: newFileUri,
-                code: 0,
+                code: ERR_OK,
             };
         } else if (newPath.indexOf(oldPath) == 0) {
             // move to a subdirectory of the source directory
             return {
                 uri: '',
-                code: -1,
+                code: ERR_ERROR,
             };
         }
         try {
@@ -292,7 +294,7 @@ export default class FileExtAbility extends Extension {
             if (!stat || !stat.isDirectory()) {
                 return {
                     uri: '',
-                    code: -1,
+                    code: ERR_ERROR,
                 };
             }
             // If not across devices, use fileio.renameSync to move
@@ -300,14 +302,14 @@ export default class FileExtAbility extends Extension {
                 fileio.renameSync(oldPath, newPath);
                 return {
                     uri: newFileUri,
-                    code: 0,
+                    code: ERR_OK,
                 };
             }
         } catch (e) {
             hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
             return {
                 uri: '',
-                code: -1,
+                code: ERR_ERROR,
             };
         }
         let hasError = false;
@@ -343,12 +345,12 @@ export default class FileExtAbility extends Extension {
         if (hasError) {
             return {
                 uri: '',
-                code: -1,
+                code: ERR_ERROR,
             };
         }
         return {
             uri: newFileUri,
-            code: 0,
+            code: ERR_OK,
         };
     }
 
@@ -356,7 +358,7 @@ export default class FileExtAbility extends Extension {
         if (!this.checkUri(sourceFileUri)) {
             return {
                 uri: '',
-                code: -1,
+                code: ERR_ERROR,
             };
         }
         try {
@@ -366,13 +368,13 @@ export default class FileExtAbility extends Extension {
             fileio.renameSync(oldPath, newPath);
             return {
                 uri: newFileUri,
-                code: 0,
+                code: ERR_OK,
             };
         } catch (e) {
             hilog.error(DOMAIN_CODE, TAG, 'rename error ' + e.message);
             return {
                 uri: '',
-                code: -1,
+                code: ERR_ERROR,
             };
         }
     }
@@ -403,7 +405,7 @@ export default class FileExtAbility extends Extension {
             hilog.error(DOMAIN_CODE, TAG, 'isFileExist checkUri fail');
             return {
                 isExist: false,
-                code: -1,
+                code: ERR_ERROR,
             };
         }
         try {
@@ -413,12 +415,12 @@ export default class FileExtAbility extends Extension {
             hilog.error(DOMAIN_CODE, TAG, 'isFileExist error ' + e.message);
             return {
                 isExist: false,
-                code: 0,
+                code: ERR_OK,
             };
         }
         return {
             isExist: true,
-            code: 0,
+            code: ERR_OK,
         };
     }
 
@@ -426,7 +428,7 @@ export default class FileExtAbility extends Extension {
         if (!this.checkUri(sourceFileUri)) {
             return {
                 infos: [],
-                code: -1,
+                code: ERR_ERROR,
             };
         }
         let infos = [];
@@ -454,12 +456,12 @@ export default class FileExtAbility extends Extension {
             hilog.error(DOMAIN_CODE, TAG, 'listFile error ' + e.message);
             return {
                 infos: [],
-                code: -1,
+                code: ERR_ERROR,
             };
         }
         return {
             infos: infos,
-            code: 0,
+            code: ERR_OK,
         };
     }
 
@@ -480,7 +482,7 @@ export default class FileExtAbility extends Extension {
         });
         return {
             roots: roots,
-            code: 0,
+            code: ERR_OK,
         };
     }
 };

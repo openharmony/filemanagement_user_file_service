@@ -32,7 +32,7 @@ int FileAccessExtStubImpl::OpenFile(const Uri &uri, const int flags)
     if (extension_ == nullptr) {
         HILOG_ERROR("OpenFile get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_FILEIO_FAIL;
+        return ERR_IPC_ERROR;
     }
 
     int ret = extension_->OpenFile(uri, flags);
@@ -46,7 +46,7 @@ int FileAccessExtStubImpl::CreateFile(const Uri &parent, const std::string &disp
     if (extension_ == nullptr) {
         HILOG_ERROR("CreateFile get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_FILEIO_FAIL;
+        return ERR_IPC_ERROR;
     }
 
     int ret = extension_->CreateFile(parent, displayName, newFile);
@@ -60,7 +60,7 @@ int FileAccessExtStubImpl::Mkdir(const Uri &parent, const std::string &displayNa
     if (extension_ == nullptr) {
         HILOG_ERROR("Mkdir get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_FILEIO_FAIL;
+        return ERR_IPC_ERROR;
     }
 
     int ret = extension_->Mkdir(parent, displayName, newFile);
@@ -74,7 +74,7 @@ int FileAccessExtStubImpl::Delete(const Uri &sourceFile)
     if (extension_ == nullptr) {
         HILOG_ERROR("Delete get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_FILEIO_FAIL;
+        return ERR_IPC_ERROR;
     }
 
     int ret = extension_->Delete(sourceFile);
@@ -88,7 +88,7 @@ int FileAccessExtStubImpl::Move(const Uri &sourceFile, const Uri &targetParent, 
     if (extension_ == nullptr) {
         HILOG_ERROR("Move get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_FILEIO_FAIL;
+        return ERR_IPC_ERROR;
     }
 
     int ret = extension_->Move(sourceFile, targetParent, newFile);
@@ -102,7 +102,7 @@ int FileAccessExtStubImpl::Rename(const Uri &sourceFile, const std::string &disp
     if (extension_ == nullptr) {
         HILOG_ERROR("Rename get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_FILEIO_FAIL;
+        return ERR_IPC_ERROR;
     }
 
     int ret = extension_->Rename(sourceFile, displayName, newFile);
@@ -146,7 +146,7 @@ int FileAccessExtStubImpl::IsFileExist(const Uri &uri, bool &isExist)
     if (extension_ == nullptr) {
         HILOG_ERROR("IsFileExist get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_FILEIO_FAIL;
+        return ERR_IPC_ERROR;
     }
 
     int ret = extension_->IsFileExist(uri, isExist);
