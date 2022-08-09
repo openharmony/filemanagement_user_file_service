@@ -32,7 +32,6 @@ FileAccessNotifyManager::~FileAccessNotifyManager()
 
 int FileAccessNotifyManager::RegisterNotify(sptr<IFileAccessNotify> &notify)
 {
-    std::lock_guard<std::mutex> lock(notifyMapMutex_);
     if (!AddNotifyToMap(notify)) {
         HILOG_ERROR("the remote obj is nullptr.");
         return ERR_INVALID_NOTIFY;
@@ -48,7 +47,6 @@ int FileAccessNotifyManager::UnregisterNotify(sptr<IFileAccessNotify> &notify)
         return ERR_INVALID_NOTIFY;
     }
 
-    std::lock_guard<std::mutex> lock(notifyMapMutex_);
     if (!RemoveNotifyFromMap(notify->AsObject())) {
         HILOG_ERROR("remove remote obj from map fail.");
         return ERR_REMOVE_NOTIFY_FAIL;
@@ -57,7 +55,7 @@ int FileAccessNotifyManager::UnregisterNotify(sptr<IFileAccessNotify> &notify)
     return ERR_OK;
 }
 
-int FileAccessNotifyManager::Notify(const NotifyMessage& message)
+int FileAccessNotifyManager::Notify(const NotifyMessage &message)
 {
     std::lock_guard<std::mutex> lock(notifyMapMutex_);
     for (auto iter = notifyMap_.begin(); iter != notifyMap_.end(); iter++) {
@@ -75,6 +73,7 @@ bool FileAccessNotifyManager::AddNotifyToMap(const sptr<IFileAccessNotify> &noti
         return false;
     }
 
+    std::lock_guard<std::mutex> lock(notifyMapMutex_);
     for (auto iter = notifyMap_.begin(); iter != notifyMap_.end(); iter++) {
         if (iter->first == notify) {
             iter->first->AsObject()->RemoveDeathRecipient(iter->second);
@@ -95,6 +94,7 @@ bool FileAccessNotifyManager::RemoveNotifyFromMap(const sptr<IRemoteObject> &rem
         return false;
     }
 
+    std::lock_guard<std::mutex> lock(notifyMapMutex_);
     for (auto iter = notifyMap_.begin(); iter != notifyMap_.end(); iter++) {
         if (iter->first->AsObject() == remote) {
             iter->first->AsObject()->RemoveDeathRecipient(iter->second);
@@ -114,7 +114,6 @@ void FileAccessNotifyManager::OnCallBackDied(const wptr<IRemoteObject> &remote)
         return;
     }
 
-    std::lock_guard<std::mutex> lock(notifyMapMutex_);
     if (!RemoveNotifyFromMap(object)) {
         HILOG_ERROR("remove remote obj from map fail.");
         return;

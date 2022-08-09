@@ -34,6 +34,7 @@ int FileAccessNotifyProxy::Notify(const NotifyMessage& message)
         HILOG_ERROR("write descriptor failed");
         return ERR_IPC_ERROR;
     }
+
     if (!data.WriteParcelable(&message)) {
         HILOG_ERROR("write parcel message failed");
         return ERR_IPC_ERROR;
