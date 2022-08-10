@@ -777,11 +777,13 @@ napi_value NAPI_Off(napi_env env, napi_callback_info info)
         NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
+
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         NError(EINVAL).ThrowErr(env, "Get FileAccessHelper fail");
         return nullptr;
     }
+
     auto result = std::make_shared<int>();
     auto cbExec = [result, fileAccessHelper]() -> NError {
         *result = fileAccessHelper->Off();
@@ -798,6 +800,7 @@ napi_value NAPI_Off(napi_env env, napi_callback_info info)
         }
         return NVal::CreateInt32(env, (int32_t)(*result));
     };
+
     std::string procedureName = "Off";
     if (funcArg.GetArgc() == NARG_CNT::ZERO) {
         return NAsyncWorkPromise(env, NVal(env, funcArg.GetThisVar())).Schedule(procedureName, cbExec, cbComplete).val_;

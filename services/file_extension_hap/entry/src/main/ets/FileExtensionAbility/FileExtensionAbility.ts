@@ -36,20 +36,20 @@ export default class FileExtAbility extends Extension {
         init();
         onReceiveEvent(function (data) {
             if (data.event == 'usual.event.data.VOLUME_MOUNTED') {
-                let uri = path2uri('', data.parameters.path);
                 if (callbackFun != null) {
+                    let uri = path2uri('', data.parameters.path);
                     callbackFun(data.parameters.type, NotifyType.DEVICE_ONLINE, uri);
                 }
                 process.exit(0);
             } else {
-                let uri = '';
-                let deviceType = 0;
-                let volumeInfo = findVolumeInfo(data.parameters.id);
-                if (volumeInfo) {
-                    uri = volumeInfo.uri;
-                    deviceType = volumeInfo.type;
-                }
                 if (callbackFun != null) {
+                    let uri = '';
+                    let deviceType = 0;
+                    let volumeInfo = findVolumeInfo(data.parameters.id);
+                    if (volumeInfo) {
+                        uri = volumeInfo.uri;
+                        deviceType = volumeInfo.type;
+                    }
                     callbackFun(deviceType, NotifyType.DEVICE_OFFLINE, uri);
                 }
                 delVolumeInfo(data.parameters.id);

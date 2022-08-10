@@ -97,6 +97,7 @@ NativeValue* JsFileAccessExtAbility::FuncCallback(NativeEngine* engine, NativeCa
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return engine->CreateUndefined();
     }
+
     if (info->argc != ARGC_THREE) {
         HILOG_ERROR("invalid args.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);

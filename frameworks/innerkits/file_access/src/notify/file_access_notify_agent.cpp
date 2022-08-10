@@ -13,26 +13,32 @@
  * limitations under the License.
  */
 
-#include "file_access_notify_client.h"
+#include "file_access_notify_agent.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
-FileAccessNotifyClient::FileAccessNotifyClient(std::shared_ptr<INotifyCallback> &notifyCallback)
+FileAccessNotifyAgent::FileAccessNotifyAgent(std::shared_ptr<INotifyCallback> &notifyCallback)
     : notifyCallback_(notifyCallback)
 {
+    HILOG_INFO("%{public}s, called start", __func__);
+    HILOG_INFO("%{public}s, called end", __func__);
 }
 
-FileAccessNotifyClient::~FileAccessNotifyClient()
+FileAccessNotifyAgent::~FileAccessNotifyAgent()
 {
+    HILOG_INFO("%{public}s, called start", __func__);
+    HILOG_INFO("%{public}s, called end", __func__);
 }
 
-int FileAccessNotifyClient::Notify(const NotifyMessage &message)
+int FileAccessNotifyAgent::Notify(const NotifyMessage &message)
 {
+    HILOG_INFO("%{public}s, called start", __func__);
     int ret = ERR_OK;
     if (notifyCallback_ != nullptr) {
         ret = notifyCallback_->OnNotify(message);
     }
+    HILOG_INFO("%{public}s, called end", __func__);
     return ret;
 }
 } // namespace FileAccessFwk

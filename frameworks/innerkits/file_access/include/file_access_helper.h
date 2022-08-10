@@ -25,7 +25,7 @@
 #include "context.h"
 #include "file_access_ext_connection.h"
 #include "file_access_extension_info.h"
-#include "file_access_notify_client.h"
+#include "file_access_notify_agent.h"
 #include "ifile_access_ext_base.h"
 #include "inotify_callback.h"
 #include "iremote_object.h"
@@ -96,7 +96,7 @@ private:
     static std::string GetKeyOfWantsMap(const AAFwk::Want &want);
 
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
-    sptr<IFileAccessNotify> notifyClient_ = nullptr;
+    sptr<IFileAccessNotify> notifyAgent_ = nullptr;
 };
 
 class FileAccessDeathRecipient : public IRemoteObject::DeathRecipient {

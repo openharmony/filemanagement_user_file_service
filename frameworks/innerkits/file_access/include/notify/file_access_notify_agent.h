@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FILE_ACCESS_NOTIFY_CLIENT_H
-#define FILE_ACCESS_NOTIFY_CLIENT_H
+#ifndef FILE_ACCESS_NOTIFY_AGENT_H
+#define FILE_ACCESS_NOTIFY_AGENT_H
 
 #include <memory>
 
@@ -24,10 +24,10 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-class FileAccessNotifyClient final : public FileAccessNotifyStub {
+class FileAccessNotifyAgent final : public FileAccessNotifyStub {
 public:
-    FileAccessNotifyClient(std::shared_ptr<INotifyCallback> &notifyCallback);
-    ~FileAccessNotifyClient();
+    FileAccessNotifyAgent(std::shared_ptr<INotifyCallback> &notifyCallback);
+    ~FileAccessNotifyAgent();
     int Notify(const NotifyMessage &message) override;
 
 private:
@@ -35,4 +35,4 @@ private:
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FILE_ACCESS_NOTIFY_CLIENT_H
+#endif // FILE_ACCESS_NOTIFY_AGENT_H

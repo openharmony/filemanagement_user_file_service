@@ -452,6 +452,7 @@ ErrCode FileAccessExtStub::CmdRegisterNotify(MessageParcel &data, MessageParcel 
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_IPC_ERROR;
     }
+
     int ret = RegisterNotify(notify);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("WriteInt32 failed");
@@ -478,6 +479,7 @@ ErrCode FileAccessExtStub::CmdUnregisterNotify(MessageParcel &data, MessageParce
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_IPC_ERROR;
     }
+
     int ret = UnregisterNotify(notify);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("WriteInt32 failed");

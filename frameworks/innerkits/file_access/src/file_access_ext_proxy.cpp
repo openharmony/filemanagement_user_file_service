@@ -451,6 +451,7 @@ int FileAccessExtProxy::RegisterNotify(sptr<IFileAccessNotify> &notify)
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_IPC_ERROR;
     }
+
     if (!data.WriteRemoteObject(notify->AsObject())) {
         HILOG_ERROR("write subscribe type or parcel failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -465,6 +466,7 @@ int FileAccessExtProxy::RegisterNotify(sptr<IFileAccessNotify> &notify)
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
+
     err = reply.ReadInt32();
     if (err != ERR_OK) {
         HILOG_ERROR("fail to RegisterNotify. err: %{public}d", err);
@@ -484,6 +486,7 @@ int FileAccessExtProxy::UnregisterNotify(sptr<IFileAccessNotify> &notify)
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_IPC_ERROR;
     }
+
     if (!data.WriteRemoteObject(notify->AsObject())) {
         HILOG_ERROR("write subscribe type or parcel failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -498,6 +501,7 @@ int FileAccessExtProxy::UnregisterNotify(sptr<IFileAccessNotify> &notify)
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
+
     err = reply.ReadInt32();
     if (err != ERR_OK) {
         HILOG_ERROR("fail to UnregisterNotify. err: %{public}d", err);

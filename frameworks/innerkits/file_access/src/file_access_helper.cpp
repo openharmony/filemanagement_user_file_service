@@ -553,27 +553,30 @@ int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_IPC_ERROR;
     }
+
     if (callback == nullptr) {
         HILOG_ERROR("failed with invalid callback");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_ERROR;
     }
-    if (notifyClient_ != nullptr) {
-        HILOG_INFO("notifyClient registered yet.");
-        int ret = fileExtProxy->UnregisterNotify(notifyClient_);
+
+    if (notifyAgent_ != nullptr) {
+        HILOG_INFO("notifyAgent registered yet.");
+        int ret = fileExtProxy->UnregisterNotify(notifyAgent_);
         if (ret != ERR_OK) {
             HILOG_INFO("fileExtProxy unregisterNotify fail");
         }
-        notifyClient_.clear();
+        notifyAgent_.clear();
     }
-    notifyClient_ = new(std::nothrow) FileAccessNotifyClient(callback);
-    if (notifyClient_ == nullptr) {
-        HILOG_INFO("new FileAccessNotifyClient fail");
+
+    notifyAgent_ = new(std::nothrow) FileAccessNotifyAgent(callback);
+    if (notifyAgent_ == nullptr) {
+        HILOG_INFO("new FileAccessNotifyAgent fail");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_ERROR;
     }
 
-    auto ret = fileExtProxy->RegisterNotify(notifyClient_);
+    auto ret = fileExtProxy->RegisterNotify(notifyAgent_);
     if (ret != ERR_OK) {
         HILOG_ERROR("fileExtProxy RegisterNotify fail");
     }
@@ -584,11 +587,12 @@ int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)
 int FileAccessHelper::Off()
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Off");
-    if (notifyClient_ == nullptr) {
+    if (notifyAgent_ == nullptr) {
         HILOG_ERROR("not registered notify");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_NOTIFY_NOT_EXIST;
     }
+
     Uri uri("fileAccess://");
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
@@ -597,11 +601,11 @@ int FileAccessHelper::Off()
         return ERR_IPC_ERROR;
     }
 
-    auto ret = fileExtProxy->UnregisterNotify(notifyClient_);
+    auto ret = fileExtProxy->UnregisterNotify(notifyAgent_);
     if (ret != ERR_OK) {
         HILOG_ERROR("fileExtProxy unregisterNotify fail");
     }
-    notifyClient_.clear();
+    notifyAgent_.clear();
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }

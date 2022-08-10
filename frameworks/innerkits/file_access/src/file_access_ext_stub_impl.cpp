@@ -170,6 +170,7 @@ int FileAccessExtStubImpl::RegisterNotify(sptr<IFileAccessNotify> &notify)
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_ERROR;
     }
+
     int ret = extension->RegisterNotify(notify);
     if (ret != ERR_OK) {
         HILOG_ERROR("RegisterNotify failed.");
@@ -187,6 +188,7 @@ int FileAccessExtStubImpl::UnregisterNotify(sptr<IFileAccessNotify> &notify)
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_ERROR;
     }
+
     int ret = extension->UnregisterNotify(notify);
     if (ret != ERR_OK) {
         HILOG_ERROR("UnregisterNotify failed.");
