@@ -19,6 +19,7 @@
 #include <string>
 
 #include "file_access_extension_info.h"
+#include "hilog_wrapper.h"
 #include "parcel.h"
 
 namespace OHOS {
@@ -41,27 +42,30 @@ public:
         : deviceType(deviceTypeIn), notifyType(notifyTypeIn), srcUri(srcUriIn), dstUri(dstUriIn)
     {}
 
-    bool ReadFromParcel(Parcel &parcel)
+    void ReadFromParcel(Parcel &parcel)
     {
         deviceType = (DeviceType)parcel.ReadInt32();
         notifyType = (NotifyType)parcel.ReadInt32();
         srcUri = parcel.ReadString();
         dstUri = parcel.ReadString();
-        return true;
     }
 
     virtual bool Marshalling(Parcel &parcel) const override
     {
         if (!parcel.WriteInt32((int32_t)deviceType)) {
+            HILOG_ERROR("NotifyMessage Unmarshalling error:write deviceType fail.");
             return false;
         }
         if (!parcel.WriteInt32((int32_t)notifyType)) {
+            HILOG_ERROR("NotifyMessage Unmarshalling error:write notifyType fail.");
             return false;
         }
         if (!parcel.WriteString(srcUri)) {
+            HILOG_ERROR("NotifyMessage Unmarshalling error:write srcUri fail.");
             return false;
         }
         if (!parcel.WriteString(dstUri)) {
+            HILOG_ERROR("NotifyMessage Unmarshalling error:write dstUri fail.");
             return false;
         }
         return true;
@@ -71,13 +75,10 @@ public:
     {
         NotifyMessage *message = new(std::nothrow) NotifyMessage();
         if (message == nullptr) {
+            HILOG_ERROR("NotifyMessage Unmarshalling error:new object fail.");
             return nullptr;
         }
-
-        if (!message->ReadFromParcel(parcel)) {
-            delete message;
-            message = nullptr;
-        }
+        message->ReadFromParcel(parcel);
         return message;
     }
 };
