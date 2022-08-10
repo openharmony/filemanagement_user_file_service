@@ -21,24 +21,18 @@ namespace FileAccessFwk {
 FileAccessNotifyAgent::FileAccessNotifyAgent(std::shared_ptr<INotifyCallback> &notifyCallback)
     : notifyCallback_(notifyCallback)
 {
-    HILOG_INFO("%{public}s, called start", __func__);
-    HILOG_INFO("%{public}s, called end", __func__);
 }
 
 FileAccessNotifyAgent::~FileAccessNotifyAgent()
 {
-    HILOG_INFO("%{public}s, called start", __func__);
-    HILOG_INFO("%{public}s, called end", __func__);
 }
 
 int FileAccessNotifyAgent::Notify(const NotifyMessage &message)
 {
-    HILOG_INFO("%{public}s, called start", __func__);
     int ret = ERR_OK;
     if (notifyCallback_ != nullptr) {
         ret = notifyCallback_->OnNotify(message);
     }
-    HILOG_INFO("%{public}s, called end", __func__);
     return ret;
 }
 } // namespace FileAccessFwk
