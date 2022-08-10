@@ -441,7 +441,7 @@ int JsFileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayN
 int JsFileAccessExtAbility::Delete(const Uri &sourceFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
-    auto value = std::make_shared<Value<int>>();
+    auto ret = std::make_shared<int>();
     auto argParser = [uri = sourceFile](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
         NativeValue *nativeUri = engine.CreateString(uri.ToString().c_str(), uri.ToString().length());
         if (nativeUri == nullptr) {
@@ -452,14 +452,12 @@ int JsFileAccessExtAbility::Delete(const Uri &sourceFile)
         argc = ARGC_ONE;
         return true;
     };
-    auto retParser = [value](NativeEngine &engine, NativeValue *result) -> bool {
-        NativeObject *obj = ConvertNativeValueTo<NativeObject>(result);
-        bool ret = ConvertFromJsValue(engine, obj->GetProperty("index"), value->data);
-        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("code"), value->code);
-        if (!ret) {
+    auto retParser = [ret](NativeEngine &engine, NativeValue *result) -> bool {
+        bool res = ConvertFromJsValue(engine, result, *ret);
+        if (!res) {
             HILOG_ERROR("Convert js value fail.");
         }
-        return ret;
+        return res;
     };
 
     auto errCode = CallJsMethod("delete", jsRuntime_, jsObj_.get(), argParser, retParser);
@@ -469,13 +467,13 @@ int JsFileAccessExtAbility::Delete(const Uri &sourceFile)
         return errCode;
     }
 
-    if (value->code != ERR_OK) {
+    if (*ret != ERR_OK) {
         HILOG_ERROR("fileio fail.");
         return ERR_FILEIO_FAIL;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return value->data;
+    return *ret;
 }
 
 int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile)

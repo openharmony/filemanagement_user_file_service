@@ -236,10 +236,7 @@ export default class FileExtAbility extends Extension {
 
     delete(selectFileUri) {
         if (!this.checkUri(selectFileUri)) {
-            return {
-                index: ERR_ERROR,
-                code: ERR_ERROR,
-            };
+            return ERR_ERROR;
         }
         let path = this.getPath(selectFileUri);
         let code = ERR_OK;
@@ -257,10 +254,7 @@ export default class FileExtAbility extends Extension {
                 code = ERR_ERROR;
             }
         });
-        return {
-            index: code,
-            code: code,
-        };
+        return code;
     }
 
     move(sourceFileUri, targetParentUri) {
