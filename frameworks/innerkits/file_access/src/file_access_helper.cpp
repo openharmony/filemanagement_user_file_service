@@ -27,7 +27,7 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-const int32_t UID_TRANSFORM_DIVISOR = 200000;
+static const int32_t UID_TRANSFORM_DIVISOR = 200000;
 std::unordered_map<std::string, AAFwk::Want> FileAccessHelper::wantsMap_;
 
 sptr<AppExecFwk::IBundleMgr> FileAccessHelper::GetBundleMgrProxy()
@@ -170,7 +170,8 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     bool ret = bm->QueryExtensionAbilityInfos(
         AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, useId, extensionInfos);
     if (!ret) {
-        HILOG_ERROR("FileAccessHelper::Creator QueryExtensionAbilityInfos failed");
+        HILOG_ERROR("FileAccessHelper::Creator QueryExtensionAbilityInfos failed ,uid:%{public}d,useId:%{public}d",
+            uid, useId);
         return nullptr;
     }
 
@@ -516,7 +517,7 @@ std::vector<AAFwk::Want> FileAccessHelper::GetRegisterFileAccessExtAbilityInfo()
     bool ret = bm->QueryExtensionAbilityInfos(
         AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, useId, extensionInfos);
     if (!ret) {
-        HILOG_ERROR("FileAccessHelper::GetRegisterFileAccessExtAbilityInfo QueryExtensionAbilityInfos error");
+        HILOG_ERROR("FileAccessHelper QueryExtensionAbilityInfos error,uid:%{public}d,useId:%{public}d", uid, useId);
         return wants;
     }
 
