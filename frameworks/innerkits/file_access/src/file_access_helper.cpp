@@ -170,8 +170,7 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     bool ret = bm->QueryExtensionAbilityInfos(
         AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, useId, extensionInfos);
     if (!ret) {
-        HILOG_ERROR("FileAccessHelper::Creator QueryExtensionAbilityInfos failed ,uid:%{public}d,useId:%{public}d",
-            uid, useId);
+        HILOG_ERROR("FileAccessHelper::Creator QueryExtensionAbilityInfos failed");
         return nullptr;
     }
 
@@ -517,7 +516,7 @@ std::vector<AAFwk::Want> FileAccessHelper::GetRegisterFileAccessExtAbilityInfo()
     bool ret = bm->QueryExtensionAbilityInfos(
         AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, useId, extensionInfos);
     if (!ret) {
-        HILOG_ERROR("FileAccessHelper QueryExtensionAbilityInfos error,uid:%{public}d,useId:%{public}d", uid, useId);
+        HILOG_ERROR("FileAccessHelper::GetRegisterFileAccessExtAbilityInfo QueryExtensionAbilityInfos error");
         return wants;
     }
 
