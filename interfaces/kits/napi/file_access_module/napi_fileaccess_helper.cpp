@@ -118,7 +118,7 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
             return nullptr;
         }
 
-        if (argc > requireArgc || (napi_get_reference_value(env, g_constructorRef, &cons) != napi_ok)) {
+        if (argc > requireArgc || napi_get_reference_value(env, g_constructorRef, &cons) != napi_ok) {
             HILOG_ERROR("Wrong argument count%{public}zu. or g_constructorRef reference is fail", argc);
             return nullptr;
         }
@@ -134,7 +134,7 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
             return nullptr;
         }
 
-        if (argc > requireArgc || (napi_get_reference_value(env, g_constructorRef, &cons) != napi_ok)) {
+        if (argc > requireArgc || napi_get_reference_value(env, g_constructorRef, &cons) != napi_ok) {
             HILOG_ERROR("Wrong argument count%{public}zu. or g_constructorRef reference is fail", argc);
             return nullptr;
         }
