@@ -39,7 +39,7 @@ using string = std::string;
 
 struct ConnectInfo {
     AAFwk::Want want = {};
-    std::shared_ptr<FileAccessExtConnection> fileAccessExtConnection = nullptr;
+    sptr<FileAccessExtConnection> fileAccessExtConnection = nullptr;
 };
 
 class FileAccessHelper final : public std::enable_shared_from_this<FileAccessHelper> {
@@ -84,7 +84,7 @@ private:
     void InsertConnectInfo(const std::string &key,
                            const AAFwk::Want &want,
                            const sptr<IFileAccessExtBase> &fileExtProxy,
-                           std::shared_ptr<FileAccessExtConnection> fileExtConnection);
+                           sptr<FileAccessExtConnection> fileExtConnection);
 
     sptr<IRemoteObject> token_ = nullptr;
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap_;
