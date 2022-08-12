@@ -175,7 +175,7 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
         AAFwk::Want wantTem;
         wantTem.SetElementName(extensionInfos[i].bundleName, extensionInfos[i].name);
         sptr<FileAccessExtConnection> fileAccessExtConnection = new(std::nothrow) FileAccessExtConnection();
-        if (fileAccessExtConnection = nullptr) {
+        if (fileAccessExtConnection == nullptr) {
             HILOG_ERROR("new fileAccessExtConnection fail");
             return nullptr;
         }
@@ -226,7 +226,7 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap;
     for (size_t i = 0; i < wants.size(); i++) {
         sptr<FileAccessExtConnection> fileAccessExtConnection = new(std::nothrow) FileAccessExtConnection();
-        if (fileAccessExtConnection = nullptr) {
+        if (fileAccessExtConnection == nullptr) {
             HILOG_ERROR("new fileAccessExtConnection fail");
             return nullptr;
         }
@@ -277,7 +277,7 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteOb
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap;
     for (size_t i = 0; i < wants.size(); i++) {
         sptr<FileAccessExtConnection> fileAccessExtConnection = new(std::nothrow) FileAccessExtConnection();
-        if (fileAccessExtConnection = nullptr) {
+        if (fileAccessExtConnection == nullptr) {
             HILOG_ERROR("new fileAccessExtConnection fail");
             return nullptr;
         }
