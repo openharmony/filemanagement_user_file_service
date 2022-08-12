@@ -28,7 +28,7 @@ namespace {
 using namespace std;
 using namespace OHOS;
 using namespace FileAccessFwk;
-int uid = 5003;
+int abilityId = 5003;
 shared_ptr<FileAccessHelper> fah = nullptr;
 
 class FileExtensionHelperTest : public testing::Test {
@@ -38,7 +38,7 @@ public:
         cout << "FileExtensionHelperTest code test" << endl;
 
         auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
+        auto remoteObj = saManager->GetSystemAbility(abilityId);
         AAFwk::Want want;
         want.SetElementName("com.ohos.UserFile.ExternalFileManager", "FileExtensionAbility");
         vector<AAFwk::Want> wants {want};
@@ -1648,7 +1648,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_allInterface_0000, testi
         uint64_t selfTokenId_ = GetSelfTokenID();
 
         auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
+        auto remoteObj = saManager->GetSystemAbility(abilityId);
         vector<AAFwk::Want> wants = FileAccessHelper::GetRegisterFileAccessExtAbilityInfo();
         shared_ptr<FileAccessHelper> fahs = FileAccessHelper::Creator(remoteObj, wants);
 
