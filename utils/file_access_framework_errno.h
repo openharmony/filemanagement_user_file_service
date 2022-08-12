@@ -30,7 +30,6 @@ enum {
     ERR_PERMISSION_DENIED,                  // no permission
     ERR_INVALID_FD,                         // invalid fd
     ERR_INVALID_URI,                        // invalid uri
-    ERR_URI_CHECK,                          // check uri head fail
     ERR_FILEIO_FAIL,                        // fileio fail
     ERR_PARAM_NUMBER,                       // Parameter number is abnormal
     ERR_INVALID_PARAM,                      // invalid parameter
