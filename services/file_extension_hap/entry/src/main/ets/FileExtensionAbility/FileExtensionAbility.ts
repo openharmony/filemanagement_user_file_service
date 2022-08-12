@@ -407,10 +407,16 @@ export default class FileExtAbility extends Extension {
             fileio.accessSync(path);
         } catch (e) {
             hilog.error(DOMAIN_CODE, TAG, 'isFileExist error ' + e.message);
+            if (e.message == 'No such file or directory') {
+                return {
+                    isExist: false,
+                    code: ERR_OK,
+                };
+            }
             return {
                 isExist: false,
-                code: ERR_OK,
-            };
+                code: ERR_ERROR,
+            }
         }
         return {
             isExist: true,
