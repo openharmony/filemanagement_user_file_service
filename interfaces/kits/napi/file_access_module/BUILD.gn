@@ -24,18 +24,20 @@ ohos_shared_library("fileaccess") {
     "./",
     "${BASE_DIR}/utils",
     "${BASE_DIR}/interfaces/kits/napi/common",
+    "//foundation/distributeddatamgr/distributedfile/utils/filemgmt_libn/include",
   ]
 
   sources = [
     "${BASE_DIR}/interfaces/kits/napi/common/file_extension_info_napi.cpp",
     "napi_fileaccess_helper.cpp",
+    "napi_notify_callback.cpp",
     "native_fileaccess_module.cpp",
   ]
 
   deps = [
     "${BASE_DIR}/frameworks/innerkits/file_access:file_access_extension_ability_kit",
     "//foundation/ability/ability_runtime/frameworks/js/napi/inner/napi_common:napi_common",
-    "//foundation/distributeddatamgr/distributedfile/utils/filemgmt_libn",
+    "//foundation/distributeddatamgr/distributedfile/utils/filemgmt_libn:filemgmt_libn",
   ]
 
   external_deps = [

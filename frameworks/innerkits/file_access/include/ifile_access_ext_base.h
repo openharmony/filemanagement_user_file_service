@@ -22,6 +22,8 @@
 #include <iremote_broker.h>
 
 #include "file_access_extension_info.h"
+#include "file_access_framework_errno.h"
+#include "ifile_access_notify.h"
 #include "uri.h"
 
 namespace OHOS {
@@ -39,7 +41,9 @@ public:
         CMD_RENAME,
         CMD_LIST_FILE,
         CMD_GET_ROOTS,
-        CMD_IS_FILE_EXIST
+        CMD_IS_FILE_EXIST,
+        CMD_REGISTER_NOTIFY,
+        CMD_UNREGISTER_NOTIFY
     };
 
     virtual int OpenFile(const Uri &uri, const int flags) = 0;
@@ -52,6 +56,8 @@ public:
     virtual std::vector<FileInfo> ListFile(const Uri &sourceFile) = 0;
     virtual std::vector<DeviceInfo> GetRoots() = 0;
     virtual int IsFileExist(const Uri &uri, bool &isExist) = 0;
+    virtual int RegisterNotify(sptr<IFileAccessNotify> &notify) = 0;
+    virtual int UnregisterNotify(sptr<IFileAccessNotify> &notify) = 0;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

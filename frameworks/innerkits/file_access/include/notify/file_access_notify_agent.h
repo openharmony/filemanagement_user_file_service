@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,18 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef FILE_EXTENSION_INFO_NAPI_H
-#define FILE_EXTENSION_INFO_NAPI_H
+#ifndef FILE_ACCESS_NOTIFY_AGENT_H
+#define FILE_ACCESS_NOTIFY_AGENT_H
 
-#include "napi/native_node_api.h"
+#include <memory>
+
+#include "file_access_notify_stub.h"
+#include "inotify_callback.h"
+#include "iremote_object.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
-void InitFlag(napi_env env, napi_value exports);
-void InitNotifyType(napi_env env, napi_value exports);
-void InitDeviceType(napi_env env, napi_value exports);
-void InitFileInfo(napi_env env, napi_value exports);
-void InitDeviceInfo(napi_env env, napi_value exports);
+class FileAccessNotifyAgent final : public FileAccessNotifyStub {
+public:
+    FileAccessNotifyAgent(std::shared_ptr<INotifyCallback> &notifyCallback);
+    ~FileAccessNotifyAgent();
+    int Notify(const NotifyMessage &message) override;
+
+private:
+    std::shared_ptr<INotifyCallback> notifyCallback_;
+};
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FILE_EXTENSION_INFO_NAPI_H
+#endif // FILE_ACCESS_NOTIFY_AGENT_H

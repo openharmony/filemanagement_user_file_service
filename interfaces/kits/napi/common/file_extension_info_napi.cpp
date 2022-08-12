@@ -20,6 +20,7 @@
 #include <string>
 
 #include "file_access_extension_info.h"
+#include "file_access_notify_common.h"
 #include "hilog_wrapper.h"
 #include "js_native_api.h"
 #include "napi/native_common.h"
@@ -88,6 +89,19 @@ void InitFlag(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_DELETE", CreateUint32(env, FLAG_SUPPORTS_DELETE)),
         DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_RENAME", CreateUint32(env, FLAG_SUPPORTS_RENAME)),
         DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_MOVE", CreateUint32(env, FLAG_SUPPORTS_MOVE))
+    };
+    napi_value obj = nullptr;
+    napi_create_object(env, &obj);
+    napi_define_properties(env, obj, sizeof(desc) / sizeof(desc[0]), desc);
+    napi_set_named_property(env, exports, propertyName, obj);
+}
+
+void InitNotifyType(napi_env env, napi_value exports)
+{
+    char propertyName[] = "NotifyType";
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("DEVICE_ONLINE", CreateUint32(env, NOTIFY_DEVICE_ONLINE)),
+        DECLARE_NAPI_STATIC_PROPERTY("DEVICE_OFFLINE", CreateUint32(env, NOTIFY_DEVICE_OFFLINE))
     };
     napi_value obj = nullptr;
     napi_create_object(env, &obj);

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,18 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef FILE_EXTENSION_INFO_NAPI_H
-#define FILE_EXTENSION_INFO_NAPI_H
+#ifndef FILE_ACCESS_NOTIFY_PROXY_H
+#define FILE_ACCESS_NOTIFY_PROXY_H
 
-#include "napi/native_node_api.h"
+#include "ifile_access_notify.h"
+#include "iremote_broker.h"
+#include "iremote_proxy.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
-void InitFlag(napi_env env, napi_value exports);
-void InitNotifyType(napi_env env, napi_value exports);
-void InitDeviceType(napi_env env, napi_value exports);
-void InitFileInfo(napi_env env, napi_value exports);
-void InitDeviceInfo(napi_env env, napi_value exports);
+class FileAccessNotifyProxy : public IRemoteProxy<IFileAccessNotify> {
+public:
+    explicit FileAccessNotifyProxy(const sptr<IRemoteObject> &impl);
+    ~FileAccessNotifyProxy() = default;
+    int Notify(const NotifyMessage &message) override;
+private:
+    static inline BrokerDelegator<FileAccessNotifyProxy> delegator_;
+};
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FILE_EXTENSION_INFO_NAPI_H
+#endif // FILE_ACCESS_NOTIFY_PROXY_H
