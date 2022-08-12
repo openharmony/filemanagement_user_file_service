@@ -530,9 +530,9 @@ int FileAccessHelper::IsFileExist(Uri &uri, bool &isExist)
         return ERR_IPC_ERROR;
     }
 
-    int ret = fileExtProxy->IsFileExist(uri, isExist);
+    int index = fileExtProxy->IsFileExist(uri, isExist);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return ret;
+    return index;
 }
 
 void FileAccessDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
