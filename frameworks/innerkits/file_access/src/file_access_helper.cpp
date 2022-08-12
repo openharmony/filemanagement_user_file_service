@@ -174,13 +174,17 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     for (size_t i = 0; i < extensionInfos.size(); i++) {
         AAFwk::Want wantTem;
         wantTem.SetElementName(extensionInfos[i].bundleName, extensionInfos[i].name);
-        sptr<IFileAccessExtBase> fileExtProxy = nullptr;
         sptr<FileAccessExtConnection> fileAccessExtConnection = new(std::nothrow) FileAccessExtConnection();
+        if (fileAccessExtConnection = nullptr) {
+            HILOG_ERROR("new fileAccessExtConnection fail");
+            return nullptr;
+        }
+
         if (!fileAccessExtConnection->IsExtAbilityConnected()) {
             fileAccessExtConnection->ConnectFileExtAbility(wantTem, context->GetToken());
         }
 
-        fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
+        sptr<IFileAccessExtBase> fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
         if (fileExtProxy == nullptr) {
             HILOG_ERROR("Creator get invalid fileExtProxy");
             return nullptr;
@@ -221,13 +225,17 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
 
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap;
     for (size_t i = 0; i < wants.size(); i++) {
-        sptr<IFileAccessExtBase> fileExtProxy = nullptr;
         sptr<FileAccessExtConnection> fileAccessExtConnection = new(std::nothrow) FileAccessExtConnection();
+        if (fileAccessExtConnection = nullptr) {
+            HILOG_ERROR("new fileAccessExtConnection fail");
+            return nullptr;
+        }
+
         if (!fileAccessExtConnection->IsExtAbilityConnected()) {
             fileAccessExtConnection->ConnectFileExtAbility(wants[i], context->GetToken());
         }
 
-        fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
+        sptr<IFileAccessExtBase> fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
         if (fileExtProxy == nullptr) {
             HILOG_ERROR("Creator get invalid fileExtProxy");
             return nullptr;
@@ -268,13 +276,17 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteOb
 
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap;
     for (size_t i = 0; i < wants.size(); i++) {
-        sptr<IFileAccessExtBase> fileExtProxy = nullptr;
         sptr<FileAccessExtConnection> fileAccessExtConnection = new(std::nothrow) FileAccessExtConnection();
+        if (fileAccessExtConnection = nullptr) {
+            HILOG_ERROR("new fileAccessExtConnection fail");
+            return nullptr;
+        }
+
         if (!fileAccessExtConnection->IsExtAbilityConnected()) {
             fileAccessExtConnection->ConnectFileExtAbility(wants[i], token);
         }
 
-        fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
+        sptr<IFileAccessExtBase> fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
         if (fileExtProxy == nullptr) {
             HILOG_ERROR("Creator get invalid fileExtProxy");
             return nullptr;
