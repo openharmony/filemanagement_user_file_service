@@ -161,7 +161,7 @@ int FileAccessExtStubImpl::RegisterNotify(sptr<IFileAccessNotify> &notify)
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_IPC_ERROR;
     }
 
     int ret = extension->RegisterNotify(notify);
@@ -179,7 +179,7 @@ int FileAccessExtStubImpl::UnregisterNotify(sptr<IFileAccessNotify> &notify)
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_IPC_ERROR;
     }
 
     int ret = extension->UnregisterNotify(notify);
