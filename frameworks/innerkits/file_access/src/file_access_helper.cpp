@@ -549,7 +549,7 @@ int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)
     if (callback == nullptr) {
         HILOG_ERROR("failed with invalid callback");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
 
     if (notifyAgent_ != nullptr) {
@@ -565,7 +565,7 @@ int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)
     if (notifyAgent_ == nullptr) {
         HILOG_INFO("new FileAccessNotifyAgent fail");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
 
     auto ret = fileExtProxy->RegisterNotify(notifyAgent_);
