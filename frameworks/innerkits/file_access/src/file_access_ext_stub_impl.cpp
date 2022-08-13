@@ -153,5 +153,41 @@ int FileAccessExtStubImpl::IsFileExist(const Uri &uri, bool &isExist)
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
+
+int FileAccessExtStubImpl::RegisterNotify(sptr<IFileAccessNotify> &notify)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "RegisterNotify");
+    auto extension = GetOwner();
+    if (extension == nullptr) {
+        HILOG_ERROR("get extension failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_ERROR;
+    }
+
+    int ret = extension->RegisterNotify(notify);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("RegisterNotify failed.");
+    }
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
+}
+
+int FileAccessExtStubImpl::UnregisterNotify(sptr<IFileAccessNotify> &notify)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "UnregisterNotify");
+    auto extension = GetOwner();
+    if (extension == nullptr) {
+        HILOG_ERROR("get extension failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_ERROR;
+    }
+
+    int ret = extension->UnregisterNotify(notify);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("UnregisterNotify failed.");
+    }
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

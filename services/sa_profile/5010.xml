@@ -21,7 +21,7 @@
     <systemability>
        <name>5010</name>
        <libpath>libfms_server.z.so</libpath>
-       <run-on-create>true</run-on-create>
+       <run-on-create>false</run-on-create>
        <distributed>false</distributed>
        <dump-level>1</dump-level>
    </systemability>

@@ -43,6 +43,8 @@ public:
     std::vector<FileInfo> ListFile(const Uri &sourceFileUri) override;
     std::vector<DeviceInfo> GetRoots() override;
     int IsFileExist(const Uri &uri, bool &isExist) override;
+    int RegisterNotify(sptr<IFileAccessNotify> &notify) override;
+    int UnregisterNotify(sptr<IFileAccessNotify> &notify) override;
 
 private:
     std::shared_ptr<FileAccessExtAbility> GetOwner();

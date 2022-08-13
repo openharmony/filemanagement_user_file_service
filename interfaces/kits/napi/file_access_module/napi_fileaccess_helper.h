@@ -33,6 +33,8 @@ namespace FileAccessFwk {
     napi_value NAPI_ListFile(napi_env env, napi_callback_info info);
     napi_value NAPI_GetRoots(napi_env env, napi_callback_info info);
     napi_value NAPI_IsFileExist(napi_env env, napi_callback_info info);
+    napi_value NAPI_On(napi_env env, napi_callback_info info);
+    napi_value NAPI_Off(napi_env env, napi_callback_info info);
 }
 } // namespace FileAccessFwk
 #endif // NAPI_FILEACCESS_HELPER_H

@@ -17,6 +17,9 @@ class FileAccessExtensionAbility {
     onCreate(want) {
     }
 
+    registerCallback(callback) {
+    }
+
     openFile(uri, mode) {
         return 0;
     }
@@ -36,7 +39,7 @@ class FileAccessExtensionAbility {
     move(sourceFileUri, targetParentUri) {
         return "";
     }
-    
+
     rename(sourceFileUri, displayName) {
         return "";
     }

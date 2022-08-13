@@ -44,6 +44,8 @@ private:
     ErrCode CmdListFile(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdGetRoots(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdIsFileExist(MessageParcel &data, MessageParcel &reply);
+    ErrCode CmdRegisterNotify(MessageParcel &data, MessageParcel &reply);
+    ErrCode CmdUnregisterNotify(MessageParcel &data, MessageParcel &reply);
     bool CheckCallingPermission(const std::string &permission);
     using RequestFuncType = int (FileAccessExtStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, RequestFuncType> stubFuncMap_;

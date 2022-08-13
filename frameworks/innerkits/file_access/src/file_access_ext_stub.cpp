@@ -49,6 +49,8 @@ FileAccessExtStub::FileAccessExtStub()
     stubFuncMap_[CMD_LIST_FILE] = &FileAccessExtStub::CmdListFile;
     stubFuncMap_[CMD_GET_ROOTS] = &FileAccessExtStub::CmdGetRoots;
     stubFuncMap_[CMD_IS_FILE_EXIST] = &FileAccessExtStub::CmdIsFileExist;
+    stubFuncMap_[CMD_REGISTER_NOTIFY] = &FileAccessExtStub::CmdRegisterNotify;
+    stubFuncMap_[CMD_UNREGISTER_NOTIFY] = &FileAccessExtStub::CmdUnregisterNotify;
 }
 
 FileAccessExtStub::~FileAccessExtStub()
@@ -432,6 +434,60 @@ bool FileAccessExtStub::CheckCallingPermission(const std::string &permission)
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return true;
+}
+
+ErrCode FileAccessExtStub::CmdRegisterNotify(MessageParcel &data, MessageParcel &reply)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdRegisterNotify");
+    auto remote = data.ReadRemoteObject();
+    if (remote == nullptr) {
+        HILOG_INFO("get remote obj fail.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_IPC_ERROR;
+    }
+
+    auto notify = iface_cast<IFileAccessNotify>(remote);
+    if (notify == nullptr) {
+        HILOG_INFO("get notify fail");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_IPC_ERROR;
+    }
+
+    int ret = RegisterNotify(notify);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("WriteInt32 failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_IPC_ERROR;
+    }
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
+ErrCode FileAccessExtStub::CmdUnregisterNotify(MessageParcel &data, MessageParcel &reply)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdUnregisterNotify");
+    auto remote = data.ReadRemoteObject();
+    if (remote == nullptr) {
+        HILOG_INFO("get remote obj fail.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_IPC_ERROR;
+    }
+
+    auto notify = iface_cast<IFileAccessNotify>(remote);
+    if (notify == nullptr) {
+        HILOG_INFO("get notify fail");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_IPC_ERROR;
+    }
+
+    int ret = UnregisterNotify(notify);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("WriteInt32 failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_IPC_ERROR;
+    }
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS

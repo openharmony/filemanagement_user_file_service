@@ -35,7 +35,12 @@ enum {
     ERR_INVALID_PARAM,                      // invalid parameter
     ERR_PARSER_FAIL,                        // parser js result error
     ERR_OPERATION_NOT_PERMITTED,            // Operation not permitted
-    ERR_GET_FILEACCESS_HELPER               // get fileAccessHelper fail
+    ERR_GET_FILEACCESS_HELPER,             // get fileAccessHelper fail
+    ERR_INVALID_NOTIFY,                     // invalid notify
+    ERR_REMOVE_NOTIFY_FAIL,                 // remove notify fail
+    ERR_NOTIFY_NOT_EXIST,                   // the notify is not exist
+    ERR_NOTIFY_FAIL                         // notify client fail
+    
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
