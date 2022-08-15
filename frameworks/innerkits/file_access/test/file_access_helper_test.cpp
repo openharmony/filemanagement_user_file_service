@@ -29,7 +29,7 @@ namespace {
 using namespace std;
 using namespace OHOS;
 using namespace FileAccessFwk;
-int abilityId = 5003;
+int uid = 5003;
 shared_ptr<FileAccessHelper> fah = nullptr;
 Uri newDirUri("");
 
@@ -40,7 +40,7 @@ public:
         cout << "FileAccessHelperTest code test" << endl;
 
         auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(abilityId);
+        auto remoteObj = saManager->GetSystemAbility(uid);
         AAFwk::Want want;
         want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
         vector<AAFwk::Want> wants {want};
@@ -818,7 +818,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0002, testing::ext::TestS
         Uri testUri("");
         Uri sourceFileUri("");
         result = fah->Move(sourceFileUri, newDirUriTest, testUri);
-        EXPECT_EQ(result, ERR_OPERATION_NOT_PERMITTED);
+        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0002 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest);
@@ -857,7 +857,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0003, testing::ext::TestS
         Uri testUri2("");
         Uri sourceFileUri("storage/media/100/local/files/Download/test1/test.txt");
         result = fah->Move(sourceFileUri, newDirUriTest2, testUri2);
-        EXPECT_EQ(result, ERR_OPERATION_NOT_PERMITTED);
+        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0003 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest1);
@@ -891,7 +891,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0004, testing::ext::TestS
         Uri testUri("");
         Uri sourceFileUri("~!@#$%^&*()_");
         result = fah->Move(sourceFileUri, newDirUriTest, testUri);
-        EXPECT_EQ(result, ERR_OPERATION_NOT_PERMITTED);
+        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0004 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest);
@@ -926,7 +926,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0005, testing::ext::TestS
         Uri testUri2("");
         Uri targetParentUri("");
         result = fah->Move(testUri, targetParentUri, testUri2);
-        EXPECT_EQ(result, ERR_OPERATION_NOT_PERMITTED);
+        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0005 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest);
@@ -965,7 +965,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0006, testing::ext::TestS
         Uri testUri2("");
         Uri targetParentUri("storage/media/100/local/files/Download/test2");
         result = fah->Move(testUri, targetParentUri, testUri2);
-        EXPECT_EQ(result, ERR_OPERATION_NOT_PERMITTED);
+        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0006 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest1);
@@ -1007,7 +1007,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0007, testing::ext::TestS
         Uri testUri2("");
         Uri targetParentUri("~!@#$^%&*()_");
         result = fah->Move(testUri, targetParentUri, testUri2);
-        EXPECT_EQ(result, ERR_OPERATION_NOT_PERMITTED);
+        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0007 result:" << result << endl;
         
         result = fah->Delete(newDirUriTest1);
@@ -1305,9 +1305,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0005, testing::ext::Tes
 
         Uri renameUri("");
         result = fah->Rename(testUri, "", renameUri);
-
-        int errorCode = 102825990;
-        EXPECT_EQ(result, errorCode);
+        EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Rename_0005 result:" << result << endl;
 
         result = fah->Delete(newDirUriTest);
