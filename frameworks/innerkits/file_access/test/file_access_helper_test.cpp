@@ -29,7 +29,7 @@ namespace {
 using namespace std;
 using namespace OHOS;
 using namespace FileAccessFwk;
-int uid = 5003;
+int abilityId = 5003;
 shared_ptr<FileAccessHelper> fah = nullptr;
 Uri newDirUri("");
 
@@ -40,7 +40,7 @@ public:
         cout << "FileAccessHelperTest code test" << endl;
 
         auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(uid);
+        auto remoteObj = saManager->GetSystemAbility(abilityId);
         AAFwk::Want want;
         want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
         vector<AAFwk::Want> wants {want};
