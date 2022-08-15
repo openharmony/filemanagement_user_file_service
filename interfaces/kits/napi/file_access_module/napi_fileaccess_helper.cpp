@@ -730,7 +730,7 @@ napi_value NAPI_IsFileExist(napi_env env, napi_callback_info info)
 napi_value NAPI_On(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -753,8 +753,9 @@ napi_value NAPI_On(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    if (fileAccessHelper->On(callback) != ERR_OK) {
-        NError(EINVAL).ThrowErr(env, "FileAccessHelper::On fail.");
+    auto retCode = fileAccessHelper->On(callback);
+    if (retCode != ERR_OK) {
+        NError(retCode).ThrowErr(env, "FileAccessHelper::On fail.");
         return nullptr;
     }
     return NVal::CreateUndefined(env).val_;
@@ -763,7 +764,7 @@ napi_value NAPI_On(napi_env env, napi_callback_info info)
 napi_value NAPI_Off(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -774,34 +775,10 @@ napi_value NAPI_Off(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    auto result = std::make_shared<int>();
-    auto cbExec = [result, fileAccessHelper]() -> NError {
-        *result = fileAccessHelper->Off();
-        if (*result != ERR_OK) {
-            return NError([result]() -> std::tuple<uint32_t, std::string> {
-                return { *result, "FileAccessHelper::Off fail." };
-            });
-        }
-        return NError(ERRNO_NOERR);
-    };
-    auto cbComplete = [result](napi_env env, NError err) -> NVal {
-        if (err) {
-            return { env, err.GetNapiErr(env) };
-        }
-        return NVal::CreateInt32(env, (int32_t)(*result));
-    };
-
-    std::string procedureName = "Off";
-    if (funcArg.GetArgc() == NARG_CNT::ZERO) {
-        return NAsyncWorkPromise(env, NVal(env, funcArg.GetThisVar())).Schedule(procedureName, cbExec, cbComplete).val_;
-    } else {
-        NVal cb(env, funcArg[NARG_POS::FIRST]);
-        if (!cb.TypeIs(napi_function)) {
-            NError(EINVAL).ThrowErr(env, "Argument must be function");
-            return nullptr;
-        }
-        return NAsyncWorkCallback(env, NVal(env, funcArg.GetThisVar()), cb)
-            .Schedule(procedureName, cbExec, cbComplete).val_;
+    auto retCode = fileAccessHelper->Off();
+    if (retCode != ERR_OK) {
+        NError(retCode).ThrowErr(env, "FileAccessHelper::Off fail.");
+        return nullptr;
     }
     return NVal::CreateUndefined(env).val_;
 }

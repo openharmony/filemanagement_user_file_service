@@ -18,7 +18,7 @@
         "srcEntrance": "./ets/FileExtensionAbility/FileExtensionAbility.ts",
         "name": "FileExtensionAbility",
         "type": "fileAccess",
-        "uri": "fileAccess://fileAccess",
+        "uri": "datashare:///com.ohos.UserFile.ExternalFileManager/",
         "visible": true
       }
     ],

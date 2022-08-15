@@ -26,8 +26,50 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-const int32_t DEFAULT_USERID = 100;
+namespace {
+    const int32_t DEFAULT_USERID = 100;
+    const std::string SCHEME_NAME = "datashare";
+    const std::string MEDIA_BNUDLE_NAME = "media";
+}
 std::unordered_map<std::string, AAFwk::Want> FileAccessHelper::wantsMap_;
+
+static bool GetBundleNameFromPath(const std::string &path, std::string &bundleName)
+{
+    if (path.size() == 0) {
+        return false;
+    }
+
+    if (path.front() != '/') {
+        return false;
+    }
+
+    auto tmpPath = path.substr(1);
+    auto index = tmpPath.find_first_of("/");
+    bundleName = tmpPath.substr(0, index);
+    return true;
+}
+
+static bool CheckUri(Uri &uri, std::string &bundleName)
+{
+    std::string schemeStr = std::string(uri.GetScheme());
+    if (schemeStr.compare(SCHEME_NAME) != 0) {
+        HILOG_ERROR("Uri scheme error.");
+        return false;
+    }
+
+    std::string pathStr = std::string(uri.GetPath());
+    std::string bundleNameStr;
+    if (!GetBundleNameFromPath(pathStr, bundleNameStr)) {
+        HILOG_ERROR("get bundleName error.");
+        return false;
+    }
+
+    if (bundleNameStr.compare(bundleName) != 0 && bundleNameStr.compare(MEDIA_BNUDLE_NAME) != 0) {
+        HILOG_ERROR("Uri bundleName error.");
+        return false;
+    }
+    return true;
+}
 
 sptr<AppExecFwk::IBundleMgr> FileAccessHelper::GetBundleMgrProxy()
 {
@@ -94,7 +136,16 @@ std::shared_ptr<ConnectInfo> FileAccessHelper::GetConnectInfo(Uri &uri)
     for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
         Uri key(iter->first);
         if (key.GetScheme().compare(uri.GetScheme()) == 0) {
-            return iter->second;
+            auto path = std::string(key.GetPath());
+            std::string bundleName;
+            if (!GetBundleNameFromPath(path, bundleName)) {
+                HILOG_ERROR("get bundleName error.");
+                return nullptr;
+            }
+
+            if (CheckUri(uri, bundleName)) {
+                return iter->second;
+            }
         }
     }
 
@@ -333,6 +384,12 @@ sptr<IFileAccessExtBase> FileAccessHelper::GetProxyByUri(Uri &uri)
         return nullptr;
     }
 
+    std::string bundleName = connectInfo->want.GetElement().GetBundleName();
+    if (!CheckUri(uri, bundleName)) {
+        HILOG_ERROR("Check uri error.");
+        return nullptr;
+    }
+
     if (!connectInfo->fileAccessExtConnection->IsExtAbilityConnected()) {
         connectInfo->fileAccessExtConnection->ConnectFileExtAbility(connectInfo->want, token_);
     }
@@ -558,68 +615,81 @@ int FileAccessHelper::IsFileExist(Uri &uri, bool &isExist)
 int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "On");
-    Uri uri("fileAccess://");
-    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
-    if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
-    }
-
     if (callback == nullptr) {
         HILOG_ERROR("failed with invalid callback");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_ERROR;
     }
 
-    if (notifyAgent_ != nullptr) {
-        HILOG_INFO("notifyAgent registered yet.");
-        int ret = fileExtProxy->UnregisterNotify(notifyAgent_);
-        if (ret != ERR_OK) {
-            HILOG_INFO("fileExtProxy unregisterNotify fail");
-        }
-        notifyAgent_.clear();
-    }
-
-    notifyAgent_ = new(std::nothrow) FileAccessNotifyAgent(callback);
-    if (notifyAgent_ == nullptr) {
-        HILOG_INFO("new FileAccessNotifyAgent fail");
+    if (!GetProxy()) {
+        HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_IPC_ERROR;
     }
 
-    auto ret = fileExtProxy->RegisterNotify(notifyAgent_);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("fileExtProxy RegisterNotify fail");
+    std::lock_guard<std::mutex> lock(notifyAgentMutex_);
+    if (notifyAgent_ == nullptr) {
+        notifyAgent_ = new(std::nothrow) FileAccessNotifyAgent(callback);
+        if (notifyAgent_ == nullptr) {
+            HILOG_ERROR("new FileAccessNotifyAgent fail");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+            return ERR_ERROR;
+        }
     }
+
+    int errorCode = ERR_OK;
+    for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
+        auto connectInfo = iter->second;
+        auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
+        if (fileAccessExtProxy == nullptr) {
+            HILOG_ERROR("fileAccessExtProxy RegisterNotify fail");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+            return ERR_IPC_ERROR;
+        }
+
+        auto ret = fileAccessExtProxy->RegisterNotify(notifyAgent_);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("fileAccessExtProxy RegisterNotify fail, bundleName:%{public}s, ret:%{public}d.",
+                connectInfo->want.GetElement().GetBundleName().c_str(), ret);
+            errorCode = ret;
+        }
+    }
+
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return ret;
+    return errorCode;
 }
 
 int FileAccessHelper::Off()
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Off");
+    std::lock_guard<std::mutex> lock(notifyAgentMutex_);
     if (notifyAgent_ == nullptr) {
         HILOG_ERROR("not registered notify");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_NOTIFY_NOT_EXIST;
     }
 
-    Uri uri("fileAccess://");
-    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
-    if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+    int errorCode = ERR_OK;
+    for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
+        auto connectInfo = iter->second;
+        auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
+        if (fileAccessExtProxy == nullptr) {
+            HILOG_INFO("fileAccessExtProxy UnregisterNotify fail, bundleName:%{public}s",
+                connectInfo->want.GetElement().GetBundleName().c_str());
+            continue;
+        }
+
+        auto ret = fileAccessExtProxy->UnregisterNotify(notifyAgent_);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("fileAccessExtProxy UnregisterNotify fail, bundleName:%{public}s, ret:%{public}d.",
+                connectInfo->want.GetElement().GetBundleName().c_str(), ret);
+            errorCode = ret;
+        }
     }
 
-    auto ret = fileExtProxy->UnregisterNotify(notifyAgent_);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("fileExtProxy unregisterNotify fail");
-    }
     notifyAgent_.clear();
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return ret;
+    return errorCode;
 }
 
 void FileAccessDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)

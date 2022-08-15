@@ -96,6 +96,8 @@ private:
     static std::string GetKeyOfWantsMap(const AAFwk::Want &want);
 
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
+
+    std::mutex notifyAgentMutex_;
     sptr<IFileAccessNotify> notifyAgent_ = nullptr;
 };
 

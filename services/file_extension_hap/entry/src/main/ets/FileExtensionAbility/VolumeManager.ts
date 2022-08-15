@@ -52,7 +52,7 @@ function addVolumeInfo(volumeInfo) {
 }
 
 function path2uri(id, path) {
-    return `fileAccess://${id}${path}`;
+    return `datashare://${id}/com.ohos.UserFile.ExternalFileManager${path}`;
 }
 
 function findVolumeInfo(volumeId) {
