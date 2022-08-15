@@ -94,6 +94,7 @@ private:
 
     static std::unordered_map<std::string, AAFwk::Want> wantsMap_;
     static std::string GetKeyOfWantsMap(const AAFwk::Want &want);
+    static int getUserId();
 
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
     sptr<IFileAccessNotify> notifyAgent_ = nullptr;
