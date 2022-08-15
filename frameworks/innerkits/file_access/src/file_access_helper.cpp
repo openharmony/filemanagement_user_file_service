@@ -117,6 +117,13 @@ std::shared_ptr<ConnectInfo> FileAccessHelper::GetConnectInfo(const AAFwk::Want 
     return nullptr;
 }
 
+int FileAccessHelper::getUserId()
+{
+    int uid = IPCSkeleton::GetCallingUid();
+    int userId = uid / UID_TRANSFORM_DIVISOR;
+    return userId;
+}
+
 std::string FileAccessHelper::GetKeyOfWantsMap(const AAFwk::Want &want)
 {
     for (auto iter = FileAccessHelper::wantsMap_.begin(); iter != FileAccessHelper::wantsMap_.end(); ++iter) {
@@ -165,8 +172,7 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     FileAccessHelper::wantsMap_.clear();
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap;
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
-    int uid = IPCSkeleton::GetCallingUid();
-    int userId = uid / UID_TRANSFORM_DIVISOR;
+    int userId = FileAccessHelper::getUserId();
     bool ret = bm->QueryExtensionAbilityInfos(
         AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, userId, extensionInfos);
     if (!ret) {
@@ -511,8 +517,7 @@ std::vector<AAFwk::Want> FileAccessHelper::GetRegisterFileAccessExtAbilityInfo()
     std::vector<AAFwk::Want> wants;
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     sptr<AppExecFwk::IBundleMgr> bm = FileAccessHelper::GetBundleMgrProxy();
-    int uid = IPCSkeleton::GetCallingUid();
-    int userId = uid / UID_TRANSFORM_DIVISOR;
+    int userId = FileAccessHelper::getUserId();
     bool ret = bm->QueryExtensionAbilityInfos(
         AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, userId, extensionInfos);
     if (!ret) {
