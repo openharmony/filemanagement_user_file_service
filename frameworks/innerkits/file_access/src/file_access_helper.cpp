@@ -29,7 +29,8 @@ namespace FileAccessFwk {
 namespace {
     const int32_t DEFAULT_USERID = 100;
     const std::string SCHEME_NAME = "datashare";
-    const std::string MEDIA_BNUDLE_NAME = "media";
+    const std::string MEDIA_BNUDLE_NAME_ALIAS = "media";
+    const std::string MEDIA_BNUDLE_NAME = "com.ohos.medialibrary.medialibrarydata";
 }
 std::unordered_map<std::string, AAFwk::Want> FileAccessHelper::wantsMap_;
 
@@ -46,26 +47,17 @@ static bool GetBundleNameFromPath(const std::string &path, std::string &bundleNa
     auto tmpPath = path.substr(1);
     auto index = tmpPath.find_first_of("/");
     bundleName = tmpPath.substr(0, index);
+    if (bundleName.compare(MEDIA_BNUDLE_NAME_ALIAS) == 0) {
+        bundleName = MEDIA_BNUDLE_NAME;
+    }
     return true;
 }
 
-static bool CheckUri(Uri &uri, std::string &bundleName)
+static bool CheckUri(Uri &uri)
 {
     std::string schemeStr = std::string(uri.GetScheme());
     if (schemeStr.compare(SCHEME_NAME) != 0) {
         HILOG_ERROR("Uri scheme error.");
-        return false;
-    }
-
-    std::string pathStr = std::string(uri.GetPath());
-    std::string bundleNameStr;
-    if (!GetBundleNameFromPath(pathStr, bundleNameStr)) {
-        HILOG_ERROR("get bundleName error.");
-        return false;
-    }
-
-    if (bundleNameStr.compare(bundleName) != 0 && bundleNameStr.compare(MEDIA_BNUDLE_NAME) != 0) {
-        HILOG_ERROR("Uri bundleName error.");
         return false;
     }
     return true;
@@ -121,35 +113,13 @@ void FileAccessHelper::OnSchedulerDied(const wptr<IRemoteObject> &remote)
     object = nullptr;
 }
 
-std::shared_ptr<ConnectInfo> FileAccessHelper::GetConnectInfo(const std::string &key)
+std::shared_ptr<ConnectInfo> FileAccessHelper::GetConnectInfo(const std::string &bundleName)
 {
-    auto iterator = cMap_.find(key);
+    auto iterator = cMap_.find(bundleName);
     if (iterator != cMap_.end()) {
         return iterator->second;
     }
-    HILOG_ERROR("GetConnectInfo called with key return nullptr");
-    return nullptr;
-}
-
-std::shared_ptr<ConnectInfo> FileAccessHelper::GetConnectInfo(Uri &uri)
-{
-    for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
-        Uri key(iter->first);
-        if (key.GetScheme().compare(uri.GetScheme()) == 0) {
-            auto path = std::string(key.GetPath());
-            std::string bundleName;
-            if (!GetBundleNameFromPath(path, bundleName)) {
-                HILOG_ERROR("get bundleName error.");
-                return nullptr;
-            }
-
-            if (CheckUri(uri, bundleName)) {
-                return iter->second;
-            }
-        }
-    }
-
-    HILOG_ERROR("GetConnectInfo called with uri return nullptr");
+    HILOG_ERROR("GetConnectInfo called with bundleName return nullptr");
     return nullptr;
 }
 
@@ -186,8 +156,7 @@ void FileAccessHelper::InsertConnectInfo(const std::string &key,
                                          const sptr<IFileAccessExtBase> &fileAccessExtProxy,
                                          sptr<FileAccessExtConnection> fileAccessExtConnection)
 {
-    Uri uri(key);
-    std::shared_ptr<ConnectInfo> connectInfo = GetConnectInfo(uri);
+    std::shared_ptr<ConnectInfo> connectInfo = GetConnectInfo(key);
     if (connectInfo == nullptr) {
         std::shared_ptr<ConnectInfo> connectInfo = std::make_shared<ConnectInfo>();
         if (connectInfo == nullptr) {
@@ -246,11 +215,11 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
             HILOG_ERROR("Creator, connectInfo == nullptr");
             return nullptr;
         }
-        FileAccessHelper::wantsMap_.insert(std::pair<std::string, AAFwk::Want>(extensionInfos[i].uri, wantTem));
+        FileAccessHelper::wantsMap_.insert(std::pair<std::string, AAFwk::Want>(extensionInfos[i].bundleName, wantTem));
 
         connectInfo->want = wantTem;
         connectInfo->fileAccessExtConnection = fileAccessExtConnection;
-        cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(extensionInfos[i].uri, connectInfo));
+        cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(extensionInfos[i].bundleName, connectInfo));
     }
     FileAccessHelper *ptrFileAccessHelper = new (std::nothrow) FileAccessHelper(context, cMap);
     if (ptrFileAccessHelper == nullptr) {
@@ -300,8 +269,8 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
 
         connectInfo->want = wants[i];
         connectInfo->fileAccessExtConnection = fileAccessExtConnection;
-        string uriTmp = FileAccessHelper::GetKeyOfWantsMap(wants[i]);
-        cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(uriTmp, connectInfo));
+        string bundleName = FileAccessHelper::GetKeyOfWantsMap(wants[i]);
+        cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(bundleName, connectInfo));
     }
     FileAccessHelper *ptrFileAccessHelper = new (std::nothrow) FileAccessHelper(context, cMap);
     if (ptrFileAccessHelper == nullptr) {
@@ -351,8 +320,8 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteOb
 
         connectInfo->want = wants[i];
         connectInfo->fileAccessExtConnection = fileAccessExtConnection;
-        string uriTmp = FileAccessHelper::GetKeyOfWantsMap(wants[i]);
-        cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(uriTmp, connectInfo));
+        string bundleName = FileAccessHelper::GetKeyOfWantsMap(wants[i]);
+        cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(bundleName, connectInfo));
     }
     FileAccessHelper *ptrFileAccessHelper = new (std::nothrow) FileAccessHelper(token, cMap);
     if (ptrFileAccessHelper == nullptr) {
@@ -378,15 +347,15 @@ bool FileAccessHelper::Release()
 
 sptr<IFileAccessExtBase> FileAccessHelper::GetProxyByUri(Uri &uri)
 {
-    auto connectInfo = GetConnectInfo(uri);
-    if (connectInfo == nullptr) {
-        HILOG_ERROR("GetProxyByUri failed with invalid connectInfo");
+    std::string bundleName;
+    if (!GetBundleNameFromPath(uri.GetPath(), bundleName)) {
+        HILOG_ERROR("Get BundleName failed.");
         return nullptr;
     }
 
-    std::string bundleName = connectInfo->want.GetElement().GetBundleName();
-    if (!CheckUri(uri, bundleName)) {
-        HILOG_ERROR("Check uri error.");
+    auto connectInfo = GetConnectInfo(bundleName);
+    if (connectInfo == nullptr) {
+        HILOG_ERROR("GetProxyByUri failed with invalid connectInfo");
         return nullptr;
     }
 
@@ -411,7 +380,6 @@ bool FileAccessHelper::GetProxy()
 {
     for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
         auto connectInfo = iter->second;
-        std::vector<DeviceInfo> results;
         if (!connectInfo->fileAccessExtConnection->IsExtAbilityConnected()) {
             connectInfo->fileAccessExtConnection->ConnectFileExtAbility(connectInfo->want, token_);
         }
@@ -433,6 +401,12 @@ int FileAccessHelper::OpenFile(Uri &uri, int flags)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
     int fd = ERR_ERROR;
+    if (!CheckUri(uri)) {
+        HILOG_ERROR("Uri format check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return fd;
+    }
+
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
@@ -449,6 +423,12 @@ int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Ur
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
     int index = ERR_ERROR;
+    if (!CheckUri(parent)) {
+        HILOG_ERROR("Uri format check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return index;
+    }
+
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(parent);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
@@ -465,6 +445,12 @@ int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &ne
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Mkdir");
     int index = ERR_ERROR;
+    if (!CheckUri(parent)) {
+        HILOG_ERROR("Uri format check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return index;
+    }
+
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(parent);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
@@ -481,6 +467,12 @@ int FileAccessHelper::Delete(Uri &selectFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
     int index = ERR_ERROR;
+    if (!CheckUri(selectFile)) {
+        HILOG_ERROR("Uri format check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return index;
+    }
+
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(selectFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
@@ -498,6 +490,18 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move");
     Uri sourceFileUri(sourceFile.ToString());
     Uri targetParentUri(targetParent.ToString());
+    if (!CheckUri(sourceFile)) {
+        HILOG_ERROR("sourceFile format check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_INVALID_URI;
+    }
+
+    if (!CheckUri(targetParent)) {
+        HILOG_ERROR("targetParent format check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_INVALID_URI;
+    }
+
     if (sourceFileUri.GetScheme() != targetParentUri.GetScheme()) {
         HILOG_WARN("Operation failed, move not supported");
         return ERR_OPERATION_NOT_PERMITTED;
@@ -520,6 +524,12 @@ int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Ur
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Rename");
     int index = ERR_ERROR;
+    if (!CheckUri(sourceFile)) {
+        HILOG_ERROR("sourceFile format check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return index;
+    }
+
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
@@ -536,6 +546,12 @@ std::vector<FileInfo> FileAccessHelper::ListFile(Uri &sourceFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
     std::vector<FileInfo> results;
+    if (!CheckUri(sourceFile)) {
+        HILOG_ERROR("sourceFile format check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return results;
+    }
+
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
@@ -588,7 +604,7 @@ std::vector<AAFwk::Want> FileAccessHelper::GetRegisterFileAccessExtAbilityInfo()
     for (size_t i = 0; i < extensionInfos.size(); i++) {
         AAFwk::Want want;
         want.SetElementName(extensionInfos[i].bundleName, extensionInfos[i].name);
-        FileAccessHelper::wantsMap_.insert(std::pair<std::string, AAFwk::Want>(extensionInfos[i].uri, want));
+        FileAccessHelper::wantsMap_.insert(std::pair<std::string, AAFwk::Want>(extensionInfos[i].bundleName, want));
         wants.push_back(want);
     }
 
@@ -599,6 +615,11 @@ int FileAccessHelper::IsFileExist(Uri &uri, bool &isExist)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "IsFileExist");
     int ret = ERR_ERROR;
+    if (!CheckUri(uri)) {
+        HILOG_ERROR("uri format check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
