@@ -63,49 +63,58 @@ void FileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &recor
 
 int FileAccessExtAbility::OpenFile(const Uri &uri, const int flags)
 {
-    return ERR_OK;
+    HILOG_ERROR("FileAccessExtAbility::OpenFile Operation not permitted");
+    return ERR_OPERATION_NOT_PERMITTED;
 }
 
 int FileAccessExtAbility::CreateFile(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
-    return ERR_OK;
+    HILOG_ERROR("FileAccessExtAbility::CreateFile Operation not permitted");
+    return ERR_OPERATION_NOT_PERMITTED;
 }
 
 int FileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
-    return ERR_OK;
+    HILOG_ERROR("FileAccessExtAbility::Mkdir Operation not permitted");
+    return ERR_OPERATION_NOT_PERMITTED;
 }
 
 int FileAccessExtAbility::Delete(const Uri &sourceFile)
 {
-    return ERR_OK;
+    HILOG_ERROR("FileAccessExtAbility::Delete Operation not permitted");
+    return ERR_OPERATION_NOT_PERMITTED;
 }
 
 int FileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile)
 {
-    return ERR_OK;
+    HILOG_ERROR("FileAccessExtAbility::Move Operation not permitted");
+    return ERR_OPERATION_NOT_PERMITTED;
 }
 
 int FileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
-    return ERR_OK;
+    HILOG_ERROR("FileAccessExtAbility::Rename Operation not permitted");
+    return ERR_OPERATION_NOT_PERMITTED;
 }
 
 std::vector<FileInfo> FileAccessExtAbility::ListFile(const Uri &sourceFile)
 {
     std::vector<FileInfo> vec;
+    HILOG_ERROR("FileAccessExtAbility::ListFile Operation not permitted");
     return vec;
 }
 
 std::vector<DeviceInfo> FileAccessExtAbility::GetRoots()
 {
     std::vector<DeviceInfo> vec;
+    HILOG_ERROR("FileAccessExtAbility::GetRoots Operation not permitted");
     return vec;
 }
 
 int FileAccessExtAbility::IsFileExist(const Uri &uri, bool &isExist)
 {
-    return ERR_OK;
+    HILOG_ERROR("FileAccessExtAbility::IsFileExist Operation not permitted");
+    return ERR_OPERATION_NOT_PERMITTED;
 }
 
 bool FileAccessExtAbility::GetNotifyManager()
