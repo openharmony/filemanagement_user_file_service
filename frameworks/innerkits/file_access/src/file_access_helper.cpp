@@ -21,16 +21,17 @@
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
 #include "ifile_access_ext_base.h"
+#include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
 namespace {
-    const int32_t DEFAULT_USERID = 100;
-    const std::string SCHEME_NAME = "datashare";
-    const std::string MEDIA_BNUDLE_NAME_ALIAS = "media";
-    const std::string MEDIA_BNUDLE_NAME = "com.ohos.medialibrary.medialibrarydata";
+    static const int32_t UID_TRANSFORM_DIVISOR = 200000;
+    static const std::string SCHEME_NAME = "datashare";
+    static const std::string MEDIA_BNUDLE_NAME_ALIAS = "media";
+    static const std::string MEDIA_BNUDLE_NAME = "com.ohos.medialibrary.medialibrarydata";
 }
 std::unordered_map<std::string, AAFwk::Want> FileAccessHelper::wantsMap_;
 
@@ -137,6 +138,13 @@ std::shared_ptr<ConnectInfo> FileAccessHelper::GetConnectInfo(const AAFwk::Want 
     return nullptr;
 }
 
+int FileAccessHelper::getUserId()
+{
+    int uid = IPCSkeleton::GetCallingUid();
+    int userId = uid / UID_TRANSFORM_DIVISOR;
+    return userId;
+}
+
 std::string FileAccessHelper::GetKeyOfWantsMap(const AAFwk::Want &want)
 {
     for (auto iter = FileAccessHelper::wantsMap_.begin(); iter != FileAccessHelper::wantsMap_.end(); ++iter) {
@@ -184,8 +192,9 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     FileAccessHelper::wantsMap_.clear();
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap;
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
+    int userId = FileAccessHelper::getUserId();
     bool ret = bm->QueryExtensionAbilityInfos(
-        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, DEFAULT_USERID, extensionInfos);
+        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, userId, extensionInfos);
     if (!ret) {
         HILOG_ERROR("FileAccessHelper::Creator QueryExtensionAbilityInfos failed");
         return nullptr;
@@ -593,8 +602,9 @@ std::vector<AAFwk::Want> FileAccessHelper::GetRegisterFileAccessExtAbilityInfo()
     std::vector<AAFwk::Want> wants;
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     sptr<AppExecFwk::IBundleMgr> bm = FileAccessHelper::GetBundleMgrProxy();
+    int userId = FileAccessHelper::getUserId();
     bool ret = bm->QueryExtensionAbilityInfos(
-        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, DEFAULT_USERID, extensionInfos);
+        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, userId, extensionInfos);
     if (!ret) {
         HILOG_ERROR("FileAccessHelper::GetRegisterFileAccessExtAbilityInfo QueryExtensionAbilityInfos error");
         return wants;
