@@ -25,6 +25,7 @@
 #include "ifile_access_notify.h"
 #include "napi_base_context.h"
 #include "napi_common_fileaccess.h"
+#include "napi_error.h"
 #include "napi_notify_callback.h"
 #include "n_val.h"
 #include "securec.h"
@@ -48,7 +49,7 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NapiError(ERR_PARAM_NUMBER).ThrowErr(env);
         return nullptr;
     }
 
@@ -106,7 +107,7 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NapiError(ERR_PARAM_NUMBER).ThrowErr(env);
         return nullptr;
     }
 
@@ -167,7 +168,7 @@ napi_value NAPI_GetRegisterFileAccessExtAbilityInfo(napi_env env, napi_callback_
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
-        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NapiError(ERR_PARAM_NUMBER).ThrowErr(env);
         return nullptr;
     }
 
@@ -190,7 +191,7 @@ napi_value NAPI_GetRegisterFileAccessExtAbilityInfo(napi_env env, napi_callback_
     }
     NVal cb(env, funcArg[NARG_POS::FIRST]);
     if (!cb.TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env, "argument type unmatched");
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -237,14 +238,14 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
 static FileAccessHelper *GetFileAccessHelper(napi_env env, napi_value thisVar)
 {
     if (thisVar == nullptr) {
-        NError(EINVAL).ThrowErr(env, "thisVar is nullper");
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
 
     FileAccessHelper *fileAccessHelper = nullptr;
     napi_unwrap(env, thisVar, (void **)&fileAccessHelper);
     if (fileAccessHelper == nullptr) {
-        NError(EINVAL).ThrowErr(env, "fileAccessHelper is nullper");
+        NapiError(ERR_GET_FILEACCESS_HELPER).ThrowErr(env);
         return nullptr;
     }
     return fileAccessHelper;
@@ -259,13 +260,13 @@ static std::tuple<bool, std::unique_ptr<char[]>, std::unique_ptr<char[]>> GetRea
     std::unique_ptr<char[]> name = nullptr;
     std::tie(succ, uri, std::ignore) = NVal(env, sourceFile).ToUTF8String();
     if (!succ) {
-        NError(EINVAL).ThrowErr(env, "first parameter is Invalid");
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return { false, std::move(uri), std::move(name) };
     }
 
     std::tie(succ, name, std::ignore) = NVal(env, targetParent).ToUTF8String();
     if (!succ) {
-        NError(EINVAL).ThrowErr(env, "second parameter is Invalid");
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return { false, std::move(uri), std::move(name) };
     }
 
@@ -276,7 +277,7 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
-        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NapiError(ERR_PARAM_NUMBER).ThrowErr(env);
         return nullptr;
     }
 
@@ -284,14 +285,14 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
     std::unique_ptr<char[]> uri;
     std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        NError(EINVAL).ThrowErr(env, "Invalid uri");
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
 
     int flags;
     std::tie(succ, flags) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
     if (!succ) {
-        NError(EINVAL).ThrowErr(env, "Invalid flags");
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
 
@@ -322,7 +323,7 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
 
     NVal cb(env, funcArg[NARG_POS::THIRD]);
     if (!cb.TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env, "not function type");
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -332,7 +333,7 @@ napi_value NAPI_CreateFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
-        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NapiError(ERR_PARAM_NUMBER).ThrowErr(env);
         return nullptr;
     }
 
@@ -374,7 +375,7 @@ napi_value NAPI_CreateFile(napi_env env, napi_callback_info info)
 
     NVal cb(env, funcArg[NARG_POS::THIRD]);
     if (!cb.TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env, "not function type");
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -384,7 +385,7 @@ napi_value NAPI_Mkdir(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
-        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NapiError(ERR_PARAM_NUMBER).ThrowErr(env);
         return nullptr;
     }
 
@@ -426,7 +427,7 @@ napi_value NAPI_Mkdir(napi_env env, napi_callback_info info)
 
     NVal cb(env, funcArg[NARG_POS::THIRD]);
     if (!cb.TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env, "not function type");
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -436,7 +437,7 @@ napi_value NAPI_Delete(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NapiError(ERR_PARAM_NUMBER).ThrowErr(env);
         return nullptr;
     }
 
@@ -444,7 +445,7 @@ napi_value NAPI_Delete(napi_env env, napi_callback_info info)
     std::unique_ptr<char[]> uri;
     std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        NError(EINVAL).ThrowErr(env, "Invalid uri");
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
 
@@ -475,7 +476,7 @@ napi_value NAPI_Delete(napi_env env, napi_callback_info info)
 
     NVal cb(env, funcArg[NARG_POS::SECOND]);
     if (!cb.TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env, "not function type");
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -485,7 +486,7 @@ napi_value NAPI_Move(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
-        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NapiError(ERR_PARAM_NUMBER).ThrowErr(env);
         return nullptr;
     }
 
@@ -528,7 +529,7 @@ napi_value NAPI_Move(napi_env env, napi_callback_info info)
 
     NVal cb(env, funcArg[NARG_POS::THIRD]);
     if (!cb.TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env, "not function type");
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -538,7 +539,7 @@ napi_value NAPI_Rename(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
-        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NapiError(ERR_PARAM_NUMBER).ThrowErr(env);
         return nullptr;
     }
 
@@ -580,7 +581,7 @@ napi_value NAPI_Rename(napi_env env, napi_callback_info info)
 
     NVal cb(env, funcArg[NARG_POS::THIRD]);
     if (!cb.TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env, "not function type");
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -590,7 +591,7 @@ napi_value NAPI_ListFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NapiError(ERR_PARAM_NUMBER).ThrowErr(env);
         return nullptr;
     }
 
@@ -598,7 +599,7 @@ napi_value NAPI_ListFile(napi_env env, napi_callback_info info)
     std::unique_ptr<char[]> uri;
     std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        NError(EINVAL).ThrowErr(env, "Invalid uri");
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
 
@@ -630,7 +631,7 @@ napi_value NAPI_ListFile(napi_env env, napi_callback_info info)
 
     NVal cb(env, funcArg[NARG_POS::SECOND]);
     if (!cb.TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env, "not function type");
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -640,7 +641,7 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
-        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NapiError(ERR_PARAM_NUMBER).ThrowErr(env);
         return nullptr;
     }
 
@@ -671,7 +672,7 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
 
     NVal cb(env, funcArg[NARG_POS::FIRST]);
     if (!cb.TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env, "not function type");
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -681,7 +682,7 @@ napi_value NAPI_IsFileExist(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
+        NapiError(ERR_PARAM_NUMBER).ThrowErr(env);
         return nullptr;
     }
 
@@ -689,7 +690,7 @@ napi_value NAPI_IsFileExist(napi_env env, napi_callback_info info)
     std::unique_ptr<char[]> uri;
     std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        NError(EINVAL).ThrowErr(env, "Invalid uri");
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
 
@@ -721,7 +722,7 @@ napi_value NAPI_IsFileExist(napi_env env, napi_callback_info info)
     }
     NVal cb(env, funcArg[NARG_POS::SECOND]);
     if (!cb.TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env, "not function type");
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;

@@ -28,7 +28,7 @@ int32_t FileAccessNotifyStub::OnRemoteRequest(uint32_t code, MessageParcel &data
     auto remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
         HILOG_ERROR("local descriptor is not equal to remote");
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
     HILOG_INFO("FileAccessNotifyStub::OnRemoteRequest, code:%{public}u", code);
     switch (code) {

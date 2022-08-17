@@ -29,14 +29,13 @@ std::shared_ptr<FileAccessExtAbility> FileAccessExtStubImpl::GetOwner()
 int FileAccessExtStubImpl::OpenFile(const Uri &uri, const int flags)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
-    int ret = ERR_ERROR;
     if (extension_ == nullptr) {
         HILOG_ERROR("OpenFile get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ret;
+        return ERR_IPC_ERROR;
     }
 
-    ret = extension_->OpenFile(uri, flags);
+    int ret = extension_->OpenFile(uri, flags);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -44,14 +43,13 @@ int FileAccessExtStubImpl::OpenFile(const Uri &uri, const int flags)
 int FileAccessExtStubImpl::CreateFile(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
-    int ret = ERR_ERROR;
     if (extension_ == nullptr) {
         HILOG_ERROR("CreateFile get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ret;
+        return ERR_IPC_ERROR;
     }
 
-    ret = extension_->CreateFile(parent, displayName, newFile);
+    int ret = extension_->CreateFile(parent, displayName, newFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -59,14 +57,13 @@ int FileAccessExtStubImpl::CreateFile(const Uri &parent, const std::string &disp
 int FileAccessExtStubImpl::Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Mkdir");
-    int ret = ERR_ERROR;
     if (extension_ == nullptr) {
         HILOG_ERROR("Mkdir get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ret;
+        return ERR_IPC_ERROR;
     }
 
-    ret = extension_->Mkdir(parent, displayName, newFile);
+    int ret = extension_->Mkdir(parent, displayName, newFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -74,14 +71,13 @@ int FileAccessExtStubImpl::Mkdir(const Uri &parent, const std::string &displayNa
 int FileAccessExtStubImpl::Delete(const Uri &sourceFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
-    int ret = ERR_ERROR;
     if (extension_ == nullptr) {
         HILOG_ERROR("Delete get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ret;
+        return ERR_IPC_ERROR;
     }
 
-    ret = extension_->Delete(sourceFile);
+    int ret = extension_->Delete(sourceFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -89,14 +85,13 @@ int FileAccessExtStubImpl::Delete(const Uri &sourceFile)
 int FileAccessExtStubImpl::Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move");
-    int ret = ERR_ERROR;
     if (extension_ == nullptr) {
         HILOG_ERROR("Move get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ret;
+        return ERR_IPC_ERROR;
     }
 
-    ret = extension_->Move(sourceFile, targetParent, newFile);
+    int ret = extension_->Move(sourceFile, targetParent, newFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -104,14 +99,13 @@ int FileAccessExtStubImpl::Move(const Uri &sourceFile, const Uri &targetParent, 
 int FileAccessExtStubImpl::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Rename");
-    int ret = ERR_ERROR;
     if (extension_ == nullptr) {
         HILOG_ERROR("Rename get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ret;
+        return ERR_IPC_ERROR;
     }
 
-    ret = extension_->Rename(sourceFile, displayName, newFile);
+    int ret = extension_->Rename(sourceFile, displayName, newFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -149,14 +143,13 @@ std::vector<DeviceInfo> FileAccessExtStubImpl::GetRoots()
 int FileAccessExtStubImpl::IsFileExist(const Uri &uri, bool &isExist)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "IsFileExist");
-    int ret = ERR_ERROR;
     if (extension_ == nullptr) {
         HILOG_ERROR("IsFileExist get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ret;
+        return ERR_IPC_ERROR;
     }
 
-    ret = extension_->IsFileExist(uri, isExist);
+    int ret = extension_->IsFileExist(uri, isExist);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -168,7 +161,7 @@ int FileAccessExtStubImpl::RegisterNotify(sptr<IFileAccessNotify> &notify)
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_IPC_ERROR;
     }
 
     int ret = extension->RegisterNotify(notify);
@@ -186,7 +179,7 @@ int FileAccessExtStubImpl::UnregisterNotify(sptr<IFileAccessNotify> &notify)
     if (extension == nullptr) {
         HILOG_ERROR("get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_IPC_ERROR;
     }
 
     int ret = extension->UnregisterNotify(notify);
