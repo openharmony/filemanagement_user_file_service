@@ -657,7 +657,7 @@ int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)
         if (notifyAgent_ == nullptr) {
             HILOG_ERROR("new FileAccessNotifyAgent fail");
             FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-            return ERR_ERROR;
+            return ERR_INVALID_PARAM;
         }
     }
 
