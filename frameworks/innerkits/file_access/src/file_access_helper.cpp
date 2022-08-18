@@ -37,10 +37,12 @@ std::unordered_map<std::string, AAFwk::Want> FileAccessHelper::wantsMap_;
 static bool GetBundleNameFromPath(const std::string &path, std::string &bundleName)
 {
     if (path.size() == 0) {
+        HILOG_ERROR("Uri path error.");
         return false;
     }
 
     if (path.front() != '/') {
+        HILOG_ERROR("Uri path format error.");
         return false;
     }
 
@@ -426,7 +428,7 @@ int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Ur
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_URI;
     }
-    
+
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(parent);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
