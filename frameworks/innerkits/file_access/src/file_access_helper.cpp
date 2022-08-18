@@ -666,7 +666,7 @@ int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)
         errorCode = fileAccessExtProxy->RegisterNotify(notifyAgent_);
         if (errorCode != ERR_OK) {
             HILOG_ERROR("fileAccessExtProxy RegisterNotify fail, bundleName:%{public}s, ret:%{public}d.",
-                connectInfo->want.GetElement().GetBundleName().c_str(), ret);
+                connectInfo->want.GetElement().GetBundleName().c_str(), errorCode);
             return errorCode;
         }
     }
@@ -698,7 +698,7 @@ int FileAccessHelper::Off()
         errorCode = fileAccessExtProxy->UnregisterNotify(notifyAgent_);
         if (errorCode != ERR_OK) {
             HILOG_ERROR("fileAccessExtProxy UnregisterNotify fail, bundleName:%{public}s, ret:%{public}d.",
-                connectInfo->want.GetElement().GetBundleName().c_str(), ret);
+                connectInfo->want.GetElement().GetBundleName().c_str(), errorCode);
             return errorCode;
         }
     }
