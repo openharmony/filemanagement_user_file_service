@@ -663,11 +663,11 @@ int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)
             return ERR_IPC_ERROR;
         }
 
-        auto ret = fileAccessExtProxy->RegisterNotify(notifyAgent_);
-        if (ret != ERR_OK) {
+        errorCode = fileAccessExtProxy->RegisterNotify(notifyAgent_);
+        if (errorCode != ERR_OK) {
             HILOG_ERROR("fileAccessExtProxy RegisterNotify fail, bundleName:%{public}s, ret:%{public}d.",
                 connectInfo->want.GetElement().GetBundleName().c_str(), ret);
-            errorCode = ret;
+            return errorCode;
         }
     }
 
@@ -695,11 +695,11 @@ int FileAccessHelper::Off()
             continue;
         }
 
-        auto ret = fileAccessExtProxy->UnregisterNotify(notifyAgent_);
-        if (ret != ERR_OK) {
+        errorCode = fileAccessExtProxy->UnregisterNotify(notifyAgent_);
+        if (errorCode != ERR_OK) {
             HILOG_ERROR("fileAccessExtProxy UnregisterNotify fail, bundleName:%{public}s, ret:%{public}d.",
                 connectInfo->want.GetElement().GetBundleName().c_str(), ret);
-            errorCode = ret;
+            return errorCode;
         }
     }
 
