@@ -494,11 +494,8 @@ export default class FileExtAbility extends Extension {
             flags: FLAG.SUPPORTS_WRITE |
                 FLAG.SUPPORTS_DELETE |
                 FLAG.SUPPORTS_RENAME |
-                FLAG.SUPPORTS_COPY |
-                FLAG.SUPPORTS_MOVE |
-                FLAG.SUPPORTS_REMOVE |
-                FLAG.DIR_SUPPORTS_CREATE |
-                FLAG.DIR_PREFERS_LAST_MODIFIED,
+                FLAG.SUPPORTS_READ |
+                FLAG.SUPPORTS_MOVE,
         });
         return {
             roots: roots,
