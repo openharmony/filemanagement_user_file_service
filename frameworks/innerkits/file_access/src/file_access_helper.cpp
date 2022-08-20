@@ -21,13 +21,12 @@
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
 #include "ifile_access_ext_base.h"
-#include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
-static const int32_t UID_TRANSFORM_DIVISOR = 200000;
+const int32_t DEFAULT_USERID = 100;
 std::unordered_map<std::string, AAFwk::Want> FileAccessHelper::wantsMap_;
 
 sptr<AppExecFwk::IBundleMgr> FileAccessHelper::GetBundleMgrProxy()
@@ -117,13 +116,6 @@ std::shared_ptr<ConnectInfo> FileAccessHelper::GetConnectInfo(const AAFwk::Want 
     return nullptr;
 }
 
-int FileAccessHelper::getUserId()
-{
-    int uid = IPCSkeleton::GetCallingUid();
-    int userId = uid / UID_TRANSFORM_DIVISOR;
-    return userId;
-}
-
 std::string FileAccessHelper::GetKeyOfWantsMap(const AAFwk::Want &want)
 {
     for (auto iter = FileAccessHelper::wantsMap_.begin(); iter != FileAccessHelper::wantsMap_.end(); ++iter) {
@@ -172,9 +164,8 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     FileAccessHelper::wantsMap_.clear();
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap;
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
-    int userId = FileAccessHelper::getUserId();
     bool ret = bm->QueryExtensionAbilityInfos(
-        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, userId, extensionInfos);
+        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, DEFAULT_USERID, extensionInfos);
     if (!ret) {
         HILOG_ERROR("FileAccessHelper::Creator QueryExtensionAbilityInfos failed");
         return nullptr;
@@ -384,15 +375,14 @@ bool FileAccessHelper::GetProxy()
 int FileAccessHelper::OpenFile(Uri &uri, int flags)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
-    int fd = ERR_ERROR;
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return fd;
+        return ERR_IPC_ERROR;
     }
 
-    fd = fileExtProxy->OpenFile(uri, flags);
+    int fd = fileExtProxy->OpenFile(uri, flags);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return fd;
 }
@@ -400,15 +390,14 @@ int FileAccessHelper::OpenFile(Uri &uri, int flags)
 int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
-    int index = ERR_ERROR;
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(parent);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return index;
+        return ERR_IPC_ERROR;
     }
 
-    index = fileExtProxy->CreateFile(parent, displayName, newFile);
+    int index = fileExtProxy->CreateFile(parent, displayName, newFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return index;
 }
@@ -416,15 +405,14 @@ int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Ur
 int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &newDir)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Mkdir");
-    int index = ERR_ERROR;
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(parent);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return index;
+        return ERR_IPC_ERROR;
     }
 
-    index = fileExtProxy->Mkdir(parent, displayName, newDir);
+    int index = fileExtProxy->Mkdir(parent, displayName, newDir);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return index;
 }
@@ -432,15 +420,14 @@ int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &ne
 int FileAccessHelper::Delete(Uri &selectFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
-    int index = ERR_ERROR;
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(selectFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return index;
+        return ERR_IPC_ERROR;
     }
 
-    index = fileExtProxy->Delete(selectFile);
+    int index = fileExtProxy->Delete(selectFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return index;
 }
@@ -455,15 +442,14 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
         return ERR_OPERATION_NOT_PERMITTED;
     }
 
-    int index = ERR_ERROR;
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return index;
+        return ERR_IPC_ERROR;
     }
 
-    index = fileExtProxy->Move(sourceFile, targetParent, newFile);
+    int index = fileExtProxy->Move(sourceFile, targetParent, newFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return index;
 }
@@ -471,15 +457,14 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
 int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Rename");
-    int index = ERR_ERROR;
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return index;
+        return ERR_IPC_ERROR;
     }
 
-    index = fileExtProxy->Rename(sourceFile, displayName, newFile);
+    int index = fileExtProxy->Rename(sourceFile, displayName, newFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return index;
 }
@@ -529,9 +514,8 @@ std::vector<AAFwk::Want> FileAccessHelper::GetRegisterFileAccessExtAbilityInfo()
     std::vector<AAFwk::Want> wants;
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     sptr<AppExecFwk::IBundleMgr> bm = FileAccessHelper::GetBundleMgrProxy();
-    int userId = FileAccessHelper::getUserId();
     bool ret = bm->QueryExtensionAbilityInfos(
-        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, userId, extensionInfos);
+        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, DEFAULT_USERID, extensionInfos);
     if (!ret) {
         HILOG_ERROR("FileAccessHelper::GetRegisterFileAccessExtAbilityInfo QueryExtensionAbilityInfos error");
         return wants;
@@ -551,18 +535,16 @@ std::vector<AAFwk::Want> FileAccessHelper::GetRegisterFileAccessExtAbilityInfo()
 int FileAccessHelper::IsFileExist(Uri &uri, bool &isExist)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "IsFileExist");
-    int ret = ERR_ERROR;
-
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ret;
+        return ERR_IPC_ERROR;
     }
 
-    ret = fileExtProxy->IsFileExist(uri, isExist);
+    int index = fileExtProxy->IsFileExist(uri, isExist);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return ret;
+    return index;
 }
 
 int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)
@@ -579,7 +561,7 @@ int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)
     if (callback == nullptr) {
         HILOG_ERROR("failed with invalid callback");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
 
     if (notifyAgent_ != nullptr) {
@@ -595,7 +577,7 @@ int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)
     if (notifyAgent_ == nullptr) {
         HILOG_INFO("new FileAccessNotifyAgent fail");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
 
     auto ret = fileExtProxy->RegisterNotify(notifyAgent_);
