@@ -46,6 +46,7 @@ int NapiNotifyCallback::OnNotify(const NotifyMessage& message)
     if (work == nullptr || param == nullptr) {
         HILOG_ERROR("failed to new uv_work_t or failed to new param");
         delete work;
+        delete param;
         return ERR_INVALID_PARAM;
     }
     
