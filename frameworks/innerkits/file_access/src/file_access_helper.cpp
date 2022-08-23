@@ -221,7 +221,7 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
 
         connectInfo->want = wantTem;
         connectInfo->fileAccessExtConnection = fileAccessExtConnection;
-        cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(extensionInfos[i].bundleName, connectInfo));
+        cMap.emplace(extensionInfos[i].bundleName, connectInfo);
     }
     FileAccessHelper *ptrFileAccessHelper = new (std::nothrow) FileAccessHelper(context, cMap);
     if (ptrFileAccessHelper == nullptr) {
@@ -686,8 +686,8 @@ int FileAccessHelper::Off()
     }
 
     int errorCode = ERR_OK;
-    for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
-        auto connectInfo = iter->second;
+    for (auto [key, value] : cMap_) {
+        auto connectInfo = value;
         auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
         if (fileAccessExtProxy == nullptr) {
             HILOG_INFO("fileAccessExtProxy UnregisterNotify fail, bundleName:%{public}s",
