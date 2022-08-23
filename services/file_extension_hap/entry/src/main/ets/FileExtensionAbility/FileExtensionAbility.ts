@@ -27,7 +27,7 @@ const DEVICE_TYPE = fileExtensionInfo.DeviceType;
 const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
 const DEFAULT_MODE = 0o666;
 const CREATE_FILE_FLAGS = 0o100;
-const FILE_ACCESS = 'fileAccess://';
+const URI_SCHEME = 'datashare://';
 const DOMAIN_CODE = 0x0001;
 const TAG = 'js_server';
 const ERR_OK = 0;
@@ -65,8 +65,8 @@ export default class FileExtAbility extends Extension {
     }
 
     checkUri(uri) {
-        if (uri.indexOf(FILE_ACCESS) == 0) {
-            uri = uri.replace(FILE_ACCESS, '');
+        if (uri.indexOf(URI_SCHEME) == 0) {
+            uri = uri.replace(URI_SCHEME, '');
             return /^\/([^\/]+\/?)+$/.test(uri);
         } else {
             return false;
@@ -83,6 +83,7 @@ export default class FileExtAbility extends Extension {
         if (arr[1].indexOf('/') > 0) {
             path = path.replace(arr[1].split('/')[0], '');
         }
+        path = path.replace('/' + BUNDLE_NAME, '');
         if (path.charAt(path.length - 1) == '/') {
             path = path.substr(0, path.length - 1);
         }
@@ -487,7 +488,7 @@ export default class FileExtAbility extends Extension {
 
     getRoots() {
         let roots = getVolumeInfoList().concat({
-            uri: 'fileAccess:///data/storage/el1/bundle/storage_daemon',
+            uri: 'datashare:///com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon',
             displayName: 'storage_daemon',
             deviceId: '',
             type: DEVICE_TYPE.SHARED_DISK,

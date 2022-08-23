@@ -81,8 +81,7 @@ private:
     void AddFileAccessDeathRecipient(const sptr<IRemoteObject> &token);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
 
-    std::shared_ptr<ConnectInfo> GetConnectInfo(const std::string &key);
-    std::shared_ptr<ConnectInfo> GetConnectInfo(Uri &uri);
+    std::shared_ptr<ConnectInfo> GetConnectInfo(const std::string &bundleName);
     std::shared_ptr<ConnectInfo> GetConnectInfo(const AAFwk::Want &want);
     void InsertConnectInfo(const std::string &key,
                            const AAFwk::Want &want,
@@ -96,6 +95,8 @@ private:
     static std::string GetKeyOfWantsMap(const AAFwk::Want &want);
 
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
+
+    std::mutex notifyAgentMutex_;
     sptr<IFileAccessNotify> notifyAgent_ = nullptr;
 };
 
