@@ -324,10 +324,10 @@ int MediaFileUtils::DoInsert(const string &name, const string &path, const strin
         ERR_LOG("path not exist");
         return E_NOEXIST;
     }
-    values.PutString(Media::MEDIA_DATA_DB_RELATIVE_PATH, albumPath);
-    values.PutString(Media::MEDIA_DATA_DB_NAME, name);
-    values.PutString(Media::MEDIA_DATA_DB_MIME_TYPE, GetMimeType(name));
-    values.PutInt(Media::MEDIA_DATA_DB_MEDIA_TYPE, GetMediaType(name));
+    values.Put(Media::MEDIA_DATA_DB_RELATIVE_PATH, albumPath);
+    values.Put(Media::MEDIA_DATA_DB_NAME, name);
+    values.Put(Media::MEDIA_DATA_DB_MIME_TYPE, GetMimeType(name));
+    values.Put(Media::MEDIA_DATA_DB_MEDIA_TYPE, GetMediaType(name));
     Uri createAsset(Media::MEDIALIBRARY_DATA_URI + "/" + Media::MEDIA_FILEOPRN + "/" +
         Media::MEDIA_FILEOPRN_CREATEASSET);
     int index = abilityHelper->Insert(createAsset, values);

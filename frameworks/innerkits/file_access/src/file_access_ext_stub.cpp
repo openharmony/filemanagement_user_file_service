@@ -99,7 +99,7 @@ ErrCode FileAccessExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply
     if (flags < 0) {
         HILOG_ERROR("parameter OpenFile flags is invalid");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
 
     int fd = OpenFile(*uri, flags);
