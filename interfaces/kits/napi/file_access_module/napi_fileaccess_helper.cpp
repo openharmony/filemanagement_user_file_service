@@ -92,9 +92,6 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
         g_fileAccessHelperList.remove_if([objectInfo](const std::shared_ptr<FileAccessHelper> &fileAccessHelper) {
                 return objectInfo == fileAccessHelper.get();
             });
-        if (objectInfo != nullptr) {
-            delete objectInfo;
-        }
     };
     if (napi_wrap(env, thisVar, fileAccessHelper.get(), finalize, nullptr, nullptr) != napi_ok) {
         finalize(env, fileAccessHelper.get(), nullptr);
