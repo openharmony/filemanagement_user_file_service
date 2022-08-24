@@ -88,11 +88,11 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
 
     auto finalize = [](napi_env env, void *data, void *hint) {
         FileAccessHelper *objectInfo = static_cast<FileAccessHelper *>(data);
+        objectInfo->Release();
         g_fileAccessHelperList.remove_if([objectInfo](const std::shared_ptr<FileAccessHelper> &fileAccessHelper) {
                 return objectInfo == fileAccessHelper.get();
             });
         if (objectInfo != nullptr) {
-            objectInfo->Release();
             delete objectInfo;
         }
     };

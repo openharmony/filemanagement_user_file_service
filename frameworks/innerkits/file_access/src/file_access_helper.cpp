@@ -150,7 +150,7 @@ std::string FileAccessHelper::GetKeyOfWantsMap(const AAFwk::Want &want)
         }
     }
     HILOG_ERROR("GetKeyOfWantsMap called return nullptr");
-    return nullptr;
+    return "";
 }
 
 void FileAccessHelper::InsertConnectInfo(const std::string &key,
