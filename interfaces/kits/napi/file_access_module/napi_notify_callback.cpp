@@ -50,6 +50,7 @@ int NapiNotifyCallback::OnNotify(const NotifyMessage& message)
     if (param == nullptr) {
         HILOG_ERROR("failed to new param");
         delete work;
+        delete param;
         return ERR_INVALID_PARAM;
     }
     work->data = param;
