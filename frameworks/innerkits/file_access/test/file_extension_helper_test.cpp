@@ -1488,8 +1488,11 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0000, testing::
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri testUri("");
-            result = fah->CreateFile(newDirUriTest, "file_extension_helper_ListFile_0000.txt", testUri);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            for (size_t j = 0; j < 2000; j++)
+            {
+                string fileName = "test" + ToString(j) + ".txt";
+                fah->CreateFile(newDirUriTest, fileName, testUri);
+            }
 
             std::vector<FileInfo> fileInfo = fah->ListFile(newDirUriTest);
             EXPECT_GT(fileInfo.size(), 0);
@@ -1611,18 +1614,6 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_GetRoots_0000, testing::
             GTEST_LOG_(INFO) << info[i].deviceId;
             GTEST_LOG_(INFO) << info[i].flags;
             GTEST_LOG_(INFO) << info[i].type;
-
-            string uri = info[i].uri.ToString();
-            string findStr = "external";
-            uint32_t flag = 58;
-            DeviceType type = DEVICE_LOCAL_DISK;
-
-            if (uri.find(findStr) == string::npos) {
-                type = DEVICE_SHARED_DISK;
-            }
-
-            EXPECT_EQ(info[i].flags, flag);
-            EXPECT_EQ(info[i].type, type);
         }
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";

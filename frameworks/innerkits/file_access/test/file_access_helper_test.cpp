@@ -1447,6 +1447,14 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_GetRoots_0000, testing::ext::T
         vector<DeviceInfo> info = fah->GetRoots();
         EXPECT_GT(info.size(), 0);
 
+        if (info.size() > 0) {
+            GTEST_LOG_(INFO) << info[0].uri.ToString();
+            GTEST_LOG_(INFO) << info[0].displayName;
+            GTEST_LOG_(INFO) << info[0].deviceId;
+            GTEST_LOG_(INFO) << info[0].flags;
+            GTEST_LOG_(INFO) << info[0].type;
+        }
+
         string uri = "datashare:///media/root";
         string displayName = "LOCAL";
         uint32_t flag = 0;
