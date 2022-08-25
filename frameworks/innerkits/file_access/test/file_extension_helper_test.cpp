@@ -1487,9 +1487,9 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0000, testing::
             int result = fah->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
+            Uri testUri("");
             for (size_t j = 0; j < 2000; j++)
             {
-                Uri testUri("");
                 string fileName = "test" + ToString(j) + ".txt";
                 fah->CreateFile(newDirUriTest, fileName, testUri);
             }
