@@ -32,7 +32,7 @@ namespace FileAccessFwk {
     napi_value NAPI_Rename(napi_env env, napi_callback_info info);
     napi_value NAPI_ListFile(napi_env env, napi_callback_info info);
     napi_value NAPI_GetRoots(napi_env env, napi_callback_info info);
-    napi_value NAPI_IsFileExist(napi_env env, napi_callback_info info);
+    napi_value NAPI_Access(napi_env env, napi_callback_info info);
     napi_value NAPI_On(napi_env env, napi_callback_info info);
     napi_value NAPI_Off(napi_env env, napi_callback_info info);
 }

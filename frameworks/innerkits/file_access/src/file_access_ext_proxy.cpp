@@ -399,9 +399,9 @@ std::vector<DeviceInfo> FileAccessExtProxy::GetRoots()
     return vec;
 }
 
-int FileAccessExtProxy::IsFileExist(const Uri &uri, bool &isExist)
+int FileAccessExtProxy::Access(const Uri &uri, bool &isExist)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "IsFileExist");
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Access");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -423,7 +423,7 @@ int FileAccessExtProxy::IsFileExist(const Uri &uri, bool &isExist)
 
     MessageParcel reply;
     MessageOption option;
-    int32_t err = Remote()->SendRequest(CMD_IS_FILE_EXIST, data, reply, option);
+    int32_t err = Remote()->SendRequest(CMD_ACCESS, data, reply, option);
     if (err != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);

@@ -42,7 +42,7 @@ public:
     int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) override;
     std::vector<FileInfo> ListFile(const Uri &sourceFileUri) override;
     std::vector<DeviceInfo> GetRoots() override;
-    int IsFileExist(const Uri &uri, bool &isExist) override;
+    int Access(const Uri &uri, bool &isExist) override;
     int RegisterNotify(sptr<IFileAccessNotify> &notify) override;
     int UnregisterNotify(sptr<IFileAccessNotify> &notify) override;
 

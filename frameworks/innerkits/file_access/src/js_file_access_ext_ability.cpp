@@ -732,9 +732,9 @@ std::vector<DeviceInfo> JsFileAccessExtAbility::GetRoots()
     return value->data;
 }
 
-int JsFileAccessExtAbility::IsFileExist(const Uri &uri, bool &isExist)
+int JsFileAccessExtAbility::Access(const Uri &uri, bool &isExist)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "IsFileExist");
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Access");
     auto value = std::make_shared<Value<bool>>();
     auto argParser = [uri](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
         NativeValue *nativeUri = engine.CreateString(uri.ToString().c_str(), uri.ToString().length());
@@ -752,7 +752,7 @@ int JsFileAccessExtAbility::IsFileExist(const Uri &uri, bool &isExist)
         return ret;
     };
 
-    auto errCode = CallJsMethod("isFileExist", jsRuntime_, jsObj_.get(), argParser, retParser);
+    auto errCode = CallJsMethod("access", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);

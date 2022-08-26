@@ -607,9 +607,9 @@ std::vector<AAFwk::Want> FileAccessHelper::GetRegisterFileAccessExtAbilityInfo()
     return wants;
 }
 
-int FileAccessHelper::IsFileExist(Uri &uri, bool &isExist)
+int FileAccessHelper::Access(Uri &uri, bool &isExist)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "IsFileExist");
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Access");
     if (!CheckUri(uri)) {
         HILOG_ERROR("uri format check error.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -623,7 +623,7 @@ int FileAccessHelper::IsFileExist(Uri &uri, bool &isExist)
         return ERR_IPC_ERROR;
     }
 
-    int index = fileExtProxy->IsFileExist(uri, isExist);
+    int index = fileExtProxy->Access(uri, isExist);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return index;
 }

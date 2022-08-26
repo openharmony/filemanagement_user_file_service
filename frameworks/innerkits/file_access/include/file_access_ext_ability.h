@@ -49,7 +49,7 @@ public:
 
     virtual std::vector<FileInfo> ListFile(const Uri &sourceFile);
     virtual std::vector<DeviceInfo> GetRoots();
-    virtual int IsFileExist(const Uri &uri, bool &isExist);
+    virtual int Access(const Uri &uri, bool &isExist);
     virtual int RegisterNotify(sptr<IFileAccessNotify> &notify);
     virtual int UnregisterNotify(sptr<IFileAccessNotify> &notify);
     virtual int Notify(const NotifyMessage &message);
