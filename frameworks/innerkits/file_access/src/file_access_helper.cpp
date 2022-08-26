@@ -502,7 +502,7 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
 
     if (sourceFileUri.GetScheme() != targetParentUri.GetScheme()) {
         HILOG_WARN("Operation failed, move not supported");
-        return ERR_OPERATION_NOT_PERMITTED;
+        return ERR_OPERATION_NOT_SUPPORT;
     }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);

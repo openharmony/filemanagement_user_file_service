@@ -34,7 +34,7 @@ enum {
     ERR_PARAM_NUMBER,                       // Parameter number is abnormal
     ERR_INVALID_PARAM,                      // invalid parameter
     ERR_PARSER_FAIL,                        // parser js result error
-    ERR_OPERATION_NOT_PERMITTED,            // Operation not permitted
+    ERR_OPERATION_NOT_SUPPORT,              // Operation not support
     ERR_GET_FILEACCESS_HELPER,              // get fileAccessHelper fail
     ERR_INVALID_NOTIFY,                     // invalid notify
     ERR_REMOVE_NOTIFY_FAIL,                 // remove notify fail
