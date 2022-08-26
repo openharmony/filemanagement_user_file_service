@@ -174,8 +174,8 @@ napi_value NAPI_GetRegisterFileAccessExtAbilityInfo(napi_env env, napi_callback_
 
     auto result = std::make_shared<std::vector<AAFwk::Want>>();
     auto cbExec = [result]() -> NError {
-        *result = FileAccessHelper::GetRegisterFileAccessExtAbilityInfo();
-        return NError(ERRNO_NOERR);
+        int ret = FileAccessHelper::GetRegisterFileAccessExtAbilityInfo(*result);
+        return NError(ret);
     };
     auto cbComplete = [result](napi_env env, NError err) -> NVal {
         if (err) {
