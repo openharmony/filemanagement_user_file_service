@@ -13,7 +13,7 @@
         "name": "user_file_service",
         "subsystem": "filemanagement",
         "syscap": [
-            "SystemCapability.FileManagement.FileManagerService"
+            "SystemCapability.FileManagement.UserFileService"
         ],
         "adapted_system_type": [
             "standard"
