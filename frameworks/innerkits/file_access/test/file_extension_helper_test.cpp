@@ -42,7 +42,8 @@ public:
         AAFwk::Want want;
         want.SetElementName("com.ohos.UserFile.ExternalFileManager", "FileExtensionAbility");
         vector<AAFwk::Want> wants {want};
-        FileAccessHelper::GetRegisterFileAccessExtAbilityInfo();
+        vector<AAFwk::Want> wantVec;
+        FileAccessHelper::GetRegisterFileAccessExtAbilityInfo(wantVec);
         fah = FileAccessHelper::Creator(remoteObj, wants);
     }
     static void TearDownTestCase() {};
@@ -1636,7 +1637,8 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_allInterface_0000, testi
     try {
         auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         auto remoteObj = saManager->GetSystemAbility(ABILITY_ID);
-        vector<AAFwk::Want> wants = FileAccessHelper::GetRegisterFileAccessExtAbilityInfo();
+        vector<AAFwk::Want> wants;
+        FileAccessHelper::GetRegisterFileAccessExtAbilityInfo(wants);
         shared_ptr<FileAccessHelper> fahs = FileAccessHelper::Creator(remoteObj, wants);
 
         vector<DeviceInfo> info = fahs->GetRoots();
