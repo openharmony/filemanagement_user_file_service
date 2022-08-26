@@ -34,16 +34,12 @@ enum {
     ERR_PARAM_NUMBER,                       // Parameter number is abnormal
     ERR_INVALID_PARAM,                      // invalid parameter
     ERR_PARSER_FAIL,                        // parser js result error
-<<<<<<< HEAD
-    ERR_OPERATION_NOT_SUPPORT               // Operation not support
-=======
     ERR_OPERATION_NOT_SUPPORT,              // Operation not support
     ERR_GET_FILEACCESS_HELPER,              // get fileAccessHelper fail
     ERR_INVALID_NOTIFY,                     // invalid notify
     ERR_REMOVE_NOTIFY_FAIL,                 // remove notify fail
     ERR_NOTIFY_NOT_EXIST,                   // the notify is not exist
     ERR_NOTIFY_FAIL                         // notify client fail
->>>>>>> 654660fc6c7f6eb67a0635d176022db5d388b1bf
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
