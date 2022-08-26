@@ -23,23 +23,23 @@ namespace FileAccessFwk {
 enum {
     MODULE_FILE_ACCESS_FRAMEWORK = 0x01
 };
-constexpr ErrCode BASE_OFFSET = ErrCodeOffset(SUBSYS_FILEMANAGEMENT, MODULE_FILE_ACCESS_FRAMEWORK);
+constexpr ErrCode BASE_OFFSET = -ErrCodeOffset(SUBSYS_FILEMANAGEMENT, MODULE_FILE_ACCESS_FRAMEWORK);
 enum {
     ERR_OK = 0,
-    ERR_ERROR = -1,
     ERR_IPC_ERROR = BASE_OFFSET,            // ipc error
     ERR_PERMISSION_DENIED,                  // no permission
     ERR_INVALID_FD,                         // invalid fd
     ERR_INVALID_URI,                        // invalid uri
-    ERR_URI_CHECK,                          // check uri head fail
+    ERR_FILEIO_FAIL,                        // fileio fail
+    ERR_PARAM_NUMBER,                       // Parameter number is abnormal
+    ERR_INVALID_PARAM,                      // invalid parameter
+    ERR_PARSER_FAIL,                        // parser js result error
+    ERR_OPERATION_NOT_SUPPORT,               // Operation not support
+    ERR_GET_FILEACCESS_HELPER,              // get fileAccessHelper fail
     ERR_INVALID_NOTIFY,                     // invalid notify
     ERR_REMOVE_NOTIFY_FAIL,                 // remove notify fail
     ERR_NOTIFY_NOT_EXIST,                   // the notify is not exist
-    ERR_NOTIFY_FAIL,                        // notify client fail
-    ERR_FILEIO_FAIL,                        // fileio fail
-    ERR_INVALID_PARAM,                      // invalid parameter
-    ERR_PARSER_FAIL,                        // parser js result error
-    ERR_OPERATION_NOT_SUPPORT               // Operation not support
+    ERR_NOTIFY_FAIL                         // notify client fail
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

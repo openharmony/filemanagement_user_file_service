@@ -134,7 +134,7 @@ int FileAccessExtAbility::RegisterNotify(sptr<IFileAccessNotify> &notify)
     if (!GetNotifyManager()) {
         HILOG_ERROR("GetNotifyManager fail.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
     int ret = notifyManager_->RegisterNotify(notify);
     if (ret != ERR_OK) {
@@ -150,7 +150,7 @@ int FileAccessExtAbility::UnregisterNotify(sptr<IFileAccessNotify> &notify)
     if (!GetNotifyManager()) {
         HILOG_ERROR("GetNotifyManager fail.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
     int ret = notifyManager_->UnregisterNotify(notify);
     if (ret != ERR_OK) {
@@ -166,7 +166,7 @@ int FileAccessExtAbility::Notify(const NotifyMessage& message)
     if (!GetNotifyManager()) {
         HILOG_ERROR("GetNotifyManager fail.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_ERROR;
+        return ERR_INVALID_PARAM;
     }
     int ret = notifyManager_->Notify(message);
     if (ret != ERR_OK) {

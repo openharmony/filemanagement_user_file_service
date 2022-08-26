@@ -25,11 +25,8 @@ function init() {
         let flags = FLAG.SUPPORTS_WRITE |
                 FLAG.SUPPORTS_DELETE |
                 FLAG.SUPPORTS_RENAME |
-                FLAG.SUPPORTS_COPY |
-                FLAG.SUPPORTS_MOVE |
-                FLAG.SUPPORTS_REMOVE |
-                FLAG.DIR_SUPPORTS_CREATE |
-                FLAG.DIR_PREFERS_LAST_MODIFIED;
+                FLAG.SUPPORTS_READ |
+                FLAG.SUPPORTS_MOVE;
         for (let i = 0; i < volumes.length; i++) {
             let volume = volumes[i];
             let volumeInfo = {
@@ -52,7 +49,7 @@ function addVolumeInfo(volumeInfo) {
 }
 
 function path2uri(id, path) {
-    return `fileAccess://${id}${path}`;
+    return `datashare://${id}/com.ohos.UserFile.ExternalFileManager${path}`;
 }
 
 function findVolumeInfo(volumeId) {
