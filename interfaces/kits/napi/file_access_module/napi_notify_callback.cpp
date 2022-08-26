@@ -81,14 +81,10 @@ int NapiNotifyCallback::OnNotify(const NotifyMessage& message)
             delete work;
         });
     if (ret != 0) {
-        if (work->data != nullptr) {
-            delete (CallbackParam *)(work->data);
-            work->data = nullptr;
-        }
-        if (work != nullptr) {
-            delete work;
-            work = nullptr;
-        }
+        delete (CallbackParam *)(work->data);
+        work->data = nullptr;
+        delete work;
+        work = nullptr;
         return ERR_NOTIFY_FAIL;
     }
     return ERR_OK;
