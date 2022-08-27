@@ -339,7 +339,7 @@ struct Value {
     int code {ERR_OK};
 };
 
-int JsFileAccessExtAbility::OpenFile(const Uri &uri, int flags)
+int JsFileAccessExtAbility::OpenFile(const Uri &uri, int flags, int &fd)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
     auto value = std::make_shared<Value<int>>();
@@ -381,8 +381,9 @@ int JsFileAccessExtAbility::OpenFile(const Uri &uri, int flags)
         return ERR_FILEIO_FAIL;
     }
 
+    fd = value->data;
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return value->data;
+    return ERR_OK;
 }
 
 int JsFileAccessExtAbility::CreateFile(const Uri &parent, const std::string &displayName, Uri &newFile)
@@ -430,12 +431,12 @@ int JsFileAccessExtAbility::CreateFile(const Uri &parent, const std::string &dis
     if ((value->data).empty()) {
         HILOG_ERROR("call CreateFile with return empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_INVALID_PARAM;
+        return ERR_PARSER_FAIL;
     }
 
     newFile = Uri(value->data);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return errCode;
+    return ERR_OK;
 }
 
 int JsFileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile)
@@ -483,11 +484,11 @@ int JsFileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayN
     if ((value->data).empty()) {
         HILOG_ERROR("call Mkdir with return empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_INVALID_PARAM;
+        return ERR_PARSER_FAIL;
     }
     newFile = Uri(value->data);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return errCode;
+    return ERR_OK;
 }
 
 int JsFileAccessExtAbility::Delete(const Uri &sourceFile)
@@ -525,7 +526,7 @@ int JsFileAccessExtAbility::Delete(const Uri &sourceFile)
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return *ret;
+    return ERR_OK;
 }
 
 int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile)
@@ -575,11 +576,11 @@ int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent,
     if ((value->data).empty()) {
         HILOG_ERROR("call move with return empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_INVALID_PARAM;
+        return ERR_PARSER_FAIL;
     }
     newFile = Uri(value->data);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return errCode;
+    return ERR_OK;
 }
 
 int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
@@ -628,14 +629,14 @@ int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &dis
     if ((value->data).empty()) {
         HILOG_ERROR("call Rename with return empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_INVALID_PARAM;
+        return ERR_PARSER_FAIL;
     }
     newFile = Uri(value->data);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return errCode;
+    return ERR_OK;
 }
 
-std::vector<FileInfo> JsFileAccessExtAbility::ListFile(const Uri &sourceFile)
+int JsFileAccessExtAbility::ListFile(const Uri &sourceFile, std::vector<FileInfo> &fileInfo)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
     auto value = std::make_shared<Value<std::vector<FileInfo>>>();
@@ -677,17 +678,20 @@ std::vector<FileInfo> JsFileAccessExtAbility::ListFile(const Uri &sourceFile)
     auto errCode = CallJsMethod("listFile", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
+        return errCode;
     }
 
     if (value->code != ERR_OK) {
         HILOG_ERROR("fileio fail.");
+        return ERR_FILEIO_FAIL;
     }
 
+    fileInfo = value->data;
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return value->data;
+    return ERR_OK;
 }
 
-std::vector<DeviceInfo> JsFileAccessExtAbility::GetRoots()
+int JsFileAccessExtAbility::GetRoots(std::vector<DeviceInfo> &deviceInfo)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
     auto value = std::make_shared<Value<std::vector<DeviceInfo>>>();
@@ -722,14 +726,17 @@ std::vector<DeviceInfo> JsFileAccessExtAbility::GetRoots()
     auto errCode = CallJsMethod("getRoots", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
+        return errCode;
     }
 
     if (value->code != ERR_OK) {
         HILOG_ERROR("fileio fail.");
+        return ERR_FILEIO_FAIL;
     }
 
+    deviceInfo = value->data;
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return value->data;
+    return ERR_OK;
 }
 
 int JsFileAccessExtAbility::Access(const Uri &uri, bool &isExist)
@@ -766,7 +773,7 @@ int JsFileAccessExtAbility::Access(const Uri &uri, bool &isExist)
 
     isExist = value->data;
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return errCode;
+    return ERR_OK;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS
