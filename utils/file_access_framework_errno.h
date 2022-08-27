@@ -39,7 +39,8 @@ enum {
     ERR_INVALID_NOTIFY,                     // invalid notify
     ERR_REMOVE_NOTIFY_FAIL,                 // remove notify fail
     ERR_NOTIFY_NOT_EXIST,                   // the notify is not exist
-    ERR_NOTIFY_FAIL                         // notify client fail
+    ERR_NOTIFY_FAIL,                        // notify client fail
+    ERR_QUERY_EXTENSIONINFOS_FAIL           // QueryExtensionAbilityInfos fail
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

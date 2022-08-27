@@ -592,7 +592,7 @@ int FileAccessHelper::GetRegisterFileAccessExtAbilityInfo(std::vector<AAFwk::Wan
         AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, DEFAULT_USERID, extensionInfos);
     if (!ret) {
         HILOG_ERROR("FileAccessHelper::GetRegisterFileAccessExtAbilityInfo QueryExtensionAbilityInfos error");
-        return ERR_INVALID_PARAM;
+        return ERR_QUERY_EXTENSIONINFOS_FAIL;
     }
 
     wantVec.clear();
