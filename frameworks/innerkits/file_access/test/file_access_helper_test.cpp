@@ -146,14 +146,16 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0000, testing::ext::T
         OHOS::Security::AccessToken::AccessTokenID tokenId = tokenIdEx.tokenIdExStruct.tokenID;
         SetSelfTokenID(tokenId);
 
-        vector<DeviceInfo> info = fah->GetRoots();
+        vector<DeviceInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri parentUri("");
         if (info.size() > 0) {
             parentUri = info[0].uri;
             GTEST_LOG_(INFO) << parentUri.ToString();
         }
         
-        int result = fah->Mkdir(parentUri, "Download", newDirUri);
+        result = fah->Mkdir(parentUri, "Download", newDirUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         
         Uri newDirUriTest("");
@@ -164,8 +166,9 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0000, testing::ext::T
         result = fah->CreateFile(newDirUriTest, "file_access_helper_OpenFile_0000.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
-        result = fah->OpenFile(newFileUri, 0);
-        EXPECT_GT(result, OHOS::FileAccessFwk::ERR_OK);
+        int fd;
+        result = fah->OpenFile(newFileUri, 0, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         GTEST_LOG_(INFO) << "OpenFile_0000 result:" << result << endl;
         
@@ -191,7 +194,8 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0001, testing::ext::T
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_OpenFile_0001";
     try {
         Uri uri("");
-        int result = fah->OpenFile(uri, 0);
+        int fd;
+        int result = fah->OpenFile(newFileUri, 0, fd);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0001 result:" << result << endl;
     } catch (...) {
@@ -218,7 +222,8 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0002, testing::ext::T
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         Uri uri("storage/media/100/local/files/Download/file_access_helper_OpenFile_0002.txt");
-        result = fah->OpenFile(uri, 0);
+        int fd;
+        result = fah->OpenFile(uri, 0, fd);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0002 result:" << result << endl;
 
@@ -244,7 +249,8 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0003, testing::ext::T
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_OpenFile_0003";
     try {
         Uri uri("~!@#$%^&*()_");
-        int result = fah->OpenFile(uri, 0);
+        int fd;
+        int result = fah->OpenFile(uri, 0, fd);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0003 result:" << result << endl;
     } catch (...) {
@@ -270,7 +276,8 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0004, testing::ext::T
         int result = fah->CreateFile(newDirUri, "file_access_helper_OpenFile_0004.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
-        result = fah->OpenFile(newFileUri, -1);
+        int fd;
+        result = fah->OpenFile(newFileUri, -1, fd);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0004 result:" << result << endl;
 
@@ -299,8 +306,9 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0005, testing::ext::T
         int result = fah->CreateFile(newDirUri, "file_access_helper_OpenFile_0005.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
-        result = fah->OpenFile(newFileUri, 1);
-        EXPECT_GT(result, OHOS::FileAccessFwk::ERR_OK);
+        int fd;
+        result = fah->OpenFile(newFileUri, 1, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0005 result:" << result << endl;
 
         result = fah->Delete(newFileUri);
@@ -328,8 +336,9 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0006, testing::ext::T
         int result = fah->CreateFile(newDirUri, "file_access_helper_OpenFile_0006.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
-        result = fah->OpenFile(newFileUri, 2);
-        EXPECT_GT(result, OHOS::FileAccessFwk::ERR_OK);
+        int fd;
+        result = fah->OpenFile(newFileUri, 2, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0006 result:" << result << endl;
 
         result = fah->Delete(newFileUri);
@@ -1076,8 +1085,8 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0009, testing::ext::TestS
         result = fah->Mkdir(newDirUri, "test2", newDirUriTest2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
+        Uri testUri("");
         for (size_t i = 0; i < 2000; i++) {
-            Uri testUri("");
             string fileName = "test" + ToString(i) + ".txt";
             fah->CreateFile(newDirUriTest1, fileName, testUri);
         }
@@ -1337,7 +1346,8 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0000, testing::ext::T
         result = fah->CreateFile(newDirUriTest, "file_access_helper_ListFile_0000.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
-        std::vector<FileInfo> fileInfo = fah->ListFile(newDirUriTest);
+        std::vector<FileInfo> fileInfo;
+        fah->ListFile(newDirUriTest, fileInfo);
         EXPECT_GT(fileInfo.size(), 0);
         GTEST_LOG_(INFO) << "ListFile_0000 result:" << fileInfo.size() << endl;
 
@@ -1363,7 +1373,8 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0001, testing::ext::T
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ListFile_0001";
     try {
         Uri sourceFileUri("");
-        std::vector<FileInfo> fileInfo = fah->ListFile(sourceFileUri);
+        std::vector<FileInfo> fileInfo;
+        fah->ListFile(sourceFileUri, fileInfo);
         EXPECT_EQ(fileInfo.size(), 0);
         GTEST_LOG_(INFO) << "ListFile_0001 result:" << fileInfo.size() << endl;
     } catch (...) {
@@ -1394,7 +1405,8 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0002, testing::ext::T
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         Uri sourceFileUri("storage/media/100/local/files/Download/test/test.txt");
-        std::vector<FileInfo> fileInfo = fah->ListFile(sourceFileUri);
+        std::vector<FileInfo> fileInfo;
+        fah->ListFile(sourceFileUri, fileInfo);
         EXPECT_EQ(fileInfo.size(), 0);
         GTEST_LOG_(INFO) << "ListFile_0002 result:" << fileInfo.size() << endl;
 
@@ -1420,7 +1432,8 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0003, testing::ext::T
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ListFile_0003";
     try {
         Uri sourceFileUri("~!@#$%^&*()_");
-        std::vector<FileInfo> fileInfo = fah->ListFile(sourceFileUri);
+        std::vector<FileInfo> fileInfo;
+        fah->ListFile(sourceFileUri, fileInfo);
         EXPECT_EQ(fileInfo.size(), 0);
         GTEST_LOG_(INFO) << "ListFile_0003 result:" << fileInfo.size() << endl;
     } catch (...) {
@@ -1444,7 +1457,9 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_GetRoots_0000, testing::ext::T
     try {
         uint64_t selfTokenId_ = GetSelfTokenID();
         
-        vector<DeviceInfo> info = fah->GetRoots();
+        vector<DeviceInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_GT(info.size(), 0);
 
         if (info.size() > 0) {

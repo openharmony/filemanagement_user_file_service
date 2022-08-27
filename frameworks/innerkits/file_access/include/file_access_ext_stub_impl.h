@@ -34,14 +34,14 @@ public:
 
     virtual ~FileAccessExtStubImpl() {}
 
-    int OpenFile(const Uri &uri, const int flags) override;
+    int OpenFile(const Uri &uri, const int flags, int &fd) override;
     int CreateFile(const Uri &parent, const std::string &displayName, Uri &newFile) override;
     int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile) override;
     int Delete(const Uri &sourceFile) override;
     int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) override;
     int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) override;
-    std::vector<FileInfo> ListFile(const Uri &sourceFileUri) override;
-    std::vector<DeviceInfo> GetRoots() override;
+    int ListFile(const Uri &sourceFileUri, std::vector<FileInfo> &fileInfo) override;
+    int GetRoots(std::vector<DeviceInfo> &deviceInfo) override;
     int Access(const Uri &uri, bool &isExist) override;
     int RegisterNotify(sptr<IFileAccessNotify> &notify) override;
     int UnregisterNotify(sptr<IFileAccessNotify> &notify) override;

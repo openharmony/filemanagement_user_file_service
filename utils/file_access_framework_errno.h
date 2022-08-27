@@ -28,7 +28,6 @@ enum {
     ERR_OK = 0,
     ERR_IPC_ERROR = BASE_OFFSET,            // ipc error
     ERR_PERMISSION_DENIED,                  // no permission
-    ERR_INVALID_FD,                         // invalid fd
     ERR_INVALID_URI,                        // invalid uri
     ERR_FILEIO_FAIL,                        // fileio fail
     ERR_PARAM_NUMBER,                       // Parameter number is abnormal
@@ -39,7 +38,8 @@ enum {
     ERR_INVALID_NOTIFY,                     // invalid notify
     ERR_REMOVE_NOTIFY_FAIL,                 // remove notify fail
     ERR_NOTIFY_NOT_EXIST,                   // the notify is not exist
-    ERR_NOTIFY_FAIL                         // notify client fail
+    ERR_NOTIFY_FAIL,                        // notify client fail
+    ERR_PARCEL_FAIL                         // parcel fail
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
