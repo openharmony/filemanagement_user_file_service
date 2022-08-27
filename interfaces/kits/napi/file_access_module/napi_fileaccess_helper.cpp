@@ -305,8 +305,8 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
     string uriString(uri.get());
     auto cbExec = [uriString, flags, result, fileAccessHelper]() -> NError {
         OHOS::Uri uri(uriString);
-        int ret = fileAccessHelper->OpenFile(uri, flags, *result);
-        return NError(ret);
+        *result = fileAccessHelper->OpenFile(uri, flags);
+        return NError(ERRNO_NOERR);
     };
     auto cbComplete = [result](napi_env env, NError err) -> NVal {
         if (err) {
@@ -612,8 +612,8 @@ napi_value NAPI_ListFile(napi_env env, napi_callback_info info)
     string uriString(uri.get());
     auto cbExec = [uriString, result, fileAccessHelper]() -> NError {
         OHOS::Uri uri(uriString);
-        int ret = fileAccessHelper->ListFile(uri, *result);
-        return NError(ret);
+        *result = fileAccessHelper->ListFile(uri);
+        return NError(ERRNO_NOERR);
     };
     auto cbComplete = [result](napi_env env, NError err) -> NVal {
         if (err) {
@@ -652,8 +652,8 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
 
     auto result = std::make_shared<std::vector<DeviceInfo>>();
     auto cbExec = [result, fileAccessHelper]() -> NError {
-        int ret = fileAccessHelper->GetRoots(*result);
-        return NError(ret);
+        *result = fileAccessHelper->GetRoots();
+        return NError(ERRNO_NOERR);
     };
     auto cbComplete = [result](napi_env env, NError err) -> NVal {
         if (err) {
