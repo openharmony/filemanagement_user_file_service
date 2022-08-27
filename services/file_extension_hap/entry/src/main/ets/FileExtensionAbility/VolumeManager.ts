@@ -21,10 +21,14 @@ if (!globalThis.volumeInfoList) {
 const DeviceFlag = fileExtensionInfo.DeviceFlag;
 const DeviceType = fileExtensionInfo.DeviceType;
 function init() {
+    globalThis.volumeInfoList = [];
     volumeManager.getAllVolumes().then((volumes) => {
         let flags = DeviceFlag.SUPPORTS_READ | DeviceFlag.SUPPORTS_WRITE;
         for (let i = 0; i < volumes.length; i++) {
             let volume = volumes[i];
+            if (!volume.path) {
+                continue;
+            }
             let volumeInfo = {
                 'volumeId': volume.id,
                 'fsUuid': volume.uuid,

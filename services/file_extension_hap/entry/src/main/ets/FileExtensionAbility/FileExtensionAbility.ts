@@ -158,7 +158,7 @@ export default class FileExtAbility extends Extension {
     }
 
     isCrossDeviceLink(sourceFileUri, targetParentUri) {
-        let roots = this.getRoots();
+        let roots = this.getRoots().roots;
         for (let index = 0; index < roots.length; index++) {
             let uri = roots[index].uri;
             if (sourceFileUri.indexOf(uri) == 0 && targetParentUri.indexOf(uri) == 0) {
@@ -496,7 +496,7 @@ export default class FileExtAbility extends Extension {
     getRoots() {
         let roots = getVolumeInfoList().concat({
             uri: 'datashare:///com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon',
-            displayName: 'share_disk',
+            displayName: 'shared_disk',
             deviceType: DeviceType.SHARED_DISK,
             deviceFlags: DeviceFlag.SUPPORTS_READ | DeviceFlag.SUPPORTS_WRITE,
         });

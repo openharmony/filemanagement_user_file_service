@@ -24,35 +24,45 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-enum DeviceType {
-    DEVICE_LOCAL_DISK = 1,              // Local c,d... disk
-    DEVICE_SHARED_DISK,                 // Multi-user shared disk
-    DEVICE_SHARED_TERMINAL,             // Distributed networking terminal device
-    DEVICE_NETWORK_NEIGHBORHOODS,       // Network neighbor device
-    DEVICE_EXTERNAL_MTP,                // MTP device
-    DEVICE_EXTERNAL_USB,                // USB device
-    DEVICE_EXTERNAL_CLOUD               // Cloud disk device
-};
+/**
+ * Indicates the type of the device.
+ */
+constexpr int32_t DEVICE_LOCAL_DISK = 1;                // Local c,d... disk
+constexpr int32_t DEVICE_SHARED_DISK = 2;               // Multi-user shared disk
+constexpr int32_t DEVICE_SHARED_TERMINAL = 3;           // Distributed networking terminal device
+constexpr int32_t DEVICE_NETWORK_NEIGHBORHOODS = 4;     // Network neighbor device
+constexpr int32_t DEVICE_EXTERNAL_MTP = 5;              // MTP device
+constexpr int32_t DEVICE_EXTERNAL_USB = 6;              // USB device
+constexpr int32_t DEVICE_EXTERNAL_CLOUD = 7;            // Cloud disk device
+
+/**
+ * Indicates the supported capabilities of the device.
+ */
+const int32_t DEVICE_FLAG_SUPPORTS_READ = 1;
+const int32_t DEVICE_FLAG_SUPPORTS_WRITE = 1 << 1;
+
+/**
+ * Indicates the supported capabilities of the file or directory.
+ */
+const int32_t DOCUMENT_FLAG_REPRESENTS_FILE = 1;
+const int32_t DOCUMENT_FLAG_REPRESENTS_DIR = 1 << 1;
+const int32_t DOCUMENT_FLAG_SUPPORTS_READ = 1 << 2;
+const int32_t DOCUMENT_FLAG_SUPPORTS_WRITE = 1 << 3;
 
 struct FileInfo : public virtual OHOS::Parcelable {
 public:
-    Uri uri = Uri("");
-    std::string fileName;
-    uint32_t mode;
+    std::string uri { "" };
+    std::string fileName { "" };
+    int32_t mode;
     int64_t size {0};
     int64_t mtime {0};
     std::string mimeType;
 
     bool ReadFromParcel(Parcel &parcel)
     {
-        std::unique_ptr<Uri> uriInfo(parcel.ReadParcelable<Uri>());
-        if (uriInfo == nullptr) {
-            return false;
-        }
-        uri = *uriInfo;
-
+        uri = parcel.ReadString();
         fileName = parcel.ReadString();
-        mode = parcel.ReadUint32();
+        mode = parcel.ReadInt32();
         size = parcel.ReadInt64();
         mtime = parcel.ReadInt64();
         mimeType = parcel.ReadString();
@@ -61,13 +71,13 @@ public:
 
     virtual bool Marshalling(Parcel &parcel) const override
     {
-        if (!parcel.WriteParcelable(&uri)) {
+        if (!parcel.WriteString(uri)) {
             return false;
         }
         if (!parcel.WriteString(fileName)) {
             return false;
         }
-        if (!parcel.WriteUint32(mode)) {
+        if (!parcel.WriteInt32(mode)) {
             return false;
         }
         if (!parcel.WriteInt64(size)) {
@@ -99,23 +109,23 @@ public:
 
 struct RootInfo : public virtual OHOS::Parcelable {
 public:
-    DeviceType deviceType;
+    int32_t deviceType;
     std::string uri;
     std::string displayName;
-    uint32_t deviceFlags {0};
+    int32_t deviceFlags {0};
 
     bool ReadFromParcel(Parcel &parcel)
     {
-        deviceType = (DeviceType)parcel.ReadInt32();
+        deviceType = parcel.ReadInt32();
         uri = parcel.ReadString();
         displayName = parcel.ReadString();
-        deviceFlags = parcel.ReadUint32();
+        deviceFlags = parcel.ReadInt32();
         return true;
     }
 
     virtual bool Marshalling(Parcel &parcel) const override
     {
-        if (!parcel.WriteInt32((int32_t)deviceType)) {
+        if (!parcel.WriteInt32(deviceType)) {
             return false;
         }
         if (!parcel.WriteString(uri)) {
@@ -124,7 +134,7 @@ public:
         if (!parcel.WriteString(displayName)) {
             return false;
         }
-        if (!parcel.WriteUint32(deviceFlags)) {
+        if (!parcel.WriteInt32(deviceFlags)) {
             return false;
         }
         return true;
@@ -144,20 +154,6 @@ public:
         return info;
     }
 };
-
-/**
- * DeviceFlag Indicates the supported capabilities of the device.
- */
-const uint32_t DEVICE_FLAG_SUPPORTS_READ = 1;
-const uint32_t DEVICE_FLAG_SUPPORTS_WRITE = 1 << 1;
-
-/**
- * DocumentFlag Indicates the supported capabilities of the file or directory.
- */
-const uint32_t DOCUMENT_FLAG_REPRESENTS_FILE = 1;
-const uint32_t DOCUMENT_FLAG_REPRESENTS_DIR = 1 << 1;
-const uint32_t DOCUMENT_FLAG_SUPPORTS_READ = 1 << 2;
-const uint32_t DOCUMENT_FLAG_SUPPORTS_WRITE = 1 << 3;
 } // namespace FileAccessFwk
 } // namespace OHOS
 #endif // FILE_ACCESS_EXTENSION_INFO_H

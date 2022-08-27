@@ -201,7 +201,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
 {
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_FUNCTION("openFile", NAPI_OpenFile),
-        DECLARE_NAPI_FUNCTION("mkdir", NAPI_Mkdir),
+        DECLARE_NAPI_FUNCTION("mkDir", NAPI_Mkdir),
         DECLARE_NAPI_FUNCTION("createFile", NAPI_CreateFile),
         DECLARE_NAPI_FUNCTION("delete", NAPI_Delete),
         DECLARE_NAPI_FUNCTION("move", NAPI_Move),

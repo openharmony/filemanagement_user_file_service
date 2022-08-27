@@ -113,7 +113,7 @@ napi_value WrapFileInfo(napi_env env, const FileInfo &fileInfo)
 
     NAPI_CALL(env, napi_create_object(env, &jsObject));
 
-    jsValue = OHOS::AppExecFwk::WrapStringToJS(env, fileInfo.uri.ToString());
+    jsValue = OHOS::AppExecFwk::WrapStringToJS(env, fileInfo.uri);
     SetPropertyValueByPropertyName(env, jsObject, "uri", jsValue);
 
     jsValue = OHOS::AppExecFwk::WrapStringToJS(env, fileInfo.fileName);
@@ -142,7 +142,7 @@ bool UnwrapFileInfo(napi_env env, napi_value param, FileInfo &fileInfo)
 
     std::string natValueString("");
     if (OHOS::AppExecFwk::UnwrapStringByPropertyName(env, param, "uri", natValueString)) {
-        fileInfo.uri = Uri(natValueString);
+        fileInfo.uri = natValueString;
     }
 
     if (OHOS::AppExecFwk::UnwrapStringByPropertyName(env, param, "fileName", natValueString)) {
@@ -151,7 +151,7 @@ bool UnwrapFileInfo(napi_env env, napi_value param, FileInfo &fileInfo)
 
     int32_t natValueInt32 = ERR_OK;
     if (UnwrapInt32ByPropertyName(env, param, "mode", natValueInt32)) {
-        fileInfo.mode = (uint32_t)natValueInt32;
+        fileInfo.mode = natValueInt32;
     }
 
     int64_t natValueInt64 = ERR_OK;
@@ -218,7 +218,7 @@ napi_value WrapRootInfo(napi_env env, const RootInfo &rootInfo)
 
     NAPI_CALL(env, napi_create_object(env, &jsObject));
 
-    jsValue = WrapInt32ToJS(env, (int32_t)rootInfo.deviceType);
+    jsValue = WrapInt32ToJS(env, rootInfo.deviceType);
     SetPropertyValueByPropertyName(env, jsObject, "deviceType", jsValue);
 
     jsValue = OHOS::AppExecFwk::WrapStringToJS(env, rootInfo.uri);
@@ -227,7 +227,7 @@ napi_value WrapRootInfo(napi_env env, const RootInfo &rootInfo)
     jsValue = OHOS::AppExecFwk::WrapStringToJS(env, rootInfo.displayName);
     SetPropertyValueByPropertyName(env, jsObject, "displayName", jsValue);
 
-    jsValue = WrapUint32ToJS(env, rootInfo.deviceFlags);
+    jsValue = WrapInt32ToJS(env, rootInfo.deviceFlags);
     SetPropertyValueByPropertyName(env, jsObject, "deviceFlags", jsValue);
 
     return jsObject;
@@ -241,7 +241,7 @@ bool UnwrapRootInfo(napi_env env, napi_value param, RootInfo &rootInfo)
 
     int32_t natValueInt32 = 0;
     if (UnwrapInt32ByPropertyName(env, param, "deviceType", natValueInt32)) {
-        rootInfo.deviceType = (DeviceType)natValueInt32;
+        rootInfo.deviceType = natValueInt32;
     }
 
     std::string natValueString("");
@@ -253,9 +253,8 @@ bool UnwrapRootInfo(napi_env env, napi_value param, RootInfo &rootInfo)
         rootInfo.displayName = natValueString;
     }
 
-    uint32_t natValueUint32 = ERR_OK;
-    if (UnwrapUint32ByPropertyName(env, param, "deviceFlags", natValueUint32)) {
-        rootInfo.deviceFlags = natValueUint32;
+    if (UnwrapInt32ByPropertyName(env, param, "deviceFlags", natValueInt32)) {
+        rootInfo.deviceFlags = natValueInt32;
     }
 
     return true;
