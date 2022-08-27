@@ -20,11 +20,11 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-void InitFlag(napi_env env, napi_value exports);
+void InitDeviceFlag(napi_env env, napi_value exports);
 void InitNotifyType(napi_env env, napi_value exports);
 void InitDeviceType(napi_env env, napi_value exports);
 void InitFileInfo(napi_env env, napi_value exports);
-void InitDeviceInfo(napi_env env, napi_value exports);
+void InitRootInfo(napi_env env, napi_value exports);
 } // namespace FileAccessFwk
 } // namespace OHOS
 #endif // FILE_EXTENSION_INFO_NAPI_H

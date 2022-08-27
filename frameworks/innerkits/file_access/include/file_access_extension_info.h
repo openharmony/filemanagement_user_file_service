@@ -97,52 +97,42 @@ public:
     }
 };
 
-struct DeviceInfo : public virtual OHOS::Parcelable {
+struct RootInfo : public virtual OHOS::Parcelable {
 public:
-    Uri uri = Uri("");
+    DeviceType deviceType;
+    std::string uri;
     std::string displayName;
-    std::string deviceId;
-    uint32_t flags {0};
-    DeviceType type;
+    uint32_t deviceFlags {0};
 
     bool ReadFromParcel(Parcel &parcel)
     {
-        std::unique_ptr<Uri> uriInfo(parcel.ReadParcelable<Uri>());
-        if (uriInfo == nullptr) {
-            return false;
-        }
-        uri = *uriInfo;
-
+        deviceType = (DeviceType)parcel.ReadInt32();
+        uri = parcel.ReadString();
         displayName = parcel.ReadString();
-        deviceId = parcel.ReadString();
-        flags = parcel.ReadUint32();
-        type = (DeviceType)parcel.ReadInt32();
+        deviceFlags = parcel.ReadUint32();
         return true;
     }
 
     virtual bool Marshalling(Parcel &parcel) const override
     {
-        if (!parcel.WriteParcelable(&uri)) {
+        if (!parcel.WriteInt32((int32_t)deviceType)) {
+            return false;
+        }
+        if (!parcel.WriteString(uri)) {
             return false;
         }
         if (!parcel.WriteString(displayName)) {
             return false;
         }
-        if (!parcel.WriteString(deviceId)) {
-            return false;
-        }
-        if (!parcel.WriteUint32(flags)) {
-            return false;
-        }
-        if (!parcel.WriteInt32((int32_t)type)) {
+        if (!parcel.WriteUint32(deviceFlags)) {
             return false;
         }
         return true;
     }
 
-    static DeviceInfo *Unmarshalling(Parcel &parcel)
+    static RootInfo *Unmarshalling(Parcel &parcel)
     {
-        DeviceInfo *info = new (std::nothrow) DeviceInfo();
+        RootInfo *info = new (std::nothrow) RootInfo();
         if (info == nullptr) {
             return nullptr;
         }
@@ -155,12 +145,19 @@ public:
     }
 };
 
-const uint32_t FLAG_SUPPORTS_THUMBNAIL = 1;
-const uint32_t FLAG_SUPPORTS_WRITE = 1 << 1;
-const uint32_t FLAG_SUPPORTS_READ = 1 << 2;
-const uint32_t FLAG_SUPPORTS_DELETE = 1 << 3;
-const uint32_t FLAG_SUPPORTS_RENAME = 1 << 4;
-const uint32_t FLAG_SUPPORTS_MOVE = 1 << 5;
+/**
+ * DeviceFlag Indicates the supported capabilities of the device.
+ */
+const uint32_t DEVICE_FLAG_SUPPORTS_READ = 1;
+const uint32_t DEVICE_FLAG_SUPPORTS_WRITE = 1 << 1;
+
+/**
+ * DocumentFlag Indicates the supported capabilities of the file or directory.
+ */
+const uint32_t DOCUMENT_FLAG_REPRESENTS_FILE = 1;
+const uint32_t DOCUMENT_FLAG_REPRESENTS_DIR = 1 << 1;
+const uint32_t DOCUMENT_FLAG_SUPPORTS_READ = 1 << 2;
+const uint32_t DOCUMENT_FLAG_SUPPORTS_WRITE = 1 << 3;
 } // namespace FileAccessFwk
 } // namespace OHOS
 #endif // FILE_ACCESS_EXTENSION_INFO_H

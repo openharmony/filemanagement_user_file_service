@@ -146,16 +146,16 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0000, testing::ext::T
         OHOS::Security::AccessToken::AccessTokenID tokenId = tokenIdEx.tokenIdExStruct.tokenID;
         SetSelfTokenID(tokenId);
 
-        vector<DeviceInfo> info = fah->GetRoots();
+        vector<RootInfo> info = fah->GetRoots();
         Uri parentUri("");
         if (info.size() > 0) {
             parentUri = info[0].uri;
             GTEST_LOG_(INFO) << parentUri.ToString();
         }
-        
+
         int result = fah->Mkdir(parentUri, "Download", newDirUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        
+
         Uri newDirUriTest("");
         result = fah->Mkdir(newDirUri, "test1", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -168,7 +168,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0000, testing::ext::T
         EXPECT_GT(result, OHOS::FileAccessFwk::ERR_OK);
 
         GTEST_LOG_(INFO) << "OpenFile_0000 result:" << result << endl;
-        
+
         result = fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
@@ -608,7 +608,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0000, testing::ext::Tes
         result = fah->Delete(newFileUri);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Delete_0000 result:" << result << endl;
-        
+
         result = fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
@@ -633,7 +633,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0001, testing::ext::Tes
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        
+
         result = fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Delete_0001 result:" << result << endl;
@@ -682,11 +682,11 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0003, testing::ext::Tes
         Uri newDirUriTest("");
         int result = fah->Mkdir(newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        
+
         Uri selectFileUri("storage/media/100/local/files/Download/test");
         result = fah->Delete(selectFileUri);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
-        
+
         result = fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Delete_0003 result:" << result << endl;
@@ -748,7 +748,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0000, testing::ext::TestS
         result = fah->Move(testUri, newDirUriTest2, testUri2);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0000 result:" << result << endl;
-        
+
         result = fah->Delete(newDirUriTest1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
 
@@ -820,7 +820,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0002, testing::ext::TestS
         result = fah->Move(sourceFileUri, newDirUriTest, testUri);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0002 result:" << result << endl;
-        
+
         result = fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
@@ -859,7 +859,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0003, testing::ext::TestS
         result = fah->Move(sourceFileUri, newDirUriTest2, testUri2);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0003 result:" << result << endl;
-        
+
         result = fah->Delete(newDirUriTest1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
 
@@ -893,7 +893,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0004, testing::ext::TestS
         result = fah->Move(sourceFileUri, newDirUriTest, testUri);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0004 result:" << result << endl;
-        
+
         result = fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
@@ -928,7 +928,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0005, testing::ext::TestS
         result = fah->Move(testUri, targetParentUri, testUri2);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0005 result:" << result << endl;
-        
+
         result = fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
@@ -967,7 +967,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0006, testing::ext::TestS
         result = fah->Move(testUri, targetParentUri, testUri2);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0006 result:" << result << endl;
-        
+
         result = fah->Delete(newDirUriTest1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
 
@@ -1009,7 +1009,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0007, testing::ext::TestS
         result = fah->Move(testUri, targetParentUri, testUri2);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0007 result:" << result << endl;
-        
+
         result = fah->Delete(newDirUriTest1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
 
@@ -1249,7 +1249,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0003, testing::ext::Tes
         result = fah->Rename(sourceFileUri, "testRename.txt", renameUri);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Rename_0003 result:" << result << endl;
-        
+
         result = fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
@@ -1443,26 +1443,25 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_GetRoots_0000, testing::ext::T
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_GetRoots_0000";
     try {
         uint64_t selfTokenId_ = GetSelfTokenID();
-        
-        vector<DeviceInfo> info = fah->GetRoots();
+
+        vector<RootInfo> info = fah->GetRoots();
         EXPECT_GT(info.size(), 0);
 
         if (info.size() > 0) {
-            GTEST_LOG_(INFO) << info[0].uri.ToString();
+            GTEST_LOG_(INFO) << info[0].uri;
             GTEST_LOG_(INFO) << info[0].displayName;
-            GTEST_LOG_(INFO) << info[0].deviceId;
-            GTEST_LOG_(INFO) << info[0].flags;
-            GTEST_LOG_(INFO) << info[0].type;
+            GTEST_LOG_(INFO) << info[0].deviceType;
+            GTEST_LOG_(INFO) << info[0].deviceFlags;
         }
 
         string uri = "datashare:///media/root";
         string displayName = "LOCAL";
         uint32_t flag = 0;
 
-        EXPECT_EQ(info[0].uri.ToString(), uri);
+        EXPECT_EQ(info[0].uri, uri);
         EXPECT_EQ(info[0].displayName, displayName);
-        EXPECT_EQ(info[0].flags, flag);
-        EXPECT_EQ(info[0].type, DEVICE_LOCAL_DISK);
+        EXPECT_EQ(info[0].deviceFlags, flag);
+        EXPECT_EQ(info[0].deviceType, DEVICE_LOCAL_DISK);
 
         SetSelfTokenID(selfTokenId_);
     } catch (...) {

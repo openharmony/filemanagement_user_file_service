@@ -367,7 +367,7 @@ ErrCode FileAccessExtStub::CmdListFile(MessageParcel &data, MessageParcel &reply
 ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdGetRoots");
-    std::vector<DeviceInfo> vec = GetRoots();
+    std::vector<RootInfo> vec = GetRoots();
     uint64_t count {vec.size()};
     if (!reply.WriteUint64(count)) {
         HILOG_ERROR("parameter GetRoots fail to WriteInt32 count");

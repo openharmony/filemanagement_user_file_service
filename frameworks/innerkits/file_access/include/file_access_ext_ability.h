@@ -48,7 +48,7 @@ public:
     virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile);
 
     virtual std::vector<FileInfo> ListFile(const Uri &sourceFile);
-    virtual std::vector<DeviceInfo> GetRoots();
+    virtual std::vector<RootInfo> GetRoots();
     virtual int IsFileExist(const Uri &uri, bool &isExist);
     virtual int RegisterNotify(sptr<IFileAccessNotify> &notify);
     virtual int UnregisterNotify(sptr<IFileAccessNotify> &notify);

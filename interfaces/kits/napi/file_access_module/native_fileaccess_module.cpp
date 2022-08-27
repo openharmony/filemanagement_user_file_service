@@ -28,11 +28,11 @@ EXTERN_C_START
 static napi_value Init(napi_env env, napi_value exports)
 {
     FileAccessHelperInit(env, exports);
-    InitFlag(env, exports);
+    InitDeviceFlag(env, exports);
     InitNotifyType(env, exports);
     InitDeviceType(env, exports);
     InitFileInfo(env, exports);
-    InitDeviceInfo(env, exports);
+    InitRootInfo(env, exports);
     return exports;
 }
 EXTERN_C_END

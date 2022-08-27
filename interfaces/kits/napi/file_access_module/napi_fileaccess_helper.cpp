@@ -650,7 +650,7 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    auto result = std::make_shared<std::vector<DeviceInfo>>();
+    auto result = std::make_shared<std::vector<RootInfo>>();
     auto cbExec = [result, fileAccessHelper]() -> NError {
         *result = fileAccessHelper->GetRoots();
         return NError(ERRNO_NOERR);
@@ -659,7 +659,7 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
         if (err) {
             return { env, err.GetNapiErr(env) };
         }
-        napi_value jsArray = WrapArrayDeviceInfoToJS(env, *result);
+        napi_value jsArray = WrapArrayRootInfoToJS(env, *result);
         return {env, jsArray};
     };
 

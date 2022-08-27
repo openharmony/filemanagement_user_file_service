@@ -21,9 +21,9 @@ import fileExtensionInfo from "@ohos.fileExtensionInfo"
 import hilog from '@ohos.hilog'
 import process from '@ohos.process';
 
-const FLAG = fileExtensionInfo.FLAG;
+const DeviceFlag = fileExtensionInfo.DeviceFlag;
 const NotifyType = fileExtensionInfo.NotifyType;
-const DEVICE_TYPE = fileExtensionInfo.DeviceType;
+const DeviceType = fileExtensionInfo.DeviceType;
 const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
 const DEFAULT_MODE = 0o666;
 const CREATE_FILE_FLAGS = 0o100;
@@ -490,13 +490,8 @@ export default class FileExtAbility extends Extension {
         let roots = getVolumeInfoList().concat({
             uri: 'datashare:///com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon',
             displayName: 'storage_daemon',
-            deviceId: '',
-            type: DEVICE_TYPE.SHARED_DISK,
-            flags: FLAG.SUPPORTS_WRITE |
-                FLAG.SUPPORTS_DELETE |
-                FLAG.SUPPORTS_RENAME |
-                FLAG.SUPPORTS_READ |
-                FLAG.SUPPORTS_MOVE,
+            deviceType: DeviceType.SHARED_DISK,
+            deviceFlags: DeviceFlag.SUPPORTS_READ | DeviceFlag.SUPPORTS_WRITE,
         });
         return {
             roots: roots,

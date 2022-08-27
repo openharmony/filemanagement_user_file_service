@@ -366,10 +366,10 @@ std::vector<FileInfo> FileAccessExtProxy::ListFile(const Uri &sourceFile)
     return vec;
 }
 
-std::vector<DeviceInfo> FileAccessExtProxy::GetRoots()
+std::vector<RootInfo> FileAccessExtProxy::GetRoots()
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
-    std::vector<DeviceInfo> vec;
+    std::vector<RootInfo> vec;
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -389,9 +389,9 @@ std::vector<DeviceInfo> FileAccessExtProxy::GetRoots()
     vec.clear();
     uint64_t count = reply.ReadUint64();
     for (uint64_t i = 0; i < count; i++) {
-        std::unique_ptr<DeviceInfo> deviceInfo(reply.ReadParcelable<DeviceInfo>());
-        if (deviceInfo != nullptr) {
-            vec.push_back(*deviceInfo);
+        std::unique_ptr<RootInfo> rootInfo(reply.ReadParcelable<RootInfo>());
+        if (rootInfo != nullptr) {
+            vec.push_back(*rootInfo);
         }
     }
 

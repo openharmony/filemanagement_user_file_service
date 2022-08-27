@@ -687,10 +687,10 @@ std::vector<FileInfo> JsFileAccessExtAbility::ListFile(const Uri &sourceFile)
     return value->data;
 }
 
-std::vector<DeviceInfo> JsFileAccessExtAbility::GetRoots()
+std::vector<RootInfo> JsFileAccessExtAbility::GetRoots()
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
-    auto value = std::make_shared<Value<std::vector<DeviceInfo>>>();
+    auto value = std::make_shared<Value<std::vector<RootInfo>>>();
     auto argParser = [](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
         argc = ARGC_ZERO;
         return true;
@@ -700,21 +700,18 @@ std::vector<DeviceInfo> JsFileAccessExtAbility::GetRoots()
         bool ret = ConvertFromJsValue(engine, obj->GetProperty("code"), value->code);
         NativeArray *nativeArray = ConvertNativeValueTo<NativeArray>(obj->GetProperty("roots"));
         for (uint32_t i = 0; i < nativeArray->GetLength(); i++) {
-            NativeValue *nativeDeviceInfo = nativeArray->GetElement(i);
-            obj = ConvertNativeValueTo<NativeObject>(nativeDeviceInfo);
-            DeviceInfo deviceInfo;
-            std::string uri;
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("uri"), uri);
-            deviceInfo.uri = Uri(uri);
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("displayName"), deviceInfo.displayName);
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("deviceId"), deviceInfo.deviceId);
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("flags"), deviceInfo.flags);
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("type"), deviceInfo.type);
+            NativeValue *nativeRootInfo = nativeArray->GetElement(i);
+            obj = ConvertNativeValueTo<NativeObject>(nativeRootInfo);
+            RootInfo rootInfo;
+            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("deviceType"), rootInfo.deviceType);
+            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("uri"), rootInfo.uri);
+            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("displayName"), rootInfo.displayName);
+            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("deviceFlags"), rootInfo.deviceFlags);
             if (!ret) {
                 HILOG_ERROR("Convert js value fail.");
                 return ret;
             }
-            (value->data).emplace_back(std::move(deviceInfo));
+            (value->data).emplace_back(std::move(rootInfo));
         }
         return true;
     };

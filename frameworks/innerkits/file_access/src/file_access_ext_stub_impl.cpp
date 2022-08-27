@@ -125,10 +125,10 @@ std::vector<FileInfo> FileAccessExtStubImpl::ListFile(const Uri &sourceFile)
     return vec;
 }
 
-std::vector<DeviceInfo> FileAccessExtStubImpl::GetRoots()
+std::vector<RootInfo> FileAccessExtStubImpl::GetRoots()
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
-    std::vector<DeviceInfo> vec;
+    std::vector<RootInfo> vec;
     if (extension_ == nullptr) {
         HILOG_ERROR("GetRoots get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);

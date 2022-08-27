@@ -23,11 +23,11 @@ namespace OHOS {
 namespace FileAccessFwk {
 napi_value FileExtensionInfoExport(napi_env env, napi_value exports)
 {
-    InitFlag(env, exports);
+    InitDeviceFlag(env, exports);
     InitNotifyType(env, exports);
     InitDeviceType(env, exports);
     InitFileInfo(env, exports);
-    InitDeviceInfo(env, exports);
+    InitRootInfo(env, exports);
 
     return exports;
 }

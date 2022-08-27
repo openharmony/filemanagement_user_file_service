@@ -104,9 +104,9 @@ std::vector<FileInfo> FileAccessExtAbility::ListFile(const Uri &sourceFile)
     return vec;
 }
 
-std::vector<DeviceInfo> FileAccessExtAbility::GetRoots()
+std::vector<RootInfo> FileAccessExtAbility::GetRoots()
 {
-    std::vector<DeviceInfo> vec;
+    std::vector<RootInfo> vec;
     HILOG_ERROR("FileAccessExtAbility::GetRoots Undefined operation");
     return vec;
 }

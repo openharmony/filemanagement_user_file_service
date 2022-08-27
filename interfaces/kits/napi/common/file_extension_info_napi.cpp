@@ -63,7 +63,7 @@ static napi_value FileInfoConstructor(napi_env env, napi_callback_info info)
     return res;
 }
 
-static napi_value DeviceInfoConstructor(napi_env env, napi_callback_info info)
+static napi_value RootInfoConstructor(napi_env env, napi_callback_info info)
 {
     size_t argc = 0;
     napi_value args[1] = {0};
@@ -72,23 +72,19 @@ static napi_value DeviceInfoConstructor(napi_env env, napi_callback_info info)
 
     napi_status status = napi_get_cb_info(env, info, &argc, args, &res, &data);
     if (status != napi_ok) {
-        HILOG_ERROR("DeviceInfoConstructor, status is not napi_ok");
+        HILOG_ERROR("RootInfoConstructor, status is not napi_ok");
         return nullptr;
     }
 
     return res;
 }
 
-void InitFlag(napi_env env, napi_value exports)
+void InitDeviceFlag(napi_env env, napi_value exports)
 {
-    char propertyName[] = "FLAG";
+    char propertyName[] = "DeviceFlag";
     napi_property_descriptor desc[] = {
-        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_THUMBNAIL", CreateUint32(env, FLAG_SUPPORTS_THUMBNAIL)),
-        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_WRITE", CreateUint32(env, FLAG_SUPPORTS_WRITE)),
-        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_READ", CreateUint32(env, FLAG_SUPPORTS_READ)),
-        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_DELETE", CreateUint32(env, FLAG_SUPPORTS_DELETE)),
-        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_RENAME", CreateUint32(env, FLAG_SUPPORTS_RENAME)),
-        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_MOVE", CreateUint32(env, FLAG_SUPPORTS_MOVE))
+        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_READ", CreateUint32(env, DEVICE_FLAG_SUPPORTS_READ)),
+        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_WRITE", CreateUint32(env, DEVICE_FLAG_SUPPORTS_WRITE))
     };
     napi_value obj = nullptr;
     napi_create_object(env, &obj);
@@ -144,19 +140,20 @@ void InitDeviceType(napi_env env, napi_value exports)
     napi_set_named_property(env, exports, propertyName, obj);
 }
 
-void InitDeviceInfo(napi_env env, napi_value exports)
+void InitRootInfo(napi_env env, napi_value exports)
 {
-    char className[] = "DeviceInfo";
+    char className[] = "RootInfo";
     napi_property_descriptor desc[] = {
+        { "deviceType", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "deviceType"),
+            napi_writable, nullptr },
         { "uri", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "uri"), napi_writable, nullptr },
-        { "displayName", nullptr, nullptr, nullptr, nullptr,
-            CreateStringUtf8(env, "displayName"), napi_writable, nullptr },
-        { "deviceId", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "deviceId"), napi_writable, nullptr },
-        { "flags", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "flags"), napi_writable, nullptr },
-        { "type", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "type"), napi_writable, nullptr }
+        { "displayName", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "displayName"),
+            napi_writable, nullptr },
+        { "deviceFlags", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "deviceFlags"),
+            napi_writable, nullptr }
     };
     napi_value obj = nullptr;
-    napi_define_class(env, className, NAPI_AUTO_LENGTH, DeviceInfoConstructor, nullptr,
+    napi_define_class(env, className, NAPI_AUTO_LENGTH, RootInfoConstructor, nullptr,
         sizeof(desc) / sizeof(*desc), desc, &obj);
     napi_set_named_property(env, exports, className, obj);
 }
