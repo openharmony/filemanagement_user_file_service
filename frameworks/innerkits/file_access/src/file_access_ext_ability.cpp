@@ -111,7 +111,7 @@ std::vector<DeviceInfo> FileAccessExtAbility::GetRoots()
     return vec;
 }
 
-int FileAccessExtAbility::IsFileExist(const Uri &uri, bool &isExist)
+int FileAccessExtAbility::Access(const Uri &uri, bool &isExist)
 {
     HILOG_ERROR("FileAccessExtAbility::IsFileExist Undefined operation");
     return ERR_OPERATION_NOT_SUPPORT;

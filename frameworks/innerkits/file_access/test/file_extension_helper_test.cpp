@@ -1686,17 +1686,17 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_allInterface_0000, testi
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_IsFileExist_0000
- * @tc.name: file_extension_helper_IsFileExist_0000
- * @tc.desc: Test function of IsFileExist interface for SUCCESS.
+ * @tc.number: SUB_user_file_service_file_extension_helper_Access_0000
+ * @tc.name: file_extension_helper_Access_0000
+ * @tc.desc: Test function of Access interface for SUCCESS.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_IsFileExist_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, file_extension_helper_Access_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_IsFileExist_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Access_0000";
     try {
         uint64_t selfTokenId_ = GetSelfTokenID();
 
@@ -1710,22 +1710,22 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_IsFileExist_0000, testin
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri newFileUri("");
-            result = fah->CreateFile(newDirUriTest, "file_extension_helper_IsFileExist_0000.txt", newFileUri);
+            result = fah->CreateFile(newDirUriTest, "file_extension_helper_Access_0000.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             bool isExist = false;
-            result = fah->IsFileExist(newDirUriTest, isExist);
+            result = fah->Access(newDirUriTest, isExist);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_TRUE(isExist);
 
-            result = fah->IsFileExist(newFileUri, isExist);
+            result = fah->Access(newFileUri, isExist);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_TRUE(isExist);
             
             result = fah->Delete(newDirUriTest);
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
 
-            result = fah->IsFileExist(newDirUriTest, isExist);
+            result = fah->Access(newDirUriTest, isExist);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_FALSE(isExist);
         }
@@ -1734,6 +1734,6 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_IsFileExist_0000, testin
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_IsFileExist_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Access_0000";
 }
 } // namespace

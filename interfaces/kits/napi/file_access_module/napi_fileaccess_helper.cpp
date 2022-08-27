@@ -208,7 +208,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("rename", NAPI_Rename),
         DECLARE_NAPI_FUNCTION("listFile", NAPI_ListFile),
         DECLARE_NAPI_FUNCTION("getRoots", NAPI_GetRoots),
-        DECLARE_NAPI_FUNCTION("isFileExist", NAPI_IsFileExist),
+        DECLARE_NAPI_FUNCTION("access", NAPI_Access),
         DECLARE_NAPI_FUNCTION("on", NAPI_On),
         DECLARE_NAPI_FUNCTION("off", NAPI_Off)
     };
@@ -678,7 +678,7 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
-napi_value NAPI_IsFileExist(napi_env env, napi_callback_info info)
+napi_value NAPI_Access(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
@@ -704,7 +704,7 @@ napi_value NAPI_IsFileExist(napi_env env, napi_callback_info info)
     auto cbExec = [uriString, result, fileAccessHelper]() -> NError {
         OHOS::Uri uri(uriString);
         bool isExist = false;
-        int ret = fileAccessHelper->IsFileExist(uri, isExist);
+        int ret = fileAccessHelper->Access(uri, isExist);
         *result = isExist;
         return NError(ret);
     };
@@ -715,7 +715,7 @@ napi_value NAPI_IsFileExist(napi_env env, napi_callback_info info)
         return { NVal::CreateBool(env, *result) };
     };
 
-    const std::string procedureName = "isFileExist";
+    const std::string procedureName = "access";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
