@@ -119,7 +119,7 @@ napi_value WrapFileInfo(napi_env env, const FileInfo &fileInfo)
     jsValue = OHOS::AppExecFwk::WrapStringToJS(env, fileInfo.fileName);
     SetPropertyValueByPropertyName(env, jsObject, "fileName", jsValue);
 
-    jsValue = OHOS::AppExecFwk::WrapStringToJS(env, fileInfo.mode);
+    jsValue = OHOS::AppExecFwk::WrapInt32ToJS(env, fileInfo.mode);
     SetPropertyValueByPropertyName(env, jsObject, "mode", jsValue);
 
     jsValue = OHOS::AppExecFwk::WrapInt64ToJS(env, fileInfo.size);
@@ -149,8 +149,9 @@ bool UnwrapFileInfo(napi_env env, napi_value param, FileInfo &fileInfo)
         fileInfo.fileName = natValueString;
     }
 
-    if (OHOS::AppExecFwk::UnwrapStringByPropertyName(env, param, "mode", natValueString)) {
-        fileInfo.mode = natValueString;
+    int32_t natValueInt32 = ERR_OK;
+    if (UnwrapInt32ByPropertyName(env, param, "mode", natValueInt32)) {
+        fileInfo.mode = (uint32_t)natValueInt32;
     }
 
     int64_t natValueInt64 = ERR_OK;

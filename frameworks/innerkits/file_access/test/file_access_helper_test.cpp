@@ -149,7 +149,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0000, testing::ext::T
         vector<RootInfo> info = fah->GetRoots();
         Uri parentUri("");
         if (info.size() > 0) {
-            parentUri = info[0].uri;
+            parentUri = Uri(info[0].uri);
             GTEST_LOG_(INFO) << parentUri.ToString();
         }
 

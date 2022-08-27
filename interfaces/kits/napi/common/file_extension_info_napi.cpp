@@ -92,6 +92,21 @@ void InitDeviceFlag(napi_env env, napi_value exports)
     napi_set_named_property(env, exports, propertyName, obj);
 }
 
+void InitDocumentFlag(napi_env env, napi_value exports)
+{
+    char propertyName[] = "DocumentFlag";
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("REPRESENTS_FILE", CreateUint32(env, DOCUMENT_FLAG_REPRESENTS_FILE)),
+        DECLARE_NAPI_STATIC_PROPERTY("REPRESENTS_DIR", CreateUint32(env, DOCUMENT_FLAG_REPRESENTS_DIR)),
+        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_READ", CreateUint32(env, DOCUMENT_FLAG_SUPPORTS_READ)),
+        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_WRITE", CreateUint32(env, DOCUMENT_FLAG_SUPPORTS_WRITE))
+    };
+    napi_value obj = nullptr;
+    napi_create_object(env, &obj);
+    napi_define_properties(env, obj, sizeof(desc) / sizeof(desc[0]), desc);
+    napi_set_named_property(env, exports, propertyName, obj);
+}
+
 void InitNotifyType(napi_env env, napi_value exports)
 {
     char propertyName[] = "NotifyType";

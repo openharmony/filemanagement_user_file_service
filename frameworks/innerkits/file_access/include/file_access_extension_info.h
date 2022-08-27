@@ -38,7 +38,7 @@ struct FileInfo : public virtual OHOS::Parcelable {
 public:
     Uri uri = Uri("");
     std::string fileName;
-    std::string mode;
+    uint32_t mode;
     int64_t size {0};
     int64_t mtime {0};
     std::string mimeType;
@@ -52,7 +52,7 @@ public:
         uri = *uriInfo;
 
         fileName = parcel.ReadString();
-        mode = parcel.ReadString();
+        mode = parcel.ReadUint32();
         size = parcel.ReadInt64();
         mtime = parcel.ReadInt64();
         mimeType = parcel.ReadString();
@@ -67,7 +67,7 @@ public:
         if (!parcel.WriteString(fileName)) {
             return false;
         }
-        if (!parcel.WriteString(mode)) {
+        if (!parcel.WriteUint32(mode)) {
             return false;
         }
         if (!parcel.WriteInt64(size)) {

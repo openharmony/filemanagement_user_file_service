@@ -24,6 +24,7 @@ namespace FileAccessFwk {
 napi_value FileExtensionInfoExport(napi_env env, napi_value exports)
 {
     InitDeviceFlag(env, exports);
+    InitDocumentFlag(env, exports);
     InitNotifyType(env, exports);
     InitDeviceType(env, exports);
     InitFileInfo(env, exports);
