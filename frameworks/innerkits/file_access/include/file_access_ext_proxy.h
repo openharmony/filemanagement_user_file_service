@@ -44,7 +44,7 @@ public:
     virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) override;
     virtual std::vector<FileInfo> ListFile(const Uri &sourceFile) override;
     virtual std::vector<RootInfo> GetRoots() override;
-    virtual int IsFileExist(const Uri &uri, bool &isExist) override;
+    virtual int Access(const Uri &uri, bool &isExist) override;
     virtual int RegisterNotify(sptr<IFileAccessNotify> &notify) override;
     virtual int UnregisterNotify(sptr<IFileAccessNotify> &notify) override;
 private:

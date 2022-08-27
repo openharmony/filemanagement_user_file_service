@@ -210,7 +210,7 @@ export default class FileExtAbility extends Extension {
         }
         try {
             let newFileUri = this.genNewFileUri(parentUri, displayName);
-            if (this.isFileExist(newFileUri).isExist) {
+            if (this.access(newFileUri).isExist) {
                 return {
                     uri: '',
                     code: ERR_ERROR,
@@ -415,9 +415,9 @@ export default class FileExtAbility extends Extension {
         }
     }
 
-    isFileExist(sourceFileUri) {
+    access(sourceFileUri) {
         if (!this.checkUri(sourceFileUri)) {
-            hilog.error(DOMAIN_CODE, TAG, 'isFileExist checkUri fail');
+            hilog.error(DOMAIN_CODE, TAG, 'access checkUri fail');
             return {
                 isExist: false,
                 code: ERR_ERROR,
@@ -427,7 +427,7 @@ export default class FileExtAbility extends Extension {
             let path = this.getPath(sourceFileUri);
             fileio.accessSync(path);
         } catch (e) {
-            hilog.error(DOMAIN_CODE, TAG, 'isFileExist error ' + e.message);
+            hilog.error(DOMAIN_CODE, TAG, 'access error ' + e.message);
             if (e.message == 'No such file or directory') {
                 return {
                     isExist: false,

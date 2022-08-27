@@ -43,7 +43,7 @@ private:
     ErrCode CmdRename(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdListFile(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdGetRoots(MessageParcel &data, MessageParcel &reply);
-    ErrCode CmdIsFileExist(MessageParcel &data, MessageParcel &reply);
+    ErrCode CmdAccess(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdRegisterNotify(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdUnregisterNotify(MessageParcel &data, MessageParcel &reply);
     bool CheckCallingPermission(const std::string &permission);
