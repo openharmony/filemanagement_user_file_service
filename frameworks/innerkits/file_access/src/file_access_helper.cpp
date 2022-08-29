@@ -560,10 +560,10 @@ std::vector<FileInfo> FileAccessHelper::ListFile(Uri &sourceFile)
     return results;
 }
 
-std::vector<DeviceInfo> FileAccessHelper::GetRoots()
+std::vector<RootInfo> FileAccessHelper::GetRoots()
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
-    std::vector<DeviceInfo> rootsInfo;
+    std::vector<RootInfo> rootsInfo;
     if (!GetProxy()) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -573,7 +573,7 @@ std::vector<DeviceInfo> FileAccessHelper::GetRoots()
     for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
         auto connectInfo = iter->second;
         auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
-        std::vector<DeviceInfo> results;
+        std::vector<RootInfo> results;
         if (fileAccessExtProxy) {
             AddFileAccessDeathRecipient(fileAccessExtProxy->AsObject());
         }

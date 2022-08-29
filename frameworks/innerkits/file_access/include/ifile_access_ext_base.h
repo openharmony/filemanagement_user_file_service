@@ -52,9 +52,8 @@ public:
     virtual int Delete(const Uri &sourceFile) = 0;
     virtual int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) = 0;
     virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) = 0;
-
     virtual std::vector<FileInfo> ListFile(const Uri &sourceFile) = 0;
-    virtual std::vector<DeviceInfo> GetRoots() = 0;
+    virtual std::vector<RootInfo> GetRoots() = 0;
     virtual int Access(const Uri &uri, bool &isExist) = 0;
     virtual int RegisterNotify(sptr<IFileAccessNotify> &notify) = 0;
     virtual int UnregisterNotify(sptr<IFileAccessNotify> &notify) = 0;
