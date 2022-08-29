@@ -584,14 +584,14 @@ std::vector<DeviceInfo> FileAccessHelper::GetRoots()
     return rootsInfo;
 }
 
-int FileAccessHelper::GetRegisterFileAccessExtAbilityInfo(std::vector<AAFwk::Want> &wantVec)
+int FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::Want> &wantVec)
 {
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     sptr<AppExecFwk::IBundleMgr> bm = FileAccessHelper::GetBundleMgrProxy();
     bool ret = bm->QueryExtensionAbilityInfos(
         AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, DEFAULT_USERID, extensionInfos);
     if (!ret) {
-        HILOG_ERROR("FileAccessHelper::GetRegisterFileAccessExtAbilityInfo QueryExtensionAbilityInfos error");
+        HILOG_ERROR("FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo QueryExtensionAbilityInfos error");
         return ERR_QUERY_EXTENSIONINFOS_FAIL;
     }
 

@@ -48,7 +48,7 @@ class FileAccessHelper final : public std::enable_shared_from_this<FileAccessHel
 public:
     ~FileAccessHelper() = default;
     // get all ability want info
-    static int GetRegisterFileAccessExtAbilityInfo(std::vector<AAFwk::Want> &wantVec);
+    static int GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::Want> &wantVec);
     // create and connect all ability
     static std::shared_ptr<FileAccessHelper> Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context);
     // create and connect with want, if created, only connect with want
