@@ -56,7 +56,7 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags, int &fd)
     }
 
     int ret = ERR_OK;
-    if(!reply.ReadInt32(ret)){
+    if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
@@ -111,7 +111,7 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
     }
 
     int ret = ERR_OK;
-    if(!reply.ReadInt32(ret)){
+    if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
@@ -167,7 +167,7 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
     }
 
     int ret = ERR_OK;
-    if(!reply.ReadInt32(ret)){
+    if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
@@ -218,7 +218,7 @@ int FileAccessExtProxy::Delete(const Uri &sourceFile)
     }
 
     int ret = ERR_OK;
-    if(!reply.ReadInt32(ret)){
+    if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
@@ -266,7 +266,7 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
     }
 
     int ret = ERR_OK;
-    if(!reply.ReadInt32(ret)){
+    if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
@@ -322,7 +322,7 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
     }
 
     int ret = ERR_OK;
-    if(!reply.ReadInt32(ret)){
+    if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
@@ -372,7 +372,7 @@ int FileAccessExtProxy::ListFile(const Uri &sourceFile, std::vector<FileInfo> &f
     }
 
     int ret = ERR_OK;
-    if(!reply.ReadInt32(ret)){
+    if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
@@ -416,7 +416,7 @@ int FileAccessExtProxy::GetRoots(std::vector<DeviceInfo> &deviceInfo)
     }
 
     int ret = ERR_OK;
-    if(!reply.ReadInt32(ret)){
+    if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
@@ -466,9 +466,15 @@ int FileAccessExtProxy::Access(const Uri &uri, bool &isExist)
         return ERR_IPC_ERROR;
     }
 
-    int ret = reply.ReadInt32();
-    if (ret != ERR_OK) {
+    int ret = ERR_OK;
+    if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Access operation failed ret : %{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
@@ -503,11 +509,17 @@ int FileAccessExtProxy::RegisterNotify(sptr<IFileAccessNotify> &notify)
         return ERR_IPC_ERROR;
     }
 
-    err = reply.ReadInt32();
-    if (err != ERR_OK) {
-        HILOG_ERROR("fail to RegisterNotify. err: %{public}d", err);
+    int ret = ERR_OK;
+    if (!reply.ReadInt32(ret)) {
+        HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return err;
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("RegisterNotify operation failed ret : %{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
     }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
@@ -538,11 +550,17 @@ int FileAccessExtProxy::UnregisterNotify(sptr<IFileAccessNotify> &notify)
         return ERR_IPC_ERROR;
     }
 
-    err = reply.ReadInt32();
-    if (err != ERR_OK) {
-        HILOG_ERROR("fail to UnregisterNotify. err: %{public}d", err);
+    int ret = ERR_OK;
+    if (!reply.ReadInt32(ret)) {
+        HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return err;
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("UnregisterNotify operation failed ret : %{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
     }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;

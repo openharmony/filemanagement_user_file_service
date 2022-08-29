@@ -685,16 +685,12 @@ int JsFileAccessExtAbility::ListFile(const Uri &sourceFile, std::vector<FileInfo
         return errCode;
     }
 
-    if (value->code != ERR_OK) {
+    if (value->code != ERR_OK || value->data.size() == 0) {
         HILOG_ERROR("fileio fail.");
         return ERR_FILEIO_FAIL;
     }
 
     fileInfo = value->data;
-    if (fileInfo.size() == 0) {
-        HILOG_ERROR("Failed to get fileInfo.");
-        return ERR_PARSER_FAIL;
-    }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
