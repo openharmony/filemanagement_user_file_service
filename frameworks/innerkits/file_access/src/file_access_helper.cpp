@@ -50,8 +50,8 @@ static bool GetBundleNameFromPath(const std::string &path, std::string &bundleNa
     }
 
     auto tmpPath = path.substr(1);
-    auto ret = tmpPath.find_first_of("/");
-    bundleName = tmpPath.substr(0, ret);
+    auto index = tmpPath.find_first_of("/");
+    bundleName = tmpPath.substr(0, index);
     if (bundleName.compare(MEDIA_BNUDLE_NAME_ALIAS) == 0) {
         bundleName = MEDIA_BNUDLE_NAME;
     }

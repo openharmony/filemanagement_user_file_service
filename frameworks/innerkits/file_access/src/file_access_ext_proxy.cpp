@@ -55,16 +55,22 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags, int &fd)
         return ERR_IPC_ERROR;
     }
 
-    int ret = reply.ReadInt32();
-    if (ret != ERR_OK) {
+    int ret = ERR_OK;
+    if(!reply.ReadInt32(ret)){
         HILOG_ERROR("fail to ReadInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("OpenFile operation failed ret : %{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
     fd = reply.ReadFileDescriptor();
     if (fd < ERR_OK) {
-        HILOG_ERROR("fail to ReadFileDescriptor fd");
+        HILOG_ERROR("fail to ReadFileDescriptor fd: %{public}d", fd);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
@@ -104,9 +110,15 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
         return ERR_IPC_ERROR;
     }
 
-    int ret = reply.ReadInt32();
-    if (ret != ERR_OK) {
+    int ret = ERR_OK;
+    if(!reply.ReadInt32(ret)){
         HILOG_ERROR("fail to ReadInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("CreateFile operation failed ret : %{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
@@ -154,9 +166,15 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
         return ERR_IPC_ERROR;
     }
 
-    int ret = reply.ReadInt32();
-    if (ret != ERR_OK) {
+    int ret = ERR_OK;
+    if(!reply.ReadInt32(ret)){
         HILOG_ERROR("fail to ReadInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Mkdir operation failed ret : %{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
@@ -199,9 +217,15 @@ int FileAccessExtProxy::Delete(const Uri &sourceFile)
         return ERR_IPC_ERROR;
     }
 
-    int ret = reply.ReadInt32();
-    if (ret != ERR_OK) {
+    int ret = ERR_OK;
+    if(!reply.ReadInt32(ret)){
         HILOG_ERROR("fail to ReadInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Delete operation failed ret : %{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
@@ -241,9 +265,15 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
         return ERR_IPC_ERROR;
     }
 
-    int ret = reply.ReadInt32();
-    if (ret != ERR_OK) {
+    int ret = ERR_OK;
+    if(!reply.ReadInt32(ret)){
         HILOG_ERROR("fail to ReadInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Move operation failed ret : %{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
@@ -291,9 +321,15 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
         return ERR_IPC_ERROR;
     }
 
-    int ret = reply.ReadInt32();
-    if (ret != ERR_OK) {
+    int ret = ERR_OK;
+    if(!reply.ReadInt32(ret)){
         HILOG_ERROR("fail to ReadInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Rename operation failed ret : %{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
@@ -335,9 +371,15 @@ int FileAccessExtProxy::ListFile(const Uri &sourceFile, std::vector<FileInfo> &f
         return ERR_IPC_ERROR;
     }
 
-    int ret = reply.ReadInt32();
-    if (ret != ERR_OK) {
+    int ret = ERR_OK;
+    if(!reply.ReadInt32(ret)){
         HILOG_ERROR("fail to ReadInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("ListFile operation failed ret : %{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
@@ -373,9 +415,15 @@ int FileAccessExtProxy::GetRoots(std::vector<DeviceInfo> &deviceInfo)
         return ERR_IPC_ERROR;
     }
 
-    int ret = reply.ReadInt32();
-    if (ret != ERR_OK) {
+    int ret = ERR_OK;
+    if(!reply.ReadInt32(ret)){
         HILOG_ERROR("fail to ReadInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("GetRoots operation failed ret : %{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }

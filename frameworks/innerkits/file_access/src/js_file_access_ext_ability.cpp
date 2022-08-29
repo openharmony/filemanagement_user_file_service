@@ -382,6 +382,10 @@ int JsFileAccessExtAbility::OpenFile(const Uri &uri, int flags, int &fd)
     }
 
     fd = value->data;
+    if (fd <= ERR_OK) {
+        HILOG_ERROR("Failed to get file descriptor.");
+        return ERR_PARSER_FAIL;
+    }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
@@ -687,6 +691,10 @@ int JsFileAccessExtAbility::ListFile(const Uri &sourceFile, std::vector<FileInfo
     }
 
     fileInfo = value->data;
+    if (fileInfo.size() == 0) {
+        HILOG_ERROR("Failed to get fileInfo.");
+        return ERR_PARSER_FAIL;
+    }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
@@ -735,6 +743,10 @@ int JsFileAccessExtAbility::GetRoots(std::vector<DeviceInfo> &deviceInfo)
     }
 
     deviceInfo = value->data;
+    if (deviceInfo.size() == 0) {
+        HILOG_ERROR("Failed to get deviceInfo.");
+        return ERR_PARSER_FAIL;
+    }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
