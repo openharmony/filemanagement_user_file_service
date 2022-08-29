@@ -1456,6 +1456,14 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_GetRoots_0000, testing::ext::T
             GTEST_LOG_(INFO) << info[0].type;
         }
 
+        string uri = "datashare:///media/root";
+        string displayName = "LOCAL";
+        uint32_t flag = 0;
+
+        EXPECT_EQ(info[0].uri.ToString(), uri);
+        EXPECT_EQ(info[0].displayName, displayName);
+        EXPECT_EQ(info[0].type, DEVICE_LOCAL_DISK);
+
         SetSelfTokenID(selfTokenId_);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
