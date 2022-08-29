@@ -45,7 +45,7 @@ public:
         vector<AAFwk::Want> wantVec;
         int ret = FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(wantVec);
         EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
-        bool sus =false;
+        bool sus = false;
         for (size_t i = 0; i < wantVec.size(); i++) {
             auto element = wantVec[i].GetElement();
             if (element.GetBundleName() == "com.ohos.medialibrary.medialibrarydata" &&
