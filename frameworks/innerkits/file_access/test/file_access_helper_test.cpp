@@ -195,7 +195,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0001, testing::ext::T
     try {
         Uri uri("");
         int fd;
-        int result = fah->OpenFile(newFileUri, 0, fd);
+        int result = fah->OpenFile(uri, 0, fd);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0001 result:" << result << endl;
     } catch (...) {
