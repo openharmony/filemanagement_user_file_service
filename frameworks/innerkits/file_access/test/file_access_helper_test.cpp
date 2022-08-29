@@ -52,6 +52,7 @@ public:
                 element.GetAbilityName() == "FileExtensionAbility") {
                 want = wantVec[i];
                 sus = true;
+                break;
             }
         }
         EXPECT_TRUE(sus);
