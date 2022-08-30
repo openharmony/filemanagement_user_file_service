@@ -125,10 +125,10 @@ std::vector<FileInfo> FileAccessExtStubImpl::ListFile(const Uri &sourceFile)
     return vec;
 }
 
-std::vector<DeviceInfo> FileAccessExtStubImpl::GetRoots()
+std::vector<RootInfo> FileAccessExtStubImpl::GetRoots()
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
-    std::vector<DeviceInfo> vec;
+    std::vector<RootInfo> vec;
     if (extension_ == nullptr) {
         HILOG_ERROR("GetRoots get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -140,16 +140,16 @@ std::vector<DeviceInfo> FileAccessExtStubImpl::GetRoots()
     return vec;
 }
 
-int FileAccessExtStubImpl::IsFileExist(const Uri &uri, bool &isExist)
+int FileAccessExtStubImpl::Access(const Uri &uri, bool &isExist)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "IsFileExist");
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Access");
     if (extension_ == nullptr) {
-        HILOG_ERROR("IsFileExist get extension failed.");
+        HILOG_ERROR("Access get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_IPC_ERROR;
     }
 
-    int ret = extension_->IsFileExist(uri, isExist);
+    int ret = extension_->Access(uri, isExist);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }

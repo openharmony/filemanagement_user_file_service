@@ -21,9 +21,10 @@ import fileExtensionInfo from "@ohos.fileExtensionInfo"
 import hilog from '@ohos.hilog'
 import process from '@ohos.process';
 
-const FLAG = fileExtensionInfo.FLAG;
+const DeviceFlag = fileExtensionInfo.DeviceFlag;
+const DocumentFlag = fileExtensionInfo.DocumentFlag;
 const NotifyType = fileExtensionInfo.NotifyType;
-const DEVICE_TYPE = fileExtensionInfo.DeviceType;
+const DeviceType = fileExtensionInfo.DeviceType;
 const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
 const DEFAULT_MODE = 0o666;
 const CREATE_FILE_FLAGS = 0o100;
@@ -157,7 +158,7 @@ export default class FileExtAbility extends Extension {
     }
 
     isCrossDeviceLink(sourceFileUri, targetParentUri) {
-        let roots = this.getRoots();
+        let roots = this.getRoots().roots;
         for (let index = 0; index < roots.length; index++) {
             let uri = roots[index].uri;
             if (sourceFileUri.indexOf(uri) == 0 && targetParentUri.indexOf(uri) == 0) {
@@ -210,7 +211,7 @@ export default class FileExtAbility extends Extension {
         }
         try {
             let newFileUri = this.genNewFileUri(parentUri, displayName);
-            if (this.isFileExist(newFileUri).isExist) {
+            if (this.access(newFileUri).isExist) {
                 return {
                     uri: '',
                     code: ERR_ERROR,
@@ -415,9 +416,9 @@ export default class FileExtAbility extends Extension {
         }
     }
 
-    isFileExist(sourceFileUri) {
+    access(sourceFileUri) {
         if (!this.checkUri(sourceFileUri)) {
-            hilog.error(DOMAIN_CODE, TAG, 'isFileExist checkUri fail');
+            hilog.error(DOMAIN_CODE, TAG, 'access checkUri fail');
             return {
                 isExist: false,
                 code: ERR_ERROR,
@@ -427,7 +428,7 @@ export default class FileExtAbility extends Extension {
             let path = this.getPath(sourceFileUri);
             fileio.accessSync(path);
         } catch (e) {
-            hilog.error(DOMAIN_CODE, TAG, 'isFileExist error ' + e.message);
+            hilog.error(DOMAIN_CODE, TAG, 'access error ' + e.message);
             if (e.message == 'No such file or directory') {
                 return {
                     isExist: false,
@@ -461,10 +462,16 @@ export default class FileExtAbility extends Extension {
                 try {
                     let dirent = dir.readSync();
                     let stat = fileio.statSync(path + '/' + dirent.name);
+                    let mode = DocumentFlag.SUPPORTS_READ | DocumentFlag.SUPPORTS_WRITE;
+                    if (stat.isDirectory()) {
+                        mode |= DocumentFlag.REPRESENTS_DIR;
+                    } else {
+                        mode |= DocumentFlag.REPRESENTS_FILE;
+                    }
                     infos.push({
                         uri: this.genNewFileUri(sourceFileUri, dirent.name),
                         fileName: dirent.name,
-                        mode: '' + stat.mode,
+                        mode: mode,
                         size: stat.size,
                         mtime: stat.mtime,
                         mimeType: '',
@@ -489,14 +496,9 @@ export default class FileExtAbility extends Extension {
     getRoots() {
         let roots = getVolumeInfoList().concat({
             uri: 'datashare:///com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon',
-            displayName: 'storage_daemon',
-            deviceId: '',
-            type: DEVICE_TYPE.SHARED_DISK,
-            flags: FLAG.SUPPORTS_WRITE |
-                FLAG.SUPPORTS_DELETE |
-                FLAG.SUPPORTS_RENAME |
-                FLAG.SUPPORTS_READ |
-                FLAG.SUPPORTS_MOVE,
+            displayName: 'shared_disk',
+            deviceType: DeviceType.SHARED_DISK,
+            deviceFlags: DeviceFlag.SUPPORTS_READ | DeviceFlag.SUPPORTS_WRITE,
         });
         return {
             roots: roots,

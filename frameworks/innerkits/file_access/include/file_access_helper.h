@@ -58,7 +58,7 @@ public:
         const std::vector<AAFwk::Want> &wants);
 
     bool Release();
-    int IsFileExist(Uri &uri, bool &isExist);
+    int Access(Uri &uri, bool &isExist);
     int OpenFile(Uri &uri, int flags);
     int CreateFile(Uri &parent, const std::string &displayName, Uri &newFile);
     int Mkdir(Uri &parent, const std::string &displayName, Uri &newDir);
@@ -66,7 +66,7 @@ public:
     int Move(Uri &sourceFile, Uri &targetParent, Uri &newFile);
     int Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile);
     std::vector<FileInfo> ListFile(Uri &sourceFile);
-    std::vector<DeviceInfo> GetRoots();
+    std::vector<RootInfo> GetRoots();
     int On(std::shared_ptr<INotifyCallback> &callback);
     int Off();
 private:

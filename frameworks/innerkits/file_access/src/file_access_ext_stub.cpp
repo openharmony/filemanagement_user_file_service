@@ -48,7 +48,7 @@ FileAccessExtStub::FileAccessExtStub()
     stubFuncMap_[CMD_RENAME] = &FileAccessExtStub::CmdRename;
     stubFuncMap_[CMD_LIST_FILE] = &FileAccessExtStub::CmdListFile;
     stubFuncMap_[CMD_GET_ROOTS] = &FileAccessExtStub::CmdGetRoots;
-    stubFuncMap_[CMD_IS_FILE_EXIST] = &FileAccessExtStub::CmdIsFileExist;
+    stubFuncMap_[CMD_ACCESS] = &FileAccessExtStub::CmdAccess;
     stubFuncMap_[CMD_REGISTER_NOTIFY] = &FileAccessExtStub::CmdRegisterNotify;
     stubFuncMap_[CMD_UNREGISTER_NOTIFY] = &FileAccessExtStub::CmdUnregisterNotify;
 }
@@ -367,7 +367,7 @@ ErrCode FileAccessExtStub::CmdListFile(MessageParcel &data, MessageParcel &reply
 ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdGetRoots");
-    std::vector<DeviceInfo> vec = GetRoots();
+    std::vector<RootInfo> vec = GetRoots();
     uint64_t count {vec.size()};
     if (!reply.WriteUint64(count)) {
         HILOG_ERROR("parameter GetRoots fail to WriteInt32 count");
@@ -387,32 +387,32 @@ ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply
     return ERR_OK;
 }
 
-ErrCode FileAccessExtStub::CmdIsFileExist(MessageParcel &data, MessageParcel &reply)
+ErrCode FileAccessExtStub::CmdAccess(MessageParcel &data, MessageParcel &reply)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdIsFileExist");
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdAccess");
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        HILOG_ERROR("IsFIleExist uri is nullptr");
+        HILOG_ERROR("Access uri is nullptr");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_URI;
     }
 
     bool isExist = data.ReadBool();
-    int ret = IsFileExist(*uri, isExist);
+    int ret = Access(*uri, isExist);
     if (ret < 0) {
-        HILOG_ERROR("parameter IsFileExist fail, ret is %{pubilc}d", ret);
+        HILOG_ERROR("parameter Access fail, ret is %{pubilc}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
     if (!reply.WriteInt32(ret)) {
-        HILOG_ERROR("parameter IsFileExist fail to WriteInt32 ret");
+        HILOG_ERROR("parameter Access fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_IPC_ERROR;
     }
 
     if (!reply.WriteBool(isExist)) {
-        HILOG_ERROR("parameter IsFileExist fail to WriteBool type");
+        HILOG_ERROR("parameter Access fail to WriteBool type");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_IPC_ERROR;
     }

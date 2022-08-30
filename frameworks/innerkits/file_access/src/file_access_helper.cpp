@@ -150,7 +150,7 @@ std::string FileAccessHelper::GetKeyOfWantsMap(const AAFwk::Want &want)
         }
     }
     HILOG_ERROR("GetKeyOfWantsMap called return nullptr");
-    return nullptr;
+    return "";
 }
 
 void FileAccessHelper::InsertConnectInfo(const std::string &key,
@@ -502,7 +502,7 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
 
     if (sourceFileUri.GetScheme() != targetParentUri.GetScheme()) {
         HILOG_WARN("Operation failed, move not supported");
-        return ERR_OPERATION_NOT_PERMITTED;
+        return ERR_OPERATION_NOT_SUPPORT;
     }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
@@ -560,10 +560,10 @@ std::vector<FileInfo> FileAccessHelper::ListFile(Uri &sourceFile)
     return results;
 }
 
-std::vector<DeviceInfo> FileAccessHelper::GetRoots()
+std::vector<RootInfo> FileAccessHelper::GetRoots()
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
-    std::vector<DeviceInfo> rootsInfo;
+    std::vector<RootInfo> rootsInfo;
     if (!GetProxy()) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -573,7 +573,7 @@ std::vector<DeviceInfo> FileAccessHelper::GetRoots()
     for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
         auto connectInfo = iter->second;
         auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
-        std::vector<DeviceInfo> results;
+        std::vector<RootInfo> results;
         if (fileAccessExtProxy) {
             AddFileAccessDeathRecipient(fileAccessExtProxy->AsObject());
         }
@@ -607,9 +607,9 @@ int FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::W
     return ERR_OK;
 }
 
-int FileAccessHelper::IsFileExist(Uri &uri, bool &isExist)
+int FileAccessHelper::Access(Uri &uri, bool &isExist)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "IsFileExist");
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Access");
     if (!CheckUri(uri)) {
         HILOG_ERROR("uri format check error.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -623,7 +623,7 @@ int FileAccessHelper::IsFileExist(Uri &uri, bool &isExist)
         return ERR_IPC_ERROR;
     }
 
-    int index = fileExtProxy->IsFileExist(uri, isExist);
+    int index = fileExtProxy->Access(uri, isExist);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return index;
 }
