@@ -1468,10 +1468,12 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_GetRoots_0000, testing::ext::T
 
         string uri = "datashare:///media/root";
         string displayName = "LOCAL";
+        uint32_t flag = 0;
 
         EXPECT_EQ(info[0].uri, uri);
         EXPECT_EQ(info[0].displayName, displayName);
-        EXPECT_EQ(info[0].type, DEVICE_LOCAL_DISK);
+        EXPECT_EQ(info[0].deviceFlags, flag);
+        EXPECT_EQ(info[0].deviceType, DEVICE_LOCAL_DISK);
 
         SetSelfTokenID(selfTokenId_);
     } catch (...) {
