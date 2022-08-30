@@ -812,13 +812,8 @@ int JsFileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfo)
     };
 
     auto errCode = CallJsMethod("getRoots", jsRuntime_, jsObj_.get(), argParser, retParser);
-    if (errCode != ERR_OK) {
-        HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        return errCode;
-    }
-
-    if (value->code != ERR_OK) {
-        HILOG_ERROR("fileio fail.");
+    if (errCode != ERR_OK || value->code != ERR_OK) {
+        HILOG_ERROR("CallJsMethod error, code:%{public}d, or fileio fail.", errCode);
         return ERR_FILEIO_FAIL;
     }
 
