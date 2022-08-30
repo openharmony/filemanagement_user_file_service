@@ -40,7 +40,8 @@ enum {
     ERR_NOTIFY_NOT_EXIST,                   // the notify is not exist
     ERR_NOTIFY_FAIL,                        // notify client fail
     ERR_QUERY_EXTENSIONINFOS_FAIL,          // QueryExtensionAbilityInfos fail
-    ERR_PARCEL_FAIL                         // parcel fail
+    ERR_PARCEL_FAIL,                        // parcel fail
+    ERR_INVALID_RESULT                      // code success result fail
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

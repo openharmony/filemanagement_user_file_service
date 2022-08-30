@@ -368,13 +368,13 @@ ErrCode FileAccessExtStub::CmdAccess(MessageParcel &data, MessageParcel &reply)
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("parameter Access fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return ERR_PARCEL_FAIL;
     }
 
     if (!reply.WriteBool(isExist)) {
         HILOG_ERROR("parameter Access fail to WriteBool type");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return ERR_PARCEL_FAIL;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -403,21 +403,21 @@ ErrCode FileAccessExtStub::CmdRegisterNotify(MessageParcel &data, MessageParcel 
     if (remote == nullptr) {
         HILOG_INFO("get remote obj fail.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return ERR_PARCEL_FAIL;
     }
 
     auto notify = iface_cast<IFileAccessNotify>(remote);
     if (notify == nullptr) {
         HILOG_INFO("get notify fail");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return ERR_PARCEL_FAIL;
     }
 
     int ret = RegisterNotify(notify);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("WriteInt32 failed");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return ERR_PARCEL_FAIL;
     }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
@@ -430,21 +430,21 @@ ErrCode FileAccessExtStub::CmdUnregisterNotify(MessageParcel &data, MessageParce
     if (remote == nullptr) {
         HILOG_INFO("get remote obj fail.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return ERR_PARCEL_FAIL;
     }
 
     auto notify = iface_cast<IFileAccessNotify>(remote);
     if (notify == nullptr) {
         HILOG_INFO("get notify fail");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return ERR_PARCEL_FAIL;
     }
 
     int ret = UnregisterNotify(notify);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("WriteInt32 failed");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return ERR_PARCEL_FAIL;
     }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;

@@ -52,7 +52,7 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags, int &fd)
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return err;
     }
 
     int ret = ERR_OK;
@@ -107,7 +107,7 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return err;
     }
 
     int ret = ERR_OK;
@@ -131,6 +131,10 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
     }
 
     newFile = Uri(*tempUri);
+    if (newFile.ToString() == "") {
+        HILOG_ERROR("get uri is empty.");
+        return ERR_INVALID_RESULT;
+    }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
@@ -163,7 +167,7 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return err;
     }
 
     int ret = ERR_OK;
@@ -182,12 +186,15 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
     std::unique_ptr<Uri> tempUri(reply.ReadParcelable<Uri>());
     if (tempUri == nullptr) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
-        ret = ERR_IPC_ERROR;
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
 
     newFile = Uri(*tempUri);
+    if (newFile.ToString() == "") {
+        HILOG_ERROR("get uri is empty.");
+        return ERR_INVALID_RESULT;
+    }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
@@ -214,7 +221,7 @@ int FileAccessExtProxy::Delete(const Uri &sourceFile)
     if (err != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return err;
     }
 
     int ret = ERR_OK;
@@ -262,7 +269,7 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return err;
     }
 
     int ret = ERR_OK;
@@ -286,6 +293,10 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
     }
 
     newFile = Uri(*tempUri);
+    if (newFile.ToString() == "") {
+        HILOG_ERROR("get uri is empty.");
+        return ERR_INVALID_RESULT;
+    }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
@@ -318,7 +329,7 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return err;
     }
 
     int ret = ERR_OK;
@@ -342,6 +353,10 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
     }
 
     newFile = Uri(*tempUri);
+    if (newFile.ToString() == "") {
+        HILOG_ERROR("get uri is empty.");
+        return ERR_INVALID_RESULT;
+    }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
@@ -368,7 +383,7 @@ int FileAccessExtProxy::ListFile(const Uri &sourceFile, std::vector<FileInfo> &f
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return err;
     }
 
     int ret = ERR_OK;
@@ -412,7 +427,7 @@ int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfo)
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return err;
     }
 
     int ret = ERR_OK;
@@ -463,7 +478,7 @@ int FileAccessExtProxy::Access(const Uri &uri, bool &isExist)
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return err;
     }
 
     int ret = ERR_OK;
@@ -506,7 +521,7 @@ int FileAccessExtProxy::RegisterNotify(sptr<IFileAccessNotify> &notify)
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return err;
     }
 
     int ret = ERR_OK;
@@ -547,7 +562,7 @@ int FileAccessExtProxy::UnregisterNotify(sptr<IFileAccessNotify> &notify)
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_IPC_ERROR;
+        return err;
     }
 
     int ret = ERR_OK;

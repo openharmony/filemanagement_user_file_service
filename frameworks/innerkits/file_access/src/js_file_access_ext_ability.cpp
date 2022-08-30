@@ -681,6 +681,10 @@ static bool ParserListFileJsResult(NativeEngine &engine, NativeValue *nativeValu
 
     bool ret = ConvertFromJsValue(engine, obj->GetProperty("code"), result->code);
     NativeArray *nativeArray = ConvertNativeValueTo<NativeArray>(obj->GetProperty("infos"));
+    if (nativeArray == nullptr) {
+        HILOG_ERROR("nativeArray is nullptr");
+        return false;
+    }
     for (uint32_t i = 0; i < nativeArray->GetLength(); i++) {
         NativeValue *nativeFileInfo = nativeArray->GetElement(i);
         if (nativeFileInfo == nullptr) {
@@ -749,7 +753,7 @@ int JsFileAccessExtAbility::ListFile(const Uri &sourceFile, std::vector<FileInfo
         return errCode;
     }
 
-    if (value->code != ERR_OK || value->data.size() == 0) {
+    if (value->code != ERR_OK) {
         HILOG_ERROR("fileio fail.");
         return ERR_FILEIO_FAIL;
     }
@@ -776,6 +780,10 @@ int JsFileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfo)
 
         bool ret = ConvertFromJsValue(engine, obj->GetProperty("code"), value->code);
         NativeArray *nativeArray = ConvertNativeValueTo<NativeArray>(obj->GetProperty("roots"));
+        if (nativeArray == nullptr) {
+            HILOG_ERROR("nativeArray is nullptr");
+            return false;
+        }
         for (uint32_t i = 0; i < nativeArray->GetLength(); i++) {
             NativeValue *nativeRootInfo = nativeArray->GetElement(i);
             if (nativeRootInfo == nullptr) {
@@ -815,10 +823,6 @@ int JsFileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfo)
     }
 
     rootInfo = value->data;
-    if (rootInfo.size() == 0) {
-        HILOG_ERROR("Failed to get rootInfo.");
-        return ERR_PARSER_FAIL;
-    }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
