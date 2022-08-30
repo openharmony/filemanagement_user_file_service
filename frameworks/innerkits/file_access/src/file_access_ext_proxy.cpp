@@ -396,7 +396,7 @@ int FileAccessExtProxy::ListFile(const Uri &sourceFile, std::vector<FileInfo> &f
     return ERR_OK;
 }
 
-int FileAccessExtProxy::GetRoots(std::vector<DeviceInfo> &deviceInfo)
+int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfo)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
     MessageParcel data;
@@ -428,12 +428,12 @@ int FileAccessExtProxy::GetRoots(std::vector<DeviceInfo> &deviceInfo)
         return ret;
     }
 
-    deviceInfo.clear();
+    rootInfo.clear();
     uint64_t count = reply.ReadUint64();
     for (uint64_t i = 0; i < count; i++) {
-        std::unique_ptr<DeviceInfo> deviceInfoPtr(reply.ReadParcelable<DeviceInfo>());
-        if (deviceInfoPtr != nullptr) {
-            deviceInfo.push_back(*deviceInfoPtr);
+        std::unique_ptr<RootInfo> rootInfoPtr(reply.ReadParcelable<RootInfo>());
+        if (rootInfoPtr != nullptr) {
+            rootInfo.push_back(*rootInfoPtr);
         }
     }
 

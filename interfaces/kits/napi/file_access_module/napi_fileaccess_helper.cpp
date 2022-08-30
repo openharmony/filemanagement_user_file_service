@@ -201,7 +201,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
 {
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_FUNCTION("openFile", NAPI_OpenFile),
-        DECLARE_NAPI_FUNCTION("mkdir", NAPI_Mkdir),
+        DECLARE_NAPI_FUNCTION("mkDir", NAPI_Mkdir),
         DECLARE_NAPI_FUNCTION("createFile", NAPI_CreateFile),
         DECLARE_NAPI_FUNCTION("delete", NAPI_Delete),
         DECLARE_NAPI_FUNCTION("move", NAPI_Move),
@@ -650,7 +650,7 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    auto result = std::make_shared<std::vector<DeviceInfo>>();
+    auto result = std::make_shared<std::vector<RootInfo>>();
     auto cbExec = [result, fileAccessHelper]() -> NError {
         int ret = fileAccessHelper->GetRoots(*result);
         return NError(ret);
@@ -659,7 +659,7 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
         if (err) {
             return { env, err.GetNapiErr(env) };
         }
-        napi_value jsArray = WrapArrayDeviceInfoToJS(env, *result);
+        napi_value jsArray = WrapArrayRootInfoToJS(env, *result);
         return {env, jsArray};
     };
 

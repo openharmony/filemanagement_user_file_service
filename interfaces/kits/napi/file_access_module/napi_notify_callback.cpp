@@ -59,9 +59,9 @@ int NapiNotifyCallback::OnNotify(const NotifyMessage& message)
             CallbackParam *param = reinterpret_cast<CallbackParam *>(work->data);
             NVal napiNotifyMessage = NVal::CreateObject(param->callback_->env_);
             napiNotifyMessage.AddProp("deviceType",
-                NVal::CreateInt32(param->callback_->env_, (int32_t)param->message_.deviceType).val_);
+                NVal::CreateInt32(param->callback_->env_, param->message_.deviceType).val_);
             napiNotifyMessage.AddProp("notifyType",
-                NVal::CreateInt32(param->callback_->env_, (int32_t)param->message_.notifyType).val_);
+                NVal::CreateInt32(param->callback_->env_, param->message_.notifyType).val_);
             napiNotifyMessage.AddProp("srcUri",
                 NVal::CreateUTF8String(param->callback_->env_, param->message_.srcUri).val_);
             napiNotifyMessage.AddProp("dstUri",

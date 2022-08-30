@@ -41,7 +41,7 @@ public:
     int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) override;
     int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) override;
     int ListFile(const Uri &sourceFileUri, std::vector<FileInfo> &fileInfo) override;
-    int GetRoots(std::vector<DeviceInfo> &deviceInfo) override;
+    int GetRoots(std::vector<RootInfo> &rootInfo) override;
     int Access(const Uri &uri, bool &isExist) override;
     int RegisterNotify(sptr<IFileAccessNotify> &notify) override;
     int UnregisterNotify(sptr<IFileAccessNotify> &notify) override;

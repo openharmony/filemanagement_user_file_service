@@ -326,15 +326,15 @@ ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdGetRoots");
 
-    std::vector<DeviceInfo> deviceInfo;
-    int ret = GetRoots(deviceInfo);
+    std::vector<RootInfo> rootInfo;
+    int ret = GetRoots(rootInfo);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("parameter CmdGetRoots fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
 
-    uint64_t count = deviceInfo.size();
+    uint64_t count = rootInfo.size();
     if (!reply.WriteUint64(count)) {
         HILOG_ERROR("parameter CmdGetRoots fail to WriteUint64 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -342,7 +342,7 @@ ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply
     }
 
     for (uint64_t i = 0; i < count; i++) {
-        if (!reply.WriteParcelable(&deviceInfo[i])) {
+        if (!reply.WriteParcelable(&rootInfo[i])) {
             HILOG_ERROR("parameter CmdGetRoots fail to WriteParcelable vec");
             FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return ERR_PARCEL_FAIL;

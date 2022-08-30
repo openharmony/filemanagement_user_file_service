@@ -66,7 +66,7 @@ public:
     int Move(Uri &sourceFile, Uri &targetParent, Uri &newFile);
     int Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile);
     int ListFile(Uri &sourceFile, std::vector<FileInfo> &fileInfo);
-    int GetRoots(std::vector<DeviceInfo> &deviceInfo);
+    int GetRoots(std::vector<RootInfo> &rootInfo);
     int On(std::shared_ptr<INotifyCallback> &callback);
     int Off();
 private:

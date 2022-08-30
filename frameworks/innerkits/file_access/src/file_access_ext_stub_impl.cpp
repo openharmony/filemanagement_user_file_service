@@ -124,7 +124,7 @@ int FileAccessExtStubImpl::ListFile(const Uri &sourceFile, std::vector<FileInfo>
     return ret;
 }
 
-int FileAccessExtStubImpl::GetRoots(std::vector<DeviceInfo> &deviceInfo)
+int FileAccessExtStubImpl::GetRoots(std::vector<RootInfo> &rootInfo)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
     if (extension_ == nullptr) {
@@ -133,7 +133,7 @@ int FileAccessExtStubImpl::GetRoots(std::vector<DeviceInfo> &deviceInfo)
         return ERR_IPC_ERROR;
     }
 
-    int ret = extension_->GetRoots(deviceInfo);
+    int ret = extension_->GetRoots(rootInfo);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }

@@ -567,7 +567,7 @@ int FileAccessHelper::ListFile(Uri &sourceFile, std::vector<FileInfo> &fileInfo)
     return ret;
 }
 
-int FileAccessHelper::GetRoots(std::vector<DeviceInfo> &deviceInfo)
+int FileAccessHelper::GetRoots(std::vector<RootInfo> &rootInfo)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
     if (!GetProxy()) {
@@ -580,7 +580,7 @@ int FileAccessHelper::GetRoots(std::vector<DeviceInfo> &deviceInfo)
     for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
         auto connectInfo = iter->second;
         auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
-        std::vector<DeviceInfo> results;
+        std::vector<RootInfo> results;
         if (fileAccessExtProxy) {
             AddFileAccessDeathRecipient(fileAccessExtProxy->AsObject());
         }
@@ -589,7 +589,7 @@ int FileAccessHelper::GetRoots(std::vector<DeviceInfo> &deviceInfo)
             HILOG_ERROR("getRoots Failed to get value");
             return ret;
         }
-        deviceInfo.insert(deviceInfo.end(), results.begin(), results.end());
+        rootInfo.insert(rootInfo.end(), results.begin(), results.end());
     }
 
     return ret;

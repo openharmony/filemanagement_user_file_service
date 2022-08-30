@@ -103,7 +103,7 @@ int FileAccessExtAbility::ListFile(const Uri &sourceFile, std::vector<FileInfo> 
     return ERR_OPERATION_NOT_SUPPORT;
 }
 
-int FileAccessExtAbility::GetRoots(std::vector<DeviceInfo> &deviceInfo)
+int FileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfo)
 {
     HILOG_ERROR("FileAccessExtAbility::GetRoots Undefined operation");
     return ERR_OPERATION_NOT_SUPPORT;

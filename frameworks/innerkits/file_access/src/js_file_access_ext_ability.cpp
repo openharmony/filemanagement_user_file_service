@@ -104,9 +104,9 @@ NativeValue* JsFileAccessExtAbility::FuncCallback(NativeEngine* engine, NativeCa
         return engine->CreateUndefined();
     }
 
-    DeviceType deviceType = (DeviceType)UnwrapUint32FromJS(reinterpret_cast<napi_env>(engine),
+    int32_t deviceType = UnwrapInt32FromJS(reinterpret_cast<napi_env>(engine),
         reinterpret_cast<napi_value>(info->argv[ARGC_ZERO]));
-    NotifyType notifyType = (NotifyType)UnwrapUint32FromJS(reinterpret_cast<napi_env>(engine),
+    int32_t notifyType = UnwrapInt32FromJS(reinterpret_cast<napi_env>(engine),
         reinterpret_cast<napi_value>(info->argv[ARGC_ONE]));
     std::string uri = UnwrapStringFromJS(reinterpret_cast<napi_env>(engine),
         reinterpret_cast<napi_value>(info->argv[ARGC_TWO]));
@@ -361,6 +361,11 @@ int JsFileAccessExtAbility::OpenFile(const Uri &uri, int flags, int &fd)
     };
     auto retParser = [value](NativeEngine &engine, NativeValue *result) -> bool {
         NativeObject *obj = ConvertNativeValueTo<NativeObject>(result);
+        if (obj == nullptr) {
+            HILOG_ERROR("Convert js object fail.");
+            return false;
+        }
+
         bool ret = ConvertFromJsValue(engine, obj->GetProperty("fd"), value->data);
         ret = ret && ConvertFromJsValue(engine, obj->GetProperty("code"), value->code);
         if (!ret) {
@@ -412,6 +417,11 @@ int JsFileAccessExtAbility::CreateFile(const Uri &parent, const std::string &dis
     };
     auto retParser = [value](NativeEngine &engine, NativeValue *result) -> bool {
         NativeObject *obj = ConvertNativeValueTo<NativeObject>(result);
+        if (obj == nullptr) {
+            HILOG_ERROR("Convert js object fail.");
+            return false;
+        }
+
         bool ret = ConvertFromJsValue(engine, obj->GetProperty("uri"), value->data);
         ret = ret && ConvertFromJsValue(engine, obj->GetProperty("code"), value->code);
         if (!ret) {
@@ -465,6 +475,11 @@ int JsFileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayN
     };
     auto retParser = [value](NativeEngine &engine, NativeValue *result) -> bool {
         NativeObject *obj = ConvertNativeValueTo<NativeObject>(result);
+        if (obj == nullptr) {
+            HILOG_ERROR("Convert js object fail.");
+            return false;
+        }
+
         bool ret = ConvertFromJsValue(engine, obj->GetProperty("uri"), value->data);
         ret = ret && ConvertFromJsValue(engine, obj->GetProperty("code"), value->code);
         if (!ret) {
@@ -544,8 +559,7 @@ int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent,
             HILOG_ERROR("create sourceFile uri native js value fail.");
             return false;
         }
-        NativeValue *dstUri = engine.CreateString(targetParent.ToString().c_str(),
-            targetParent.ToString().length());
+        NativeValue *dstUri = engine.CreateString(targetParent.ToString().c_str(), targetParent.ToString().length());
         if (dstUri == nullptr) {
             HILOG_ERROR("create targetParent uri native js value fail.");
             return false;
@@ -557,6 +571,11 @@ int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent,
     };
     auto retParser = [value](NativeEngine &engine, NativeValue *result) -> bool {
         NativeObject *obj = ConvertNativeValueTo<NativeObject>(result);
+        if (obj == nullptr) {
+            HILOG_ERROR("Convert js object fail.");
+            return false;
+        }
+
         bool ret = ConvertFromJsValue(engine, obj->GetProperty("uri"), value->data);
         ret = ret && ConvertFromJsValue(engine, obj->GetProperty("code"), value->code);
         if (!ret) {
@@ -610,6 +629,11 @@ int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &dis
     };
     auto retParser = [value](NativeEngine &engine, NativeValue *result) -> bool {
         NativeObject *obj = ConvertNativeValueTo<NativeObject>(result);
+        if (obj == nullptr) {
+            HILOG_ERROR("Convert js object fail.");
+            return false;
+        }
+
         bool ret = ConvertFromJsValue(engine, obj->GetProperty("uri"), value->data);
         ret = ret && ConvertFromJsValue(engine, obj->GetProperty("code"), value->code);
         if (!ret) {
@@ -640,6 +664,52 @@ int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &dis
     return ERR_OK;
 }
 
+
+static bool ParserListFileJsResult(NativeEngine &engine, NativeValue *nativeValue,
+    std::shared_ptr<Value<std::vector<FileInfo>>> &result)
+{
+    if (result == nullptr) {
+        HILOG_ERROR("result is nullptr.");
+        return false;
+    }
+
+    NativeObject *obj = ConvertNativeValueTo<NativeObject>(nativeValue);
+    if (obj == nullptr) {
+        HILOG_ERROR("Convert js object fail.");
+        return false;
+    }
+
+    bool ret = ConvertFromJsValue(engine, obj->GetProperty("code"), result->code);
+    NativeArray *nativeArray = ConvertNativeValueTo<NativeArray>(obj->GetProperty("infos"));
+    for (uint32_t i = 0; i < nativeArray->GetLength(); i++) {
+        NativeValue *nativeFileInfo = nativeArray->GetElement(i);
+        if (nativeFileInfo == nullptr) {
+            HILOG_ERROR("get native FileInfo fail.");
+            return false;
+        }
+
+        obj = ConvertNativeValueTo<NativeObject>(nativeFileInfo);
+        if (obj == nullptr) {
+            HILOG_ERROR("Convert js object fail.");
+            return false;
+        }
+
+        FileInfo fileInfo;
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("uri"), fileInfo.uri);
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("fileName"), fileInfo.fileName);
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("mode"), fileInfo.mode);
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("size"), fileInfo.size);
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("mtime"), fileInfo.mtime);
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("mimeType"), fileInfo.mimeType);
+        if (!ret) {
+            HILOG_ERROR("Convert js value fail.");
+            return ret;
+        }
+        (result->data).emplace_back(std::move(fileInfo));
+    }
+    return true;
+}
+
 int JsFileAccessExtAbility::ListFile(const Uri &sourceFile, std::vector<FileInfo> &fileInfo)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
@@ -650,32 +720,26 @@ int JsFileAccessExtAbility::ListFile(const Uri &sourceFile, std::vector<FileInfo
             HILOG_ERROR("create sourceFile uri native js value fail.");
             return false;
         }
+
         argv[ARGC_ZERO] = uri;
         argc = ARGC_ONE;
         return true;
     };
     auto retParser = [value](NativeEngine &engine, NativeValue *result) -> bool {
-        NativeObject *obj = ConvertNativeValueTo<NativeObject>(result);
-        bool ret = ConvertFromJsValue(engine, obj->GetProperty("code"), value->code);
-        NativeArray *nativeArray = ConvertNativeValueTo<NativeArray>(obj->GetProperty("infos"));
-        for (uint32_t i = 0; i < nativeArray->GetLength(); i++) {
-            NativeValue *nativeFileInfo = nativeArray->GetElement(i);
-            obj = ConvertNativeValueTo<NativeObject>(nativeFileInfo);
-            FileInfo fileInfo;
-            std::string uri;
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("uri"), uri);
-            fileInfo.uri = Uri(uri);
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("fileName"), fileInfo.fileName);
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("mode"), fileInfo.mode);
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("size"), fileInfo.size);
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("mtime"), fileInfo.mtime);
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("mimeType"), fileInfo.mimeType);
-            if (!ret) {
-                HILOG_ERROR("Convert js value fail.");
-                return ret;
-            }
-            (value->data).emplace_back(std::move(fileInfo));
+        std::shared_ptr<Value<std::vector<FileInfo>>> fileInfo = std::make_shared<Value<std::vector<FileInfo>>>();
+        if (fileInfo == nullptr) {
+            HILOG_ERROR("new Value fail.");
+            return false;
         }
+
+        bool ret = ParserListFileJsResult(engine, result, fileInfo);
+        if (!ret) {
+            HILOG_ERROR("Parser js value fail.");
+            return ret;
+        }
+
+        value->code = fileInfo->code;
+        value->data = std::move(fileInfo->data);
         return true;
     };
 
@@ -695,34 +759,46 @@ int JsFileAccessExtAbility::ListFile(const Uri &sourceFile, std::vector<FileInfo
     return ERR_OK;
 }
 
-int JsFileAccessExtAbility::GetRoots(std::vector<DeviceInfo> &deviceInfo)
+int JsFileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfo)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
-    auto value = std::make_shared<Value<std::vector<DeviceInfo>>>();
+    auto value = std::make_shared<Value<std::vector<RootInfo>>>();
     auto argParser = [](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
         argc = ARGC_ZERO;
         return true;
     };
     auto retParser = [value](NativeEngine &engine, NativeValue *result) -> bool {
         NativeObject *obj = ConvertNativeValueTo<NativeObject>(result);
+        if (obj == nullptr) {
+            HILOG_ERROR("Convert js object fail.");
+            return false;
+        }
+
         bool ret = ConvertFromJsValue(engine, obj->GetProperty("code"), value->code);
         NativeArray *nativeArray = ConvertNativeValueTo<NativeArray>(obj->GetProperty("roots"));
         for (uint32_t i = 0; i < nativeArray->GetLength(); i++) {
-            NativeValue *nativeDeviceInfo = nativeArray->GetElement(i);
-            obj = ConvertNativeValueTo<NativeObject>(nativeDeviceInfo);
-            DeviceInfo deviceInfo;
-            std::string uri;
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("uri"), uri);
-            deviceInfo.uri = Uri(uri);
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("displayName"), deviceInfo.displayName);
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("deviceId"), deviceInfo.deviceId);
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("flags"), deviceInfo.flags);
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("type"), deviceInfo.type);
+            NativeValue *nativeRootInfo = nativeArray->GetElement(i);
+            if (nativeRootInfo == nullptr) {
+                HILOG_ERROR("get native FileInfo fail.");
+                return false;
+            }
+
+            obj = ConvertNativeValueTo<NativeObject>(nativeRootInfo);
+            if (obj == nullptr) {
+                HILOG_ERROR("Convert js object fail.");
+                return false;
+            }
+
+            RootInfo rootInfo;
+            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("deviceType"), rootInfo.deviceType);
+            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("uri"), rootInfo.uri);
+            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("displayName"), rootInfo.displayName);
+            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("deviceFlags"), rootInfo.deviceFlags);
             if (!ret) {
                 HILOG_ERROR("Convert js value fail.");
                 return ret;
             }
-            (value->data).emplace_back(std::move(deviceInfo));
+            (value->data).emplace_back(std::move(rootInfo));
         }
         return true;
     };
@@ -738,9 +814,9 @@ int JsFileAccessExtAbility::GetRoots(std::vector<DeviceInfo> &deviceInfo)
         return ERR_FILEIO_FAIL;
     }
 
-    deviceInfo = value->data;
-    if (deviceInfo.size() == 0) {
-        HILOG_ERROR("Failed to get deviceInfo.");
+    rootInfo = value->data;
+    if (rootInfo.size() == 0) {
+        HILOG_ERROR("Failed to get rootInfo.");
         return ERR_PARSER_FAIL;
     }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -759,6 +835,11 @@ int JsFileAccessExtAbility::Access(const Uri &uri, bool &isExist)
     };
     auto retParser = [value](NativeEngine &engine, NativeValue *result) -> bool {
         NativeObject *obj = ConvertNativeValueTo<NativeObject>(result);
+        if (obj == nullptr) {
+            HILOG_ERROR("Convert js object fail.");
+            return ERR_PARSER_FAIL;
+        }
+
         bool ret = ConvertFromJsValue(engine, obj->GetProperty("isExist"), value->data);
         ret = ret && ConvertFromJsValue(engine, obj->GetProperty("code"), value->code);
         if (!ret) {
