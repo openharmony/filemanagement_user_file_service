@@ -42,9 +42,21 @@ public:
         auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         auto remoteObj = saManager->GetSystemAbility(ABILITY_ID);
         AAFwk::Want want;
-        want.SetElementName("com.ohos.medialibrary.medialibrarydata", "FileExtensionAbility");
+        vector<AAFwk::Want> wantVec;
+        int ret = FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(wantVec);
+        EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
+        bool sus = false;
+        for (size_t i = 0; i < wantVec.size(); i++) {
+            auto element = wantVec[i].GetElement();
+            if (element.GetBundleName() == "com.ohos.medialibrary.medialibrarydata" &&
+                element.GetAbilityName() == "FileExtensionAbility") {
+                want = wantVec[i];
+                sus = true;
+                break;
+            }
+        }
+        EXPECT_TRUE(sus);
         vector<AAFwk::Want> wants {want};
-        FileAccessHelper::GetRegisterFileAccessExtAbilityInfo();
         fah = FileAccessHelper::Creator(remoteObj, wants);
     }
     static void TearDownTestCase() {};

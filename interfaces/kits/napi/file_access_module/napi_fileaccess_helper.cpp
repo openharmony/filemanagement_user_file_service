@@ -164,7 +164,7 @@ napi_value NAPI_CreateFileAccessHelper(napi_env env, napi_callback_info info)
     return ret;
 }
 
-napi_value NAPI_GetRegisterFileAccessExtAbilityInfo(napi_env env, napi_callback_info info)
+napi_value NAPI_GetFileAccessAbilityInfo(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
@@ -174,8 +174,8 @@ napi_value NAPI_GetRegisterFileAccessExtAbilityInfo(napi_env env, napi_callback_
 
     auto result = std::make_shared<std::vector<AAFwk::Want>>();
     auto cbExec = [result]() -> NError {
-        *result = FileAccessHelper::GetRegisterFileAccessExtAbilityInfo();
-        return NError(ERRNO_NOERR);
+        int ret = FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(*result);
+        return NError(ret);
     };
     auto cbComplete = [result](napi_env env, NError err) -> NVal {
         if (err) {
@@ -184,7 +184,7 @@ napi_value NAPI_GetRegisterFileAccessExtAbilityInfo(napi_env env, napi_callback_
         napi_value jsArray = WrapArrayWantToJS(env, *result);
         return {env, jsArray};
     };
-    const std::string procedureName = "getRegisterFileAccessExtAbilityInfo";
+    const std::string procedureName = "getFileAccessAbilityInfo";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ZERO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -228,7 +228,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
 
     napi_property_descriptor export_properties[] = {
         DECLARE_NAPI_FUNCTION("createFileAccessHelper", NAPI_CreateFileAccessHelper),
-        DECLARE_NAPI_FUNCTION("getRegisterFileAccessExtAbilityInfo", NAPI_GetRegisterFileAccessExtAbilityInfo),
+        DECLARE_NAPI_FUNCTION("getFileAccessAbilityInfo", NAPI_GetFileAccessAbilityInfo),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(export_properties) / sizeof(export_properties[0]),
         export_properties));
