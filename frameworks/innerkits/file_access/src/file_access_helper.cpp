@@ -584,27 +584,27 @@ std::vector<RootInfo> FileAccessHelper::GetRoots()
     return rootsInfo;
 }
 
-std::vector<AAFwk::Want> FileAccessHelper::GetRegisterFileAccessExtAbilityInfo()
+int FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::Want> &wantVec)
 {
-    std::vector<AAFwk::Want> wants;
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     sptr<AppExecFwk::IBundleMgr> bm = FileAccessHelper::GetBundleMgrProxy();
     bool ret = bm->QueryExtensionAbilityInfos(
         AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, DEFAULT_USERID, extensionInfos);
     if (!ret) {
-        HILOG_ERROR("FileAccessHelper::GetRegisterFileAccessExtAbilityInfo QueryExtensionAbilityInfos error");
-        return wants;
+        HILOG_ERROR("FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo QueryExtensionAbilityInfos error");
+        return ERR_QUERY_EXTENSIONINFOS_FAIL;
     }
 
+    wantVec.clear();
     FileAccessHelper::wantsMap_.clear();
     for (size_t i = 0; i < extensionInfos.size(); i++) {
         AAFwk::Want want;
         want.SetElementName(extensionInfos[i].bundleName, extensionInfos[i].name);
         FileAccessHelper::wantsMap_.insert(std::pair<std::string, AAFwk::Want>(extensionInfos[i].bundleName, want));
-        wants.push_back(want);
+        wantVec.push_back(want);
     }
 
-    return wants;
+    return ERR_OK;
 }
 
 int FileAccessHelper::Access(Uri &uri, bool &isExist)
