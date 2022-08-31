@@ -41,7 +41,7 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags, int &fd)
     }
 
     if (!data.WriteUint32(flags)) {
-        HILOG_ERROR("fail to WriteString mode");
+        HILOG_ERROR("fail to WriteUint32 flags");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
@@ -55,7 +55,7 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags, int &fd)
         return err;
     }
 
-    int ret = ERR_OK;
+    int ret = ERR_PARCEL_FAIL;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -96,7 +96,7 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
     }
 
     if (!data.WriteString(displayName)) {
-        HILOG_ERROR("fail to WriteString mode");
+        HILOG_ERROR("fail to WriteString displayName");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
@@ -110,7 +110,7 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
         return err;
     }
 
-    int ret = ERR_OK;
+    int ret = ERR_PARCEL_FAIL;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -170,7 +170,7 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
         return err;
     }
 
-    int ret = ERR_OK;
+    int ret = ERR_PARCEL_FAIL;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -224,7 +224,7 @@ int FileAccessExtProxy::Delete(const Uri &sourceFile)
         return err;
     }
 
-    int ret = ERR_OK;
+    int ret = ERR_PARCEL_FAIL;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -272,7 +272,7 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
         return err;
     }
 
-    int ret = ERR_OK;
+    int ret = ERR_PARCEL_FAIL;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -332,7 +332,7 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
         return err;
     }
 
-    int ret = ERR_OK;
+    int ret = ERR_PARCEL_FAIL;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -386,7 +386,7 @@ int FileAccessExtProxy::ListFile(const Uri &sourceFile, std::vector<FileInfo> &f
         return err;
     }
 
-    int ret = ERR_OK;
+    int ret = ERR_PARCEL_FAIL;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -430,7 +430,7 @@ int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfo)
         return err;
     }
 
-    int ret = ERR_OK;
+    int ret = ERR_PARCEL_FAIL;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -481,7 +481,7 @@ int FileAccessExtProxy::Access(const Uri &uri, bool &isExist)
         return err;
     }
 
-    int ret = ERR_OK;
+    int ret = ERR_PARCEL_FAIL;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -524,7 +524,7 @@ int FileAccessExtProxy::RegisterNotify(sptr<IFileAccessNotify> &notify)
         return err;
     }
 
-    int ret = ERR_OK;
+    int ret = ERR_PARCEL_FAIL;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -565,7 +565,7 @@ int FileAccessExtProxy::UnregisterNotify(sptr<IFileAccessNotify> &notify)
         return err;
     }
 
-    int ret = ERR_OK;
+    int ret = ERR_PARCEL_FAIL;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
