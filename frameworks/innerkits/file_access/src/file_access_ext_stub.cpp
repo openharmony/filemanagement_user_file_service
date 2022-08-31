@@ -96,7 +96,7 @@ ErrCode FileAccessExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply
     }
 
     int flags = ERR_PARCEL_FAIL;
-    if (data.ReadInt32(flags)) {
+    if (!data.ReadInt32(flags)) {
         HILOG_ERROR("Parameter OpenFile fail to ReadInt32 flags");
         return ERR_PARCEL_FAIL;
     }
@@ -136,7 +136,7 @@ ErrCode FileAccessExtStub::CmdCreateFile(MessageParcel &data, MessageParcel &rep
     }
 
     std::string displayName = "";
-    if (data.ReadString(displayName)) {
+    if (!data.ReadString(displayName)) {
         HILOG_ERROR("Parameter CreateFile fail to ReadString displayName");
         return ERR_PARCEL_FAIL;
     }
@@ -177,7 +177,7 @@ ErrCode FileAccessExtStub::CmdMkdir(MessageParcel &data, MessageParcel &reply)
     }
 
     std::string displayName = "";
-    if (data.ReadString(displayName)) {
+    if (!data.ReadString(displayName)) {
         HILOG_ERROR("Parameter Mkdir fail to ReadString displayName");
         return ERR_PARCEL_FAIL;
     }
@@ -275,7 +275,7 @@ ErrCode FileAccessExtStub::CmdRename(MessageParcel &data, MessageParcel &reply)
     }
 
     std::string displayName = "";
-    if (data.ReadString(displayName)) {
+    if (!data.ReadString(displayName)) {
         HILOG_ERROR("Parameter Rename fail to ReadString displayName");
         return ERR_PARCEL_FAIL;
     }
