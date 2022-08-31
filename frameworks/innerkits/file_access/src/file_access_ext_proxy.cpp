@@ -131,7 +131,7 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
     }
 
     newFile = Uri(*tempUri);
-    if (newFile.ToString() == "") {
+    if (newFile.ToString().empty()) {
         HILOG_ERROR("get uri is empty.");
         return ERR_INVALID_RESULT;
     }
@@ -191,7 +191,7 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
     }
 
     newFile = Uri(*tempUri);
-    if (newFile.ToString() == "") {
+    if (newFile.ToString().empty()) {
         HILOG_ERROR("get uri is empty.");
         return ERR_INVALID_RESULT;
     }
@@ -293,7 +293,7 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
     }
 
     newFile = Uri(*tempUri);
-    if (newFile.ToString() == "") {
+    if (newFile.ToString().empty()) {
         HILOG_ERROR("get uri is empty.");
         return ERR_INVALID_RESULT;
     }
@@ -353,7 +353,7 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
     }
 
     newFile = Uri(*tempUri);
-    if (newFile.ToString() == "") {
+    if (newFile.ToString().empty()) {
         HILOG_ERROR("get uri is empty.");
         return ERR_INVALID_RESULT;
     }
