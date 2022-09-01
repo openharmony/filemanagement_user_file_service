@@ -402,7 +402,7 @@ int FileAccessExtProxy::ListFile(const Uri &sourceFile, std::vector<FileInfo> &f
     fileInfo.clear();
     uint64_t count = 0;
     if (!reply.ReadUint64(count)) {
-        HILOG_ERROR("ListFile operation failed count : %{public}d", count);
+        HILOG_ERROR("ListFile operation failed count : %{public}llu", count);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_RESULT;
     }
@@ -452,7 +452,7 @@ int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfo)
     rootInfo.clear();
     uint64_t count = 0;
     if (!reply.ReadUint64(count)) {
-        HILOG_ERROR("ListFile operation failed count : %{public}d", count);
+        HILOG_ERROR("ListFile operation failed count : %{public}llu", count);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_RESULT;
     }
