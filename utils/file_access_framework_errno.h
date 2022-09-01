@@ -41,7 +41,8 @@ enum {
     ERR_NOTIFY_FAIL,                        // notify client fail
     ERR_QUERY_EXTENSIONINFOS_FAIL,          // QueryExtensionAbilityInfos fail
     ERR_PARCEL_FAIL,                        // parcel fail
-    ERR_INVALID_RESULT                      // code success result fail
+    ERR_INVALID_RESULT,                     // code success result fail
+    ERR_NULL_POINTER                        // get value is nullptr
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
