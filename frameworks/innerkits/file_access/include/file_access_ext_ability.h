@@ -40,14 +40,15 @@ public:
 
     static FileAccessExtAbility* Create(const std::unique_ptr<Runtime>& runtime);
 
-    virtual int OpenFile(const Uri &uri, const int flags);
+    virtual int OpenFile(const Uri &uri, const int flags, int &fd);
     virtual int CreateFile(const Uri &parent, const std::string &displayName, Uri &newFile);
     virtual int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile);
     virtual int Delete(const Uri &sourceFile);
     virtual int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile);
     virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile);
-    virtual std::vector<FileInfo> ListFile(const Uri &sourceFile);
-    virtual std::vector<RootInfo> GetRoots();
+
+    virtual int ListFile(const Uri &sourceFile, std::vector<FileInfo> &fileInfo);
+    virtual int GetRoots(std::vector<RootInfo> &rootInfo);
     virtual int Access(const Uri &uri, bool &isExist);
     virtual int RegisterNotify(sptr<IFileAccessNotify> &notify);
     virtual int UnregisterNotify(sptr<IFileAccessNotify> &notify);

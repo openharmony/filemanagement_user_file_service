@@ -26,7 +26,7 @@ std::shared_ptr<FileAccessExtAbility> FileAccessExtStubImpl::GetOwner()
     return extension_;
 }
 
-int FileAccessExtStubImpl::OpenFile(const Uri &uri, const int flags)
+int FileAccessExtStubImpl::OpenFile(const Uri &uri, const int flags, int &fd)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
     if (extension_ == nullptr) {
@@ -35,7 +35,7 @@ int FileAccessExtStubImpl::OpenFile(const Uri &uri, const int flags)
         return ERR_IPC_ERROR;
     }
 
-    int ret = extension_->OpenFile(uri, flags);
+    int ret = extension_->OpenFile(uri, flags, fd);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
@@ -110,34 +110,32 @@ int FileAccessExtStubImpl::Rename(const Uri &sourceFile, const std::string &disp
     return ret;
 }
 
-std::vector<FileInfo> FileAccessExtStubImpl::ListFile(const Uri &sourceFile)
+int FileAccessExtStubImpl::ListFile(const Uri &sourceFile, std::vector<FileInfo> &fileInfo)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
-    std::vector<FileInfo> vec;
     if (extension_ == nullptr) {
         HILOG_ERROR("ListFile get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return vec;
+        return ERR_IPC_ERROR;
     }
 
-    vec = extension_->ListFile(sourceFile);
+    int ret = extension_->ListFile(sourceFile, fileInfo);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return vec;
+    return ret;
 }
 
-std::vector<RootInfo> FileAccessExtStubImpl::GetRoots()
+int FileAccessExtStubImpl::GetRoots(std::vector<RootInfo> &rootInfo)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
-    std::vector<RootInfo> vec;
     if (extension_ == nullptr) {
         HILOG_ERROR("GetRoots get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return vec;
+        return ERR_IPC_ERROR;
     }
 
-    vec = extension_->GetRoots();
+    int ret = extension_->GetRoots(rootInfo);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return vec;
+    return ret;
 }
 
 int FileAccessExtStubImpl::Access(const Uri &uri, bool &isExist)

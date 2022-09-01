@@ -61,7 +61,7 @@ void FileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &recor
     ExtensionBase<>::Init(record, application, handler, token);
 }
 
-int FileAccessExtAbility::OpenFile(const Uri &uri, const int flags)
+int FileAccessExtAbility::OpenFile(const Uri &uri, const int flags, int &fd)
 {
     HILOG_ERROR("FileAccessExtAbility::OpenFile Undefined operation");
     return ERR_OPERATION_NOT_SUPPORT;
@@ -97,18 +97,16 @@ int FileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &displ
     return ERR_OPERATION_NOT_SUPPORT;
 }
 
-std::vector<FileInfo> FileAccessExtAbility::ListFile(const Uri &sourceFile)
+int FileAccessExtAbility::ListFile(const Uri &sourceFile, std::vector<FileInfo> &fileInfo)
 {
-    std::vector<FileInfo> vec;
     HILOG_ERROR("FileAccessExtAbility::ListFile Undefined operation");
-    return vec;
+    return ERR_OPERATION_NOT_SUPPORT;
 }
 
-std::vector<RootInfo> FileAccessExtAbility::GetRoots()
+int FileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfo)
 {
-    std::vector<RootInfo> vec;
     HILOG_ERROR("FileAccessExtAbility::GetRoots Undefined operation");
-    return vec;
+    return ERR_OPERATION_NOT_SUPPORT;
 }
 
 int FileAccessExtAbility::Access(const Uri &uri, bool &isExist)

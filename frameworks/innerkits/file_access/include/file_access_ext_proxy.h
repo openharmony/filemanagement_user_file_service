@@ -36,14 +36,15 @@ public:
 
     virtual ~FileAccessExtProxy() {}
 
-    virtual int OpenFile(const Uri &uri, const int flags) override;
-    virtual int CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile) override;
+    virtual int OpenFile(const Uri &uri, const int flags, int &fd) override;
+    virtual int CreateFile(const Uri &parent, const std::string &displayName, Uri &newFile) override;
     virtual int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile) override;
     virtual int Delete(const Uri &sourceFile) override;
     virtual int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) override;
     virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) override;
-    virtual std::vector<FileInfo> ListFile(const Uri &sourceFile) override;
-    virtual std::vector<RootInfo> GetRoots() override;
+
+    virtual int ListFile(const Uri &sourceFile, std::vector<FileInfo> &fileInfo) override;
+    virtual int GetRoots(std::vector<RootInfo> &rootInfo) override;
     virtual int Access(const Uri &uri, bool &isExist) override;
     virtual int RegisterNotify(sptr<IFileAccessNotify> &notify) override;
     virtual int UnregisterNotify(sptr<IFileAccessNotify> &notify) override;

@@ -31,6 +31,9 @@ namespace {
     static const std::string SCHEME_NAME = "datashare";
     static const std::string MEDIA_BNUDLE_NAME_ALIAS = "media";
     static const std::string MEDIA_BNUDLE_NAME = "com.ohos.medialibrary.medialibrarydata";
+    static const int32_t READ = 0;
+    static const int32_t WRITE = 1;
+    static const int32_t WRITE_READ = 2;
 }
 std::unordered_map<std::string, AAFwk::Want> FileAccessHelper::wantsMap_;
 
@@ -399,13 +402,18 @@ bool FileAccessHelper::GetProxy()
     return true;
 }
 
-int FileAccessHelper::OpenFile(Uri &uri, int flags)
+int FileAccessHelper::OpenFile(Uri &uri, int flags, int &fd)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
     if (!CheckUri(uri)) {
         HILOG_ERROR("Uri format check error.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_URI;
+    }
+
+    if (flags != READ && flags != WRITE && flags != WRITE_READ) {
+        HILOG_ERROR("flags type error.");
+        return ERR_INVALID_PARAM;
     }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
@@ -415,9 +423,9 @@ int FileAccessHelper::OpenFile(Uri &uri, int flags)
         return ERR_IPC_ERROR;
     }
 
-    int fd = fileExtProxy->OpenFile(uri, flags);
+    int ret = fileExtProxy->OpenFile(uri, flags, fd);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return fd;
+    return ret;
 }
 
 int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Uri &newFile)
@@ -436,9 +444,9 @@ int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Ur
         return ERR_IPC_ERROR;
     }
 
-    int index = fileExtProxy->CreateFile(parent, displayName, newFile);
+    int ret = fileExtProxy->CreateFile(parent, displayName, newFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return index;
+    return ret;
 }
 
 int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &newDir)
@@ -457,9 +465,9 @@ int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &ne
         return ERR_IPC_ERROR;
     }
 
-    int index = fileExtProxy->Mkdir(parent, displayName, newDir);
+    int ret = fileExtProxy->Mkdir(parent, displayName, newDir);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return index;
+    return ret;
 }
 
 int FileAccessHelper::Delete(Uri &selectFile)
@@ -478,9 +486,9 @@ int FileAccessHelper::Delete(Uri &selectFile)
         return ERR_IPC_ERROR;
     }
 
-    int index = fileExtProxy->Delete(selectFile);
+    int ret = fileExtProxy->Delete(selectFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return index;
+    return ret;
 }
 
 int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
@@ -512,9 +520,9 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
         return ERR_IPC_ERROR;
     }
 
-    int index = fileExtProxy->Move(sourceFile, targetParent, newFile);
+    int ret = fileExtProxy->Move(sourceFile, targetParent, newFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return index;
+    return ret;
 }
 
 int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile)
@@ -533,43 +541,42 @@ int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Ur
         return ERR_IPC_ERROR;
     }
 
-    int index = fileExtProxy->Rename(sourceFile, displayName, newFile);
+    int ret = fileExtProxy->Rename(sourceFile, displayName, newFile);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return index;
+    return ret;
 }
 
-std::vector<FileInfo> FileAccessHelper::ListFile(Uri &sourceFile)
+int FileAccessHelper::ListFile(Uri &sourceFile, std::vector<FileInfo> &fileInfo)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
-    std::vector<FileInfo> results;
     if (!CheckUri(sourceFile)) {
         HILOG_ERROR("sourceFile format check error.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return results;
+        return ERR_INVALID_URI;
     }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return results;
+        return ERR_IPC_ERROR;
     }
 
-    results = fileExtProxy->ListFile(sourceFile);
+    int ret = fileExtProxy->ListFile(sourceFile, fileInfo);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return results;
+    return ret;
 }
 
-std::vector<RootInfo> FileAccessHelper::GetRoots()
+int FileAccessHelper::GetRoots(std::vector<RootInfo> &rootInfo)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
-    std::vector<RootInfo> rootsInfo;
     if (!GetProxy()) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return rootsInfo;
+        return ERR_IPC_ERROR;
     }
 
+    int ret = ERR_OK;
     for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
         auto connectInfo = iter->second;
         auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
@@ -577,11 +584,15 @@ std::vector<RootInfo> FileAccessHelper::GetRoots()
         if (fileAccessExtProxy) {
             AddFileAccessDeathRecipient(fileAccessExtProxy->AsObject());
         }
-        results = fileAccessExtProxy->GetRoots();
-        rootsInfo.insert(rootsInfo.end(), results.begin(), results.end());
+        ret = fileAccessExtProxy->GetRoots(results);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("getRoots get fail ret:%{public}d", ret);
+            return ret;
+        }
+        rootInfo.insert(rootInfo.end(), results.begin(), results.end());
     }
 
-    return rootsInfo;
+    return ret;
 }
 
 int FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::Want> &wantVec)
@@ -623,9 +634,9 @@ int FileAccessHelper::Access(Uri &uri, bool &isExist)
         return ERR_IPC_ERROR;
     }
 
-    int index = fileExtProxy->Access(uri, isExist);
+    int ret = fileExtProxy->Access(uri, isExist);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return index;
+    return ret;
 }
 
 int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)

@@ -46,14 +46,15 @@ public:
         CMD_UNREGISTER_NOTIFY
     };
 
-    virtual int OpenFile(const Uri &uri, const int flags) = 0;
+    virtual int OpenFile(const Uri &uri, const int flags, int &fd) = 0;
     virtual int CreateFile(const Uri &parent, const std::string &displayName, Uri &newFile) = 0;
     virtual int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile) = 0;
     virtual int Delete(const Uri &sourceFile) = 0;
     virtual int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) = 0;
     virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) = 0;
-    virtual std::vector<FileInfo> ListFile(const Uri &sourceFile) = 0;
-    virtual std::vector<RootInfo> GetRoots() = 0;
+
+    virtual int ListFile(const Uri &sourceFile, std::vector<FileInfo> &fileInfo) = 0;
+    virtual int GetRoots(std::vector<RootInfo> &rootInfo) = 0;
     virtual int Access(const Uri &uri, bool &isExist) = 0;
     virtual int RegisterNotify(sptr<IFileAccessNotify> &notify) = 0;
     virtual int UnregisterNotify(sptr<IFileAccessNotify> &notify) = 0;

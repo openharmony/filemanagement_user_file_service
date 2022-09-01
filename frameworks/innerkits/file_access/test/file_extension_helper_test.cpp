@@ -156,21 +156,24 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0000, testing::
         OHOS::Security::AccessToken::AccessTokenID tokenId = tokenIdEx.tokenIdExStruct.tokenID;
         SetSelfTokenID(tokenId);
 
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             GTEST_LOG_(INFO) << parentUri.ToString();
 
             Uri newDirUriTest1("");
-            int result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
+            result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri newFileUri("");
             result = fah->CreateFile(newDirUriTest1, "file_extension_helper_OpenFile_0000.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
-            result = fah->OpenFile(newFileUri, 0);
-            EXPECT_GT(result, OHOS::FileAccessFwk::ERR_OK);
+            int fd;
+            result = fah->OpenFile(newFileUri, 0, fd);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             GTEST_LOG_(INFO) << "OpenFile_0000 result:" << result << endl;
 
@@ -197,7 +200,8 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0001, testing::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_OpenFile_0001";
     try {
         Uri uri("");
-        int result = fah->OpenFile(uri, 0);
+        int fd;
+        int result = fah->OpenFile(uri, 0, fd);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0001 result:" << result << endl;
     } catch (...) {
@@ -219,15 +223,18 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0002, testing::
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_OpenFile_0002";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newFileUri("");
-            int result = fah->CreateFile(parentUri, "file_extension_helper_OpenFile_0002.txt", newFileUri);
+            result = fah->CreateFile(parentUri, "file_extension_helper_OpenFile_0002.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri uri("storage/media/100/local/files/Download/file_extension_helper_OpenFile_0002.txt");
-            result = fah->OpenFile(uri, 0);
+            int fd;
+            result = fah->OpenFile(uri, 0, fd);
             EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "OpenFile_0002 result:" << result << endl;
 
@@ -254,7 +261,8 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0003, testing::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_OpenFile_0003";
     try {
         Uri uri("~!@#$%^&*()_");
-        int result = fah->OpenFile(uri, 0);
+        int fd;
+        int result = fah->OpenFile(uri, 0, fd);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0003 result:" << result << endl;
     } catch (...) {
@@ -276,14 +284,17 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0004, testing::
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_OpenFile_0004";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newFileUri("");
-            int result = fah->CreateFile(parentUri, "file_extension_helper_OpenFile_0004.txt", newFileUri);
+            result = fah->CreateFile(parentUri, "file_extension_helper_OpenFile_0004.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
-            result = fah->OpenFile(newFileUri, -1);
+            int fd;
+            result = fah->OpenFile(newFileUri, -1, fd);
             EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "OpenFile_0004 result:" << result << endl;
 
@@ -309,15 +320,18 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0005, testing::
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_OpenFile_0005";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newFileUri("");
-            int result = fah->CreateFile(parentUri, "file_extension_helper_OpenFile_0005.txt", newFileUri);
+            result = fah->CreateFile(parentUri, "file_extension_helper_OpenFile_0005.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
-            result = fah->OpenFile(newFileUri, 1);
-            EXPECT_GT(result, OHOS::FileAccessFwk::ERR_OK);
+            int fd;
+            result = fah->OpenFile(newFileUri, 1, fd);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "OpenFile_0005 result:" << result << endl;
 
             result = fah->Delete(newFileUri);
@@ -342,15 +356,18 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0006, testing::
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_OpenFile_0006";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newFileUri("");
-            int result = fah->CreateFile(parentUri, "file_extension_helper_OpenFile_0006.txt", newFileUri);
+            result = fah->CreateFile(parentUri, "file_extension_helper_OpenFile_0006.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
-            result = fah->OpenFile(newFileUri, 2);
-            EXPECT_GT(result, OHOS::FileAccessFwk::ERR_OK);
+            int fd;
+            result = fah->OpenFile(newFileUri, 2, fd);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "OpenFile_0006 result:" << result << endl;
 
             result = fah->Delete(newFileUri);
@@ -375,11 +392,13 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0000, testing
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_CreateFile_0000";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newFileUri("");
-            int result = fah->CreateFile(parentUri, "file_extension_helper_CreateFile_0000.txt", newFileUri);
+            result = fah->CreateFile(parentUri, "file_extension_helper_CreateFile_0000.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "CreateFile_0000 result:" << result << endl;
 
@@ -477,12 +496,14 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0004, testing
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_CreateFile_0004";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newFileUri("");
             string displayName = "";
-            int result = fah->CreateFile(parentUri, displayName, newFileUri);
+            result = fah->CreateFile(parentUri, displayName, newFileUri);
             EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "CreateFile_0004 result:" << result << endl;
         }
@@ -505,11 +526,13 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0000, testing::ext
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Mkdir_0000";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            int result = fah->Mkdir(parentUri, "file_extension_helper_Mkdir_0000", newDirUriTest);
+            result = fah->Mkdir(parentUri, "file_extension_helper_Mkdir_0000", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "Mkdir_0000 result:" << result << endl;
 
@@ -607,12 +630,14 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0004, testing::ext
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Mkdir_0004";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
             string displayName = "";
-            int result = fah->Mkdir(parentUri, displayName, newDirUriTest);
+            result = fah->Mkdir(parentUri, displayName, newDirUriTest);
             EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "Mkdir_0004 result:" << result << endl;
         }
@@ -635,11 +660,13 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0000, testing::ex
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Delete_0000";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            int result = fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fah->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri newFileUri("");
@@ -672,11 +699,13 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0001, testing::ex
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Delete_0001";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            int result = fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fah->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             result = fah->Delete(newDirUriTest);
@@ -725,11 +754,13 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0003, testing::ex
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Delete_0003";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            int result = fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fah->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri selectFileUri("storage/media/100/local/files/Download/test");
@@ -783,12 +814,14 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0000, testing::ext:
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0000";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
-            int result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
+            result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             result = fah->Mkdir(parentUri, "test2", newDirUriTest2);
@@ -828,12 +861,14 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0001, testing::ext:
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0001";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
-            int result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
+            result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             result = fah->Mkdir(parentUri, "test2", newDirUriTest2);
@@ -870,11 +905,13 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0002, testing::ext:
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0002";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            int result = fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fah->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri testUri("");
@@ -905,12 +942,14 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0003, testing::ext:
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0003";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
-            int result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
+            result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             result = fah->Mkdir(parentUri, "test2", newDirUriTest2);
@@ -951,11 +990,13 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0004, testing::ext:
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0004";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            int result = fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fah->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri testUri("");
@@ -986,11 +1027,13 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0005, testing::ext:
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0005";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            int result = fah->Mkdir(parentUri, "test1", newDirUriTest);
+            result = fah->Mkdir(parentUri, "test1", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri testUri("");
@@ -1025,12 +1068,14 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0006, testing::ext:
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0006";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
-            int result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
+            result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             result = fah->Mkdir(parentUri, "test2", newDirUriTest2);
@@ -1071,12 +1116,14 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0007, testing::ext:
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0007";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
-            int result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
+            result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             result = fah->Mkdir(parentUri, "test2", newDirUriTest2);
@@ -1117,12 +1164,14 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0008, testing::ext:
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0008";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
-            int result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
+            result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             result = fah->Mkdir(parentUri, "test2", newDirUriTest2);
@@ -1155,20 +1204,22 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0009, testing::ext:
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0009";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
-            int result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
+            result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             result = fah->Mkdir(parentUri, "test2", newDirUriTest2);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
+            Uri testUri("");
             for (size_t j = 0; j < 2000; j++)
             {
-                Uri testUri("");
                 string fileName = "test" + ToString(j) + ".txt";
                 fah->CreateFile(newDirUriTest1, fileName, testUri);
             }
@@ -1200,12 +1251,14 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0010, testing::ext:
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0010";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
-            int result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
+            result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             result = fah->Mkdir(parentUri, "test2", newDirUriTest2);
@@ -1245,12 +1298,14 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0011, testing::ext:
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0011";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
-            int result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
+            result = fah->Mkdir(parentUri, "test1", newDirUriTest1);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri testUri("");
@@ -1295,11 +1350,13 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0000, testing::ex
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Rename_0000";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            int result = fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fah->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri testUri("");
@@ -1333,11 +1390,13 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0001, testing::ex
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Rename_0001";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            int result = fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fah->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri renameUri("");
@@ -1391,11 +1450,13 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0003, testing::ex
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Rename_0003";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            int result = fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fah->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri testUri("");
@@ -1454,11 +1515,13 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0005, testing::ex
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Rename_0005";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            int result = fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fah->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri testUri("");
@@ -1492,23 +1555,22 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0000, testing::
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_ListFile_0000";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            int result = fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fah->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri testUri("");
-            for (size_t j = 0; j < 2000; j++)
-            {
-                string fileName = "test" + ToString(j) + ".txt";
-                fah->CreateFile(newDirUriTest, fileName, testUri);
-            }
+            result = fah->CreateFile(newDirUriTest, "file_extension_helper_ListFile_0000.txt", testUri);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
-            std::vector<FileInfo> fileInfo = fah->ListFile(newDirUriTest);
+            std::vector<FileInfo> fileInfo;
+            fah->ListFile(newDirUriTest, fileInfo);
             EXPECT_GT(fileInfo.size(), 0);
-            GTEST_LOG_(INFO) << "ListFile_0000 result:" << fileInfo.size() << endl;
 
             result = fah->Delete(newDirUriTest);
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1533,9 +1595,9 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0001, testing::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_ListFile_0001";
     try {
         Uri sourceFileUri("");
-        std::vector<FileInfo> fileInfo = fah->ListFile(sourceFileUri);
+        std::vector<FileInfo> fileInfo;
+        fah->ListFile(sourceFileUri, fileInfo);
         EXPECT_EQ(fileInfo.size(), 0);
-        GTEST_LOG_(INFO) << "ListFile_0001 result:" << fileInfo.size() << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
@@ -1555,11 +1617,13 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0002, testing::
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_ListFile_0002";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            int result = fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fah->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri testUri("");
@@ -1567,9 +1631,9 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0002, testing::
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri sourceFileUri("storage/media/100/local/files/Download/test/test.txt");
-            std::vector<FileInfo> fileInfo = fah->ListFile(sourceFileUri);
+            std::vector<FileInfo> fileInfo;
+            fah->ListFile(sourceFileUri, fileInfo);
             EXPECT_EQ(fileInfo.size(), 0);
-            GTEST_LOG_(INFO) << "ListFile_0002 result:" << fileInfo.size() << endl;
 
             result = fah->Delete(newDirUriTest);
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1594,9 +1658,9 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0003, testing::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_ListFile_0003";
     try {
         Uri sourceFileUri("~!@#$%^&*()_");
-        std::vector<FileInfo> fileInfo = fah->ListFile(sourceFileUri);
+        std::vector<FileInfo> fileInfo;
+        fah->ListFile(sourceFileUri, fileInfo);
         EXPECT_EQ(fileInfo.size(), 0);
-        GTEST_LOG_(INFO) << "ListFile_0003 result:" << fileInfo.size() << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
@@ -1616,7 +1680,9 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_GetRoots_0000, testing::
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_GetRoots_0000";
     try {
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_GT(info.size(), 0);
         GTEST_LOG_(INFO) << "GetRoots_0000 result:" << info.size() << endl;
 
@@ -1652,14 +1718,16 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_allInterface_0000, testi
         EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
         shared_ptr<FileAccessHelper> fahs = FileAccessHelper::Creator(remoteObj, wants);
 
-        vector<RootInfo> info = fahs->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             string uri = parentUri.ToString();
             GTEST_LOG_(INFO) << uri;
 
             Uri documentUri("");
-            int result = fahs->Mkdir(parentUri, "Documents", documentUri);
+            result = fahs->Mkdir(parentUri, "Documents", documentUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri newDirUriTest1("");
@@ -1681,8 +1749,9 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_allInterface_0000, testi
             result = fahs->Move(newFileUri, newDirUriTest2, moveUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
-            result = fahs->OpenFile(moveUri, 0);
-            EXPECT_GT(result, OHOS::FileAccessFwk::ERR_OK);
+            int fd;
+            result = fah->OpenFile(moveUri, 0, fd);
+            EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
 
             GTEST_LOG_(INFO) << "OpenFile_0000 result:" << result << endl;
 
@@ -1713,13 +1782,15 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Access_0000, testing::ex
     try {
         uint64_t selfTokenId_ = GetSelfTokenID();
 
-        vector<RootInfo> info = fah->GetRoots();
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             GTEST_LOG_(INFO) << parentUri.ToString();
 
             Uri newDirUriTest("");
-            int result = fah->Mkdir(parentUri, "test1", newDirUriTest);
+            result = fah->Mkdir(parentUri, "test1", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri newFileUri("");
