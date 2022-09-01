@@ -586,7 +586,7 @@ int FileAccessHelper::GetRoots(std::vector<RootInfo> &rootInfo)
         }
         ret = fileAccessExtProxy->GetRoots(results);
         if (ret != ERR_OK) {
-            HILOG_ERROR("getRoots Failed to get value");
+            HILOG_ERROR("getRoots get fail ret:%{public}d",ret);
             return ret;
         }
         rootInfo.insert(rootInfo.end(), results.begin(), results.end());

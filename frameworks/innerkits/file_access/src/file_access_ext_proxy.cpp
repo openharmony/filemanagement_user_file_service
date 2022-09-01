@@ -218,7 +218,7 @@ int FileAccessExtProxy::Delete(const Uri &sourceFile)
     MessageParcel reply;
     MessageOption option;
     int32_t err = Remote()->SendRequest(CMD_DELETE, data, reply, option);
-    if (err != NO_ERROR) {
+    if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
