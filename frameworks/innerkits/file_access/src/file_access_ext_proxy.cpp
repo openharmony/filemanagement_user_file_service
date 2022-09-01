@@ -400,7 +400,13 @@ int FileAccessExtProxy::ListFile(const Uri &sourceFile, std::vector<FileInfo> &f
     }
 
     fileInfo.clear();
-    uint64_t count = reply.ReadUint64();
+    uint64_t count = 0;
+    if (!reply.ReadUint64(count)) {
+        HILOG_ERROR("ListFile operation failed count : %{public}d", count);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_INVALID_RESULT;
+    }
+
     for (uint64_t i = 0; i < count; i++) {
         std::unique_ptr<FileInfo> fileInfoPtr(reply.ReadParcelable<FileInfo>());
         if (fileInfoPtr != nullptr) {
@@ -444,7 +450,13 @@ int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfo)
     }
 
     rootInfo.clear();
-    uint64_t count = reply.ReadUint64();
+    uint64_t count = 0;
+    if (!reply.ReadUint64(count)) {
+        HILOG_ERROR("ListFile operation failed count : %{public}d", count);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_INVALID_RESULT;
+    }
+
     for (uint64_t i = 0; i < count; i++) {
         std::unique_ptr<RootInfo> rootInfoPtr(reply.ReadParcelable<RootInfo>());
         if (rootInfoPtr != nullptr) {
@@ -494,7 +506,10 @@ int FileAccessExtProxy::Access(const Uri &uri, bool &isExist)
         return ret;
     }
 
-    isExist = reply.ReadBool();
+    if (!reply.ReadBool(isExist)) {
+        HILOG_ERROR("fail to ReadInt32 isExist");
+        return ERR_PARCEL_FAIL;
+    }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
