@@ -1751,7 +1751,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_allInterface_0000, testi
 
             int fd;
             result = fah->OpenFile(moveUri, 0, fd);
-            EXPECT_GT(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
 
             GTEST_LOG_(INFO) << "OpenFile_0000 result:" << result << endl;
 
