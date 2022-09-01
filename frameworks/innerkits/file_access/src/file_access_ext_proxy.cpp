@@ -40,8 +40,8 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags, int &fd)
         return ERR_PARCEL_FAIL;
     }
 
-    if (!data.WriteUint32(flags)) {
-        HILOG_ERROR("fail to WriteUint32 flags");
+    if (!data.WriteInt32(flags)) {
+        HILOG_ERROR("fail to WriteInt32 flags");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
