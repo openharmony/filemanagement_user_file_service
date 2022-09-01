@@ -517,7 +517,7 @@ int JsFileAccessExtAbility::Delete(const Uri &sourceFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
     auto ret = std::make_shared<int>();
-    if (value == nullptr) {
+    if (ret == nullptr) {
         HILOG_ERROR("Delete value is nullptr.");
         return ERR_NULL_POINTER;
     }
