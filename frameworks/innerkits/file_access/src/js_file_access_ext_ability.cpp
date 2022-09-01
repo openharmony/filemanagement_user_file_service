@@ -389,7 +389,7 @@ int JsFileAccessExtAbility::OpenFile(const Uri &uri, int flags, int &fd)
 
     fd = value->data;
     if (fd < ERR_OK) {
-        HILOG_ERROR("Failed to get file descriptor fd: %{public}d", fd.);
+        HILOG_ERROR("Failed to get file descriptor fd: %{public}d", fd);
         return ERR_FILEIO_FAIL;
     }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
