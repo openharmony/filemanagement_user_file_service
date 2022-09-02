@@ -13,14 +13,22 @@
  * limitations under the License.
  */
 
+#include <memory>
+#include <vector>
+
+#include "filemgmt_libn.h"
 #include "file_extension_info_napi.h"
 #include "hilog_wrapper.h"
 #include "napi_fileaccess_helper.h"
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
+#include "napi_file_info_exporter.h"
+#include "napi_file_iterator_exporter.h"
+#include "napi_root_info_exporter.h"
+#include "napi_root_iterator_exporter.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
+using namespace FileManagement::LibN;
+
 EXTERN_C_START
 /*
  * The module initialization.
@@ -34,6 +42,21 @@ static napi_value Init(napi_env env, napi_value exports)
     InitDeviceType(env, exports);
     InitFileInfo(env, exports);
     InitRootInfo(env, exports);
+
+    std::vector<std::unique_ptr<NExporter>> products;
+    products.emplace_back(std::make_unique<NapiRootIteratorExporter>(env, exports));
+    products.emplace_back(std::make_unique<NapiRootInfoExporter>(env, exports));
+    products.emplace_back(std::make_unique<NapiFileIteratorExporter>(env, exports));
+    products.emplace_back(std::make_unique<NapiFileInfoExporter>(env, exports));
+    for (auto &&product : products) {
+        if (!product->Export()) {
+            HILOG_ERROR("INNER BUG. Failed to export class %{public}s", product->GetClassName().c_str());
+            return nullptr;
+        } else {
+            HILOG_ERROR("Class %{public}s has been exported", product->GetClassName().c_str());
+        }
+    }
+
     return exports;
 }
 EXTERN_C_END

@@ -71,6 +71,21 @@ napi_value NapiFileInfoExporter::Constructor(napi_env env, napi_callback_info in
     return funcArg.GetThisVar();
 }
 
+int CheckFileMode(const int64_t mode)
+{
+    if ((mode & DOCUMENT_FLAG_REPRESENTS_DIR) != DOCUMENT_FLAG_REPRESENTS_DIR) {
+        HILOG_ERROR("current FileInfo is not dir");
+        return ERR_INVALID_PARAM;
+    }
+
+    if ((mode & DOCUMENT_FLAG_REPRESENTS_FILE) == DOCUMENT_FLAG_REPRESENTS_FILE) {
+        HILOG_ERROR("file mode is incorrect");
+        return ERR_INVALID_PARAM;
+    }
+
+    return ERR_OK;
+}
+
 napi_value NapiFileInfoExporter::ListFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
@@ -85,8 +100,8 @@ napi_value NapiFileInfoExporter::ListFile(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    if ((fileInfoEntity->fileInfo.mode & DOCUMENT_FLAG_REPRESENTS_DIR) != DOCUMENT_FLAG_REPRESENTS_DIR) {
-        HILOG_ERROR("current FileInfo is not dir.");
+    if (CheckFileMode(fileInfoEntity->fileInfo.mode) != ERR_OK) {
+        HILOG_ERROR("current FileInfo's mode error");
         return NVal::CreateUndefined(env).val_;
     }
 
@@ -111,10 +126,11 @@ napi_value NapiFileInfoExporter::ListFile(napi_env env, napi_callback_info info)
         std::lock_guard<std::mutex> lock(fileIteratorEntity->entityOperateMutex);
         fileIteratorEntity->fileAccessHelper = fileInfoEntity->fileAccessHelper;
         fileIteratorEntity->fileInfo = fileInfoEntity->fileInfo;
+        fileIteratorEntity->fileInfoVec.clear();
         fileIteratorEntity->offset = 0;
         fileIteratorEntity->pos = 0;
         auto ret = fileInfoEntity->fileAccessHelper->ListFile(fileInfoEntity->fileInfo, fileIteratorEntity->offset,
-            fileIteratorEntity->maxCount, fileIteratorEntity->fileInfoVec);
+            MAX_COUNT, fileIteratorEntity->fileInfoVec);
         if (ret != ERR_OK) {
             NError(ret).ThrowErr(env, "exec ListFile fail");
             return nullptr;

@@ -66,8 +66,9 @@ public:
     int Delete(const Uri &sourceFile) override;
     int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) override;
     int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) override;
-    int ListFile(const Uri &sourceFile, std::vector<FileInfo> &fileInfo) override;
-    int GetRoots(std::vector<RootInfo> &rootInfo) override;
+    int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+        std::vector<FileInfo> &fileInfoVec) override;
+    int GetRoots(std::vector<RootInfo> &rootInfoVec) override;
     int Access(const Uri &uri, bool &isExist) override;
 
 private:

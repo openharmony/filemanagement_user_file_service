@@ -308,31 +308,45 @@ ErrCode FileAccessExtStub::CmdRename(MessageParcel &data, MessageParcel &reply)
 ErrCode FileAccessExtStub::CmdListFile(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdListFile");
-    std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
-    if (uri == nullptr) {
-        HILOG_ERROR("Parameter ListFile fail to ReadParcelable sourceFile");
+    std::shared_ptr<FileInfo> fileInfo(data.ReadParcelable<FileInfo>());
+    if (fileInfo == nullptr) {
+        HILOG_ERROR("Parameter ListFile fail to ReadParcelable fileInfo");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
 
-    std::vector<FileInfo> fileInfo;
-    int ret = ListFile(*uri, fileInfo);
+    int64_t offset = 0;
+    if (!data.ReadInt64(offset)) {
+        HILOG_ERROR("parameter ListFile offset is invalid");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    int64_t maxCount = 0;
+    if (!data.ReadInt64(maxCount)) {
+        HILOG_ERROR("parameter ListFile maxCount is invalid");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    std::vector<FileInfo> vecFileInfo;
+    int ret = ListFile(*fileInfo, offset, maxCount, vecFileInfo);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter ListFile fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
 
-    uint64_t count = fileInfo.size();
-    if (!reply.WriteUint64(count)) {
-        HILOG_ERROR("Parameter ListFile fail to WriteUint64 count");
+    int64_t count {vecFileInfo.size()};
+    if (!reply.WriteInt64(count)) {
+        HILOG_ERROR("Parameter ListFile fail to WriteInt64 count");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
 
-    for (uint64_t i = 0; i < count; i++) {
-        if (!reply.WriteParcelable(&fileInfo[i])) {
-            HILOG_ERROR("Parameter ListFile fail to WriteParcelable fileInfo");
+    for (const auto &fileInfo : vecFileInfo) {
+        if (!reply.WriteParcelable(&fileInfo)) {
+            HILOG_ERROR("parameter ListFile fail to WriteParcelable vecFileInfo");
             FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return ERR_PARCEL_FAIL;
         }
@@ -346,24 +360,24 @@ ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdGetRoots");
 
-    std::vector<RootInfo> rootInfo;
-    int ret = GetRoots(rootInfo);
+    std::vector<RootInfo> rootInfoVec;
+    int ret = GetRoots(rootInfoVec);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter GetRoots fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
 
-    uint64_t count = rootInfo.size();
-    if (!reply.WriteUint64(count)) {
-        HILOG_ERROR("Parameter GetRoots fail to WriteUint64 count");
+    int64_t count {rootInfoVec.size()};
+    if (!reply.WriteInt64(count)) {
+        HILOG_ERROR("Parameter GetRoots fail to WriteInt64 count");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
 
-    for (uint64_t i = 0; i < count; i++) {
-        if (!reply.WriteParcelable(&rootInfo[i])) {
-            HILOG_ERROR("Parameter GetRoots fail to WriteParcelable deviceInfo");
+    for (const auto &rootInfo : rootInfoVec) {
+        if (!reply.WriteParcelable(&rootInfo)) {
+            HILOG_ERROR("parameter ListFile fail to WriteParcelable rootInfo");
             FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return ERR_PARCEL_FAIL;
         }

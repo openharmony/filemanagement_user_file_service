@@ -674,26 +674,21 @@ int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &dis
 }
 
 
-static bool ParserListFileJsResult(NativeEngine &engine, NativeValue *nativeValue,
-    std::shared_ptr<Value<std::vector<FileInfo>>> &result)
+static bool ParserListFileJsResult(NativeEngine &engine, NativeValue *nativeValue, Value<std::vector<FileInfo>> &result)
 {
-    if (result == nullptr) {
-        HILOG_ERROR("result is nullptr.");
-        return false;
-    }
-
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(nativeValue);
     if (obj == nullptr) {
         HILOG_ERROR("Convert js object fail.");
         return false;
     }
 
-    bool ret = ConvertFromJsValue(engine, obj->GetProperty("code"), result->code);
+    bool ret = ConvertFromJsValue(engine, obj->GetProperty("code"), result.code);
     NativeArray *nativeArray = ConvertNativeValueTo<NativeArray>(obj->GetProperty("infos"));
     if (nativeArray == nullptr) {
-        HILOG_ERROR("nativeArray is nullptr");
+        HILOG_ERROR("Convert js array object fail.");
         return false;
     }
+
     for (uint32_t i = 0; i < nativeArray->GetLength(); i++) {
         NativeValue *nativeFileInfo = nativeArray->GetElement(i);
         if (nativeFileInfo == nullptr) {
@@ -718,12 +713,14 @@ static bool ParserListFileJsResult(NativeEngine &engine, NativeValue *nativeValu
             HILOG_ERROR("Convert js value fail.");
             return ret;
         }
-        (result->data).emplace_back(std::move(fileInfo));
+
+        result.data.emplace_back(std::move(fileInfo));
     }
     return true;
 }
 
-int JsFileAccessExtAbility::ListFile(const Uri &sourceFile, std::vector<FileInfo> &fileInfo)
+int JsFileAccessExtAbility::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+    std::vector<FileInfo> &fileInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
     auto value = std::make_shared<Value<std::vector<FileInfo>>>();
@@ -732,32 +729,40 @@ int JsFileAccessExtAbility::ListFile(const Uri &sourceFile, std::vector<FileInfo
         return ERR_NULL_POINTER;
     }
 
-    auto argParser = [sourceFile](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
-        NativeValue *uri = engine.CreateString(sourceFile.ToString().c_str(), sourceFile.ToString().length());
+    auto argParser = [fileInfo, offset, maxCount](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
+        NativeValue *uri = engine.CreateString(fileInfo.uri.c_str(), fileInfo.uri.length());
         if (uri == nullptr) {
             HILOG_ERROR("create sourceFile uri native js value fail.");
             return false;
         }
 
-        argv[ARGC_ZERO] = uri;
-        argc = ARGC_ONE;
-        return true;
-    };
-    auto retParser = [value](NativeEngine &engine, NativeValue *result) -> bool {
-        std::shared_ptr<Value<std::vector<FileInfo>>> fileInfo = std::make_shared<Value<std::vector<FileInfo>>>();
-        if (fileInfo == nullptr) {
-            HILOG_ERROR("new Value fail.");
+        NativeValue *nativeOffset = engine.CreateNumber(offset);
+        if (nativeOffset == nullptr) {
+            HILOG_ERROR("create nativeMaxNum native js value fail.");
             return false;
         }
 
+        NativeValue *nativeMaxCount = engine.CreateNumber(maxCount);
+        if (nativeMaxCount == nullptr) {
+            HILOG_ERROR("create nativeMaxNum native js value fail.");
+            return false;
+        }
+
+        argv[ARGC_ZERO] = uri;
+        argv[ARGC_ONE] = nativeOffset;
+        argv[ARGC_TWO] = nativeMaxCount;
+        argc = ARGC_THREE;
+        return true;
+    };
+    auto retParser = [value](NativeEngine &engine, NativeValue *result) -> bool {
+        Value<std::vector<FileInfo>> fileInfo;
         bool ret = ParserListFileJsResult(engine, result, fileInfo);
         if (!ret) {
             HILOG_ERROR("Parser js value fail.");
             return ret;
         }
 
-        value->code = fileInfo->code;
-        value->data = std::move(fileInfo->data);
+        *value = std::move(fileInfo);
         return true;
     };
 
@@ -772,59 +777,56 @@ int JsFileAccessExtAbility::ListFile(const Uri &sourceFile, std::vector<FileInfo
         return ERR_FILEIO_FAIL;
     }
 
-    fileInfo = value->data;
+    fileInfoVec = std::move(value->data);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
-static bool ParserGetRootsJsResult(NativeEngine &engine, NativeValue *nativeValue,
-    std::shared_ptr<Value<std::vector<RootInfo>>> &result)
+static bool ParserGetRootsJsResult(NativeEngine &engine, NativeValue *nativeValue, Value<std::vector<RootInfo>> &result)
 {
-    if (result == nullptr) {
-        HILOG_ERROR("result is nullptr.");
-        return false;
-    }
-
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(nativeValue);
     if (obj == nullptr) {
         HILOG_ERROR("Convert js object fail.");
         return false;
     }
 
-    bool ret = ConvertFromJsValue(engine, obj->GetProperty("code"), result->code);
-        NativeArray *nativeArray = ConvertNativeValueTo<NativeArray>(obj->GetProperty("roots"));
-        if (nativeArray == nullptr) {
-            HILOG_ERROR("nativeArray is nullptr");
+    bool ret = ConvertFromJsValue(engine, obj->GetProperty("code"), result.code);
+    NativeArray *nativeArray = ConvertNativeValueTo<NativeArray>(obj->GetProperty("roots"));
+    if (nativeArray == nullptr) {
+        HILOG_ERROR("nativeArray is nullptr");
+        return false;
+    }
+
+    for (uint32_t i = 0; i < nativeArray->GetLength(); i++) {
+        NativeValue *nativeRootInfo = nativeArray->GetElement(i);
+        if (nativeRootInfo == nullptr) {
+            HILOG_ERROR("get native FileInfo fail.");
             return false;
         }
-        for (uint32_t i = 0; i < nativeArray->GetLength(); i++) {
-            NativeValue *nativeRootInfo = nativeArray->GetElement(i);
-            if (nativeRootInfo == nullptr) {
-                HILOG_ERROR("get native FileInfo fail.");
-                return false;
-            }
 
-            obj = ConvertNativeValueTo<NativeObject>(nativeRootInfo);
-            if (obj == nullptr) {
-                HILOG_ERROR("Convert js object fail.");
-                return false;
-            }
-
-            RootInfo rootInfo;
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("deviceType"), rootInfo.deviceType);
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("uri"), rootInfo.uri);
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("displayName"), rootInfo.displayName);
-            ret = ret && ConvertFromJsValue(engine, obj->GetProperty("deviceFlags"), rootInfo.deviceFlags);
-            if (!ret) {
-                HILOG_ERROR("Convert js value fail.");
-                return ret;
-            }
-            (result->data).emplace_back(std::move(rootInfo));
+        obj = ConvertNativeValueTo<NativeObject>(nativeRootInfo);
+        if (obj == nullptr) {
+            HILOG_ERROR("Convert js object fail.");
+            return false;
         }
-        return true;
+
+        RootInfo rootInfo;
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("deviceType"), rootInfo.deviceType);
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("uri"), rootInfo.uri);
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("displayName"), rootInfo.displayName);
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("deviceFlags"), rootInfo.deviceFlags);
+        if (!ret) {
+            HILOG_ERROR("Convert js value fail.");
+            return ret;
+        }
+
+        result.data.emplace_back(std::move(rootInfo));
+    }
+
+    return true;
 }
 
-int JsFileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfo)
+int JsFileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
     auto value = std::make_shared<Value<std::vector<RootInfo>>>();
@@ -838,20 +840,15 @@ int JsFileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfo)
         return true;
     };
     auto retParser = [value](NativeEngine &engine, NativeValue *result) -> bool {
-        std::shared_ptr<Value<std::vector<RootInfo>>> rootInfo = std::make_shared<Value<std::vector<RootInfo>>>();
-        if (rootInfo == nullptr) {
-            HILOG_ERROR("new Value fail.");
-            return false;
-        }
-
-        bool ret = ParserGetRootsJsResult(engine, result, rootInfo);
+        Value<std::vector<RootInfo>> rootInfoVec;
+        bool ret = ParserGetRootsJsResult(engine, result, rootInfoVec);
         if (!ret) {
             HILOG_ERROR("Parser js value fail.");
             return ret;
         }
 
-        value->code = rootInfo->code;
-        value->data = std::move(rootInfo->data);
+        value->code = rootInfoVec.code;
+        value->data = std::move(rootInfoVec.data);
         return true;
     };
 
@@ -865,7 +862,8 @@ int JsFileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfo)
         HILOG_ERROR("fileio fail.");
         return ERR_FILEIO_FAIL;
     }
-    rootInfo = value->data;
+
+    rootInfoVec = value->data;
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }

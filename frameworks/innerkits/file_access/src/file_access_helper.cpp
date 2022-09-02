@@ -546,9 +546,11 @@ int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Ur
     return ret;
 }
 
-int FileAccessHelper::ListFile(Uri &sourceFile, std::vector<FileInfo> &fileInfo)
+int FileAccessHelper::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+    std::vector<FileInfo> &fileInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
+    Uri sourceFile(fileInfo.uri);
     if (!CheckUri(sourceFile)) {
         HILOG_ERROR("sourceFile format check error.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -562,12 +564,18 @@ int FileAccessHelper::ListFile(Uri &sourceFile, std::vector<FileInfo> &fileInfo)
         return ERR_IPC_ERROR;
     }
 
-    int ret = fileExtProxy->ListFile(sourceFile, fileInfo);
+    int ret = fileExtProxy->ListFile(fileInfo, offset, maxCount, fileInfoVec);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("ListFile get result error, code:%{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return ret;
+    return ERR_OK;
 }
 
-int FileAccessHelper::GetRoots(std::vector<RootInfo> &rootInfo)
+int FileAccessHelper::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
     if (!GetProxy()) {
@@ -584,12 +592,14 @@ int FileAccessHelper::GetRoots(std::vector<RootInfo> &rootInfo)
         if (fileAccessExtProxy) {
             AddFileAccessDeathRecipient(fileAccessExtProxy->AsObject());
         }
+
         ret = fileAccessExtProxy->GetRoots(results);
         if (ret != ERR_OK) {
             HILOG_ERROR("getRoots get fail ret:%{public}d", ret);
             return ret;
         }
-        rootInfo.insert(rootInfo.end(), results.begin(), results.end());
+
+        rootInfoVec.insert(rootInfoVec.end(), results.begin(), results.end());
     }
 
     return ret;

@@ -446,7 +446,7 @@ export default class FileExtAbility extends Extension {
         };
     }
 
-    listFile(sourceFileUri) {
+    listFile(sourceFileUri, offset, count) {
         if (!this.checkUri(sourceFileUri)) {
             return {
                 infos: [],
@@ -458,6 +458,7 @@ export default class FileExtAbility extends Extension {
             let path = this.getPath(sourceFileUri);
             let dir = fileio.opendirSync(path);
             let hasNextFile = true;
+            let i = 0;
             while (hasNextFile) {
                 try {
                     let dirent = dir.readSync();
@@ -468,6 +469,12 @@ export default class FileExtAbility extends Extension {
                     } else {
                         mode |= DocumentFlag.REPRESENTS_FILE;
                     }
+
+                    if (offset > i) {
+                        i ++;
+                        continue;
+                    }
+
                     infos.push({
                         uri: this.genNewFileUri(sourceFileUri, dirent.name),
                         fileName: dirent.name,
@@ -476,6 +483,12 @@ export default class FileExtAbility extends Extension {
                         mtime: stat.mtime,
                         mimeType: '',
                     });
+
+                    i ++;
+                    if (i == (offset + count)) {
+                        hasNextFile = false;
+                        break;
+                    }
                 } catch (e) {
                     hasNextFile = false;
                 }

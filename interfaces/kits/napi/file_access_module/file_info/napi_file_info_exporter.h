@@ -26,6 +26,8 @@ namespace OHOS {
 namespace FileAccessFwk {
 using namespace FileManagement::LibN;
 
+int CheckFileMode(const int64_t mode);
+
 class NapiFileInfoExporter final : public NExporter {
 public:
     inline static const std::string className_ = "NapiFileInfoExporter";

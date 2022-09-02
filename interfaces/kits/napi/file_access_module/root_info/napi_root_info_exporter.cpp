@@ -110,10 +110,11 @@ napi_value NapiRootInfoExporter::ListFile(napi_env env, napi_callback_info info)
         std::lock_guard<std::mutex> lock(fileIteratorEntity->entityOperateMutex);
         fileIteratorEntity->fileAccessHelper = rootEntity->fileAccessHelper;
         fileIteratorEntity->fileInfo = fileInfo;
+        fileIteratorEntity->fileInfoVec.clear();
         fileIteratorEntity->offset = 0;
         fileIteratorEntity->pos = 0;
         auto ret = rootEntity->fileAccessHelper->ListFile(fileInfo, fileIteratorEntity->offset,
-            fileIteratorEntity->maxCount, fileIteratorEntity->fileInfoVec);
+            MAX_COUNT, fileIteratorEntity->fileInfoVec);
         if (ret != ERR_OK) {
             NError(ret).ThrowErr(env, "ListFile get result fail.");
             return nullptr;

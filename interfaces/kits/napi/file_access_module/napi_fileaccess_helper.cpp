@@ -20,14 +20,17 @@
 
 #include "file_access_framework_errno.h"
 #include "file_access_helper.h"
+#include "file_info_entity.h"
 #include "filemgmt_libn.h"
 #include "hilog_wrapper.h"
 #include "ifile_access_notify.h"
 #include "napi_base_context.h"
 #include "napi_common_fileaccess.h"
 #include "napi_error.h"
+#include "napi_file_info_exporter.h"
 #include "napi_notify_callback.h"
-#include "n_val.h"
+#include "napi_root_iterator_exporter.h"
+#include "root_iterator_entity.h"
 #include "securec.h"
 #include "uri.h"
 
@@ -206,7 +209,6 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("delete", NAPI_Delete),
         DECLARE_NAPI_FUNCTION("move", NAPI_Move),
         DECLARE_NAPI_FUNCTION("rename", NAPI_Rename),
-        DECLARE_NAPI_FUNCTION("listFile", NAPI_ListFile),
         DECLARE_NAPI_FUNCTION("getRoots", NAPI_GetRoots),
         DECLARE_NAPI_FUNCTION("access", NAPI_Access),
         DECLARE_NAPI_FUNCTION("on", NAPI_On),
@@ -587,54 +589,29 @@ napi_value NAPI_Rename(napi_env env, napi_callback_info info)
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
-napi_value NAPI_ListFile(napi_env env, napi_callback_info info)
+static int MakeGetRootsResult(napi_env &env, FileAccessHelper *helper, std::vector<RootInfo> &rootInfoVec, NVal &nVal)
 {
-    NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        NapiError(ERR_PARAM_NUMBER).ThrowErr(env);
-        return nullptr;
+    auto objRootIterator = NClass::InstantiateClass(env, NapiRootIteratorExporter::className_, {});
+    if (objRootIterator == nullptr) {
+        HILOG_INFO("Cannot instantiate class NapiRootIteratorExporter");
+        return ERR_NULL_POINTER;
     }
 
-    bool succ = false;
-    std::unique_ptr<char[]> uri;
-    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
-    if (!succ) {
-        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
-        return nullptr;
+    auto rootIteratorEntity = NClass::GetEntityOf<RootIteratorEntity>(env, objRootIterator);
+    if (rootIteratorEntity == nullptr) {
+        HILOG_INFO("Cannot get the entity of RootIteratorEntity");
+        return ERR_NULL_POINTER;
     }
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
-    if (fileAccessHelper == nullptr) {
-        return nullptr;
+    {
+        std::lock_guard<std::mutex> lock(rootIteratorEntity->entityOperateMutex);
+        rootIteratorEntity->fileAccessHelper = helper;
+        rootIteratorEntity->devVec = std::move(rootInfoVec);
+        rootIteratorEntity->pos = 0;
+        nVal = { env, objRootIterator };
     }
 
-    auto result = std::make_shared<std::vector<FileInfo>>();
-    string uriString(uri.get());
-    auto cbExec = [uriString, result, fileAccessHelper]() -> NError {
-        OHOS::Uri uri(uriString);
-        int ret = fileAccessHelper->ListFile(uri, *result);
-        return NError(ret);
-    };
-    auto cbComplete = [result](napi_env env, NError err) -> NVal {
-        if (err) {
-            return { env, err.GetNapiErr(env) };
-        }
-        napi_value jsArray = WrapArrayFileInfoToJS(env, *result);
-        return {env, jsArray};
-    };
-
-    const std::string procedureName = "listFile";
-    NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == NARG_CNT::ONE) {
-        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-    }
-
-    NVal cb(env, funcArg[NARG_POS::SECOND]);
-    if (!cb.TypeIs(napi_function)) {
-        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
-        return nullptr;
-    }
-    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
+    return ERR_OK;
 }
 
 napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
@@ -647,25 +624,38 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
 
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
+        NapiError(ERR_NULL_POINTER).ThrowErr(env);
         return nullptr;
     }
 
     auto result = std::make_shared<std::vector<RootInfo>>();
+    if (result == nullptr) {
+        NapiError(ERR_NULL_POINTER).ThrowErr(env);
+        return nullptr;
+    }
+
     auto cbExec = [result, fileAccessHelper]() -> NError {
         int ret = fileAccessHelper->GetRoots(*result);
         return NError(ret);
     };
-    auto cbComplete = [result](napi_env env, NError err) -> NVal {
+    auto cbComplete = [fileAccessHelper, result](napi_env env, NError err) -> NVal {
         if (err) {
             return { env, err.GetNapiErr(env) };
         }
-        napi_value jsArray = WrapArrayRootInfoToJS(env, *result);
-        return {env, jsArray};
+
+        NVal nVal;
+        int ret = MakeGetRootsResult(env, fileAccessHelper, *result, nVal);
+        if (ret != ERR_OK) {
+            return { env, NError([ret]() -> std::tuple<uint32_t, std::string> {
+                return { ret, "Make GetRoots Result fail" };
+            }).GetNapiErr(env) };
+        }
+
+        return nVal;
     };
 
     const std::string procedureName = "getRoots";
     NVal thisVar(env, funcArg.GetThisVar());
-
     if (funcArg.GetArgc() == NARG_CNT::ZERO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     }

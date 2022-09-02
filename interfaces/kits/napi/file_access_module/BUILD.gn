@@ -22,16 +22,22 @@ ohos_shared_library("fileaccess") {
 
   include_dirs = [
     "./",
-    "${BASE_DIR}/utils",
     "${BASE_DIR}/interfaces/kits/napi/common",
+    "${BASE_DIR}/interfaces/kits/napi/file_access_module/file_info",
+    "${BASE_DIR}/interfaces/kits/napi/file_access_module/root_info",
+    "${BASE_DIR}/utils",
     "//foundation/distributeddatamgr/distributedfile/utils/filemgmt_libn/include",
   ]
 
   sources = [
     "${BASE_DIR}/interfaces/kits/napi/common/file_extension_info_napi.cpp",
+    "file_info/napi_file_info_exporter.cpp",
+    "file_info/napi_file_iterator_exporter.cpp",
     "napi_fileaccess_helper.cpp",
     "napi_notify_callback.cpp",
     "native_fileaccess_module.cpp",
+    "root_info/napi_root_info_exporter.cpp",
+    "root_info/napi_root_iterator_exporter.cpp",
   ]
 
   deps = [

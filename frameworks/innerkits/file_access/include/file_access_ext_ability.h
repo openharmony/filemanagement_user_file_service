@@ -46,9 +46,9 @@ public:
     virtual int Delete(const Uri &sourceFile);
     virtual int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile);
     virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile);
-
-    virtual int ListFile(const Uri &sourceFile, std::vector<FileInfo> &fileInfo);
-    virtual int GetRoots(std::vector<RootInfo> &rootInfo);
+    virtual int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+        std::vector<FileInfo> &fileInfoVec);
+    virtual int GetRoots(std::vector<RootInfo> &rootInfoVec);
     virtual int Access(const Uri &uri, bool &isExist);
     virtual int RegisterNotify(sptr<IFileAccessNotify> &notify);
     virtual int UnregisterNotify(sptr<IFileAccessNotify> &notify);

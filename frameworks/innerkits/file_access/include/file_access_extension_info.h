@@ -53,10 +53,16 @@ struct FileInfo : public virtual OHOS::Parcelable {
 public:
     std::string uri { "" };
     std::string fileName { "" };
-    int32_t mode;
-    int64_t size {0};
-    int64_t mtime {0};
-    std::string mimeType;
+    int32_t mode { 0 };
+    int64_t size { 0 };
+    int64_t mtime { 0 };
+    std::string mimeType { "" };
+
+    FileInfo() = default;
+    FileInfo(std::string uriIn, std::string fileNameIn, int32_t modeIn, std::string mimeTypeIn)
+        : uri(uriIn), fileName(fileNameIn), mode(modeIn), mimeType(mimeTypeIn)
+    {
+    }
 
     bool ReadFromParcel(Parcel &parcel)
     {
@@ -109,10 +115,10 @@ public:
 
 struct RootInfo : public virtual OHOS::Parcelable {
 public:
-    int32_t deviceType;
-    std::string uri;
-    std::string displayName;
-    int32_t deviceFlags {0};
+    int32_t deviceType { 0 };
+    std::string uri { "" };
+    std::string displayName { "" };
+    int32_t deviceFlags { 0 };
 
     bool ReadFromParcel(Parcel &parcel)
     {
