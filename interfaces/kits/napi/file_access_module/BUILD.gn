@@ -35,6 +35,7 @@ ohos_shared_library("fileaccess") {
     "file_info/napi_file_iterator_exporter.cpp",
     "napi_fileaccess_helper.cpp",
     "napi_notify_callback.cpp",
+    "napi_utils.cpp",
     "native_fileaccess_module.cpp",
     "root_info/napi_root_info_exporter.cpp",
     "root_info/napi_root_iterator_exporter.cpp",
