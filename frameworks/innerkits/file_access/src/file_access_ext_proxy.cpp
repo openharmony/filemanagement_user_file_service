@@ -1,4 +1,4 @@
-8/*
+/*
  * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -361,7 +361,7 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
     return ERR_OK;
 }
 
-int GetListFileResult(MessageParcel &reply, std::vector<FileInfo> &fileInfoVec)
+static int GetListFileResult(MessageParcel &reply, std::vector<FileInfo> &fileInfoVec)
 {
     int ret = ERR_PARCEL_FAIL;
     if (!reply.ReadInt32(ret)) {

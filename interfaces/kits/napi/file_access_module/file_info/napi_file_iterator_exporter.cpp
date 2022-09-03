@@ -21,6 +21,7 @@
 #include "file_iterator_entity.h"
 #include "hilog_wrapper.h"
 #include "napi_file_info_exporter.h"
+#include "napi_utils.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -126,7 +127,7 @@ napi_value NapiFileIteratorExporter::Next(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    if (CheckFileMode(fileIteratorEntity->fileInfo.mode) != ERR_OK) {
+    if (IsDirectory(fileIteratorEntity->fileInfo.mode) != ERR_OK) {
         HILOG_ERROR("current FileInfo's mode error");
         return NVal::CreateUndefined(env).val_;
     }

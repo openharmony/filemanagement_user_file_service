@@ -329,24 +329,24 @@ ErrCode FileAccessExtStub::CmdListFile(MessageParcel &data, MessageParcel &reply
         return ERR_PARCEL_FAIL;
     }
 
-    std::vector<FileInfo> vecFileInfo;
-    int ret = ListFile(*fileInfo, offset, maxCount, vecFileInfo);
+    std::vector<FileInfo> fileInfoVec;
+    int ret = ListFile(*fileInfo, offset, maxCount, fileInfoVec);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter ListFile fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
 
-    int64_t count {vecFileInfo.size()};
+    int64_t count {fileInfoVec.size()};
     if (!reply.WriteInt64(count)) {
         HILOG_ERROR("Parameter ListFile fail to WriteInt64 count");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
 
-    for (const auto &fileInfo : vecFileInfo) {
+    for (const auto &fileInfo : fileInfoVec) {
         if (!reply.WriteParcelable(&fileInfo)) {
-            HILOG_ERROR("parameter ListFile fail to WriteParcelable vecFileInfo");
+            HILOG_ERROR("parameter ListFile fail to WriteParcelable fileInfoVec");
             FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return ERR_PARCEL_FAIL;
         }

@@ -847,8 +847,7 @@ int JsFileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfoVec)
             return ret;
         }
 
-        value->code = rootInfoVec.code;
-        value->data = std::move(rootInfoVec.data);
+        *value = std::move(rootInfoVec);
         return true;
     };
 
@@ -863,7 +862,7 @@ int JsFileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfoVec)
         return ERR_FILEIO_FAIL;
     }
 
-    rootInfoVec = value->data;
+    rootInfoVec = std::move(value->data);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }

@@ -74,19 +74,19 @@ napi_value NapiRootIteratorExporter::Next(napi_env env, napi_callback_info info)
     }
 
     napi_value thisVar = funcArg.GetThisVar();
-    auto iterEntity = NClass::GetEntityOf<RootIteratorEntity>(env, thisVar);
-    if (iterEntity == nullptr) {
+    auto rootIterator = NClass::GetEntityOf<RootIteratorEntity>(env, thisVar);
+    if (rootIterator == nullptr) {
         NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get entity of RootIteratorEntity");
         return nullptr;
     }
 
-    napi_value objRootExporter = NClass::InstantiateClass(env, NapiRootInfoExporter::className_, {});
-    if (objRootExporter == nullptr) {
+    napi_value objRootInfoExporter = NClass::InstantiateClass(env, NapiRootInfoExporter::className_, {});
+    if (objRootInfoExporter == nullptr) {
         NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot instantiate class NapiRootInfoExporter");
         return nullptr;
     }
 
-    auto rootEntity = NClass::GetEntityOf<RootInfoEntity>(env, objRootExporter);
+    auto rootEntity = NClass::GetEntityOf<RootInfoEntity>(env, objRootInfoExporter);
     if (rootEntity == nullptr) {
         NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get the entity of RootInfoEntity");
         return nullptr;
@@ -95,20 +95,20 @@ napi_value NapiRootIteratorExporter::Next(napi_env env, napi_callback_info info)
     auto retNVal = NVal::CreateObject(env);
     bool done = true;
     {
-        std::lock_guard<std::mutex> lock(iterEntity->entityOperateMutex);
-        auto len = (int64_t)iterEntity->devVec.size();
-        rootEntity->fileAccessHelper = iterEntity->fileAccessHelper;
-        if (iterEntity->pos < len) {
-            rootEntity->rootInfo = iterEntity->devVec[iterEntity->pos];
-            iterEntity->pos++;
-            done = (iterEntity->pos == len);
+        std::lock_guard<std::mutex> lock(rootIterator->entityOperateMutex);
+        auto len = (int64_t)rootIterator->devVec.size();
+        rootEntity->fileAccessHelper = rootIterator->fileAccessHelper;
+        if (rootIterator->pos < len) {
+            rootEntity->rootInfo = rootIterator->devVec[rootIterator->pos];
+            rootIterator->pos++;
+            done = (rootIterator->pos == len);
         } else {
-            iterEntity->pos++;
+            rootIterator->pos++;
             rootEntity = nullptr;
-            objRootExporter = NVal::CreateUndefined(env).val_;
+            objRootInfoExporter = NVal::CreateUndefined(env).val_;
             done = true;
         }
-        retNVal.AddProp("value", objRootExporter);
+        retNVal.AddProp("value", objRootInfoExporter);
         retNVal.AddProp("done", NVal::CreateBool(env, done).val_);
     }
 

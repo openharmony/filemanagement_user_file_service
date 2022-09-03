@@ -27,12 +27,12 @@ namespace FileAccessFwk {
 constexpr int64_t MAX_COUNT = 1000;     // ListFile get file's max count
 
 struct FileIteratorEntity {
-    FileAccessHelper *fileAccessHelper { nullptr };
+    FileAccessHelper *fileAccessHelper;
     std::mutex entityOperateMutex;
-    FileInfo fileInfo {};
-    std::vector<FileInfo> fileInfoVec {};
-    int64_t offset { 0 };
-    int64_t pos { 0 };
+    FileInfo fileInfo;
+    std::vector<FileInfo> fileInfoVec;
+    int64_t offset;
+    int64_t pos;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

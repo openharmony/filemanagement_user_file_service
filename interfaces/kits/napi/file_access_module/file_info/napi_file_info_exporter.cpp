@@ -20,6 +20,7 @@
 #include "file_iterator_entity.h"
 #include "hilog_wrapper.h"
 #include "napi_file_iterator_exporter.h"
+#include "napi_utils.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -71,21 +72,6 @@ napi_value NapiFileInfoExporter::Constructor(napi_env env, napi_callback_info in
     return funcArg.GetThisVar();
 }
 
-int CheckFileMode(const int64_t mode)
-{
-    if ((mode & DOCUMENT_FLAG_REPRESENTS_DIR) != DOCUMENT_FLAG_REPRESENTS_DIR) {
-        HILOG_ERROR("current FileInfo is not dir");
-        return ERR_INVALID_PARAM;
-    }
-
-    if ((mode & DOCUMENT_FLAG_REPRESENTS_FILE) == DOCUMENT_FLAG_REPRESENTS_FILE) {
-        HILOG_ERROR("file mode is incorrect");
-        return ERR_INVALID_PARAM;
-    }
-
-    return ERR_OK;
-}
-
 napi_value NapiFileInfoExporter::ListFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
@@ -100,7 +86,7 @@ napi_value NapiFileInfoExporter::ListFile(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    if (CheckFileMode(fileInfoEntity->fileInfo.mode) != ERR_OK) {
+    if (IsDirectory(fileInfoEntity->fileInfo.mode) != ERR_OK) {
         HILOG_ERROR("current FileInfo's mode error");
         return NVal::CreateUndefined(env).val_;
     }
