@@ -446,7 +446,7 @@ export default class FileExtAbility extends Extension {
         };
     }
 
-    listFile(sourceFileUri, offset, count) {
+    listFile(sourceFileUri, offset, count, filter) {
         if (!this.checkUri(sourceFileUri)) {
             return {
                 infos: [],

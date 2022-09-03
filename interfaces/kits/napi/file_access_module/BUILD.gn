@@ -26,6 +26,7 @@ ohos_shared_library("fileaccess") {
     "${BASE_DIR}/interfaces/kits/napi/file_access_module/file_info",
     "${BASE_DIR}/interfaces/kits/napi/file_access_module/root_info",
     "${BASE_DIR}/utils",
+    "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common",
     "//foundation/distributeddatamgr/distributedfile/utils/filemgmt_libn/include",
   ]
 

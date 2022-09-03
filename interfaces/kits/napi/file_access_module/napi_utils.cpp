@@ -16,6 +16,8 @@
 #include "napi_utils.h"
 
 #include <cinttypes>
+#include <string>
+#include <vector>
 
 #include "file_access_extension_info.h"
 #include "file_access_framework_errno.h"
@@ -35,6 +37,89 @@ int IsDirectory(const int64_t mode)
         return ERR_INVALID_PARAM;
     }
 
+    return ERR_OK;
+}
+
+int GetFileFilterParam(const NVal &argv, FileFilter &filter)
+{
+    bool ret = false;
+    filter.SetHasFilter(false);
+    if (argv.HasProp("suffix")) {
+        std::vector<std::string> filter_suffix;
+        std::tie(ret, filter_suffix, std::ignore) = argv.GetProp("suffix").ToStringArray();
+        if (!ret) {
+            HILOG_ERROR("FileFilter get suffix param fail.");
+            return ERR_INVALID_PARAM;
+        }
+
+        filter.SetSuffix(filter_suffix);
+        filter.SetHasFilter(true);
+    }
+
+    if (argv.HasProp("display_name")) {
+        std::vector<std::string> display_name;
+        std::tie(ret, display_name, std::ignore) = argv.GetProp("display_name").ToStringArray();
+        if (!ret) {
+            HILOG_ERROR("FileFilter get display_name param fail.");
+            return ERR_INVALID_PARAM;
+        }
+        filter.SetDisplayName(display_name);
+        filter.SetHasFilter(true);
+
+    }
+
+    if (argv.HasProp("mime_type")) {
+        std::vector<std::string> mime_type;
+        std::tie(ret, mime_type, std::ignore) = argv.GetProp("mime_type").ToStringArray();
+        if (!ret) {
+            HILOG_ERROR("FileFilter get mime_type param fail.");
+            return ERR_INVALID_PARAM;
+        }
+
+        filter.SetMimeType(mime_type);
+        filter.SetHasFilter(true);
+    }
+
+    if (argv.HasProp("file_size_over")) {
+        int64_t file_size_over;
+        std::tie(ret, file_size_over) = argv.GetProp("file_size_over").ToInt64();
+        if (!ret) {
+            HILOG_ERROR("FileFilter get file_size_over param fail.");
+            return ERR_INVALID_PARAM;
+        }
+
+        filter.SetFileSizeOver(file_size_over);
+        filter.SetHasFilter(true);
+    }
+
+    if (argv.HasProp("last_modified_after")) {
+        double last_modified_after;
+        std::tie(ret, last_modified_after) = argv.GetProp("last_modified_after").ToDouble();
+        if (!ret) {
+            HILOG_ERROR("FileFilter get last_modified_after param fail.");
+            return ERR_INVALID_PARAM;
+        }
+
+        filter.SetLastModifiedAfter(last_modified_after);
+        filter.SetHasFilter(true);
+    }
+
+    if (argv.HasProp("exclude_media")) {
+        bool exclude_media;
+        std::tie(ret, exclude_media) = argv.GetProp("exclude_media").ToBool();
+        if (!ret) {
+            HILOG_ERROR("FileFilter get exclude_media param fail.");
+            return ERR_INVALID_PARAM;
+        }
+
+        filter.SetExcludeMedia(exclude_media);
+        filter.SetHasFilter(true);
+    }
+
+    if (!filter.GetHasFilter()) {
+        HILOG_ERROR("FileFilter must have one property.");
+        return ERR_INVALID_PARAM;
+    }
     return ERR_OK;
 }
 } // namespace FileAccessFwk

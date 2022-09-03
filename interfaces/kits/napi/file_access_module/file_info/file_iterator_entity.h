@@ -21,9 +21,12 @@
 #include "file_access_extension_info.h"
 #include "file_access_helper.h"
 #include "hilog_wrapper.h"
+#include "file_filter.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
+using namespace DistributedFS;
+
 constexpr int64_t MAX_COUNT = 1000;     // ListFile get file's max count
 
 struct FileIteratorEntity {
@@ -33,6 +36,7 @@ struct FileIteratorEntity {
     std::vector<FileInfo> fileInfoVec;
     int64_t offset;
     int64_t pos;
+    FileFilter filter;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

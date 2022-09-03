@@ -329,8 +329,15 @@ ErrCode FileAccessExtStub::CmdListFile(MessageParcel &data, MessageParcel &reply
         return ERR_PARCEL_FAIL;
     }
 
+    std::shared_ptr<FileFilter> filter(data.ReadParcelable<FileFilter>());
+    if (filter == nullptr) {
+        HILOG_ERROR("parameter ListFile FileFilter is invalid");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
     std::vector<FileInfo> fileInfoVec;
-    int ret = ListFile(*fileInfo, offset, maxCount, fileInfoVec);
+    int ret = ListFile(*fileInfo, offset, maxCount, *filter, fileInfoVec);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter ListFile fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);

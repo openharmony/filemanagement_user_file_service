@@ -19,9 +19,11 @@
 #include "napi_root_info_exporter.h"
 
 #include "file_access_framework_errno.h"
+#include "file_filter.h"
 #include "file_iterator_entity.h"
 #include "hilog_wrapper.h"
 #include "napi_file_iterator_exporter.h"
+#include "napi_utils.h"
 #include "root_info_entity.h"
 
 namespace OHOS {
@@ -80,6 +82,15 @@ napi_value NapiRootInfoExporter::ListFile(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
+    FileFilter filter({}, {}, {}, 0, 0, false, false);
+    if (funcArg.GetArgc() == NARG_CNT::ONE) {
+        auto ret = GetFileFilterParam(NVal(env, funcArg.GetArg(NARG_POS::FIRST)), filter);
+        if (ret != ERR_OK) {
+            NError(ret).ThrowErr(env, "ListFile get FileFilter param fail");
+            return nullptr;
+        }
+    }
+
     auto rootEntity = NClass::GetEntityOf<RootInfoEntity>(env, funcArg.GetThisVar());
     if (rootEntity == nullptr) {
         NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get entity of FileInfoEntity");
@@ -113,8 +124,9 @@ napi_value NapiRootInfoExporter::ListFile(napi_env env, napi_callback_info info)
         fileIteratorEntity->fileInfoVec.clear();
         fileIteratorEntity->offset = 0;
         fileIteratorEntity->pos = 0;
+        fileIteratorEntity->filter = std::move(filter);
         auto ret = rootEntity->fileAccessHelper->ListFile(fileInfo, fileIteratorEntity->offset,
-            MAX_COUNT, fileIteratorEntity->fileInfoVec);
+            MAX_COUNT, filter, fileIteratorEntity->fileInfoVec);
         if (ret != ERR_OK) {
             NError(ret).ThrowErr(env, "ListFile get result fail.");
             return nullptr;

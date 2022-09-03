@@ -18,10 +18,16 @@
 
 #include <cstdint>
 
+#include "filemgmt_libn.h"
+#include "file_filter.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
+using namespace DistributedFS;
+using namespace FileManagement::LibN;
+
 int IsDirectory(const int64_t mode);
+int GetFileFilterParam(const NVal &argv, FileFilter &filter);
 } // namespace FileAccessFwk
 } // namespace OHOS
 #endif // NAPI_UTILS_H

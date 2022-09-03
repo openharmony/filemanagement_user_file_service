@@ -43,7 +43,7 @@ public:
     virtual int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) override;
     virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) override;
     virtual int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
-        std::vector<FileInfo> &fileInfoVec) override;
+        const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec) override;
     virtual int Access(const Uri &uri, bool &isExist) override;
     virtual int RegisterNotify(sptr<IFileAccessNotify> &notify) override;
