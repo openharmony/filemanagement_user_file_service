@@ -20,6 +20,7 @@
 #include "file_iterator_entity.h"
 #include "hilog_wrapper.h"
 #include "napi_file_iterator_exporter.h"
+#include "napi_utils.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -85,8 +86,8 @@ napi_value NapiFileInfoExporter::ListFile(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    if ((fileInfoEntity->fileInfo.mode & DOCUMENT_FLAG_REPRESENTS_DIR) != DOCUMENT_FLAG_REPRESENTS_DIR) {
-        HILOG_ERROR("current FileInfo is not dir.");
+    if (IsDirectory(fileInfoEntity->fileInfo.mode) != ERR_OK) {
+        HILOG_ERROR("current FileInfo's mode error");
         return NVal::CreateUndefined(env).val_;
     }
 
@@ -111,10 +112,11 @@ napi_value NapiFileInfoExporter::ListFile(napi_env env, napi_callback_info info)
         std::lock_guard<std::mutex> lock(fileIteratorEntity->entityOperateMutex);
         fileIteratorEntity->fileAccessHelper = fileInfoEntity->fileAccessHelper;
         fileIteratorEntity->fileInfo = fileInfoEntity->fileInfo;
+        fileIteratorEntity->fileInfoVec.clear();
         fileIteratorEntity->offset = 0;
         fileIteratorEntity->pos = 0;
         auto ret = fileInfoEntity->fileAccessHelper->ListFile(fileInfoEntity->fileInfo, fileIteratorEntity->offset,
-            fileIteratorEntity->maxCount, fileIteratorEntity->fileInfoVec);
+            MAX_COUNT, fileIteratorEntity->fileInfoVec);
         if (ret != ERR_OK) {
             NError(ret).ThrowErr(env, "exec ListFile fail");
             return nullptr;

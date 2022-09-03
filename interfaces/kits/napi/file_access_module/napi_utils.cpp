@@ -13,27 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef FILE_ITERATOR_ENTITY_H
-#define FILE_ITERATOR_ENTITY_H
+#include "napi_utils.h"
 
-#include <mutex>
+#include <cinttypes>
 
 #include "file_access_extension_info.h"
-#include "file_access_helper.h"
+#include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
-constexpr int64_t MAX_COUNT = 1000;     // ListFile get file's max count
+int IsDirectory(const int64_t mode)
+{
+    if ((mode & DOCUMENT_FLAG_REPRESENTS_DIR) != DOCUMENT_FLAG_REPRESENTS_DIR) {
+        HILOG_ERROR("current FileInfo is not dir");
+        return ERR_INVALID_PARAM;
+    }
 
-struct FileIteratorEntity {
-    FileAccessHelper *fileAccessHelper;
-    std::mutex entityOperateMutex;
-    FileInfo fileInfo;
-    std::vector<FileInfo> fileInfoVec;
-    int64_t offset;
-    int64_t pos;
-};
+    if ((mode & DOCUMENT_FLAG_REPRESENTS_FILE) == DOCUMENT_FLAG_REPRESENTS_FILE) {
+        HILOG_ERROR("file mode(%{public}" PRId64 ") is incorrect", mode);
+        return ERR_INVALID_PARAM;
+    }
+
+    return ERR_OK;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FILE_ITERATOR_ENTITY_H

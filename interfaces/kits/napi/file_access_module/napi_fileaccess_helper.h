@@ -30,11 +30,10 @@ namespace FileAccessFwk {
     napi_value NAPI_Delete(napi_env env, napi_callback_info info);
     napi_value NAPI_Move(napi_env env, napi_callback_info info);
     napi_value NAPI_Rename(napi_env env, napi_callback_info info);
-    napi_value NAPI_ListFile(napi_env env, napi_callback_info info);
     napi_value NAPI_GetRoots(napi_env env, napi_callback_info info);
     napi_value NAPI_Access(napi_env env, napi_callback_info info);
     napi_value NAPI_On(napi_env env, napi_callback_info info);
     napi_value NAPI_Off(napi_env env, napi_callback_info info);
-}
 } // namespace FileAccessFwk
+} // namespace OHOS
 #endif // NAPI_FILEACCESS_HELPER_H

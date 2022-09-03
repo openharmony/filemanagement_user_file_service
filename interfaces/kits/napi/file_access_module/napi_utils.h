@@ -13,27 +13,15 @@
  * limitations under the License.
  */
 
-#ifndef FILE_ITERATOR_ENTITY_H
-#define FILE_ITERATOR_ENTITY_H
+#ifndef NAPI_UTILS_H
+#define NAPI_UTILS_H
 
-#include <mutex>
+#include <cstdint>
 
-#include "file_access_extension_info.h"
-#include "file_access_helper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
-constexpr int64_t MAX_COUNT = 1000;     // ListFile get file's max count
-
-struct FileIteratorEntity {
-    FileAccessHelper *fileAccessHelper;
-    std::mutex entityOperateMutex;
-    FileInfo fileInfo;
-    std::vector<FileInfo> fileInfoVec;
-    int64_t offset;
-    int64_t pos;
-};
+int IsDirectory(const int64_t mode);
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FILE_ITERATOR_ENTITY_H
+#endif // NAPI_UTILS_H

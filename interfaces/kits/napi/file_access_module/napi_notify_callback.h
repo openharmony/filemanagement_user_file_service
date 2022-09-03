@@ -44,6 +44,6 @@ private:
     napi_env env_;
     uv_loop_s *loop_ = nullptr;
 };
-} // FileAccessFwk
-} // OHOS
+} // namespace FileAccessFwk
+} // namespace OHOS
 #endif // NAPI_NOTIFY_CALLBACK_H

@@ -110,7 +110,8 @@ int FileAccessExtStubImpl::Rename(const Uri &sourceFile, const std::string &disp
     return ret;
 }
 
-int FileAccessExtStubImpl::ListFile(const Uri &sourceFile, std::vector<FileInfo> &fileInfo)
+int FileAccessExtStubImpl::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+    std::vector<FileInfo> &fileInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
     if (extension_ == nullptr) {
@@ -119,12 +120,12 @@ int FileAccessExtStubImpl::ListFile(const Uri &sourceFile, std::vector<FileInfo>
         return ERR_IPC_ERROR;
     }
 
-    int ret = extension_->ListFile(sourceFile, fileInfo);
+    int ret = extension_->ListFile(fileInfo, offset, maxCount, fileInfoVec);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
 
-int FileAccessExtStubImpl::GetRoots(std::vector<RootInfo> &rootInfo)
+int FileAccessExtStubImpl::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
     if (extension_ == nullptr) {
@@ -133,7 +134,7 @@ int FileAccessExtStubImpl::GetRoots(std::vector<RootInfo> &rootInfo)
         return ERR_IPC_ERROR;
     }
 
-    int ret = extension_->GetRoots(rootInfo);
+    int ret = extension_->GetRoots(rootInfoVec);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }

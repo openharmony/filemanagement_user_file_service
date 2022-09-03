@@ -65,8 +65,9 @@ public:
     int Delete(Uri &selectFile);
     int Move(Uri &sourceFile, Uri &targetParent, Uri &newFile);
     int Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile);
-    int ListFile(Uri &sourceFile, std::vector<FileInfo> &fileInfo);
-    int GetRoots(std::vector<RootInfo> &rootInfo);
+    int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+        std::vector<FileInfo> &fileInfoVec);
+    int GetRoots(std::vector<RootInfo> &rootInfoVec);
     int On(std::shared_ptr<INotifyCallback> &callback);
     int Off();
 private:

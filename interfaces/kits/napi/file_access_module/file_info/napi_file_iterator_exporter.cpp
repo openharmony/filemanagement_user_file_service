@@ -21,6 +21,7 @@
 #include "file_iterator_entity.h"
 #include "hilog_wrapper.h"
 #include "napi_file_info_exporter.h"
+#include "napi_utils.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -58,6 +59,11 @@ napi_value NapiFileIteratorExporter::Constructor(napi_env env, napi_callback_inf
     }
 
     auto fileIteratorEntity = std::make_unique<FileIteratorEntity>();
+    if (fileIteratorEntity == nullptr) {
+        NError(ERR_NULL_POINTER).ThrowErr(env, "New obj FileIteratorEntity fail");
+        return nullptr;
+    }
+
     if (!NClass::SetEntityFor<FileIteratorEntity>(env, funcArg.GetThisVar(), std::move(fileIteratorEntity))) {
         NError(ERR_NULL_POINTER).ThrowErr(env, "INNER BUG. Failed to wrap entity for obj FileIteratorEntity");
         return nullptr;
@@ -85,12 +91,12 @@ static int MakeResult(napi_value objFileInfoExporter, FileIteratorEntity *fileIt
     fileInfoEntity->fileAccessHelper = fileIteratorEntity->fileAccessHelper;
     fileInfoEntity->fileInfo = fileIteratorEntity->fileInfoVec[fileIteratorEntity->pos];
     fileIteratorEntity->pos++;
-    if (fileIteratorEntity->pos == fileIteratorEntity->maxCount) {
+    if (fileIteratorEntity->pos == MAX_COUNT) {
         fileIteratorEntity->fileInfoVec.clear();
-        fileIteratorEntity->offset += fileIteratorEntity->maxCount;
+        fileIteratorEntity->offset += MAX_COUNT;
         fileIteratorEntity->pos = 0;
         int ret = fileIteratorEntity->fileAccessHelper->ListFile(fileIteratorEntity->fileInfo,
-            fileIteratorEntity->offset, fileIteratorEntity->maxCount, fileIteratorEntity->fileInfoVec);
+            fileIteratorEntity->offset, MAX_COUNT, fileIteratorEntity->fileInfoVec);
         if (ret != ERR_OK) {
             HILOG_ERROR("exec ListFile fail, code:%{public}d", ret);
             return ret;
@@ -121,8 +127,8 @@ napi_value NapiFileIteratorExporter::Next(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    if ((fileIteratorEntity->fileInfo.mode & DOCUMENT_FLAG_REPRESENTS_DIR) != DOCUMENT_FLAG_REPRESENTS_DIR) {
-        HILOG_ERROR("current FileInfo is not dir.");
+    if (IsDirectory(fileIteratorEntity->fileInfo.mode) != ERR_OK) {
+        HILOG_ERROR("current FileInfo's mode error");
         return NVal::CreateUndefined(env).val_;
     }
 

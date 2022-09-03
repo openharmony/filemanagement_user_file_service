@@ -97,13 +97,14 @@ int FileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &displ
     return ERR_OPERATION_NOT_SUPPORT;
 }
 
-int FileAccessExtAbility::ListFile(const Uri &sourceFile, std::vector<FileInfo> &fileInfo)
+int FileAccessExtAbility::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+    std::vector<FileInfo> &fileInfoVec)
 {
     HILOG_ERROR("FileAccessExtAbility::ListFile Undefined operation");
     return ERR_OPERATION_NOT_SUPPORT;
 }
 
-int FileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfo)
+int FileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
     HILOG_ERROR("FileAccessExtAbility::GetRoots Undefined operation");
     return ERR_OPERATION_NOT_SUPPORT;

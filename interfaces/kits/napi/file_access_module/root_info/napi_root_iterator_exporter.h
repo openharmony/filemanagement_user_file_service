@@ -13,27 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef FILE_ITERATOR_ENTITY_H
-#define FILE_ITERATOR_ENTITY_H
+#ifndef NAPI_ROOT_ITERATOR_H
+#define NAPI_ROOT_ITERATOR_H
 
-#include <mutex>
+#include <string>
 
-#include "file_access_extension_info.h"
-#include "file_access_helper.h"
-#include "hilog_wrapper.h"
+#include "filemgmt_libn.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
-constexpr int64_t MAX_COUNT = 1000;     // ListFile get file's max count
+using namespace FileManagement::LibN;
+class NapiRootIteratorExporter final : public NExporter {
+public:
+    inline static const std::string className_ = "NapiRootIteratorExporter";
 
-struct FileIteratorEntity {
-    FileAccessHelper *fileAccessHelper;
-    std::mutex entityOperateMutex;
-    FileInfo fileInfo;
-    std::vector<FileInfo> fileInfoVec;
-    int64_t offset;
-    int64_t pos;
+    NapiRootIteratorExporter(napi_env env, napi_value exports) : NExporter(env, exports) {};
+    ~NapiRootIteratorExporter() = default;
+
+    static napi_value Constructor(napi_env env, napi_callback_info info);
+    static napi_value Next(napi_env env, napi_callback_info info);
+
+    bool Export() override;
+    std::string GetClassName() override;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FILE_ITERATOR_ENTITY_H
+#endif // NAPI_ROOT_ITERATOR_H

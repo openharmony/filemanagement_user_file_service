@@ -361,31 +361,8 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
     return ERR_OK;
 }
 
-int FileAccessExtProxy::ListFile(const Uri &sourceFile, std::vector<FileInfo> &fileInfo)
+static int GetListFileResult(MessageParcel &reply, std::vector<FileInfo> &fileInfoVec)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
-    MessageParcel data;
-    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
-        HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
-    }
-
-    if (!data.WriteParcelable(&sourceFile)) {
-        HILOG_ERROR("fail to WriteParcelable sourceFileUri");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
-    }
-
-    MessageParcel reply;
-    MessageOption option;
-    int32_t err = Remote()->SendRequest(CMD_LIST_FILE, data, reply, option);
-    if (err != ERR_OK) {
-        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return err;
-    }
-
     int ret = ERR_PARCEL_FAIL;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
@@ -399,25 +376,66 @@ int FileAccessExtProxy::ListFile(const Uri &sourceFile, std::vector<FileInfo> &f
         return ret;
     }
 
-    fileInfo.clear();
-    uint64_t count = 0;
-    if (!reply.ReadUint64(count)) {
-        HILOG_ERROR("ListFile operation failed count : %{public}llu", (unsigned long long)count);
+    int64_t count = 0;
+    if (!reply.ReadInt64(count)) {
+        HILOG_ERROR("ListFile operation failed to Read count");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_RESULT;
     }
 
-    for (uint64_t i = 0; i < count; i++) {
+    fileInfoVec.clear();
+    for (int64_t i = 0; i < count; i++) {
         std::unique_ptr<FileInfo> fileInfoPtr(reply.ReadParcelable<FileInfo>());
         if (fileInfoPtr != nullptr) {
-            fileInfo.push_back(*fileInfoPtr);
+            fileInfoVec.push_back(*fileInfoPtr);
         }
     }
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
-int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfo)
+int FileAccessExtProxy::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+    std::vector<FileInfo> &fileInfoVec)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (!data.WriteParcelable(&fileInfo)) {
+        HILOG_ERROR("fail to WriteParcelable fileInfo");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (!data.WriteInt64(offset)) {
+        HILOG_ERROR("fail to WriteInt64 offset");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (!data.WriteInt64(maxCount)) {
+        HILOG_ERROR("fail to WriteInt64 maxCount");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t err = Remote()->SendRequest(CMD_LIST_FILE, data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return err;
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return GetListFileResult(reply, fileInfoVec);
+}
+
+int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
     MessageParcel data;
@@ -449,18 +467,18 @@ int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfo)
         return ret;
     }
 
-    rootInfo.clear();
     uint64_t count = 0;
     if (!reply.ReadUint64(count)) {
-        HILOG_ERROR("ListFile operation failed count : %{public}llu", (unsigned long long)count);
+        HILOG_ERROR("GetRoots operation failed to Read count");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_RESULT;
     }
 
+    rootInfoVec.clear();
     for (uint64_t i = 0; i < count; i++) {
         std::unique_ptr<RootInfo> rootInfoPtr(reply.ReadParcelable<RootInfo>());
         if (rootInfoPtr != nullptr) {
-            rootInfo.push_back(*rootInfoPtr);
+            rootInfoVec.push_back(*rootInfoPtr);
         }
     }
 
