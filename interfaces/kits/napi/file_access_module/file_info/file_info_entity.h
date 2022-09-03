@@ -18,12 +18,16 @@
 
 #include "file_access_extension_info.h"
 #include "file_access_helper.h"
+#include "file_filter.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
+using namespace DistributedFS;
+
 struct FileInfoEntity {
     FileAccessHelper *fileAccessHelper;
     FileInfo fileInfo;
+    FileFilter filter;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

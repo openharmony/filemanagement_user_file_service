@@ -23,11 +23,14 @@
 
 #include "file_access_extension_info.h"
 #include "file_access_framework_errno.h"
+#include "file_filter.h"
 #include "ifile_access_notify.h"
 #include "uri.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
+using namespace DistributedFS;
+
 class IFileAccessExtBase : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.FileAccessFwk.IFileAccessExtBase");
@@ -53,7 +56,7 @@ public:
     virtual int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) = 0;
     virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) = 0;
     virtual int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
-        std::vector<FileInfo> &fileInfoVec) = 0;
+        const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) = 0;
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec) = 0;
     virtual int Access(const Uri &uri, bool &isExist) = 0;
     virtual int RegisterNotify(sptr<IFileAccessNotify> &notify) = 0;

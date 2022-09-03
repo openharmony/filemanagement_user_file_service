@@ -80,6 +80,15 @@ napi_value NapiFileInfoExporter::ListFile(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
+    FileFilter filter({}, {}, {}, 0, 0, false, false);
+    if (funcArg.GetArgc() == NARG_CNT::ONE) {
+        auto ret = GetFileFilterParam(NVal(env, funcArg.GetArg(NARG_POS::FIRST)), filter);
+        if (ret != ERR_OK) {
+            NError(ret).ThrowErr(env, "ListFile get FileFilter param fail");
+            return nullptr;
+        }
+    }
+
     auto fileInfoEntity = NClass::GetEntityOf<FileInfoEntity>(env, funcArg.GetThisVar());
     if (fileInfoEntity == nullptr) {
         NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get entity of FileInfoEntity");
@@ -115,8 +124,9 @@ napi_value NapiFileInfoExporter::ListFile(napi_env env, napi_callback_info info)
         fileIteratorEntity->fileInfoVec.clear();
         fileIteratorEntity->offset = 0;
         fileIteratorEntity->pos = 0;
+        fileIteratorEntity->filter = std::move(filter);
         auto ret = fileInfoEntity->fileAccessHelper->ListFile(fileInfoEntity->fileInfo, fileIteratorEntity->offset,
-            MAX_COUNT, fileIteratorEntity->fileInfoVec);
+            MAX_COUNT, fileIteratorEntity->filter, fileIteratorEntity->fileInfoVec);
         if (ret != ERR_OK) {
             NError(ret).ThrowErr(env, "exec ListFile fail");
             return nullptr;

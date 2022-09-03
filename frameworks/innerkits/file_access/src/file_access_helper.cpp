@@ -583,7 +583,7 @@ int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Ur
 }
 
 int FileAccessHelper::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
-    std::vector<FileInfo> &fileInfoVec)
+    const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
     Uri sourceFile(fileInfo.uri);
@@ -600,7 +600,7 @@ int FileAccessHelper::ListFile(const FileInfo &fileInfo, const int64_t offset, c
         return ERR_IPC_ERROR;
     }
 
-    int ret = fileExtProxy->ListFile(fileInfo, offset, maxCount, fileInfoVec);
+    int ret = fileExtProxy->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     if (ret != ERR_OK) {
         HILOG_ERROR("ListFile get result error, code:%{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);

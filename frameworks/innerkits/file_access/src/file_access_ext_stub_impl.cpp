@@ -15,6 +15,8 @@
 
 #include "file_access_ext_stub_impl.h"
 
+#include <cinttypes>
+
 #include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
@@ -111,7 +113,7 @@ int FileAccessExtStubImpl::Rename(const Uri &sourceFile, const std::string &disp
 }
 
 int FileAccessExtStubImpl::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
-    std::vector<FileInfo> &fileInfoVec)
+    const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
     if (extension_ == nullptr) {
@@ -120,7 +122,7 @@ int FileAccessExtStubImpl::ListFile(const FileInfo &fileInfo, const int64_t offs
         return ERR_IPC_ERROR;
     }
 
-    int ret = extension_->ListFile(fileInfo, offset, maxCount, fileInfoVec);
+    int ret = extension_->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }

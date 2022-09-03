@@ -394,7 +394,7 @@ static int GetListFileResult(MessageParcel &reply, std::vector<FileInfo> &fileIn
 }
 
 int FileAccessExtProxy::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
-    std::vector<FileInfo> &fileInfoVec)
+    const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
     MessageParcel data;
@@ -418,6 +418,12 @@ int FileAccessExtProxy::ListFile(const FileInfo &fileInfo, const int64_t offset,
 
     if (!data.WriteInt64(maxCount)) {
         HILOG_ERROR("fail to WriteInt64 maxCount");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (!data.WriteParcelable(&filter)) {
+        HILOG_ERROR("fail to WriteParcelable filter");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }

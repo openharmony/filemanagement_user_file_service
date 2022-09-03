@@ -488,6 +488,7 @@ int JsFileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayN
         if (!ret) {
             HILOG_ERROR("Convert js value fail.");
         }
+
         return ret;
     };
 
@@ -720,7 +721,7 @@ static bool ParserListFileJsResult(NativeEngine &engine, NativeValue *nativeValu
 }
 
 int JsFileAccessExtAbility::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
-    std::vector<FileInfo> &fileInfoVec)
+    const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
     auto value = std::make_shared<Value<std::vector<FileInfo>>>();
@@ -729,7 +730,8 @@ int JsFileAccessExtAbility::ListFile(const FileInfo &fileInfo, const int64_t off
         return ERR_NULL_POINTER;
     }
 
-    auto argParser = [fileInfo, offset, maxCount](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
+    auto argParser =
+        [fileInfo, offset, maxCount, filter](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
         NativeValue *uri = engine.CreateString(fileInfo.uri.c_str(), fileInfo.uri.length());
         if (uri == nullptr) {
             HILOG_ERROR("create sourceFile uri native js value fail.");

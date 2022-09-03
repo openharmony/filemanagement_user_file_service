@@ -96,7 +96,7 @@ static int MakeResult(napi_value objFileInfoExporter, FileIteratorEntity *fileIt
         fileIteratorEntity->offset += MAX_COUNT;
         fileIteratorEntity->pos = 0;
         int ret = fileIteratorEntity->fileAccessHelper->ListFile(fileIteratorEntity->fileInfo,
-            fileIteratorEntity->offset, MAX_COUNT, fileIteratorEntity->fileInfoVec);
+            fileIteratorEntity->offset, MAX_COUNT, fileIteratorEntity->filter, fileIteratorEntity->fileInfoVec);
         if (ret != ERR_OK) {
             HILOG_ERROR("exec ListFile fail, code:%{public}d", ret);
             return ret;

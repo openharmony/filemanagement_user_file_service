@@ -25,10 +25,10 @@
 namespace OHOS {
 namespace FileAccessFwk {
 struct RootIteratorEntity {
-    FileAccessHelper *fileAccessHelper { nullptr };
-    std::vector<RootInfo> devVec {};
+    FileAccessHelper *fileAccessHelper;
+    std::vector<RootInfo> devVec;
     std::mutex entityOperateMutex;
-    int64_t pos { 0 };
+    int64_t pos;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
