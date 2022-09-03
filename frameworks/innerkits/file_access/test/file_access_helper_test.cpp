@@ -14,6 +14,7 @@
  */
 
 #include <cstdio>
+#include <stdio.h>
 #include <unistd.h>
 
 #include <gtest/gtest.h>
@@ -163,10 +164,10 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0000, testing::ext::T
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri parentUri("");
         if (info.size() > 0) {
-            parentUri = Uri(info[0].uri);
+            parentUri = Uri(info[0].uri + "/file");
             GTEST_LOG_(INFO) << parentUri.ToString();
         }
-        
+
         result = fah->Mkdir(parentUri, "Download", newDirUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
@@ -1358,10 +1359,14 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0000, testing::ext::T
         result = fah->CreateFile(newDirUriTest, "file_access_helper_ListFile_0000.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
-        std::vector<FileInfo> fileInfo;
-        fah->ListFile(newDirUriTest, fileInfo);
-        EXPECT_GT(fileInfo.size(), 0);
-        GTEST_LOG_(INFO) << "ListFile_0000 result:" << fileInfo.size() << endl;
+        FileInfo fileInfo;
+        fileInfo.uri = newDirUriTest.ToString();
+        int64_t offset = 0;
+        int64_t maxCount = 1000;
+        std::vector<FileInfo> fileInfoVec;
+        fah->ListFile(fileInfo, offset, maxCount, fileInfoVec);
+        EXPECT_GT(fileInfoVec.size(), 0);
+        GTEST_LOG_(INFO) << "ListFile_0000 result:" << fileInfoVec.size() << endl;
 
         result = fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1385,10 +1390,14 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0001, testing::ext::T
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ListFile_0001";
     try {
         Uri sourceFileUri("");
-        std::vector<FileInfo> fileInfo;
-        fah->ListFile(sourceFileUri, fileInfo);
-        EXPECT_EQ(fileInfo.size(), 0);
-        GTEST_LOG_(INFO) << "ListFile_0001 result:" << fileInfo.size() << endl;
+        FileInfo fileInfo;
+        fileInfo.uri = sourceFileUri.ToString();
+        int64_t offset = 0;
+        int64_t maxCount = 1000;
+        vector<FileAccessFwk::FileInfo> fileInfoVec;
+        fah->ListFile(fileInfo, offset, maxCount, fileInfoVec);
+        EXPECT_EQ(fileInfoVec.size(), 0);
+        GTEST_LOG_(INFO) << "ListFile_0001 result:" << fileInfoVec.size() << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -1417,10 +1426,14 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0002, testing::ext::T
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         Uri sourceFileUri("storage/media/100/local/files/Download/test/test.txt");
-        std::vector<FileInfo> fileInfo;
-        fah->ListFile(sourceFileUri, fileInfo);
-        EXPECT_EQ(fileInfo.size(), 0);
-        GTEST_LOG_(INFO) << "ListFile_0002 result:" << fileInfo.size() << endl;
+        FileInfo fileInfo;
+        fileInfo.uri = sourceFileUri.ToString();
+        int64_t offset = 0;
+        int64_t maxCount = 1000;
+        vector<FileAccessFwk::FileInfo> fileInfoVec;
+        fah->ListFile(fileInfo, offset, maxCount, fileInfoVec);
+        EXPECT_EQ(fileInfoVec.size(), 0);
+        GTEST_LOG_(INFO) << "ListFile_0002 result:" << fileInfoVec.size() << endl;
 
         result = fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1444,10 +1457,14 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0003, testing::ext::T
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ListFile_0003";
     try {
         Uri sourceFileUri("~!@#$%^&*()_");
-        std::vector<FileInfo> fileInfo;
-        fah->ListFile(sourceFileUri, fileInfo);
-        EXPECT_EQ(fileInfo.size(), 0);
-        GTEST_LOG_(INFO) << "ListFile_0003 result:" << fileInfo.size() << endl;
+        FileInfo fileInfo;
+        fileInfo.uri = sourceFileUri.ToString();
+        int64_t offset = 0;
+        int64_t maxCount = 1000;
+        vector<FileAccessFwk::FileInfo> fileInfoVec;
+        fah->ListFile(fileInfo, offset, maxCount, fileInfoVec);
+        EXPECT_EQ(fileInfoVec.size(), 0);
+        GTEST_LOG_(INFO) << "ListFile_0003 result:" << fileInfoVec.size() << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -1468,7 +1485,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_GetRoots_0000, testing::ext::T
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_GetRoots_0000";
     try {
         uint64_t selfTokenId_ = GetSelfTokenID();
-        
+
         vector<RootInfo> info;
         int result = fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);

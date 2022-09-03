@@ -1568,9 +1568,13 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0000, testing::
             result = fah->CreateFile(newDirUriTest, "file_extension_helper_ListFile_0000.txt", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
-            std::vector<FileInfo> fileInfo;
-            fah->ListFile(newDirUriTest, fileInfo);
-            EXPECT_GT(fileInfo.size(), 0);
+            FileInfo fileInfo;
+            fileInfo.uri = newDirUriTest.ToString();
+            int64_t offset = 0;
+            int64_t maxCount = 1000;
+            std::vector<FileInfo> fileInfoVec;
+            fah->ListFile(fileInfo, offset, maxCount, fileInfoVec);
+            EXPECT_GT(fileInfoVec.size(), 0);
 
             result = fah->Delete(newDirUriTest);
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1595,9 +1599,13 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0001, testing::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_ListFile_0001";
     try {
         Uri sourceFileUri("");
-        std::vector<FileInfo> fileInfo;
-        fah->ListFile(sourceFileUri, fileInfo);
-        EXPECT_EQ(fileInfo.size(), 0);
+        FileInfo fileInfo;
+        fileInfo.uri = sourceFileUri.ToString();
+        int64_t offset = 0;
+        int64_t maxCount = 1000;
+        std::vector<FileInfo> fileInfoVec;
+        fah->ListFile(fileInfo, offset, maxCount, fileInfoVec);
+        EXPECT_EQ(fileInfoVec.size(), 0);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
@@ -1631,9 +1639,14 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0002, testing::
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri sourceFileUri("storage/media/100/local/files/Download/test/test.txt");
-            std::vector<FileInfo> fileInfo;
-            fah->ListFile(sourceFileUri, fileInfo);
-            EXPECT_EQ(fileInfo.size(), 0);
+            FileInfo fileInfo;
+            fileInfo.uri = sourceFileUri.ToString();
+            Uri sourceFile(fileInfo.uri);
+            int64_t offset = 0;
+            int64_t maxCount = 1000;
+            std::vector<FileInfo> fileInfoVec;
+            fah->ListFile(fileInfo, offset, maxCount, fileInfoVec);
+            EXPECT_EQ(fileInfoVec.size(), 0);
 
             result = fah->Delete(newDirUriTest);
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1658,9 +1671,14 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0003, testing::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_ListFile_0003";
     try {
         Uri sourceFileUri("~!@#$%^&*()_");
-        std::vector<FileInfo> fileInfo;
-        fah->ListFile(sourceFileUri, fileInfo);
-        EXPECT_EQ(fileInfo.size(), 0);
+        FileInfo fileInfo;
+        fileInfo.uri = sourceFileUri.ToString();
+        Uri sourceFile(fileInfo.uri);
+        int64_t offset = 0;
+        int64_t maxCount = 1000;
+        std::vector<FileInfo> fileInfoVec;
+        fah->ListFile(fileInfo, offset, maxCount, fileInfoVec);
+        EXPECT_EQ(fileInfoVec.size(), 0);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
