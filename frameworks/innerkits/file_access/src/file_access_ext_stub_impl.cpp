@@ -127,6 +127,21 @@ int FileAccessExtStubImpl::ListFile(const FileInfo &fileInfo, const int64_t offs
     return ret;
 }
 
+int FileAccessExtStubImpl::ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+    const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ScanFile");
+    if (extension_ == nullptr) {
+        HILOG_ERROR("ScanFile get extension failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_IPC_ERROR;
+    }
+
+    int ret = extension_->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
+}
+
 int FileAccessExtStubImpl::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");

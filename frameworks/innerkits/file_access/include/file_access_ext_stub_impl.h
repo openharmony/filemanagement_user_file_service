@@ -42,6 +42,8 @@ public:
     int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) override;
     int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;
+    int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+        const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;
     int GetRoots(std::vector<RootInfo> &rootInfoVec) override;
     int Access(const Uri &uri, bool &isExist) override;
     int RegisterNotify(sptr<IFileAccessNotify> &notify) override;

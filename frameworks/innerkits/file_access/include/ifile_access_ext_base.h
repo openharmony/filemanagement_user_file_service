@@ -43,6 +43,7 @@ public:
         CMD_MOVE,
         CMD_RENAME,
         CMD_LIST_FILE,
+        CMD_SCAN_FILE,
         CMD_GET_ROOTS,
         CMD_ACCESS,
         CMD_REGISTER_NOTIFY,
@@ -56,6 +57,8 @@ public:
     virtual int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) = 0;
     virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) = 0;
     virtual int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+        const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) = 0;
+    virtual int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) = 0;
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec) = 0;
     virtual int Access(const Uri &uri, bool &isExist) = 0;

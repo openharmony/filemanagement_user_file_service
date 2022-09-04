@@ -35,6 +35,7 @@ public:
 
     static napi_value Constructor(napi_env env, napi_callback_info info);
     static napi_value ListFile(napi_env env, napi_callback_info info);
+    static napi_value ScanFile(napi_env env, napi_callback_info info);
     static napi_value GetDeviceType(napi_env env, napi_callback_info info);
     static napi_value GetUri(napi_env env, napi_callback_info info);
     static napi_value GetDisplayName(napi_env env, napi_callback_info info);
