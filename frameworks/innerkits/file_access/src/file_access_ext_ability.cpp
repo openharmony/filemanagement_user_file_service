@@ -61,51 +61,66 @@ void FileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &recor
     ExtensionBase<>::Init(record, application, handler, token);
 }
 
-int FileAccessExtAbility::OpenFile(const Uri &uri, const int flags)
+int FileAccessExtAbility::OpenFile(const Uri &uri, const int flags, int &fd)
 {
-    return ERR_OK;
+    HILOG_ERROR("FileAccessExtAbility::OpenFile Undefined operation");
+    return ERR_OPERATION_NOT_SUPPORT;
 }
 
 int FileAccessExtAbility::CreateFile(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
-    return ERR_OK;
+    HILOG_ERROR("FileAccessExtAbility::CreateFile Undefined operation");
+    return ERR_OPERATION_NOT_SUPPORT;
 }
 
 int FileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
-    return ERR_OK;
+    HILOG_ERROR("FileAccessExtAbility::Mkdir Undefined operation");
+    return ERR_OPERATION_NOT_SUPPORT;
 }
 
 int FileAccessExtAbility::Delete(const Uri &sourceFile)
 {
-    return ERR_OK;
+    HILOG_ERROR("FileAccessExtAbility::Delete Undefined operation");
+    return ERR_OPERATION_NOT_SUPPORT;
 }
 
 int FileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile)
 {
-    return ERR_OK;
+    HILOG_ERROR("FileAccessExtAbility::Move Undefined operation");
+    return ERR_OPERATION_NOT_SUPPORT;
 }
 
 int FileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
-    return ERR_OK;
+    HILOG_ERROR("FileAccessExtAbility::Rename Undefined operation");
+    return ERR_OPERATION_NOT_SUPPORT;
 }
 
-std::vector<FileInfo> FileAccessExtAbility::ListFile(const Uri &sourceFile)
+int FileAccessExtAbility::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+    const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
 {
-    std::vector<FileInfo> vec;
-    return vec;
+    HILOG_ERROR("FileAccessExtAbility::ListFile Undefined operation");
+    return ERR_OPERATION_NOT_SUPPORT;
 }
 
-std::vector<DeviceInfo> FileAccessExtAbility::GetRoots()
+int FileAccessExtAbility::ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+    const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
 {
-    std::vector<DeviceInfo> vec;
-    return vec;
+    HILOG_ERROR("FileAccessExtAbility::ScanFile Undefined operation");
+    return ERR_OPERATION_NOT_SUPPORT;
 }
 
-int FileAccessExtAbility::IsFileExist(const Uri &uri, bool &isExist)
+int FileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
-    return ERR_OK;
+    HILOG_ERROR("FileAccessExtAbility::GetRoots Undefined operation");
+    return ERR_OPERATION_NOT_SUPPORT;
+}
+
+int FileAccessExtAbility::Access(const Uri &uri, bool &isExist)
+{
+    HILOG_ERROR("FileAccessExtAbility::IsFileExist Undefined operation");
+    return ERR_OPERATION_NOT_SUPPORT;
 }
 
 bool FileAccessExtAbility::GetNotifyManager()

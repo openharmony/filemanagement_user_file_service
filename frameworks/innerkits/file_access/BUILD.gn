@@ -28,6 +28,7 @@ config("ability_config") {
     "${ability_runtime_napi_path}/inner/napi_common",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base/include",
+    "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common",
   ]
 
   cflags = []

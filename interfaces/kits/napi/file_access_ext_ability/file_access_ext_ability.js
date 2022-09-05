@@ -20,42 +20,66 @@ class FileAccessExtensionAbility {
     registerCallback(callback) {
     }
 
-    openFile(uri, mode) {
-        return 0;
+    openFile(sourceFileUri, flags) {
+        return {
+            fd: -1,
+            code: ERR_ERROR,
+        };
     }
 
     createFile(parentUri, displayName) {
-        return "";
+        return {
+            uri: "",
+            code: ERR_ERROR,
+        };
     }
 
     mkdir(parentUri, displayName) {
-        return "";
+        return {
+            uri: "",
+            code: ERR_ERROR,
+        };
     }
 
-    delete(sourceFileUri) {
-        return 0;
+    delete(selectFileUri) {
+        return {
+            code: ERR_ERROR,
+        };
     }
 
     move(sourceFileUri, targetParentUri) {
-        return "";
+        return {
+            uri: '',
+            code: ERR_ERROR,
+        };
     }
 
     rename(sourceFileUri, displayName) {
-        return "";
+        return {
+            uri: '',
+            code: ERR_ERROR,
+        };
     }
 
-    listFile(sourceFileUri) {
-        let infos = [];
-        return infos;
+    listFile(sourceFileUri, offset, count, filter) {
+        return {
+            infos: [],
+            code: ERR_ERROR,
+        };
     }
 
     getRoots() {
-        let roots = [];
-        return roots;
+        return {
+            roots: [],
+            code: ERR_OK,
+        };
     }
 
-    isFileExist() {
-        return true;
+    access(sourceFileUri) {
+        return {
+            isExist: false,
+            code: ERR_ERROR,
+        };
     }
 }
 

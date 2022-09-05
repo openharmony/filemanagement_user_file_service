@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,19 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef FILE_EXTENSION_INFO_NAPI_H
-#define FILE_EXTENSION_INFO_NAPI_H
+#ifndef NAPI_UTILS_H
+#define NAPI_UTILS_H
 
-#include "napi/native_node_api.h"
+#include <cstdint>
+
+#include "filemgmt_libn.h"
+#include "file_filter.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
-void InitDeviceFlag(napi_env env, napi_value exports);
-void InitDocumentFlag(napi_env env, napi_value exports);
-void InitNotifyType(napi_env env, napi_value exports);
-void InitDeviceType(napi_env env, napi_value exports);
-void InitFileInfo(napi_env env, napi_value exports);
-void InitRootInfo(napi_env env, napi_value exports);
+using namespace DistributedFS;
+using namespace FileManagement::LibN;
+
+int IsDirectory(const int64_t mode);
+int GetFileFilterParam(const NVal &argv, FileFilter &filter);
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FILE_EXTENSION_INFO_NAPI_H
+#endif // NAPI_UTILS_H

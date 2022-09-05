@@ -60,15 +60,16 @@ public:
         const sptr<IRemoteObject> &token) override;
     void OnStart(const AAFwk::Want &want) override;
     sptr<IRemoteObject> OnConnect(const AAFwk::Want &want) override;
-    int OpenFile(const Uri &uri, const int flags) override;
+    int OpenFile(const Uri &uri, const int flags, int &fd) override;
     int CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile) override;
     int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile) override;
     int Delete(const Uri &sourceFile) override;
     int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) override;
     int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) override;
-    std::vector<FileInfo> ListFile(const Uri &sourceFile) override;
-    std::vector<DeviceInfo> GetRoots() override;
-    int IsFileExist(const Uri &uri, bool &isExist) override;
+    int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount, const FileFilter &filter,
+        std::vector<FileInfo> &fileInfoVec) override;
+    int GetRoots(std::vector<RootInfo> &rootInfoVec) override;
+    int Access(const Uri &uri, bool &isExist) override;
 
 private:
     NativeValue* CallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);

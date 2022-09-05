@@ -48,7 +48,7 @@ class FileAccessHelper final : public std::enable_shared_from_this<FileAccessHel
 public:
     ~FileAccessHelper() = default;
     // get all ability want info
-    static std::vector<AAFwk::Want> GetRegisterFileAccessExtAbilityInfo();
+    static int GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::Want> &wantVec);
     // create and connect all ability
     static std::shared_ptr<FileAccessHelper> Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context);
     // create and connect with want, if created, only connect with want
@@ -58,15 +58,18 @@ public:
         const std::vector<AAFwk::Want> &wants);
 
     bool Release();
-    int IsFileExist(Uri &uri, bool &isExist);
-    int OpenFile(Uri &uri, int flags);
+    int Access(Uri &uri, bool &isExist);
+    int OpenFile(Uri &uri, const int flags, int &fd);
     int CreateFile(Uri &parent, const std::string &displayName, Uri &newFile);
     int Mkdir(Uri &parent, const std::string &displayName, Uri &newDir);
     int Delete(Uri &selectFile);
     int Move(Uri &sourceFile, Uri &targetParent, Uri &newFile);
     int Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile);
-    std::vector<FileInfo> ListFile(Uri &sourceFile);
-    std::vector<DeviceInfo> GetRoots();
+    int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount, const FileFilter &filter,
+        std::vector<FileInfo> &fileInfoVec);
+    int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount, const FileFilter &filter,
+        std::vector<FileInfo> &fileInfoVec);
+    int GetRoots(std::vector<RootInfo> &rootInfoVec);
     int On(std::shared_ptr<INotifyCallback> &callback);
     int Off();
 private:
@@ -81,8 +84,7 @@ private:
     void AddFileAccessDeathRecipient(const sptr<IRemoteObject> &token);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
 
-    std::shared_ptr<ConnectInfo> GetConnectInfo(const std::string &key);
-    std::shared_ptr<ConnectInfo> GetConnectInfo(Uri &uri);
+    std::shared_ptr<ConnectInfo> GetConnectInfo(const std::string &bundleName);
     std::shared_ptr<ConnectInfo> GetConnectInfo(const AAFwk::Want &want);
     void InsertConnectInfo(const std::string &key,
                            const AAFwk::Want &want,
@@ -96,6 +98,8 @@ private:
     static std::string GetKeyOfWantsMap(const AAFwk::Want &want);
 
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
+
+    std::mutex notifyAgentMutex_;
     sptr<IFileAccessNotify> notifyAgent_ = nullptr;
 };
 

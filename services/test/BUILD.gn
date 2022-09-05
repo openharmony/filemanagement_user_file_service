@@ -26,6 +26,7 @@ ohos_unittest("file_manager_proxy_test") {
     "$FMS_BASE_DIR/src/server",
     "$FMS_BASE_DIR/src/fileoper",
     "//third_party/googletest/googlemock/include/gmock",
+    "//foundation/multimedia/media_library/frameworks/utils/include",
     "//foundation/multimedia/media_library/interfaces/inner_api/media_library_helper/include",
   ]
 
@@ -59,6 +60,7 @@ ohos_unittest("oper_factory_test") {
     "$FMS_BASE_DIR/src/client",
     "$FMS_BASE_DIR/src/server",
     "$FMS_BASE_DIR/src/fileoper",
+    "//foundation/multimedia/media_library/frameworks/utils/include",
     "//foundation/multimedia/media_library/interfaces/inner_api/media_library_helper/include",
   ]
 
@@ -92,6 +94,7 @@ ohos_unittest("file_manager_service_test") {
     "$FMS_BASE_DIR/src/client",
     "$FMS_BASE_DIR/src/server",
     "$FMS_BASE_DIR/src/fileoper",
+    "//foundation/multimedia/media_library/frameworks/utils/include",
     "//foundation/multimedia/media_library/interfaces/inner_api/media_library_helper/include",
   ]
 

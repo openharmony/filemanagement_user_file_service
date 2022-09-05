@@ -13,7 +13,7 @@
         "name": "user_file_service",
         "subsystem": "filemanagement",
         "syscap": [
-            "SystemCapability.FileManagement.FileManagerService"
+            "SystemCapability.FileManagement.UserFileService"
         ],
         "adapted_system_type": [
             "standard"
@@ -42,8 +42,7 @@
                 "//foundation/filemanagement/user_file_service/interfaces/kits/napi/file_extension_info_module:fileextensioninfo"
             ],
             "test": [
-              "//foundation/filemanagement/user_file_service/services/test:user_file_manager_test",
-              "//foundation/filemanagement/user_file_service/frameworks/innerkits/file_access/test:user_file_service_test"
+              "//foundation/filemanagement/user_file_service/services/test:user_file_manager_test"
             ]
         }
     }

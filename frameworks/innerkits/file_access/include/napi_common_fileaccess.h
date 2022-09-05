@@ -45,11 +45,11 @@ bool UnwrapFileInfo(napi_env env, napi_value param, FileInfo &fileInfo);
 napi_value WrapArrayFileInfoToJS(napi_env env, const std::vector<FileInfo> &fileInfoVec);
 bool UnwrapArrayFileInfoFromJS(napi_env env, napi_value param, std::vector<FileInfo> &fileInfoVec);
 
-napi_value WrapDeviceInfo(napi_env env, const DeviceInfo &deviceInfo);
-bool UnwrapDeviceInfo(napi_env env, napi_value param, DeviceInfo &deviceInfo);
+napi_value WrapRootInfo(napi_env env, const RootInfo &rootInfo);
+bool UnwrapRootInfo(napi_env env, napi_value param, RootInfo &rootInfo);
 
-napi_value WrapArrayDeviceInfoToJS(napi_env env, const std::vector<DeviceInfo> &deviceInfoVec);
-bool UnwrapArrayDeviceInfoFromJS(napi_env env, napi_value param, std::vector<DeviceInfo> &deviceInfoVec);
+napi_value WrapArrayRootInfoToJS(napi_env env, const std::vector<RootInfo> &rootInfoVec);
+bool UnwrapArrayRootInfoFromJS(napi_env env, napi_value param, std::vector<RootInfo> &rootInfoVec);
 
 napi_value WrapArrayWantToJS(napi_env env, const std::vector<OHOS::AAFwk::Want> &wantVec);
 bool UnwrapArrayWantFromJS(napi_env env, napi_value param, std::vector<OHOS::AAFwk::Want> &wantVec);

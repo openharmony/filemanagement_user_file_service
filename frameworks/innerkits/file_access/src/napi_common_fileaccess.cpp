@@ -113,13 +113,13 @@ napi_value WrapFileInfo(napi_env env, const FileInfo &fileInfo)
 
     NAPI_CALL(env, napi_create_object(env, &jsObject));
 
-    jsValue = OHOS::AppExecFwk::WrapStringToJS(env, fileInfo.uri.ToString());
+    jsValue = OHOS::AppExecFwk::WrapStringToJS(env, fileInfo.uri);
     SetPropertyValueByPropertyName(env, jsObject, "uri", jsValue);
 
     jsValue = OHOS::AppExecFwk::WrapStringToJS(env, fileInfo.fileName);
     SetPropertyValueByPropertyName(env, jsObject, "fileName", jsValue);
 
-    jsValue = OHOS::AppExecFwk::WrapStringToJS(env, fileInfo.mode);
+    jsValue = OHOS::AppExecFwk::WrapInt32ToJS(env, fileInfo.mode);
     SetPropertyValueByPropertyName(env, jsObject, "mode", jsValue);
 
     jsValue = OHOS::AppExecFwk::WrapInt64ToJS(env, fileInfo.size);
@@ -142,15 +142,16 @@ bool UnwrapFileInfo(napi_env env, napi_value param, FileInfo &fileInfo)
 
     std::string natValueString("");
     if (OHOS::AppExecFwk::UnwrapStringByPropertyName(env, param, "uri", natValueString)) {
-        fileInfo.uri = Uri(natValueString);
+        fileInfo.uri = natValueString;
     }
 
     if (OHOS::AppExecFwk::UnwrapStringByPropertyName(env, param, "fileName", natValueString)) {
         fileInfo.fileName = natValueString;
     }
 
-    if (OHOS::AppExecFwk::UnwrapStringByPropertyName(env, param, "mode", natValueString)) {
-        fileInfo.mode = natValueString;
+    int32_t natValueInt32 = ERR_OK;
+    if (UnwrapInt32ByPropertyName(env, param, "mode", natValueInt32)) {
+        fileInfo.mode = natValueInt32;
     }
 
     int64_t natValueInt64 = ERR_OK;
@@ -210,71 +211,64 @@ bool UnwrapArrayFileInfoFromJS(napi_env env, napi_value param, std::vector<FileI
     return true;
 }
 
-napi_value WrapDeviceInfo(napi_env env, const DeviceInfo &deviceInfo)
+napi_value WrapRootInfo(napi_env env, const RootInfo &rootInfo)
 {
     napi_value jsObject = nullptr;
     napi_value jsValue = nullptr;
 
     NAPI_CALL(env, napi_create_object(env, &jsObject));
 
-    jsValue = OHOS::AppExecFwk::WrapStringToJS(env, deviceInfo.uri.ToString());
+    jsValue = WrapInt32ToJS(env, rootInfo.deviceType);
+    SetPropertyValueByPropertyName(env, jsObject, "deviceType", jsValue);
+
+    jsValue = OHOS::AppExecFwk::WrapStringToJS(env, rootInfo.uri);
     SetPropertyValueByPropertyName(env, jsObject, "uri", jsValue);
 
-    jsValue = OHOS::AppExecFwk::WrapStringToJS(env, deviceInfo.displayName);
+    jsValue = OHOS::AppExecFwk::WrapStringToJS(env, rootInfo.displayName);
     SetPropertyValueByPropertyName(env, jsObject, "displayName", jsValue);
 
-    jsValue = OHOS::AppExecFwk::WrapStringToJS(env, deviceInfo.deviceId);
-    SetPropertyValueByPropertyName(env, jsObject, "deviceId", jsValue);
+    jsValue = WrapInt32ToJS(env, rootInfo.deviceFlags);
+    SetPropertyValueByPropertyName(env, jsObject, "deviceFlags", jsValue);
 
-    jsValue = WrapUint32ToJS(env, deviceInfo.flags);
-    SetPropertyValueByPropertyName(env, jsObject, "flags", jsValue);
-
-    jsValue = nullptr;
-    jsValue = WrapInt32ToJS(env, (int32_t)deviceInfo.type);
-    SetPropertyValueByPropertyName(env, jsObject, "type", jsValue);
     return jsObject;
 }
 
-bool UnwrapDeviceInfo(napi_env env, napi_value param, DeviceInfo &deviceInfo)
+bool UnwrapRootInfo(napi_env env, napi_value param, RootInfo &rootInfo)
 {
     if (!IsTypeForNapiValue(env, param, napi_object)) {
         return false;
     }
 
+    int32_t natValueInt32 = 0;
+    if (UnwrapInt32ByPropertyName(env, param, "deviceType", natValueInt32)) {
+        rootInfo.deviceType = natValueInt32;
+    }
+
     std::string natValueString("");
     if (OHOS::AppExecFwk::UnwrapStringByPropertyName(env, param, "uri", natValueString)) {
-        deviceInfo.uri = Uri(natValueString);
+        rootInfo.uri = natValueString;
     }
 
     if (OHOS::AppExecFwk::UnwrapStringByPropertyName(env, param, "displayName", natValueString)) {
-        deviceInfo.displayName = natValueString;
+        rootInfo.displayName = natValueString;
     }
 
-    if (OHOS::AppExecFwk::UnwrapStringByPropertyName(env, param, "deviceId", natValueString)) {
-        deviceInfo.deviceId = natValueString;
+    if (UnwrapInt32ByPropertyName(env, param, "deviceFlags", natValueInt32)) {
+        rootInfo.deviceFlags = natValueInt32;
     }
 
-    uint32_t natValueUint32 = ERR_OK;
-    if (UnwrapUint32ByPropertyName(env, param, "flags", natValueUint32)) {
-        deviceInfo.flags = natValueUint32;
-    }
-
-    int32_t natValueInt32 = 0;
-    if (UnwrapInt32ByPropertyName(env, param, "type", natValueInt32)) {
-        deviceInfo.type = (DeviceType)natValueInt32;
-    }
     return true;
 }
 
-napi_value WrapArrayDeviceInfoToJS(napi_env env, const std::vector<DeviceInfo> &deviceInfoVec)
+napi_value WrapArrayRootInfoToJS(napi_env env, const std::vector<RootInfo> &rootInfoVec)
 {
     napi_value jsArray = nullptr;
     napi_value jsValue = nullptr;
     uint32_t index = ERR_OK;
     NAPI_CALL(env, napi_create_array(env, &jsArray));
 
-    for (uint32_t i = 0; i < deviceInfoVec.size(); i++) {
-        jsValue = WrapDeviceInfo(env, deviceInfoVec[i]);
+    for (uint32_t i = 0; i < rootInfoVec.size(); i++) {
+        jsValue = WrapRootInfo(env, rootInfoVec[i]);
         if (napi_set_element(env, jsArray, index, jsValue) == napi_ok) {
             index++;
         }
@@ -282,7 +276,7 @@ napi_value WrapArrayDeviceInfoToJS(napi_env env, const std::vector<DeviceInfo> &
     return jsArray;
 }
 
-bool UnwrapArrayDeviceInfoFromJS(napi_env env, napi_value param, std::vector<DeviceInfo> &deviceInfoVec)
+bool UnwrapArrayRootInfoFromJS(napi_env env, napi_value param, std::vector<RootInfo> &rootInfoVec)
 {
     uint32_t arraySize = ERR_OK;
     napi_value jsValue = nullptr;
@@ -291,19 +285,19 @@ bool UnwrapArrayDeviceInfoFromJS(napi_env env, napi_value param, std::vector<Dev
         return false;
     }
 
-    deviceInfoVec.clear();
+    rootInfoVec.clear();
     for (uint32_t i = 0; i < arraySize; i++) {
         jsValue = nullptr;
-        DeviceInfo deviceInfo;
+        RootInfo rootInfo;
         if (napi_get_element(env, param, i, &jsValue) != napi_ok) {
             return false;
         }
 
-        if (!UnwrapDeviceInfo(env, jsValue, deviceInfo)) {
+        if (!UnwrapRootInfo(env, jsValue, rootInfo)) {
             return false;
         }
 
-        deviceInfoVec.push_back(deviceInfo);
+        rootInfoVec.push_back(rootInfo);
     }
     return true;
 }

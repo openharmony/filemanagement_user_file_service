@@ -20,14 +20,17 @@
 
 #include "file_access_framework_errno.h"
 #include "file_access_helper.h"
+#include "file_info_entity.h"
 #include "filemgmt_libn.h"
 #include "hilog_wrapper.h"
 #include "ifile_access_notify.h"
 #include "napi_base_context.h"
 #include "napi_common_fileaccess.h"
 #include "napi_error.h"
+#include "napi_file_info_exporter.h"
 #include "napi_notify_callback.h"
-#include "n_val.h"
+#include "napi_root_iterator_exporter.h"
+#include "root_iterator_entity.h"
 #include "securec.h"
 #include "uri.h"
 
@@ -88,12 +91,12 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
 
     auto finalize = [](napi_env env, void *data, void *hint) {
         FileAccessHelper *objectInfo = static_cast<FileAccessHelper *>(data);
-        g_fileAccessHelperList.remove_if([objectInfo](const std::shared_ptr<FileAccessHelper> &fileAccessHelper) {
-                return objectInfo == fileAccessHelper.get();
-            });
         if (objectInfo != nullptr) {
             objectInfo->Release();
-            delete objectInfo;
+            g_fileAccessHelperList.remove_if([objectInfo](const std::shared_ptr<FileAccessHelper> &fileAccessHelper) {
+                    return objectInfo == fileAccessHelper.get();
+                });
+            objectInfo = nullptr;
         }
     };
     if (napi_wrap(env, thisVar, fileAccessHelper.get(), finalize, nullptr, nullptr) != napi_ok) {
@@ -164,7 +167,7 @@ napi_value NAPI_CreateFileAccessHelper(napi_env env, napi_callback_info info)
     return ret;
 }
 
-napi_value NAPI_GetRegisterFileAccessExtAbilityInfo(napi_env env, napi_callback_info info)
+napi_value NAPI_GetFileAccessAbilityInfo(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
@@ -174,8 +177,8 @@ napi_value NAPI_GetRegisterFileAccessExtAbilityInfo(napi_env env, napi_callback_
 
     auto result = std::make_shared<std::vector<AAFwk::Want>>();
     auto cbExec = [result]() -> NError {
-        *result = FileAccessHelper::GetRegisterFileAccessExtAbilityInfo();
-        return NError(ERRNO_NOERR);
+        int ret = FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(*result);
+        return NError(ret);
     };
     auto cbComplete = [result](napi_env env, NError err) -> NVal {
         if (err) {
@@ -184,7 +187,7 @@ napi_value NAPI_GetRegisterFileAccessExtAbilityInfo(napi_env env, napi_callback_
         napi_value jsArray = WrapArrayWantToJS(env, *result);
         return {env, jsArray};
     };
-    const std::string procedureName = "getRegisterFileAccessExtAbilityInfo";
+    const std::string procedureName = "getFileAccessAbilityInfo";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ZERO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -201,14 +204,13 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
 {
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_FUNCTION("openFile", NAPI_OpenFile),
-        DECLARE_NAPI_FUNCTION("mkdir", NAPI_Mkdir),
+        DECLARE_NAPI_FUNCTION("mkDir", NAPI_Mkdir),
         DECLARE_NAPI_FUNCTION("createFile", NAPI_CreateFile),
         DECLARE_NAPI_FUNCTION("delete", NAPI_Delete),
         DECLARE_NAPI_FUNCTION("move", NAPI_Move),
         DECLARE_NAPI_FUNCTION("rename", NAPI_Rename),
-        DECLARE_NAPI_FUNCTION("listFile", NAPI_ListFile),
         DECLARE_NAPI_FUNCTION("getRoots", NAPI_GetRoots),
-        DECLARE_NAPI_FUNCTION("isFileExist", NAPI_IsFileExist),
+        DECLARE_NAPI_FUNCTION("access", NAPI_Access),
         DECLARE_NAPI_FUNCTION("on", NAPI_On),
         DECLARE_NAPI_FUNCTION("off", NAPI_Off)
     };
@@ -228,7 +230,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
 
     napi_property_descriptor export_properties[] = {
         DECLARE_NAPI_FUNCTION("createFileAccessHelper", NAPI_CreateFileAccessHelper),
-        DECLARE_NAPI_FUNCTION("getRegisterFileAccessExtAbilityInfo", NAPI_GetRegisterFileAccessExtAbilityInfo),
+        DECLARE_NAPI_FUNCTION("getFileAccessAbilityInfo", NAPI_GetFileAccessAbilityInfo),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(export_properties) / sizeof(export_properties[0]),
         export_properties));
@@ -305,8 +307,8 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
     string uriString(uri.get());
     auto cbExec = [uriString, flags, result, fileAccessHelper]() -> NError {
         OHOS::Uri uri(uriString);
-        *result = fileAccessHelper->OpenFile(uri, flags);
-        return NError(ERRNO_NOERR);
+        int ret = fileAccessHelper->OpenFile(uri, flags, *result);
+        return NError(ret);
     };
     auto cbComplete = [result](napi_env env, NError err) -> NVal {
         if (err) {
@@ -587,54 +589,29 @@ napi_value NAPI_Rename(napi_env env, napi_callback_info info)
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
-napi_value NAPI_ListFile(napi_env env, napi_callback_info info)
+static int MakeGetRootsResult(napi_env &env, FileAccessHelper *helper, std::vector<RootInfo> &rootInfoVec, NVal &nVal)
 {
-    NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        NapiError(ERR_PARAM_NUMBER).ThrowErr(env);
-        return nullptr;
+    auto objRootIterator = NClass::InstantiateClass(env, NapiRootIteratorExporter::className_, {});
+    if (objRootIterator == nullptr) {
+        HILOG_INFO("Cannot instantiate class NapiRootIteratorExporter");
+        return ERR_NULL_POINTER;
     }
 
-    bool succ = false;
-    std::unique_ptr<char[]> uri;
-    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
-    if (!succ) {
-        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
-        return nullptr;
+    auto rootIteratorEntity = NClass::GetEntityOf<RootIteratorEntity>(env, objRootIterator);
+    if (rootIteratorEntity == nullptr) {
+        HILOG_INFO("Cannot get the entity of RootIteratorEntity");
+        return ERR_NULL_POINTER;
     }
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
-    if (fileAccessHelper == nullptr) {
-        return nullptr;
+    {
+        std::lock_guard<std::mutex> lock(rootIteratorEntity->entityOperateMutex);
+        rootIteratorEntity->fileAccessHelper = helper;
+        rootIteratorEntity->devVec = std::move(rootInfoVec);
+        rootIteratorEntity->pos = 0;
+        nVal = { env, objRootIterator };
     }
 
-    auto result = std::make_shared<std::vector<FileInfo>>();
-    string uriString(uri.get());
-    auto cbExec = [uriString, result, fileAccessHelper]() -> NError {
-        OHOS::Uri uri(uriString);
-        *result = fileAccessHelper->ListFile(uri);
-        return NError(ERRNO_NOERR);
-    };
-    auto cbComplete = [result](napi_env env, NError err) -> NVal {
-        if (err) {
-            return { env, err.GetNapiErr(env) };
-        }
-        napi_value jsArray = WrapArrayFileInfoToJS(env, *result);
-        return {env, jsArray};
-    };
-
-    const std::string procedureName = "listFile";
-    NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == NARG_CNT::ONE) {
-        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-    }
-
-    NVal cb(env, funcArg[NARG_POS::SECOND]);
-    if (!cb.TypeIs(napi_function)) {
-        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
-        return nullptr;
-    }
-    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
+    return ERR_OK;
 }
 
 napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
@@ -647,25 +624,38 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
 
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
+        NapiError(ERR_NULL_POINTER).ThrowErr(env);
         return nullptr;
     }
 
-    auto result = std::make_shared<std::vector<DeviceInfo>>();
+    auto result = std::make_shared<std::vector<RootInfo>>();
+    if (result == nullptr) {
+        NapiError(ERR_NULL_POINTER).ThrowErr(env);
+        return nullptr;
+    }
+
     auto cbExec = [result, fileAccessHelper]() -> NError {
-        *result = fileAccessHelper->GetRoots();
-        return NError(ERRNO_NOERR);
+        int ret = fileAccessHelper->GetRoots(*result);
+        return NError(ret);
     };
-    auto cbComplete = [result](napi_env env, NError err) -> NVal {
+    auto cbComplete = [fileAccessHelper, result](napi_env env, NError err) -> NVal {
         if (err) {
             return { env, err.GetNapiErr(env) };
         }
-        napi_value jsArray = WrapArrayDeviceInfoToJS(env, *result);
-        return {env, jsArray};
+
+        NVal nVal;
+        int ret = MakeGetRootsResult(env, fileAccessHelper, *result, nVal);
+        if (ret != ERR_OK) {
+            return { env, NError([ret]() -> std::tuple<uint32_t, std::string> {
+                return { ret, "Make GetRoots Result fail" };
+            }).GetNapiErr(env) };
+        }
+
+        return nVal;
     };
 
     const std::string procedureName = "getRoots";
     NVal thisVar(env, funcArg.GetThisVar());
-
     if (funcArg.GetArgc() == NARG_CNT::ZERO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     }
@@ -678,7 +668,7 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
-napi_value NAPI_IsFileExist(napi_env env, napi_callback_info info)
+napi_value NAPI_Access(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
@@ -704,7 +694,7 @@ napi_value NAPI_IsFileExist(napi_env env, napi_callback_info info)
     auto cbExec = [uriString, result, fileAccessHelper]() -> NError {
         OHOS::Uri uri(uriString);
         bool isExist = false;
-        int ret = fileAccessHelper->IsFileExist(uri, isExist);
+        int ret = fileAccessHelper->Access(uri, isExist);
         *result = isExist;
         return NError(ret);
     };
@@ -715,7 +705,7 @@ napi_value NAPI_IsFileExist(napi_env env, napi_callback_info info)
         return { NVal::CreateBool(env, *result) };
     };
 
-    const std::string procedureName = "isFileExist";
+    const std::string procedureName = "access";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
@@ -731,7 +721,7 @@ napi_value NAPI_IsFileExist(napi_env env, napi_callback_info info)
 napi_value NAPI_On(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -754,8 +744,9 @@ napi_value NAPI_On(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    if (fileAccessHelper->On(callback) != ERR_OK) {
-        NError(EINVAL).ThrowErr(env, "FileAccessHelper::On fail.");
+    auto retCode = fileAccessHelper->On(callback);
+    if (retCode != ERR_OK) {
+        NError(retCode).ThrowErr(env, "FileAccessHelper::On fail.");
         return nullptr;
     }
     return NVal::CreateUndefined(env).val_;
@@ -764,7 +755,7 @@ napi_value NAPI_On(napi_env env, napi_callback_info info)
 napi_value NAPI_Off(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
         return nullptr;
     }
@@ -775,34 +766,10 @@ napi_value NAPI_Off(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    auto result = std::make_shared<int>();
-    auto cbExec = [result, fileAccessHelper]() -> NError {
-        *result = fileAccessHelper->Off();
-        if (*result != ERR_OK) {
-            return NError([result]() -> std::tuple<uint32_t, std::string> {
-                return { *result, "FileAccessHelper::Off fail." };
-            });
-        }
-        return NError(ERRNO_NOERR);
-    };
-    auto cbComplete = [result](napi_env env, NError err) -> NVal {
-        if (err) {
-            return { env, err.GetNapiErr(env) };
-        }
-        return NVal::CreateInt32(env, (int32_t)(*result));
-    };
-
-    std::string procedureName = "Off";
-    if (funcArg.GetArgc() == NARG_CNT::ZERO) {
-        return NAsyncWorkPromise(env, NVal(env, funcArg.GetThisVar())).Schedule(procedureName, cbExec, cbComplete).val_;
-    } else {
-        NVal cb(env, funcArg[NARG_POS::FIRST]);
-        if (!cb.TypeIs(napi_function)) {
-            NError(EINVAL).ThrowErr(env, "Argument must be function");
-            return nullptr;
-        }
-        return NAsyncWorkCallback(env, NVal(env, funcArg.GetThisVar()), cb)
-            .Schedule(procedureName, cbExec, cbComplete).val_;
+    auto retCode = fileAccessHelper->Off();
+    if (retCode != ERR_OK) {
+        NError(retCode).ThrowErr(env, "FileAccessHelper::Off fail.");
+        return nullptr;
     }
     return NVal::CreateUndefined(env).val_;
 }
