@@ -611,6 +611,35 @@ int FileAccessHelper::ListFile(const FileInfo &fileInfo, const int64_t offset, c
     return ERR_OK;
 }
 
+int FileAccessHelper::ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+    const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ScanFile");
+    Uri sourceFile(fileInfo.uri);
+    if (!CheckUri(sourceFile)) {
+        HILOG_ERROR("sourceFile format check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_INVALID_URI;
+    }
+
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
+    if (fileExtProxy == nullptr) {
+        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_IPC_ERROR;
+    }
+
+    int ret = fileExtProxy->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("ScanFile get result error, code:%{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
 int FileAccessHelper::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");

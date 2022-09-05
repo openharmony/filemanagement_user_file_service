@@ -441,6 +441,54 @@ int FileAccessExtProxy::ListFile(const FileInfo &fileInfo, const int64_t offset,
     return GetListFileResult(reply, fileInfoVec);
 }
 
+int FileAccessExtProxy::ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+    const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ScanFile");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (!data.WriteParcelable(&fileInfo)) {
+        HILOG_ERROR("fail to WriteParcelable fileInfo");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (!data.WriteInt64(offset)) {
+        HILOG_ERROR("fail to WriteInt64 offset");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (!data.WriteInt64(maxCount)) {
+        HILOG_ERROR("fail to WriteInt64 maxCount");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (!data.WriteParcelable(&filter)) {
+        HILOG_ERROR("fail to WriteParcelable filter");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t err = Remote()->SendRequest(CMD_SCAN_FILE, data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return err;
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return GetListFileResult(reply, fileInfoVec);
+}
+
 int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");

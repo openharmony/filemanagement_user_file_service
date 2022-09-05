@@ -104,6 +104,13 @@ int FileAccessExtAbility::ListFile(const FileInfo &fileInfo, const int64_t offse
     return ERR_OPERATION_NOT_SUPPORT;
 }
 
+int FileAccessExtAbility::ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+    const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
+{
+    HILOG_ERROR("FileAccessExtAbility::ScanFile Undefined operation");
+    return ERR_OPERATION_NOT_SUPPORT;
+}
+
 int FileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
     HILOG_ERROR("FileAccessExtAbility::GetRoots Undefined operation");

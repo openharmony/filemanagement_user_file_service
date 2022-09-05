@@ -37,6 +37,7 @@ struct FileIteratorEntity {
     int64_t offset;
     int64_t pos;
     FileFilter filter;
+    int flag = 0;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

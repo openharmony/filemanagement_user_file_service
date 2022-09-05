@@ -95,12 +95,22 @@ static int MakeResult(napi_value objFileInfoExporter, FileIteratorEntity *fileIt
         fileIteratorEntity->fileInfoVec.clear();
         fileIteratorEntity->offset += MAX_COUNT;
         fileIteratorEntity->pos = 0;
-        int ret = fileIteratorEntity->fileAccessHelper->ListFile(fileIteratorEntity->fileInfo,
+        if (fileIteratorEntity->flag == 0) {
+            int ret = fileIteratorEntity->fileAccessHelper->ListFile(fileIteratorEntity->fileInfo,
+                fileIteratorEntity->offset, MAX_COUNT, fileIteratorEntity->filter, fileIteratorEntity->fileInfoVec);
+            if (ret != ERR_OK) {
+                HILOG_ERROR("exec ListFile fail, code:%{public}d", ret);
+                return ret;
+            }
+        } else if (fileIteratorEntity->flag == 1) {
+            int ret = fileIteratorEntity->fileAccessHelper->ScanFile(fileIteratorEntity->fileInfo,
             fileIteratorEntity->offset, MAX_COUNT, fileIteratorEntity->filter, fileIteratorEntity->fileInfoVec);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("exec ListFile fail, code:%{public}d", ret);
-            return ret;
+            if (ret != ERR_OK) {
+                HILOG_ERROR("exec ScanFile fail, code:%{public}d", ret);
+                return ret;
+            }
         }
+        
     } else if (fileIteratorEntity->pos == fileIteratorEntity->fileInfoVec.size()) {
         fileIteratorEntity->fileInfoVec.clear();
         fileIteratorEntity->pos = 0;

@@ -47,6 +47,7 @@ FileAccessExtStub::FileAccessExtStub()
     stubFuncMap_[CMD_MOVE] = &FileAccessExtStub::CmdMove;
     stubFuncMap_[CMD_RENAME] = &FileAccessExtStub::CmdRename;
     stubFuncMap_[CMD_LIST_FILE] = &FileAccessExtStub::CmdListFile;
+    stubFuncMap_[CMD_SCAN_FILE] = &FileAccessExtStub::CmdScanFile;
     stubFuncMap_[CMD_GET_ROOTS] = &FileAccessExtStub::CmdGetRoots;
     stubFuncMap_[CMD_ACCESS] = &FileAccessExtStub::CmdAccess;
     stubFuncMap_[CMD_REGISTER_NOTIFY] = &FileAccessExtStub::CmdRegisterNotify;
@@ -362,6 +363,65 @@ ErrCode FileAccessExtStub::CmdListFile(MessageParcel &data, MessageParcel &reply
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
+
+ErrCode FileAccessExtStub::CmdScanFile(MessageParcel &data, MessageParcel &reply)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdScanFile");
+    std::shared_ptr<FileInfo> fileInfo(data.ReadParcelable<FileInfo>());
+    if (fileInfo == nullptr) {
+        HILOG_ERROR("Parameter ScanFile fail to ReadParcelable fileInfo");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    int64_t offset = 0;
+    if (!data.ReadInt64(offset)) {
+        HILOG_ERROR("parameter ScanFile offset is invalid");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    int64_t maxCount = 0;
+    if (!data.ReadInt64(maxCount)) {
+        HILOG_ERROR("parameter ScanFile maxCount is invalid");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    std::shared_ptr<FileFilter> filter(data.ReadParcelable<FileFilter>());
+    if (filter == nullptr) {
+        HILOG_ERROR("parameter ScanFile FileFilter is invalid");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    std::vector<FileInfo> fileInfoVec;
+    int ret = ScanFile(*fileInfo, offset, maxCount, *filter, fileInfoVec);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("Parameter ScanFile fail to WriteInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    int64_t count {fileInfoVec.size()};
+    if (!reply.WriteInt64(count)) {
+        HILOG_ERROR("Parameter ScanFile fail to WriteInt64 count");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    for (const auto &fileInfo : fileInfoVec) {
+        if (!reply.WriteParcelable(&fileInfo)) {
+            HILOG_ERROR("parameter ScanFile fail to WriteParcelable fileInfoVec");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+            return ERR_PARCEL_FAIL;
+        }
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
 
 ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply)
 {

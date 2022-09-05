@@ -32,6 +32,7 @@ bool NapiRootInfoExporter::Export()
 {
     std::vector<napi_property_descriptor> props = {
         NVal::DeclareNapiFunction("listFile", ListFile),
+        NVal::DeclareNapiFunction("scanFile", ScanFile),
         NVal::DeclareNapiGetter("deviceType", GetDeviceType),
         NVal::DeclareNapiGetter("uri", GetUri),
         NVal::DeclareNapiGetter("displayName", GetDisplayName),
@@ -125,10 +126,74 @@ napi_value NapiRootInfoExporter::ListFile(napi_env env, napi_callback_info info)
         fileIteratorEntity->offset = 0;
         fileIteratorEntity->pos = 0;
         fileIteratorEntity->filter = std::move(filter);
+        fileIteratorEntity->flag = 0;
         auto ret = rootEntity->fileAccessHelper->ListFile(fileInfo, fileIteratorEntity->offset,
             MAX_COUNT, filter, fileIteratorEntity->fileInfoVec);
         if (ret != ERR_OK) {
             NError(ret).ThrowErr(env, "ListFile get result fail.");
+            return nullptr;
+        }
+    }
+
+    return NVal(env, objFileIteratorExporter).val_;
+}
+
+napi_value NapiRootInfoExporter::ScanFile(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
+        NError(ERR_PARAM_NUMBER).ThrowErr(env, "Number of arguments unmatched");
+        return nullptr;
+    }
+
+    FileFilter filter({}, {}, {}, 0, 0, false, false);
+    if (funcArg.GetArgc() == NARG_CNT::ONE) {
+        auto ret = GetFileFilterParam(NVal(env, funcArg.GetArg(NARG_POS::FIRST)), filter);
+        if (ret != ERR_OK) {
+            NError(ret).ThrowErr(env, "ScanFile get FileFilter param fail");
+            return nullptr;
+        }
+    }
+
+    auto rootEntity = NClass::GetEntityOf<RootInfoEntity>(env, funcArg.GetThisVar());
+    if (rootEntity == nullptr) {
+        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get entity of FileInfoEntity");
+        return nullptr;
+    }
+
+    if (rootEntity->fileAccessHelper == nullptr) {
+        NError(ERR_NULL_POINTER).ThrowErr(env, "fileAccessHelper is null.");
+        return nullptr;
+    }
+
+    napi_value objFileIteratorExporter = NClass::InstantiateClass(env, NapiFileIteratorExporter::className_, {});
+    if (objFileIteratorExporter == nullptr) {
+        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot instantiate class NapiFileIteratorExporter");
+        return nullptr;
+    }
+
+    auto fileIteratorEntity = NClass::GetEntityOf<FileIteratorEntity>(env, objFileIteratorExporter);
+    if (fileIteratorEntity == nullptr) {
+        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get the entity of FileIteratorEntity");
+        return nullptr;
+    }
+
+    FileInfo fileInfo;
+    fileInfo.uri = rootEntity->rootInfo.uri;
+    fileInfo.mode = DOCUMENT_FLAG_REPRESENTS_DIR | DOCUMENT_FLAG_SUPPORTS_READ | DOCUMENT_FLAG_SUPPORTS_WRITE;
+    {
+        std::lock_guard<std::mutex> lock(fileIteratorEntity->entityOperateMutex);
+        fileIteratorEntity->fileAccessHelper = rootEntity->fileAccessHelper;
+        fileIteratorEntity->fileInfo = fileInfo;
+        fileIteratorEntity->fileInfoVec.clear();
+        fileIteratorEntity->offset = 0;
+        fileIteratorEntity->pos = 0;
+        fileIteratorEntity->filter = std::move(filter);
+        fileIteratorEntity->flag = 1;
+        auto ret = rootEntity->fileAccessHelper->ScanFile(fileInfo, fileIteratorEntity->offset,
+            MAX_COUNT, filter, fileIteratorEntity->fileInfoVec);
+        if (ret != ERR_OK) {
+            NError(ret).ThrowErr(env, "ScanFile get result fail.");
             return nullptr;
         }
     }

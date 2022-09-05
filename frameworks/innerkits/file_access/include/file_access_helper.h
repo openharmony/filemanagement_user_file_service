@@ -67,6 +67,8 @@ public:
     int Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile);
     int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount, const FileFilter &filter,
         std::vector<FileInfo> &fileInfoVec);
+    int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount, const FileFilter &filter,
+        std::vector<FileInfo> &fileInfoVec);
     int GetRoots(std::vector<RootInfo> &rootInfoVec);
     int On(std::shared_ptr<INotifyCallback> &callback);
     int Off();

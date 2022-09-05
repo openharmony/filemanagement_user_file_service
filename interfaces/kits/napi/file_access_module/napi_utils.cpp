@@ -54,6 +54,8 @@ int GetFileFilterParam(const NVal &argv, FileFilter &filter)
 
         filter.SetSuffix(filter_suffix);
         filter.SetHasFilter(true);
+    } else {
+        return ERR_INVALID_PARAM;
     }
 
     if (argv.HasProp("display_name")) {
