@@ -1632,7 +1632,8 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0002, testing::ext::T
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
         FileFilter filter({".q1w2e3r4"}, {}, {}, 0, 0, false, true);
-        fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        result = fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), 1);
         FileFilter filter1({".q1w2e3r4", ".txt"}, {}, {}, 0, 0, false, true);
         result = fah->ScanFile(fileInfo, offset, maxCount, filter1, fileInfoVec);
