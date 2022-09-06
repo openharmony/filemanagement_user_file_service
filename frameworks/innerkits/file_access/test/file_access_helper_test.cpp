@@ -1364,7 +1364,8 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0000, testing::ext::T
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
         FileFilter filter;
-        fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        result = fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_GT(fileInfoVec.size(), 0);
         GTEST_LOG_(INFO) << "ListFile_0000 result:" << fileInfoVec.size() << endl;
 
@@ -1467,7 +1468,8 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0003, testing::ext::T
         int64_t maxCount = 1000;
         vector<FileAccessFwk::FileInfo> fileInfoVec;
         FileFilter filter;
-        fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        int result = fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), 0);
         GTEST_LOG_(INFO) << "ListFile_0003 result:" << fileInfoVec.size() << endl;
     } catch (...) {
@@ -1506,7 +1508,8 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0004, testing::ext::T
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
         FileFilter filter({".txt"}, {}, {}, 0, 0, false, true);
-        fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        result = fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), 1);
 
         result = fah->Delete(newDirUriTest);
@@ -1545,7 +1548,8 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0000, testing::ext::T
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
         FileFilter filter({".q1w2e3r4"}, {}, {}, 0, 0, false, true);
-        fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        result = fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_GE(fileInfoVec.size(), 1);
         GTEST_LOG_(INFO) << "ScanFile_0000 result:" << fileInfoVec.size() << endl;
 
@@ -1584,8 +1588,9 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0001, testing::ext::T
         int64_t offset = 0;
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
-        FileFilter filter;
-        fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        FileFilter filter({}, {}, {}, 0, 0, false, false);
+        result = fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_GE(fileInfoVec.size(), 2);
         GTEST_LOG_(INFO) << "ScanFile_0000 result:" << fileInfoVec.size() << endl;
 
@@ -1630,7 +1635,8 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0002, testing::ext::T
         fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_EQ(fileInfoVec.size(), 1);
         FileFilter filter1({".q1w2e3r4", ".txt"}, {}, {}, 0, 0, false, true);
-        fah->ScanFile(fileInfo, offset, maxCount, filter1, fileInfoVec);
+        result = fah->ScanFile(fileInfo, offset, maxCount, filter1, fileInfoVec);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), 2);
 
         GTEST_LOG_(INFO) << "ScanFile_0002 result:" << fileInfoVec.size() << endl;
@@ -1668,7 +1674,8 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0003, testing::ext::T
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
         FileFilter filter({".q1w2e3r4"}, {}, {}, 0, 0, false, true);
-        fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        result = fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), 1);
         GTEST_LOG_(INFO) << "ScanFile_0003 result:" << fileInfoVec.size() << endl;
 

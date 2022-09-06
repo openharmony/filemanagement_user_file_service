@@ -1580,7 +1580,8 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0000, testing::
             int64_t maxCount = 1000;
             std::vector<FileInfo> fileInfoVec;
             FileFilter filter;
-            fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+            result = fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_GT(fileInfoVec.size(), 0);
 
             result = fah->Delete(newDirUriTest);
@@ -1612,7 +1613,8 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0001, testing::
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
         FileFilter filter;
-        fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        int result = fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), 0);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
@@ -1654,7 +1656,8 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0002, testing::
             int64_t maxCount = 1000;
             std::vector<FileInfo> fileInfoVec;
             FileFilter filter;
-            fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+            result = fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+            EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_EQ(fileInfoVec.size(), 0);
 
             result = fah->Delete(newDirUriTest);
@@ -1687,60 +1690,13 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0003, testing::
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
         FileFilter filter;
-        fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        int result = fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), 0);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_ListFile_0003";
-}
-
-/**
- * @tc.number: user_file_service_file_extension_helper_ScanFile_0000
- * @tc.name: file_extension_helper_ScanFile_0000
- * @tc.desc: Test function of ScanFile interface for SUCCESS which scan root directory with filter.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: SR000H0386
- */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_ScanFile_0000, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_ScanFile_0000";
-    try {
-        vector<RootInfo> info;
-        int result = fah->GetRoots(info);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        for (size_t i = 0; i < info.size(); i++) {
-            Uri parentUri(info[i].uri);
-            Uri newDirUriTest("");
-            result = fah->Mkdir(parentUri, "test", newDirUriTest);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
-            Uri testUri("");
-            result = fah->CreateFile(newDirUriTest, "file_extension_helper_ListFile_0000.docx", testUri);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            result = fah->CreateFile(newDirUriTest, "file_extension_helper_ListFile_0000.txt", testUri);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            result = fah->CreateFile(newDirUriTest, "file_extension_helper_ListFile_0000.pptx", testUri);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
-            FileInfo fileInfo;
-            fileInfo.uri = newDirUriTest.ToString();
-            int64_t offset = 0;
-            int64_t maxCount = 1000;
-            std::vector<FileInfo> fileInfoVec;
-            FileFilter filter;
-            fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
-            EXPECT_EQ(fileInfoVec.size(), 3);
-
-            result = fah->Delete(newDirUriTest);
-            EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        }
-    } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
-    }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_ScanFile_0000";
 }
 
 /**
@@ -1806,6 +1762,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_allInterface_0000, testi
             Uri documentUri(document);
             bool isExist = false;
             result = fahs->Access(documentUri, isExist);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             if (!isExist) {
                 result = fahs->Mkdir(parentUri, "Documents", documentUri);
                 EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
