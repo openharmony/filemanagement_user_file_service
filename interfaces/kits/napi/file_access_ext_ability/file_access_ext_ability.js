@@ -71,7 +71,7 @@ class FileAccessExtensionAbility {
     getRoots() {
         return {
             roots: [],
-            code: ERR_OK,
+            code: ERR_ERROR,
         };
     }
 

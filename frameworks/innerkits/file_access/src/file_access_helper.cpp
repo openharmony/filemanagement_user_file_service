@@ -413,6 +413,7 @@ int FileAccessHelper::OpenFile(Uri &uri, int flags, int &fd)
 
     if (flags != READ && flags != WRITE && flags != WRITE_READ) {
         HILOG_ERROR("flags type error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_PARAM;
     }
 
@@ -431,7 +432,7 @@ int FileAccessHelper::OpenFile(Uri &uri, int flags, int &fd)
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return ret;
+    return ERR_OK;
 }
 
 int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Uri &newFile)
@@ -458,7 +459,7 @@ int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Ur
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return ret;
+    return ERR_OK;
 }
 
 int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &newDir)
@@ -485,7 +486,7 @@ int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &ne
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return ret;
+    return ERR_OK;
 }
 
 int FileAccessHelper::Delete(Uri &selectFile)
@@ -512,7 +513,7 @@ int FileAccessHelper::Delete(Uri &selectFile)
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return ret;
+    return ERR_OK;
 }
 
 int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
@@ -534,6 +535,7 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
 
     if (sourceFileUri.GetScheme() != targetParentUri.GetScheme()) {
         HILOG_WARN("Operation failed, move not supported");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_OPERATION_NOT_SUPPORT;
     }
 
@@ -552,7 +554,7 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return ret;
+    return ERR_OK;
 }
 
 int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile)
@@ -579,7 +581,7 @@ int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Ur
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return ret;
+    return ERR_OK;
 }
 
 int FileAccessHelper::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
@@ -661,23 +663,32 @@ int FileAccessHelper::GetRoots(std::vector<RootInfo> &rootInfoVec)
         ret = fileAccessExtProxy->GetRoots(results);
         if (ret != ERR_OK) {
             HILOG_ERROR("getRoots get fail ret:%{public}d", ret);
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return ret;
         }
 
         rootInfoVec.insert(rootInfoVec.end(), results.begin(), results.end());
     }
 
-    return ret;
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
 }
 
 int FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::Want> &wantVec)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRegisteredFileAccessExtAbilityInfo");
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     sptr<AppExecFwk::IBundleMgr> bm = FileAccessHelper::GetBundleMgrProxy();
+    if (bm == nullptr) {
+        HILOG_ERROR("GetBundleMgrProxy nullptr.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_QUERY_EXTENSIONINFOS_FAIL;
+    }
     bool ret = bm->QueryExtensionAbilityInfos(
         AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, DEFAULT_USERID, extensionInfos);
     if (!ret) {
         HILOG_ERROR("FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo QueryExtensionAbilityInfos error");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_QUERY_EXTENSIONINFOS_FAIL;
     }
 
@@ -690,6 +701,7 @@ int FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::W
         wantVec.push_back(want);
     }
 
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
@@ -710,8 +722,14 @@ int FileAccessHelper::Access(Uri &uri, bool &isExist)
     }
 
     int ret = fileExtProxy->Access(uri, isExist);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Access get result error, code:%{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return ret;
+    return ERR_OK;
 }
 
 int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)
@@ -753,12 +771,13 @@ int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)
         if (errorCode != ERR_OK) {
             HILOG_ERROR("fileAccessExtProxy RegisterNotify fail, bundleName:%{public}s, ret:%{public}d.",
                 connectInfo->want.GetElement().GetBundleName().c_str(), errorCode);
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return errorCode;
         }
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return errorCode;
+    return ERR_OK;
 }
 
 int FileAccessHelper::Off()
@@ -785,13 +804,14 @@ int FileAccessHelper::Off()
         if (errorCode != ERR_OK) {
             HILOG_ERROR("fileAccessExtProxy UnregisterNotify fail, bundleName:%{public}s, ret:%{public}d.",
                 connectInfo->want.GetElement().GetBundleName().c_str(), errorCode);
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return errorCode;
         }
     }
 
     notifyAgent_.clear();
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return errorCode;
+    return ERR_OK;
 }
 
 void FileAccessDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)

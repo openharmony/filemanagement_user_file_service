@@ -48,7 +48,7 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags, int &fd)
 
     MessageParcel reply;
     MessageOption option;
-    int32_t err = Remote()->SendRequest(CMD_OPEN_FILE, data, reply, option);
+    int err = Remote()->SendRequest(CMD_OPEN_FILE, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -103,7 +103,7 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
 
     MessageParcel reply;
     MessageOption option;
-    int32_t err = Remote()->SendRequest(CMD_CREATE_FILE, data, reply, option);
+    int err = Remote()->SendRequest(CMD_CREATE_FILE, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -133,8 +133,10 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
     newFile = Uri(*tempUri);
     if (newFile.ToString().empty()) {
         HILOG_ERROR("get uri is empty.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_RESULT;
     }
+
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
@@ -163,7 +165,7 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
 
     MessageParcel reply;
     MessageOption option;
-    int32_t err = Remote()->SendRequest(CMD_MKDIR, data, reply, option);
+    int err = Remote()->SendRequest(CMD_MKDIR, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -193,8 +195,10 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
     newFile = Uri(*tempUri);
     if (newFile.ToString().empty()) {
         HILOG_ERROR("get uri is empty.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_RESULT;
     }
+
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
@@ -217,7 +221,7 @@ int FileAccessExtProxy::Delete(const Uri &sourceFile)
 
     MessageParcel reply;
     MessageOption option;
-    int32_t err = Remote()->SendRequest(CMD_DELETE, data, reply, option);
+    int err = Remote()->SendRequest(CMD_DELETE, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -265,7 +269,7 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
 
     MessageParcel reply;
     MessageOption option;
-    int32_t err = Remote()->SendRequest(CMD_MOVE, data, reply, option);
+    int err = Remote()->SendRequest(CMD_MOVE, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -295,8 +299,10 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
     newFile = Uri(*tempUri);
     if (newFile.ToString().empty()) {
         HILOG_ERROR("get uri is empty.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_RESULT;
     }
+
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
@@ -325,7 +331,7 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
 
     MessageParcel reply;
     MessageOption option;
-    int32_t err = Remote()->SendRequest(CMD_RENAME, data, reply, option);
+    int err = Remote()->SendRequest(CMD_RENAME, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -355,8 +361,10 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
     newFile = Uri(*tempUri);
     if (newFile.ToString().empty()) {
         HILOG_ERROR("get uri is empty.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_RESULT;
     }
+
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
@@ -366,20 +374,17 @@ static int GetListFileResult(MessageParcel &reply, std::vector<FileInfo> &fileIn
     int ret = ERR_PARCEL_FAIL;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
 
     if (ret != ERR_OK) {
         HILOG_ERROR("ListFile operation failed ret : %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
     int64_t count = 0;
     if (!reply.ReadInt64(count)) {
         HILOG_ERROR("ListFile operation failed to Read count");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_RESULT;
     }
 
@@ -430,15 +435,22 @@ int FileAccessExtProxy::ListFile(const FileInfo &fileInfo, const int64_t offset,
 
     MessageParcel reply;
     MessageOption option;
-    int32_t err = Remote()->SendRequest(CMD_LIST_FILE, data, reply, option);
+    int err = Remote()->SendRequest(CMD_LIST_FILE, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
+    err = GetListFileResult(reply, fileInfoVec);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to GetListFileResult. err: %{public}d", err);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return err;
+    }
+
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return GetListFileResult(reply, fileInfoVec);
+    return ERR_OK;
 }
 
 int FileAccessExtProxy::ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
@@ -478,15 +490,22 @@ int FileAccessExtProxy::ScanFile(const FileInfo &fileInfo, const int64_t offset,
 
     MessageParcel reply;
     MessageOption option;
-    int32_t err = Remote()->SendRequest(CMD_SCAN_FILE, data, reply, option);
+    int err = Remote()->SendRequest(CMD_SCAN_FILE, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
+    err = GetListFileResult(reply, fileInfoVec);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to GetListFileResult. err: %{public}d", err);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return err;
+    }
+
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return GetListFileResult(reply, fileInfoVec);
+    return ERR_OK;
 }
 
 int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfoVec)
@@ -501,7 +520,7 @@ int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfoVec)
 
     MessageParcel reply;
     MessageOption option;
-    int32_t err = Remote()->SendRequest(CMD_GET_ROOTS, data, reply, option);
+    int err = Remote()->SendRequest(CMD_GET_ROOTS, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -558,7 +577,7 @@ int FileAccessExtProxy::Access(const Uri &uri, bool &isExist)
 
     MessageParcel reply;
     MessageOption option;
-    int32_t err = Remote()->SendRequest(CMD_ACCESS, data, reply, option);
+    int err = Remote()->SendRequest(CMD_ACCESS, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -580,8 +599,10 @@ int FileAccessExtProxy::Access(const Uri &uri, bool &isExist)
 
     if (!reply.ReadBool(isExist)) {
         HILOG_ERROR("fail to ReadInt32 isExist");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
+
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }

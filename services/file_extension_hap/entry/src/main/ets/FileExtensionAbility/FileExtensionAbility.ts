@@ -192,16 +192,6 @@ export default class FileExtAbility extends Extension {
         }
     }
 
-    closeFile(fd) {
-        try {
-            fileio.closeSync(fd);
-            return true;
-        } catch (e) {
-            hilog.error(DOMAIN_CODE, TAG, 'closeFile error ' + e.message);
-            return false;
-        }
-    }
-
     createFile(parentUri, displayName) {
         if (!this.checkUri(parentUri)) {
             return {
@@ -395,27 +385,6 @@ export default class FileExtAbility extends Extension {
         }
     }
 
-    query(sourceFileUri) {
-        if (!this.checkUri(sourceFileUri)) {
-            return null;
-        }
-        try {
-            let path = this.getPath(sourceFileUri);
-            let stat = fileio.statSync(path);
-            return {
-                uri: sourceFileUri,
-                fileName: this.getFileName(sourceFileUri),
-                mode: '' + stat.mode,
-                size: stat.size,
-                mtime: stat.mtime,
-                mimeType: '',
-            };
-        } catch (e) {
-            hilog.error(DOMAIN_CODE, TAG, 'query error ' + e.message);
-            return null;
-        }
-    }
-
     access(sourceFileUri) {
         if (!this.checkUri(sourceFileUri)) {
             hilog.error(DOMAIN_CODE, TAG, 'access checkUri fail');
@@ -471,7 +440,7 @@ export default class FileExtAbility extends Extension {
                     }
 
                     if (offset > i) {
-                        i ++;
+                        i++;
                         continue;
                     }
 
@@ -484,7 +453,7 @@ export default class FileExtAbility extends Extension {
                         mimeType: '',
                     });
 
-                    i ++;
+                    i++;
                     if (i == (offset + count)) {
                         hasNextFile = false;
                         break;
