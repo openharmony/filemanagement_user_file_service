@@ -30,6 +30,82 @@ using namespace OHOS;
 using namespace FileAccessFwk;
 int ABILITY_ID = 5003;
 shared_ptr<FileAccessHelper> fah = nullptr;
+OHOS::Security::AccessToken::AccessTokenID tokenId;
+
+// permission state
+OHOS::Security::AccessToken::PermissionStateFull g_infoManagerTestState = {
+    .permissionName = "ohos.permission.FILE_ACCESS_MANAGER",
+    .isGeneral = true,
+    .resDeviceID = {"local"},
+    .grantStatus = {OHOS::Security::AccessToken::PermissionState::PERMISSION_GRANTED},
+    .grantFlags = {1}
+};
+
+OHOS::Security::AccessToken::PermissionStateFull g_infoManagerTestState1 = {
+    .permissionName = "ohos.permission.READ_MEDIA",
+    .isGeneral = true,
+    .resDeviceID = {"local"},
+    .grantStatus = {OHOS::Security::AccessToken::PermissionState::PERMISSION_GRANTED},
+    .grantFlags = {1}
+};
+
+OHOS::Security::AccessToken::PermissionStateFull g_infoManagerTestState2 = {
+    .permissionName = "ohos.permission.WRITE_MEDIA",
+    .isGeneral = true,
+    .resDeviceID = {"local"},
+    .grantStatus = {OHOS::Security::AccessToken::PermissionState::PERMISSION_GRANTED},
+    .grantFlags = {1}
+};
+
+// permission define
+OHOS::Security::AccessToken::PermissionDef g_infoManagerTestPermDef = {
+    .permissionName = "ohos.permission.FILE_ACCESS_MANAGER",
+    .bundleName = "ohos.acts.multimedia.mediaLibrary",
+    .grantMode = 1,
+    .availableLevel = OHOS::Security::AccessToken::APL_NORMAL,
+    .label = "label",
+    .labelId = 1,
+    .description = "FILE_ACCESS_MANAGER",
+    .descriptionId = 1
+};
+
+OHOS::Security::AccessToken::PermissionDef g_infoManagerTestPermDef1 = {
+    .permissionName = "ohos.permission.READ_MEDIA",
+    .bundleName = "ohos.acts.multimedia.mediaLibrary",
+    .grantMode = 1,
+    .availableLevel = OHOS::Security::AccessToken::APL_NORMAL,
+    .label = "label",
+    .labelId = 1,
+    .description = "READ_MEDIA",
+    .descriptionId = 1
+};
+
+OHOS::Security::AccessToken::PermissionDef g_infoManagerTestPermDef2 = {
+    .permissionName = "ohos.permission.WRITE_MEDIA",
+    .bundleName = "ohos.acts.multimedia.mediaLibrary",
+    .grantMode = 1,
+    .availableLevel = OHOS::Security::AccessToken::APL_NORMAL,
+    .label = "label",
+    .labelId = 1,
+    .description = "WRITE_MEDIA",
+    .descriptionId = 1
+};
+
+// permission info
+OHOS::Security::AccessToken::HapPolicyParams g_infoManagerTestPolicyPrams = {
+    .apl = OHOS::Security::AccessToken::APL_NORMAL,
+    .domain = "test.domain",
+    .permList = {g_infoManagerTestPermDef, g_infoManagerTestPermDef1, g_infoManagerTestPermDef2},
+    .permStateList = {g_infoManagerTestState, g_infoManagerTestState1, g_infoManagerTestState2}
+};
+
+// hap info
+OHOS::Security::AccessToken::HapInfoParams g_infoManagerTestInfoParms = {
+    .userID = 1,
+    .bundleName = "FileExtensionHelperTest",
+    .instIndex = 0,
+    .appIDDesc = "testtesttesttest"
+};
 
 class FileExtensionHelperTest : public testing::Test {
 public:
@@ -56,89 +132,24 @@ public:
         EXPECT_TRUE(sus);
         vector<AAFwk::Want> wants {want};
         fah = FileAccessHelper::Creator(remoteObj, wants);
+
+        OHOS::Security::AccessToken::AccessTokenIDEx tokenIdEx = {0};
+        tokenIdEx = OHOS::Security::AccessToken::AccessTokenKit::AllocHapToken
+            (g_infoManagerTestInfoParms, g_infoManagerTestPolicyPrams);
+        tokenId = tokenIdEx.tokenIdExStruct.tokenID;
+        SetSelfTokenID(tokenId);
     }
-    static void TearDownTestCase() {};
+    static void TearDownTestCase() {
+        fah->Release();
+        fah = nullptr;
+        OHOS::Security::AccessToken::AccessTokenKit::DeleteToken(tokenId);
+    };
     void SetUp() {};
     void TearDown() {};
-
-    // permission state
-    OHOS::Security::AccessToken::PermissionStateFull g_infoManagerTestState = {
-        .permissionName = "ohos.permission.FILE_ACCESS_MANAGER",
-        .isGeneral = true,
-        .resDeviceID = {"local"},
-        .grantStatus = {OHOS::Security::AccessToken::PermissionState::PERMISSION_GRANTED},
-        .grantFlags = {1}
-    };
-
-    OHOS::Security::AccessToken::PermissionStateFull g_infoManagerTestState1 = {
-        .permissionName = "ohos.permission.READ_MEDIA",
-        .isGeneral = true,
-        .resDeviceID = {"local"},
-        .grantStatus = {OHOS::Security::AccessToken::PermissionState::PERMISSION_GRANTED},
-        .grantFlags = {1}
-    };
-
-    OHOS::Security::AccessToken::PermissionStateFull g_infoManagerTestState2 = {
-        .permissionName = "ohos.permission.WRITE_MEDIA",
-        .isGeneral = true,
-        .resDeviceID = {"local"},
-        .grantStatus = {OHOS::Security::AccessToken::PermissionState::PERMISSION_GRANTED},
-        .grantFlags = {1}
-    };
-
-    // permission define
-    OHOS::Security::AccessToken::PermissionDef g_infoManagerTestPermDef = {
-        .permissionName = "ohos.permission.FILE_ACCESS_MANAGER",
-        .bundleName = "ohos.acts.multimedia.mediaLibrary",
-        .grantMode = 1,
-        .availableLevel = OHOS::Security::AccessToken::APL_NORMAL,
-        .label = "label",
-        .labelId = 1,
-        .description = "FILE_ACCESS_MANAGER",
-        .descriptionId = 1
-    };
-
-    OHOS::Security::AccessToken::PermissionDef g_infoManagerTestPermDef1 = {
-        .permissionName = "ohos.permission.READ_MEDIA",
-        .bundleName = "ohos.acts.multimedia.mediaLibrary",
-        .grantMode = 1,
-        .availableLevel = OHOS::Security::AccessToken::APL_NORMAL,
-        .label = "label",
-        .labelId = 1,
-        .description = "READ_MEDIA",
-        .descriptionId = 1
-    };
-
-    OHOS::Security::AccessToken::PermissionDef g_infoManagerTestPermDef2 = {
-        .permissionName = "ohos.permission.WRITE_MEDIA",
-        .bundleName = "ohos.acts.multimedia.mediaLibrary",
-        .grantMode = 1,
-        .availableLevel = OHOS::Security::AccessToken::APL_NORMAL,
-        .label = "label",
-        .labelId = 1,
-        .description = "WRITE_MEDIA",
-        .descriptionId = 1
-    };
-
-    // permission info
-    OHOS::Security::AccessToken::HapPolicyParams g_infoManagerTestPolicyPrams = {
-        .apl = OHOS::Security::AccessToken::APL_NORMAL,
-        .domain = "test.domain",
-        .permList = {g_infoManagerTestPermDef, g_infoManagerTestPermDef1, g_infoManagerTestPermDef2},
-        .permStateList = {g_infoManagerTestState, g_infoManagerTestState1, g_infoManagerTestState2}
-    };
-
-    // hap info
-    OHOS::Security::AccessToken::HapInfoParams g_infoManagerTestInfoParms = {
-        .userID = 1,
-        .bundleName = "FileExtensionHelperTest",
-        .instIndex = 0,
-        .appIDDesc = "testtesttesttest"
-    };
 };
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_OpenFile_0000
+ * @tc.number: user_file_service_file_extension_helper_OpenFile_0000
  * @tc.name: file_extension_helper_OpenFile_0000
  * @tc.desc: Test function of OpenFile interface for SUCCESS.
  * @tc.size: MEDIUM
@@ -150,11 +161,6 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0000, testing::
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_OpenFile_0000";
     try {
-        OHOS::Security::AccessToken::AccessTokenIDEx tokenIdEx = {0};
-        tokenIdEx = OHOS::Security::AccessToken::AccessTokenKit::AllocHapToken
-            (g_infoManagerTestInfoParms, g_infoManagerTestPolicyPrams);
-        OHOS::Security::AccessToken::AccessTokenID tokenId = tokenIdEx.tokenIdExStruct.tokenID;
-        SetSelfTokenID(tokenId);
 
         vector<RootInfo> info;
         int result = fah->GetRoots(info);
@@ -187,7 +193,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0000, testing::
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_OpenFile_0001
+ * @tc.number: user_file_service_file_extension_helper_OpenFile_0001
  * @tc.name: file_extension_helper_OpenFile_0001
  * @tc.desc: Test function of OpenFile interface for ERROR which Uri is null.
  * @tc.size: MEDIUM
@@ -211,7 +217,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0001, testing::
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_OpenFile_0002
+ * @tc.number: user_file_service_file_extension_helper_OpenFile_0002
  * @tc.name: file_extension_helper_OpenFile_0002
  * @tc.desc: Test function of OpenFile interface for ERROR which Uri is absolute path.
  * @tc.size: MEDIUM
@@ -248,7 +254,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0002, testing::
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_OpenFile_0003
+ * @tc.number: user_file_service_file_extension_helper_OpenFile_0003
  * @tc.name: file_extension_helper_OpenFile_0003
  * @tc.desc: Test function of OpenFile interface for ERROR which Uri is special symbols.
  * @tc.size: MEDIUM
@@ -272,7 +278,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0003, testing::
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_OpenFile_0004
+ * @tc.number: user_file_service_file_extension_helper_OpenFile_0004
  * @tc.name: file_extension_helper_OpenFile_0004
  * @tc.desc: Test function of OpenFile interface for ERROR which flag is -1.
  * @tc.size: MEDIUM
@@ -308,7 +314,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0004, testing::
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_OpenFile_0005
+ * @tc.number: user_file_service_file_extension_helper_OpenFile_0005
  * @tc.name: file_extension_helper_OpenFile_0005
  * @tc.desc: Test function of OpenFile interface for SUCCESS which flag is 1.
  * @tc.size: MEDIUM
@@ -344,7 +350,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0005, testing::
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_OpenFile_0006
+ * @tc.number: user_file_service_file_extension_helper_OpenFile_0006
  * @tc.name: file_extension_helper_OpenFile_0006
  * @tc.desc: Test function of OpenFile interface for SUCCESS which flag is 2.
  * @tc.size: MEDIUM
@@ -380,7 +386,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0006, testing::
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_CreateFile_0000
+ * @tc.number: user_file_service_file_extension_helper_CreateFile_0000
  * @tc.name: file_extension_helper_CreateFile_0000
  * @tc.desc: Test function of CreateFile interface for SUCCESS.
  * @tc.size: MEDIUM
@@ -412,7 +418,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0000, testing
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_CreateFile_0001
+ * @tc.number: user_file_service_file_extension_helper_CreateFile_0001
  * @tc.name: file_extension_helper_CreateFile_0001
  * @tc.desc: Test function of CreateFile interface for ERROR which parentUri is null.
  * @tc.size: MEDIUM
@@ -436,7 +442,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0001, testing
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_CreateFile_0002
+ * @tc.number: user_file_service_file_extension_helper_CreateFile_0002
  * @tc.name: file_extension_helper_CreateFile_0002
  * @tc.desc: Test function of CreateFile interface for ERROR which parentUri is absolute path.
  * @tc.size: MEDIUM
@@ -460,7 +466,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0002, testing
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_CreateFile_0003
+ * @tc.number: user_file_service_file_extension_helper_CreateFile_0003
  * @tc.name: file_extension_helper_CreateFile_0003
  * @tc.desc: Test function of CreateFile interface for ERROR which parentUri is special symbols.
  * @tc.size: MEDIUM
@@ -484,7 +490,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0003, testing
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_CreateFile_0004
+ * @tc.number: user_file_service_file_extension_helper_CreateFile_0004
  * @tc.name: file_extension_helper_CreateFile_0004
  * @tc.desc: Test function of CreateFile interface for ERROR which displayName is null.
  * @tc.size: MEDIUM
@@ -514,7 +520,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0004, testing
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Mkdir_0000
+ * @tc.number: user_file_service_file_extension_helper_Mkdir_0000
  * @tc.name: file_extension_helper_Mkdir_0000
  * @tc.desc: Test function of Mkdir interface for SUCCESS.
  * @tc.size: MEDIUM
@@ -546,7 +552,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0000, testing::ext
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Mkdir_0001
+ * @tc.number: user_file_service_file_extension_helper_Mkdir_0001
  * @tc.name: file_extension_helper_Mkdir_0001
  * @tc.desc: Test function of Mkdir interface for ERROR which parentUri is null.
  * @tc.size: MEDIUM
@@ -570,7 +576,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0001, testing::ext
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Mkdir_0002
+ * @tc.number: user_file_service_file_extension_helper_Mkdir_0002
  * @tc.name: file_extension_helper_Mkdir_0002
  * @tc.desc: Test function of Mkdir interface for ERROR which parentUri is absolute path.
  * @tc.size: MEDIUM
@@ -594,7 +600,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0002, testing::ext
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Mkdir_0003
+ * @tc.number: user_file_service_file_extension_helper_Mkdir_0003
  * @tc.name: file_extension_helper_Mkdir_0003
  * @tc.desc: Test function of Mkdir interface for ERROR which parentUri is special symbols.
  * @tc.size: MEDIUM
@@ -618,7 +624,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0003, testing::ext
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Mkdir_0004
+ * @tc.number: user_file_service_file_extension_helper_Mkdir_0004
  * @tc.name: file_extension_helper_Mkdir_0004
  * @tc.desc: Test function of Mkdir interface for ERROR which displayName is null.
  * @tc.size: MEDIUM
@@ -648,7 +654,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0004, testing::ext
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Delete_0000
+ * @tc.number: user_file_service_file_extension_helper_Delete_0000
  * @tc.name: file_extension_helper_Delete_0000
  * @tc.desc: Test function of Delete interface for SUCCESS which delete file.
  * @tc.size: MEDIUM
@@ -687,7 +693,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0000, testing::ex
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Delete_0001
+ * @tc.number: user_file_service_file_extension_helper_Delete_0001
  * @tc.name: file_extension_helper_Delete_0001
  * @tc.desc: Test function of Delete interface for SUCCESS which delete folder.
  * @tc.size: MEDIUM
@@ -719,7 +725,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0001, testing::ex
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Delete_0002
+ * @tc.number: user_file_service_file_extension_helper_Delete_0002
  * @tc.name: file_extension_helper_Delete_0002
  * @tc.desc: Test function of Delete interface for ERROR which selectFileUri is null.
  * @tc.size: MEDIUM
@@ -742,7 +748,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0002, testing::ex
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Delete_0003
+ * @tc.number: user_file_service_file_extension_helper_Delete_0003
  * @tc.name: file_extension_helper_Delete_0003
  * @tc.desc: Test function of Delete interface for ERROR which selectFileUri is absolute path.
  * @tc.size: MEDIUM
@@ -779,7 +785,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0003, testing::ex
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Delete_0004
+ * @tc.number: user_file_service_file_extension_helper_Delete_0004
  * @tc.name: file_extension_helper_Delete_0004
  * @tc.desc: Test function of Delete interface for ERROR which selectFileUri is special symbols.
  * @tc.size: MEDIUM
@@ -802,7 +808,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0004, testing::ex
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Move_0000
+ * @tc.number: user_file_service_file_extension_helper_Move_0000
  * @tc.name: file_extension_helper_Move_0000
  * @tc.desc: Test function of Move interface for SUCCESS which move file.
  * @tc.size: MEDIUM
@@ -849,7 +855,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0000, testing::ext:
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Move_0001
+ * @tc.number: user_file_service_file_extension_helper_Move_0001
  * @tc.name: file_extension_helper_Move_0001
  * @tc.desc: Test function of Move interface for SUCCESS which move folder.
  * @tc.size: MEDIUM
@@ -893,7 +899,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0001, testing::ext:
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Move_0002
+ * @tc.number: user_file_service_file_extension_helper_Move_0002
  * @tc.name: file_extension_helper_Move_0002
  * @tc.desc: Test function of Move interface for ERROR which sourceFileUri is null.
  * @tc.size: MEDIUM
@@ -930,7 +936,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0002, testing::ext:
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Move_0003
+ * @tc.number: user_file_service_file_extension_helper_Move_0003
  * @tc.name: file_extension_helper_Move_0003
  * @tc.desc: Test function of Move interface for ERROR which sourceFileUri is absolute path.
  * @tc.size: MEDIUM
@@ -978,7 +984,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0003, testing::ext:
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Move_0004
+ * @tc.number: user_file_service_file_extension_helper_Move_0004
  * @tc.name: file_extension_helper_Move_0004
  * @tc.desc: Test function of Move interface for ERROR which sourceFileUri is special symbols.
  * @tc.size: MEDIUM
@@ -1015,7 +1021,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0004, testing::ext:
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Move_0005
+ * @tc.number: user_file_service_file_extension_helper_Move_0005
  * @tc.name: file_extension_helper_Move_0005
  * @tc.desc: Test function of Move interface for ERROR which targetParentUri is null.
  * @tc.size: MEDIUM
@@ -1056,7 +1062,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0005, testing::ext:
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Move_0006
+ * @tc.number: user_file_service_file_extension_helper_Move_0006
  * @tc.name: file_extension_helper_Move_0006
  * @tc.desc: Test function of Move interface for ERROR which targetParentUri is absolute path.
  * @tc.size: MEDIUM
@@ -1104,7 +1110,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0006, testing::ext:
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Move_0007
+ * @tc.number: user_file_service_file_extension_helper_Move_0007
  * @tc.name: file_extension_helper_Move_0007
  * @tc.desc: Test function of Move interface for ERROR which targetParentUri is special symbols.
  * @tc.size: MEDIUM
@@ -1152,7 +1158,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0007, testing::ext:
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Move_0008
+ * @tc.number: user_file_service_file_extension_helper_Move_0008
  * @tc.name: file_extension_helper_Move_0008
  * @tc.desc: Test function of Move interface for SUCCESS which move empty folder.
  * @tc.size: MEDIUM
@@ -1192,7 +1198,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0008, testing::ext:
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Move_0009
+ * @tc.number: user_file_service_file_extension_helper_Move_0009
  * @tc.name: file_extension_helper_Move_0009
  * @tc.desc: Test function of Move interface for SUCCESS which move more file in folder.
  * @tc.size: MEDIUM
@@ -1239,7 +1245,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0009, testing::ext:
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Move_0010
+ * @tc.number: user_file_service_file_extension_helper_Move_0010
  * @tc.name: file_extension_helper_Move_0010
  * @tc.desc: Test function of Move interface for SUCCESS which move Multilevel directory folder.
  * @tc.size: MEDIUM
@@ -1286,7 +1292,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0010, testing::ext:
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Move_0011
+ * @tc.number: user_file_service_file_extension_helper_Move_0011
  * @tc.name: file_extension_helper_Move_0011
  * @tc.desc: Test function of Move interface for SUCCESS which move other equipment file.
  * @tc.size: MEDIUM
@@ -1338,7 +1344,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0011, testing::ext:
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Rename_0000
+ * @tc.number: user_file_service_file_extension_helper_Rename_0000
  * @tc.name: file_extension_helper_Rename_0000
  * @tc.desc: Test function of Rename interface for SUCCESS which rename file.
  * @tc.size: MEDIUM
@@ -1378,7 +1384,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0000, testing::ex
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Rename_0001
+ * @tc.number: user_file_service_file_extension_helper_Rename_0001
  * @tc.name: file_extension_helper_Rename_0001
  * @tc.desc: Test function of Rename interface for SUCCESS which rename folder.
  * @tc.size: MEDIUM
@@ -1414,7 +1420,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0001, testing::ex
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Rename_0002
+ * @tc.number: user_file_service_file_extension_helper_Rename_0002
  * @tc.name: file_extension_helper_Rename_0002
  * @tc.desc: Test function of Rename interface for ERROR which sourceFileUri is null.
  * @tc.size: MEDIUM
@@ -1438,7 +1444,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0002, testing::ex
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Rename_0003
+ * @tc.number: user_file_service_file_extension_helper_Rename_0003
  * @tc.name: file_extension_helper_Rename_0003
  * @tc.desc: Test function of Rename interface for ERROR which sourceFileUri is absolute path.
  * @tc.size: MEDIUM
@@ -1479,7 +1485,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0003, testing::ex
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Rename_0004
+ * @tc.number: user_file_service_file_extension_helper_Rename_0004
  * @tc.name: file_extension_helper_Rename_0004
  * @tc.desc: Test function of Rename interface for ERROR which sourceFileUri is special symbols.
  * @tc.size: MEDIUM
@@ -1503,7 +1509,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0004, testing::ex
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Rename_0005
+ * @tc.number: user_file_service_file_extension_helper_Rename_0005
  * @tc.name: file_extension_helper_Rename_0005
  * @tc.desc: Test function of Rename interface for ERROR which displayName is null.
  * @tc.size: MEDIUM
@@ -1543,7 +1549,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0005, testing::ex
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_ListFile_0000
+ * @tc.number: user_file_service_file_extension_helper_ListFile_0000
  * @tc.name: file_extension_helper_ListFile_0000
  * @tc.desc: Test function of ListFile interface for SUCCESS.
  * @tc.size: MEDIUM
@@ -1573,7 +1579,8 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0000, testing::
             int64_t offset = 0;
             int64_t maxCount = 1000;
             std::vector<FileInfo> fileInfoVec;
-            fah->ListFile(fileInfo, offset, maxCount, fileInfoVec);
+            FileFilter filter;
+            fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
             EXPECT_GT(fileInfoVec.size(), 0);
 
             result = fah->Delete(newDirUriTest);
@@ -1586,7 +1593,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0000, testing::
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_ListFile_0001
+ * @tc.number: user_file_service_file_extension_helper_ListFile_0001
  * @tc.name: file_extension_helper_ListFile_0001
  * @tc.desc: Test function of ListFile interface for ERROR which Uri is nullptr.
  * @tc.size: MEDIUM
@@ -1604,7 +1611,8 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0001, testing::
         int64_t offset = 0;
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
-        fah->ListFile(fileInfo, offset, maxCount, fileInfoVec);
+        FileFilter filter;
+        fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_EQ(fileInfoVec.size(), 0);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
@@ -1613,7 +1621,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0001, testing::
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_ListFile_0002
+ * @tc.number: user_file_service_file_extension_helper_ListFile_0002
  * @tc.name: file_extension_helper_ListFile_0002
  * @tc.desc: Test function of ListFile interface for ERROR which sourceFileUri is absolute path.
  * @tc.size: MEDIUM
@@ -1645,7 +1653,8 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0002, testing::
             int64_t offset = 0;
             int64_t maxCount = 1000;
             std::vector<FileInfo> fileInfoVec;
-            fah->ListFile(fileInfo, offset, maxCount, fileInfoVec);
+            FileFilter filter;
+            fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
             EXPECT_EQ(fileInfoVec.size(), 0);
 
             result = fah->Delete(newDirUriTest);
@@ -1658,7 +1667,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0002, testing::
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_ListFile_0003
+ * @tc.number: user_file_service_file_extension_helper_ListFile_0003
  * @tc.name: file_extension_helper_ListFile_0003
  * @tc.desc: Test function of ListFile interface for ERROR which sourceFileUri is special symbols.
  * @tc.size: MEDIUM
@@ -1677,7 +1686,8 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0003, testing::
         int64_t offset = 0;
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
-        fah->ListFile(fileInfo, offset, maxCount, fileInfoVec);
+        FileFilter filter;
+        fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_EQ(fileInfoVec.size(), 0);
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
@@ -1686,7 +1696,55 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0003, testing::
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_GetRoots_0000
+ * @tc.number: user_file_service_file_extension_helper_ScanFile_0000
+ * @tc.name: file_extension_helper_ScanFile_0000
+ * @tc.desc: Test function of ScanFile interface for SUCCESS which scan root directory with filter.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileExtensionHelperTest, file_extension_helper_ScanFile_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_ScanFile_0000";
+    try {
+        vector<RootInfo> info;
+        int result = fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        for (size_t i = 0; i < info.size(); i++) {
+            Uri parentUri(info[i].uri);
+            Uri newDirUriTest("");
+            result = fah->Mkdir(parentUri, "test", newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+            Uri testUri("");
+            result = fah->CreateFile(newDirUriTest, "file_extension_helper_ListFile_0000.docx", testUri);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            result = fah->CreateFile(newDirUriTest, "file_extension_helper_ListFile_0000.txt", testUri);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            result = fah->CreateFile(newDirUriTest, "file_extension_helper_ListFile_0000.pptx", testUri);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+            FileInfo fileInfo;
+            fileInfo.uri = newDirUriTest.ToString();
+            int64_t offset = 0;
+            int64_t maxCount = 1000;
+            std::vector<FileInfo> fileInfoVec;
+            FileFilter filter;
+            fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+            EXPECT_EQ(fileInfoVec.size(), 3);
+
+            result = fah->Delete(newDirUriTest);
+            EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        }
+    } catch (...) {
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_ScanFile_0000";
+}
+
+/**
+ * @tc.number: user_file_service_file_extension_helper_GetRoots_0000
  * @tc.name: file_extension_helper_GetRoots_0000
  * @tc.desc: Test function of GetRoots interface for SUCCESS.
  * @tc.size: MEDIUM
@@ -1717,7 +1775,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_GetRoots_0000, testing::
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_allInterface_0000
+ * @tc.number: user_file_service_file_extension_helper_allInterface_0000
  * @tc.name: file_extension_helper_allInterface_0000
  * @tc.desc: Test function of allInterface interface for SUCCESS.
  * @tc.size: MEDIUM
@@ -1744,9 +1802,14 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_allInterface_0000, testi
             string uri = parentUri.ToString();
             GTEST_LOG_(INFO) << uri;
 
-            Uri documentUri("");
-            result = fahs->Mkdir(parentUri, "Documents", documentUri);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            string document = uri + "/Documents";
+            Uri documentUri(document);
+            bool isExist = false;
+            result = fahs->Access(documentUri, isExist);
+            if (!isExist) {
+                result = fahs->Mkdir(parentUri, "Documents", documentUri);
+                EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            }
 
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
@@ -1786,7 +1849,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_allInterface_0000, testi
 }
 
 /**
- * @tc.number: SUB_user_file_service_file_extension_helper_Access_0000
+ * @tc.number: user_file_service_file_extension_helper_Access_0000
  * @tc.name: file_extension_helper_Access_0000
  * @tc.desc: Test function of Access interface for SUCCESS.
  * @tc.size: MEDIUM
