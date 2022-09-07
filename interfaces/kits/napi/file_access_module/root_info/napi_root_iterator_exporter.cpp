@@ -100,7 +100,7 @@ napi_value NapiRootIteratorExporter::Next(napi_env env, napi_callback_info info)
         rootInfoEntity->fileAccessHelper = rootIterator->fileAccessHelper;
         if (rootIterator->pos < len) {
             rootInfoEntity->rootInfo = rootIterator->devVec[rootIterator->pos];
-            done = (rootIterator->pos == len);
+            done = false;
             rootIterator->pos++;
         } else {
             rootInfoEntity = nullptr;

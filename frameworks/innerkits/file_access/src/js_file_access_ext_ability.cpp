@@ -754,7 +754,7 @@ static int MakeStringNativeArray(NativeEngine &engine, std::vector<std::string> 
         ret = nativeArray->SetElement(i, nativeValue);
         if (!ret) {
             HILOG_ERROR("Add NativeValue to NativeArray fail.");
-            return ERR_INVALID_PARAM;
+            return ERR_PARCEL_FAIL;
         }
     }
 
