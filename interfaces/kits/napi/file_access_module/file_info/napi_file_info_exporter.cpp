@@ -65,6 +65,11 @@ napi_value NapiFileInfoExporter::Constructor(napi_env env, napi_callback_info in
     }
 
     auto fileInfoEntity = std::make_unique<FileInfoEntity>();
+    if (fileInfoEntity == nullptr) {
+        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get entity of fileInfoEntity");
+        return nullptr;
+    }
+
     if (!NClass::SetEntityFor<FileInfoEntity>(env, funcArg.GetThisVar(), std::move(fileInfoEntity))) {
         NError(ERR_NULL_POINTER).ThrowErr(env, "INNER BUG. Failed to wrap entity for obj FileInfoEntity");
         return nullptr;
