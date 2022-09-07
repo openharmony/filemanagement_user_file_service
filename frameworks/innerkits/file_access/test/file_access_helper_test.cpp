@@ -14,6 +14,7 @@
  */
 
 #include <cstdio>
+#include <thread>
 #include <unistd.h>
 
 #include <gtest/gtest.h>
@@ -24,7 +25,6 @@
 #include "file_access_helper.h"
 #include "iservice_registry.h"
 
-
 namespace {
 using namespace std;
 using namespace OHOS;
@@ -32,6 +32,8 @@ using namespace FileAccessFwk;
 int ABILITY_ID = 5003;
 shared_ptr<FileAccessHelper> fah = nullptr;
 Uri g_newDirUri("");
+int UID_TRANSFORM_TMP = 20000000;
+int UID_DEFAULT = 0;
 
 class FileAccessHelperTest : public testing::Test {
 public:
@@ -43,7 +45,9 @@ public:
         auto remoteObj = saManager->GetSystemAbility(ABILITY_ID);
         AAFwk::Want want;
         vector<AAFwk::Want> wantVec;
+        setuid(UID_TRANSFORM_TMP);
         int ret = FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(wantVec);
+        setuid(UID_DEFAULT);
         EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
         bool sus = false;
         for (size_t i = 0; i < wantVec.size(); i++) {
@@ -361,6 +365,48 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0006, testing::ext::T
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_OpenFile_0006";
 }
 
+void OpenFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, int flags, int fd)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_OpenFileTdd";
+    int ret = fahs->OpenFile(uri, flags, fd);
+    if (ret != OHOS::FileAccessFwk::ERR_OK) {
+        GTEST_LOG_(INFO) << "OpenFileTdd get result error, code:" << ret;
+    }
+    EXPECT_GE(fd, 0);
+    int result = fah->Delete(uri);
+    EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_OpenFileTdd";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_helper_OpenFile_0007
+ * @tc.name: file_access_helper_OpenFile_0007
+ * @tc.desc: Test function of OpenFile interface for SUCCESS which Concurrent.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0007, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_OpenFile_0007";
+    try {
+        Uri newFileUri("");
+        int flags;
+        int fd;
+        std::string displayName[4] = {"test1", "test2", "test3", "test4"};
+        for (int j = 0; j < 4; j++) {
+            int result = fah->CreateFile(g_newDirUri, displayName[j], newFileUri);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            std::thread OpenFile_Thread(OpenFileTdd, fah, newFileUri, flags, fd);
+            OpenFile_Thread.detach();
+        }
+    } catch (...) {
+        GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_OpenFile_0007";
+}
+
 /**
  * @tc.number: user_file_service_file_access_helper_CreateFile_0000
  * @tc.name: file_access_helper_CreateFile_0000
@@ -483,6 +529,44 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0004, testing::ext:
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_CreateFile_0004";
 }
 
+void CreateFileTdd(shared_ptr<FileAccessHelper> fahs, Uri parent, std::string displayName, Uri newDir)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_CreateFileTdd";
+    int ret = fahs->CreateFile(parent, displayName, newDir);
+    if (ret < OHOS::FileAccessFwk::ERR_OK) {
+        GTEST_LOG_(INFO) << "CreateFileTdd get result error, code:" << ret;
+    }
+    EXPECT_NE(newDir.ToString(), "");
+    int result = fah->Delete(newDir);
+    EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_CreateFileTdd";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_helper_CreateFile_0005
+ * @tc.name: file_access_helper_CreateFile_0005
+ * @tc.desc: Test function of CreateFile interface for SUCCESS while Concurrent.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0005, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_CreateFile_0005";
+    try {
+        Uri newFileUri("");
+        std::string displayName[4] = {"test1", "test2", "test3", "test4"};
+        for (int j = 0; j < 4; j++) {
+            std::thread CreateFile_Thread(CreateFileTdd, fah, g_newDirUri, displayName[j], newFileUri);
+            CreateFile_Thread.detach();
+        }
+    } catch (...) {
+        GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_CreateFile_0005";
+}
+
 /**
  * @tc.number: user_file_service_file_access_helper_Mkdir_0000
  * @tc.name: file_access_helper_Mkdir_0000
@@ -603,6 +687,44 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0004, testing::ext::Test
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Mkdir_0004";
+}
+
+void MkdirTdd(shared_ptr<FileAccessHelper> fahs, Uri parent, std::string displayName, Uri newDir)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_MkdirTdd";
+    int ret = fahs->Mkdir(parent, displayName, newDir);
+    if (ret < OHOS::FileAccessFwk::ERR_OK) {
+        GTEST_LOG_(INFO) << "MkdirTdd get result error, code:" << ret;
+    }
+    EXPECT_NE(newDir.ToString(), "");
+    int result = fah->Delete(newDir);
+    EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_MkdirTdd";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_helper_Mkdir_0005
+ * @tc.name: file_access_helper_Mkdir_0005
+ * @tc.desc: Test function of Mkdir interface for SUCCESS which Concurrent.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0005, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Mkdir_0005";
+    try {
+        Uri newDirUriTest("");
+        std::string displayName[4] = {"test1", "test2", "test3", "test4"};
+        for (int j = 0; j < 4; j++) {
+            std::thread Mkdir_Thread(MkdirTdd, fah, g_newDirUri, displayName[j], newDirUriTest);
+            Mkdir_Thread.detach();
+        }
+    } catch (...) {
+        GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Mkdir_0005";
 }
 
 /**
@@ -739,6 +861,56 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0004, testing::ext::Tes
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Delete_0004";
 }
+
+void DeleteTdd(shared_ptr<FileAccessHelper> fahs, Uri selectFile)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_DeleteTdd";
+    int ret = fahs->Delete(selectFile);
+    if (ret < OHOS::FileAccessFwk::ERR_OK) {
+        GTEST_LOG_(INFO) << "DeleteTdd get result error, code:" << ret;
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_DeleteTdd";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_helper_Delete_0005
+ * @tc.name: file_access_helper_Delete_0005
+ * @tc.desc: Test function of Delete interface for SUCCESS which Concurrent.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0005, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Delete_0005";
+    try {
+        Uri newDirUriTest("");
+        int result = fah->Mkdir(g_newDirUri, "test", newDirUriTest);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        Uri newFileUri("");
+        result = fah->CreateFile(newDirUriTest, "file_access_helper_Delete_0005.txt", newFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        Uri testUri[4] = {Uri(""), Uri(""), Uri(""), Uri("")};
+        std::string displayName[4] = {"test1.txt", "test2.txt", "test3.txt", "test4.txt"};
+        Uri testUri2("");
+        for (int j = 0; j < 4; j++) {
+            result = fah->CreateFile(newDirUriTest, displayName[j], testUri[j]);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            std::thread Delete_Thread(DeleteTdd, fah, testUri[j]);
+            Delete_Thread.detach();
+        }
+
+        result = fah->Delete(newDirUriTest);
+        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Delete_0005";
+}
+
 
 /**
  * @tc.number: user_file_service_file_access_helper_Move_0000
@@ -1156,6 +1328,57 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0010, testing::ext::TestS
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Move_0010";
 }
 
+void MoveTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, Uri targetParent, Uri newFile)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_MoveTdd";
+    int ret = fahs->Move(sourceFile, targetParent, newFile);
+    if (ret != OHOS::FileAccessFwk::ERR_OK) {
+        GTEST_LOG_(INFO) << "MoveTdd get result error, code:" << ret;
+    }
+    EXPECT_NE(newFile.ToString(), "");
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_MoveTdd";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_helper_Move_0011
+ * @tc.name: file_access_helper_Move_0011
+ * @tc.desc: Test function of Move interface for SUCCESS which Concurrent.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0011, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0011";
+    try {
+        Uri newDirUriTest1("");
+        Uri newDirUriTest2("");
+        int result = fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        result = fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        Uri testUri[4] = {Uri(""), Uri(""), Uri(""), Uri("")};
+        std::string displayName[4] = {"test1.txt", "test2.txt", "test3.txt", "test4.txt"};
+
+        Uri testUri2("");
+        for (int j = 0; j < 4; j++) {
+            result = fah->CreateFile(newDirUriTest1, displayName[j], testUri[j]);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            std::thread Move_Thread(MoveTdd, fah, testUri[j], newDirUriTest2, testUri2);
+            Move_Thread.detach();
+        }
+
+        result = fah->Delete(newDirUriTest2);
+        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Move_0011";
+}
+
 /**
  * @tc.number: user_file_service_file_access_helper_Rename_0000
  * @tc.name: file_access_helper_Rename_0000
@@ -1337,6 +1560,53 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0005, testing::ext::Tes
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Rename_0005";
 }
 
+void RenameTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, std::string displayName, Uri newFile)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_RenameTdd";
+    int ret = fahs->Rename(sourceFile, displayName, newFile);
+    if (ret != OHOS::FileAccessFwk::ERR_OK) {
+        GTEST_LOG_(INFO) << "RenameTdd get result error, code:" << ret;
+    }
+    EXPECT_NE(newFile.ToString(), "");
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_RenameTdd";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_helper_Rename_0006
+ * @tc.name: file_access_helper_Rename_0006
+ * @tc.desc: Test function of Rename interface for SUCCESS which Concurrent.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0006, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Rename_0006";
+    try {
+        Uri newDirUriTest("");
+        int result = fah->Mkdir(g_newDirUri, "test", newDirUriTest);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        Uri testUri[4] = {Uri(""), Uri(""), Uri(""), Uri("")};
+        std::string displayName[4] = {"test1.txt", "test2.txt", "test3.txt", "test4.txt"};
+        std::string displayName1[4] = {"test11.txt", "test22.txt", "test33.txt", "test44.txt"};
+        Uri renameUri("");
+        for (int j = 0; j < 4; j++) {
+            result = fah->CreateFile(newDirUriTest, displayName[j], testUri[j]);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            std::thread Rename_Thread(RenameTdd, fah, testUri[j], displayName1[j], renameUri);
+            Rename_Thread.detach();
+        }
+
+        result = fah->Delete(newDirUriTest);
+        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Rename_0006";
+}
+
 /**
  * @tc.number: user_file_service_file_access_helper_ListFile_0000
  * @tc.name: file_access_helper_ListFile_0000
@@ -1515,9 +1785,64 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0004, testing::ext::T
         result = fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_ListFile_0004";
+}
+
+void ListFileTdd(shared_ptr<FileAccessHelper> fahs, FileInfo fileInfo, int offset, int maxCount,
+    FileFilter filter, std::vector<FileInfo> fileInfoVec)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_ListFileTdd";
+    int ret = fahs->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    if (ret != OHOS::FileAccessFwk::ERR_OK) {
+        GTEST_LOG_(INFO) << "ListFileTdd get result error, code:" << ret;
+    }
+    EXPECT_EQ(fileInfoVec.size(), 1);
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_ListFileTdd";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_helper_ListFile_0005
+ * @tc.name: file_access_helper_ListFile_0005
+ * @tc.desc: Test function of ListFile interface for ERROR which Concurrent.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0005, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ListFile_0005";
+    try {
+        Uri newDirUriTest("");
+        int result = fah->Mkdir(g_newDirUri, "test", newDirUriTest);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        Uri testUri1("");
+        result = fah->CreateFile(newDirUriTest, "file_access_helper_ListFile_0005.txt", testUri1);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri testUri2("");
+        result = fah->CreateFile(newDirUriTest, "file_access_helper_ListFile_0005.docx", testUri2);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        FileInfo fileInfo;
+        fileInfo.uri = newDirUriTest.ToString();
+        int64_t offset = 0;
+        int64_t maxCount = 1000;
+        std::vector<FileInfo> fileInfoVec;
+        FileFilter filter({".txt"}, {}, {}, 0, 0, false, true);
+        for (int j = 0; j < 4; j++) {
+            std::thread ListFile_Thread(ListFileTdd, fah, fileInfo, offset, maxCount, filter, fileInfoVec);
+            ListFile_Thread.detach();
+        }
+
+        result = fah->Delete(newDirUriTest);
+        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_ListFile_0005";
 }
 
 /**
@@ -1686,6 +2011,59 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0003, testing::ext::T
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_ScanFile_0003";
+}
+
+void ScanFileTdd(shared_ptr<FileAccessHelper> fahs, FileInfo fileInfo, int offset, int maxCount,
+    FileFilter filter, std::vector<FileInfo> fileInfoVec)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ScanFileTdd";
+    int ret = fahs->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    if (ret != OHOS::FileAccessFwk::ERR_OK) {
+        GTEST_LOG_(INFO) << "ScanFileTdd get result error, code:" << ret;
+    }
+    EXPECT_EQ(fileInfoVec.size(), 1);
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_ScanFileTdd";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_helper_ScanFile_0004
+ * @tc.name: file_access_helper_ScanFile_0004
+ * @tc.desc: Test function of ScanFile interface for SUCCESS which Concurrent.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0004, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ScanFile_0004";
+    try {
+        Uri newDirUriTest("");
+        int result = fah->Mkdir(g_newDirUri, "Download", newDirUriTest);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        Uri testUri("");
+        FileInfo fileInfo;
+        result = fah->CreateFile(newDirUriTest, "file_access_helper_ScanFile_0000.q1w2e3r4", testUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        result = fah->CreateFile(newDirUriTest, "file_access_helper_ScanFile_0000.txt", testUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        fileInfo.uri = "datashare:///media/root";
+        int64_t offset = 0;
+        int64_t maxCount = 1000;
+        std::vector<FileInfo> fileInfoVec;
+        FileFilter filter({".q1w2e3r4"}, {}, {}, 0, 0, false, true);
+        for (int j = 0; j < 4; j++) {
+            std::thread ScanFile_Thread(ScanFileTdd, fah, fileInfo, offset, maxCount, filter, fileInfoVec);
+            ScanFile_Thread.detach();
+        }
+
+        result = fah->Delete(newDirUriTest);
+        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_ScanFile_0004";
 }
 
 /**
