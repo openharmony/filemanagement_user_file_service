@@ -19,12 +19,14 @@
 #include "extension_base.h"
 #include "file_access_extension_info.h"
 #include "file_access_notify_manager.h"
+#include "file_filter.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 class Runtime;
 }
 namespace FileAccessFwk {
+using namespace DistributedFS;
 using namespace AbilityRuntime;
 class FileAccessExtAbility;
 using CreatorFunc = std::function<FileAccessExtAbility* (const std::unique_ptr<Runtime>& runtime)>;
@@ -40,16 +42,18 @@ public:
 
     static FileAccessExtAbility* Create(const std::unique_ptr<Runtime>& runtime);
 
-    virtual int OpenFile(const Uri &uri, const int flags);
+    virtual int OpenFile(const Uri &uri, const int flags, int &fd);
     virtual int CreateFile(const Uri &parent, const std::string &displayName, Uri &newFile);
     virtual int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile);
     virtual int Delete(const Uri &sourceFile);
     virtual int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile);
     virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile);
-
-    virtual std::vector<FileInfo> ListFile(const Uri &sourceFile);
-    virtual std::vector<DeviceInfo> GetRoots();
-    virtual int IsFileExist(const Uri &uri, bool &isExist);
+    virtual int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+        const FileFilter &filter, std::vector<FileInfo> &fileInfoVec);
+    virtual int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+        const FileFilter &filter, std::vector<FileInfo> &fileInfoVec);
+    virtual int GetRoots(std::vector<RootInfo> &rootInfoVec);
+    virtual int Access(const Uri &uri, bool &isExist);
     virtual int RegisterNotify(sptr<IFileAccessNotify> &notify);
     virtual int UnregisterNotify(sptr<IFileAccessNotify> &notify);
     virtual int Notify(const NotifyMessage &message);

@@ -18,29 +18,25 @@ import fileExtensionInfo from "@ohos.fileExtensionInfo"
 if (!globalThis.volumeInfoList) {
     globalThis.volumeInfoList = [];
 }
-const FLAG = fileExtensionInfo.FLAG;
-const DEVICE_TYPE = fileExtensionInfo.DeviceType;
+const DeviceFlag = fileExtensionInfo.DeviceFlag;
+const DeviceType = fileExtensionInfo.DeviceType;
 function init() {
+    globalThis.volumeInfoList = [];
     volumeManager.getAllVolumes().then((volumes) => {
-        let flags = FLAG.SUPPORTS_WRITE |
-                FLAG.SUPPORTS_DELETE |
-                FLAG.SUPPORTS_RENAME |
-                FLAG.SUPPORTS_COPY |
-                FLAG.SUPPORTS_MOVE |
-                FLAG.SUPPORTS_REMOVE |
-                FLAG.DIR_SUPPORTS_CREATE |
-                FLAG.DIR_PREFERS_LAST_MODIFIED;
+        let flags = DeviceFlag.SUPPORTS_READ | DeviceFlag.SUPPORTS_WRITE;
         for (let i = 0; i < volumes.length; i++) {
             let volume = volumes[i];
+            if (!volume.path) {
+                continue;
+            }
             let volumeInfo = {
                 'volumeId': volume.id,
                 'fsUuid': volume.uuid,
                 'path': volume.path,
                 'uri': path2uri('', volume.path),
                 'displayName': volume.id,
-                'deviceId': '',
-                'flags': flags,
-                'type': DEVICE_TYPE.EXTERNAL_USB
+                'deviceFlags': flags,
+                'deviceType': DeviceType.EXTERNAL_USB
             }
             globalThis.volumeInfoList.push(volumeInfo);
         }
@@ -52,7 +48,7 @@ function addVolumeInfo(volumeInfo) {
 }
 
 function path2uri(id, path) {
-    return `fileAccess://${id}${path}`;
+    return `datashare://${id}/com.ohos.UserFile.ExternalFileManager${path}`;
 }
 
 function findVolumeInfo(volumeId) {

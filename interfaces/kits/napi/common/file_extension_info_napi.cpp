@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <string>
 
+#include "filemgmt_libn.h"
 #include "file_access_extension_info.h"
 #include "file_access_notify_common.h"
 #include "hilog_wrapper.h"
@@ -27,21 +28,13 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
+using namespace FileManagement::LibN;
+
 static napi_value CreateStringUtf8(napi_env env, const std::string &str)
 {
     napi_value value = nullptr;
     if (napi_create_string_utf8(env, str.c_str(), str.length(), &value) != napi_ok) {
         HILOG_ERROR("CreateStringUtf8, value is not napi_ok");
-        return nullptr;
-    }
-    return value;
-}
-
-static napi_value CreateUint32(napi_env env, uint32_t val)
-{
-    napi_value value = nullptr;
-    if (napi_create_uint32(env, val, &value) != napi_ok) {
-        HILOG_ERROR("CreateUint32, value is not napi_ok");
         return nullptr;
     }
     return value;
@@ -63,7 +56,7 @@ static napi_value FileInfoConstructor(napi_env env, napi_callback_info info)
     return res;
 }
 
-static napi_value DeviceInfoConstructor(napi_env env, napi_callback_info info)
+static napi_value RootInfoConstructor(napi_env env, napi_callback_info info)
 {
     size_t argc = 0;
     napi_value args[1] = {0};
@@ -72,23 +65,34 @@ static napi_value DeviceInfoConstructor(napi_env env, napi_callback_info info)
 
     napi_status status = napi_get_cb_info(env, info, &argc, args, &res, &data);
     if (status != napi_ok) {
-        HILOG_ERROR("DeviceInfoConstructor, status is not napi_ok");
+        HILOG_ERROR("RootInfoConstructor, status is not napi_ok");
         return nullptr;
     }
 
     return res;
 }
 
-void InitFlag(napi_env env, napi_value exports)
+void InitDeviceFlag(napi_env env, napi_value exports)
 {
-    char propertyName[] = "FLAG";
+    char propertyName[] = "DeviceFlag";
     napi_property_descriptor desc[] = {
-        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_THUMBNAIL", CreateUint32(env, FLAG_SUPPORTS_THUMBNAIL)),
-        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_WRITE", CreateUint32(env, FLAG_SUPPORTS_WRITE)),
-        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_READ", CreateUint32(env, FLAG_SUPPORTS_READ)),
-        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_DELETE", CreateUint32(env, FLAG_SUPPORTS_DELETE)),
-        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_RENAME", CreateUint32(env, FLAG_SUPPORTS_RENAME)),
-        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_MOVE", CreateUint32(env, FLAG_SUPPORTS_MOVE))
+        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_READ", NVal::CreateInt32(env, DEVICE_FLAG_SUPPORTS_READ).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_WRITE", NVal::CreateInt32(env, DEVICE_FLAG_SUPPORTS_WRITE).val_)
+    };
+    napi_value obj = nullptr;
+    napi_create_object(env, &obj);
+    napi_define_properties(env, obj, sizeof(desc) / sizeof(desc[0]), desc);
+    napi_set_named_property(env, exports, propertyName, obj);
+}
+
+void InitDocumentFlag(napi_env env, napi_value exports)
+{
+    char propertyName[] = "DocumentFlag";
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("REPRESENTS_FILE", NVal::CreateInt32(env, DOCUMENT_FLAG_REPRESENTS_FILE).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("REPRESENTS_DIR", NVal::CreateInt32(env, DOCUMENT_FLAG_REPRESENTS_DIR).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_READ", NVal::CreateInt32(env, DOCUMENT_FLAG_SUPPORTS_READ).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_WRITE", NVal::CreateInt32(env, DOCUMENT_FLAG_SUPPORTS_WRITE).val_)
     };
     napi_value obj = nullptr;
     napi_create_object(env, &obj);
@@ -100,8 +104,8 @@ void InitNotifyType(napi_env env, napi_value exports)
 {
     char propertyName[] = "NotifyType";
     napi_property_descriptor desc[] = {
-        DECLARE_NAPI_STATIC_PROPERTY("DEVICE_ONLINE", CreateUint32(env, NOTIFY_DEVICE_ONLINE)),
-        DECLARE_NAPI_STATIC_PROPERTY("DEVICE_OFFLINE", CreateUint32(env, NOTIFY_DEVICE_OFFLINE))
+        DECLARE_NAPI_STATIC_PROPERTY("DEVICE_ONLINE", NVal::CreateInt32(env, NOTIFY_DEVICE_ONLINE).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("DEVICE_OFFLINE", NVal::CreateInt32(env, NOTIFY_DEVICE_OFFLINE).val_)
     };
     napi_value obj = nullptr;
     napi_create_object(env, &obj);
@@ -130,13 +134,14 @@ void InitDeviceType(napi_env env, napi_value exports)
 {
     char propertyName[] = "DeviceType";
     napi_property_descriptor desc[] = {
-        DECLARE_NAPI_STATIC_PROPERTY("LOCAL_DISK", CreateUint32(env, DEVICE_LOCAL_DISK)),
-        DECLARE_NAPI_STATIC_PROPERTY("SHARED_DISK", CreateUint32(env, DEVICE_SHARED_DISK)),
-        DECLARE_NAPI_STATIC_PROPERTY("SHARED_TERMINAL", CreateUint32(env, DEVICE_SHARED_TERMINAL)),
-        DECLARE_NAPI_STATIC_PROPERTY("NETWORK_NEIGHBORHOODS", CreateUint32(env, DEVICE_NETWORK_NEIGHBORHOODS)),
-        DECLARE_NAPI_STATIC_PROPERTY("EXTERNAL_MTP", CreateUint32(env, DEVICE_EXTERNAL_MTP)),
-        DECLARE_NAPI_STATIC_PROPERTY("EXTERNAL_USB", CreateUint32(env, DEVICE_EXTERNAL_USB)),
-        DECLARE_NAPI_STATIC_PROPERTY("EXTERNAL_CLOUD", CreateUint32(env, DEVICE_EXTERNAL_CLOUD))
+        DECLARE_NAPI_STATIC_PROPERTY("LOCAL_DISK", NVal::CreateInt32(env, DEVICE_LOCAL_DISK).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("SHARED_DISK", NVal::CreateInt32(env, DEVICE_SHARED_DISK).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("SHARED_TERMINAL", NVal::CreateInt32(env, DEVICE_SHARED_TERMINAL).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("NETWORK_NEIGHBORHOODS",
+            NVal::CreateInt32(env, DEVICE_NETWORK_NEIGHBORHOODS).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("EXTERNAL_MTP", NVal::CreateInt32(env, DEVICE_EXTERNAL_MTP).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("EXTERNAL_USB", NVal::CreateInt32(env, DEVICE_EXTERNAL_USB).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("EXTERNAL_CLOUD", NVal::CreateInt32(env, DEVICE_EXTERNAL_CLOUD).val_)
     };
     napi_value obj = nullptr;
     napi_create_object(env, &obj);
@@ -144,19 +149,20 @@ void InitDeviceType(napi_env env, napi_value exports)
     napi_set_named_property(env, exports, propertyName, obj);
 }
 
-void InitDeviceInfo(napi_env env, napi_value exports)
+void InitRootInfo(napi_env env, napi_value exports)
 {
-    char className[] = "DeviceInfo";
+    char className[] = "RootInfo";
     napi_property_descriptor desc[] = {
+        { "deviceType", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "deviceType"),
+            napi_writable, nullptr },
         { "uri", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "uri"), napi_writable, nullptr },
-        { "displayName", nullptr, nullptr, nullptr, nullptr,
-            CreateStringUtf8(env, "displayName"), napi_writable, nullptr },
-        { "deviceId", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "deviceId"), napi_writable, nullptr },
-        { "flags", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "flags"), napi_writable, nullptr },
-        { "type", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "type"), napi_writable, nullptr }
+        { "displayName", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "displayName"),
+            napi_writable, nullptr },
+        { "deviceFlags", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "deviceFlags"),
+            napi_writable, nullptr }
     };
     napi_value obj = nullptr;
-    napi_define_class(env, className, NAPI_AUTO_LENGTH, DeviceInfoConstructor, nullptr,
+    napi_define_class(env, className, NAPI_AUTO_LENGTH, RootInfoConstructor, nullptr,
         sizeof(desc) / sizeof(*desc), desc, &obj);
     napi_set_named_property(env, exports, className, obj);
 }

@@ -36,16 +36,18 @@ public:
 
     virtual ~FileAccessExtProxy() {}
 
-    virtual int OpenFile(const Uri &uri, const int flags) override;
-    virtual int CreateFile(const Uri &parent, const std::string &displayName,  Uri &newFile) override;
+    virtual int OpenFile(const Uri &uri, const int flags, int &fd) override;
+    virtual int CreateFile(const Uri &parent, const std::string &displayName, Uri &newFile) override;
     virtual int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile) override;
     virtual int Delete(const Uri &sourceFile) override;
     virtual int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) override;
     virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) override;
-
-    virtual std::vector<FileInfo> ListFile(const Uri &sourceFile) override;
-    virtual std::vector<DeviceInfo> GetRoots() override;
-    virtual int IsFileExist(const Uri &uri, bool &isExist) override;
+    virtual int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+        const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;
+    virtual int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+        const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;
+    virtual int GetRoots(std::vector<RootInfo> &rootInfoVec) override;
+    virtual int Access(const Uri &uri, bool &isExist) override;
     virtual int RegisterNotify(sptr<IFileAccessNotify> &notify) override;
     virtual int UnregisterNotify(sptr<IFileAccessNotify> &notify) override;
 private:

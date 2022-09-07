@@ -21,13 +21,14 @@ import fileExtensionInfo from "@ohos.fileExtensionInfo"
 import hilog from '@ohos.hilog'
 import process from '@ohos.process';
 
-const FLAG = fileExtensionInfo.FLAG;
+const DeviceFlag = fileExtensionInfo.DeviceFlag;
+const DocumentFlag = fileExtensionInfo.DocumentFlag;
 const NotifyType = fileExtensionInfo.NotifyType;
-const DEVICE_TYPE = fileExtensionInfo.DeviceType;
+const DeviceType = fileExtensionInfo.DeviceType;
 const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
 const DEFAULT_MODE = 0o666;
 const CREATE_FILE_FLAGS = 0o100;
-const FILE_ACCESS = 'fileAccess://';
+const URI_SCHEME = 'datashare://';
 const DOMAIN_CODE = 0x0001;
 const TAG = 'js_server';
 const ERR_OK = 0;
@@ -65,8 +66,8 @@ export default class FileExtAbility extends Extension {
     }
 
     checkUri(uri) {
-        if (uri.indexOf(FILE_ACCESS) == 0) {
-            uri = uri.replace(FILE_ACCESS, '');
+        if (uri.indexOf(URI_SCHEME) == 0) {
+            uri = uri.replace(URI_SCHEME, '');
             return /^\/([^\/]+\/?)+$/.test(uri);
         } else {
             return false;
@@ -83,6 +84,7 @@ export default class FileExtAbility extends Extension {
         if (arr[1].indexOf('/') > 0) {
             path = path.replace(arr[1].split('/')[0], '');
         }
+        path = path.replace('/' + BUNDLE_NAME, '');
         if (path.charAt(path.length - 1) == '/') {
             path = path.substr(0, path.length - 1);
         }
@@ -156,7 +158,7 @@ export default class FileExtAbility extends Extension {
     }
 
     isCrossDeviceLink(sourceFileUri, targetParentUri) {
-        let roots = this.getRoots();
+        let roots = this.getRoots().roots;
         for (let index = 0; index < roots.length; index++) {
             let uri = roots[index].uri;
             if (sourceFileUri.indexOf(uri) == 0 && targetParentUri.indexOf(uri) == 0) {
@@ -209,7 +211,7 @@ export default class FileExtAbility extends Extension {
         }
         try {
             let newFileUri = this.genNewFileUri(parentUri, displayName);
-            if (this.isFileExist(newFileUri).isExist) {
+            if (this.access(newFileUri).isExist) {
                 return {
                     uri: '',
                     code: ERR_ERROR,
@@ -414,9 +416,9 @@ export default class FileExtAbility extends Extension {
         }
     }
 
-    isFileExist(sourceFileUri) {
+    access(sourceFileUri) {
         if (!this.checkUri(sourceFileUri)) {
-            hilog.error(DOMAIN_CODE, TAG, 'isFileExist checkUri fail');
+            hilog.error(DOMAIN_CODE, TAG, 'access checkUri fail');
             return {
                 isExist: false,
                 code: ERR_ERROR,
@@ -426,7 +428,7 @@ export default class FileExtAbility extends Extension {
             let path = this.getPath(sourceFileUri);
             fileio.accessSync(path);
         } catch (e) {
-            hilog.error(DOMAIN_CODE, TAG, 'isFileExist error ' + e.message);
+            hilog.error(DOMAIN_CODE, TAG, 'access error ' + e.message);
             if (e.message == 'No such file or directory') {
                 return {
                     isExist: false,
@@ -444,7 +446,7 @@ export default class FileExtAbility extends Extension {
         };
     }
 
-    listFile(sourceFileUri) {
+    listFile(sourceFileUri, offset, count, filter) {
         if (!this.checkUri(sourceFileUri)) {
             return {
                 infos: [],
@@ -456,18 +458,37 @@ export default class FileExtAbility extends Extension {
             let path = this.getPath(sourceFileUri);
             let dir = fileio.opendirSync(path);
             let hasNextFile = true;
+            let i = 0;
             while (hasNextFile) {
                 try {
                     let dirent = dir.readSync();
                     let stat = fileio.statSync(path + '/' + dirent.name);
+                    let mode = DocumentFlag.SUPPORTS_READ | DocumentFlag.SUPPORTS_WRITE;
+                    if (stat.isDirectory()) {
+                        mode |= DocumentFlag.REPRESENTS_DIR;
+                    } else {
+                        mode |= DocumentFlag.REPRESENTS_FILE;
+                    }
+
+                    if (offset > i) {
+                        i ++;
+                        continue;
+                    }
+
                     infos.push({
                         uri: this.genNewFileUri(sourceFileUri, dirent.name),
                         fileName: dirent.name,
-                        mode: '' + stat.mode,
+                        mode: mode,
                         size: stat.size,
                         mtime: stat.mtime,
                         mimeType: '',
                     });
+
+                    i ++;
+                    if (i == (offset + count)) {
+                        hasNextFile = false;
+                        break;
+                    }
                 } catch (e) {
                     hasNextFile = false;
                 }
@@ -487,18 +508,10 @@ export default class FileExtAbility extends Extension {
 
     getRoots() {
         let roots = getVolumeInfoList().concat({
-            uri: 'fileAccess:///data/storage/el1/bundle/storage_daemon',
-            displayName: 'storage_daemon',
-            deviceId: '',
-            type: DEVICE_TYPE.SHARED_DISK,
-            flags: FLAG.SUPPORTS_WRITE |
-                FLAG.SUPPORTS_DELETE |
-                FLAG.SUPPORTS_RENAME |
-                FLAG.SUPPORTS_COPY |
-                FLAG.SUPPORTS_MOVE |
-                FLAG.SUPPORTS_REMOVE |
-                FLAG.DIR_SUPPORTS_CREATE |
-                FLAG.DIR_PREFERS_LAST_MODIFIED,
+            uri: 'datashare:///com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon',
+            displayName: 'shared_disk',
+            deviceType: DeviceType.SHARED_DISK,
+            deviceFlags: DeviceFlag.SUPPORTS_READ | DeviceFlag.SUPPORTS_WRITE,
         });
         return {
             roots: roots,

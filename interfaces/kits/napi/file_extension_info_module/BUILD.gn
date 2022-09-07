@@ -23,9 +23,10 @@ ohos_shared_library("fileextensioninfo") {
 
   include_dirs = [
     ".",
-    "${UFS_BASE_PATH}/interfaces/kits/napi/common",
+    "//foundation/distributeddatamgr/distributedfile/utils/filemgmt_libn/include",
     "${FRAMEWORK_PATH}/innerkits/file_access/include",
     "${FRAMEWORK_PATH}/innerkits/file_access/include/notify",
+    "${UFS_BASE_PATH}/interfaces/kits/napi/common",
     "${UFS_BASE_PATH}/utils",
   ]
 
@@ -34,7 +35,10 @@ ohos_shared_library("fileextensioninfo") {
     "module_export_napi.cpp",
   ]
 
-  deps = [ "//foundation/arkui/napi:ace_napi" ]
+  deps = [
+    "//foundation/arkui/napi:ace_napi",
+    "//foundation/distributeddatamgr/distributedfile/utils/filemgmt_libn:filemgmt_libn",
+  ]
 
   external_deps = [
     "ability_base:want",
