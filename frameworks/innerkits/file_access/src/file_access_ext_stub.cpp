@@ -109,7 +109,7 @@ ErrCode FileAccessExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply
         return ERR_INVALID_PARAM;
     }
 
-    int fd;
+    int fd = -1;
     int ret = OpenFile(*uri, flags, fd);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter OpenFile fail to WriteInt32 ret");
