@@ -72,25 +72,21 @@ napi_value NapiFileIteratorExporter::Constructor(napi_env env, napi_callback_inf
     return funcArg.GetThisVar();
 }
 
-static int MakeResult(napi_value objFileInfoExporter, FileIteratorEntity *fileIteratorEntity,
+static int MakeResult(napi_value &objFileInfoExporter, FileIteratorEntity *fileIteratorEntity,
     FileInfoEntity *fileInfoEntity, napi_env env, NVal &nVal)
 {
     std::lock_guard<std::mutex> lock(fileIteratorEntity->entityOperateMutex);
-    bool done = true;
     if (fileIteratorEntity->fileInfoVec.size() == 0) {
-        nVal.AddProp("value", NVal::CreateUndefined(env).val_);
-        nVal.AddProp("done", NVal::CreateBool(env, done).val_);
+        fileIteratorEntity->fileInfoVec.clear();
+        fileIteratorEntity->offset = 0;
+        fileIteratorEntity->pos = 0;
+        fileInfoEntity = nullptr;
+        objFileInfoExporter = NVal::CreateUndefined(env).val_;
+        nVal.AddProp("value", objFileInfoExporter);
+        nVal.AddProp("done", NVal::CreateBool(env, true).val_);
         return ERR_OK;
     }
 
-    if (fileIteratorEntity->pos == fileIteratorEntity->fileInfoVec.size()) {
-        HILOG_ERROR("pos out of index.");
-        return ERR_INVALID_RESULT;
-    }
-
-    fileInfoEntity->fileAccessHelper = fileIteratorEntity->fileAccessHelper;
-    fileInfoEntity->fileInfo = fileIteratorEntity->fileInfoVec[fileIteratorEntity->pos];
-    fileIteratorEntity->pos++;
     if (fileIteratorEntity->pos == MAX_COUNT) {
         fileIteratorEntity->fileInfoVec.clear();
         fileIteratorEntity->offset += MAX_COUNT;
@@ -110,16 +106,24 @@ static int MakeResult(napi_value objFileInfoExporter, FileIteratorEntity *fileIt
                 return ret;
             }
         }
-        
-    } else if (fileIteratorEntity->pos == fileIteratorEntity->fileInfoVec.size()) {
-        fileIteratorEntity->fileInfoVec.clear();
-        fileIteratorEntity->pos = 0;
-        fileIteratorEntity->offset = 0;
     }
 
-    done = (fileIteratorEntity->pos == fileIteratorEntity->fileInfoVec.size());
+    if (fileIteratorEntity->pos == fileIteratorEntity->fileInfoVec.size()) {
+        fileIteratorEntity->fileInfoVec.clear();
+        fileIteratorEntity->offset = 0;
+        fileIteratorEntity->pos = 0;
+        fileInfoEntity = nullptr;
+        objFileInfoExporter = NVal::CreateUndefined(env).val_;
+        nVal.AddProp("value",objFileInfoExporter);
+        nVal.AddProp("done", NVal::CreateBool(env, true).val_);
+        return ERR_OK;
+    }
+
+    fileInfoEntity->fileAccessHelper = fileIteratorEntity->fileAccessHelper;
+    fileInfoEntity->fileInfo = fileIteratorEntity->fileInfoVec[fileIteratorEntity->pos];
+    fileIteratorEntity->pos++;
     nVal.AddProp("value", objFileInfoExporter);
-    nVal.AddProp("done", NVal::CreateBool(env, done).val_);
+    nVal.AddProp("done", NVal::CreateBool(env, false).val_);
     return ERR_OK;
 }
 

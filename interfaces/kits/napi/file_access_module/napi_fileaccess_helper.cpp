@@ -603,13 +603,11 @@ static int MakeGetRootsResult(napi_env &env, FileAccessHelper *helper, std::vect
         return ERR_NULL_POINTER;
     }
 
-    {
-        std::lock_guard<std::mutex> lock(rootIteratorEntity->entityOperateMutex);
-        rootIteratorEntity->fileAccessHelper = helper;
-        rootIteratorEntity->devVec = std::move(rootInfoVec);
-        rootIteratorEntity->pos = 0;
-        nVal = { env, objRootIterator };
-    }
+    std::lock_guard<std::mutex> lock(rootIteratorEntity->entityOperateMutex);
+    rootIteratorEntity->fileAccessHelper = helper;
+    rootIteratorEntity->devVec = std::move(rootInfoVec);
+    rootIteratorEntity->pos = 0;
+    nVal = { env, objRootIterator };
 
     return ERR_OK;
 }

@@ -25,9 +25,9 @@ namespace FileAccessFwk {
 using namespace DistributedFS;
 
 struct FileInfoEntity {
-    FileAccessHelper *fileAccessHelper;
+    FileAccessHelper *fileAccessHelper { nullptr };
     FileInfo fileInfo;
-    FileFilter filter;
+    FileFilter filter { {}, {}, {}, 0, 0, false, false };
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
