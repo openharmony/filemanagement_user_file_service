@@ -58,11 +58,11 @@ int GetFileFilterParam(const NVal &argv, FileFilter &filter)
         return ERR_INVALID_PARAM;
     }
 
-    if (argv.HasProp("display_name")) {
+    if (argv.HasProp("displayName")) {
         std::vector<std::string> displayNames;
-        std::tie(ret, displayNames, std::ignore) = argv.GetProp("display_name").ToStringArray();
+        std::tie(ret, displayNames, std::ignore) = argv.GetProp("displayName").ToStringArray();
         if (!ret) {
-            HILOG_ERROR("FileFilter get display_name param fail.");
+            HILOG_ERROR("FileFilter get displayName param fail.");
             return ERR_INVALID_PARAM;
         }
 
@@ -70,11 +70,11 @@ int GetFileFilterParam(const NVal &argv, FileFilter &filter)
         filter.SetHasFilter(true);
     }
 
-    if (argv.HasProp("mime_type")) {
+    if (argv.HasProp("mimeType")) {
         std::vector<std::string> mimeTypes;
-        std::tie(ret, mimeTypes, std::ignore) = argv.GetProp("mime_type").ToStringArray();
+        std::tie(ret, mimeTypes, std::ignore) = argv.GetProp("mimeType").ToStringArray();
         if (!ret) {
-            HILOG_ERROR("FileFilter get mime_type param fail.");
+            HILOG_ERROR("FileFilter get mimeType param fail.");
             return ERR_INVALID_PARAM;
         }
 
@@ -82,11 +82,11 @@ int GetFileFilterParam(const NVal &argv, FileFilter &filter)
         filter.SetHasFilter(true);
     }
 
-    if (argv.HasProp("file_size_over")) {
+    if (argv.HasProp("fileSizeOver")) {
         int64_t fileSizeOver;
-        std::tie(ret, fileSizeOver) = argv.GetProp("file_size_over").ToInt64();
+        std::tie(ret, fileSizeOver) = argv.GetProp("fileSizeOver").ToInt64();
         if (!ret) {
-            HILOG_ERROR("FileFilter get file_size_over param fail.");
+            HILOG_ERROR("FileFilter get fileSizeOver param fail.");
             return ERR_INVALID_PARAM;
         }
 
@@ -94,11 +94,11 @@ int GetFileFilterParam(const NVal &argv, FileFilter &filter)
         filter.SetHasFilter(true);
     }
 
-    if (argv.HasProp("last_modified_after")) {
+    if (argv.HasProp("lastModifiedAfter")) {
         double lastModifiedAfter;
-        std::tie(ret, lastModifiedAfter) = argv.GetProp("last_modified_after").ToDouble();
+        std::tie(ret, lastModifiedAfter) = argv.GetProp("lastModifiedAfter").ToDouble();
         if (!ret) {
-            HILOG_ERROR("FileFilter get last_modified_after param fail.");
+            HILOG_ERROR("FileFilter get lastModifiedAfter param fail.");
             return ERR_INVALID_PARAM;
         }
 
@@ -106,11 +106,11 @@ int GetFileFilterParam(const NVal &argv, FileFilter &filter)
         filter.SetHasFilter(true);
     }
 
-    if (argv.HasProp("exclude_media")) {
+    if (argv.HasProp("excludeMedia")) {
         bool excludeMedia;
-        std::tie(ret, excludeMedia) = argv.GetProp("exclude_media").ToBool();
+        std::tie(ret, excludeMedia) = argv.GetProp("excludeMedia").ToBool();
         if (!ret) {
-            HILOG_ERROR("FileFilter get exclude_media param fail.");
+            HILOG_ERROR("FileFilter get excludeMedia param fail.");
             return ERR_INVALID_PARAM;
         }
 
