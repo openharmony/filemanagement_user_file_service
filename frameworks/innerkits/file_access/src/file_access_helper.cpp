@@ -15,6 +15,7 @@
 
 #include "file_access_helper.h"
 
+#include "bundle_constants.h"
 #include "bundle_mgr_proxy.h"
 #include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
@@ -28,7 +29,6 @@
 namespace OHOS {
 namespace FileAccessFwk {
 namespace {
-    static const int32_t UID_TRANSFORM_DIVISOR = 200000;
     static const std::string SCHEME_NAME = "datashare";
     static const std::string MEDIA_BNUDLE_NAME_ALIAS = "media";
     static const std::string MEDIA_BNUDLE_NAME = "com.ohos.medialibrary.medialibrarydata";
@@ -38,10 +38,10 @@ namespace {
 }
 std::unordered_map<std::string, AAFwk::Want> FileAccessHelper::wantsMap_;
 
-int FileAccessHelper::getUserId()
+static int getUserId()
 {
     int uid = IPCSkeleton::GetCallingUid();
-    int userId = uid / UID_TRANSFORM_DIVISOR;
+    int userId = uid / AppExecFwk::Constants::BASE_USER_RANGE;
     return userId;
 }
 
@@ -198,7 +198,7 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap;
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     bool ret = bm->QueryExtensionAbilityInfos(
-        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, FileAccessHelper::getUserId(), extensionInfos);
+        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, getUserId(), extensionInfos);
     if (!ret) {
         HILOG_ERROR("FileAccessHelper::Creator QueryExtensionAbilityInfos failed");
         return nullptr;
@@ -693,7 +693,7 @@ int FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::W
         return ERR_QUERY_EXTENSIONINFOS_FAIL;
     }
     bool ret = bm->QueryExtensionAbilityInfos(
-        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, FileAccessHelper::getUserId(), extensionInfos);
+        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, getUserId(), extensionInfos);
     if (!ret) {
         HILOG_ERROR("FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo QueryExtensionAbilityInfos error");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
