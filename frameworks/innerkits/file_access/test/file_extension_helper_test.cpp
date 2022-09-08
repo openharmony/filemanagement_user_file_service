@@ -1003,7 +1003,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0005, testing::ex
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0000, testing::ext::TestSize.Level1)
 {
@@ -1050,7 +1050,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0000, testing::ext:
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0001, testing::ext::TestSize.Level1)
 {
@@ -1094,7 +1094,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0001, testing::ext:
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0002, testing::ext::TestSize.Level1)
 {
@@ -1179,7 +1179,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0003, testing::ext:
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0004, testing::ext::TestSize.Level1)
 {
@@ -1216,7 +1216,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0004, testing::ext:
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0005, testing::ext::TestSize.Level1)
 {
@@ -1257,7 +1257,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0005, testing::ext:
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0006, testing::ext::TestSize.Level1)
 {
@@ -1305,7 +1305,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0006, testing::ext:
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0007, testing::ext::TestSize.Level1)
 {
@@ -1353,7 +1353,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0007, testing::ext:
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0008, testing::ext::TestSize.Level1)
 {
@@ -1393,7 +1393,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0008, testing::ext:
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0009, testing::ext::TestSize.Level1)
 {
@@ -1440,7 +1440,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0009, testing::ext:
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0010, testing::ext::TestSize.Level1)
 {
@@ -1487,7 +1487,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0010, testing::ext:
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0011, testing::ext::TestSize.Level1)
 {
@@ -1597,7 +1597,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0012, testing::ext:
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0000, testing::ext::TestSize.Level1)
 {
@@ -1637,7 +1637,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0000, testing::ex
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0001, testing::ext::TestSize.Level1)
 {
@@ -1673,7 +1673,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0001, testing::ex
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0002, testing::ext::TestSize.Level1)
 {
@@ -1697,7 +1697,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0002, testing::ex
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0003, testing::ext::TestSize.Level1)
 {
@@ -1738,7 +1738,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0003, testing::ex
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0004, testing::ext::TestSize.Level1)
 {
@@ -1762,7 +1762,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0004, testing::ex
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0005, testing::ext::TestSize.Level1)
 {
@@ -1853,7 +1853,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0006, testing::ex
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0000, testing::ext::TestSize.Level1)
 {
@@ -1898,7 +1898,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0000, testing::
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0001, testing::ext::TestSize.Level1)
 {
@@ -1927,7 +1927,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0001, testing::
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0002, testing::ext::TestSize.Level1)
 {
@@ -1974,7 +1974,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0002, testing::
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0003, testing::ext::TestSize.Level1)
 {
@@ -2061,7 +2061,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0004, testing::
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000H0387
  */
 HWTEST_F(FileExtensionHelperTest, file_extension_helper_GetRoots_0000, testing::ext::TestSize.Level1)
 {
