@@ -1770,7 +1770,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0003, testing::ext::T
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000HB855
  */
 HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0004, testing::ext::TestSize.Level1)
 {
@@ -1867,7 +1867,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0005, testing::ext::T
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000HB866
  */
 HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0000, testing::ext::TestSize.Level1)
 {
@@ -1908,7 +1908,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0000, testing::ext::T
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000HB866
  */
 HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0001, testing::ext::TestSize.Level1)
 {
@@ -1949,7 +1949,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0001, testing::ext::T
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000HB866
  */
 HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0002, testing::ext::TestSize.Level1)
 {
@@ -1996,7 +1996,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0002, testing::ext::T
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000HB866
  */
 HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0003, testing::ext::TestSize.Level1)
 {
@@ -2047,7 +2047,7 @@ void ScanFileTdd(shared_ptr<FileAccessHelper> fahs, FileInfo fileInfo, int offse
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: SR000HB866
  */
 HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0004, testing::ext::TestSize.Level1)
 {
