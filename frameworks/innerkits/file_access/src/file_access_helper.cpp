@@ -38,7 +38,7 @@ namespace {
 }
 std::unordered_map<std::string, AAFwk::Want> FileAccessHelper::wantsMap_;
 
-static int getUserId()
+static int GetUserId()
 {
     int uid = IPCSkeleton::GetCallingUid();
     int userId = uid / AppExecFwk::Constants::BASE_USER_RANGE;
@@ -198,7 +198,7 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap;
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     bool ret = bm->QueryExtensionAbilityInfos(
-        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, getUserId(), extensionInfos);
+        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, GetUserId(), extensionInfos);
     if (!ret) {
         HILOG_ERROR("FileAccessHelper::Creator QueryExtensionAbilityInfos failed");
         return nullptr;
@@ -693,7 +693,7 @@ int FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::W
         return ERR_QUERY_EXTENSIONINFOS_FAIL;
     }
     bool ret = bm->QueryExtensionAbilityInfos(
-        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, getUserId(), extensionInfos);
+        AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, GetUserId(), extensionInfos);
     if (!ret) {
         HILOG_ERROR("FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo QueryExtensionAbilityInfos error");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);

@@ -28,11 +28,11 @@ namespace {
 using namespace std;
 using namespace OHOS;
 using namespace FileAccessFwk;
-int ABILITY_ID = 5003;
+const int ABILITY_ID = 5003;
 shared_ptr<FileAccessHelper> fah = nullptr;
 OHOS::Security::AccessToken::AccessTokenID tokenId;
-int UID_TRANSFORM_TMP = 20000000;
-int UID_DEFAULT = 0;
+const int UID_TRANSFORM_TMP = 20000000;
+const int UID_DEFAULT = 0;
 
 // permission state
 OHOS::Security::AccessToken::PermissionStateFull g_infoManagerTestState = {

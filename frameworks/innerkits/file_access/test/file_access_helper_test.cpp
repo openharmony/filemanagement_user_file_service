@@ -29,11 +29,11 @@ namespace {
 using namespace std;
 using namespace OHOS;
 using namespace FileAccessFwk;
-int ABILITY_ID = 5003;
+const int ABILITY_ID = 5003;
 shared_ptr<FileAccessHelper> fah = nullptr;
 Uri g_newDirUri("");
-int UID_TRANSFORM_TMP = 20000000;
-int UID_DEFAULT = 0;
+const int UID_TRANSFORM_TMP = 20000000;
+const int UID_DEFAULT = 0;
 
 class FileAccessHelperTest : public testing::Test {
 public:
