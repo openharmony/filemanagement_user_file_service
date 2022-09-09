@@ -43,6 +43,8 @@ ohos_shared_library("fms_server") {
     "//base/hiviewdfx/hilog/interfaces/native/innerkits/include/hilog",
     "//foundation/filemanagement/storage_service/services/storage_manager/include",
     "//foundation/filemanagement/storage_service/interfaces/innerkits/storage_manager/native",
+    "//foundation/distributeddatamgr/relational_store/interfaces/inner_api/appdatafwk/include",
+    "//foundation/distributeddatamgr/relational_store/interfaces/inner_api/rdb/include",
   ]
 
   sources = [
@@ -60,11 +62,8 @@ ohos_shared_library("fms_server") {
   ]
 
   deps = [
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
-    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
     "//foundation/filemanagement/storage_service/interfaces/innerkits/storage_manager/native:storage_manager_sa_proxy",
-    "//foundation/filemanagement/storage_service/services/storage_manager:storage_manager",
     "//foundation/multimedia/media_library/frameworks/innerkitsimpl/media_library_helper:media_library",
     "//foundation/multimedia/media_library/frameworks/innerkitsimpl/medialibrary_data_extension:medialibrary_data_extension",
   ]
@@ -76,7 +75,6 @@ ohos_shared_library("fms_server") {
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
-    "ability_runtime:ability_manager",
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
@@ -85,9 +83,6 @@ ohos_shared_library("fms_server") {
     "data_share:datashare_consumer",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "relational_store:native_appdatafwk",
-    "relational_store:native_dataability",
-    "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]

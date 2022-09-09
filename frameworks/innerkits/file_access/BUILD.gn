@@ -51,7 +51,10 @@ config("ability_public_config") {
 }
 
 ohos_shared_library("file_access_extension_ability_kit") {
-  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context" ]
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
+    "//foundation/communication/ipc/ipc/native/src/napi/include",
+  ]
 
   sources = [
     "src/file_access_ext_ability.cpp",
@@ -81,19 +84,13 @@ ohos_shared_library("file_access_extension_ability_kit") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
-    "ability_runtime:ability_context_native",
     "ability_runtime:ability_manager",
-    "ability_runtime:app_manager",
     "ability_runtime:runtime",
-    "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
-    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
     "hitrace_native:hitrace_meter",
     "ipc:ipc_core",
-    "ipc_js:rpc",
     "samgr:samgr_proxy",
   ]
 
@@ -118,13 +115,8 @@ ohos_shared_library("file_access_extension_ability_module") {
   ]
 
   external_deps = [
-    "ability_base:want",
     "ability_runtime:runtime",
-    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "samgr:samgr_proxy",
   ]
 
   relative_install_dir = "extensionability/"
