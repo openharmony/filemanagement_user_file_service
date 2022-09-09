@@ -67,6 +67,11 @@ napi_value NapiRootInfoExporter::Constructor(napi_env env, napi_callback_info in
     }
 
     auto rootInfoEntity = std::make_unique<RootInfoEntity>();
+    if (rootInfoEntity == nullptr) {
+        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get entity of RootInfoEntity");
+        return nullptr;
+    }
+
     if (!NClass::SetEntityFor<RootInfoEntity>(env, funcArg.GetThisVar(), std::move(rootInfoEntity))) {
         NError(ERR_NULL_POINTER).ThrowErr(env, "INNER BUG. Failed to wrap entity for obj RootInfoEntity");
         return nullptr;

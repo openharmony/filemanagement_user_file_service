@@ -45,76 +45,76 @@ int GetFileFilterParam(const NVal &argv, FileFilter &filter)
     bool ret = false;
     filter.SetHasFilter(false);
     if (argv.HasProp("suffix")) {
-        std::vector<std::string> filter_suffix;
-        std::tie(ret, filter_suffix, std::ignore) = argv.GetProp("suffix").ToStringArray();
+        std::vector<std::string> suffixs;
+        std::tie(ret, suffixs, std::ignore) = argv.GetProp("suffix").ToStringArray();
         if (!ret) {
             HILOG_ERROR("FileFilter get suffix param fail.");
             return ERR_INVALID_PARAM;
         }
 
-        filter.SetSuffix(filter_suffix);
+        filter.SetSuffix(suffixs);
         filter.SetHasFilter(true);
     } else {
         return ERR_INVALID_PARAM;
     }
 
-    if (argv.HasProp("display_name")) {
-        std::vector<std::string> display_name;
-        std::tie(ret, display_name, std::ignore) = argv.GetProp("display_name").ToStringArray();
+    if (argv.HasProp("displayName")) {
+        std::vector<std::string> displayNames;
+        std::tie(ret, displayNames, std::ignore) = argv.GetProp("displayName").ToStringArray();
         if (!ret) {
-            HILOG_ERROR("FileFilter get display_name param fail.");
-            return ERR_INVALID_PARAM;
-        }
-        filter.SetDisplayName(display_name);
-        filter.SetHasFilter(true);
-
-    }
-
-    if (argv.HasProp("mime_type")) {
-        std::vector<std::string> mime_type;
-        std::tie(ret, mime_type, std::ignore) = argv.GetProp("mime_type").ToStringArray();
-        if (!ret) {
-            HILOG_ERROR("FileFilter get mime_type param fail.");
+            HILOG_ERROR("FileFilter get displayName param fail.");
             return ERR_INVALID_PARAM;
         }
 
-        filter.SetMimeType(mime_type);
+        filter.SetDisplayName(displayNames);
         filter.SetHasFilter(true);
     }
 
-    if (argv.HasProp("file_size_over")) {
-        int64_t file_size_over;
-        std::tie(ret, file_size_over) = argv.GetProp("file_size_over").ToInt64();
+    if (argv.HasProp("mimeType")) {
+        std::vector<std::string> mimeTypes;
+        std::tie(ret, mimeTypes, std::ignore) = argv.GetProp("mimeType").ToStringArray();
         if (!ret) {
-            HILOG_ERROR("FileFilter get file_size_over param fail.");
+            HILOG_ERROR("FileFilter get mimeType param fail.");
             return ERR_INVALID_PARAM;
         }
 
-        filter.SetFileSizeOver(file_size_over);
+        filter.SetMimeType(mimeTypes);
         filter.SetHasFilter(true);
     }
 
-    if (argv.HasProp("last_modified_after")) {
-        double last_modified_after;
-        std::tie(ret, last_modified_after) = argv.GetProp("last_modified_after").ToDouble();
+    if (argv.HasProp("fileSizeOver")) {
+        int64_t fileSizeOver;
+        std::tie(ret, fileSizeOver) = argv.GetProp("fileSizeOver").ToInt64();
         if (!ret) {
-            HILOG_ERROR("FileFilter get last_modified_after param fail.");
+            HILOG_ERROR("FileFilter get fileSizeOver param fail.");
             return ERR_INVALID_PARAM;
         }
 
-        filter.SetLastModifiedAfter(last_modified_after);
+        filter.SetFileSizeOver(fileSizeOver);
         filter.SetHasFilter(true);
     }
 
-    if (argv.HasProp("exclude_media")) {
-        bool exclude_media;
-        std::tie(ret, exclude_media) = argv.GetProp("exclude_media").ToBool();
+    if (argv.HasProp("lastModifiedAfter")) {
+        double lastModifiedAfter;
+        std::tie(ret, lastModifiedAfter) = argv.GetProp("lastModifiedAfter").ToDouble();
         if (!ret) {
-            HILOG_ERROR("FileFilter get exclude_media param fail.");
+            HILOG_ERROR("FileFilter get lastModifiedAfter param fail.");
             return ERR_INVALID_PARAM;
         }
 
-        filter.SetExcludeMedia(exclude_media);
+        filter.SetLastModifiedAfter(lastModifiedAfter);
+        filter.SetHasFilter(true);
+    }
+
+    if (argv.HasProp("excludeMedia")) {
+        bool excludeMedia;
+        std::tie(ret, excludeMedia) = argv.GetProp("excludeMedia").ToBool();
+        if (!ret) {
+            HILOG_ERROR("FileFilter get excludeMedia param fail.");
+            return ERR_INVALID_PARAM;
+        }
+
+        filter.SetExcludeMedia(excludeMedia);
         filter.SetHasFilter(true);
     }
 

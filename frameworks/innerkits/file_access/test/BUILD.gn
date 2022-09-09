@@ -23,6 +23,7 @@ ohos_unittest("file_access_helper_test") {
     "//foundation/ability/ability_runtime/frameworks/kits/appkit/native/ability_runtime/context",
     "//foundation/filemanagement/user_file_service/frameworks/innerkits/file_access/include",
     "//third_party/googletest/googlemock/include/gmock",
+    "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common",
   ]
 
   configs = [ "//build/config/compiler:exceptions" ]
@@ -62,6 +63,7 @@ ohos_unittest("file_extension_helper_test") {
     "//third_party/googletest/googlemock/include/gmock",
     "//foundation/ability/ability_runtime/frameworks/kits/appkit/native/ability_runtime/context",
     "//foundation/filemanagement/user_file_service/frameworks/innerkits/file_access/include",
+    "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common",
   ]
 
   configs = [ "//build/config/compiler:exceptions" ]

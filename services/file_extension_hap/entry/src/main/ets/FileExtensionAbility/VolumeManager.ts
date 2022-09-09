@@ -36,7 +36,7 @@ function init() {
                 'uri': path2uri('', volume.path),
                 'displayName': volume.id,
                 'deviceFlags': flags,
-                'deviceType': DeviceType.EXTERNAL_USB
+                'deviceType': DeviceType.DEVICE_EXTERNAL_USB
             }
             globalThis.volumeInfoList.push(volumeInfo);
         }

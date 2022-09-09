@@ -99,6 +99,7 @@ ErrCode FileAccessExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply
     int flags = ERR_PARCEL_FAIL;
     if (!data.ReadInt32(flags)) {
         HILOG_ERROR("Parameter OpenFile fail to ReadInt32 flags");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
 
@@ -108,7 +109,7 @@ ErrCode FileAccessExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply
         return ERR_INVALID_PARAM;
     }
 
-    int fd;
+    int fd = -1;
     int ret = OpenFile(*uri, flags, fd);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter OpenFile fail to WriteInt32 ret");
@@ -139,6 +140,7 @@ ErrCode FileAccessExtStub::CmdCreateFile(MessageParcel &data, MessageParcel &rep
     std::string displayName = "";
     if (!data.ReadString(displayName)) {
         HILOG_ERROR("Parameter CreateFile fail to ReadString displayName");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
 
@@ -180,6 +182,7 @@ ErrCode FileAccessExtStub::CmdMkdir(MessageParcel &data, MessageParcel &reply)
     std::string displayName = "";
     if (!data.ReadString(displayName)) {
         HILOG_ERROR("Parameter Mkdir fail to ReadString displayName");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
 
@@ -278,6 +281,7 @@ ErrCode FileAccessExtStub::CmdRename(MessageParcel &data, MessageParcel &reply)
     std::string displayName = "";
     if (!data.ReadString(displayName)) {
         HILOG_ERROR("Parameter Rename fail to ReadString displayName");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARCEL_FAIL;
     }
 
@@ -422,7 +426,6 @@ ErrCode FileAccessExtStub::CmdScanFile(MessageParcel &data, MessageParcel &reply
     return ERR_OK;
 }
 
-
 ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdGetRoots");
@@ -484,7 +487,7 @@ ErrCode FileAccessExtStub::CmdAccess(MessageParcel &data, MessageParcel &reply)
 
 bool FileAccessExtStub::CheckCallingPermission(const std::string &permission)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdGetRoots");
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CheckCallingPermission");
     Security::AccessToken::AccessTokenID tokenCaller = IPCSkeleton::GetCallingTokenID();
     int res = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenCaller, permission);
     if (res != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {

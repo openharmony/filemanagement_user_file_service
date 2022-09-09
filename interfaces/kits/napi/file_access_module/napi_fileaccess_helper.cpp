@@ -176,6 +176,11 @@ napi_value NAPI_GetFileAccessAbilityInfo(napi_env env, napi_callback_info info)
     }
 
     auto result = std::make_shared<std::vector<AAFwk::Want>>();
+    if (result == nullptr) {
+        NapiError(ERR_NULL_POINTER).ThrowErr(env);
+        return nullptr;
+    }
+
     auto cbExec = [result]() -> NError {
         int ret = FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(*result);
         return NError(ret);
@@ -304,6 +309,11 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
     }
 
     auto result = std::make_shared<int>();
+    if (result == nullptr) {
+        NapiError(ERR_NULL_POINTER).ThrowErr(env);
+        return nullptr;
+    }
+
     string uriString(uri.get());
     auto cbExec = [uriString, flags, result, fileAccessHelper]() -> NError {
         OHOS::Uri uri(uriString);
@@ -353,6 +363,11 @@ napi_value NAPI_CreateFile(napi_env env, napi_callback_info info)
     }
 
     auto result = std::make_shared<string>();
+    if (result == nullptr) {
+        NapiError(ERR_NULL_POINTER).ThrowErr(env);
+        return nullptr;
+    }
+
     string uriString(uri.get());
     string name(displayName.get());
     auto cbExec = [uriString, name, result, fileAccessHelper]() -> NError {
@@ -405,6 +420,11 @@ napi_value NAPI_Mkdir(napi_env env, napi_callback_info info)
     }
 
     auto result = std::make_shared<string>();
+    if (result == nullptr) {
+        NapiError(ERR_NULL_POINTER).ThrowErr(env);
+        return nullptr;
+    }
+
     string uriString(uri.get());
     string name(displayName.get());
     auto cbExec = [uriString, name, result, fileAccessHelper]() -> NError {
@@ -457,6 +477,11 @@ napi_value NAPI_Delete(napi_env env, napi_callback_info info)
     }
 
     auto result = std::make_shared<int>();
+    if (result == nullptr) {
+        NapiError(ERR_NULL_POINTER).ThrowErr(env);
+        return nullptr;
+    }
+
     string uriString(uri.get());
     auto cbExec = [uriString, result, fileAccessHelper]() -> NError {
         OHOS::Uri uri(uriString);
@@ -506,6 +531,11 @@ napi_value NAPI_Move(napi_env env, napi_callback_info info)
     }
 
     auto result = std::make_shared<string>();
+    if (result == nullptr) {
+        NapiError(ERR_NULL_POINTER).ThrowErr(env);
+        return nullptr;
+    }
+
     string sourceFileString(sourceFile.get());
     string targetParentString(targetParent.get());
     auto cbExec = [sourceFileString, targetParentString, result, fileAccessHelper]() -> NError {
@@ -559,6 +589,11 @@ napi_value NAPI_Rename(napi_env env, napi_callback_info info)
     }
 
     auto result = std::make_shared<string>();
+    if (result == nullptr) {
+        NapiError(ERR_NULL_POINTER).ThrowErr(env);
+        return nullptr;
+    }
+
     string uriString(uri.get());
     string name(displayName.get());
     auto cbExec = [uriString, name, result, fileAccessHelper]() -> NError {
@@ -603,13 +638,11 @@ static int MakeGetRootsResult(napi_env &env, FileAccessHelper *helper, std::vect
         return ERR_NULL_POINTER;
     }
 
-    {
-        std::lock_guard<std::mutex> lock(rootIteratorEntity->entityOperateMutex);
-        rootIteratorEntity->fileAccessHelper = helper;
-        rootIteratorEntity->devVec = std::move(rootInfoVec);
-        rootIteratorEntity->pos = 0;
-        nVal = { env, objRootIterator };
-    }
+    std::lock_guard<std::mutex> lock(rootIteratorEntity->entityOperateMutex);
+    rootIteratorEntity->fileAccessHelper = helper;
+    rootIteratorEntity->devVec = std::move(rootInfoVec);
+    rootIteratorEntity->pos = 0;
+    nVal = { env, objRootIterator };
 
     return ERR_OK;
 }
