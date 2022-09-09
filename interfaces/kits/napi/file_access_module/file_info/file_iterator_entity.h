@@ -30,14 +30,14 @@ using namespace DistributedFS;
 constexpr int64_t MAX_COUNT = 1000;     // ListFile get file's max count
 
 struct FileIteratorEntity {
-    FileAccessHelper *fileAccessHelper;
+    FileAccessHelper *fileAccessHelper { nullptr };
     std::mutex entityOperateMutex;
     FileInfo fileInfo;
     std::vector<FileInfo> fileInfoVec;
-    int64_t offset;
-    int64_t pos;
-    FileFilter filter;
-    int flag = 0;
+    int64_t offset { 0 };
+    int64_t pos { 0 };
+    FileFilter filter { {}, {}, {}, 0, 0, false, false };
+    int flag { 0 };
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

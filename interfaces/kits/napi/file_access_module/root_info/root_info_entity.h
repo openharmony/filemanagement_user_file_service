@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace FileAccessFwk {
 struct RootInfoEntity {
-    FileAccessHelper *fileAccessHelper;
+    FileAccessHelper *fileAccessHelper { nullptr };
     RootInfo rootInfo;
 };
 } // namespace FileAccessFwk

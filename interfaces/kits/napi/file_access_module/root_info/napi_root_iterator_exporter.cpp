@@ -57,6 +57,11 @@ napi_value NapiRootIteratorExporter::Constructor(napi_env env, napi_callback_inf
     }
 
     auto rootIteratorEntity = std::make_unique<RootIteratorEntity>();
+    if (rootIteratorEntity == nullptr) {
+        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get entity of rootIteratorEntity");
+        return nullptr;
+    }
+
     if (!NClass::SetEntityFor<RootIteratorEntity>(env, funcArg.GetThisVar(), std::move(rootIteratorEntity))) {
         NError(ERR_NULL_POINTER).ThrowErr(env, "INNER BUG. Failed to wrap entity for obj FileIteratorEntity");
         return nullptr;
@@ -86,8 +91,8 @@ napi_value NapiRootIteratorExporter::Next(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    auto rootEntity = NClass::GetEntityOf<RootInfoEntity>(env, objRootInfoExporter);
-    if (rootEntity == nullptr) {
+    auto rootInfoEntity = NClass::GetEntityOf<RootInfoEntity>(env, objRootInfoExporter);
+    if (rootInfoEntity == nullptr) {
         NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get the entity of RootInfoEntity");
         return nullptr;
     }
@@ -97,14 +102,13 @@ napi_value NapiRootIteratorExporter::Next(napi_env env, napi_callback_info info)
     {
         std::lock_guard<std::mutex> lock(rootIterator->entityOperateMutex);
         auto len = (int64_t)rootIterator->devVec.size();
-        rootEntity->fileAccessHelper = rootIterator->fileAccessHelper;
+        rootInfoEntity->fileAccessHelper = rootIterator->fileAccessHelper;
         if (rootIterator->pos < len) {
-            rootEntity->rootInfo = rootIterator->devVec[rootIterator->pos];
+            rootInfoEntity->rootInfo = rootIterator->devVec[rootIterator->pos];
+            done = false;
             rootIterator->pos++;
-            done = (rootIterator->pos == len);
         } else {
-            rootIterator->pos++;
-            rootEntity = nullptr;
+            rootInfoEntity = nullptr;
             objRootInfoExporter = NVal::CreateUndefined(env).val_;
             done = true;
         }
