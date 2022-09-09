@@ -101,7 +101,7 @@ OHOS::Security::AccessToken::HapPolicyParams g_infoManagerTestPolicyPrams = {
 };
 
 // hap info
-OHOS::Security::AccessToken::HapInfoParams g_infoManagerTestInfoParms = {
+OHOS::Security::AccessToken::HapInfoParams const g_infoManagerTestInfoParms = {
     .userID = 1,
     .bundleName = "FileExtensionHelperTest",
     .instIndex = 0,
@@ -390,9 +390,13 @@ void OpenFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, int flags, int fd)
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_OpenFileTdd";
     int ret = fahs->OpenFile(uri, flags, fd);
+    EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "OpenFile get result error, code:" << ret;
     }
+    EXPECT_GE(fd, OHOS::FileAccessFwk::ERR_OK);
+    ret = fahs->Delete(uri);
+    EXPECT_GE(ret, OHOS::FileAccessFwk::ERR_OK);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_OpenFileTdd";
 }
 
@@ -415,19 +419,15 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0007, testing::
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newFileUri("");
-            result = g_fah->CreateFile(parentUri, "file_extension_helper_OpenFile_0007.txt", newFileUri);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
             int flags;
             int fd[4];
+            std::string displayName[4] = {"test1.txt", "test2.txt", "test3.txt", "test4.txt"};
             for (size_t j = 0; j< 4; j++) {
-                std::thread OpenFile_Thread(OpenFileTdd, g_fah, newFileUri, flags, fd[j]);
-                OpenFile_Thread.detach();
-                EXPECT_GE(fd[j], OHOS::FileAccessFwk::ERR_OK);
+                result = g_fah->CreateFile(parentUri, displayName[j], newFileUri);
+                EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+                std::thread execthread(OpenFileTdd, g_fah, newFileUri, flags, fd[j]);
+                execthread.join();
             }
-
-            result = g_fah->Delete(newFileUri);
-            EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
@@ -573,6 +573,7 @@ void CreateFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, std::string displ
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_CreateFileTdd";
     int ret = fahs->CreateFile(uri, displayName, newFile);
+    EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "CreateFileTdd get result error, code:" << ret;
     }
@@ -603,8 +604,8 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0005, testing
             Uri newFileUri("");
             std::string displayName[4] = {"test1.txt", "test2.txt", "test3.txt", "test4.txt"};
             for (int j = 0; j < 1; j++) {
-                std::thread CreateFile_Thread(CreateFileTdd, g_fah, parentUri, displayName[j], newFileUri);
-                CreateFile_Thread.detach();
+                std::thread execthread(CreateFileTdd, g_fah, parentUri, displayName[j], newFileUri);
+                execthread.join();
             }
             GTEST_LOG_(INFO) << "CreateFile_0005 result:" << result << endl;
         }
@@ -752,6 +753,7 @@ void MkdirTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, std::string displayNam
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_MkdirTdd";
     int ret = fahs->Mkdir(uri, displayName, newFile);
+    EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "MkdirTdd get result error, code:" << ret;
     }
@@ -777,14 +779,13 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0005, testing::ext
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
             std::string displayName[4] = {"test1", "test2", "test3", "test4"};
             for (int j = 0; j < 4; j++) {
-                std::thread Mkdir_Thread(MkdirTdd, g_fah, parentUri, displayName[j], newDirUriTest);
-                Mkdir_Thread.detach();
+                std::thread execthread(MkdirTdd, g_fah, parentUri, displayName[j], newDirUriTest);
+                execthread.join();
             }
         }
     } catch (...) {
@@ -951,6 +952,7 @@ void DeleteTdd(shared_ptr<FileAccessHelper> fahs, Uri selectFile)
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_DeleteTdd";
     int ret = fahs->Delete(selectFile);
+    EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "DeleteTdd get result error, code:" << ret;
     }
@@ -984,9 +986,10 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0005, testing::ex
             for (int j = 0; j < 4; j++) {
                 result = g_fah->CreateFile(newDirUriTest, displayName[j], newFileUri);
                 EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-                std::thread Delete_Thread(DeleteTdd, g_fah, newFileUri);
-                Delete_Thread.detach();
+                std::thread execthread(DeleteTdd, g_fah, newFileUri);
+                execthread.join();
             }
+
             result = g_fah->Delete(newDirUriTest);
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
@@ -1536,6 +1539,7 @@ void MoveTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, Uri targetParent
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_MoveTdd";
     int ret = fahs->Move(sourceFile, targetParent, newFile);
+    EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "MoveTdd get result error, code:" << ret;
     }
@@ -1574,8 +1578,8 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0012, testing::ext:
                 Uri testUri2("");
                 result = g_fah->CreateFile(newDirUriTest1, displayName[j], testUri[j]);
                 EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-                std::thread Move_Thread(MoveTdd, g_fah, testUri[j], newDirUriTest2, testUri2);
-                Move_Thread.detach();
+                std::thread execthread(MoveTdd, g_fah, testUri[j], newDirUriTest2, testUri2);
+                execthread.join();
             }
 
             result = g_fah->Delete(newDirUriTest1);
@@ -1799,6 +1803,7 @@ void RenameTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, std::string di
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_RenameTdd";
     int ret = fahs->Rename(sourceFile, displayName, newFile);
+    EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "RenameTdd get result error, code:" << ret;
     }
@@ -1833,8 +1838,8 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0006, testing::ex
             for (int j = 0; j < 4; j++) {
                 result = g_fah->CreateFile(newDirUriTest, displayName[j], testUri);
                 EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-                std::thread Rename_Thread(RenameTdd, g_fah, testUri, displayName[j], renameUri);
-                Rename_Thread.detach();
+                std::thread execthread(RenameTdd, g_fah, testUri, displayName[j], renameUri);
+                execthread.join();
             }
 
             result = g_fah->Delete(newDirUriTest);
@@ -2002,6 +2007,7 @@ void ListFileTdd(shared_ptr<FileAccessHelper> fahs, FileInfo fileInfo, int offse
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_ListFileTdd";
     int ret = fahs->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "ListFile get result error, code:" << ret;
     }
@@ -2041,8 +2047,8 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0004, testing::
             std::vector<FileInfo> fileInfoVec;
             FileFilter filter;
             for (int j = 0; j < 4; j++) {
-                std::thread ListFile_Thread(ListFileTdd, g_fah, fileInfo, offset, maxCount, filter, fileInfoVec);
-                ListFile_Thread.detach();
+                std::thread execthread(ListFileTdd, g_fah, fileInfo, offset, maxCount, filter, fileInfoVec);
+                execthread.join();
             }
 
             result = g_fah->Delete(newDirUriTest);
