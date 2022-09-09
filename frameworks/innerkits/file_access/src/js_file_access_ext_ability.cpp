@@ -833,11 +833,11 @@ static int MakeJsNativeFileFilter(NativeEngine &engine, const FileFilter &filter
     }
 
     bool ret = objFilter->SetProperty("suffix", suffixArray);
-    ret = ret && objFilter->SetProperty("display_name", displayNameArray);
-    ret = ret && objFilter->SetProperty("mime_type", mimeTypeArray);
-    ret = ret && objFilter->SetProperty("file_size_over", nativeFileSizeOver);
-    ret = ret && objFilter->SetProperty("last_modified_after", nativeLastModifiedAfter);
-    ret = ret && objFilter->SetProperty("exclude_media", nativeExcludeMedia);
+    ret = ret && objFilter->SetProperty("displayName", displayNameArray);
+    ret = ret && objFilter->SetProperty("mimeType", mimeTypeArray);
+    ret = ret && objFilter->SetProperty("fileSizeOver", nativeFileSizeOver);
+    ret = ret && objFilter->SetProperty("lastModifiedAfter", nativeLastModifiedAfter);
+    ret = ret && objFilter->SetProperty("excludeMedia", nativeExcludeMedia);
     if (!ret) {
         HILOG_ERROR("Set property to Filter NativeValue fail.");
         return ERR_INVALID_PARAM;
@@ -879,7 +879,7 @@ int JsFileAccessExtAbility::ListFile(const FileInfo &fileInfo, const int64_t off
 
         NativeValue* nativeFilter = nullptr;
         if (filter.GetHasFilter()) {
-            int ret = MakeJsNativeFileFilter(engine ,filter, nativeFilter);
+            int ret = MakeJsNativeFileFilter(engine, filter, nativeFilter);
             if (ret != ERR_OK) {
                 HILOG_ERROR("Create js NativeValue fail.");
                 return ret;

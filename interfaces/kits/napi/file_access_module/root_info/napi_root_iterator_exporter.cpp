@@ -59,7 +59,7 @@ napi_value NapiRootIteratorExporter::Constructor(napi_env env, napi_callback_inf
     auto rootIteratorEntity = std::make_unique<RootIteratorEntity>();
     if (rootIteratorEntity == nullptr) {
         NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get entity of rootIteratorEntity");
-		return nullptr;
+        return nullptr;
     }
 
     if (!NClass::SetEntityFor<RootIteratorEntity>(env, funcArg.GetThisVar(), std::move(rootIteratorEntity))) {

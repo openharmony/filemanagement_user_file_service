@@ -30,10 +30,12 @@ namespace {
 using namespace std;
 using namespace OHOS;
 using namespace FileAccessFwk;
-int ABILITY_ID = 5003;
+const int ABILITY_ID = 5003;
 shared_ptr<FileAccessHelper> g_fah = nullptr;
 OHOS::Security::AccessToken::AccessTokenID g_tokenId;
 Uri g_newDirUri("");
+const int UID_TRANSFORM_TMP = 20000000;
+const int UID_DEFAULT = 0;
 
 // permission state
 OHOS::Security::AccessToken::PermissionStateFull g_infoManagerTestState = {
@@ -120,7 +122,9 @@ public:
         auto remoteObj = saManager->GetSystemAbility(ABILITY_ID);
         AAFwk::Want want;
         vector<AAFwk::Want> wantVec;
+        setuid(UID_TRANSFORM_TMP);
         int ret = FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(wantVec);
+        setuid(UID_DEFAULT);
         EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
         bool sus = false;
         for (size_t i = 0; i < wantVec.size(); i++) {

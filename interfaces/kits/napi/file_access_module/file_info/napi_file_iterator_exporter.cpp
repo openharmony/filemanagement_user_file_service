@@ -114,7 +114,7 @@ static int MakeResult(napi_value &objFileInfoExporter, FileIteratorEntity *fileI
         fileIteratorEntity->pos = 0;
         fileInfoEntity = nullptr;
         objFileInfoExporter = NVal::CreateUndefined(env).val_;
-        nVal.AddProp("value",objFileInfoExporter);
+        nVal.AddProp("value", objFileInfoExporter);
         nVal.AddProp("done", NVal::CreateBool(env, true).val_);
         return ERR_OK;
     }

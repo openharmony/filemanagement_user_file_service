@@ -177,7 +177,7 @@ napi_value NAPI_GetFileAccessAbilityInfo(napi_env env, napi_callback_info info)
 
     auto result = std::make_shared<std::vector<AAFwk::Want>>();
     if (result == nullptr) {
-        NapiError(ERR_NULL_POINTER).ThrowErr(env);;
+        NapiError(ERR_NULL_POINTER).ThrowErr(env);
         return nullptr;
     }
 
