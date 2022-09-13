@@ -28,6 +28,7 @@ ohos_shared_library("fileextensioninfo") {
     "${FRAMEWORK_PATH}/innerkits/file_access/include/notify",
     "${UFS_BASE_PATH}/interfaces/kits/napi/common",
     "${UFS_BASE_PATH}/utils",
+    "//foundation/ability/ability_base/interfaces/kits/native/uri/include",
   ]
 
   sources = [
@@ -41,13 +42,7 @@ ohos_shared_library("fileextensioninfo") {
   ]
 
   external_deps = [
-    "ability_base:want",
-    "ability_base:zuri",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "samgr:samgr_proxy",
   ]
 }
