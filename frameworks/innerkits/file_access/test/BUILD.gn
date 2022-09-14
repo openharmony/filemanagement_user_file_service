@@ -98,7 +98,7 @@ group("user_file_service_test") {
   testonly = true
 
   deps = [
-    ":medialibrary_file_access_test",
     ":external_file_access_test",
+    ":medialibrary_file_access_test",
   ]
 }
