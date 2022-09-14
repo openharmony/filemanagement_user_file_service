@@ -14,10 +14,10 @@
 import("//build/test.gni")
 import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
 BASE_DIR = "//foundation/filemanagement/user_file_service"
-ohos_unittest("file_access_helper_test") {
+ohos_unittest("medialibrary_file_access_test") {
   module_out_path = "filemanagement/user_file_service"
 
-  sources = [ "file_access_helper_test.cpp" ]
+  sources = [ "medialibrary_file_access_test.cpp" ]
 
   include_dirs = [
     "//foundation/ability/ability_runtime/frameworks/kits/appkit/native/ability_runtime/context",
@@ -54,10 +54,10 @@ ohos_unittest("file_access_helper_test") {
   ]
 }
 
-ohos_unittest("file_extension_helper_test") {
+ohos_unittest("external_file_access_test") {
   module_out_path = "filemanagement/user_file_service"
 
-  sources = [ "file_extension_helper_test.cpp" ]
+  sources = [ "external_file_access_test.cpp" ]
 
   include_dirs = [
     "//third_party/googletest/googlemock/include/gmock",
@@ -98,7 +98,7 @@ group("user_file_service_test") {
   testonly = true
 
   deps = [
-    ":file_access_helper_test",
-    ":file_extension_helper_test",
+    ":medialibrary_file_access_test",
+    ":external_file_access_test",
   ]
 }
