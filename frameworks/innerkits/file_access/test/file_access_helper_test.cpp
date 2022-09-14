@@ -1410,6 +1410,7 @@ void MoveTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, Uri targetParent
     }
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_NE(newFile.ToString(), "");
+    g_num++;
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_Access_helper_MoveTdd";
 }
 
@@ -1444,6 +1445,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0011, testing::ext::TestS
             execthread.join();
         }
 
+        EXPECT_GE(g_num, 1);
         result = g_fah->Delete(newDirUriTest1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Delete(newDirUriTest2);
@@ -1645,6 +1647,7 @@ void RenameTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, std::string di
     }
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_NE(newFile.ToString(), "");
+    g_num++;
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_Access_helper_RenameTdd";
 }
 
@@ -1676,6 +1679,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0006, testing::ext::Tes
             execthread.join();
         }
 
+        EXPECT_GE(g_num, 1);
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
