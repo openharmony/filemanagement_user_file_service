@@ -155,17 +155,17 @@ public:
 };
 
 /**
- * @tc.number: user_file_service_file_extension_helper_OpenFile_0000
- * @tc.name: file_extension_helper_OpenFile_0000
+ * @tc.number: user_file_service_external_file_access_OpenFile_0000
+ * @tc.name: external_file_access_OpenFile_0000
  * @tc.desc: Test function of OpenFile interface for SUCCESS.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_OpenFile_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFile_0000";
     try {
 
         vector<RootInfo> info;
@@ -180,7 +180,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0000, testing::
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri newFileUri("");
-            result = g_fah->CreateFile(newDirUriTest1, "file_extension_helper_OpenFile_0000.txt", newFileUri);
+            result = g_fah->CreateFile(newDirUriTest1, "external_file_access_OpenFile_0000.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int fd;
@@ -195,21 +195,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0000, testing::
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_OpenFile_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0000";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_OpenFile_0001
- * @tc.name: file_extension_helper_OpenFile_0001
+ * @tc.number: user_file_service_external_file_access_OpenFile_0001
+ * @tc.name: external_file_access_OpenFile_0001
  * @tc.desc: Test function of OpenFile interface for ERROR which Uri is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0001, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0001, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_OpenFile_0001";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFile_0001";
     try {
         Uri uri("");
         int fd;
@@ -219,21 +219,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0001, testing::
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_OpenFile_0001";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0001";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_OpenFile_0002
- * @tc.name: file_extension_helper_OpenFile_0002
+ * @tc.number: user_file_service_external_file_access_OpenFile_0002
+ * @tc.name: external_file_access_OpenFile_0002
  * @tc.desc: Test function of OpenFile interface for ERROR which Uri is absolute path.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0002, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0002, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_OpenFile_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFile_0002";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -241,10 +241,10 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0002, testing::
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newFileUri("");
-            result = g_fah->CreateFile(parentUri, "file_extension_helper_OpenFile_0002.txt", newFileUri);
+            result = g_fah->CreateFile(parentUri, "external_file_access_OpenFile_0002.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
-            Uri uri("storage/media/100/local/files/Download/file_extension_helper_OpenFile_0002.txt");
+            Uri uri("storage/media/100/local/files/Download/external_file_access_OpenFile_0002.txt");
             int fd;
             result = g_fah->OpenFile(uri, 0, fd);
             EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
@@ -256,21 +256,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0002, testing::
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_OpenFile_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0002";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_OpenFile_0003
- * @tc.name: file_extension_helper_OpenFile_0003
+ * @tc.number: user_file_service_external_file_access_OpenFile_0003
+ * @tc.name: external_file_access_OpenFile_0003
  * @tc.desc: Test function of OpenFile interface for ERROR which Uri is special symbols.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0003, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0003, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_OpenFile_0003";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFile_0003";
     try {
         Uri uri("~!@#$%^&*()_");
         int fd;
@@ -280,21 +280,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0003, testing::
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_OpenFile_0003";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0003";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_OpenFile_0004
- * @tc.name: file_extension_helper_OpenFile_0004
+ * @tc.number: user_file_service_external_file_access_OpenFile_0004
+ * @tc.name: external_file_access_OpenFile_0004
  * @tc.desc: Test function of OpenFile interface for ERROR which flag is -1.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0004, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0004, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_OpenFile_0004";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFile_0004";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -302,7 +302,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0004, testing::
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newFileUri("");
-            result = g_fah->CreateFile(parentUri, "file_extension_helper_OpenFile_0004.txt", newFileUri);
+            result = g_fah->CreateFile(parentUri, "external_file_access_OpenFile_0004.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int fd;
@@ -316,21 +316,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0004, testing::
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_OpenFile_0004";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0004";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_OpenFile_0005
- * @tc.name: file_extension_helper_OpenFile_0005
+ * @tc.number: user_file_service_external_file_access_OpenFile_0005
+ * @tc.name: external_file_access_OpenFile_0005
  * @tc.desc: Test function of OpenFile interface for SUCCESS which flag is 1.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0005, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0005, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_OpenFile_0005";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFile_0005";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -338,7 +338,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0005, testing::
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newFileUri("");
-            result = g_fah->CreateFile(parentUri, "file_extension_helper_OpenFile_0005.txt", newFileUri);
+            result = g_fah->CreateFile(parentUri, "external_file_access_OpenFile_0005.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int fd;
@@ -352,21 +352,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0005, testing::
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_OpenFile_0005";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0005";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_OpenFile_0006
- * @tc.name: file_extension_helper_OpenFile_0006
+ * @tc.number: user_file_service_external_file_access_OpenFile_0006
+ * @tc.name: external_file_access_OpenFile_0006
  * @tc.desc: Test function of OpenFile interface for SUCCESS which flag is 2.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0006, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0006, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_OpenFile_0006";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFile_0006";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -374,7 +374,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0006, testing::
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newFileUri("");
-            result = g_fah->CreateFile(parentUri, "file_extension_helper_OpenFile_0006.txt", newFileUri);
+            result = g_fah->CreateFile(parentUri, "external_file_access_OpenFile_0006.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int fd;
@@ -388,12 +388,12 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0006, testing::
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_OpenFile_0006";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0006";
 }
 
 void OpenFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, int flags, int fd)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_OpenFileTdd";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFileTdd";
     int ret = fahs->OpenFile(uri, flags, fd);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "OpenFile get result error, code:" << ret;
@@ -402,21 +402,21 @@ void OpenFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, int flags, int fd)
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_GE(fd, OHOS::FileAccessFwk::ERR_OK);
     g_num++;
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_OpenFileTdd";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFileTdd";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_OpenFile_0007
- * @tc.name: file_extension_helper_OpenFile_0007
+ * @tc.number: user_file_service_external_file_access_OpenFile_0007
+ * @tc.name: external_file_access_OpenFile_0007
  * @tc.desc: Test function of OpenFile interface for SUCCESS which Concurrent.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0007, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0007, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_OpenFile_0007";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFile_0007";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -441,21 +441,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_OpenFile_0007, testing::
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_OpenFile_0007";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0007";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_CreateFile_0000
- * @tc.name: file_extension_helper_CreateFile_0000
+ * @tc.number: user_file_service_external_file_access_CreateFile_0000
+ * @tc.name: external_file_access_CreateFile_0000
  * @tc.desc: Test function of CreateFile interface for SUCCESS.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_CreateFile_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_CreateFile_0000";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -463,7 +463,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0000, testing
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newFileUri("");
-            result = g_fah->CreateFile(parentUri, "file_extension_helper_CreateFile_0000.txt", newFileUri);
+            result = g_fah->CreateFile(parentUri, "external_file_access_CreateFile_0000.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "CreateFile_0000 result:" << result << endl;
 
@@ -473,93 +473,93 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0000, testing
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_CreateFile_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_CreateFile_0000";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_CreateFile_0001
- * @tc.name: file_extension_helper_CreateFile_0001
+ * @tc.number: user_file_service_external_file_access_CreateFile_0001
+ * @tc.name: external_file_access_CreateFile_0001
  * @tc.desc: Test function of CreateFile interface for ERROR which parentUri is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0001, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0001, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_CreateFile_0001";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_CreateFile_0001";
     try {
         Uri newFileUri("");
         Uri parentUri("");
-        int result = g_fah->CreateFile(parentUri, "file_extension_helper_CreateFile_0001.txt", newFileUri);
+        int result = g_fah->CreateFile(parentUri, "external_file_access_CreateFile_0001.txt", newFileUri);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0001 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_CreateFile_0001";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_CreateFile_0001";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_CreateFile_0002
- * @tc.name: file_extension_helper_CreateFile_0002
+ * @tc.number: user_file_service_external_file_access_CreateFile_0002
+ * @tc.name: external_file_access_CreateFile_0002
  * @tc.desc: Test function of CreateFile interface for ERROR which parentUri is absolute path.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0002, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0002, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_CreateFile_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_CreateFile_0002";
     try {
         Uri newFileUri("");
         Uri parentUri("storage/media/100/local/files/Download");
-        int result = g_fah->CreateFile(parentUri, "file_extension_helper_CreateFile_0002.txt", newFileUri);
+        int result = g_fah->CreateFile(parentUri, "external_file_access_CreateFile_0002.txt", newFileUri);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0002 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_CreateFile_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_CreateFile_0002";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_CreateFile_0003
- * @tc.name: file_extension_helper_CreateFile_0003
+ * @tc.number: user_file_service_external_file_access_CreateFile_0003
+ * @tc.name: external_file_access_CreateFile_0003
  * @tc.desc: Test function of CreateFile interface for ERROR which parentUri is special symbols.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0003, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0003, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_CreateFile_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_CreateFile_0002";
     try {
         Uri newFileUri("");
         Uri parentUri("~!@#$%^&*()_");
-        int result = g_fah->CreateFile(parentUri, "file_extension_helper_CreateFile_0003.txt", newFileUri);
+        int result = g_fah->CreateFile(parentUri, "external_file_access_CreateFile_0003.txt", newFileUri);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0003 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_CreateFile_0003";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_CreateFile_0003";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_CreateFile_0004
- * @tc.name: file_extension_helper_CreateFile_0004
+ * @tc.number: user_file_service_external_file_access_CreateFile_0004
+ * @tc.name: external_file_access_CreateFile_0004
  * @tc.desc: Test function of CreateFile interface for ERROR which displayName is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0004, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0004, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_CreateFile_0004";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_CreateFile_0004";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -575,12 +575,12 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0004, testing
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_CreateFile_0004";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_CreateFile_0004";
 }
 
 void CreateFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, std::string displayName, Uri newFile)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_CreateFileTdd";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_CreateFileTdd";
     int ret = fahs->CreateFile(uri, displayName, newFile);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "CreateFileTdd get result error, code:" << ret;
@@ -589,21 +589,21 @@ void CreateFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, std::string displ
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_NE(newFile.ToString(), "");
     g_num++;
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_CreateFileTdd";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_CreateFileTdd";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_CreateFile_0005
- * @tc.name: file_extension_helper_CreateFile_0005
+ * @tc.number: user_file_service_external_file_access_CreateFile_0005
+ * @tc.name: external_file_access_CreateFile_0005
  * @tc.desc: Test function of CreateFile interface for ERROR which Concurrent.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0005, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0005, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_CreateFile_0005";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_CreateFile_0005";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -625,21 +625,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_CreateFile_0005, testing
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_CreateFile_0005";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_CreateFile_0005";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Mkdir_0000
- * @tc.name: file_extension_helper_Mkdir_0000
+ * @tc.number: user_file_service_external_file_access_Mkdir_0000
+ * @tc.name: external_file_access_Mkdir_0000
  * @tc.desc: Test function of Mkdir interface for SUCCESS.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Mkdir_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Mkdir_0000";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -647,7 +647,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0000, testing::ext
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "file_extension_helper_Mkdir_0000", newDirUriTest);
+            result = g_fah->Mkdir(parentUri, "external_file_access_Mkdir_0000", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "Mkdir_0000 result:" << result << endl;
 
@@ -657,93 +657,93 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0000, testing::ext
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Mkdir_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Mkdir_0000";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Mkdir_0001
- * @tc.name: file_extension_helper_Mkdir_0001
+ * @tc.number: user_file_service_external_file_access_Mkdir_0001
+ * @tc.name: external_file_access_Mkdir_0001
  * @tc.desc: Test function of Mkdir interface for ERROR which parentUri is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0001, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0001, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Mkdir_0001";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Mkdir_0001";
     try {
         Uri newDirUriTest("");
         Uri parentUri("");
-        int result = g_fah->Mkdir(parentUri, "file_extension_helper_Mkdir_0001", newDirUriTest);
+        int result = g_fah->Mkdir(parentUri, "external_file_access_Mkdir_0001", newDirUriTest);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0001 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Mkdir_0001";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Mkdir_0001";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Mkdir_0002
- * @tc.name: file_extension_helper_Mkdir_0002
+ * @tc.number: user_file_service_external_file_access_Mkdir_0002
+ * @tc.name: external_file_access_Mkdir_0002
  * @tc.desc: Test function of Mkdir interface for ERROR which parentUri is absolute path.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0002, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0002, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Mkdir_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Mkdir_0002";
     try {
         Uri newDirUriTest("");
         Uri parentUri("storage/media/100/local/files/Download");
-        int result = g_fah->Mkdir(parentUri, "file_extension_helper_Mkdir_0002", newDirUriTest);
+        int result = g_fah->Mkdir(parentUri, "external_file_access_Mkdir_0002", newDirUriTest);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0002 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Mkdir_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Mkdir_0002";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Mkdir_0003
- * @tc.name: file_extension_helper_Mkdir_0003
+ * @tc.number: user_file_service_external_file_access_Mkdir_0003
+ * @tc.name: external_file_access_Mkdir_0003
  * @tc.desc: Test function of Mkdir interface for ERROR which parentUri is special symbols.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0003, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0003, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Mkdir_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Mkdir_0002";
     try {
         Uri newDirUriTest("");
         Uri parentUri("~!@#$%^&*()_");
-        int result = g_fah->Mkdir(parentUri, "file_extension_helper_Mkdir_0003", newDirUriTest);
+        int result = g_fah->Mkdir(parentUri, "external_file_access_Mkdir_0003", newDirUriTest);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0003 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Mkdir_0003";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Mkdir_0003";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Mkdir_0004
- * @tc.name: file_extension_helper_Mkdir_0004
+ * @tc.number: user_file_service_external_file_access_Mkdir_0004
+ * @tc.name: external_file_access_Mkdir_0004
  * @tc.desc: Test function of Mkdir interface for ERROR which displayName is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0004, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0004, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Mkdir_0004";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Mkdir_0004";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -759,12 +759,12 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0004, testing::ext
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Mkdir_0004";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Mkdir_0004";
 }
 
 void MkdirTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, std::string displayName, Uri newFile)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_MkdirTdd";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_MkdirTdd";
     int ret = fahs->Mkdir(uri, displayName, newFile);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "MkdirTdd get result error, code:" << ret;
@@ -773,21 +773,21 @@ void MkdirTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, std::string displayNam
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_NE(newFile.ToString(), "");
     g_num++;
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_MkdirTdd";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_MkdirTdd";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Mkdir_0005
- * @tc.name: file_extension_helper_Mkdir_0005
+ * @tc.number: user_file_service_external_file_access_Mkdir_0005
+ * @tc.name: external_file_access_Mkdir_0005
  * @tc.desc: Test function of Mkdir interface for SUCCESS which Concurrent.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0005, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0005, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Mkdir_0005";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Mkdir_0005";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -809,21 +809,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Mkdir_0005, testing::ext
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Mkdir_0005";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Mkdir_0005";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Delete_0000
- * @tc.name: file_extension_helper_Delete_0000
+ * @tc.number: user_file_service_external_file_access_Delete_0000
+ * @tc.name: external_file_access_Delete_0000
  * @tc.desc: Test function of Delete interface for SUCCESS which delete file.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Delete_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Delete_0000";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -835,7 +835,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0000, testing::ex
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri newFileUri("");
-            result = g_fah->CreateFile(newDirUriTest, "file_extension_helper_Delete_0000.txt", newFileUri);
+            result = g_fah->CreateFile(newDirUriTest, "external_file_access_Delete_0000.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             result = g_fah->Delete(newFileUri);
@@ -848,21 +848,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0000, testing::ex
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Delete_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Delete_0000";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Delete_0001
- * @tc.name: file_extension_helper_Delete_0001
+ * @tc.number: user_file_service_external_file_access_Delete_0001
+ * @tc.name: external_file_access_Delete_0001
  * @tc.desc: Test function of Delete interface for SUCCESS which delete folder.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0001, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0001, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Delete_0001";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Delete_0001";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -880,21 +880,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0001, testing::ex
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Delete_0001";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Delete_0001";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Delete_0002
- * @tc.name: file_extension_helper_Delete_0002
+ * @tc.number: user_file_service_external_file_access_Delete_0002
+ * @tc.name: external_file_access_Delete_0002
  * @tc.desc: Test function of Delete interface for ERROR which selectFileUri is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0002, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0002, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Delete_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Delete_0002";
     try {
         Uri selectFileUri("");
         int result = g_fah->Delete(selectFileUri);
@@ -903,21 +903,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0002, testing::ex
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Delete_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Delete_0002";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Delete_0003
- * @tc.name: file_extension_helper_Delete_0003
+ * @tc.number: user_file_service_external_file_access_Delete_0003
+ * @tc.name: external_file_access_Delete_0003
  * @tc.desc: Test function of Delete interface for ERROR which selectFileUri is absolute path.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0003, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0003, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Delete_0003";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Delete_0003";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -940,21 +940,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0003, testing::ex
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Delete_0003";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Delete_0003";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Delete_0004
- * @tc.name: file_extension_helper_Delete_0004
+ * @tc.number: user_file_service_external_file_access_Delete_0004
+ * @tc.name: external_file_access_Delete_0004
  * @tc.desc: Test function of Delete interface for ERROR which selectFileUri is special symbols.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0004, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0004, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Delete_0004";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Delete_0004";
     try {
         Uri selectFileUri("!@#$%^&*()");
         int result = g_fah->Delete(selectFileUri);
@@ -963,12 +963,12 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0004, testing::ex
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Delete_0004";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Delete_0004";
 }
 
 void DeleteTdd(shared_ptr<FileAccessHelper> fahs, Uri selectFile)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_DeleteTdd";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_DeleteTdd";
     int ret = fahs->Delete(selectFile);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "DeleteTdd get result error, code:" << ret;
@@ -976,21 +976,21 @@ void DeleteTdd(shared_ptr<FileAccessHelper> fahs, Uri selectFile)
     }
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     g_num++;
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_DeleteTdd";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_DeleteTdd";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Delete_0005
- * @tc.name: file_extension_helper_Delete_0005
+ * @tc.number: user_file_service_external_file_access_Delete_0005
+ * @tc.name: external_file_access_Delete_0005
  * @tc.desc: Test function of Delete interface for SUCCESS which Concurrent.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0005, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0005, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Delete_0005";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Delete_0005";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1018,21 +1018,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Delete_0005, testing::ex
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Delete_0005";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Delete_0005";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Move_0000
- * @tc.name: file_extension_helper_Move_0000
+ * @tc.number: user_file_service_external_file_access_Move_0000
+ * @tc.name: external_file_access_Move_0000
  * @tc.desc: Test function of Move interface for SUCCESS which move file.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0000";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1065,21 +1065,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0000, testing::ext:
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Move_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0000";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Move_0001
- * @tc.name: file_extension_helper_Move_0001
+ * @tc.number: user_file_service_external_file_access_Move_0001
+ * @tc.name: external_file_access_Move_0001
  * @tc.desc: Test function of Move interface for SUCCESS which move folder.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0001, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0001, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0001";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0001";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1109,21 +1109,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0001, testing::ext:
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Move_0001";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0001";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Move_0002
- * @tc.name: file_extension_helper_Move_0002
+ * @tc.number: user_file_service_external_file_access_Move_0002
+ * @tc.name: external_file_access_Move_0002
  * @tc.desc: Test function of Move interface for ERROR which sourceFileUri is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0002, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0002, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0002";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1146,21 +1146,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0002, testing::ext:
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Move_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0002";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Move_0003
- * @tc.name: file_extension_helper_Move_0003
+ * @tc.number: user_file_service_external_file_access_Move_0003
+ * @tc.name: external_file_access_Move_0003
  * @tc.desc: Test function of Move interface for ERROR which sourceFileUri is absolute path.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0003, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0003, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0003";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0003";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1194,21 +1194,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0003, testing::ext:
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Move_0003";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0003";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Move_0004
- * @tc.name: file_extension_helper_Move_0004
+ * @tc.number: user_file_service_external_file_access_Move_0004
+ * @tc.name: external_file_access_Move_0004
  * @tc.desc: Test function of Move interface for ERROR which sourceFileUri is special symbols.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0004, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0004, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0004";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0004";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1231,21 +1231,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0004, testing::ext:
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Move_0004";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0004";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Move_0005
- * @tc.name: file_extension_helper_Move_0005
+ * @tc.number: user_file_service_external_file_access_Move_0005
+ * @tc.name: external_file_access_Move_0005
  * @tc.desc: Test function of Move interface for ERROR which targetParentUri is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0005, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0005, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0005";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0005";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1272,21 +1272,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0005, testing::ext:
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Move_0005";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0005";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Move_0006
- * @tc.name: file_extension_helper_Move_0006
+ * @tc.number: user_file_service_external_file_access_Move_0006
+ * @tc.name: external_file_access_Move_0006
  * @tc.desc: Test function of Move interface for ERROR which targetParentUri is absolute path.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0006, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0006, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0006";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0006";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1320,21 +1320,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0006, testing::ext:
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Move_0006";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0006";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Move_0007
- * @tc.name: file_extension_helper_Move_0007
+ * @tc.number: user_file_service_external_file_access_Move_0007
+ * @tc.name: external_file_access_Move_0007
  * @tc.desc: Test function of Move interface for ERROR which targetParentUri is special symbols.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0007, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0007, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0007";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0007";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1368,21 +1368,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0007, testing::ext:
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Move_0007";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0007";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Move_0008
- * @tc.name: file_extension_helper_Move_0008
+ * @tc.number: user_file_service_external_file_access_Move_0008
+ * @tc.name: external_file_access_Move_0008
  * @tc.desc: Test function of Move interface for SUCCESS which move empty folder.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0008, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0008, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0008";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0008";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1408,21 +1408,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0008, testing::ext:
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Move_0008";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0008";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Move_0009
- * @tc.name: file_extension_helper_Move_0009
+ * @tc.number: user_file_service_external_file_access_Move_0009
+ * @tc.name: external_file_access_Move_0009
  * @tc.desc: Test function of Move interface for SUCCESS which move more file in folder.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0009, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0009, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0009";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0009";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1455,21 +1455,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0009, testing::ext:
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Move_0009";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0009";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Move_0010
- * @tc.name: file_extension_helper_Move_0010
+ * @tc.number: user_file_service_external_file_access_Move_0010
+ * @tc.name: external_file_access_Move_0010
  * @tc.desc: Test function of Move interface for SUCCESS which move Multilevel directory folder.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0010, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0010, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0010";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0010";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1502,21 +1502,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0010, testing::ext:
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Move_0010";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0010";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Move_0011
- * @tc.name: file_extension_helper_Move_0011
+ * @tc.number: user_file_service_external_file_access_Move_0011
+ * @tc.name: external_file_access_Move_0011
  * @tc.desc: Test function of Move interface for SUCCESS which move other equipment file.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0011, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0011, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0011";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0011";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1554,12 +1554,12 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0011, testing::ext:
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Move_0011";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0011";
 }
 
 void MoveTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, Uri targetParent, Uri newFile)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_MoveTdd";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_MoveTdd";
     int ret = fahs->Move(sourceFile, targetParent, newFile);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "MoveTdd get result error, code:" << ret;
@@ -1567,21 +1567,21 @@ void MoveTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, Uri targetParent
     }
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     g_num++;
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_MoveTdd";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_MoveTdd";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Move_0012
- * @tc.name: file_extension_helper_Move_0012
+ * @tc.number: user_file_service_external_file_access_Move_0012
+ * @tc.name: external_file_access_Move_0012
  * @tc.desc: Test function of Move interface for SUCCESS which Concurrent.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0012, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0012, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Move_0012";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0012";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1617,21 +1617,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Move_0012, testing::ext:
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Move_0012";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0012";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Rename_0000
- * @tc.name: file_extension_helper_Rename_0000
+ * @tc.number: user_file_service_external_file_access_Rename_0000
+ * @tc.name: external_file_access_Rename_0000
  * @tc.desc: Test function of Rename interface for SUCCESS which rename file.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Rename_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Rename_0000";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1657,21 +1657,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0000, testing::ex
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Rename_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Rename_0000";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Rename_0001
- * @tc.name: file_extension_helper_Rename_0001
+ * @tc.number: user_file_service_external_file_access_Rename_0001
+ * @tc.name: external_file_access_Rename_0001
  * @tc.desc: Test function of Rename interface for SUCCESS which rename folder.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0001, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0001, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Rename_0001";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Rename_0001";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1693,21 +1693,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0001, testing::ex
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Rename_0001";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Rename_0001";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Rename_0002
- * @tc.name: file_extension_helper_Rename_0002
+ * @tc.number: user_file_service_external_file_access_Rename_0002
+ * @tc.name: external_file_access_Rename_0002
  * @tc.desc: Test function of Rename interface for ERROR which sourceFileUri is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0002, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0002, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Rename_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Rename_0002";
     try {
         Uri renameUri("");
         Uri sourceFileUri("");
@@ -1717,21 +1717,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0002, testing::ex
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Rename_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Rename_0002";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Rename_0003
- * @tc.name: file_extension_helper_Rename_0003
+ * @tc.number: user_file_service_external_file_access_Rename_0003
+ * @tc.name: external_file_access_Rename_0003
  * @tc.desc: Test function of Rename interface for ERROR which sourceFileUri is absolute path.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0003, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0003, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Rename_0003";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Rename_0003";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1758,21 +1758,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0003, testing::ex
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Rename_0003";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Rename_0003";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Rename_0004
- * @tc.name: file_extension_helper_Rename_0004
+ * @tc.number: user_file_service_external_file_access_Rename_0004
+ * @tc.name: external_file_access_Rename_0004
  * @tc.desc: Test function of Rename interface for ERROR which sourceFileUri is special symbols.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0004, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0004, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Rename_0004";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Rename_0004";
     try {
         Uri renameUri("");
         Uri sourceFileUri("~!@#$%^&*()_");
@@ -1782,21 +1782,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0004, testing::ex
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Rename_0004";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Rename_0004";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Rename_0005
- * @tc.name: file_extension_helper_Rename_0005
+ * @tc.number: user_file_service_external_file_access_Rename_0005
+ * @tc.name: external_file_access_Rename_0005
  * @tc.desc: Test function of Rename interface for ERROR which displayName is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0005, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0005, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Rename_0005";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Rename_0005";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1822,12 +1822,12 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0005, testing::ex
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Rename_0005";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Rename_0005";
 }
 
 void RenameTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, std::string displayName, Uri newFile)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_RenameTdd";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_RenameTdd";
     int ret = fahs->Rename(sourceFile, displayName, newFile);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "RenameTdd get result error, code:" << ret;
@@ -1835,21 +1835,21 @@ void RenameTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, std::string di
     }
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     g_num++;
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_RenameTdd";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_RenameTdd";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Rename_0006
- * @tc.name: file_extension_helper_Rename_0006
+ * @tc.number: user_file_service_external_file_access_Rename_0006
+ * @tc.name: external_file_access_Rename_0006
  * @tc.desc: Test function of Rename interface for SUCCESS which Concurrent.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0006, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0006, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Rename_0006";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Rename_0006";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1879,21 +1879,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Rename_0006, testing::ex
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Rename_0006";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Rename_0006";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_ListFile_0000
- * @tc.name: file_extension_helper_ListFile_0000
+ * @tc.number: user_file_service_external_file_access_ListFile_0000
+ * @tc.name: external_file_access_ListFile_0000
  * @tc.desc: Test function of ListFile interface for SUCCESS.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_ListFile_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0000";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -1905,7 +1905,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0000, testing::
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri testUri("");
-            result = g_fah->CreateFile(newDirUriTest, "file_extension_helper_ListFile_0000.txt", testUri);
+            result = g_fah->CreateFile(newDirUriTest, "external_file_access_ListFile_0000.txt", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             FileInfo fileInfo;
@@ -1924,21 +1924,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0000, testing::
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_ListFile_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0000";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_ListFile_0001
- * @tc.name: file_extension_helper_ListFile_0001
+ * @tc.number: user_file_service_external_file_access_ListFile_0001
+ * @tc.name: external_file_access_ListFile_0001
  * @tc.desc: Test function of ListFile interface for ERROR which Uri is nullptr.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0001, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0001, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_ListFile_0001";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0001";
     try {
         Uri sourceFileUri("");
         FileInfo fileInfo;
@@ -1953,21 +1953,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0001, testing::
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_ListFile_0001";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0001";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_ListFile_0002
- * @tc.name: file_extension_helper_ListFile_0002
+ * @tc.number: user_file_service_external_file_access_ListFile_0002
+ * @tc.name: external_file_access_ListFile_0002
  * @tc.desc: Test function of ListFile interface for ERROR which sourceFileUri is absolute path.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0002, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0002, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_ListFile_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0002";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -2000,21 +2000,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0002, testing::
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_ListFile_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0002";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_ListFile_0003
- * @tc.name: file_extension_helper_ListFile_0003
+ * @tc.number: user_file_service_external_file_access_ListFile_0003
+ * @tc.name: external_file_access_ListFile_0003
  * @tc.desc: Test function of ListFile interface for ERROR which sourceFileUri is special symbols.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0003, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0003, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_ListFile_0003";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0003";
     try {
         Uri sourceFileUri("~!@#$%^&*()_");
         FileInfo fileInfo;
@@ -2030,13 +2030,13 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0003, testing::
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_ListFile_0003";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0003";
 }
 
 void ListFileTdd(shared_ptr<FileAccessHelper> fahs, FileInfo fileInfo, int offset, int maxCount,
      FileFilter filter, std::vector<FileInfo> fileInfoVec)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_ListFileTdd";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFileTdd";
     int ret = fahs->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "ListFile get result error, code:" << ret;
@@ -2044,21 +2044,21 @@ void ListFileTdd(shared_ptr<FileAccessHelper> fahs, FileInfo fileInfo, int offse
     }
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     g_num++;
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_ListFileTdd";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFileTdd";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_ListFile_0004
- * @tc.name: file_extension_helper_ListFile_0004
+ * @tc.number: user_file_service_external_file_access_ListFile_0004
+ * @tc.name: external_file_access_ListFile_0004
  * @tc.desc: Test function of ListFile interface for SUCCESS which Concurrent.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0004, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0004, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_ListFile_0004";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0004";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -2070,7 +2070,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0004, testing::
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri testUri("");
-            result = g_fah->CreateFile(newDirUriTest, "file_extension_helper_ListFile_0004.txt", testUri);
+            result = g_fah->CreateFile(newDirUriTest, "external_file_access_ListFile_0004.txt", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             FileInfo fileInfo;
@@ -2092,21 +2092,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_ListFile_0004, testing::
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_ListFile_0004";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0004";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_GetRoots_0000
- * @tc.name: file_extension_helper_GetRoots_0000
+ * @tc.number: user_file_service_external_file_access_GetRoots_0000
+ * @tc.name: external_file_access_GetRoots_0000
  * @tc.desc: Test function of GetRoots interface for SUCCESS.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_GetRoots_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_GetRoots_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_GetRoots_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetRoots_0000";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -2123,21 +2123,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_GetRoots_0000, testing::
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_GetRoots_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_GetRoots_0000";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_allInterface_0000
- * @tc.name: file_extension_helper_allInterface_0000
+ * @tc.number: user_file_service_external_file_access_allInterface_0000
+ * @tc.name: external_file_access_allInterface_0000
  * @tc.desc: Test function of allInterface interface for SUCCESS.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_allInterface_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_allInterface_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_allInterface_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_allInterface_0000";
     try {
         auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         auto remoteObj = saManager->GetSystemAbility(ABILITY_ID);
@@ -2175,7 +2175,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_allInterface_0000, testi
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri newFileUri("");
-            result = fahs->CreateFile(newDirUriTest1, "file_extension_helper_allInterface_0000.txt", newFileUri);
+            result = fahs->CreateFile(newDirUriTest1, "external_file_access_allInterface_0000.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             result = fahs->Rename(newFileUri, "test1.txt", newFileUri);
@@ -2197,21 +2197,21 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_allInterface_0000, testi
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_allInterface_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_allInterface_0000";
 }
 
 /**
- * @tc.number: user_file_service_file_extension_helper_Access_0000
- * @tc.name: file_extension_helper_Access_0000
+ * @tc.number: user_file_service_external_file_access_Access_0000
+ * @tc.name: external_file_access_Access_0000
  * @tc.desc: Test function of Access interface for SUCCESS.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, file_extension_helper_Access_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_Access_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin file_extension_helper_Access_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Access_0000";
     try {
         uint64_t selfTokenId_ = GetSelfTokenID();
 
@@ -2227,7 +2227,7 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Access_0000, testing::ex
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri newFileUri("");
-            result = g_fah->CreateFile(newDirUriTest, "file_extension_helper_Access_0000.txt", newFileUri);
+            result = g_fah->CreateFile(newDirUriTest, "external_file_access_Access_0000.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             bool isExist = false;
@@ -2251,6 +2251,6 @@ HWTEST_F(FileExtensionHelperTest, file_extension_helper_Access_0000, testing::ex
     } catch (...) {
         GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end file_extension_helper_Access_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Access_0000";
 }
 } // namespace

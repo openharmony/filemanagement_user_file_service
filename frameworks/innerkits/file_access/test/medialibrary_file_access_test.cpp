@@ -158,17 +158,17 @@ public:
 };
 
 /**
- * @tc.number: user_file_service_file_access_helper_OpenFile_0000
- * @tc.name: file_access_helper_OpenFile_0000
+ * @tc.number: user_file_service_medialibrary_file_access_OpenFile_0000
+ * @tc.name: medialibrary_file_access_OpenFile_0000
  * @tc.desc: Test function of OpenFile interface for SUCCESS.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_OpenFile_0000";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0000";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -207,7 +207,7 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0000, testing::ext::T
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         Uri newFileUri("");
-        result = g_fah->CreateFile(newDirUriTest, "file_access_helper_OpenFile_0000.txt", newFileUri);
+        result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_OpenFile_0000.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         int fd;
@@ -221,21 +221,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0000, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_OpenFile_0000";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0000";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_OpenFile_0001
- * @tc.name: file_access_helper_OpenFile_0001
+ * @tc.number: user_file_service_medialibrary_file_access_OpenFile_0001
+ * @tc.name: medialibrary_file_access_OpenFile_0001
  * @tc.desc: Test function of OpenFile interface for ERROR which Uri is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0001, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0001, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_OpenFile_0001";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0001";
     try {
         Uri uri("");
         int fd;
@@ -245,27 +245,27 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0001, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_OpenFile_0001";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0001";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_OpenFile_0002
- * @tc.name: file_access_helper_OpenFile_0002
+ * @tc.number: user_file_service_medialibrary_file_access_OpenFile_0002
+ * @tc.name: medialibrary_file_access_OpenFile_0002
  * @tc.desc: Test function of OpenFile interface for ERROR which Uri is absolute path.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0002, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0002, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_OpenFile_0002";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0002";
     try {
         Uri newFileUri("");
-        int result = g_fah->CreateFile(g_newDirUri, "file_access_helper_OpenFile_0002.txt", newFileUri);
+        int result = g_fah->CreateFile(g_newDirUri, "medialibrary_file_access_OpenFile_0002.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
-        Uri uri("storage/media/100/local/files/Download/file_access_helper_OpenFile_0002.txt");
+        Uri uri("storage/media/100/local/files/Download/medialibrary_file_access_OpenFile_0002.txt");
         int fd;
         result = g_fah->OpenFile(uri, 0, fd);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
@@ -276,21 +276,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0002, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_OpenFile_0002";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0002";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_OpenFile_0003
- * @tc.name: file_access_helper_OpenFile_0003
+ * @tc.number: user_file_service_medialibrary_file_access_OpenFile_0003
+ * @tc.name: medialibrary_file_access_OpenFile_0003
  * @tc.desc: Test function of OpenFile interface for ERROR which Uri is special symbols.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0003, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0003, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_OpenFile_0003";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0003";
     try {
         Uri uri("~!@#$%^&*()_");
         int fd;
@@ -300,24 +300,24 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0003, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_OpenFile_0003";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0003";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_OpenFile_0004
- * @tc.name: file_access_helper_OpenFile_0004
+ * @tc.number: user_file_service_medialibrary_file_access_OpenFile_0004
+ * @tc.name: medialibrary_file_access_OpenFile_0004
  * @tc.desc: Test function of OpenFile interface for ERROR which flag is -1.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0004, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0004, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_OpenFile_0004";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0004";
     try {
         Uri newFileUri("");
-        int result = g_fah->CreateFile(g_newDirUri, "file_access_helper_OpenFile_0004.txt", newFileUri);
+        int result = g_fah->CreateFile(g_newDirUri, "medialibrary_file_access_OpenFile_0004.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         int fd;
@@ -330,24 +330,24 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0004, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_OpenFile_0004";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0004";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_OpenFile_0005
- * @tc.name: file_access_helper_OpenFile_0005
+ * @tc.number: user_file_service_medialibrary_file_access_OpenFile_0005
+ * @tc.name: medialibrary_file_access_OpenFile_0005
  * @tc.desc: Test function of OpenFile interface for SUCCESS which flag is 1.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0005, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0005, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_OpenFile_0005";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0005";
     try {
         Uri newFileUri("");
-        int result = g_fah->CreateFile(g_newDirUri, "file_access_helper_OpenFile_0005.txt", newFileUri);
+        int result = g_fah->CreateFile(g_newDirUri, "medialibrary_file_access_OpenFile_0005.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         int fd;
@@ -360,24 +360,24 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0005, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_OpenFile_0005";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0005";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_OpenFile_0006
- * @tc.name: file_access_helper_OpenFile_0006
+ * @tc.number: user_file_service_medialibrary_file_access_OpenFile_0006
+ * @tc.name: medialibrary_file_access_OpenFile_0006
  * @tc.desc: Test function of OpenFile interface for SUCCESS which flag is 2.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0006, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0006, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_OpenFile_0006";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0006";
     try {
         Uri newFileUri("");
-        int result = g_fah->CreateFile(g_newDirUri, "file_access_helper_OpenFile_0006.txt", newFileUri);
+        int result = g_fah->CreateFile(g_newDirUri, "medialibrary_file_access_OpenFile_0006.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         int fd;
@@ -390,12 +390,12 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0006, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_OpenFile_0006";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0006";
 }
 
 void OpenFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, int flags, int fd)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_OpenFileTdd";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFileTdd";
     int ret = fahs->OpenFile(uri, flags, fd);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "OpenFileTdd get result error, code:" << ret;
@@ -404,21 +404,21 @@ void OpenFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, int flags, int fd)
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_GE(fd, 0);
     g_num++;
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_Access_helper_OpenFileTdd";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFileTdd";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_OpenFile_0007
- * @tc.name: file_access_helper_OpenFile_0007
+ * @tc.number: user_file_service_medialibrary_file_access_OpenFile_0007
+ * @tc.name: medialibrary_file_access_OpenFile_0007
  * @tc.desc: Test function of OpenFile interface for SUCCESS which Concurrent.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0007, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0007, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_OpenFile_0007";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0007";
     try {
         Uri newFileUri("");
         int flags = 0;
@@ -438,24 +438,24 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_OpenFile_0007, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_OpenFile_0007";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0007";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_CreateFile_0000
- * @tc.name: file_access_helper_CreateFile_0000
+ * @tc.number: user_file_service_medialibrary_file_access_CreateFile_0000
+ * @tc.name: medialibrary_file_access_CreateFile_0000
  * @tc.desc: Test function of CreateFile interface for SUCCESS.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_CreateFile_0000";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_CreateFile_0000";
     try {
         Uri newFileUri("");
-        int result = g_fah->CreateFile(g_newDirUri, "file_access_helper_CreateFile_0000.txt", newFileUri);
+        int result = g_fah->CreateFile(g_newDirUri, "medialibrary_file_access_CreateFile_0000.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0000 result:" << result << endl;
 
@@ -464,93 +464,93 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0000, testing::ext:
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_CreateFile_0000";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_CreateFile_0000";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_CreateFile_0001
- * @tc.name: file_access_helper_CreateFile_0001
+ * @tc.number: user_file_service_medialibrary_file_access_CreateFile_0001
+ * @tc.name: medialibrary_file_access_CreateFile_0001
  * @tc.desc: Test function of CreateFile interface for ERROR which parentUri is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0001, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0001, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_CreateFile_0001";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_CreateFile_0001";
     try {
         Uri newFileUri("");
         Uri parentUri("");
-        int result = g_fah->CreateFile(parentUri, "file_access_helper_CreateFile_0001.txt", newFileUri);
+        int result = g_fah->CreateFile(parentUri, "medialibrary_file_access_CreateFile_0001.txt", newFileUri);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0001 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_CreateFile_0001";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_CreateFile_0001";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_CreateFile_0002
- * @tc.name: file_access_helper_CreateFile_0002
+ * @tc.number: user_file_service_medialibrary_file_access_CreateFile_0002
+ * @tc.name: medialibrary_file_access_CreateFile_0002
  * @tc.desc: Test function of CreateFile interface for ERROR which parentUri is absolute path.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0002, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0002, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_CreateFile_0002";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_CreateFile_0002";
     try {
         Uri newFileUri("");
         Uri parentUri("storage/media/100/local/files/Download");
-        int result = g_fah->CreateFile(parentUri, "file_access_helper_CreateFile_0002.txt", newFileUri);
+        int result = g_fah->CreateFile(parentUri, "medialibrary_file_access_CreateFile_0002.txt", newFileUri);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0002 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_CreateFile_0002";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_CreateFile_0002";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_CreateFile_0003
- * @tc.name: file_access_helper_CreateFile_0003
+ * @tc.number: user_file_service_medialibrary_file_access_CreateFile_0003
+ * @tc.name: medialibrary_file_access_CreateFile_0003
  * @tc.desc: Test function of CreateFile interface for ERROR which parentUri is special symbols.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0003, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0003, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_CreateFile_0002";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_CreateFile_0002";
     try {
         Uri newFileUri("");
         Uri parentUri("~!@#$%^&*()_");
-        int result = g_fah->CreateFile(parentUri, "file_access_helper_CreateFile_0003.txt", newFileUri);
+        int result = g_fah->CreateFile(parentUri, "medialibrary_file_access_CreateFile_0003.txt", newFileUri);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0003 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_CreateFile_0003";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_CreateFile_0003";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_CreateFile_0004
- * @tc.name: file_access_helper_CreateFile_0004
+ * @tc.number: user_file_service_medialibrary_file_access_CreateFile_0004
+ * @tc.name: medialibrary_file_access_CreateFile_0004
  * @tc.desc: Test function of CreateFile interface for ERROR which displayName is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0004, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0004, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_CreateFile_0004";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_CreateFile_0004";
     try {
         Uri newFileUri("");
         string displayName = "";
@@ -560,12 +560,12 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0004, testing::ext:
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_CreateFile_0004";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_CreateFile_0004";
 }
 
 void CreateFileTdd(shared_ptr<FileAccessHelper> fahs, Uri parent, std::string displayName, Uri newDir)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_CreateFileTdd";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_CreateFileTdd";
     int ret = fahs->CreateFile(parent, displayName, newDir);
     if (ret < OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "CreateFileTdd get result error, code:" << ret;
@@ -574,21 +574,21 @@ void CreateFileTdd(shared_ptr<FileAccessHelper> fahs, Uri parent, std::string di
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_NE(newDir.ToString(), "");
     g_num++;
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_Access_helper_CreateFileTdd";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_CreateFileTdd";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_CreateFile_0005
- * @tc.name: file_access_helper_CreateFile_0005
+ * @tc.number: user_file_service_medialibrary_file_access_CreateFile_0005
+ * @tc.name: medialibrary_file_access_CreateFile_0005
  * @tc.desc: Test function of CreateFile interface for SUCCESS while Concurrent.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0005, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0005, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_CreateFile_0005";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_CreateFile_0005";
     try {
         Uri newFileUri1("");
         Uri newFileUri2("");
@@ -611,24 +611,24 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_CreateFile_0005, testing::ext:
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_CreateFile_0005";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_CreateFile_0005";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Mkdir_0000
- * @tc.name: file_access_helper_Mkdir_0000
+ * @tc.number: user_file_service_medialibrary_file_access_Mkdir_0000
+ * @tc.name: medialibrary_file_access_Mkdir_0000
  * @tc.desc: Test function of Mkdir interface for SUCCESS.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Mkdir_0000";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Mkdir_0000";
     try {
         Uri newDirUriTest("");
-        int result = g_fah->Mkdir(g_newDirUri, "file_access_helper_Mkdir_0000", newDirUriTest);
+        int result = g_fah->Mkdir(g_newDirUri, "medialibrary_file_access_Mkdir_0000", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0000 result:" << result << endl;
 
@@ -637,93 +637,93 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0000, testing::ext::Test
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Mkdir_0000";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Mkdir_0000";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Mkdir_0001
- * @tc.name: file_access_helper_Mkdir_0001
+ * @tc.number: user_file_service_medialibrary_file_access_Mkdir_0001
+ * @tc.name: medialibrary_file_access_Mkdir_0001
  * @tc.desc: Test function of Mkdir interface for ERROR which parentUri is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0001, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0001, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Mkdir_0001";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Mkdir_0001";
     try {
         Uri newDirUriTest("");
         Uri parentUri("");
-        int result = g_fah->Mkdir(parentUri, "file_access_helper_Mkdir_0001", newDirUriTest);
+        int result = g_fah->Mkdir(parentUri, "medialibrary_file_access_Mkdir_0001", newDirUriTest);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0001 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Mkdir_0001";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Mkdir_0001";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Mkdir_0002
- * @tc.name: file_access_helper_Mkdir_0002
+ * @tc.number: user_file_service_medialibrary_file_access_Mkdir_0002
+ * @tc.name: medialibrary_file_access_Mkdir_0002
  * @tc.desc: Test function of Mkdir interface for ERROR which parentUri is absolute path.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0002, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0002, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Mkdir_0002";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Mkdir_0002";
     try {
         Uri newDirUriTest("");
         Uri parentUri("storage/media/100/local/files/Download");
-        int result = g_fah->Mkdir(parentUri, "file_access_helper_Mkdir_0002", newDirUriTest);
+        int result = g_fah->Mkdir(parentUri, "medialibrary_file_access_Mkdir_0002", newDirUriTest);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0002 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Mkdir_0002";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Mkdir_0002";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Mkdir_0003
- * @tc.name: file_access_helper_Mkdir_0003
+ * @tc.number: user_file_service_medialibrary_file_access_Mkdir_0003
+ * @tc.name: medialibrary_file_access_Mkdir_0003
  * @tc.desc: Test function of Mkdir interface for ERROR which parentUri is special symbols.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0003, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0003, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Mkdir_0002";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Mkdir_0002";
     try {
         Uri newDirUriTest("");
         Uri parentUri("~!@#$%^&*()_");
-        int result = g_fah->Mkdir(parentUri, "file_access_helper_Mkdir_0003", newDirUriTest);
+        int result = g_fah->Mkdir(parentUri, "medialibrary_file_access_Mkdir_0003", newDirUriTest);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0003 result:" << result << endl;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Mkdir_0003";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Mkdir_0003";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Mkdir_0004
- * @tc.name: file_access_helper_Mkdir_0004
+ * @tc.number: user_file_service_medialibrary_file_access_Mkdir_0004
+ * @tc.name: medialibrary_file_access_Mkdir_0004
  * @tc.desc: Test function of Mkdir interface for ERROR which displayName is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0004, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0004, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Mkdir_0004";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Mkdir_0004";
     try {
         Uri newDirUriTest("");
         string displayName = "";
@@ -733,12 +733,12 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0004, testing::ext::Test
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Mkdir_0004";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Mkdir_0004";
 }
 
 void MkdirTdd(shared_ptr<FileAccessHelper> fahs, Uri parent, std::string displayName, Uri newDir)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_MkdirTdd";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_MkdirTdd";
     int ret = fahs->Mkdir(parent, displayName, newDir);
     if (ret < OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "MkdirTdd get result error, code:" << ret;
@@ -747,21 +747,21 @@ void MkdirTdd(shared_ptr<FileAccessHelper> fahs, Uri parent, std::string display
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_NE(newDir.ToString(), "");
     g_num++;
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_Access_helper_MkdirTdd";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_MkdirTdd";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Mkdir_0005
- * @tc.name: file_access_helper_Mkdir_0005
+ * @tc.number: user_file_service_medialibrary_file_access_Mkdir_0005
+ * @tc.name: medialibrary_file_access_Mkdir_0005
  * @tc.desc: Test function of Mkdir interface for SUCCESS which Concurrent.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0005, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0005, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Mkdir_0005";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Mkdir_0005";
     try {
         Uri newFileUri1("");
         Uri newFileUri2("");
@@ -784,28 +784,28 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Mkdir_0005, testing::ext::Test
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Mkdir_0005";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Mkdir_0005";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Delete_0000
- * @tc.name: file_access_helper_Delete_0000
+ * @tc.number: user_file_service_medialibrary_file_access_Delete_0000
+ * @tc.name: medialibrary_file_access_Delete_0000
  * @tc.desc: Test function of Delete interface for SUCCESS which delete file.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Delete_0000";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Delete_0000";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         Uri newFileUri("");
-        result = g_fah->CreateFile(newDirUriTest, "file_access_helper_Delete_0000.txt", newFileUri);
+        result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_Delete_0000.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         result = g_fah->Delete(newFileUri);
@@ -817,21 +817,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0000, testing::ext::Tes
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Delete_0000";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Delete_0000";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Delete_0001
- * @tc.name: file_access_helper_Delete_0001
+ * @tc.number: user_file_service_medialibrary_file_access_Delete_0001
+ * @tc.name: medialibrary_file_access_Delete_0001
  * @tc.desc: Test function of Delete interface for SUCCESS which delete folder.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0001, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0001, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Delete_0001";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Delete_0001";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
@@ -843,21 +843,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0001, testing::ext::Tes
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Delete_0001";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Delete_0001";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Delete_0002
- * @tc.name: file_access_helper_Delete_0002
+ * @tc.number: user_file_service_medialibrary_file_access_Delete_0002
+ * @tc.name: medialibrary_file_access_Delete_0002
  * @tc.desc: Test function of Delete interface for ERROR which selectFileUri is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0002, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0002, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Delete_0002";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Delete_0002";
     try {
         Uri selectFileUri("");
         int result = g_fah->Delete(selectFileUri);
@@ -866,21 +866,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0002, testing::ext::Tes
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Delete_0002";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Delete_0002";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Delete_0003
- * @tc.name: file_access_helper_Delete_0003
+ * @tc.number: user_file_service_medialibrary_file_access_Delete_0003
+ * @tc.name: medialibrary_file_access_Delete_0003
  * @tc.desc: Test function of Delete interface for ERROR which selectFileUri is absolute path.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0003, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0003, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Delete_0003";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Delete_0003";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
@@ -896,21 +896,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0003, testing::ext::Tes
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Delete_0003";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Delete_0003";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Delete_0004
- * @tc.name: file_access_helper_Delete_0004
+ * @tc.number: user_file_service_medialibrary_file_access_Delete_0004
+ * @tc.name: medialibrary_file_access_Delete_0004
  * @tc.desc: Test function of Delete interface for ERROR which selectFileUri is special symbols.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0004, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0004, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Delete_0004";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Delete_0004";
     try {
         Uri selectFileUri("!@#$%^&*()");
         int result = g_fah->Delete(selectFileUri);
@@ -919,12 +919,12 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0004, testing::ext::Tes
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Delete_0004";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Delete_0004";
 }
 
 void DeleteTdd(shared_ptr<FileAccessHelper> fahs, Uri selectFile)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_DeleteTdd";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_DeleteTdd";
     int ret = fahs->Delete(selectFile);
     if (ret < OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "DeleteTdd get result error, code:" << ret;
@@ -932,28 +932,28 @@ void DeleteTdd(shared_ptr<FileAccessHelper> fahs, Uri selectFile)
     }
     EXPECT_GE(ret, OHOS::FileAccessFwk::ERR_OK);
     g_num++;
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_Access_helper_DeleteTdd";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_DeleteTdd";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Delete_0005
- * @tc.name: file_access_helper_Delete_0005
+ * @tc.number: user_file_service_medialibrary_file_access_Delete_0005
+ * @tc.name: medialibrary_file_access_Delete_0005
  * @tc.desc: Test function of Delete interface for SUCCESS which Concurrent.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0005, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0005, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Delete_0005";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Delete_0005";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         Uri newFileUri("");
-        result = g_fah->CreateFile(newDirUriTest, "file_access_helper_Delete_0005.txt", newFileUri);
+        result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_Delete_0005.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         Uri testUri("");
@@ -973,22 +973,22 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Delete_0005, testing::ext::Tes
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Delete_0005";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Delete_0005";
 }
 
 
 /**
- * @tc.number: user_file_service_file_access_helper_Move_0000
- * @tc.name: file_access_helper_Move_0000
+ * @tc.number: user_file_service_medialibrary_file_access_Move_0000
+ * @tc.name: medialibrary_file_access_Move_0000
  * @tc.desc: Test function of Move interface for SUCCESS which move file.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0000";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Move_0000";
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
@@ -1015,21 +1015,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0000, testing::ext::TestS
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Move_0000";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0000";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Move_0001
- * @tc.name: file_access_helper_Move_0001
+ * @tc.number: user_file_service_medialibrary_file_access_Move_0001
+ * @tc.name: medialibrary_file_access_Move_0001
  * @tc.desc: Test function of Move interface for SUCCESS which move folder.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0001, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0001, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0001";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Move_0001";
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
@@ -1055,21 +1055,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0001, testing::ext::TestS
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Move_0001";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0001";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Move_0002
- * @tc.name: file_access_helper_Move_0002
+ * @tc.number: user_file_service_medialibrary_file_access_Move_0002
+ * @tc.name: medialibrary_file_access_Move_0002
  * @tc.desc: Test function of Move interface for ERROR which sourceFileUri is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0002, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0002, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0002";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Move_0002";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
@@ -1086,21 +1086,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0002, testing::ext::TestS
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Move_0002";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0002";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Move_0003
- * @tc.name: file_access_helper_Move_0003
+ * @tc.number: user_file_service_medialibrary_file_access_Move_0003
+ * @tc.name: medialibrary_file_access_Move_0003
  * @tc.desc: Test function of Move interface for ERROR which sourceFileUri is absolute path.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0003, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0003, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0003";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Move_0003";
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
@@ -1128,21 +1128,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0003, testing::ext::TestS
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Move_0003";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0003";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Move_0004
- * @tc.name: file_access_helper_Move_0004
+ * @tc.number: user_file_service_medialibrary_file_access_Move_0004
+ * @tc.name: medialibrary_file_access_Move_0004
  * @tc.desc: Test function of Move interface for ERROR which sourceFileUri is special symbols.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0004, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0004, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0004";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Move_0004";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
@@ -1159,21 +1159,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0004, testing::ext::TestS
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Move_0004";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0004";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Move_0005
- * @tc.name: file_access_helper_Move_0005
+ * @tc.number: user_file_service_medialibrary_file_access_Move_0005
+ * @tc.name: medialibrary_file_access_Move_0005
  * @tc.desc: Test function of Move interface for ERROR which targetParentUri is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0005, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0005, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0005";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Move_0005";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest);
@@ -1194,21 +1194,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0005, testing::ext::TestS
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Move_0005";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0005";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Move_0006
- * @tc.name: file_access_helper_Move_0006
+ * @tc.number: user_file_service_medialibrary_file_access_Move_0006
+ * @tc.name: medialibrary_file_access_Move_0006
  * @tc.desc: Test function of Move interface for ERROR which targetParentUri is absolute path.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0006, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0006, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0006";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Move_0006";
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
@@ -1236,21 +1236,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0006, testing::ext::TestS
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Move_0006";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0006";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Move_0007
- * @tc.name: file_access_helper_Move_0007
+ * @tc.number: user_file_service_medialibrary_file_access_Move_0007
+ * @tc.name: medialibrary_file_access_Move_0007
  * @tc.desc: Test function of Move interface for ERROR which targetParentUri is special symbols.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0007, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0007, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0007";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Move_0007";
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
@@ -1278,21 +1278,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0007, testing::ext::TestS
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Move_0007";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0007";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Move_0008
- * @tc.name: file_access_helper_Move_0008
+ * @tc.number: user_file_service_medialibrary_file_access_Move_0008
+ * @tc.name: medialibrary_file_access_Move_0008
  * @tc.desc: Test function of Move interface for SUCCESS which move empty folder.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0008, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0008, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0008";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Move_0008";
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
@@ -1314,21 +1314,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0008, testing::ext::TestS
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Move_0008";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0008";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Move_0009
- * @tc.name: file_access_helper_Move_0009
+ * @tc.number: user_file_service_medialibrary_file_access_Move_0009
+ * @tc.name: medialibrary_file_access_Move_0009
  * @tc.desc: Test function of Move interface for SUCCESS which move more file in folder.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0009, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0009, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0009";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Move_0009";
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
@@ -1356,21 +1356,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0009, testing::ext::TestS
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Move_0009";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0009";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Move_0010
- * @tc.name: file_access_helper_Move_0010
+ * @tc.number: user_file_service_medialibrary_file_access_Move_0010
+ * @tc.name: medialibrary_file_access_Move_0010
  * @tc.desc: Test function of Move interface for SUCCESS which move Multilevel directory folder.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0010, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0010, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0010";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Move_0010";
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
@@ -1398,12 +1398,12 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0010, testing::ext::TestS
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Move_0010";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0010";
 }
 
 void MoveTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, Uri targetParent, Uri newFile)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_MoveTdd";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_MoveTdd";
     int ret = fahs->Move(sourceFile, targetParent, newFile);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "MoveTdd get result error, code:" << ret;
@@ -1412,21 +1412,21 @@ void MoveTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, Uri targetParent
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_NE(newFile.ToString(), "");
     g_num++;
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_Access_helper_MoveTdd";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_MoveTdd";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Move_0011
- * @tc.name: file_access_helper_Move_0011
+ * @tc.number: user_file_service_medialibrary_file_access_Move_0011
+ * @tc.name: medialibrary_file_access_Move_0011
  * @tc.desc: Test function of Move interface for SUCCESS which Concurrent.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0011, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0011, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Move_0011";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Move_0011";
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
@@ -1456,21 +1456,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Move_0011, testing::ext::TestS
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Move_0011";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0011";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Rename_0000
- * @tc.name: file_access_helper_Rename_0000
+ * @tc.number: user_file_service_medialibrary_file_access_Rename_0000
+ * @tc.name: medialibrary_file_access_Rename_0000
  * @tc.desc: Test function of Rename interface for SUCCESS which rename file.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Rename_0000";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Rename_0000";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
@@ -1490,21 +1490,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0000, testing::ext::Tes
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Rename_0000";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Rename_0000";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Rename_0001
- * @tc.name: file_access_helper_Rename_0001
+ * @tc.number: user_file_service_medialibrary_file_access_Rename_0001
+ * @tc.name: medialibrary_file_access_Rename_0001
  * @tc.desc: Test function of Rename interface for SUCCESS which rename folder.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0001, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0001, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Rename_0001";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Rename_0001";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
@@ -1520,21 +1520,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0001, testing::ext::Tes
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Rename_0001";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Rename_0001";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Rename_0002
- * @tc.name: file_access_helper_Rename_0002
+ * @tc.number: user_file_service_medialibrary_file_access_Rename_0002
+ * @tc.name: medialibrary_file_access_Rename_0002
  * @tc.desc: Test function of Rename interface for ERROR which sourceFileUri is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0002, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0002, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Rename_0002";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Rename_0002";
     try {
         Uri renameUri("");
         Uri sourceFileUri("");
@@ -1544,21 +1544,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0002, testing::ext::Tes
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Rename_0002";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Rename_0002";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Rename_0003
- * @tc.name: file_access_helper_Rename_0003
+ * @tc.number: user_file_service_medialibrary_file_access_Rename_0003
+ * @tc.name: medialibrary_file_access_Rename_0003
  * @tc.desc: Test function of Rename interface for ERROR which sourceFileUri is absolute path.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0003, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0003, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Rename_0003";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Rename_0003";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
@@ -1579,21 +1579,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0003, testing::ext::Tes
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Rename_0003";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Rename_0003";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Rename_0004
- * @tc.name: file_access_helper_Rename_0004
+ * @tc.number: user_file_service_medialibrary_file_access_Rename_0004
+ * @tc.name: medialibrary_file_access_Rename_0004
  * @tc.desc: Test function of Rename interface for ERROR which sourceFileUri is special symbols.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0004, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0004, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Rename_0004";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Rename_0004";
     try {
         Uri renameUri("");
         Uri sourceFileUri("~!@#$%^&*()_");
@@ -1603,21 +1603,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0004, testing::ext::Tes
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Rename_0004";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Rename_0004";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Rename_0005
- * @tc.name: file_access_helper_Rename_0005
+ * @tc.number: user_file_service_medialibrary_file_access_Rename_0005
+ * @tc.name: medialibrary_file_access_Rename_0005
  * @tc.desc: Test function of Rename interface for ERROR which displayName is null.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0005, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0005, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Rename_0005";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Rename_0005";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
@@ -1637,12 +1637,12 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0005, testing::ext::Tes
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Rename_0005";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Rename_0005";
 }
 
 void RenameTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, std::string displayName, Uri newFile)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_RenameTdd";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_RenameTdd";
     int ret = fahs->Rename(sourceFile, displayName, newFile);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "RenameTdd get result error, code:" << ret;
@@ -1651,21 +1651,21 @@ void RenameTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, std::string di
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_NE(newFile.ToString(), "");
     g_num++;
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_Access_helper_RenameTdd";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_RenameTdd";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_Rename_0006
- * @tc.name: file_access_helper_Rename_0006
+ * @tc.number: user_file_service_medialibrary_file_access_Rename_0006
+ * @tc.name: medialibrary_file_access_Rename_0006
  * @tc.desc: Test function of Rename interface for SUCCESS which Concurrent.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0006, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0006, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_Rename_0006";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Rename_0006";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
@@ -1688,28 +1688,28 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_Rename_0006, testing::ext::Tes
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_Rename_0006";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Rename_0006";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_ListFile_0000
- * @tc.name: file_access_helper_ListFile_0000
+ * @tc.number: user_file_service_medialibrary_file_access_ListFile_0000
+ * @tc.name: medialibrary_file_access_ListFile_0000
  * @tc.desc: Test function of ListFile interface for SUCCESS.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ListFile_0000";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ListFile_0000";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         Uri testUri("");
-        result = g_fah->CreateFile(newDirUriTest, "file_access_helper_ListFile_0000.txt", testUri);
+        result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ListFile_0000.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         FileInfo fileInfo;
@@ -1728,21 +1728,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0000, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_ListFile_0000";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ListFile_0000";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_ListFile_0001
- * @tc.name: file_access_helper_ListFile_0001
+ * @tc.number: user_file_service_medialibrary_file_access_ListFile_0001
+ * @tc.name: medialibrary_file_access_ListFile_0001
  * @tc.desc: Test function of ListFile interface for ERROR which Uri is nullptr.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0001, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0001, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ListFile_0001";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ListFile_0001";
     try {
         Uri sourceFileUri("");
         FileInfo fileInfo;
@@ -1758,21 +1758,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0001, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_ListFile_0001";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ListFile_0001";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_ListFile_0002
- * @tc.name: file_access_helper_ListFile_0002
+ * @tc.number: user_file_service_medialibrary_file_access_ListFile_0002
+ * @tc.name: medialibrary_file_access_ListFile_0002
  * @tc.desc: Test function of ListFile interface for ERROR which sourceFileUri is absolute path.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0002, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0002, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ListFile_0002";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ListFile_0002";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
@@ -1799,21 +1799,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0002, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_ListFile_0002";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ListFile_0002";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_ListFile_0003
- * @tc.name: file_access_helper_ListFile_0003
+ * @tc.number: user_file_service_medialibrary_file_access_ListFile_0003
+ * @tc.name: medialibrary_file_access_ListFile_0003
  * @tc.desc: Test function of ListFile interface for ERROR which sourceFileUri is special symbols.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0003, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0003, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ListFile_0003";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ListFile_0003";
     try {
         Uri sourceFileUri("~!@#$%^&*()_");
         FileInfo fileInfo;
@@ -1829,31 +1829,31 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0003, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_ListFile_0003";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ListFile_0003";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_ListFile_0004
- * @tc.name: file_access_helper_ListFile_0004
+ * @tc.number: user_file_service_medialibrary_file_access_ListFile_0004
+ * @tc.name: medialibrary_file_access_ListFile_0004
  * @tc.desc: Test function of ListFile interface for ERROR which add filter.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000HB855
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0004, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0004, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ListFile_0004";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ListFile_0004";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         Uri testUri1("");
-        result = g_fah->CreateFile(newDirUriTest, "file_access_helper_ListFile_0004.txt", testUri1);
+        result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ListFile_0004.txt", testUri1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri2("");
-        result = g_fah->CreateFile(newDirUriTest, "file_access_helper_ListFile_0004.docx", testUri2);
+        result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ListFile_0004.docx", testUri2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         FileInfo fileInfo;
@@ -1871,13 +1871,13 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0004, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_ListFile_0004";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ListFile_0004";
 }
 
 void ListFileTdd(shared_ptr<FileAccessHelper> fahs, FileInfo fileInfo, int offset, int maxCount,
     FileFilter filter, std::vector<FileInfo> fileInfoVec)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_Access_helper_ListFileTdd";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ListFileTdd";
     int ret = fahs->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "ListFileTdd get result error, code:" << ret;
@@ -1886,31 +1886,31 @@ void ListFileTdd(shared_ptr<FileAccessHelper> fahs, FileInfo fileInfo, int offse
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(fileInfoVec.size(), 1);
     g_num++;
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_Access_helper_ListFileTdd";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ListFileTdd";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_ListFile_0005
- * @tc.name: file_access_helper_ListFile_0005
+ * @tc.number: user_file_service_medialibrary_file_access_ListFile_0005
+ * @tc.name: medialibrary_file_access_ListFile_0005
  * @tc.desc: Test function of ListFile interface for ERROR which Concurrent.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0005, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0005, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ListFile_0005";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ListFile_0005";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         Uri testUri1("");
-        result = g_fah->CreateFile(newDirUriTest, "file_access_helper_ListFile_0005.txt", testUri1);
+        result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ListFile_0005.txt", testUri1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri2("");
-        result = g_fah->CreateFile(newDirUriTest, "file_access_helper_ListFile_0005.docx", testUri2);
+        result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ListFile_0005.docx", testUri2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         FileInfo fileInfo;
@@ -1931,21 +1931,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ListFile_0005, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_ListFile_0005";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ListFile_0005";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_ScanFile_0000
- * @tc.name: file_access_helper_ScanFile_0000
+ * @tc.number: user_file_service_medialibrary_file_access_ScanFile_0000
+ * @tc.name: medialibrary_file_access_ScanFile_0000
  * @tc.desc: Test function of ScanFile interface for SUCCESS which scan root directory with filter.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000HB866
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ScanFile_0000";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ScanFile_0000";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
@@ -1953,9 +1953,9 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0000, testing::ext::T
 
         Uri testUri("");
         FileInfo fileInfo;
-        result = g_fah->CreateFile(newDirUriTest, "file_access_helper_ScanFile_0000.q1w2e3r4", testUri);
+        result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ScanFile_0000.q1w2e3r4", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->CreateFile(newDirUriTest, "file_access_helper_ScanFile_0000.txt", testUri);
+        result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ScanFile_0000.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         fileInfo.uri = "datashare:///media/root";
         int64_t offset = 0;
@@ -1972,21 +1972,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0000, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_ScanFile_0000";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ScanFile_0000";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_ScanFile_0001
- * @tc.name: file_access_helper_ScanFile_0001
+ * @tc.number: user_file_service_medialibrary_file_access_ScanFile_0001
+ * @tc.name: medialibrary_file_access_ScanFile_0001
  * @tc.desc: Test function of ScanFile interface for SUCCESS which scan root directory with no filter.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000HB866
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0001, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0001, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ScanFile_0001";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ScanFile_0001";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
@@ -1995,9 +1995,9 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0001, testing::ext::T
         Uri testUri("");
         FileInfo fileInfo;
         fileInfo.uri = "datashare:///media/root";
-        result = g_fah->CreateFile(newDirUriTest, "file_access_helper_ScanFile_0001.q1w2e3r4", testUri);
+        result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ScanFile_0001.q1w2e3r4", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->CreateFile(newDirUriTest, "file_access_helper_ScanFile_0001.txt", testUri);
+        result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ScanFile_0001.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         int64_t offset = 0;
         int64_t maxCount = 1000;
@@ -2013,32 +2013,32 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0001, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_ScanFile_0001";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ScanFile_0001";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_ScanFile_0002
- * @tc.name: file_access_helper_ScanFile_0002
+ * @tc.number: user_file_service_medialibrary_file_access_ScanFile_0002
+ * @tc.name: medialibrary_file_access_ScanFile_0002
  * @tc.desc: Test function of ScanFile interface for SUCCESS which self created directory with filter.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000HB866
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0002, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0002, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ScanFile_0002";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ScanFile_0002";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         Uri testUri("");
-        result = g_fah->CreateFile(newDirUriTest, "file_access_helper_ScanFile_0002.q1w2e3r4", testUri);
+        result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ScanFile_0002.q1w2e3r4", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->CreateFile(newDirUriTest, "file_access_helper_ScanFile_0000.txt", testUri);
+        result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ScanFile_0000.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->CreateFile(newDirUriTest, "file_access_helper_ScanFile_0000.docx", testUri);
+        result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ScanFile_0000.docx", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         FileInfo fileInfo;
         fileInfo.uri = newDirUriTest.ToString();
@@ -2060,28 +2060,28 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0002, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_ScanFile_0002";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ScanFile_0002";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_ScanFile_0003
- * @tc.name: file_access_helper_ScanFile_0003
+ * @tc.number: user_file_service_medialibrary_file_access_ScanFile_0003
+ * @tc.name: medialibrary_file_access_ScanFile_0003
  * @tc.desc: Test function of ScanFile interface for SUCCESS which self created directory with filter.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000HB866
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0003, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0003, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ScanFile_0003";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ScanFile_0003";
     try {
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         Uri testUri("");
-        result = g_fah->CreateFile(newDirUriTest, "file_access_helper_ScanFile_0003.q1w2e3r4", testUri);
+        result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ScanFile_0003.q1w2e3r4", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         FileInfo fileInfo;
         fileInfo.uri = newDirUriTest.ToString();
@@ -2099,13 +2099,13 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0003, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_ScanFile_0003";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ScanFile_0003";
 }
 
 void ScanFileTdd(shared_ptr<FileAccessHelper> fahs, FileInfo fileInfo, int offset, int maxCount,
     FileFilter filter, std::vector<FileInfo> fileInfoVec)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ScanFileTdd";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ScanFileTdd";
     int ret = fahs->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "ScanFileTdd get result error, code:" << ret;
@@ -2114,21 +2114,21 @@ void ScanFileTdd(shared_ptr<FileAccessHelper> fahs, FileInfo fileInfo, int offse
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(fileInfoVec.size(), 1);
     g_num++;
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_Access_helper_ScanFileTdd";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ScanFileTdd";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_ScanFile_0004
- * @tc.name: file_access_helper_ScanFile_0004
+ * @tc.number: user_file_service_medialibrary_file_access_ScanFile_0004
+ * @tc.name: medialibrary_file_access_ScanFile_0004
  * @tc.desc: Test function of ScanFile interface for SUCCESS which scan root directory with Concurrent.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000HB866
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0004, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0004, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_ScanFile_0004";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ScanFile_0004";
     try {
         Uri newDirUriTest("");
         GTEST_LOG_(INFO) << "g_newDirUri=" << g_newDirUri.ToString();
@@ -2137,9 +2137,9 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0004, testing::ext::T
 
         Uri testUri("");
         FileInfo fileInfo;
-        result = g_fah->CreateFile(newDirUriTest, "file_access_helper_ScanFile_0000.q1w2e3r4", testUri);
+        result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ScanFile_0000.q1w2e3r4", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->CreateFile(newDirUriTest, "file_access_helper_ScanFile_0000.txt", testUri);
+        result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ScanFile_0000.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         fileInfo.uri = "datashare:///media/root";
         int64_t offset = 0;
@@ -2158,21 +2158,21 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_ScanFile_0004, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_ScanFile_0004";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ScanFile_0004";
 }
 
 /**
- * @tc.number: user_file_service_file_access_helper_GetRoots_0000
- * @tc.name: file_access_helper_GetRoots_0000
+ * @tc.number: user_file_service_medialibrary_file_access_GetRoots_0000
+ * @tc.name: medialibrary_file_access_GetRoots_0000
  * @tc.desc: Test function of GetRoots interface for SUCCESS.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, file_access_helper_GetRoots_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetRoots_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin file_access_helper_GetRoots_0000";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetRoots_0000";
     try {
         uint64_t selfTokenId_ = GetSelfTokenID();
 
@@ -2199,6 +2199,6 @@ HWTEST_F(FileAccessHelperTest, file_access_helper_GetRoots_0000, testing::ext::T
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end file_access_helper_GetRoots_0000";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_GetRoots_0000";
 }
 } // namespace
