@@ -29,6 +29,8 @@ namespace {
 using namespace std;
 using namespace OHOS;
 using namespace FileAccessFwk;
+const int32_t WRITE = 1;
+const int32_t WRITE_READ = 2;
 const int ABILITY_ID = 5003;
 shared_ptr<FileAccessHelper> g_fah = nullptr;
 int g_num = 0;
@@ -138,14 +140,18 @@ public:
         EXPECT_TRUE(sus);
         vector<AAFwk::Want> wants {want};
         g_fah = FileAccessHelper::Creator(remoteObj, wants);
-
+        if (g_fah == nullptr) {
+            GTEST_LOG_(INFO) << "external_file_access_test g_fah is nullptr";
+        }
         OHOS::Security::AccessToken::AccessTokenIDEx tokenIdEx = {0};
-        tokenIdEx = OHOS::Security::AccessToken::AccessTokenKit::AllocHapToken
-            (g_infoManagerTestInfoParms, g_infoManagerTestPolicyPrams);
+        tokenIdEx = OHOS::Security::AccessToken::AccessTokenKit::AllocHapToken(
+            g_infoManagerTestInfoParms, g_infoManagerTestPolicyPrams);
         g_tokenId = tokenIdEx.tokenIdExStruct.tokenID;
         SetSelfTokenID(g_tokenId);
     }
-    static void TearDownTestCase() {
+
+    static void TearDownTestCase()
+    {
         g_fah->Release();
         g_fah = nullptr;
         OHOS::Security::AccessToken::AccessTokenKit::DeleteToken(g_tokenId);
@@ -167,33 +173,27 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0000, testing::e
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFile_0000";
     try {
-
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             GTEST_LOG_(INFO) << parentUri.ToString();
-
             Uri newDirUriTest1("");
             result = g_fah->Mkdir(parentUri, "test1", newDirUriTest1);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
             Uri newFileUri("");
             result = g_fah->CreateFile(newDirUriTest1, "external_file_access_OpenFile_0000.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
             int fd;
-            result = g_fah->OpenFile(newFileUri, 0, fd);
+            result = g_fah->OpenFile(newFileUri, WRITE_READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
             GTEST_LOG_(INFO) << "OpenFile_0000 result:" << result << endl;
-
             result = g_fah->Delete(newDirUriTest1);
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_OpenFile_0000 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0000";
 }
@@ -213,11 +213,11 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0001, testing::e
     try {
         Uri uri("");
         int fd;
-        int result = g_fah->OpenFile(uri, 0, fd);
+        int result = g_fah->OpenFile(uri, WRITE_READ, fd);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0001 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_OpenFile_0001 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0001";
 }
@@ -246,7 +246,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0002, testing::e
 
             Uri uri("storage/media/100/local/files/Download/external_file_access_OpenFile_0002.txt");
             int fd;
-            result = g_fah->OpenFile(uri, 0, fd);
+            result = g_fah->OpenFile(uri, WRITE_READ, fd);
             EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "OpenFile_0002 result:" << result << endl;
 
@@ -254,7 +254,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0002, testing::e
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_OpenFile_0002 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0002";
 }
@@ -274,11 +274,11 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0003, testing::e
     try {
         Uri uri("~!@#$%^&*()_");
         int fd;
-        int result = g_fah->OpenFile(uri, 0, fd);
+        int result = g_fah->OpenFile(uri, WRITE_READ, fd);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0003 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_OpenFile_0003 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0003";
 }
@@ -306,7 +306,8 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0004, testing::e
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int fd;
-            result = g_fah->OpenFile(newFileUri, -1, fd);
+            int flags = -1;
+            result = g_fah->OpenFile(newFileUri, flags, fd);
             EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "OpenFile_0004 result:" << result << endl;
 
@@ -314,7 +315,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0004, testing::e
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_OpenFile_0004 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0004";
 }
@@ -342,7 +343,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0005, testing::e
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int fd;
-            result = g_fah->OpenFile(newFileUri, 1, fd);
+            result = g_fah->OpenFile(newFileUri, WRITE, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "OpenFile_0005 result:" << result << endl;
 
@@ -350,7 +351,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0005, testing::e
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_OpenFile_0005 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0005";
 }
@@ -378,7 +379,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0006, testing::e
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int fd;
-            result = g_fah->OpenFile(newFileUri, 2, fd);
+            result = g_fah->OpenFile(newFileUri, WRITE_READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "OpenFile_0006 result:" << result << endl;
 
@@ -386,7 +387,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0006, testing::e
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_OpenFile_0006 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0006";
 }
@@ -430,7 +431,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0007, testing::e
             g_num = 0;
             result = g_fah->CreateFile(parentUri, displayName, newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            for (size_t j = 0; j< 4; j++) {
+            for (size_t j = 0; j < 4; j++) {
                 std::thread execthread(OpenFileTdd, g_fah, newFileUri, flags, fd);
                 execthread.join();
             }
@@ -439,7 +440,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0007, testing::e
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_OpenFile_0007 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0007";
 }
@@ -471,7 +472,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0000, testing:
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_CreateFile_0000 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_CreateFile_0000";
 }
@@ -495,7 +496,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0001, testing:
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0001 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_CreateFile_0001 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_CreateFile_0001";
 }
@@ -519,7 +520,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0002, testing:
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0002 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_CreateFile_0002 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_CreateFile_0002";
 }
@@ -543,7 +544,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0003, testing:
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0003 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_CreateFile_0003 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_CreateFile_0003";
 }
@@ -573,7 +574,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0004, testing:
             GTEST_LOG_(INFO) << "CreateFile_0004 result:" << result << endl;
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_CreateFile_0004 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_CreateFile_0004";
 }
@@ -613,7 +614,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0005, testing:
             Uri newFileUri("");
             std::string displayName = "test1.txt";
             g_num = 0;
-            for (int j = 0; j < 1; j++) {
+            for (int j = 0; j < 4; j++) {
                 std::thread execthread(CreateFileTdd, g_fah, parentUri, displayName, newFileUri);
                 execthread.join();
             }
@@ -623,7 +624,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0005, testing:
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_CreateFile_0005 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_CreateFile_0005";
 }
@@ -655,7 +656,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0000, testing::ext:
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Mkdir_0000 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Mkdir_0000";
 }
@@ -679,7 +680,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0001, testing::ext:
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0001 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Mkdir_0001 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Mkdir_0001";
 }
@@ -703,7 +704,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0002, testing::ext:
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0002 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Mkdir_0002 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Mkdir_0002";
 }
@@ -727,7 +728,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0003, testing::ext:
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0003 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Mkdir_0003 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Mkdir_0003";
 }
@@ -757,7 +758,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0004, testing::ext:
             GTEST_LOG_(INFO) << "Mkdir_0004 result:" << result << endl;
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Mkdir_0004 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Mkdir_0004";
 }
@@ -807,7 +808,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0005, testing::ext:
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Mkdir_0005 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Mkdir_0005";
 }
@@ -846,7 +847,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0000, testing::ext
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Delete_0000 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Delete_0000";
 }
@@ -878,7 +879,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0001, testing::ext
             GTEST_LOG_(INFO) << "Delete_0001 result:" << result << endl;
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Delete_0001 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Delete_0001";
 }
@@ -901,7 +902,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0002, testing::ext
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Delete_0002 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Delete_0002 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Delete_0002";
 }
@@ -927,18 +928,16 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0003, testing::ext
             Uri newDirUriTest("");
             result = g_fah->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
             Uri selectFileUri("storage/media/100/local/files/Download/test");
             result = g_fah->Delete(selectFileUri);
             EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
-
             result = g_fah->Delete(newDirUriTest);
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "Delete_0003 result:" << result << endl;
         }
 
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Delete_0003 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Delete_0003";
 }
@@ -961,7 +960,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0004, testing::ext
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Delete_0004 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Delete_0004 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Delete_0004";
 }
@@ -1016,7 +1015,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0005, testing::ext
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Delete_0005 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Delete_0005";
 }
@@ -1063,7 +1062,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0000, testing::ext::
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Move_0000 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0000";
 }
@@ -1107,7 +1106,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0001, testing::ext::
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Move_0001 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0001";
 }
@@ -1144,7 +1143,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0002, testing::ext::
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Move_0002 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0002";
 }
@@ -1192,7 +1191,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0003, testing::ext::
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Move_0003 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0003";
 }
@@ -1229,7 +1228,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0004, testing::ext::
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Move_0004 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0004";
 }
@@ -1270,7 +1269,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0005, testing::ext::
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Move_0005 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0005";
 }
@@ -1318,7 +1317,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0006, testing::ext::
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Move_0006 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0006";
 }
@@ -1366,7 +1365,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0007, testing::ext::
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Move_0007 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0007";
 }
@@ -1406,7 +1405,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0008, testing::ext::
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Move_0008 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0008";
 }
@@ -1438,7 +1437,8 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0009, testing::ext::
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri testUri("");
-            for (size_t j = 0; j < 2000; j++)
+            int num = 2000;
+            for (size_t j = 0; j < num; j++)
             {
                 string fileName = "test" + ToString(j) + ".txt";
                 g_fah->CreateFile(newDirUriTest1, fileName, testUri);
@@ -1453,7 +1453,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0009, testing::ext::
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Move_0009 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0009";
 }
@@ -1500,7 +1500,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0010, testing::ext::
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Move_0010 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0010";
 }
@@ -1552,7 +1552,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0011, testing::ext::
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Move_0011 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0011";
 }
@@ -1615,7 +1615,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0012, testing::ext::
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Move_0012 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0012";
 }
@@ -1655,7 +1655,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0000, testing::ext
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Rename_0000 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Rename_0000";
 }
@@ -1691,7 +1691,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0001, testing::ext
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Rename_0001 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Rename_0001";
 }
@@ -1715,7 +1715,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0002, testing::ext
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Rename_0002 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Rename_0002 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Rename_0002";
 }
@@ -1756,7 +1756,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0003, testing::ext
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Rename_0003 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Rename_0003";
 }
@@ -1780,7 +1780,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0004, testing::ext
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Rename_0004 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Rename_0004 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Rename_0004";
 }
@@ -1820,7 +1820,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0005, testing::ext
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Rename_0005 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Rename_0005";
 }
@@ -1871,13 +1871,12 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0006, testing::ext
                 std::thread execthread(RenameTdd, g_fah, testUri, displayName2, renameUri);
                 execthread.join();
             }
-
             EXPECT_EQ(g_num, 1);
             result = g_fah->Delete(newDirUriTest);
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Rename_0006 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Rename_0006";
 }
@@ -1922,7 +1921,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0000, testing::e
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_ListFile_0000 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0000";
 }
@@ -1951,7 +1950,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0001, testing::e
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), 0);
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_ListFile_0001 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0001";
 }
@@ -1998,7 +1997,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0002, testing::e
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_ListFile_0002 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0002";
 }
@@ -2028,13 +2027,13 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0003, testing::e
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), 0);
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_ListFile_0003 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0003";
 }
 
 void ListFileTdd(shared_ptr<FileAccessHelper> fahs, FileInfo fileInfo, int offset, int maxCount,
-     FileFilter filter, std::vector<FileInfo> fileInfoVec)
+    FileFilter filter, std::vector<FileInfo> fileInfoVec)
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFileTdd";
     int ret = fahs->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
@@ -2084,13 +2083,12 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0004, testing::e
                 std::thread execthread(ListFileTdd, g_fah, fileInfo, offset, maxCount, filter, fileInfoVec);
                 execthread.join();
             }
-
             EXPECT_EQ(g_num, 4);
             result = g_fah->Delete(newDirUriTest);
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_ListFile_0004 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0004";
 }
@@ -2121,7 +2119,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetRoots_0000, testing::e
             GTEST_LOG_(INFO) << info[i].deviceType;
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_GetRoots_0000 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_GetRoots_0000";
 }
@@ -2186,7 +2184,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_allInterface_0000, testin
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int fd;
-            result = g_fah->OpenFile(moveUri, 0, fd);
+            result = g_fah->OpenFile(moveUri, WRITE_READ, fd);
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
 
             GTEST_LOG_(INFO) << "OpenFile_0000 result:" << result << endl;
@@ -2195,7 +2193,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_allInterface_0000, testin
             EXPECT_LE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_allInterface_0000 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_allInterface_0000";
 }
@@ -2246,10 +2244,9 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Access_0000, testing::ext
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_FALSE(isExist);
         }
-
         SetSelfTokenID(selfTokenId_);
     } catch (...) {
-        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an exception occurred.";
+        GTEST_LOG_(INFO) << "FileExtensionHelperTest-an external_file_access_Access_0000 occurred.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Access_0000";
 }
