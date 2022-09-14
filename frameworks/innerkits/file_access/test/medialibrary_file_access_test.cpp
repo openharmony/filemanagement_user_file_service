@@ -179,7 +179,6 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0000, testing::
             GTEST_LOG_(INFO) << parentUri.ToString();
         }
 
-        GTEST_LOG_(INFO) << "g_newDirUri=" << g_newDirUri.ToString();
         bool isExist = false;
         g_fah->Access(g_newDirUri, isExist);
         if (!isExist) {
@@ -202,7 +201,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0000, testing::
                 g_newDirUri = Uri(fileInfoVec[i].uri);
             }
         }
-        GTEST_LOG_(INFO) << "fileInfoVec.fileName=" << fileInfoVec[0].fileName;
+
         result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
@@ -1449,10 +1448,8 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0011, testing::ext:
         EXPECT_GE(g_num, 1);
         result = g_fah->Delete(newDirUriTest1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        GTEST_LOG_(INFO) << "Delete-result1=" << result;
         result = g_fah->Delete(newDirUriTest2);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        GTEST_LOG_(INFO) << "Delete-result2=" << result;
     } catch (...) {
         GTEST_LOG_(INFO) << "FileAccessHelperTest-an exception occurred.";
     }
@@ -2131,7 +2128,6 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0004, testing::
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ScanFile_0004";
     try {
         Uri newDirUriTest("");
-        GTEST_LOG_(INFO) << "g_newDirUri=" << g_newDirUri.ToString();
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
