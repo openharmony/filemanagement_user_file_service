@@ -2167,7 +2167,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Access_0000, testing::ext
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Access_0000";
     try {
-        uint64_t selfTokenId_ = GetSelfTokenID();
+        uint64_t selfTokenId = GetSelfTokenID();
 
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -2194,7 +2194,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Access_0000, testing::ext
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_FALSE(isExist);
         }
-        SetSelfTokenID(selfTokenId_);
+        SetSelfTokenID(selfTokenId);
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_Access_0000 occurs an exception.";
     }
