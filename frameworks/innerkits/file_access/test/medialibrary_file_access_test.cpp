@@ -123,7 +123,6 @@ public:
     static void SetUpTestCase(void)
     {
         cout << "FileAccessHelperTest code test" << endl;
-
         auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         auto remoteObj = saManager->GetSystemAbility(ABILITY_ID);
         AAFwk::Want want;
@@ -147,7 +146,7 @@ public:
         bool temp = false;
         g_fah = FileAccessHelper::Creator(remoteObj, wants);
         if (g_fah == nullptr) {
-            GTEST_LOG_(INFO) << "external_file_access_test g_fah is nullptr";
+            GTEST_LOG_(ERROR) << "external_file_access_test g_fah is nullptr";
             EXPECT_TRUE(temp);
         }
         OHOS::Security::AccessToken::AccessTokenIDEx tokenIdEx = {0};
@@ -156,7 +155,6 @@ public:
         g_tokenId = tokenIdEx.tokenIdExStruct.tokenID;
         SetSelfTokenID(g_tokenId);
     }
-
     static void TearDownTestCase()
     {
         g_fah->Release();
@@ -184,11 +182,10 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0000, testing::
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri parentUri("");
-        if (info.size() > 0) {
+        if (info.size() > OHOS::FileAccessFwk::ERR_OK) {
             parentUri = Uri(info[0].uri + "/file");
-            GTEST_LOG_(INFO) << parentUri.ToString();
+            GTEST_LOG_(ERROR) << parentUri.ToString();
         }
-
         bool isExist = false;
         result = g_fah->Access(g_newDirUri, isExist);
         EXPECT_LE(result, OHOS::FileAccessFwk::ERR_OK);
@@ -196,7 +193,6 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0000, testing::
             result = g_fah->Mkdir(parentUri, "Download", g_newDirUri);
             EXPECT_LE(result, OHOS::FileAccessFwk::ERR_OK);
         }
-
         Uri newDirUriTest("datashare:///media/root/file");
         FileInfo fileInfo;
         fileInfo.uri = newDirUriTest.ToString();
@@ -206,31 +202,27 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0000, testing::
         FileFilter filter;
         result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        EXPECT_GE(fileInfoVec.size(), 0);
+        EXPECT_GE(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < fileInfoVec.size(); i++) {
             if (fileInfoVec[i].fileName.compare("Download") == 0) {
                 g_newDirUri = Uri(fileInfoVec[i].uri);
                 break;
             }
         }
-
         result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri newFileUri("");
         result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_OpenFile_0000.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         int fd;
         result = g_fah->OpenFile(newFileUri, WRITE_READ, fd);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         GTEST_LOG_(INFO) << "OpenFile_0000 result:" << result << endl;
         close(fd);
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_accsess_OpenFile_0000 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_accsess_OpenFile_0000 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0000";
 }
@@ -254,7 +246,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0001, testing::
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0001 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_OpenFile_0001 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_OpenFile_0001 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0001";
 }
@@ -278,7 +270,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0002, testing::
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0002 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_OpenFile_0002 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_OpenFile_0002 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0002";
 }
@@ -302,7 +294,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0003, testing::
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0003 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_OpenFile_0003 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_OpenFile_0003 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0003";
 }
@@ -323,17 +315,15 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0004, testing::
         Uri newFileUri("");
         int result = g_fah->CreateFile(g_newDirUri, "medialibrary_file_access_OpenFile_0004.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         int fd;
         int flag = -1;
         result = g_fah->OpenFile(newFileUri, flag, fd);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0004 result:" << result << endl;
-
         result = g_fah->Delete(newFileUri);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_OpenFile_0004 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_OpenFile_0004 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0004";
 }
@@ -362,7 +352,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0005, testing::
         result = g_fah->Delete(newFileUri);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_OpenFile_0005 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_OpenFile_0005 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0005";
 }
@@ -383,7 +373,6 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0006, testing::
         Uri newFileUri("");
         int result = g_fah->CreateFile(g_newDirUri, "medialibrary_file_access_OpenFile_0006.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         int fd;
         result = g_fah->OpenFile(newFileUri, WRITE, fd);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -392,7 +381,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0006, testing::
         result = g_fah->Delete(newFileUri);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_OpenFile_0006 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_OpenFile_0006 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0006";
 }
@@ -413,7 +402,6 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0007, testing::
         Uri newFileUri("");
         int result = g_fah->CreateFile(g_newDirUri, "medialibrary_file_access_OpenFile_0007.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         int fd;
         result = g_fah->OpenFile(newFileUri, WRITE_READ, fd);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -422,7 +410,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0007, testing::
         result = g_fah->Delete(newFileUri);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_OpenFile_0007 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_OpenFile_0007 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0007";
 }
@@ -432,11 +420,11 @@ void OpenFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, int flag, int fd)
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFileTdd";
     int ret = fahs->OpenFile(uri, flag, fd);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
-        GTEST_LOG_(INFO) << "OpenFileTdd get result error, code:" << ret;
+        GTEST_LOG_(ERROR) << "OpenFileTdd get result error, code:" << ret;
         return;
     }
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
-    EXPECT_GE(fd, 0);
+    EXPECT_GE(fd, OHOS::FileAccessFwk::ERR_OK);
     g_num++;
     close(fd);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFileTdd";
@@ -469,7 +457,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0008, testing::
         result = g_fah->Delete(newFileUri);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_OpenFile_0008 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_OpenFile_0008 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0008";
 }
@@ -491,11 +479,10 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0000, testing
         int result = g_fah->CreateFile(g_newDirUri, "medialibrary_file_access_CreateFile_0000.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0000 result:" << result << endl;
-
         result = g_fah->Delete(newFileUri);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_CreateFile_0000 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_CreateFile_0000 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_CreateFile_0000";
 }
@@ -519,7 +506,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0001, testing
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0001 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_CreateFile_0001 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_CreateFile_0001 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_CreateFile_0001";
 }
@@ -543,7 +530,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0002, testing
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0002 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_CreateFile_0002 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_CreateFile_0002 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_CreateFile_0002";
 }
@@ -567,7 +554,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0003, testing
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0003 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_CreateFile_0003 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_CreateFile_0003 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_CreateFile_0003";
 }
@@ -591,7 +578,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0004, testing
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0004 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_CreateFile_0004 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_CreateFile_0004 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_CreateFile_0004";
 }
@@ -601,7 +588,7 @@ void CreateFileTdd(shared_ptr<FileAccessHelper> fahs, Uri parent, std::string di
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_CreateFileTdd";
     int ret = fahs->CreateFile(parent, displayName, newDir);
     if (ret < OHOS::FileAccessFwk::ERR_OK) {
-        GTEST_LOG_(INFO) << "CreateFileTdd get result error, code:" << ret;
+        GTEST_LOG_(ERROR) << "CreateFileTdd get result error, code:" << ret;
         return;
     }
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
@@ -642,7 +629,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0005, testing
         result = g_fah->Delete(newFileUri1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_CreateFile_0005 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_CreateFile_0005 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_CreateFile_0005";
 }
@@ -664,11 +651,10 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0000, testing::ext
         int result = g_fah->Mkdir(g_newDirUri, "medialibrary_file_access_Mkdir_0000", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0000 result:" << result << endl;
-
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Mkdir_0000 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Mkdir_0000 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Mkdir_0000";
 }
@@ -692,7 +678,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0001, testing::ext
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0001 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Mkdir_0001 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Mkdir_0001 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Mkdir_0001";
 }
@@ -716,7 +702,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0002, testing::ext
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0002 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Mkdir_0002 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Mkdir_0002 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Mkdir_0002";
 }
@@ -740,7 +726,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0003, testing::ext
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0003 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Mkdir_0003 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Mkdir_0003 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Mkdir_0003";
 }
@@ -764,7 +750,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0004, testing::ext
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0004 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Mkdir_0004 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Mkdir_0004 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Mkdir_0004";
 }
@@ -774,7 +760,7 @@ void MkdirTdd(shared_ptr<FileAccessHelper> fahs, Uri parent, std::string display
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_MkdirTdd";
     int ret = fahs->Mkdir(parent, displayName, newDir);
     if (ret < OHOS::FileAccessFwk::ERR_OK) {
-        GTEST_LOG_(INFO) << "MkdirTdd get result error, code:" << ret;
+        GTEST_LOG_(ERROR) << "MkdirTdd get result error, code:" << ret;
         return;
     }
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
@@ -815,7 +801,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0005, testing::ext
         result = g_fah->Delete(newFileUri1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Mkdir_0005 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Mkdir_0005 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Mkdir_0005";
 }
@@ -836,19 +822,16 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0000, testing::ex
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri newFileUri("");
         result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_Delete_0000.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         result = g_fah->Delete(newFileUri);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Delete_0000 result:" << result << endl;
-
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Delete_0000 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Delete_0000 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Delete_0000";
 }
@@ -869,12 +852,11 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0001, testing::ex
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Delete_0001 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Delete_0001 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Delete_0001 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Delete_0001";
 }
@@ -897,7 +879,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0002, testing::ex
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Delete_0002 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Delete_0002 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Delete_0002 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Delete_0002";
 }
@@ -918,16 +900,14 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0003, testing::ex
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri selectFileUri("storage/media/100/local/files/Download/test");
         result = g_fah->Delete(selectFileUri);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
-
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Delete_0003 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Delete_0003 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Delete_0003 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Delete_0003";
 }
@@ -950,7 +930,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0004, testing::ex
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Delete_0004 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Delete_0004 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Delete_0004 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Delete_0004";
 }
@@ -960,7 +940,7 @@ void DeleteTdd(shared_ptr<FileAccessHelper> fahs, Uri selectFile)
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_DeleteTdd";
     int ret = fahs->Delete(selectFile);
     if (ret < OHOS::FileAccessFwk::ERR_OK) {
-        GTEST_LOG_(INFO) << "DeleteTdd get result error, code:" << ret;
+        GTEST_LOG_(ERROR) << "DeleteTdd get result error, code:" << ret;
         return;
     }
     EXPECT_GE(ret, OHOS::FileAccessFwk::ERR_OK);
@@ -984,11 +964,9 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0005, testing::ex
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri newFileUri("");
         result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_Delete_0005.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         std::string displayName = "test1.txt";
         Uri testUri2("");
@@ -1003,7 +981,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0005, testing::ex
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Delete_0005 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Delete_0005 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Delete_0005";
 }
@@ -1026,26 +1004,21 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0000, testing::ext:
         Uri newDirUriTest2("");
         int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         result = g_fah->CreateFile(newDirUriTest1, "test.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri2("");
         result = g_fah->Move(testUri, newDirUriTest2, testUri2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0000 result:" << result << endl;
-
         result = g_fah->Delete(newDirUriTest1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-
         result = g_fah->Delete(newDirUriTest2);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Move_0000 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Move_0000 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0000";
 }
@@ -1067,25 +1040,21 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0001, testing::ext:
         Uri newDirUriTest2("");
         int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         result = g_fah->CreateFile(newDirUriTest1, "test.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri2("");
         result = g_fah->Move(newDirUriTest1, newDirUriTest2, testUri2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0001 result:" << result << endl;
-
         result = g_fah->Delete(newDirUriTest1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Delete(newDirUriTest2);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Move_0001 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Move_0001 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0001";
 }
@@ -1106,17 +1075,15 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0002, testing::ext:
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         Uri sourceFileUri("");
         result = g_fah->Move(sourceFileUri, newDirUriTest, testUri);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0002 result:" << result << endl;
-
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Move_0002 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Move_0002 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0002";
 }
@@ -1138,27 +1105,22 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0003, testing::ext:
         Uri newDirUriTest2("");
         int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         result = g_fah->CreateFile(newDirUriTest1, "test.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri2("");
         Uri sourceFileUri("storage/media/100/local/files/Download/test1/test.txt");
         result = g_fah->Move(sourceFileUri, newDirUriTest2, testUri2);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0003 result:" << result << endl;
-
         result = g_fah->Delete(newDirUriTest1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-
         result = g_fah->Delete(newDirUriTest2);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Move_0003 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Move_0003 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0003";
 }
@@ -1185,11 +1147,10 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0004, testing::ext:
         result = g_fah->Move(sourceFileUri, newDirUriTest, testUri);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0004 result:" << result << endl;
-
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Move_0004 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Move_0004 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0004";
 }
@@ -1210,21 +1171,18 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0005, testing::ext:
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         result = g_fah->CreateFile(newDirUriTest, "test.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri2("");
         Uri targetParentUri("");
         result = g_fah->Move(testUri, targetParentUri, testUri2);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0005 result:" << result << endl;
-
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Move_0005 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Move_0005 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0005";
 }
@@ -1246,27 +1204,22 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0006, testing::ext:
         Uri newDirUriTest2("");
         int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         result = g_fah->CreateFile(newDirUriTest1, "test.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri2("");
         Uri targetParentUri("storage/media/100/local/files/Download/test2");
         result = g_fah->Move(testUri, targetParentUri, testUri2);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0006 result:" << result << endl;
-
         result = g_fah->Delete(newDirUriTest1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-
         result = g_fah->Delete(newDirUriTest2);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Move_0006 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Move_0006 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0006";
 }
@@ -1288,27 +1241,22 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0007, testing::ext:
         Uri newDirUriTest2("");
         int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         result = g_fah->CreateFile(newDirUriTest1, "test.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri2("");
         Uri targetParentUri("~!@#$^%&*()_");
         result = g_fah->Move(testUri, targetParentUri, testUri2);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0007 result:" << result << endl;
-
         result = g_fah->Delete(newDirUriTest1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-
         result = g_fah->Delete(newDirUriTest2);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Move_0007 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Move_0007 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0007";
 }
@@ -1330,21 +1278,18 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0008, testing::ext:
         Uri newDirUriTest2("");
         int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri2("");
         result = g_fah->Move(newDirUriTest1, newDirUriTest2, testUri2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0008 result:" << result << endl;
-
         result = g_fah->Delete(newDirUriTest1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Delete(newDirUriTest2);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Move_0008 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Move_0008 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0008";
 }
@@ -1366,28 +1311,25 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0009, testing::ext:
         Uri newDirUriTest2("");
         int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         int num = 2000;
         for (size_t i = 0; i < num; i++) {
             string fileName = "test" + ToString(i) + ".txt";
-            g_fah->CreateFile(newDirUriTest1, fileName, testUri);
+            result = g_fah->CreateFile(newDirUriTest1, fileName, testUri);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
-
         Uri testUri2("");
         result = g_fah->Move(newDirUriTest1, newDirUriTest2, testUri2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0009 result:" << result << endl;
-
         result = g_fah->Delete(newDirUriTest1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Delete(newDirUriTest2);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Move_0009 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Move_0009 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0009";
 }
@@ -1409,28 +1351,26 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0010, testing::ext:
         Uri newDirUriTest2("");
         int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
-        g_fah->Mkdir(newDirUriTest1, "test", testUri);
+        result = g_fah->Mkdir(newDirUriTest1, "test", testUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         int num = 50;
         for (size_t i = 0; i < num; i++) {
-            g_fah->Mkdir(testUri, "test", testUri);
+            result = g_fah->Mkdir(testUri, "test", testUri);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
-
         Uri testUri2("");
         result = g_fah->Move(newDirUriTest1, newDirUriTest2, testUri2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0010 result:" << result << endl;
-
         result = g_fah->Delete(newDirUriTest1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Delete(newDirUriTest2);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Move_0010 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Move_0010 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0010";
 }
@@ -1440,7 +1380,7 @@ void MoveTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, Uri targetParent
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_MoveTdd";
     int ret = fahs->Move(sourceFile, targetParent, newFile);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
-        GTEST_LOG_(INFO) << "MoveTdd get result error, code:" << ret;
+        GTEST_LOG_(ERROR) << "MoveTdd get result error, code:" << ret;
         return;
     }
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
@@ -1466,10 +1406,8 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0011, testing::ext:
         Uri newDirUriTest2("");
         int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri{""};
         Uri testUri2("");
         std::string displayName = "test1.txt";
@@ -1485,7 +1423,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0011, testing::ext:
         result = g_fah->Delete(newDirUriTest2);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Move_0011 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Move_0011 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0011";
 }
@@ -1506,20 +1444,17 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0000, testing::ex
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         result = g_fah->CreateFile(newDirUriTest, "test.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri renameUri("");
         result = g_fah->Rename(testUri, "test2.txt", renameUri);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Rename_0000 result:" << result << endl;
-
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Rename_0000 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Rename_0000 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Rename_0000";
 }
@@ -1540,16 +1475,14 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0001, testing::ex
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri renameUri("");
         result = g_fah->Rename(newDirUriTest, "testRename", renameUri);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Rename_0001 result:" << result << endl;
-
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Rename_0001 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Rename_0001 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Rename_0001";
 }
@@ -1573,7 +1506,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0002, testing::ex
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Rename_0002 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Rename_0002 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Rename_0002 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Rename_0002";
 }
@@ -1594,21 +1527,18 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0003, testing::ex
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         result = g_fah->CreateFile(newDirUriTest, "test.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri renameUri("");
         Uri sourceFileUri("storage/media/100/local/files/Download/test/test.txt");
         result = g_fah->Rename(sourceFileUri, "testRename.txt", renameUri);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Rename_0003 result:" << result << endl;
-
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Rename_0003 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Rename_0003 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Rename_0003";
 }
@@ -1632,7 +1562,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0004, testing::ex
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Rename_0004 result:" << result << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Rename_0004 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Rename_0004 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Rename_0004";
 }
@@ -1653,20 +1583,17 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0005, testing::ex
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         result = g_fah->CreateFile(newDirUriTest, "test.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri renameUri("");
         result = g_fah->Rename(testUri, "", renameUri);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Rename_0005 result:" << result << endl;
-
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Rename_0005 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Rename_0005 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Rename_0005";
 }
@@ -1676,7 +1603,7 @@ void RenameTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, std::string di
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_RenameTdd";
     int ret = fahs->Rename(sourceFile, displayName, newFile);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
-        GTEST_LOG_(INFO) << "RenameTdd get result error, code:" << ret;
+        GTEST_LOG_(ERROR) << "RenameTdd get result error, code:" << ret;
         return;
     }
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
@@ -1701,7 +1628,6 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0006, testing::ex
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri{""};
         std::string displayName1 = "test1.txt";
         std::string displayName2 = "test2.txt";
@@ -1716,7 +1642,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0006, testing::ex
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_Rename_0006 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Rename_0006 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Rename_0006";
 }
@@ -1737,11 +1663,9 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0000, testing::
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ListFile_0000.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         FileInfo fileInfo;
         fileInfo.uri = newDirUriTest.ToString();
         int64_t offset = 0;
@@ -1750,13 +1674,12 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0000, testing::
         FileFilter filter;
         result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        EXPECT_GT(fileInfoVec.size(), 0);
+        EXPECT_GT(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "ListFile_0000 result:" << fileInfoVec.size() << endl;
-
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_ListFile_0000 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_ListFile_0000 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ListFile_0000";
 }
@@ -1783,10 +1706,10 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0001, testing::
         FileFilter filter({}, {}, {}, 0, 0, false, false);
         int result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
-        EXPECT_EQ(fileInfoVec.size(), 0);
+        EXPECT_EQ(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "ListFile_0001 result:" << fileInfoVec.size() << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_ListFile_0001 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_ListFile_0001 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ListFile_0001";
 }
@@ -1807,11 +1730,9 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0002, testing::
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         result = g_fah->CreateFile(newDirUriTest, "test.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri sourceFileUri("storage/media/100/local/files/Download/test/test.txt");
         FileInfo fileInfo;
         fileInfo.uri = sourceFileUri.ToString();
@@ -1821,13 +1742,12 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0002, testing::
         FileFilter filter({}, {}, {}, 0, 0, false, false);
         result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
-        EXPECT_EQ(fileInfoVec.size(), 0);
+        EXPECT_EQ(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "ListFile_0002 result:" << fileInfoVec.size() << endl;
-
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_ListFile_0002 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_ListFile_0002 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ListFile_0002";
 }
@@ -1854,10 +1774,10 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0003, testing::
         FileFilter filter;
         int result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
-        EXPECT_EQ(fileInfoVec.size(), 0);
+        EXPECT_EQ(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "ListFile_0003 result:" << fileInfoVec.size() << endl;
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_ListFile_0003 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_ListFile_0003 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ListFile_0003";
 }
@@ -1878,14 +1798,12 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0004, testing::
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri1("");
         result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ListFile_0004.txt", testUri1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri2("");
         result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ListFile_0004.docx", testUri2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         FileInfo fileInfo;
         fileInfo.uri = newDirUriTest.ToString();
         int64_t offset = 0;
@@ -1895,11 +1813,10 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0004, testing::
         result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), 1);
-
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_ListFile_0004 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_ListFile_0004 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ListFile_0004";
 }
@@ -1910,7 +1827,7 @@ void ListFileTdd(shared_ptr<FileAccessHelper> fahs, FileInfo fileInfo, int offse
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ListFileTdd";
     int ret = fahs->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
-        GTEST_LOG_(INFO) << "ListFileTdd get result error, code:" << ret;
+        GTEST_LOG_(ERROR) << "ListFileTdd get result error, code:" << ret;
         return;
     }
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
@@ -1935,14 +1852,12 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0005, testing::
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri1("");
         result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ListFile_0005.txt", testUri1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri2("");
         result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ListFile_0005.docx", testUri2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         FileInfo fileInfo;
         fileInfo.uri = newDirUriTest.ToString();
         int64_t offset = 0;
@@ -1958,7 +1873,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0005, testing::
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_ListFile_0005 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_ListFile_0005 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ListFile_0005";
 }
@@ -1979,7 +1894,6 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0000, testing::
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         FileInfo fileInfo;
         result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ScanFile_0000.q1w2e3r4", testUri);
@@ -1995,11 +1909,10 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0000, testing::
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_GE(fileInfoVec.size(), 1);
         GTEST_LOG_(INFO) << "ScanFile_0000 result:" << fileInfoVec.size() << endl;
-
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_ScanFile_0000 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_ScanFile_0000 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ScanFile_0000";
 }
@@ -2020,7 +1933,6 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0001, testing::
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         FileInfo fileInfo;
         fileInfo.uri = "datashare:///media/root";
@@ -2036,11 +1948,10 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0001, testing::
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_GE(fileInfoVec.size(), 2);
         GTEST_LOG_(INFO) << "ScanFile_0000 result:" << fileInfoVec.size() << endl;
-
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_ScanFile_0001 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_ScanFile_0001 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ScanFile_0001";
 }
@@ -2061,7 +1972,6 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0002, testing::
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ScanFile_0002.q1w2e3r4", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -2082,12 +1992,11 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0002, testing::
         result = g_fah->ScanFile(fileInfo, offset, maxCount, filter1, fileInfoVec);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), 2);
-
         GTEST_LOG_(INFO) << "ScanFile_0002 result:" << fileInfoVec.size() << endl;
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_ScanFile_0002 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_ScanFile_0002 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ScanFile_0002";
 }
@@ -2108,7 +2017,6 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0003, testing::
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ScanFile_0003.q1w2e3r4", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -2122,11 +2030,10 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0003, testing::
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), 1);
         GTEST_LOG_(INFO) << "ScanFile_0003 result:" << fileInfoVec.size() << endl;
-
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_ScanFile_0003 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_ScanFile_0003 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ScanFile_0003";
 }
@@ -2137,7 +2044,7 @@ void ScanFileTdd(shared_ptr<FileAccessHelper> fahs, FileInfo fileInfo, int offse
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ScanFileTdd";
     int ret = fahs->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
-        GTEST_LOG_(INFO) << "ScanFileTdd get result error, code:" << ret;
+        GTEST_LOG_(ERROR) << "ScanFileTdd get result error, code:" << ret;
         return;
     }
     EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
@@ -2162,7 +2069,6 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0004, testing::
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         FileInfo fileInfo;
         result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ScanFile_0000.q1w2e3r4", testUri);
@@ -2183,7 +2089,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0004, testing::
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_ScanFile_0004 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_ScanFile_0004 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ScanFile_0004";
 }
@@ -2201,28 +2107,26 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetRoots_0000, testing::
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetRoots_0000";
     try {
-        uint64_t selfTokenId_ = GetSelfTokenID();
+        uint64_t selfTokenId = GetSelfTokenID();
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        EXPECT_GT(info.size(), 0);
-        if (info.size() > 0) {
+        EXPECT_GT(info.size(), OHOS::FileAccessFwk::ERR_OK);
+        if (info.size() > OHOS::FileAccessFwk::ERR_OK) {
             GTEST_LOG_(INFO) << info[0].uri;
             GTEST_LOG_(INFO) << info[0].displayName;
             GTEST_LOG_(INFO) << info[0].deviceType;
             GTEST_LOG_(INFO) << info[0].deviceFlags;
         }
-
         string uri = "datashare:///media/root";
         string displayName = "LOCAL";
         EXPECT_EQ(info[0].uri, uri);
         EXPECT_EQ(info[0].displayName, displayName);
         EXPECT_EQ(info[0].deviceType, DEVICE_LOCAL_DISK);
         EXPECT_EQ(info[0].deviceFlags, DEVICE_FLAG_SUPPORTS_READ | DEVICE_FLAG_SUPPORTS_WRITE);
-
-        SetSelfTokenID(selfTokenId_);
+        SetSelfTokenID(selfTokenId);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_GetRoots_0000 occurs an exception.";
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_GetRoots_0000 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_GetRoots_0000";
 }
