@@ -29,11 +29,12 @@ namespace {
 using namespace std;
 using namespace OHOS;
 using namespace FileAccessFwk;
+const int32_t READ = 0;
 const int32_t WRITE = 1;
 const int32_t WRITE_READ = 2;
 const int ABILITY_ID = 5003;
-const int g_concurrent = 4;
-int g_actualconcurrent = 1;
+const int INIT_THREADS_NUMBER = 4;
+const int ACTUAL_SUCCESS_THREADS_NUMBER = 1;
 shared_ptr<FileAccessHelper> g_fah = nullptr;
 int g_num = 0;
 OHOS::Security::AccessToken::AccessTokenID g_tokenId;
@@ -141,11 +142,11 @@ public:
         }
         EXPECT_TRUE(sus);
         vector<AAFwk::Want> wants {want};
-        bool sus1 = false;
+        bool temp = false;
         g_fah = FileAccessHelper::Creator(remoteObj, wants);
         if (g_fah == nullptr) {
             GTEST_LOG_(INFO) << "external_file_access_test g_fah is nullptr";
-            EXPECT_TRUE(sus1);
+            EXPECT_TRUE(temp);
         }
         OHOS::Security::AccessToken::AccessTokenIDEx tokenIdEx = {0};
         tokenIdEx = OHOS::Security::AccessToken::AccessTokenKit::AllocHapToken(
@@ -311,8 +312,8 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0004, testing::e
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int fd;
-            int flags = -1;
-            result = g_fah->OpenFile(newFileUri, flags, fd);
+            int flag = -1;
+            result = g_fah->OpenFile(newFileUri, flag, fd);
             EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "OpenFile_0004 result:" << result << endl;
 
@@ -328,7 +329,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0004, testing::e
 /**
  * @tc.number: user_file_service_external_file_access_OpenFile_0005
  * @tc.name: external_file_access_OpenFile_0005
- * @tc.desc: Test function of OpenFile interface for SUCCESS which flag is 1.
+ * @tc.desc: Test function of OpenFile interface for SUCCESS which flag is 0.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
@@ -348,7 +349,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0005, testing::e
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int fd;
-            result = g_fah->OpenFile(newFileUri, WRITE, fd);
+            result = g_fah->OpenFile(newFileUri, READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "OpenFile_0005 result:" << result << endl;
             close(fd);
@@ -364,7 +365,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0005, testing::e
 /**
  * @tc.number: user_file_service_external_file_access_OpenFile_0006
  * @tc.name: external_file_access_OpenFile_0006
- * @tc.desc: Test function of OpenFile interface for SUCCESS which flag is 2.
+ * @tc.desc: Test function of OpenFile interface for SUCCESS which flag is 1.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
@@ -384,7 +385,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0006, testing::e
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int fd;
-            result = g_fah->OpenFile(newFileUri, WRITE_READ, fd);
+            result = g_fah->OpenFile(newFileUri, WRITE, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "OpenFile_0006 result:" << result << endl;
             close(fd);
@@ -397,24 +398,10 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0006, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0006";
 }
 
-void OpenFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, int flags, int fd)
-{
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFileTdd";
-    int ret = fahs->OpenFile(uri, flags, fd);
-    if (ret != OHOS::FileAccessFwk::ERR_OK) {
-        GTEST_LOG_(INFO) << "OpenFile get result error, code:" << ret;
-        return;
-    }
-    EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
-    EXPECT_GE(fd, OHOS::FileAccessFwk::ERR_OK);
-    g_num++;
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFileTdd";
-}
-
 /**
  * @tc.number: user_file_service_external_file_access_OpenFile_0007
  * @tc.name: external_file_access_OpenFile_0007
- * @tc.desc: Test function of OpenFile interface for SUCCESS which Concurrent.
+ * @tc.desc: Test function of OpenFile interface for SUCCESS which flag is 2.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
@@ -430,25 +417,73 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0007, testing::e
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newFileUri("");
-            int flags;
+            result = g_fah->CreateFile(parentUri, "external_file_access_OpenFile_0007.txt", newFileUri);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
             int fd;
-            std::string displayName = "test1.txt";
-            g_num = 0;
-            result = g_fah->CreateFile(parentUri, displayName, newFileUri);
+            result = g_fah->OpenFile(newFileUri, WRITE_READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            for (size_t j = 0; j < g_concurrent; j++) {
-                std::thread execthread(OpenFileTdd, g_fah, newFileUri, flags, fd);
-                execthread.join();
-            }
-            g_actualconcurrent = 4;
-            EXPECT_EQ(g_num, g_actualconcurrent);
+            GTEST_LOG_(INFO) << "OpenFile_0007 result:" << result << endl;
+            close(fd);
             result = g_fah->Delete(newFileUri);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
         GTEST_LOG_(INFO) << "external_file_access_OpenFile_0007 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0007";
+}
+
+void OpenFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, int flag, int fd)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFileTdd";
+    int ret = fahs->OpenFile(uri, flag, fd);
+    if (ret != OHOS::FileAccessFwk::ERR_OK) {
+        GTEST_LOG_(INFO) << "OpenFile get result error, code:" << ret;
+        return;
+    }
+    EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_GE(fd, OHOS::FileAccessFwk::ERR_OK);
+    g_num++;
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFileTdd";
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_OpenFile_0008
+ * @tc.name: external_file_access_OpenFile_0008
+ * @tc.desc: Test function of OpenFile interface for SUCCESS which Concurrent.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0008, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFile_0008";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        for (size_t i = 0; i < info.size(); i++) {
+            Uri parentUri(info[i].uri);
+            Uri newFileUri("");
+            int fd;
+            std::string displayName = "test1.txt";
+            g_num = 0;
+            result = g_fah->CreateFile(parentUri, displayName, newFileUri);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            for (size_t j = 0; j < INIT_THREADS_NUMBER; j++) {
+                std::thread execthread(OpenFileTdd, g_fah, newFileUri, WRITE_READ, fd);
+                execthread.join();
+            }
+            EXPECT_EQ(g_num, INIT_THREADS_NUMBER);
+            result = g_fah->Delete(newFileUri);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        }
+    } catch (...) {
+        GTEST_LOG_(INFO) << "external_file_access_OpenFile_0008 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0008";
 }
 
 /**
@@ -620,12 +655,11 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0005, testing:
             Uri newFileUri("");
             std::string displayName = "test1.txt";
             g_num = 0;
-            for (int j = 0; j < g_concurrent; j++) {
+            for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
                 std::thread execthread(CreateFileTdd, g_fah, parentUri, displayName, newFileUri);
                 execthread.join();
             }
-            g_actualconcurrent = 1;
-            EXPECT_EQ(g_num, g_actualconcurrent);
+            EXPECT_EQ(g_num, ACTUAL_SUCCESS_THREADS_NUMBER);
             Uri newDelete(info[i].uri + "/" +displayName);
             result = g_fah->Delete(newDelete);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -805,12 +839,11 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0005, testing::ext:
             Uri newDirUriTest("");
             std::string displayName = "test1";
             g_num = 0;
-            for (int j = 0; j < g_concurrent; j++) {
+            for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
                 std::thread execthread(MkdirTdd, g_fah, parentUri, displayName, newDirUriTest);
                 execthread.join();
             }
-            g_actualconcurrent = 1;
-            EXPECT_EQ(g_num, g_actualconcurrent);
+            EXPECT_EQ(g_num, ACTUAL_SUCCESS_THREADS_NUMBER);
             Uri newDelete(info[i].uri + "/" + displayName);
             result = g_fah->Delete(newDelete);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1013,12 +1046,11 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0005, testing::ext
             result = g_fah->CreateFile(newDirUriTest, displayName, newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             g_num = 0;
-            for (int j = 0; j < g_concurrent; j++) {
+            for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
                 std::thread execthread(DeleteTdd, g_fah, newFileUri);
                 execthread.join();
             }
-            g_actualconcurrent = 1;
-            EXPECT_EQ(g_num, g_actualconcurrent);
+            EXPECT_EQ(g_num, ACTUAL_SUCCESS_THREADS_NUMBER);
             result = g_fah->Delete(newDirUriTest);
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
@@ -1611,12 +1643,11 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0012, testing::ext::
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri testUri2("");
             g_num = 0;
-            for (int j = 0; j < g_concurrent; j++) {
+            for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
                 std::thread execthread(MoveTdd, g_fah, testUri, newDirUriTest2, testUri2);
                 execthread.join();
             }
-            g_actualconcurrent = 1;
-            EXPECT_EQ(g_num, g_actualconcurrent);
+            EXPECT_EQ(g_num, ACTUAL_SUCCESS_THREADS_NUMBER);
             result = g_fah->Delete(newDirUriTest1);
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
 
@@ -1876,12 +1907,11 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0006, testing::ext
             result = g_fah->CreateFile(newDirUriTest, displayName1, testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             g_num = 0;
-            for (int j = 0; j < g_concurrent; j++) {
+            for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
                 std::thread execthread(RenameTdd, g_fah, testUri, displayName2, renameUri);
                 execthread.join();
             }
-            g_actualconcurrent = 1;
-            EXPECT_EQ(g_num, g_actualconcurrent);
+            EXPECT_EQ(g_num, ACTUAL_SUCCESS_THREADS_NUMBER);
             result = g_fah->Delete(newDirUriTest);
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
@@ -2089,12 +2119,11 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0004, testing::e
             std::vector<FileInfo> fileInfoVec;
             FileFilter filter;
             g_num = 0;
-            for (int j = 0; j < g_concurrent; j++) {
+            for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
                 std::thread execthread(ListFileTdd, g_fah, fileInfo, offset, maxCount, filter, fileInfoVec);
                 execthread.join();
             }
-            g_actualconcurrent = 4;
-            EXPECT_EQ(g_num, g_actualconcurrent);
+            EXPECT_EQ(g_num, INIT_THREADS_NUMBER);
             result = g_fah->Delete(newDirUriTest);
             EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         }
@@ -2122,13 +2151,19 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetRoots_0000, testing::e
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_GT(info.size(), 0);
         GTEST_LOG_(INFO) << "GetRoots_0000 result:" << info.size() << endl;
-
         for (size_t i = 0; i < info.size(); i++) {
             GTEST_LOG_(INFO) << info[i].uri;
             GTEST_LOG_(INFO) << info[i].displayName;
             GTEST_LOG_(INFO) << info[i].deviceFlags;
             GTEST_LOG_(INFO) << info[i].deviceType;
         }
+
+        string uri = "datashare:///com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon";
+        string displayName = "shared_disk";
+        EXPECT_EQ(info[0].uri, uri);
+        EXPECT_EQ(info[0].displayName, displayName);
+        EXPECT_EQ(info[0].deviceType, DEVICE_SHARED_DISK);
+        EXPECT_EQ(info[0].deviceFlags, DEVICE_FLAG_SUPPORTS_READ | DEVICE_FLAG_SUPPORTS_WRITE);
     } catch (...) {
         GTEST_LOG_(INFO) << "external_file_access_GetRoots_0000 occurs an exception.";
     }

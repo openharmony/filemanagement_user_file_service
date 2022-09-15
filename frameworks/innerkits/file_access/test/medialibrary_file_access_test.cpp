@@ -30,11 +30,12 @@ namespace {
 using namespace std;
 using namespace OHOS;
 using namespace FileAccessFwk;
+const int32_t READ = 0;
 const int32_t WRITE = 1;
 const int32_t WRITE_READ = 2;
 const int ABILITY_ID = 5003;
-const int g_concurrent = 4;
-int g_actualconcurrent = 1;
+const int INIT_THREADS_NUMBER = 4;
+const int ACTUAL_SUCCESS_THREADS_NUMBER = 1;
 int g_num = 0;
 shared_ptr<FileAccessHelper> g_fah = nullptr;
 OHOS::Security::AccessToken::AccessTokenID g_tokenId;
@@ -143,11 +144,11 @@ public:
         }
         EXPECT_TRUE(sus);
         vector<AAFwk::Want> wants {want};
-        bool sus1 = false;
+        bool temp = false;
         g_fah = FileAccessHelper::Creator(remoteObj, wants);
         if (g_fah == nullptr) {
-            GTEST_LOG_(INFO) << "medialibrary_file_access_test g_fah is nullptr";
-            EXPECT_TRUE(sus1);
+            GTEST_LOG_(INFO) << "external_file_access_test g_fah is nullptr";
+            EXPECT_TRUE(temp);
         }
         OHOS::Security::AccessToken::AccessTokenIDEx tokenIdEx = {0};
         tokenIdEx = OHOS::Security::AccessToken::AccessTokenKit::AllocHapToken(
@@ -324,8 +325,8 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0004, testing::
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         int fd;
-        int flags = -1;
-        result = g_fah->OpenFile(newFileUri, flags, fd);
+        int flag = -1;
+        result = g_fah->OpenFile(newFileUri, flag, fd);
         EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0004 result:" << result << endl;
 
@@ -340,7 +341,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0004, testing::
 /**
  * @tc.number: user_file_service_medialibrary_file_access_OpenFile_0005
  * @tc.name: medialibrary_file_access_OpenFile_0005
- * @tc.desc: Test function of OpenFile interface for SUCCESS which flag is 1.
+ * @tc.desc: Test function of OpenFile interface for SUCCESS which flag is 0.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
@@ -353,9 +354,8 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0005, testing::
         Uri newFileUri("");
         int result = g_fah->CreateFile(g_newDirUri, "medialibrary_file_access_OpenFile_0005.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         int fd;
-        result = g_fah->OpenFile(newFileUri, WRITE, fd);
+        result = g_fah->OpenFile(newFileUri, READ, fd);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0005 result:" << result << endl;
         close(fd);
@@ -370,7 +370,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0005, testing::
 /**
  * @tc.number: user_file_service_medialibrary_file_access_OpenFile_0006
  * @tc.name: medialibrary_file_access_OpenFile_0006
- * @tc.desc: Test function of OpenFile interface for SUCCESS which flag is 2.
+ * @tc.desc: Test function of OpenFile interface for SUCCESS which flag is 1.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
@@ -385,7 +385,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0006, testing::
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         int fd;
-        result = g_fah->OpenFile(newFileUri, WRITE_READ, fd);
+        result = g_fah->OpenFile(newFileUri, WRITE, fd);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0006 result:" << result << endl;
         close(fd);
@@ -397,10 +397,40 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0006, testing::
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0006";
 }
 
-void OpenFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, int flags, int fd)
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_OpenFile_0007
+ * @tc.name: medialibrary_file_access_OpenFile_0007
+ * @tc.desc: Test function of OpenFile interface for SUCCESS which flag is 2.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0007, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0007";
+    try {
+        Uri newFileUri("");
+        int result = g_fah->CreateFile(g_newDirUri, "medialibrary_file_access_OpenFile_0007.txt", newFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        int fd;
+        result = g_fah->OpenFile(newFileUri, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        GTEST_LOG_(INFO) << "OpenFile_0007 result:" << result << endl;
+        close(fd);
+        result = g_fah->Delete(newFileUri);
+        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(INFO) << "medialibrary_file_access_OpenFile_0007 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0007";
+}
+
+void OpenFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, int flag, int fd)
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFileTdd";
-    int ret = fahs->OpenFile(uri, flags, fd);
+    int ret = fahs->OpenFile(uri, flag, fd);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(INFO) << "OpenFileTdd get result error, code:" << ret;
         return;
@@ -413,37 +443,35 @@ void OpenFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, int flags, int fd)
 }
 
 /**
- * @tc.number: user_file_service_medialibrary_file_access_OpenFile_0007
- * @tc.name: medialibrary_file_access_OpenFile_0007
+ * @tc.number: user_file_service_medialibrary_file_access_OpenFile_0008
+ * @tc.name: medialibrary_file_access_OpenFile_0008
  * @tc.desc: Test function of OpenFile interface for SUCCESS which Concurrent.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0007, testing::ext::TestSize.Level1)
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0008, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0007";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0008";
     try {
         Uri newFileUri("");
-        int flags = 0;
         int fd;
         g_num = 0;
         std::string displayName = "test1.txt";
         int result = g_fah->CreateFile(g_newDirUri, displayName, newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        for (int j = 0; j < g_concurrent; j++) {
-            std::thread execthread(OpenFileTdd, g_fah, newFileUri, flags, fd);
+        for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
+            std::thread execthread(OpenFileTdd, g_fah, newFileUri, WRITE_READ, fd);
             execthread.join();
         }
-        g_actualconcurrent = 4;
-        EXPECT_EQ(g_num, g_actualconcurrent);
+        EXPECT_EQ(g_num, INIT_THREADS_NUMBER);
         result = g_fah->Delete(newFileUri);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
-        GTEST_LOG_(INFO) << "medialibrary_file_access_OpenFile_0007 occurs an exception.";
+        GTEST_LOG_(INFO) << "medialibrary_file_access_OpenFile_0008 occurs an exception.";
     }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0007";
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0008";
 }
 
 /**
@@ -605,12 +633,11 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0005, testing
         result = g_fah->Mkdir(newFileUri1, displayName2, newFileUri2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         g_num = 0;
-        for (int j = 0; j < g_concurrent; j++) {
+        for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
             std::thread execthread(CreateFileTdd, g_fah, newFileUri2, displayName2, newFileUri3);
             execthread.join();
         }
-        g_actualconcurrent = 1;
-        EXPECT_GE(g_num, g_actualconcurrent);
+        EXPECT_GE(g_num, ACTUAL_SUCCESS_THREADS_NUMBER);
         GTEST_LOG_(INFO) << "g_newDirUri.ToString() =" << g_newDirUri.ToString() ;
         result = g_fah->Delete(newFileUri1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
@@ -780,12 +807,11 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0005, testing::ext
         result = g_fah->Mkdir(newFileUri1, displayName2, newFileUri2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         g_num = 0;
-        for (int j = 0; j < g_concurrent; j++) {
+        for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
             std::thread execthread(MkdirTdd, g_fah, newFileUri2, displayName3, newFileUri3);
             execthread.join();
         }
-        g_actualconcurrent = 1;
-        EXPECT_GE(g_num, g_actualconcurrent);
+        EXPECT_GE(g_num, ACTUAL_SUCCESS_THREADS_NUMBER);
         result = g_fah->Delete(newFileUri1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
@@ -969,12 +995,11 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0005, testing::ex
         result = g_fah->CreateFile(newDirUriTest, displayName, testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         g_num = 0;
-        for (int j = 0; j < g_concurrent; j++) {
+        for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
             std::thread execthread(DeleteTdd, g_fah, testUri);
             execthread.join();
         }
-        g_actualconcurrent = 1;
-        EXPECT_GE(g_num, g_actualconcurrent);
+        EXPECT_GE(g_num, ACTUAL_SUCCESS_THREADS_NUMBER);
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
@@ -1450,12 +1475,11 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0011, testing::ext:
         std::string displayName = "test1.txt";
         result = g_fah->CreateFile(newDirUriTest1, displayName, testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        for (int j = 0; j < g_concurrent; j++) {
+        for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
             std::thread execthread(MoveTdd, g_fah, testUri, newDirUriTest2, testUri2);
             execthread.join();
         }
-        g_actualconcurrent = 1;
-        EXPECT_GE(g_num, g_actualconcurrent);
+        EXPECT_GE(g_num, ACTUAL_SUCCESS_THREADS_NUMBER);
         result = g_fah->Delete(newDirUriTest1);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Delete(newDirUriTest2);
@@ -1684,12 +1708,11 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0006, testing::ex
         Uri renameUri("");
         result = g_fah->CreateFile(newDirUriTest, displayName1, testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        for (int j = 0; j < g_concurrent; j++) {
+        for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
             std::thread execthread(RenameTdd, g_fah, testUri, displayName2, renameUri);
             execthread.join();
         }
-        g_actualconcurrent = 1;
-        EXPECT_GE(g_num, g_actualconcurrent);
+        EXPECT_GE(g_num, ACTUAL_SUCCESS_THREADS_NUMBER);
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
@@ -1927,12 +1950,11 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0005, testing::
         std::vector<FileInfo> fileInfoVec;
         g_num = 0;
         FileFilter filter({".txt"}, {}, {}, 0, 0, false, true);
-        for (int j = 0; j < g_concurrent; j++) {
+        for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
             std::thread execthread(ListFileTdd, g_fah, fileInfo, offset, maxCount, filter, fileInfoVec);
             execthread.join();
         }
-        g_actualconcurrent = 1;
-        EXPECT_GE(g_num, g_actualconcurrent);
+        EXPECT_GE(g_num, ACTUAL_SUCCESS_THREADS_NUMBER);
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
@@ -2153,12 +2175,11 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0004, testing::
         std::vector<FileInfo> fileInfoVec;
         FileFilter filter({".q1w2e3r4"}, {}, {}, 0, 0, false, true);
         g_num = 0;
-        for (int j = 0; j < g_concurrent; j++) {
+        for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
             std::thread execthread(ScanFileTdd, g_fah, fileInfo, offset, maxCount, filter, fileInfoVec);
             execthread.join();
         }
-        g_actualconcurrent = 1;
-        EXPECT_GE(g_num, g_actualconcurrent);
+        EXPECT_GE(g_num, ACTUAL_SUCCESS_THREADS_NUMBER);
         result = g_fah->Delete(newDirUriTest);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
@@ -2197,7 +2218,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetRoots_0000, testing::
         EXPECT_EQ(info[0].uri, uri);
         EXPECT_EQ(info[0].displayName, displayName);
         EXPECT_EQ(info[0].deviceType, DEVICE_LOCAL_DISK);
-        EXPECT_EQ(info[0].deviceFlags, DEVICE_SHARED_TERMINAL);
+        EXPECT_EQ(info[0].deviceFlags, DEVICE_FLAG_SUPPORTS_READ | DEVICE_FLAG_SUPPORTS_WRITE);
 
         SetSelfTokenID(selfTokenId_);
     } catch (...) {
