@@ -153,7 +153,6 @@ public:
         g_tokenId = tokenIdEx.tokenIdExStruct.tokenID;
         SetSelfTokenID(g_tokenId);
     }
-
     static void TearDownTestCase()
     {
         g_fah->Release();
@@ -963,7 +962,6 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0003, testing::ext
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "Delete_0003 result:" << result << endl;
         }
-
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_Delete_0003 occurs an exception.";
     }
@@ -1427,8 +1425,9 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0009, testing::ext::
             result = g_fah->Mkdir(parentUri, "test2", newDirUriTest2);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri testUri("");
-            int num = 2000;
-            for (size_t j = 0; j < num; j++) {
+            //Number of files created
+            int createfilenumbers = 2000;
+            for (size_t j = 0; j < createfilenumbers; j++) {
                 string fileName = "test" + ToString(j) + ".txt";
                 result = g_fah->CreateFile(newDirUriTest1, fileName, testUri);
                 EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1473,6 +1472,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0010, testing::ext::
             Uri testUri("");
             result = g_fah->Mkdir(newDirUriTest1, "test", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            //Create multi-level directory
             int num = 64;
             for (size_t j = 0; j < num; j++)
             {
@@ -1483,7 +1483,6 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0010, testing::ext::
             result = g_fah->Move(newDirUriTest1, newDirUriTest2, testUri2);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "Move_0010 result:" << result << endl;
-
             result = g_fah->Delete(newDirUriTest2);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
@@ -1530,7 +1529,6 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0011, testing::ext::
                 result = g_fah->Delete(newDirUriTest2);
                 EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             }
-
             result = g_fah->Delete(newDirUriTest1);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
@@ -1723,7 +1721,6 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0003, testing::ext
             result = g_fah->Rename(sourceFileUri, "testRename.txt", renameUri);
             EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "Rename_0003 result:" << result << endl;
-
             result = g_fah->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
@@ -1785,7 +1782,6 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0005, testing::ext
             result = g_fah->Rename(testUri, "", renameUri);
             EXPECT_LT(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "Rename_0005 result:" << result << endl;
-
             result = g_fah->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
@@ -2168,7 +2164,6 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Access_0000, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Access_0000";
     try {
         uint64_t selfTokenId = GetSelfTokenID();
-
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);

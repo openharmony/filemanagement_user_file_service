@@ -1141,7 +1141,6 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0004, testing::ext:
         Uri newDirUriTest("");
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
         Uri testUri("");
         Uri sourceFileUri("~!@#$%^&*()_");
         result = g_fah->Move(sourceFileUri, newDirUriTest, testUri);
@@ -1314,8 +1313,9 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0009, testing::ext:
         result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri("");
-        int num = 2000;
-        for (size_t i = 0; i < num; i++) {
+        //Number of files created
+        int createfilenumbers = 2000;
+        for (size_t i = 0; i < createfilenumbers; i++) {
             string fileName = "test" + ToString(i) + ".txt";
             result = g_fah->CreateFile(newDirUriTest1, fileName, testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1356,8 +1356,9 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0010, testing::ext:
         Uri testUri("");
         result = g_fah->Mkdir(newDirUriTest1, "test", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        int num = 50;
-        for (size_t i = 0; i < num; i++) {
+        //Create multi-level directory
+        int createdirectorynumber = 50;
+        for (size_t i = 0; i < createdirectorynumber; i++) {
             result = g_fah->Mkdir(testUri, "test", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
