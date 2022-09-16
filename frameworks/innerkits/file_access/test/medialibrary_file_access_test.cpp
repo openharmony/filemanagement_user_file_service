@@ -25,7 +25,6 @@
 #include "file_access_helper.h"
 #include "iservice_registry.h"
 
-
 namespace {
 using namespace std;
 using namespace OHOS;
@@ -986,7 +985,6 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0005, testing::ex
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Delete_0005";
 }
 
-
 /**
  * @tc.number: user_file_service_medialibrary_file_access_Move_0000
  * @tc.name: medialibrary_file_access_Move_0000
@@ -1313,7 +1311,6 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0009, testing::ext:
         result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri("");
-        //Number of files created
         int createfilenumbers = 2000;
         for (size_t i = 0; i < createfilenumbers; i++) {
             string fileName = "test" + ToString(i) + ".txt";
@@ -1356,9 +1353,8 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0010, testing::ext:
         Uri testUri("");
         result = g_fah->Mkdir(newDirUriTest1, "test", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        //Create multi-level directory
-        int createdirectorynumber = 50;
-        for (size_t i = 0; i < createdirectorynumber; i++) {
+        int createdirectorynumbers = 50;
+        for (size_t i = 0; i < createdirectorynumbers; i++) {
             result = g_fah->Mkdir(testUri, "test", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }

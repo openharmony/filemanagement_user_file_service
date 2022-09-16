@@ -1425,7 +1425,6 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0009, testing::ext::
             result = g_fah->Mkdir(parentUri, "test2", newDirUriTest2);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri testUri("");
-            //Number of files created
             int createfilenumbers = 2000;
             for (size_t j = 0; j < createfilenumbers; j++) {
                 string fileName = "test" + ToString(j) + ".txt";
@@ -1472,9 +1471,8 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0010, testing::ext::
             Uri testUri("");
             result = g_fah->Mkdir(newDirUriTest1, "test", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            //Create multi-level directory
-            int num = 64;
-            for (size_t j = 0; j < num; j++)
+            int createdirectorynumbers = 64;
+            for (size_t j = 0; j < createdirectorynumbers; j++)
             {
                 result = g_fah->Mkdir(testUri, "test", testUri);
                 EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
