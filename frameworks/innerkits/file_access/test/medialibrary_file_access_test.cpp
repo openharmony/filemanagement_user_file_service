@@ -614,13 +614,14 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0005, testing
         Uri newFileUri3("");
         std::string displayName1 = "test1";
         std::string displayName2 = "test2";
+        std::string displayName3 = "test3.txt";
         int result = g_fah->Mkdir(g_newDirUri, displayName1, newFileUri1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Mkdir(newFileUri1, displayName2, newFileUri2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         g_num = 0;
         for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
-            std::thread execthread(CreateFileTdd, g_fah, newFileUri2, displayName2, newFileUri3);
+            std::thread execthread(CreateFileTdd, g_fah, newFileUri2, displayName3, newFileUri3);
             execthread.join();
         }
         EXPECT_GE(g_num, ACTUAL_SUCCESS_THREADS_NUMBER);
