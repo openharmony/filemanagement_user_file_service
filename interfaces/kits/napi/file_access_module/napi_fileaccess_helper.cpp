@@ -155,6 +155,12 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
+    FileAccessHelper *fileAccessHelper = nullptr;
+    napi_unwrap(env, result, (void **)&fileAccessHelper);
+    if (fileAccessHelper == nullptr) {
+        return nullptr;
+    }
+
     return result;
 }
 
