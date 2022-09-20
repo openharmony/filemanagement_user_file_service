@@ -28,6 +28,7 @@ using namespace FileManagement::LibN;
 
 int IsDirectory(const int64_t mode);
 int GetFileFilterParam(const NVal &argv, FileFilter &filter);
+const int MAX_SUFFIX_LENGTH = 20;
 } // namespace FileAccessFwk
 } // namespace OHOS
 #endif // NAPI_UTILS_H

@@ -15,6 +15,7 @@
 
 #include "napi_utils.h"
 
+#include <cctype>
 #include <cinttypes>
 #include <string>
 #include <vector>
@@ -40,6 +41,24 @@ int IsDirectory(const int64_t mode)
     return ERR_OK;
 }
 
+bool CheckSuffix(std::vector<std::string> suffixs)
+{
+    for (std::string suffix : suffixs) {
+        if (suffix.length() <= 1 || suffix.length() > MAX_SUFFIX_LENGTH) {
+            return false;
+        }
+        if (suffix[0] != '.') {
+            return false;
+        }
+        for (int i = 1; i < suffix.length(); i++) {
+            if (!isalnum(suffix[i])) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 int GetFileFilterParam(const NVal &argv, FileFilter &filter)
 {
     bool ret = false;
@@ -51,7 +70,9 @@ int GetFileFilterParam(const NVal &argv, FileFilter &filter)
             HILOG_ERROR("FileFilter get suffix param fail.");
             return ERR_INVALID_PARAM;
         }
-
+        if (!CheckSuffix(suffixs)) {
+            return ERR_INVALID_PARAM;
+        }
         filter.SetSuffix(suffixs);
         filter.SetHasFilter(true);
     } else {
