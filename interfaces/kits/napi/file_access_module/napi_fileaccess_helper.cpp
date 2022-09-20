@@ -155,6 +155,17 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
+    FileAccessHelper *fileAccessHelper = nullptr;
+    if (napi_unwrap(env, result, (void **)&fileAccessHelper) != napi_ok) {
+        HILOG_ERROR("Faild to get fileAccessHelper");
+        return nullptr;
+    }
+
+    if (fileAccessHelper == nullptr) {
+        HILOG_ERROR("fileAccessHelper is nullptr");
+        return nullptr;
+    }
+
     return result;
 }
 
@@ -250,7 +261,11 @@ static FileAccessHelper *GetFileAccessHelper(napi_env env, napi_value thisVar)
     }
 
     FileAccessHelper *fileAccessHelper = nullptr;
-    napi_unwrap(env, thisVar, (void **)&fileAccessHelper);
+    if (napi_unwrap(env, thisVar, (void **)&fileAccessHelper) != napi_ok) {
+        NapiError(ERR_GET_FILEACCESS_HELPER).ThrowErr(env);
+        return nullptr;
+    }
+
     if (fileAccessHelper == nullptr) {
         NapiError(ERR_GET_FILEACCESS_HELPER).ThrowErr(env);
         return nullptr;
