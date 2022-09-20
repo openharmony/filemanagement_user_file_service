@@ -157,9 +157,12 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
 
     FileAccessHelper *fileAccessHelper = nullptr;
     if (napi_unwrap(env, result, (void **)&fileAccessHelper) != napi_ok) {
+        HILOG_ERROR("faild to get helper");
         return nullptr;
     }
+
     if (fileAccessHelper == nullptr) {
+        HILOG_ERROR("helper is nullptr");
         return nullptr;
     }
 
