@@ -49,10 +49,6 @@ ohos_shared_library("fms_server") {
 
   sources = [
     "src/client/file_manager_proxy.cpp",
-    "src/fileoper/ext_storage/ext_storage_subscriber.cpp",
-    "src/fileoper/ext_storage/storage_manager_inf.cpp",
-    "src/fileoper/external_storage_oper.cpp",
-    "src/fileoper/external_storage_utils.cpp",
     "src/fileoper/file_info.cpp",
     "src/fileoper/media_file_oper.cpp",
     "src/fileoper/media_file_utils.cpp",
@@ -63,7 +59,6 @@ ohos_shared_library("fms_server") {
 
   deps = [
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
-    "//foundation/filemanagement/storage_service/interfaces/innerkits/storage_manager/native:storage_manager_sa_proxy",
     "//foundation/multimedia/media_library/frameworks/innerkitsimpl/media_library_helper:media_library",
     "//foundation/multimedia/media_library/frameworks/innerkitsimpl/medialibrary_data_extension:medialibrary_data_extension",
   ]
