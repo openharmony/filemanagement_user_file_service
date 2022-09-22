@@ -15,7 +15,6 @@
 
 #include "oper_factory.h"
 
-#include "external_storage_oper.h"
 #include "file_manager_service_def.h"
 #include "file_oper.h"
 #include "log.h"
@@ -31,10 +30,6 @@ unique_ptr<FileOper> OperFactory::GetFileOper(int equipmentId)
     switch (equipmentId) {
         case Equipment::INTERNAL_STORAGE: {
             fp = make_unique<MediaFileOper>();
-            break;
-        }
-        case Equipment::EXTERNAL_STORAGE: {
-            fp = make_unique<ExternalStorageOper>();
             break;
         }
         default: {
