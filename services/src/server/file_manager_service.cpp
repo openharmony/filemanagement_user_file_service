@@ -31,7 +31,6 @@ void FileManagerService::OnDump() {}
 void FileManagerService::OnStart()
 {
     DEBUG_LOG("FileManagerService OnStart");
-    //ExtStorageSubscriber::Subscriber();
     bool res = Publish(this);
     if (!res) {
         ERR_LOG("FileManagerService OnStart invalid");
