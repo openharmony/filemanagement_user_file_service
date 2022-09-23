@@ -122,7 +122,9 @@ napi_value NapiRootInfoExporter::ListFile(napi_env env, napi_callback_info info)
 
     FileInfo fileInfo;
     fileInfo.uri = rootEntity->rootInfo.uri;
-    fileInfo.mode = DOCUMENT_FLAG_REPRESENTS_DIR | DOCUMENT_FLAG_SUPPORTS_READ | DOCUMENT_FLAG_SUPPORTS_WRITE;
+    fileInfo.mode = static_cast<const uint64_t>(DOCUMENT_FLAG_REPRESENTS_DIR)
+        | static_cast<const uint64_t>(DOCUMENT_FLAG_SUPPORTS_READ)
+        | static_cast<const uint64_t>(DOCUMENT_FLAG_SUPPORTS_WRITE);
     {
         std::lock_guard<std::mutex> lock(fileIteratorEntity->entityOperateMutex);
         fileIteratorEntity->fileAccessHelper = rootEntity->fileAccessHelper;
@@ -185,7 +187,9 @@ napi_value NapiRootInfoExporter::ScanFile(napi_env env, napi_callback_info info)
 
     FileInfo fileInfo;
     fileInfo.uri = rootEntity->rootInfo.uri;
-    fileInfo.mode = DOCUMENT_FLAG_REPRESENTS_DIR | DOCUMENT_FLAG_SUPPORTS_READ | DOCUMENT_FLAG_SUPPORTS_WRITE;
+    fileInfo.mode = static_cast<const uint64_t>(DOCUMENT_FLAG_REPRESENTS_DIR)
+        | static_cast<const uint64_t>(DOCUMENT_FLAG_SUPPORTS_READ)
+        | static_cast<const uint64_t>(DOCUMENT_FLAG_SUPPORTS_WRITE);
     {
         std::lock_guard<std::mutex> lock(fileIteratorEntity->entityOperateMutex);
         fileIteratorEntity->fileAccessHelper = rootEntity->fileAccessHelper;

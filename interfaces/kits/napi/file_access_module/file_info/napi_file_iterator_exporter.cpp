@@ -108,7 +108,8 @@ static int MakeResult(napi_value &objFileInfoExporter, FileIteratorEntity *fileI
         }
     }
 
-    if (fileIteratorEntity->pos == fileIteratorEntity->fileInfoVec.size()) {
+    size_t pos = static_cast<size_t>(fileIteratorEntity->pos);
+    if (pos == fileIteratorEntity->fileInfoVec.size()) {
         fileIteratorEntity->fileInfoVec.clear();
         fileIteratorEntity->offset = 0;
         fileIteratorEntity->pos = 0;
