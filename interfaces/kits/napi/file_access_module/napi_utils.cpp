@@ -28,7 +28,7 @@ namespace OHOS {
 namespace FileAccessFwk {
 int IsDirectory(const int64_t mode)
 {
-    uint32_t m{ mode };
+    const uint32_t m{ mode };
     if ((m & DOCUMENT_FLAG_REPRESENTS_DIR) != DOCUMENT_FLAG_REPRESENTS_DIR) {
         HILOG_ERROR("current FileInfo is not dir");
         return ERR_INVALID_PARAM;
