@@ -28,13 +28,12 @@ namespace OHOS {
 namespace FileAccessFwk {
 int IsDirectory(const int64_t mode)
 {
-    const uint32_t m{ mode };
-    if ((m & DOCUMENT_FLAG_REPRESENTS_DIR) != DOCUMENT_FLAG_REPRESENTS_DIR) {
+    if ((uint32_t { mode } & DOCUMENT_FLAG_REPRESENTS_DIR) != DOCUMENT_FLAG_REPRESENTS_DIR) {
         HILOG_ERROR("current FileInfo is not dir");
         return ERR_INVALID_PARAM;
     }
 
-    if ((m & DOCUMENT_FLAG_REPRESENTS_FILE) == DOCUMENT_FLAG_REPRESENTS_FILE) {
+    if ((uint32_t { mode } & DOCUMENT_FLAG_REPRESENTS_FILE) == DOCUMENT_FLAG_REPRESENTS_FILE) {
         HILOG_ERROR("file mode(%{public}" PRId64 ") is incorrect", mode);
         return ERR_INVALID_PARAM;
     }
