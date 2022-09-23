@@ -38,8 +38,8 @@ constexpr int32_t DEVICE_EXTERNAL_CLOUD = 7;            // Cloud disk device
 /**
  * Indicates the supported capabilities of the device.
  */
-const int32_t DEVICE_FLAG_SUPPORTS_READ = 1;
-const int32_t DEVICE_FLAG_SUPPORTS_WRITE = 1 << 1;
+const uint32_t DEVICE_FLAG_SUPPORTS_READ = 1;
+const uint32_t DEVICE_FLAG_SUPPORTS_WRITE = 1 << 1;
 
 /**
  * Indicates the supported capabilities of the file or directory.
