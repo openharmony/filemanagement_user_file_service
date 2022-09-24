@@ -41,8 +41,7 @@
                 "//foundation/filemanagement/user_file_service/interfaces/kits/napi/file_access_ext_ability:fileaccessextensionability_napi",
                 "//foundation/filemanagement/user_file_service/interfaces/kits/napi/file_extension_info_module:fileextensioninfo"
             ],
-            "test": [
-              "//foundation/filemanagement/user_file_service/services/test:user_file_manager_test",
+            "test": [              
               "//foundation/filemanagement/user_file_service/frameworks/innerkits/file_access/test:user_file_service_test"
             ]
         }
