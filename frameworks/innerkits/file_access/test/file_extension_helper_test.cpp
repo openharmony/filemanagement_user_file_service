@@ -138,12 +138,13 @@ public:
         fah = FileAccessHelper::Creator(remoteObj, wants);
 
         OHOS::Security::AccessToken::AccessTokenIDEx tokenIdEx = {0};
-        tokenIdEx = OHOS::Security::AccessToken::AccessTokenKit::AllocHapToken
-            (g_infoManagerTestInfoParms, g_infoManagerTestPolicyPrams);
+        tokenIdEx = OHOS::Security::AccessToken::AccessTokenKit::AllocHapToken(
+            g_infoManagerTestInfoParms, g_infoManagerTestPolicyPrams);
         tokenId = tokenIdEx.tokenIdExStruct.tokenID;
         SetSelfTokenID(tokenId);
     }
-    static void TearDownTestCase() {
+    static void TearDownTestCase()
+    {
         fah->Release();
         fah = nullptr;
         OHOS::Security::AccessToken::AccessTokenKit::DeleteToken(tokenId);

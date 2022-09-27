@@ -35,7 +35,7 @@ struct FileIteratorEntity {
     FileInfo fileInfo;
     std::vector<FileInfo> fileInfoVec;
     int64_t offset { 0 };
-    int64_t pos { 0 };
+    uint64_t pos { 0 };
     FileFilter filter { {}, {}, {}, 0, 0, false, false };
     int flag { 0 };
 };
