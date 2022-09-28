@@ -141,7 +141,7 @@ public:
         .availableLevel = OHOS::Security::AccessToken::APL_NORMAL,
         .label = "label",
         .labelId = 1,
-        .description = "WRITE_MEDIA",
+        .description = "GET_BUNDLE_INFO_PRIVILEGED",
         .descriptionId = 1
     };
     // permission info
