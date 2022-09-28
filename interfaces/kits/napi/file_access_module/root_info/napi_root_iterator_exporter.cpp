@@ -101,7 +101,7 @@ napi_value NapiRootIteratorExporter::Next(napi_env env, napi_callback_info info)
     bool done = true;
     {
         std::lock_guard<std::mutex> lock(rootIterator->entityOperateMutex);
-        auto len = (int64_t)rootIterator->devVec.size();
+        auto len = rootIterator->devVec.size();
         rootInfoEntity->fileAccessHelper = rootIterator->fileAccessHelper;
         if (rootIterator->pos < len) {
             rootInfoEntity->rootInfo = rootIterator->devVec[rootIterator->pos];
