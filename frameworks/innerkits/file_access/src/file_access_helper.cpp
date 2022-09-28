@@ -73,6 +73,7 @@ static bool CheckUri(Uri &uri)
         HILOG_ERROR("Uri scheme error.");
         return false;
     }
+    HILOG_DEBUG("Uri : %{public}s.", uri.ToString().c_str());
     return true;
 }
 
