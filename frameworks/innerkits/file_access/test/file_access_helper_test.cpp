@@ -148,10 +148,10 @@ public:
     OHOS::Security::AccessToken::HapPolicyParams g_infoManagerTestPolicyPrams = {
         .apl = OHOS::Security::AccessToken::APL_NORMAL,
         .domain = "test.domain",
-    .permList = {g_infoManagerTestPermDef, g_infoManagerTestPermDef1, g_infoManagerTestPermDef2,
-        g_infoManagerTestPermDef3},
-    .permStateList = {g_infoManagerTestState, g_infoManagerTestState1, g_infoManagerTestState2,
-        g_infoManagerTestState3}
+        .permList = {g_infoManagerTestPermDef, g_infoManagerTestPermDef1, g_infoManagerTestPermDef2,
+            g_infoManagerTestPermDef3},
+        .permStateList = {g_infoManagerTestState, g_infoManagerTestState1, g_infoManagerTestState2,
+            g_infoManagerTestState3}
     };
 
     // hap info
