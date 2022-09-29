@@ -92,6 +92,14 @@ public:
         .grantFlags = {1}
     };
 
+    OHOS::Security::AccessToken::PermissionStateFull g_infoManagerTestState3 = {
+        .permissionName = "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED",
+        .isGeneral = true,
+        .resDeviceID = {"local"},
+        .grantStatus = {OHOS::Security::AccessToken::PermissionState::PERMISSION_GRANTED},
+        .grantFlags = {1}
+    };
+
     // permission define
     OHOS::Security::AccessToken::PermissionDef g_infoManagerTestPermDef = {
         .permissionName = "ohos.permission.FILE_ACCESS_MANAGER",
@@ -126,12 +134,24 @@ public:
         .descriptionId = 1
     };
 
+    OHOS::Security::AccessToken::PermissionDef g_infoManagerTestPermDef3 = {
+        .permissionName = "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED",
+        .bundleName = "ohos.acts.multimedia.mediaLibrary",
+        .grantMode = 1,
+        .availableLevel = OHOS::Security::AccessToken::APL_NORMAL,
+        .label = "label",
+        .labelId = 1,
+        .description = "GET_BUNDLE_INFO_PRIVILEGED",
+        .descriptionId = 1
+    };
     // permission info
     OHOS::Security::AccessToken::HapPolicyParams g_infoManagerTestPolicyPrams = {
         .apl = OHOS::Security::AccessToken::APL_NORMAL,
         .domain = "test.domain",
-        .permList = {g_infoManagerTestPermDef, g_infoManagerTestPermDef1, g_infoManagerTestPermDef2},
-        .permStateList = {g_infoManagerTestState, g_infoManagerTestState1, g_infoManagerTestState2}
+        .permList = {g_infoManagerTestPermDef, g_infoManagerTestPermDef1, g_infoManagerTestPermDef2,
+            g_infoManagerTestPermDef3},
+        .permStateList = {g_infoManagerTestState, g_infoManagerTestState1, g_infoManagerTestState2,
+            g_infoManagerTestState3}
     };
 
     // hap info
