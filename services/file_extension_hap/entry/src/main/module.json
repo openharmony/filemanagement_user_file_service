@@ -5,6 +5,7 @@
     "srcEntrance": "./ets/Application/AbilityStage.ts",
     "mainElement": "FileExtensionAbility",
     "deviceTypes": [
+      "default",
       "phone",
       "tablet"
     ],
