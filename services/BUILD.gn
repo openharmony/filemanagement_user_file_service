@@ -13,73 +13,10 @@
 
 import("//build/ohos.gni")
 import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
-FMS_BASE_DIR = "//foundation/filemanagement/user_file_service/services"
 
 group("fms") {
   deps = [
     ":external_file_manager_hap",
-    ":fms_server",
-    ":fms_service.cfg",
-  ]
-}
-
-ohos_prebuilt_etc("fms_service.cfg") {
-  source = "etc/fms_service.cfg"
-  relative_install_dir = "init"
-  subsystem_name = "filemanagement"
-  part_name = "user_file_service"
-}
-
-ohos_shared_library("fms_server") {
-  subsystem_name = "filemanagement"
-  part_name = "user_file_service"
-
-  include_dirs = [
-    "$FMS_BASE_DIR/include",
-    "$FMS_BASE_DIR/src/client",
-    "$FMS_BASE_DIR/src/server",
-    "$FMS_BASE_DIR/src/fileoper",
-    "$FMS_BASE_DIR/include/fileoper",
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits/include/hilog",
-    "//foundation/filemanagement/storage_service/services/storage_manager/include",
-    "//foundation/filemanagement/storage_service/interfaces/innerkits/storage_manager/native",
-    "//foundation/distributeddatamgr/relational_store/interfaces/inner_api/appdatafwk/include",
-    "//foundation/distributeddatamgr/relational_store/interfaces/inner_api/rdb/include",
-  ]
-
-  sources = [
-    "src/client/file_manager_proxy.cpp",
-    "src/fileoper/file_info.cpp",
-    "src/fileoper/media_file_oper.cpp",
-    "src/fileoper/media_file_utils.cpp",
-    "src/fileoper/oper_factory.cpp",
-    "src/server/file_manager_service.cpp",
-    "src/server/file_manager_service_stub.cpp",
-  ]
-
-  deps = [
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
-    "//foundation/multimedia/media_library/frameworks/innerkitsimpl/media_library_helper:media_library",
-    "//foundation/multimedia/media_library/frameworks/innerkitsimpl/medialibrary_data_extension:medialibrary_data_extension",
-  ]
-  cflags = []
-  if (target_cpu == "arm") {
-    cflags += [ "-DBINDER_IPC_32BIT" ]
-  }
-  external_deps = [
-    "ability_base:base",
-    "ability_base:want",
-    "ability_base:zuri",
-    "ability_runtime:wantagent_innerkits",
-    "access_token:libaccesstoken_sdk",
-    "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
-    "data_share:datashare_common",
-    "data_share:datashare_consumer",
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
   ]
 }
 
