@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
 
-group("fms") {
+group("user_file_managers") {
   deps = [
     ":external_file_manager_hap",
   ]
