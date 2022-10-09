@@ -68,12 +68,12 @@ static bool GetBundleNameFromPath(const std::string &path, std::string &bundleNa
 
 static bool CheckUri(Uri &uri)
 {
+    HILOG_DEBUG("Uri : %{public}s.", uri.ToString().c_str());
     std::string schemeStr = std::string(uri.GetScheme());
     if (schemeStr.compare(SCHEME_NAME) != 0) {
         HILOG_ERROR("Uri scheme error.");
         return false;
     }
-    HILOG_DEBUG("Uri : %{public}s.", uri.ToString().c_str());
     return true;
 }
 
