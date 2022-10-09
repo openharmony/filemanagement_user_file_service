@@ -46,7 +46,6 @@ ohos_shared_library("fileaccess") {
     "${BASE_DIR}/frameworks/innerkits/file_access:file_access_extension_ability_kit",
     "//foundation/ability/ability_runtime/frameworks/js/napi/inner/napi_common:napi_common",
     "//foundation/filemanagement/file_api/utils/filemgmt_libn:filemgmt_libn",
-
   ]
 
   external_deps = [
