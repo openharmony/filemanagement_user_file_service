@@ -33,15 +33,13 @@
         },
         "build": {
             "sub_component": [
-                "//foundation/filemanagement/user_file_service/services:fms",
-                "//foundation/filemanagement/user_file_service/services/sa_profile:filemanager_service_sa_profile",
-                "//foundation/filemanagement/user_file_service/interfaces/kits/js:filemanager",
+                "//foundation/filemanagement/user_file_service/services:user_file_managers",
                 "//foundation/filemanagement/user_file_service/frameworks/innerkits:frameworks_innerkits",
                 "//foundation/filemanagement/user_file_service/interfaces/kits/napi/file_access_module:fileaccess",
                 "//foundation/filemanagement/user_file_service/interfaces/kits/napi/file_access_ext_ability:fileaccessextensionability_napi",
                 "//foundation/filemanagement/user_file_service/interfaces/kits/napi/file_extension_info_module:fileextensioninfo"
             ],
-            "test": [              
+            "test": [
               "//foundation/filemanagement/user_file_service/frameworks/innerkits/file_access/test:user_file_service_test"
             ]
         }
