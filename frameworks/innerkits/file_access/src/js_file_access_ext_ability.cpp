@@ -1065,5 +1065,76 @@ int JsFileAccessExtAbility::Access(const Uri &uri, bool &isExist)
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
+
+int JsFileAccessExtAbility::UriToFileInfo(const Uri &selectFile, FileInfo &fileInfo)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "UriToFileInfo");
+    auto value = std::make_shared<Value<FileInfo>>();
+    if (value == nullptr) {
+        HILOG_ERROR("UriToFileInfo value is nullptr.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_NULL_POINTER;
+    }
+
+    auto argParser = [selectFile](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
+        NativeValue *nativeUri = engine.CreateString(selectFile.ToString().c_str(), selectFile.ToString().length());
+        if (nativeUri == nullptr) {
+            HILOG_ERROR("create selectFile uri native js value fail.");
+            return false;
+        }
+        argv[ARGC_ZERO] = nativeUri;
+        argc = ARGC_ONE;
+        return true;
+    };
+    auto retParser = [value](NativeEngine &engine, NativeValue *result) -> bool {
+        NativeObject *obj = ConvertNativeValueTo<NativeObject>(result);
+        if (obj == nullptr) {
+            HILOG_ERROR("Convert js object fail.");
+            return false;
+        }
+        bool ret = ConvertFromJsValue(engine, obj->GetProperty("code"), value->code);
+        if (!ret) {
+            HILOG_ERROR("Convert js value fail.");
+            return false;
+        }
+
+        obj = ConvertNativeValueTo<NativeObject>(obj->GetProperty("fileInfo"));
+        if (obj == nullptr) {
+            HILOG_ERROR("Convert js-fileInfo object fail.");
+            return false;
+        }
+
+        FileInfo fileInfo;
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("uri"), fileInfo.uri);
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("fileName"), fileInfo.fileName);
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("mode"), fileInfo.mode);
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("size"), fileInfo.size);
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("mtime"), fileInfo.mtime);
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("mimeType"), fileInfo.mimeType);
+        if (!ret) {
+            HILOG_ERROR("Convert js value fail.");
+            return false;
+        }
+        value->data = std::move(fileInfo);
+        return ret;
+    };
+
+    auto errCode = CallJsMethod("uriToFileInfo", jsRuntime_, jsObj_.get(), argParser, retParser);
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return errCode;
+    }
+
+    if (value->code != ERR_OK) {
+        HILOG_ERROR("fileio fail.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_FILEIO_FAIL;
+    }
+
+    fileInfo = std::move(value->data);
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

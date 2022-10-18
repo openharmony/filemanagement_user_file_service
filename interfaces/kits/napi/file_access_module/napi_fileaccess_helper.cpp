@@ -227,6 +227,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("rename", NAPI_Rename),
         DECLARE_NAPI_FUNCTION("getRoots", NAPI_GetRoots),
         DECLARE_NAPI_FUNCTION("access", NAPI_Access),
+        DECLARE_NAPI_FUNCTION("uriToFileInfo", NAPI_UriToFileInfo),
         DECLARE_NAPI_FUNCTION("on", NAPI_On),
         DECLARE_NAPI_FUNCTION("off", NAPI_Off)
     };
@@ -754,6 +755,88 @@ napi_value NAPI_Access(napi_env env, napi_callback_info info)
     };
 
     const std::string procedureName = "access";
+    NVal thisVar(env, funcArg.GetThisVar());
+    if (funcArg.GetArgc() == NARG_CNT::ONE) {
+        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
+    }
+    NVal cb(env, funcArg[NARG_POS::SECOND]);
+    if (!cb.TypeIs(napi_function)) {
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
+        return nullptr;
+    }
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
+}
+
+static int MakeFileInfoResult(napi_env &env, FileAccessHelper *helper, FileInfo &fileinfo, NVal &nVal)
+{
+    auto objFileInfo = NClass::InstantiateClass(env, NapiFileInfoExporter::className_, {});
+    if (objFileInfo == nullptr) {
+        HILOG_INFO("Cannot instantiate class NapiFileInfoExporter");
+        return ERR_NULL_POINTER;
+    }
+
+    auto fileInfoEntity = NClass::GetEntityOf<FileInfoEntity>(env, objFileInfo);
+    if (fileInfoEntity == nullptr) {
+        HILOG_INFO("Cannot get the entity of fileInfoEntity");
+        return ERR_NULL_POINTER;
+    }
+    fileInfoEntity->fileAccessHelper = helper;
+    fileInfoEntity->fileInfo = std::move(fileinfo);
+    nVal = { env, objFileInfo };
+
+    return ERR_OK;
+}
+
+napi_value NAPI_UriToFileInfo(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
+        NapiError(ERR_PARAM_NUMBER).ThrowErr(env);
+        return nullptr;
+    }
+
+    bool succ = false;
+    std::unique_ptr<char[]> uri;
+    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    if (!succ) {
+        NapiError(ERR_INVALID_PARAM).ThrowErr(env);
+        return nullptr;
+    }
+
+    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    if (fileAccessHelper == nullptr) {
+        return nullptr;
+    }
+
+    auto result = std::make_shared<FileInfo>();
+    if (result == nullptr) {
+        NapiError(ERR_NULL_POINTER).ThrowErr(env);
+        return nullptr;
+    }
+
+    string uriString(uri.get());
+    auto cbExec = [uriString, result, fileAccessHelper]() -> NError {
+        OHOS::Uri uri(uriString);
+        int ret = fileAccessHelper->UriToFileInfo(uri, *result);
+        return NError(ret);
+    };
+    auto cbComplete = [fileAccessHelper, result](napi_env env, NError err) -> NVal {
+        if (err) {
+            return { env, err.GetNapiErr(env) };
+        }
+
+        NVal nVal;
+        int ret = MakeFileInfoResult(env, fileAccessHelper, *result, nVal);
+        if (ret != ERR_OK) {
+            return { env, NError([ret]() -> std::tuple<uint32_t, std::string> {
+                return { ret, "Make FileInfo Result fail" };
+            }).GetNapiErr(env) };
+        }
+
+        return nVal;
+    };
+
+    const std::string procedureName = "uriToFileInfo";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;

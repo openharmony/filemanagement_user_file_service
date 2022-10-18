@@ -559,6 +559,56 @@ int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfoVec)
     return ERR_OK;
 }
 
+int FileAccessExtProxy::UriToFileInfo(const Uri &selectFile, FileInfo &fileInfo)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "UriToFileInfo");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (!data.WriteParcelable(&selectFile)) {
+        HILOG_ERROR("fail to WriteParcelable selectFile");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int err = Remote()->SendRequest(CMD_URI_TO_FILEINFO, data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return err;
+    }
+
+    int ret = ERR_PARCEL_FAIL;
+    if (!reply.ReadInt32(ret)) {
+        HILOG_ERROR("fail to ReadInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("UriToFileInfo operation failed ret : %{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    std::unique_ptr<FileInfo> fileInfoTemp(reply.ReadParcelable<FileInfo>());
+    if (fileInfoTemp == nullptr) {
+        HILOG_ERROR("ReadParcelable value is nullptr.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    fileInfo = *fileInfoTemp;
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
 int FileAccessExtProxy::Access(const Uri &uri, bool &isExist)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Access");

@@ -27,8 +27,6 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-bool UnwrapInt64ByPropertyName(napi_env env, napi_value param, const char *propertyName, int64_t &value);
-
 napi_value WrapUint32ToJS(napi_env env, uint32_t value);
 uint32_t UnwrapUint32FromJS(napi_env env, napi_value param, uint32_t defaultValue = 0);
 bool UnwrapUint32FromJS2(napi_env env, napi_value param, uint32_t &value);
@@ -38,18 +36,6 @@ napi_value WrapBigIntUint64ToJS(napi_env env, uint64_t value);
 uint64_t UnwrapBigIntUint64FromJS(napi_env env, napi_value param, uint64_t defaultValue = 0);
 bool UnwrapBigIntUint64FromJS2(napi_env env, napi_value param, uint64_t &defaultValue);
 bool UnwrapBigIntUint64ByPropertyName(napi_env env, napi_value param, const char *propertyName, uint64_t &value);
-
-napi_value WrapFileInfo(napi_env env, const FileInfo &fileInfo);
-bool UnwrapFileInfo(napi_env env, napi_value param, FileInfo &fileInfo);
-
-napi_value WrapArrayFileInfoToJS(napi_env env, const std::vector<FileInfo> &fileInfoVec);
-bool UnwrapArrayFileInfoFromJS(napi_env env, napi_value param, std::vector<FileInfo> &fileInfoVec);
-
-napi_value WrapRootInfo(napi_env env, const RootInfo &rootInfo);
-bool UnwrapRootInfo(napi_env env, napi_value param, RootInfo &rootInfo);
-
-napi_value WrapArrayRootInfoToJS(napi_env env, const std::vector<RootInfo> &rootInfoVec);
-bool UnwrapArrayRootInfoFromJS(napi_env env, napi_value param, std::vector<RootInfo> &rootInfoVec);
 
 napi_value WrapArrayWantToJS(napi_env env, const std::vector<OHOS::AAFwk::Want> &wantVec);
 bool UnwrapArrayWantFromJS(napi_env env, napi_value param, std::vector<OHOS::AAFwk::Want> &wantVec);

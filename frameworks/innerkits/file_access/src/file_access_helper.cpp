@@ -165,27 +165,6 @@ std::string FileAccessHelper::GetKeyOfWantsMap(const AAFwk::Want &want)
     return "";
 }
 
-void FileAccessHelper::InsertConnectInfo(const std::string &key,
-                                         const AAFwk::Want &want,
-                                         const sptr<IFileAccessExtBase> &fileAccessExtProxy,
-                                         sptr<FileAccessExtConnection> fileAccessExtConnection)
-{
-    std::shared_ptr<ConnectInfo> connectInfo = GetConnectInfo(key);
-    if (connectInfo == nullptr) {
-        std::shared_ptr<ConnectInfo> connectInfo = std::make_shared<ConnectInfo>();
-        if (connectInfo == nullptr) {
-            HILOG_ERROR("InsertConnectInfo called with connectInfo == nullptr");
-            return ;
-        }
-        connectInfo->want = want;
-        connectInfo->fileAccessExtConnection = fileAccessExtConnection;
-        cMap_.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(key, connectInfo));
-    } else {
-        connectInfo->want = want;
-        connectInfo->fileAccessExtConnection = fileAccessExtConnection;
-    }
-}
-
 std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> &context)
 {
@@ -733,6 +712,33 @@ int FileAccessHelper::Access(Uri &uri, bool &isExist)
     int ret = fileExtProxy->Access(uri, isExist);
     if (ret != ERR_OK) {
         HILOG_ERROR("Access get result error, code:%{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
+int FileAccessHelper::UriToFileInfo(Uri &selectFile, FileInfo &fileInfo)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "UriToFileInfo");
+    if (!CheckUri(selectFile)) {
+        HILOG_ERROR("selectFile uri format check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_INVALID_URI;
+    }
+
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(selectFile);
+    if (fileExtProxy == nullptr) {
+        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_IPC_ERROR;
+    }
+
+    int ret = fileExtProxy->UriToFileInfo(selectFile, fileInfo);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("UriToFileInfo get result error, code:%{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
