@@ -94,8 +94,8 @@ private:
     sptr<IRemoteObject> token_ = nullptr;
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap_;
 
-    static std::unordered_map<std::string, AAFwk::Want> wantsMap_;
-    static std::string GetKeyOfWantsMap(const AAFwk::Want &want);
+    static std::vector<AAFwk::Want> wants_;
+    static std::string GetKeyOfWants(const AAFwk::Want &want);
 
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
 

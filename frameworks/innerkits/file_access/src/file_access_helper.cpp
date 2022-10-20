@@ -36,7 +36,7 @@ namespace {
     static const int32_t WRITE = 1;
     static const int32_t WRITE_READ = 2;
 }
-std::unordered_map<std::string, AAFwk::Want> FileAccessHelper::wantsMap_;
+std::vector<AAFwk::Want> FileAccessHelper::wants_;
 
 static int GetUserId()
 {
@@ -151,17 +151,17 @@ std::shared_ptr<ConnectInfo> FileAccessHelper::GetConnectInfo(const AAFwk::Want 
     return nullptr;
 }
 
-std::string FileAccessHelper::GetKeyOfWantsMap(const AAFwk::Want &want)
+std::string FileAccessHelper::GetKeyOfWants(const AAFwk::Want &want)
 {
-    for (auto iter = FileAccessHelper::wantsMap_.begin(); iter != FileAccessHelper::wantsMap_.end(); ++iter) {
-        auto element = iter->second.GetElement();
-        auto elementTmp = want.GetElement();
+    auto elementTmp = want.GetElement();
+    for (auto iter = FileAccessHelper::wants_.begin(); iter != FileAccessHelper::wants_.end(); ++iter) {
+        auto element = iter->GetElement();
         if (element.GetBundleName() == elementTmp.GetBundleName() &&
             element.GetAbilityName() == elementTmp.GetAbilityName()) {
-            return iter->first;
+            return element.GetBundleName();
         }
     }
-    HILOG_ERROR("GetKeyOfWantsMap called return nullptr");
+    HILOG_ERROR("GetKeyOfWants did not find a want message to match");
     return "";
 }
 
@@ -195,7 +195,7 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     }
 
     sptr<AppExecFwk::IBundleMgr> bm = FileAccessHelper::GetBundleMgrProxy();
-    FileAccessHelper::wantsMap_.clear();
+    FileAccessHelper::wants_.clear();
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap;
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     bool ret = bm->QueryExtensionAbilityInfos(
@@ -229,7 +229,7 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
             HILOG_ERROR("Creator, connectInfo == nullptr");
             return nullptr;
         }
-        FileAccessHelper::wantsMap_.insert(std::pair<std::string, AAFwk::Want>(extensionInfos[i].bundleName, wantTem));
+        FileAccessHelper::wants_.push_back(wantTem);
 
         connectInfo->want = wantTem;
         connectInfo->fileAccessExtConnection = fileAccessExtConnection;
@@ -254,6 +254,11 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
 
     if (wants.size() == 0) {
         HILOG_ERROR("FileAccessHelper::Creator failed, wants is empty");
+        return nullptr;
+    }
+
+    if (GetRegisteredFileAccessExtAbilityInfo(FileAccessHelper::wants_) != ERR_OK) {
+        HILOG_ERROR("GetRegisteredFileAccessExtAbilityInfo failed");
         return nullptr;
     }
 
@@ -283,7 +288,11 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
 
         connectInfo->want = wants[i];
         connectInfo->fileAccessExtConnection = fileAccessExtConnection;
-        string bundleName = FileAccessHelper::GetKeyOfWantsMap(wants[i]);
+        string bundleName = FileAccessHelper::GetKeyOfWants(wants[i]);
+        if (bundleName.length() == 0) {
+            HILOG_ERROR("Creator GetKeyOfWants bundleName not found");
+            return nullptr;
+        }
         cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(bundleName, connectInfo));
     }
     FileAccessHelper *ptrFileAccessHelper = new (std::nothrow) FileAccessHelper(context, cMap);
@@ -305,6 +314,11 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteOb
 
     if (wants.size() == 0) {
         HILOG_ERROR("FileAccessHelper::Creator failed, wants is empty");
+        return nullptr;
+    }
+
+    if (GetRegisteredFileAccessExtAbilityInfo(FileAccessHelper::wants_) != ERR_OK) {
+        HILOG_ERROR("GetRegisteredFileAccessExtAbilityInfo failed");
         return nullptr;
     }
 
@@ -334,7 +348,11 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteOb
 
         connectInfo->want = wants[i];
         connectInfo->fileAccessExtConnection = fileAccessExtConnection;
-        string bundleName = FileAccessHelper::GetKeyOfWantsMap(wants[i]);
+        string bundleName = FileAccessHelper::GetKeyOfWants(wants[i]);
+        if (bundleName.length() == 0) {
+            HILOG_ERROR("Creator GetKeyOfWants bundleName not found");
+            return nullptr;
+        }
         cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(bundleName, connectInfo));
     }
     FileAccessHelper *ptrFileAccessHelper = new (std::nothrow) FileAccessHelper(token, cMap);
@@ -355,7 +373,7 @@ bool FileAccessHelper::Release()
     }
     cMap_.clear();
     token_ = nullptr;
-    FileAccessHelper::wantsMap_.clear();
+    FileAccessHelper::wants_.clear();
     return true;
 }
 
@@ -702,11 +720,9 @@ int FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::W
     }
 
     wantVec.clear();
-    FileAccessHelper::wantsMap_.clear();
     for (size_t i = 0; i < extensionInfos.size(); i++) {
         AAFwk::Want want;
         want.SetElementName(extensionInfos[i].bundleName, extensionInfos[i].name);
-        FileAccessHelper::wantsMap_.insert(std::pair<std::string, AAFwk::Want>(extensionInfos[i].bundleName, want));
         wantVec.push_back(want);
     }
 
