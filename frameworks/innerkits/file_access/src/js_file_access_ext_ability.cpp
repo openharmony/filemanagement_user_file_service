@@ -93,7 +93,13 @@ void JsFileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &rec
 NativeValue* JsFileAccessExtAbility::FuncCallback(NativeEngine* engine, NativeCallbackInfo* info)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "FuncCallback");
-    if (engine == nullptr || info == nullptr) {
+    if (engine == nullptr) {
+        HILOG_ERROR("NativeEngine pointer is null.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return nullptr;
+    }
+
+    if (info == nullptr) {
         HILOG_ERROR("invalid param.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return engine->CreateUndefined();

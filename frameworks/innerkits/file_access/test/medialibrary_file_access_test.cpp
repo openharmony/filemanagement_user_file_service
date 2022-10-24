@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -185,6 +185,19 @@ public:
     void TearDown() {};
 };
 
+static Uri GetParentUri()
+{
+    vector<RootInfo> info;
+    int result = g_fah->GetRoots(info);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri parentUri("");
+    if (info.size() > OHOS::FileAccessFwk::ERR_OK) {
+        parentUri = Uri(info[0].uri + "/file");
+        GTEST_LOG_(ERROR) << parentUri.ToString();
+    }
+    return parentUri;
+}
+
 /**
  * @tc.number: user_file_service_medialibrary_file_access_OpenFile_0000
  * @tc.name: medialibrary_file_access_OpenFile_0000
@@ -198,16 +211,9 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0000, testing::
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0000";
     try {
-        vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri parentUri("");
-        if (info.size() > OHOS::FileAccessFwk::ERR_OK) {
-            parentUri = Uri(info[0].uri + "/file");
-            GTEST_LOG_(ERROR) << parentUri.ToString();
-        }
+        Uri parentUri = GetParentUri();
         bool isExist = false;
-        result = g_fah->Access(g_newDirUri, isExist);
+        int result = g_fah->Access(g_newDirUri, isExist);
         EXPECT_LE(result, OHOS::FileAccessFwk::ERR_OK);
         if (!isExist) {
             result = g_fah->Mkdir(parentUri, "Download", g_newDirUri);
@@ -435,7 +441,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0007, testing::
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_OpenFile_0007";
 }
 
-void OpenFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, int flag, int fd)
+static void OpenFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, int flag, int fd)
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFileTdd";
     int ret = fahs->OpenFile(uri, flag, fd);
@@ -603,7 +609,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0004, testing
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_CreateFile_0004";
 }
 
-void CreateFileTdd(shared_ptr<FileAccessHelper> fahs, Uri parent, std::string displayName, Uri newDir)
+static void CreateFileTdd(shared_ptr<FileAccessHelper> fahs, Uri parent, std::string displayName, Uri newDir)
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_CreateFileTdd";
     int ret = fahs->CreateFile(parent, displayName, newDir);
@@ -776,7 +782,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0004, testing::ext
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Mkdir_0004";
 }
 
-void MkdirTdd(shared_ptr<FileAccessHelper> fahs, Uri parent, std::string displayName, Uri newDir)
+static void MkdirTdd(shared_ptr<FileAccessHelper> fahs, Uri parent, std::string displayName, Uri newDir)
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_MkdirTdd";
     int ret = fahs->Mkdir(parent, displayName, newDir);
@@ -956,7 +962,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0004, testing::ex
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Delete_0004";
 }
 
-void DeleteTdd(shared_ptr<FileAccessHelper> fahs, Uri selectFile)
+static void DeleteTdd(shared_ptr<FileAccessHelper> fahs, Uri selectFile)
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_DeleteTdd";
     int ret = fahs->Delete(selectFile);
@@ -1333,7 +1339,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0009, testing::ext:
         result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri("");
-        int fileNumbers = 2000;
+        size_t fileNumbers = 2000;
         for (size_t i = 0; i < fileNumbers; i++) {
             string fileName = "test" + ToString(i) + ".txt";
             result = g_fah->CreateFile(newDirUriTest1, fileName, testUri);
@@ -1375,7 +1381,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0010, testing::ext:
         Uri testUri("");
         result = g_fah->Mkdir(newDirUriTest1, "test", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        int directoryNumbers = 50;
+        size_t directoryNumbers = 50;
         for (size_t i = 0; i < directoryNumbers; i++) {
             result = g_fah->Mkdir(testUri, "test", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1394,7 +1400,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0010, testing::ext:
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Move_0010";
 }
 
-void MoveTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, Uri targetParent, Uri newFile)
+static void MoveTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, Uri targetParent, Uri newFile)
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_MoveTdd";
     int ret = fahs->Move(sourceFile, targetParent, newFile);
@@ -1617,7 +1623,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0005, testing::ex
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Rename_0005";
 }
 
-void RenameTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, std::string displayName, Uri newFile)
+static void RenameTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, std::string displayName, Uri newFile)
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_RenameTdd";
     int ret = fahs->Rename(sourceFile, displayName, newFile);
@@ -1840,7 +1846,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0004, testing::
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ListFile_0004";
 }
 
-void ListFileTdd(shared_ptr<FileAccessHelper> fahs, FileInfo fileInfo, int offset, int maxCount,
+static void ListFileTdd(shared_ptr<FileAccessHelper> fahs, FileInfo fileInfo, int offset, int maxCount,
     FileFilter filter, std::vector<FileInfo> fileInfoVec)
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ListFileTdd";
@@ -2057,11 +2063,11 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0003, testing::
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_ScanFile_0003";
 }
 
-void ScanFileTdd(shared_ptr<FileAccessHelper> fahs, FileInfo fileInfo, int offset, int maxCount,
-    FileFilter filter, std::vector<FileInfo> fileInfoVec)
+static void ScanFileTdd(FileInfo fileInfo, int offset, int maxCount, FileFilter filter,
+    std::vector<FileInfo> fileInfoVec)
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ScanFileTdd";
-    int ret = fahs->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    int ret = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(ERROR) << "ScanFileTdd get result error, code:" << ret;
         return;
@@ -2101,7 +2107,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0004, testing::
         FileFilter filter({".q1w2e3r4"}, {}, {}, 0, 0, false, true);
         g_num = 0;
         for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
-            std::thread execthread(ScanFileTdd, g_fah, fileInfo, offset, maxCount, filter, fileInfoVec);
+            std::thread execthread(ScanFileTdd, fileInfo, offset, maxCount, filter, fileInfoVec);
             execthread.join();
         }
         EXPECT_GE(g_num, ACTUAL_SUCCESS_THREADS_NUMBER);
