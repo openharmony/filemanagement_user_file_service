@@ -21,6 +21,7 @@
 
 #include "base/security/access_token/interfaces/innerkits/accesstoken/include/accesstoken_kit.h"
 #include "base/security/access_token/interfaces/innerkits/token_setproc/include/token_setproc.h"
+#include "base/security/access_token/interfaces/innerkits/nativetoken/include/nativetoken_kit.h"
 #include "file_access_framework_errno.h"
 #include "file_access_helper.h"
 #include "iservice_registry.h"
@@ -37,111 +38,37 @@ const int INIT_THREADS_NUMBER = 4;
 const int ACTUAL_SUCCESS_THREADS_NUMBER = 1;
 shared_ptr<FileAccessHelper> g_fah = nullptr;
 int g_num = 0;
-OHOS::Security::AccessToken::AccessTokenID g_tokenId;
 const int UID_TRANSFORM_TMP = 20000000;
 const int UID_DEFAULT = 0;
 
-// permission state
-OHOS::Security::AccessToken::PermissionStateFull g_infoManagerTestState = {
-    .permissionName = "ohos.permission.FILE_ACCESS_MANAGER",
-    .isGeneral = true,
-    .resDeviceID = {"local"},
-    .grantStatus = {OHOS::Security::AccessToken::PermissionState::PERMISSION_GRANTED},
-    .grantFlags = {1}
-};
+void SetNativeToken()
+{
+    uint64_t tokenId;
+    const char **perms = new const char *[1];
+    perms[0] = "ohos.permission.FILE_ACCESS_MANAGER";
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = 1,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .aplStr = "system_core",
+    };
 
-OHOS::Security::AccessToken::PermissionStateFull g_infoManagerTestState1 = {
-    .permissionName = "ohos.permission.READ_MEDIA",
-    .isGeneral = true,
-    .resDeviceID = {"local"},
-    .grantStatus = {OHOS::Security::AccessToken::PermissionState::PERMISSION_GRANTED},
-    .grantFlags = {1}
-};
-
-OHOS::Security::AccessToken::PermissionStateFull g_infoManagerTestState2 = {
-    .permissionName = "ohos.permission.WRITE_MEDIA",
-    .isGeneral = true,
-    .resDeviceID = {"local"},
-    .grantStatus = {OHOS::Security::AccessToken::PermissionState::PERMISSION_GRANTED},
-    .grantFlags = {1}
-};
-
-OHOS::Security::AccessToken::PermissionStateFull g_infoManagerTestState3 = {
-    .permissionName = "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED",
-    .isGeneral = true,
-    .resDeviceID = {"local"},
-    .grantStatus = {OHOS::Security::AccessToken::PermissionState::PERMISSION_GRANTED},
-    .grantFlags = {1}
-};
-
-// permission define
-OHOS::Security::AccessToken::PermissionDef g_infoManagerTestPermDef = {
-    .permissionName = "ohos.permission.FILE_ACCESS_MANAGER",
-    .bundleName = "ohos.acts.multimedia.mediaLibrary",
-    .grantMode = 1,
-    .availableLevel = OHOS::Security::AccessToken::APL_NORMAL,
-    .label = "label",
-    .labelId = 1,
-    .description = "FILE_ACCESS_MANAGER",
-    .descriptionId = 1
-};
-
-OHOS::Security::AccessToken::PermissionDef g_infoManagerTestPermDef1 = {
-    .permissionName = "ohos.permission.READ_MEDIA",
-    .bundleName = "ohos.acts.multimedia.mediaLibrary",
-    .grantMode = 1,
-    .availableLevel = OHOS::Security::AccessToken::APL_NORMAL,
-    .label = "label",
-    .labelId = 1,
-    .description = "READ_MEDIA",
-    .descriptionId = 1
-};
-
-OHOS::Security::AccessToken::PermissionDef g_infoManagerTestPermDef2 = {
-    .permissionName = "ohos.permission.WRITE_MEDIA",
-    .bundleName = "ohos.acts.multimedia.mediaLibrary",
-    .grantMode = 1,
-    .availableLevel = OHOS::Security::AccessToken::APL_NORMAL,
-    .label = "label",
-    .labelId = 1,
-    .description = "WRITE_MEDIA",
-    .descriptionId = 1
-};
-
-OHOS::Security::AccessToken::PermissionDef g_infoManagerTestPermDef3 = {
-    .permissionName = "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED",
-    .bundleName = "ohos.acts.multimedia.mediaLibrary",
-    .grantMode = 1,
-    .availableLevel = OHOS::Security::AccessToken::APL_NORMAL,
-    .label = "label",
-    .labelId = 1,
-    .description = "GET_BUNDLE_INFO_PRIVILEGED",
-    .descriptionId = 1
-};
-
-// permission info
-OHOS::Security::AccessToken::HapPolicyParams g_infoManagerTestPolicyPrams = {
-    .apl = OHOS::Security::AccessToken::APL_NORMAL,
-    .domain = "test.domain",
-    .permList = {g_infoManagerTestPermDef, g_infoManagerTestPermDef1, g_infoManagerTestPermDef2,
-        g_infoManagerTestPermDef3},
-    .permStateList = {g_infoManagerTestState, g_infoManagerTestState1, g_infoManagerTestState2,
-        g_infoManagerTestState3}
-};
-
-// hap info
-OHOS::Security::AccessToken::HapInfoParams const g_infoManagerTestInfoParms = {
-    .userID = 1,
-    .bundleName = "FileExtensionHelperTest",
-    .instIndex = 0,
-    .appIDDesc = "testtesttesttest"
-};
+    infoInstance.processName = "SetUpTestCase";
+    tokenId = GetAccessTokenId(&infoInstance);
+    OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+    SetSelfTokenID(tokenId);
+    delete[] perms;
+}
 
 class FileExtensionHelperTest : public testing::Test {
 public:
     static void SetUpTestCase(void)
     {
         cout << "FileExtensionHelperTest code test" << endl;
+        SetNativeToken();
         auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         auto remoteObj = saManager->GetSystemAbility(ABILITY_ID);
         AAFwk::Want want;
@@ -168,17 +95,11 @@ public:
             EXPECT_TRUE(temp);
         }
         setuid(UID_DEFAULT);
-        OHOS::Security::AccessToken::AccessTokenIDEx tokenIdEx = {0};
-        tokenIdEx = OHOS::Security::AccessToken::AccessTokenKit::AllocHapToken(
-            g_infoManagerTestInfoParms, g_infoManagerTestPolicyPrams);
-        g_tokenId = tokenIdEx.tokenIdExStruct.tokenID;
-        SetSelfTokenID(g_tokenId);
     }
     static void TearDownTestCase()
     {
         g_fah->Release();
         g_fah = nullptr;
-        OHOS::Security::AccessToken::AccessTokenKit::DeleteToken(g_tokenId);
     };
     void SetUp() {};
     void TearDown() {};
