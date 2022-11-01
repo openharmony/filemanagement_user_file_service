@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -367,7 +367,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0007, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_OpenFile_0007";
 }
 
-void OpenFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, int flag, int fd)
+static void OpenFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, int flag, int fd)
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFileTdd";
     int ret = fahs->OpenFile(uri, flag, fd);
@@ -553,7 +553,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0004, testing:
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_CreateFile_0004";
 }
 
-void CreateFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, std::string displayName, Uri newFile)
+static void CreateFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, std::string displayName, Uri newFile)
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_CreateFileTdd";
     int ret = fahs->CreateFile(uri, displayName, newFile);
@@ -736,7 +736,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0004, testing::ext:
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Mkdir_0004";
 }
 
-void MkdirTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, std::string displayName, Uri newFile)
+static void MkdirTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, std::string displayName, Uri newFile)
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_MkdirTdd";
     int ret = fahs->Mkdir(uri, displayName, newFile);
@@ -933,7 +933,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0004, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Delete_0004";
 }
 
-void DeleteTdd(shared_ptr<FileAccessHelper> fahs, Uri selectFile)
+static void DeleteTdd(shared_ptr<FileAccessHelper> fahs, Uri selectFile)
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_DeleteTdd";
     int ret = fahs->Delete(selectFile);
@@ -1478,7 +1478,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0011, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0011";
 }
 
-void MoveTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, Uri targetParent, Uri newFile)
+static void MoveTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, Uri targetParent, Uri newFile)
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_MoveTdd";
     int ret = fahs->Move(sourceFile, targetParent, newFile);
@@ -1731,7 +1731,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0005, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Rename_0005";
 }
 
-void RenameTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, std::string displayName, Uri newFile)
+static void RenameTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, std::string displayName, Uri newFile)
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_RenameTdd";
     int ret = fahs->Rename(sourceFile, displayName, newFile);
@@ -1931,11 +1931,11 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0003, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0003";
 }
 
-void ListFileTdd(shared_ptr<FileAccessHelper> fahs, FileInfo fileInfo, int offset, int maxCount,
-    FileFilter filter, std::vector<FileInfo> fileInfoVec)
+static void ListFileTdd(FileInfo fileInfo, int offset, int maxCount, FileFilter filter,
+    std::vector<FileInfo> fileInfoVec)
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFileTdd";
-    int ret = fahs->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    int ret = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(ERROR) << "ListFile get result error, code:" << ret;
         return;
@@ -1977,7 +1977,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0004, testing::e
             FileFilter filter;
             g_num = 0;
             for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
-                std::thread execthread(ListFileTdd, g_fah, fileInfo, offset, maxCount, filter, fileInfoVec);
+                std::thread execthread(ListFileTdd, fileInfo, offset, maxCount, filter, fileInfoVec);
                 execthread.join();
             }
             EXPECT_EQ(g_num, INIT_THREADS_NUMBER);

@@ -50,7 +50,7 @@ bool CheckSuffix(std::vector<std::string> suffixs)
         if (suffix[0] != '.') {
             return false;
         }
-        for (int i = 1; i < suffix.length(); i++) {
+        for (size_t i = 1; i < suffix.length(); i++) {
             if (!isalnum(suffix[i])) {
                 return false;
             }
