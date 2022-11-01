@@ -70,6 +70,7 @@ export default class FileExtAbility extends Extension {
             uri = uri.replace(URI_SCHEME, '');
             return /^\/([^\/]+\/?)+$/.test(uri);
         } else {
+            hilog.error(DOMAIN_CODE, TAG, 'checkUri error, uri is ' + uri);
             return false;
         }
     }
@@ -471,6 +472,45 @@ export default class FileExtAbility extends Extension {
         }
         return {
             infos: infos,
+            code: ERR_OK,
+        };
+    }
+
+    uriToFileInfo(selectFileUri) {
+        if (!this.checkUri(selectFileUri)) {
+            return {
+                fileInfo: {},
+                code: ERR_ERROR,
+            };
+        }
+        let fileInfo = {};
+        try {
+            let path = this.getPath(selectFileUri);
+            let fileName = this.getFileName(path);
+            let stat = fileio.statSync(path)
+            let mode = DocumentFlag.SUPPORTS_READ | DocumentFlag.SUPPORTS_WRITE;
+            if (stat.isDirectory()) {
+                mode |= DocumentFlag.REPRESENTS_DIR;
+            } else {
+                mode |= DocumentFlag.REPRESENTS_FILE;
+            }
+            fileInfo = {
+                uri: selectFileUri,
+                fileName: fileName,
+                mode: mode,
+                size: stat.size,
+                mtime: stat.mtime,
+                mimeType: '',
+            };
+        } catch (e) {
+            hilog.error(DOMAIN_CODE, TAG, 'UriToFileInfo error ' + e.message);
+            return {
+                fileInfo: {},
+                code: ERR_ERROR,
+            };
+        }
+        return {
+            fileInfo: fileInfo,
             code: ERR_OK,
         };
     }

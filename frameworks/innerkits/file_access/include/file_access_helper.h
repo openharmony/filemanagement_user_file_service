@@ -69,6 +69,7 @@ public:
         std::vector<FileInfo> &fileInfoVec);
     int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount, const FileFilter &filter,
         std::vector<FileInfo> &fileInfoVec);
+    int UriToFileInfo(Uri &selectFile, FileInfo &fileInfo);
     int GetRoots(std::vector<RootInfo> &rootInfoVec);
     int On(std::shared_ptr<INotifyCallback> &callback);
     int Off();
@@ -86,10 +87,6 @@ private:
 
     std::shared_ptr<ConnectInfo> GetConnectInfo(const std::string &bundleName);
     std::shared_ptr<ConnectInfo> GetConnectInfo(const AAFwk::Want &want);
-    void InsertConnectInfo(const std::string &key,
-                           const AAFwk::Want &want,
-                           const sptr<IFileAccessExtBase> &fileExtProxy,
-                           sptr<FileAccessExtConnection> fileExtConnection);
 
     sptr<IRemoteObject> token_ = nullptr;
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap_;

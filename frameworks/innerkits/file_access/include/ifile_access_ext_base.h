@@ -46,6 +46,7 @@ public:
         CMD_SCAN_FILE,
         CMD_GET_ROOTS,
         CMD_ACCESS,
+        CMD_URI_TO_FILEINFO,
         CMD_REGISTER_NOTIFY,
         CMD_UNREGISTER_NOTIFY
     };
@@ -60,6 +61,7 @@ public:
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) = 0;
     virtual int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) = 0;
+    virtual int UriToFileInfo(const Uri &selectFile, FileInfo &fileInfo) = 0;
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec) = 0;
     virtual int Access(const Uri &uri, bool &isExist) = 0;
     virtual int RegisterNotify(sptr<IFileAccessNotify> &notify) = 0;

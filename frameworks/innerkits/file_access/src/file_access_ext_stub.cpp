@@ -50,6 +50,7 @@ FileAccessExtStub::FileAccessExtStub()
     stubFuncMap_[CMD_SCAN_FILE] = &FileAccessExtStub::CmdScanFile;
     stubFuncMap_[CMD_GET_ROOTS] = &FileAccessExtStub::CmdGetRoots;
     stubFuncMap_[CMD_ACCESS] = &FileAccessExtStub::CmdAccess;
+    stubFuncMap_[CMD_URI_TO_FILEINFO] = &FileAccessExtStub::CmdUriToFileInfo;
     stubFuncMap_[CMD_REGISTER_NOTIFY] = &FileAccessExtStub::CmdRegisterNotify;
     stubFuncMap_[CMD_UNREGISTER_NOTIFY] = &FileAccessExtStub::CmdUnregisterNotify;
 }
@@ -457,6 +458,34 @@ ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply
     return ERR_OK;
 }
 
+ErrCode FileAccessExtStub::CmdUriToFileInfo(MessageParcel &data, MessageParcel &reply)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdUriToFileInfo");
+    std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
+    if (uri == nullptr) {
+        HILOG_ERROR("SelectFile uri is nullptr");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_INVALID_URI;
+    }
+
+    FileInfo fileInfoTemp;
+    int ret = UriToFileInfo(*uri, fileInfoTemp);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("Parameter UriToFileInfo fail to WriteInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    if (!reply.WriteParcelable(&fileInfoTemp)) {
+        HILOG_ERROR("Parameter UriToFileInfo fail to WriteParcelable fileInfoTemp");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_PARCEL_FAIL;
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
 ErrCode FileAccessExtStub::CmdAccess(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdAccess");
@@ -467,7 +496,7 @@ ErrCode FileAccessExtStub::CmdAccess(MessageParcel &data, MessageParcel &reply)
         return ERR_INVALID_URI;
     }
 
-    bool isExist = data.ReadBool();
+    bool isExist = false;
     int ret = Access(*uri, isExist);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter Access fail to WriteInt32 ret");
