@@ -664,6 +664,9 @@ int FileAccessHelper::GetRoots(std::vector<RootInfo> &rootInfoVec)
         std::vector<RootInfo> results;
         if (fileAccessExtProxy) {
             AddFileAccessDeathRecipient(fileAccessExtProxy->AsObject());
+        } else {
+            HILOG_ERROR("GetFileExtProxy return nullptr, bundle name is %{public}s", iter->first.c_str());
+            continue;
         }
 
         ret = fileAccessExtProxy->GetRoots(results);
