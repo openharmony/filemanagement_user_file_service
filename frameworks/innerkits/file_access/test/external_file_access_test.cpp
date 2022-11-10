@@ -2039,7 +2039,6 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Access_0000, testing::ext
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Access_0000";
     try {
-        uint64_t selfTokenId = GetSelfTokenID();
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -2065,10 +2064,137 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Access_0000, testing::ext
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_FALSE(isExist);
         }
-        SetSelfTokenID(selfTokenId);
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_Access_0000 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Access_0000";
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_UriToFileInfo_0000
+ * @tc.name: external_file_access_UriToFileInfo_0000
+ * @tc.desc: Test function of UriToFileInfo interface.
+ * @tc.desc: convert the root directory uri to fileinfo and call listfile for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_UriToFileInfo_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_UriToFileInfo_0000";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        for (size_t i = 0; i < info.size(); i++) {
+            Uri parentUri(info[i].uri);
+            FileInfo fileinfo;
+            result = g_fah->UriToFileInfo(parentUri, fileinfo);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+            int64_t offset = 0;
+            int64_t maxCount = 1000;
+            FileFilter filter;
+            std::vector<FileInfo> fileInfoVecTemp;
+            result = g_fah->ListFile(fileinfo, offset, maxCount, filter, fileInfoVecTemp);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_GE(fileInfoVecTemp.size(), OHOS::FileAccessFwk::ERR_OK);
+        }
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_UriToFileInfo_0000 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_UriToFileInfo_0000";
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_UriToFileInfo_0001
+ * @tc.name: external_file_access_UriToFileInfo_0001
+ * @tc.desc: Test function of UriToFileInfo interface.
+ * @tc.desc: convert the general directory uri to fileinfo and call listfile for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_UriToFileInfo_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_UriToFileInfo_0001";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        for (size_t i = 0; i < info.size(); i++) {
+            Uri parentUri(info[i].uri);
+            Uri newDirUriTest("");
+            result = g_fah->Mkdir(parentUri, "testDir", newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+            FileInfo dirInfo;
+            result = g_fah->UriToFileInfo(newDirUriTest, dirInfo);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+            int64_t offset = 0;
+            int64_t maxCount = 1000;
+            FileFilter filter;
+            std::vector<FileInfo> fileInfoVec;
+            result = g_fah->ListFile(dirInfo, offset, maxCount, filter, fileInfoVec);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_GE(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
+
+            result = g_fah->Delete(newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        }
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_UriToFileInfo_0001 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_UriToFileInfo_0001";
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_UriToFileInfo_0002
+ * @tc.name: external_file_access_UriToFileInfo_0002
+ * @tc.desc: Test function of UriToFileInfo interface.
+ * @tc.desc: convert the general filepath uri to fileinfo and call listfile for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_UriToFileInfo_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_UriToFileInfo_0002";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        for (size_t i = 0; i < info.size(); i++) {
+            Uri parentUri(info[i].uri);
+            Uri newDirUriTest("");
+            result = g_fah->Mkdir(parentUri, "testDir", newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            Uri newFileUri("");
+            result = g_fah->CreateFile(newDirUriTest, "external_file_access_UriToFileInfo_0002.txt", newFileUri);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+            FileInfo fileinfo;
+            result = g_fah->UriToFileInfo(newFileUri, fileinfo);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+            int64_t offset = 0;
+            int64_t maxCount = 1000;
+            FileFilter filter;
+            std::vector<FileInfo> fileInfoVecTemp;
+            result = g_fah->ListFile(fileinfo, offset, maxCount, filter, fileInfoVecTemp);
+            EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(fileInfoVecTemp.size(), OHOS::FileAccessFwk::ERR_OK);
+
+            result = g_fah->Delete(newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        }
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_UriToFileInfo_0002 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_UriToFileInfo_0002";
 }
 } // namespace
