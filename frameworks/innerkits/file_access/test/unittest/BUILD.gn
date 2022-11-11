@@ -96,7 +96,7 @@ ohos_unittest("external_file_access_test") {
   ]
 }
 
-group("user_file_service_test") {
+group("user_file_service_unit_test") {
   testonly = true
 
   deps = [
