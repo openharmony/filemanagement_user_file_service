@@ -1,0 +1,65 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#####################hydra-fuzz###################
+import("//build/config/features.gni")
+import("//build/test.gni")
+import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
+BASE_DIR = "//foundation/filemanagement/user_file_service"
+
+##############################fuzztest##########################################
+ohos_fuzztest("ExternalFileAccessFuzzTest") {
+  module_out_path = "filemanagement/user_file_service"
+  fuzz_config_file = "//foundation/filemanagement/user_file_service/frameworks/innerkits/file_access/test/fuzztest/externalfileaccess_fuzzer"
+
+  include_dirs = [
+    "//foundation/ability/ability_runtime/frameworks/kits/appkit/native/ability_runtime/context",
+    "//foundation/filemanagement/user_file_service/frameworks/innerkits/file_access/include",
+    "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common",
+  ]
+
+  sources = [ "external_file_access_fuzzer.cpp" ]
+  configs = [ "//build/config/compiler:exceptions" ]
+
+  deps = [
+    "${BASE_DIR}/frameworks/innerkits/file_access:file_access_extension_ability_kit",
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_path}/frameworks/native/appkit:app_context",
+    "//base/security/access_token/frameworks/accesstoken:accesstoken_communication_adapter_cxx",
+    "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
+    "//foundation/filemanagement/user_file_service/frameworks/innerkits/file_access:file_access_extension_ability_kit",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:ability_manager",
+    "ability_runtime:app_manager",
+    "ability_runtime:runtime",
+    "ability_runtime:wantagent_innerkits",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "c_utils:utils",
+    "ipc:ipc_core",
+    "ipc_js:rpc",
+    "samgr:samgr_proxy",
+  ]
+
+  cflags = [
+    "-g",
+    "-O0",
+    "-Wno-unused-variable",
+    "-fno-omit-frame-pointer",
+  ]
+}
