@@ -40,7 +40,8 @@
                 "//foundation/filemanagement/user_file_service/interfaces/kits/napi/file_extension_info_module:fileextensioninfo"
             ],
             "test": [
-              "//foundation/filemanagement/user_file_service/frameworks/innerkits/file_access/test:user_file_service_test"
+              "//foundation/filemanagement/user_file_service/frameworks/innerkits/file_access/test/unittest:user_file_service_unit_test",
+              "//foundation/filemanagement/user_file_service/frameworks/innerkits/file_access/test/fuzztest:user_file_service_fuzz_test"
             ]
         }
     }
