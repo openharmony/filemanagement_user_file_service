@@ -516,12 +516,15 @@ export default class FileExtAbility extends Extension {
     }
 
     getRoots() {
-        let roots = getVolumeInfoList().concat({
-            uri: 'datashare:///com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon',
-            displayName: 'shared_disk',
-            deviceType: DeviceType.DEVICE_SHARED_DISK,
-            deviceFlags: DeviceFlag.SUPPORTS_READ | DeviceFlag.SUPPORTS_WRITE,
-        });
+        let roots = [
+            {
+                uri: 'datashare:///com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon',
+                displayName: 'shared_disk',
+                deviceType: DeviceType.DEVICE_SHARED_DISK,
+                deviceFlags: DeviceFlag.SUPPORTS_READ | DeviceFlag.SUPPORTS_WRITE,
+            },
+        ];
+        roots = roots.concat(getVolumeInfoList());
         return {
             roots: roots,
             code: ERR_OK,
