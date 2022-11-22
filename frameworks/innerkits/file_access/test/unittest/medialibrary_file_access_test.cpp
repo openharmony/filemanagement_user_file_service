@@ -90,11 +90,10 @@ public:
         }
         EXPECT_TRUE(sus);
         vector<AAFwk::Want> wants {want};
-        bool temp = false;
         g_fah = FileAccessHelper::Creator(remoteObj, wants);
         if (g_fah == nullptr) {
-            GTEST_LOG_(ERROR) << "external_file_access_test g_fah is nullptr";
-            EXPECT_TRUE(temp);
+            GTEST_LOG_(ERROR) << "medialibrary_file_access_test g_fah is nullptr";
+            exit(1);
         }
     }
     static void TearDownTestCase()
