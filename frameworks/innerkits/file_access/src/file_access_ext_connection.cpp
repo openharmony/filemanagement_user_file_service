@@ -26,7 +26,7 @@
 namespace OHOS {
 namespace FileAccessFwk {
 namespace {
-    constexpr int WAIT_TIME = 1;    // second
+    constexpr int WAIT_TIME = 3;    // second
 }
 std::mutex FileAccessExtConnection::mutex_;
 
