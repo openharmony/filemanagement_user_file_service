@@ -19,12 +19,14 @@
 
 #include <gtest/gtest.h>
 
-#include "base/security/access_token/interfaces/innerkits/accesstoken/include/accesstoken_kit.h"
-#include "base/security/access_token/interfaces/innerkits/token_setproc/include/token_setproc.h"
-#include "base/security/access_token/interfaces/innerkits/nativetoken/include/nativetoken_kit.h"
+#include "accesstoken_kit.h"
+#include "token_setproc.h"
+#include "nativetoken_kit.h"
 #include "file_access_framework_errno.h"
 #include "file_access_helper.h"
 #include "iservice_registry.h"
+#include "context_impl.h"
+#include "inotify_callback.h"
 
 namespace {
 using namespace std;
@@ -40,6 +42,7 @@ shared_ptr<FileAccessHelper> g_fah = nullptr;
 int g_num = 0;
 const int UID_TRANSFORM_TMP = 20000000;
 const int UID_DEFAULT = 0;
+shared_ptr<OHOS::AbilityRuntime::Context> g_context = nullptr;
 
 void SetNativeToken()
 {
@@ -71,6 +74,8 @@ public:
         SetNativeToken();
         auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         auto remoteObj = saManager->GetSystemAbility(ABILITY_ID);
+        g_context = make_shared<OHOS::AbilityRuntime::ContextImpl>();
+        g_context->SetToken(remoteObj);
         AAFwk::Want want;
         vector<AAFwk::Want> wantVec;
         setuid(UID_TRANSFORM_TMP);
@@ -102,6 +107,16 @@ public:
     };
     void SetUp() {};
     void TearDown() {};
+};
+
+class ExternalNotify : public OHOS::FileAccessFwk::INotifyCallback {
+public:
+    int OnNotify(const NotifyMessage &message) override
+    {
+        return 0;
+    }
+
+    virtual ~ExternalNotify() = default;
 };
 
 /**
@@ -2195,5 +2210,118 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_UriToFileInfo_0002, testi
         GTEST_LOG_(ERROR) << "external_file_access_UriToFileInfo_0002 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_UriToFileInfo_0002";
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_on_0000
+ * @tc.name: external_file_access_on_0000
+ * @tc.desc: Test function of On interface.
+ * @tc.desc: register notify callback for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_on_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_on_0000";
+    try {
+        shared_ptr<INotifyCallback> callback = make_shared<ExternalNotify>();
+        int result = g_fah->On(callback);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_on_0000 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_on_0000";
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_off_0000
+ * @tc.name: external_file_access_off_0000
+ * @tc.desc: Test function of Off interface.
+ * @tc.desc: unregister notify for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_off_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_off_0000";
+    try {
+        int result = g_fah->Off();
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_off_0000 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_off_0000";
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_creator_0000
+ * @tc.name: external_file_access_creator_0000
+ * @tc.desc: Test function of creator interface.
+ * @tc.desc: create file access helper for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_creator_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_creator_0000";
+    try {
+        setuid(UID_TRANSFORM_TMP);
+        shared_ptr<FileAccessHelper> helper = FileAccessHelper::Creator(g_context);
+        setuid(UID_DEFAULT);
+        ASSERT_TRUE(helper != nullptr);
+        bool succ = helper->Release();
+        EXPECT_TRUE(succ);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_creator_0000 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_creator_0000";
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_creator_0001
+ * @tc.name: external_file_access_creator_0001
+ * @tc.desc: Test function of creator interface.
+ * @tc.desc: create file access helper for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_creator_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_creator_0001";
+    try {
+        AAFwk::Want want;
+        vector<AAFwk::Want> wantVec;
+        setuid(UID_TRANSFORM_TMP);
+        int ret = FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(wantVec);
+        EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
+        bool sus = false;
+        for (size_t i = 0; i < wantVec.size(); i++) {
+            auto element = wantVec[i].GetElement();
+            if (element.GetBundleName() == "com.ohos.UserFile.ExternalFileManager" &&
+                element.GetAbilityName() == "FileExtensionAbility") {
+                want = wantVec[i];
+                sus = true;
+                break;
+            }
+        }
+        EXPECT_TRUE(sus);
+        vector<AAFwk::Want> wants {want};
+        shared_ptr<FileAccessHelper> helper = FileAccessHelper::Creator(g_context, wants);
+        setuid(UID_DEFAULT);
+        ASSERT_TRUE(helper != nullptr);
+        bool succ = helper->Release();
+        EXPECT_TRUE(succ);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_creator_0001 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_creator_0001";
 }
 } // namespace
