@@ -88,10 +88,6 @@ int NapiNotifyCallback::OnNotify(const NotifyMessage& message)
         return ERR_NOTIFY_FAIL;
     }
 
-    delete (CallbackParam *)(work->data);
-    work->data = nullptr;
-    delete work;
-    work = nullptr;
     return ERR_OK;
 }
 } // namespace FileAccessFwk
