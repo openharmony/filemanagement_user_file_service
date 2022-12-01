@@ -26,6 +26,7 @@ ohos_fuzztest("ExternalFileAccessFuzzTest") {
     "//foundation/ability/ability_runtime/frameworks/kits/appkit/native/ability_runtime/context",
     "//foundation/filemanagement/user_file_service/frameworks/innerkits/file_access/include",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common",
+    "${BASE_DIR}/utils",
   ]
 
   sources = [ "external_file_access_fuzzer.cpp" ]
@@ -51,6 +52,7 @@ ohos_fuzztest("ExternalFileAccessFuzzTest") {
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
     "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "ipc_js:rpc",
     "samgr:samgr_proxy",

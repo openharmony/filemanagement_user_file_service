@@ -81,6 +81,13 @@ class FileAccessExtensionAbility {
             code: ERR_ERROR,
         };
     }
+
+    uriToFileInfo(selectFileUri) {
+        return {
+            fileInfo: [],
+            code: ERR_ERROR,
+        };
+    }
 }
 
 export default FileAccessExtensionAbility
