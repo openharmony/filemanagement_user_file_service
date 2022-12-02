@@ -86,7 +86,6 @@ private:
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
 
     std::shared_ptr<ConnectInfo> GetConnectInfo(const std::string &bundleName);
-    std::shared_ptr<ConnectInfo> GetConnectInfo(const AAFwk::Want &want);
 
     sptr<IRemoteObject> token_ = nullptr;
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap_;

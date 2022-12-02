@@ -19,9 +19,9 @@
 
 #include <gtest/gtest.h>
 
-#include "base/security/access_token/interfaces/innerkits/accesstoken/include/accesstoken_kit.h"
-#include "base/security/access_token/interfaces/innerkits/token_setproc/include/token_setproc.h"
-#include "base/security/access_token/interfaces/innerkits/nativetoken/include/nativetoken_kit.h"
+#include "accesstoken_kit.h"
+#include "token_setproc.h"
+#include "nativetoken_kit.h"
 #include "file_access_framework_errno.h"
 #include "file_access_helper.h"
 #include "iservice_registry.h"
