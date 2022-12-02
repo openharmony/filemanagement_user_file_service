@@ -137,20 +137,6 @@ std::shared_ptr<ConnectInfo> FileAccessHelper::GetConnectInfo(const std::string 
     return nullptr;
 }
 
-std::shared_ptr<ConnectInfo> FileAccessHelper::GetConnectInfo(const AAFwk::Want &want)
-{
-    for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
-        auto element = iter->second->want.GetElement();
-        auto elementTmp = want.GetElement();
-        if (element.GetBundleName() == elementTmp.GetBundleName() &&
-            element.GetAbilityName() == elementTmp.GetAbilityName()) {
-            return iter->second;
-        }
-    }
-    HILOG_ERROR("GetConnectInfo called with want obj return nullptr");
-    return nullptr;
-}
-
 std::string FileAccessHelper::GetKeyOfWants(const AAFwk::Want &want)
 {
     auto elementTmp = want.GetElement();

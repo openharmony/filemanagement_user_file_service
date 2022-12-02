@@ -2052,6 +2052,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetRoots_0000, testing::
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetRoots_0000";
     try {
+        uint64_t selfTokenId = GetSelfTokenID();
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -2068,6 +2069,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetRoots_0000, testing::
         EXPECT_EQ(info[0].displayName, displayName);
         EXPECT_EQ(info[0].deviceType, DEVICE_LOCAL_DISK);
         EXPECT_EQ(info[0].deviceFlags, DEVICE_FLAG_SUPPORTS_READ | DEVICE_FLAG_SUPPORTS_WRITE);
+        SetSelfTokenID(selfTokenId);
     } catch (...) {
         GTEST_LOG_(ERROR) << "medialibrary_file_access_GetRoots_0000 occurs an exception.";
     }
