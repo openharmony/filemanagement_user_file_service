@@ -117,6 +117,12 @@ int FileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfoVec)
     return ERR_OPERATION_NOT_SUPPORT;
 }
 
+int FileAccessExtAbility::UriToFileInfo(const Uri &selectFile, FileInfo &fileInfo)
+{
+    HILOG_ERROR("FileAccessExtAbility::UriToFileInfo Undefined operation");
+    return ERR_OPERATION_NOT_SUPPORT;
+}
+
 int FileAccessExtAbility::Access(const Uri &uri, bool &isExist)
 {
     HILOG_ERROR("FileAccessExtAbility::IsFileExist Undefined operation");

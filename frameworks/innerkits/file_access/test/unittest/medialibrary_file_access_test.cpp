@@ -76,7 +76,6 @@ public:
         vector<AAFwk::Want> wantVec;
         setuid(UID_TRANSFORM_TMP);
         int ret = FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(wantVec);
-        setuid(UID_DEFAULT);
         EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
         bool sus = false;
         for (size_t i = 0; i < wantVec.size(); i++) {
@@ -95,6 +94,7 @@ public:
             GTEST_LOG_(ERROR) << "medialibrary_file_access_test g_fah is nullptr";
             exit(1);
         }
+        setuid(UID_DEFAULT);
     }
     static void TearDownTestCase()
     {

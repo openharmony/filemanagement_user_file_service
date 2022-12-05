@@ -87,6 +87,7 @@ int NapiNotifyCallback::OnNotify(const NotifyMessage& message)
         work = nullptr;
         return ERR_NOTIFY_FAIL;
     }
+
     return ERR_OK;
 }
 } // namespace FileAccessFwk
