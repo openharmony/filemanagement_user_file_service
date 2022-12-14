@@ -186,7 +186,7 @@ NativeValue* JsFileAccessExtAbility::CallObjectMethod(const char* name, NativeVa
         return nullptr;
     }
 
-    HandleScope handleScope(jsRuntime_);
+    HandleEscape handleEscape(jsRuntime_);
     auto& nativeEngine = jsRuntime_.GetNativeEngine();
 
     NativeValue* value = jsObj_->Get();
@@ -211,7 +211,7 @@ NativeValue* JsFileAccessExtAbility::CallObjectMethod(const char* name, NativeVa
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return handleScope.Escape(nativeEngine.CallFunction(value, method, argv, argc));
+    return handleEscape.Escape(nativeEngine.CallFunction(value, method, argv, argc));
 }
 
 static int DoCallJsMethod(CallJsParam *param)
@@ -223,7 +223,7 @@ static int DoCallJsMethod(CallJsParam *param)
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_PARAM;
     }
-    HandleScope handleScope(*jsRuntime);
+    HandleEscape handleEscape(*jsRuntime);
     auto& nativeEngine = jsRuntime->GetNativeEngine();
     size_t argc = 0;
     NativeValue *argv[MAX_ARG_COUNT] = { nullptr };
@@ -257,7 +257,7 @@ static int DoCallJsMethod(CallJsParam *param)
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_PARAM;
     }
-    if (!param->retParser(nativeEngine, handleScope.Escape(nativeEngine.CallFunction(value, method, argv, argc)))) {
+    if (!param->retParser(nativeEngine, handleEscape.Escape(nativeEngine.CallFunction(value, method, argv, argc)))) {
         HILOG_INFO("Parser js result fail.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_PARSER_FAIL;
