@@ -25,6 +25,7 @@
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
+#include "tokenid_kit.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -151,11 +152,22 @@ std::string FileAccessHelper::GetKeyOfWants(const AAFwk::Want &want)
     return "";
 }
 
+static bool IsSystemApp()
+{
+    uint64_t accessTokenIDEx = OHOS::IPCSkeleton::GetCallingFullTokenID();
+    return OHOS::Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(accessTokenIDEx);
+}
+
 std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> &context)
 {
     if (context == nullptr) {
         HILOG_ERROR("FileAccessHelper::Creator failed, context == nullptr");
+        return nullptr;
+    }
+
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::Creator check IsSystemAppByFullTokenID failed");
         return nullptr;
     }
 
@@ -222,6 +234,11 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(
         return nullptr;
     }
 
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::Creator check IsSystemAppByFullTokenID failed");
+        return nullptr;
+    }
+
     if (GetRegisteredFileAccessExtAbilityInfo(FileAccessHelper::wants_) != ERR_OK) {
         HILOG_ERROR("GetRegisteredFileAccessExtAbilityInfo failed");
         return nullptr;
@@ -279,6 +296,11 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteOb
 
     if (wants.size() == 0) {
         HILOG_ERROR("FileAccessHelper::Creator failed, wants is empty");
+        return nullptr;
+    }
+
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::Creator check IsSystemAppByFullTokenID failed");
         return nullptr;
     }
 
@@ -397,6 +419,11 @@ bool FileAccessHelper::GetProxy()
 int FileAccessHelper::OpenFile(Uri &uri, int flags, int &fd)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::OpenFile check IsSystemAppByFullTokenID failed");
+        return E_PERMISSION_SYS;
+    }
+
     if (!CheckUri(uri)) {
         HILOG_ERROR("Uri format check error.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -430,6 +457,11 @@ int FileAccessHelper::OpenFile(Uri &uri, int flags, int &fd)
 int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::CreateFile check IsSystemAppByFullTokenID failed");
+        return E_PERMISSION_SYS;
+    }
+
     if (!CheckUri(parent)) {
         HILOG_ERROR("Uri format check error.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -457,6 +489,11 @@ int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Ur
 int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &newDir)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Mkdir");
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::Mkdir check IsSystemAppByFullTokenID failed");
+        return E_PERMISSION_SYS;
+    }
+
     if (!CheckUri(parent)) {
         HILOG_ERROR("Uri format check error.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -484,6 +521,11 @@ int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &ne
 int FileAccessHelper::Delete(Uri &selectFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::Delete check IsSystemAppByFullTokenID failed");
+        return E_PERMISSION_SYS;
+    }
+
     if (!CheckUri(selectFile)) {
         HILOG_ERROR("Uri format check error.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -511,6 +553,11 @@ int FileAccessHelper::Delete(Uri &selectFile)
 int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move");
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::Move check IsSystemAppByFullTokenID failed");
+        return E_PERMISSION_SYS;
+    }
+
     Uri sourceFileUri(sourceFile.ToString());
     Uri targetParentUri(targetParent.ToString());
     if (!CheckUri(sourceFile)) {
@@ -552,6 +599,11 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
 int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Rename");
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::Rename check IsSystemAppByFullTokenID failed");
+        return E_PERMISSION_SYS;
+    }
+
     if (!CheckUri(sourceFile)) {
         HILOG_ERROR("sourceFile format check error.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -580,6 +632,11 @@ int FileAccessHelper::ListFile(const FileInfo &fileInfo, const int64_t offset, c
     const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::ListFile check IsSystemAppByFullTokenID failed");
+        return E_PERMISSION_SYS;
+    }
+
     Uri sourceFile(fileInfo.uri);
     if (!CheckUri(sourceFile)) {
         HILOG_ERROR("sourceFile format check error.");
@@ -609,6 +666,11 @@ int FileAccessHelper::ScanFile(const FileInfo &fileInfo, const int64_t offset, c
     const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ScanFile");
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::ScanFile check IsSystemAppByFullTokenID failed");
+        return E_PERMISSION_SYS;
+    }
+
     Uri sourceFile(fileInfo.uri);
     if (!CheckUri(sourceFile)) {
         HILOG_ERROR("sourceFile format check error.");
@@ -637,6 +699,11 @@ int FileAccessHelper::ScanFile(const FileInfo &fileInfo, const int64_t offset, c
 int FileAccessHelper::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::GetRoots check IsSystemAppByFullTokenID failed");
+        return E_PERMISSION_SYS;
+    }
+
     if (!GetProxy()) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -672,6 +739,11 @@ int FileAccessHelper::GetRoots(std::vector<RootInfo> &rootInfoVec)
 int FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::Want> &wantVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRegisteredFileAccessExtAbilityInfo");
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::GetRoots check IsSystemAppByFullTokenID failed");
+        return E_PERMISSION_SYS;
+    }
+
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     sptr<AppExecFwk::IBundleMgr> bm = FileAccessHelper::GetBundleMgrProxy();
     if (bm == nullptr) {
@@ -701,6 +773,11 @@ int FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::W
 int FileAccessHelper::Access(Uri &uri, bool &isExist)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Access");
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::Access check IsSystemAppByFullTokenID failed");
+        return E_PERMISSION_SYS;
+    }
+
     if (!CheckUri(uri)) {
         HILOG_ERROR("uri format check error.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -728,6 +805,11 @@ int FileAccessHelper::Access(Uri &uri, bool &isExist)
 int FileAccessHelper::UriToFileInfo(Uri &selectFile, FileInfo &fileInfo)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "UriToFileInfo");
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::UriToFileInfo check IsSystemAppByFullTokenID failed");
+        return E_PERMISSION_SYS;
+    }
+
     if (!CheckUri(selectFile)) {
         HILOG_ERROR("selectFile uri format check error.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);

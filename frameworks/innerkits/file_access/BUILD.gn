@@ -26,6 +26,7 @@ config("ability_config") {
     "${ability_runtime_kits_path}/ability/native/include/continuation/kits",
     "${ability_runtime_kits_path}/appkit/native/app/include",
     "${ability_runtime_napi_path}/inner/napi_common",
+    "${access_token_path}/interfaces/innerkits/accesstoken/include",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base/include",
     "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_base/include",
@@ -79,6 +80,7 @@ ohos_shared_library("file_access_extension_ability_kit") {
   deps = [
     "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
     "${ability_runtime_path}/frameworks/native/appkit:app_context",
+    "${access_token_path}/interfaces/innerkits/accesstoken:libtokenid_sdk",
   ]
 
   external_deps = [

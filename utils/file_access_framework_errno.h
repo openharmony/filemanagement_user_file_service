@@ -42,7 +42,8 @@ enum {
     ERR_QUERY_EXTENSIONINFOS_FAIL,          // QueryExtensionAbilityInfos fail
     ERR_PARCEL_FAIL,                        // parcel fail
     ERR_INVALID_RESULT,                     // code success result fail
-    ERR_NULL_POINTER                        // get value is nullptr
+    ERR_NULL_POINTER,                       // get value is nullptr
+    E_PERMISSION_SYS = 202                  // is not system app
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

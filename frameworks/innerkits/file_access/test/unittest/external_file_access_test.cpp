@@ -61,8 +61,10 @@ void SetNativeToken()
 
     infoInstance.processName = "SetUpTestCase";
     tokenId = GetAccessTokenId(&infoInstance);
-    OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+    const uint64_t systemAppMask = (static_cast<uint64_t>(1) << 32);
+    tokenId |= systemAppMask;
     SetSelfTokenID(tokenId);
+    OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
     delete[] perms;
 }
 
