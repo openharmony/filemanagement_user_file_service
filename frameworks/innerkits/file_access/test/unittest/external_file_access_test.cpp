@@ -35,9 +35,6 @@ namespace {
 using namespace std;
 using namespace OHOS;
 using namespace FileAccessFwk;
-const int32_t READ = 0;
-const int32_t WRITE = 1;
-const int32_t WRITE_READ = 2;
 const int ABILITY_ID = 5003;
 const int INIT_THREADS_NUMBER = 4;
 const int ACTUAL_SUCCESS_THREADS_NUMBER = 1;
