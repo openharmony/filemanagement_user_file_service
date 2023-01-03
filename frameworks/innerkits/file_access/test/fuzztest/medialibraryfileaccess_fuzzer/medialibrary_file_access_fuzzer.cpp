@@ -33,7 +33,6 @@ using namespace std;
 using namespace OHOS;
 using namespace FileAccessFwk;
 
-const int32_t WRITE_READ = 2;
 const int ABILITY_ID = 5003;
 shared_ptr<FileAccessHelper> g_fah = nullptr;
 const int UID_TRANSFORM_TMP = 20000000;
