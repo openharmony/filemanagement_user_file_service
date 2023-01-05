@@ -19,7 +19,7 @@ FRAMEWORK_PATH = "${UFS_BASE_PATH}/frameworks"
 ohos_shared_library("fileextensioninfo") {
   subsystem_name = "filemanagement"
   part_name = "user_file_service"
-  relative_install_dir = "module"
+  relative_install_dir = "module/file"
 
   include_dirs = [
     ".",
