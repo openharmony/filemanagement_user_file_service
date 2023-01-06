@@ -20,30 +20,21 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-enum {
-    MODULE_FILE_ACCESS_FRAMEWORK = 0x01
-};
-constexpr ErrCode BASE_OFFSET = -ErrCodeOffset(SUBSYS_FILEMANAGEMENT, MODULE_FILE_ACCESS_FRAMEWORK);
+
+const int BASE_OFFSET = 14300001;
 enum {
     ERR_OK = 0,
-    ERR_IPC_ERROR = BASE_OFFSET,            // ipc error
-    ERR_PERMISSION_DENIED,                  // no permission
-    ERR_INVALID_URI,                        // invalid uri
-    ERR_FILEIO_FAIL,                        // fileio fail
-    ERR_PARAM_NUMBER,                       // Parameter number is abnormal
-    ERR_INVALID_PARAM,                      // invalid parameter
-    ERR_PARSER_FAIL,                        // parser js result error
-    ERR_OPERATION_NOT_SUPPORT,              // Operation not support
-    ERR_GET_FILEACCESS_HELPER,              // get fileAccessHelper fail
-    ERR_INVALID_NOTIFY,                     // invalid notify
-    ERR_REMOVE_NOTIFY_FAIL,                 // remove notify fail
-    ERR_NOTIFY_NOT_EXIST,                   // the notify is not exist
-    ERR_NOTIFY_FAIL,                        // notify client fail
-    ERR_QUERY_EXTENSIONINFOS_FAIL,          // QueryExtensionAbilityInfos fail
-    ERR_PARCEL_FAIL,                        // parcel fail
-    ERR_INVALID_RESULT,                     // code success result fail
-    ERR_NULL_POINTER,                       // get value is nullptr
-    E_PERMISSION_SYS = 202                  // is not system app
+    E_IPCS = BASE_OFFSET,                   // IPC error
+    E_URIS,                                 // Invalid uri
+    E_GETINFO,                              // Fail to get fileextension info
+    E_GETRESULT,                            // Get wrong result
+    E_REGISTER,                             // Fail to register notification
+    E_REMOVE,                               // Fail to remove notification
+    E_INIT_NOTIFY_AGENT,                    // Fail to init notification agent
+    E_NOTIFY,                               // Fail to notify agent
+    E_CONNECT,                              // Fail to connect file access extension ability
+    E_PERMISSION = 201,                     // Permission verification failed
+    E_PERMISSION_SYS                        // is not system app
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

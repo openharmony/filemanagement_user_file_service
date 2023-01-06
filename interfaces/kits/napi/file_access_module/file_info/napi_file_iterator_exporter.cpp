@@ -37,13 +37,13 @@ bool NapiFileIteratorExporter::Export()
     std::tie(succ, classValue) = NClass::DefineClass(exports_.env_, className,
         NapiFileIteratorExporter::Constructor, std::move(props));
     if (!succ) {
-        NError(ERR_NULL_POINTER).ThrowErr(exports_.env_, "INNER BUG. Failed to define class NapiFileIteratorExporter");
+        NError(E_GETRESULT).ThrowErr(exports_.env_);
         return false;
     }
 
     succ = NClass::SaveClass(exports_.env_, className, classValue);
     if (!succ) {
-        NError(ERR_NULL_POINTER).ThrowErr(exports_.env_, "INNER BUG. Failed to save class NapiFileIteratorExporter");
+        NError(E_GETRESULT).ThrowErr(exports_.env_);
         return false;
     }
 
@@ -54,18 +54,18 @@ napi_value NapiFileIteratorExporter::Constructor(napi_env env, napi_callback_inf
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
-        NError(ERR_PARAM_NUMBER).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
 
     auto fileIteratorEntity = std::make_unique<FileIteratorEntity>();
     if (fileIteratorEntity == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "New obj FileIteratorEntity fail");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
     if (!NClass::SetEntityFor<FileIteratorEntity>(env, funcArg.GetThisVar(), std::move(fileIteratorEntity))) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "INNER BUG. Failed to wrap entity for obj FileIteratorEntity");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
@@ -131,13 +131,13 @@ napi_value NapiFileIteratorExporter::Next(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
-        NError(ERR_PARAM_NUMBER).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
 
     auto fileIteratorEntity = NClass::GetEntityOf<FileIteratorEntity>(env, funcArg.GetThisVar());
     if (fileIteratorEntity == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get entity of FileIteratorEntity");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
@@ -148,25 +148,25 @@ napi_value NapiFileIteratorExporter::Next(napi_env env, napi_callback_info info)
 
     auto objFileInfoExporter = NClass::InstantiateClass(env, NapiFileInfoExporter::className_, {});
     if (objFileInfoExporter == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot instantiate class NapiFileInfoExporter");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
     auto fileInfoEntity = NClass::GetEntityOf<FileInfoEntity>(env, objFileInfoExporter);
     if (fileInfoEntity == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get the entity of FileInfoEntity");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
     if (fileIteratorEntity->fileAccessHelper == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "fileAccessHelper is null.");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
     auto retNVal = NVal::CreateObject(env);
     int ret = MakeResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal);
     if (ret != ERR_OK) {
-        NError(ret).ThrowErr(env, "MakeResult fail.");
+        NError(ret).ThrowErr(env);
         return nullptr;
     }
 
