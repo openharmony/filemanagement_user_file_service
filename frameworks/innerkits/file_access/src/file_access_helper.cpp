@@ -28,14 +28,6 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-namespace {
-    static const std::string SCHEME_NAME = "datashare";
-    static const std::string MEDIA_BNUDLE_NAME_ALIAS = "media";
-    static const std::string MEDIA_BNUDLE_NAME = "com.ohos.medialibrary.medialibrarydata";
-    static const int32_t READ = 0;
-    static const int32_t WRITE = 1;
-    static const int32_t WRITE_READ = 2;
-}
 std::vector<AAFwk::Want> FileAccessHelper::wants_;
 
 static int GetUserId()
