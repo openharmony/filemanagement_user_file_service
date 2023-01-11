@@ -15,14 +15,21 @@
 // @ts-nocheck
 import volumeManager from '@ohos.volumeManager'
 import fileExtensionInfo from "@ohos.file.fileExtensionInfo"
+import hilog from '@ohos.hilog'
 if (!globalThis.volumeInfoList) {
     globalThis.volumeInfoList = [];
 }
 const DeviceFlag = fileExtensionInfo.DeviceFlag;
 const DeviceType = fileExtensionInfo.DeviceType;
+const DOMAIN_CODE = 0x0001;
+const TAG = 'ExternalFileManager';
 function init() {
     globalThis.volumeInfoList = [];
-    volumeManager.getAllVolumes().then((volumes) => {
+    volumeManager.getAllVolumes(function(error, volumes){
+        if (error) {
+            hilog.error(DOMAIN_CODE, TAG, 'getAllVolumes failed error message = ' + error.message);
+            return;
+        }
         let flags = DeviceFlag.SUPPORTS_READ | DeviceFlag.SUPPORTS_WRITE;
         for (let i = 0; i < volumes.length; i++) {
             let volume = volumes[i];

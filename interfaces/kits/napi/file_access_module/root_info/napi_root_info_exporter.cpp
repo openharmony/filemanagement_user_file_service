@@ -45,13 +45,13 @@ bool NapiRootInfoExporter::Export()
     std::tie(succ, classValue) = NClass::DefineClass(exports_.env_, className,
         NapiRootInfoExporter::Constructor, std::move(props));
     if (!succ) {
-        NError(ERR_NULL_POINTER).ThrowErr(exports_.env_, "INNER BUG. Failed to define class NapiRootInfoExporter");
+        NError(E_GETRESULT).ThrowErr(exports_.env_);
         return false;
     }
 
     succ = NClass::SaveClass(exports_.env_, className, classValue);
     if (!succ) {
-        NError(ERR_NULL_POINTER).ThrowErr(exports_.env_, "INNER BUG. Failed to save class NapiRootInfoExporter");
+        NError(E_GETRESULT).ThrowErr(exports_.env_);
         return false;
     }
 
@@ -62,18 +62,18 @@ napi_value NapiRootInfoExporter::Constructor(napi_env env, napi_callback_info in
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
-        NError(ERR_PARAM_NUMBER).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
 
     auto rootInfoEntity = std::make_unique<RootInfoEntity>();
     if (rootInfoEntity == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get entity of RootInfoEntity");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
     if (!NClass::SetEntityFor<RootInfoEntity>(env, funcArg.GetThisVar(), std::move(rootInfoEntity))) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "INNER BUG. Failed to wrap entity for obj RootInfoEntity");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
@@ -84,7 +84,7 @@ napi_value NapiRootInfoExporter::ListFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
-        NError(ERR_PARAM_NUMBER).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
 
@@ -92,31 +92,31 @@ napi_value NapiRootInfoExporter::ListFile(napi_env env, napi_callback_info info)
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         auto ret = GetFileFilterParam(NVal(env, funcArg.GetArg(NARG_POS::FIRST)), filter);
         if (ret != ERR_OK) {
-            NError(ret).ThrowErr(env, "ListFile get FileFilter param fail");
+            NError(ret).ThrowErr(env);
             return nullptr;
         }
     }
 
     auto rootEntity = NClass::GetEntityOf<RootInfoEntity>(env, funcArg.GetThisVar());
     if (rootEntity == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get entity of FileInfoEntity");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
     if (rootEntity->fileAccessHelper == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "fileAccessHelper is null.");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
     napi_value objFileIteratorExporter = NClass::InstantiateClass(env, NapiFileIteratorExporter::className_, {});
     if (objFileIteratorExporter == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot instantiate class NapiFileIteratorExporter");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
     auto fileIteratorEntity = NClass::GetEntityOf<FileIteratorEntity>(env, objFileIteratorExporter);
     if (fileIteratorEntity == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get the entity of FileIteratorEntity");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
@@ -135,7 +135,7 @@ napi_value NapiRootInfoExporter::ListFile(napi_env env, napi_callback_info info)
         auto ret = rootEntity->fileAccessHelper->ListFile(fileInfo, fileIteratorEntity->offset,
             MAX_COUNT, filter, fileIteratorEntity->fileInfoVec);
         if (ret != ERR_OK) {
-            NError(ret).ThrowErr(env, "ListFile get result fail.");
+            NError(ret).ThrowErr(env);
             return nullptr;
         }
     }
@@ -147,7 +147,7 @@ napi_value NapiRootInfoExporter::ScanFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
-        NError(ERR_PARAM_NUMBER).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
 
@@ -155,31 +155,31 @@ napi_value NapiRootInfoExporter::ScanFile(napi_env env, napi_callback_info info)
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         auto ret = GetFileFilterParam(NVal(env, funcArg.GetArg(NARG_POS::FIRST)), filter);
         if (ret != ERR_OK) {
-            NError(ret).ThrowErr(env, "ScanFile get FileFilter param fail");
+            NError(ret).ThrowErr(env);
             return nullptr;
         }
     }
 
     auto rootEntity = NClass::GetEntityOf<RootInfoEntity>(env, funcArg.GetThisVar());
     if (rootEntity == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get entity of FileInfoEntity");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
     if (rootEntity->fileAccessHelper == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "fileAccessHelper is null.");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
     napi_value objFileIteratorExporter = NClass::InstantiateClass(env, NapiFileIteratorExporter::className_, {});
     if (objFileIteratorExporter == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot instantiate class NapiFileIteratorExporter");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
     auto fileIteratorEntity = NClass::GetEntityOf<FileIteratorEntity>(env, objFileIteratorExporter);
     if (fileIteratorEntity == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get the entity of FileIteratorEntity");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
@@ -198,7 +198,7 @@ napi_value NapiRootInfoExporter::ScanFile(napi_env env, napi_callback_info info)
         auto ret = rootEntity->fileAccessHelper->ScanFile(fileInfo, fileIteratorEntity->offset,
             MAX_COUNT, filter, fileIteratorEntity->fileInfoVec);
         if (ret != ERR_OK) {
-            NError(ret).ThrowErr(env, "ScanFile get result fail.");
+            NError(ret).ThrowErr(env);
             return nullptr;
         }
     }
@@ -210,13 +210,13 @@ napi_value NapiRootInfoExporter::GetDeviceType(napi_env env, napi_callback_info 
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
-        NError(ERR_PARAM_NUMBER).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
 
     auto rootInfoEntity = NClass::GetEntityOf<RootInfoEntity>(env, funcArg.GetThisVar());
     if (rootInfoEntity == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get entity of RootInfoEntity");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
@@ -227,13 +227,13 @@ napi_value NapiRootInfoExporter::GetUri(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
-        NError(ERR_PARAM_NUMBER).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
 
     auto rootInfoEntity = NClass::GetEntityOf<RootInfoEntity>(env, funcArg.GetThisVar());
     if (rootInfoEntity == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get entity of RootInfoEntity");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
@@ -244,13 +244,13 @@ napi_value NapiRootInfoExporter::GetDisplayName(napi_env env, napi_callback_info
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
-        NError(ERR_PARAM_NUMBER).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
 
     auto rootInfoEntity = NClass::GetEntityOf<RootInfoEntity>(env, funcArg.GetThisVar());
     if (rootInfoEntity == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get entity of RootInfoEntity");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
@@ -261,13 +261,13 @@ napi_value NapiRootInfoExporter::GetDeviceFlags(napi_env env, napi_callback_info
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
-        NError(ERR_PARAM_NUMBER).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
 
     auto rootInfoEntity = NClass::GetEntityOf<RootInfoEntity>(env, funcArg.GetThisVar());
     if (rootInfoEntity == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get entity of RootInfoEntity");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
