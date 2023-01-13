@@ -269,7 +269,10 @@ export default class FileExtAbility extends Extension {
                 }
             } catch (e) {
                 hilog.error(DOMAIN_CODE, TAG, 'delete error ' + e.message);
-                code = e.code;
+                // At present, the master libn has modified the interface exception throwing mechanism
+                // and the exception has no code attribute, which will lead to the failure of some faf use cases.
+                // In the later stage, the new file_api interfaces will be merged and modified in a unified way.
+                code = E_GETRESULT;
             }
         });
         return code;
@@ -469,7 +472,10 @@ export default class FileExtAbility extends Extension {
             hilog.error(DOMAIN_CODE, TAG, 'listFile error ' + e.message);
             return {
                 infos: [],
-                code: e.code,
+                // At present, the master libn has modified the interface exception throwing mechanism
+                // and the exception has no code attribute, which will lead to the failure of some faf use cases.
+                // In the later stage, the new file_api interfaces will be merged and modified in a unified way.
+                code: E_GETRESULT,
             };
         }
         return {
