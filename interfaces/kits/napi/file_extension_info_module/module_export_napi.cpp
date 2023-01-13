@@ -21,6 +21,11 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
+
+EXTERN_C_START
+/*
+ * The module initialization.
+ */
 napi_value FileExtensionInfoExport(napi_env env, napi_value exports)
 {
     InitDeviceFlag(env, exports);
@@ -32,7 +37,27 @@ napi_value FileExtensionInfoExport(napi_env env, napi_value exports)
 
     return exports;
 }
+EXTERN_C_END
 
-NAPI_MODULE(fileExtensionInfo, FileExtensionInfoExport)
+/*
+ * The module definition.
+ */
+static napi_module _module = {
+    .nm_version = 1,
+    .nm_flags = 0,
+    .nm_filename = nullptr,
+    .nm_register_func = FileExtensionInfoExport,
+    .nm_modname = "file.fileExtensionInfo",
+    .nm_priv = ((void *)0),
+    .reserved = {0}
+};
+
+/*
+ * The module registration.
+ */
+extern "C" __attribute__((constructor)) void RegisterModule(void)
+{
+    napi_module_register(&_module);
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

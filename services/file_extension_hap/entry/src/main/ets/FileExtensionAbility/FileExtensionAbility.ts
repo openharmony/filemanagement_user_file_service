@@ -17,7 +17,7 @@ import Extension from '@ohos.application.FileAccessExtensionAbility'
 import fileio from '@ohos.fileio'
 import { init, findVolumeInfo, delVolumeInfo, getVolumeInfoList, path2uri } from './VolumeManager'
 import { onReceiveEvent } from './Subcriber'
-import fileExtensionInfo from "@ohos.fileExtensionInfo"
+import fileExtensionInfo from "@ohos.file.fileExtensionInfo"
 import hilog from '@ohos.hilog'
 import process from '@ohos.process';
 

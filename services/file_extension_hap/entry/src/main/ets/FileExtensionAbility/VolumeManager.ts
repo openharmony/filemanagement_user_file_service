@@ -14,7 +14,7 @@
  */
 // @ts-nocheck
 import volumeManager from '@ohos.volumeManager'
-import fileExtensionInfo from "@ohos.fileExtensionInfo"
+import fileExtensionInfo from "@ohos.file.fileExtensionInfo"
 if (!globalThis.volumeInfoList) {
     globalThis.volumeInfoList = [];
 }

@@ -18,7 +18,7 @@ ohos_shared_library("fileaccess") {
   subsystem_name = "filemanagement"
   part_name = "user_file_service"
 
-  relative_install_dir = "module/data"
+  relative_install_dir = "module/file"
 
   include_dirs = [
     "./",
