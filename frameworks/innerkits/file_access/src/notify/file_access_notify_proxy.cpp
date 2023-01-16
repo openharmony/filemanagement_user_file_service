@@ -32,12 +32,12 @@ int FileAccessNotifyProxy::Notify(const NotifyMessage& message)
     MessageOption option;
     if (!data.WriteInterfaceToken(FileAccessNotifyProxy::GetDescriptor())) {
         HILOG_ERROR("write descriptor failed");
-        return ERR_IPC_ERROR;
+        return E_IPCS;
     }
 
     if (!data.WriteParcelable(&message)) {
         HILOG_ERROR("write parcel message failed");
-        return ERR_IPC_ERROR;
+        return E_IPCS;
     }
 
     int error = Remote()->SendRequest(CMD_NOTIFY, data, reply, option);

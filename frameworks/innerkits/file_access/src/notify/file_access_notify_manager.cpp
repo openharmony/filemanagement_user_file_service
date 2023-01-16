@@ -34,7 +34,7 @@ int FileAccessNotifyManager::RegisterNotify(sptr<IFileAccessNotify> &notify)
 {
     if (!AddNotifyToMap(notify)) {
         HILOG_ERROR("the remote obj is nullptr.");
-        return ERR_INVALID_NOTIFY;
+        return E_REGISTER;
     }
     HILOG_INFO("FileAccessNotifyManager::RegisterNotify success.");
     return ERR_OK;
@@ -44,12 +44,12 @@ int FileAccessNotifyManager::UnregisterNotify(sptr<IFileAccessNotify> &notify)
 {
     if (notify == nullptr || notify->AsObject() == nullptr) {
         HILOG_ERROR("the remote obj is nullptr.");
-        return ERR_INVALID_NOTIFY;
+        return E_NOTIFY;
     }
 
     if (!RemoveNotifyFromMap(notify->AsObject())) {
         HILOG_ERROR("remove remote obj from map fail.");
-        return ERR_REMOVE_NOTIFY_FAIL;
+        return E_REMOVE;
     }
     HILOG_INFO("FileAccessNotifyManager::UnregisterNotify success.");
     return ERR_OK;

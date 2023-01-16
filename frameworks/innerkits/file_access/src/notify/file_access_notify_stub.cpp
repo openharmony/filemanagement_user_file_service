@@ -28,7 +28,7 @@ int32_t FileAccessNotifyStub::OnRemoteRequest(uint32_t code, MessageParcel &data
     auto remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
         HILOG_ERROR("local descriptor is not equal to remote");
-        return ERR_INVALID_PARAM;
+        return EINVAL;
     }
     HILOG_INFO("FileAccessNotifyStub::OnRemoteRequest, code:%{public}u", code);
     switch (code) {
@@ -36,7 +36,7 @@ int32_t FileAccessNotifyStub::OnRemoteRequest(uint32_t code, MessageParcel &data
             std::shared_ptr<NotifyMessage> message(data.ReadParcelable<NotifyMessage>());
             if (message == nullptr) {
                 HILOG_ERROR("read parcelable message fail");
-                return ERR_IPC_ERROR;
+                return E_IPCS;
             }
             auto ret = Notify(*message);
             if (ret != ERR_OK) {

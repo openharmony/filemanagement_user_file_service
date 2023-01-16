@@ -30,9 +30,12 @@ const DEFAULT_MODE = 0o666;
 const CREATE_FILE_FLAGS = 0o100;
 const URI_SCHEME = 'datashare://';
 const DOMAIN_CODE = 0x0001;
-const TAG = 'js_server';
+const TAG = 'ExternalFileManager';
 const ERR_OK = 0;
 const ERR_ERROR = -1;
+const E_EXIST = 13900015;
+const E_URIS = 14300002;
+const E_GETRESULT = 14300004;
 let callbackFun = null;
 
 export default class FileExtAbility extends Extension {
@@ -149,6 +152,7 @@ export default class FileExtAbility extends Extension {
                         cb(path, true, hasNextFile);
                     }
                 }
+                dir.closeSync();
             } else {
                 cb(path, false);
             }
@@ -173,7 +177,7 @@ export default class FileExtAbility extends Extension {
         if (!this.checkUri(sourceFileUri)) {
             return {
                 fd: ERR_ERROR,
-                code: ERR_ERROR,
+                code: E_URIS,
             };
         }
         let fd = 0;
@@ -188,7 +192,7 @@ export default class FileExtAbility extends Extension {
             hilog.error(DOMAIN_CODE, TAG, 'openFile error ' + e.message);
             return {
                 fd: ERR_ERROR,
-                code: ERR_ERROR,
+                code: e.code,
             };
         }
     }
@@ -197,7 +201,7 @@ export default class FileExtAbility extends Extension {
         if (!this.checkUri(parentUri)) {
             return {
                 uri: '',
-                code: ERR_ERROR,
+                code: E_URIS,
             };
         }
         try {
@@ -205,11 +209,12 @@ export default class FileExtAbility extends Extension {
             if (this.access(newFileUri).isExist) {
                 return {
                     uri: '',
-                    code: ERR_ERROR,
+                    code: E_EXIST,
                 };
             }
             let path = this.getPath(newFileUri);
-            fileio.openSync(path, CREATE_FILE_FLAGS, DEFAULT_MODE);
+            let fd = fileio.openSync(path, CREATE_FILE_FLAGS, DEFAULT_MODE);
+            fileio.closeSync(fd);
             return {
                 uri: newFileUri,
                 code: ERR_OK,
@@ -218,7 +223,7 @@ export default class FileExtAbility extends Extension {
             hilog.error(DOMAIN_CODE, TAG, 'createFile error ' + e.message);
             return {
                 uri: '',
-                code: ERR_ERROR,
+                code: e.code,
             };
         }
     }
@@ -227,7 +232,7 @@ export default class FileExtAbility extends Extension {
         if (!this.checkUri(parentUri)) {
             return {
                 uri: '',
-                code: ERR_ERROR,
+                code: E_URIS,
             };
         }
         try {
@@ -242,14 +247,14 @@ export default class FileExtAbility extends Extension {
             hilog.error(DOMAIN_CODE, TAG, 'mkdir error ' + e.message);
             return {
                 uri: '',
-                code: ERR_ERROR,
+                code: e.code,
             };
         }
     }
 
     delete(selectFileUri) {
         if (!this.checkUri(selectFileUri)) {
-            return ERR_ERROR;
+            return E_URIS;
         }
         let path = this.getPath(selectFileUri);
         let code = ERR_OK;
@@ -264,7 +269,10 @@ export default class FileExtAbility extends Extension {
                 }
             } catch (e) {
                 hilog.error(DOMAIN_CODE, TAG, 'delete error ' + e.message);
-                code = ERR_ERROR;
+                // At present, the master libn has modified the interface exception throwing mechanism
+                // and the exception has no code attribute, which will lead to the failure of some faf use cases.
+                // In the later stage, the new file_api interfaces will be merged and modified in a unified way.
+                code = E_GETRESULT;
             }
         });
         return code;
@@ -274,7 +282,7 @@ export default class FileExtAbility extends Extension {
         if (!this.checkUri(sourceFileUri) || !this.checkUri(targetParentUri)) {
             return {
                 uri: '',
-                code: ERR_ERROR,
+                code: E_URIS,
             };
         }
         let displayName = this.getFileName(sourceFileUri);
@@ -291,7 +299,7 @@ export default class FileExtAbility extends Extension {
             // move to a subdirectory of the source directory
             return {
                 uri: '',
-                code: ERR_ERROR,
+                code: E_GETRESULT,
             };
         }
         try {
@@ -301,7 +309,7 @@ export default class FileExtAbility extends Extension {
             if (!stat || !stat.isDirectory()) {
                 return {
                     uri: '',
-                    code: ERR_ERROR,
+                    code: E_GETRESULT,
                 };
             }
             // If not across devices, use fileio.renameSync to move
@@ -316,10 +324,9 @@ export default class FileExtAbility extends Extension {
             hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
             return {
                 uri: '',
-                code: ERR_ERROR,
+                code: e.code,
             };
         }
-        let hasError = false;
         /**
          * Recursive source directory
          * If it is a directory, create a new directory first and then delete the source directory.
@@ -345,16 +352,13 @@ export default class FileExtAbility extends Extension {
                     fileio.unlinkSync(filePath);
                 }
             } catch (e) {
-                hasError = true;
                 hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
+                return {
+                    uri: '',
+                    code: e.code,
+                };
             }
         });
-        if (hasError) {
-            return {
-                uri: '',
-                code: ERR_ERROR,
-            };
-        }
         return {
             uri: newFileUri,
             code: ERR_OK,
@@ -365,7 +369,7 @@ export default class FileExtAbility extends Extension {
         if (!this.checkUri(sourceFileUri)) {
             return {
                 uri: '',
-                code: ERR_ERROR,
+                code: E_URIS,
             };
         }
         try {
@@ -381,7 +385,7 @@ export default class FileExtAbility extends Extension {
             hilog.error(DOMAIN_CODE, TAG, 'rename error ' + e.message);
             return {
                 uri: '',
-                code: ERR_ERROR,
+                code: e.code,
             };
         }
     }
@@ -391,7 +395,7 @@ export default class FileExtAbility extends Extension {
             hilog.error(DOMAIN_CODE, TAG, 'access checkUri fail');
             return {
                 isExist: false,
-                code: ERR_ERROR,
+                code: E_URIS,
             };
         }
         try {
@@ -407,7 +411,7 @@ export default class FileExtAbility extends Extension {
             }
             return {
                 isExist: false,
-                code: ERR_ERROR,
+                code: e.code,
             }
         }
         return {
@@ -420,7 +424,7 @@ export default class FileExtAbility extends Extension {
         if (!this.checkUri(sourceFileUri)) {
             return {
                 infos: [],
-                code: ERR_ERROR,
+                code: E_URIS,
             };
         }
         let infos = [];
@@ -463,11 +467,15 @@ export default class FileExtAbility extends Extension {
                     hasNextFile = false;
                 }
             }
+            dir.closeSync();
         } catch (e) {
             hilog.error(DOMAIN_CODE, TAG, 'listFile error ' + e.message);
             return {
                 infos: [],
-                code: ERR_ERROR,
+                // At present, the master libn has modified the interface exception throwing mechanism
+                // and the exception has no code attribute, which will lead to the failure of some faf use cases.
+                // In the later stage, the new file_api interfaces will be merged and modified in a unified way.
+                code: E_GETRESULT,
             };
         }
         return {
@@ -480,7 +488,7 @@ export default class FileExtAbility extends Extension {
         if (!this.checkUri(selectFileUri)) {
             return {
                 fileInfo: {},
-                code: ERR_ERROR,
+                code: E_URIS,
             };
         }
         let fileInfo = {};
@@ -506,7 +514,7 @@ export default class FileExtAbility extends Extension {
             hilog.error(DOMAIN_CODE, TAG, 'UriToFileInfo error ' + e.message);
             return {
                 fileInfo: {},
-                code: ERR_ERROR,
+                code: e.code,
             };
         }
         return {

@@ -20,6 +20,7 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
+#include <utility>
 
 #include "bundle_mgr_interface.h"
 #include "context.h"
@@ -59,10 +60,11 @@ public:
     // get all ability want info
     static int GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::Want> &wantVec);
     // create and connect all ability
-    static std::shared_ptr<FileAccessHelper> Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context);
+    static std::pair<std::shared_ptr<FileAccessHelper>, int>
+        Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context);
     // create and connect with want, if created, only connect with want
-    static std::shared_ptr<FileAccessHelper> Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
-        const std::vector<AAFwk::Want> &wants);
+    static std::pair<std::shared_ptr<FileAccessHelper>, int>
+        Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::vector<AAFwk::Want> &wants);
     static std::shared_ptr<FileAccessHelper> Creator(const sptr<IRemoteObject> &token,
         const std::vector<AAFwk::Want> &wants);
 
