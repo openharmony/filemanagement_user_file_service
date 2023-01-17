@@ -51,6 +51,7 @@ FileAccessExtStub::FileAccessExtStub()
     stubFuncMap_[CMD_GET_ROOTS] = &FileAccessExtStub::CmdGetRoots;
     stubFuncMap_[CMD_ACCESS] = &FileAccessExtStub::CmdAccess;
     stubFuncMap_[CMD_URI_TO_FILEINFO] = &FileAccessExtStub::CmdUriToFileInfo;
+    stubFuncMap_[CMD_GET_FILEINFO_FROM_RELATIVE_PATH] = &FileAccessExtStub::CmdGetFileInfoFromRelativePath;
     stubFuncMap_[CMD_REGISTER_NOTIFY] = &FileAccessExtStub::CmdRegisterNotify;
     stubFuncMap_[CMD_UNREGISTER_NOTIFY] = &FileAccessExtStub::CmdUnregisterNotify;
 }
@@ -478,6 +479,29 @@ ErrCode FileAccessExtStub::CmdUriToFileInfo(MessageParcel &data, MessageParcel &
 
     if (!reply.WriteParcelable(&fileInfoTemp)) {
         HILOG_ERROR("Parameter UriToFileInfo fail to WriteParcelable fileInfoTemp");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
+ErrCode FileAccessExtStub::CmdGetFileInfoFromRelativePath(MessageParcel &data, MessageParcel &reply)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdGetFileInfoFromRelativePath");
+    std::string relativePath(data.ReadString());
+
+    FileInfo fileInfoTemp;
+    int ret = GetFileInfoFromRelativePath(relativePath, fileInfoTemp);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("Parameter CmdGetFileInfoFromRelativePath fail to WriteInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    if (!reply.WriteParcelable(&fileInfoTemp)) {
+        HILOG_ERROR("Parameter CmdGetFileInfoFromRelativePath fail to WriteParcelable fileInfoTemp");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }

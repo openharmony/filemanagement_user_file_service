@@ -170,6 +170,20 @@ int FileAccessExtStubImpl::UriToFileInfo(const Uri &selectFile, FileInfo &fileIn
     return ret;
 }
 
+int FileAccessExtStubImpl::GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromRelativePath");
+    if (extension_ == nullptr) {
+        HILOG_ERROR("GetFileInfoFromRelativePath get extension failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    int ret = extension_->GetFileInfoFromRelativePath(selectFile, fileInfo);
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
+}
+
 int FileAccessExtStubImpl::Access(const Uri &uri, bool &isExist)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Access");

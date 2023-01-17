@@ -44,6 +44,7 @@ private:
     ErrCode CmdListFile(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdScanFile(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdUriToFileInfo(MessageParcel &data, MessageParcel &reply);
+    ErrCode CmdGetFileInfoFromRelativePath(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdGetRoots(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdAccess(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdRegisterNotify(MessageParcel &data, MessageParcel &reply);

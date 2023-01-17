@@ -609,6 +609,56 @@ int FileAccessExtProxy::UriToFileInfo(const Uri &selectFile, FileInfo &fileInfo)
     return ERR_OK;
 }
 
+int FileAccessExtProxy::GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromRelativePath");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    if (!data.WriteString(selectFile)) {
+        HILOG_ERROR("fail to WriteParcelable selectFile");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int err = Remote()->SendRequest(CMD_GET_FILEINFO_FROM_RELATIVE_PATH, data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return err;
+    }
+
+    int ret = E_IPCS;
+    if (!reply.ReadInt32(ret)) {
+        HILOG_ERROR("fail to ReadInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("GetFileInfoFromRelativePath operation failed ret : %{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    std::unique_ptr<FileInfo> fileInfoTemp(reply.ReadParcelable<FileInfo>());
+    if (fileInfoTemp == nullptr) {
+        HILOG_ERROR("ReadParcelable value is nullptr.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    fileInfo = *fileInfoTemp;
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
 int FileAccessExtProxy::Access(const Uri &uri, bool &isExist)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Access");

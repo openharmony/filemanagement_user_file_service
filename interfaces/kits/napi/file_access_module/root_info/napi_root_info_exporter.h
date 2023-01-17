@@ -38,6 +38,7 @@ public:
     static napi_value ScanFile(napi_env env, napi_callback_info info);
     static napi_value GetDeviceType(napi_env env, napi_callback_info info);
     static napi_value GetUri(napi_env env, napi_callback_info info);
+    static napi_value GetRelativePath(napi_env env, napi_callback_info info);
     static napi_value GetDisplayName(napi_env env, napi_callback_info info);
     static napi_value GetDeviceFlags(napi_env env, napi_callback_info info);
 

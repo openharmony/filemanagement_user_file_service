@@ -232,6 +232,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getRoots", NAPI_GetRoots),
         DECLARE_NAPI_FUNCTION("access", NAPI_Access),
         DECLARE_NAPI_FUNCTION("uriToFileInfo", NAPI_UriToFileInfo),
+        DECLARE_NAPI_FUNCTION("getFileInfoFromRelativePath", NAPI_GetFileInfoFromRelativePath),
         DECLARE_NAPI_FUNCTION("on", NAPI_On),
         DECLARE_NAPI_FUNCTION("off", NAPI_Off)
     };
@@ -855,6 +856,68 @@ napi_value NAPI_UriToFileInfo(napi_env env, napi_callback_info info)
     };
 
     const std::string procedureName = "uriToFileInfo";
+    NVal thisVar(env, funcArg.GetThisVar());
+    if (funcArg.GetArgc() == NARG_CNT::ONE) {
+        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
+    }
+    NVal cb(env, funcArg[NARG_POS::SECOND]);
+    if (!cb.TypeIs(napi_function)) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
+}
+
+napi_value NAPI_GetFileInfoFromRelativePath(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    bool succ = false;
+    std::unique_ptr<char[]> uri;
+    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    if (!succ) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    if (fileAccessHelper == nullptr) {
+        return nullptr;
+    }
+
+    auto result = std::make_shared<FileInfo>();
+    if (result == nullptr) {
+        NError(E_GETRESULT).ThrowErr(env);
+        return nullptr;
+    }
+
+    string uriString(uri.get());
+    auto cbExec = [uriString, result, fileAccessHelper]() -> NError {
+        string relativePath(uriString);
+        int ret = fileAccessHelper->GetFileInfoFromRelativePath(relativePath, *result);
+        return NError(ret);
+    };
+    auto cbComplete = [fileAccessHelper, result](napi_env env, NError err) -> NVal {
+        if (err) {
+            return { env, err.GetNapiErr(env) };
+        }
+
+        NVal nVal;
+        int ret = MakeFileInfoResult(env, fileAccessHelper, *result, nVal);
+        if (ret != ERR_OK) {
+            return { env, NError([ret]() -> std::tuple<uint32_t, std::string> {
+                return { ret, "Make FileInfo Result fail" };
+            }).GetNapiErr(env) };
+        }
+
+        return nVal;
+    };
+
+    const std::string procedureName = "getFileInfoFromRelativePath";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;

@@ -52,6 +52,7 @@ const uint32_t DOCUMENT_FLAG_SUPPORTS_WRITE = 1 << 3;
 struct FileInfo : public virtual OHOS::Parcelable {
 public:
     std::string uri { "" };
+    std::string relativePath { "" };
     std::string fileName { "" };
     int32_t mode { 0 };
     int64_t size { 0 };
@@ -59,13 +60,14 @@ public:
     std::string mimeType { "" };
 
     FileInfo() = default;
-    FileInfo(std::string uri, std::string fileName, int32_t mode, std::string mimeType)
-        : uri(uri), fileName(fileName), mode(mode), mimeType(mimeType)
+    FileInfo(std::string uri, std::string relativePath, std::string fileName, int32_t mode, std::string mimeType)
+        : uri(uri), relativePath(relativePath), fileName(fileName), mode(mode), mimeType(mimeType)
     {}
 
     bool ReadFromParcel(Parcel &parcel)
     {
         uri = parcel.ReadString();
+        relativePath = parcel.ReadString();
         fileName = parcel.ReadString();
         mode = parcel.ReadInt32();
         size = parcel.ReadInt64();
@@ -77,6 +79,9 @@ public:
     virtual bool Marshalling(Parcel &parcel) const override
     {
         if (!parcel.WriteString(uri)) {
+            return false;
+        }
+        if (!parcel.WriteString(relativePath)) {
             return false;
         }
         if (!parcel.WriteString(fileName)) {
@@ -116,6 +121,7 @@ struct RootInfo : public virtual OHOS::Parcelable {
 public:
     int32_t deviceType { 0 };
     std::string uri { "" };
+    std::string relativePath { "" };
     std::string displayName { "" };
     int32_t deviceFlags { 0 };
 
@@ -123,6 +129,7 @@ public:
     {
         deviceType = parcel.ReadInt32();
         uri = parcel.ReadString();
+        relativePath = parcel.ReadString();
         displayName = parcel.ReadString();
         deviceFlags = parcel.ReadInt32();
         return true;
@@ -134,6 +141,9 @@ public:
             return false;
         }
         if (!parcel.WriteString(uri)) {
+            return false;
+        }
+        if (!parcel.WriteString(relativePath)) {
             return false;
         }
         if (!parcel.WriteString(displayName)) {

@@ -35,6 +35,7 @@ bool NapiRootInfoExporter::Export()
         NVal::DeclareNapiFunction("scanFile", ScanFile),
         NVal::DeclareNapiGetter("deviceType", GetDeviceType),
         NVal::DeclareNapiGetter("uri", GetUri),
+        NVal::DeclareNapiGetter("relativePath", GetRelativePath),
         NVal::DeclareNapiGetter("displayName", GetDisplayName),
         NVal::DeclareNapiGetter("deviceFlags", GetDeviceFlags)
     };
@@ -238,6 +239,23 @@ napi_value NapiRootInfoExporter::GetUri(napi_env env, napi_callback_info info)
     }
 
     return NVal::CreateUTF8String(env, rootInfoEntity->rootInfo.uri).val_;
+}
+
+napi_value NapiRootInfoExporter::GetRelativePath(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    auto rootInfoEntity = NClass::GetEntityOf<RootInfoEntity>(env, funcArg.GetThisVar());
+    if (rootInfoEntity == nullptr) {
+        NError(E_GETRESULT).ThrowErr(env);
+        return nullptr;
+    }
+
+    return NVal::CreateUTF8String(env, rootInfoEntity->rootInfo.relativePath).val_;
 }
 
 napi_value NapiRootInfoExporter::GetDisplayName(napi_env env, napi_callback_info info)

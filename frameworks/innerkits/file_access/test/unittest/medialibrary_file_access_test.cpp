@@ -20,6 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "accesstoken_kit.h"
+#include "file_access_extension_info.h"
 #include "file_access_framework_errno.h"
 #include "file_access_helper.h"
 #include "iservice_registry.h"
@@ -2138,5 +2139,215 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetRoots_0000, testing::
         GTEST_LOG_(ERROR) << "medialibrary_file_access_GetRoots_0000 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_GetRoots_0000";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_GetFileInfoFromRelativePath_0000
+ * @tc.name: medialibrary_file_access_GetFileInfoFromRelativePath_0000
+ * @tc.desc: Test function of GetFileInfoFromRelativePath interface.
+ * @tc.desc: convert the general directory relativePath to fileinfo for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000HRLBS
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromRelativePath_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin medialibrary_file_access_GetFileInfoFromRelativePath_0000";
+    try {
+        FileInfo fileInfo;
+        string relativePath = "";
+        int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        relativePath = "Audios/";
+        result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        relativePath = "Camera/";
+        result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        relativePath = "Documents/";
+        result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        relativePath = "Download";
+        result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        relativePath = "Pictures";
+        result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        relativePath = "Videos";
+        result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_GetFileInfoFromRelativePath_0000 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_GetFileInfoFromRelativePath_0000";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_GetFileInfoFromRelativePath_0001
+ * @tc.name: medialibrary_file_access_GetFileInfoFromRelativePath_0001
+ * @tc.desc: Test function of GetFileInfoFromRelativePath interface.
+ * @tc.desc: convert the general directory relativePath to fileinfo for failed.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000HRLBS
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromRelativePath_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin medialibrary_file_access_GetFileInfoFromRelativePath_0001";
+    try {
+        FileInfo fileInfo;
+        string relativePath = "test/";
+        int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+
+        relativePath = "/";
+        result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_GetFileInfoFromRelativePath_0001 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_GetFileInfoFromRelativePath_0001";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_GetFileInfoFromRelativePath_0002
+ * @tc.name: medialibrary_file_access_GetFileInfoFromRelativePath_0002
+ * @tc.desc: Test function of GetFileInfoFromRelativePath interface.
+ * @tc.desc: convert the general directory relativePath to fileinfo and call listfile for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000HRLBS
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromRelativePath_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin medialibrary_file_access_GetFileInfoFromRelativePath_0002";
+    try {
+        FileInfo fileInfo;
+        string relativePath = "Download/";
+        int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        ASSERT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        Uri parentUri(fileInfo.uri);
+        Uri newFile("");
+        result = g_fah->CreateFile(parentUri, "GetFileInfoFromRelativePath_0002.jpg", newFile);
+        ASSERT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        int64_t offset = 0;
+        int64_t maxCount = 1000;
+        FileFilter filter;
+        std::vector<FileInfo> fileInfoVec;
+        result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GT(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
+
+        result = g_fah->Delete(newFile);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_GetFileInfoFromRelativePath_0002 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_GetFileInfoFromRelativePath_0002";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_GetFileInfoFromRelativePath_0003
+ * @tc.name: medialibrary_file_access_GetFileInfoFromRelativePath_0003
+ * @tc.desc: Test function of GetFileInfoFromRelativePath interface.
+ * @tc.desc: convert the relative file path to fileinfo and call listfile for failed.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000HRLBS
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromRelativePath_0003, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin medialibrary_file_access_GetFileInfoFromRelativePath_0003";
+    try {
+        FileInfo fileInfo;
+        string relativePath = "Download/";
+        int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        ASSERT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        Uri parentUri(fileInfo.uri);
+        Uri newFile("");
+        result = g_fah->CreateFile(parentUri, "GetFileInfoFromRelativePath_0003.jpg", newFile);
+        ASSERT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        relativePath = "Download/GetFileInfoFromRelativePath_0003.jpg";
+        result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        int64_t offset = 0;
+        int64_t maxCount = 1000;
+        FileFilter filter;
+        std::vector<FileInfo> fileInfoVec;
+        result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+
+        result = g_fah->Delete(newFile);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_GetFileInfoFromRelativePath_0003 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_GetFileInfoFromRelativePath_0003";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_GetFileInfoFromRelativePath_0004
+ * @tc.name: medialibrary_file_access_GetFileInfoFromRelativePath_0004
+ * @tc.desc: Test function of GetFileInfoFromRelativePath interface.
+ * @tc.desc: convert the relative directory path to fileinfo and call listfile for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000HRLBS
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromRelativePath_0004, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin medialibrary_file_access_GetFileInfoFromRelativePath_0004";
+    try {
+        FileInfo fileInfo;
+        string relativePath = "Download/";
+        int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        ASSERT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        Uri parentUri(fileInfo.uri);
+        Uri newDir("");
+        result = g_fah->Mkdir(parentUri, "DirGetFileInfoFromRelativePath_0004", newDir);
+        ASSERT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        Uri fileUri("");
+        result = g_fah->CreateFile(newDir, "file1", fileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        result = g_fah->CreateFile(newDir, "file2", fileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        relativePath = "Download/DirGetFileInfoFromRelativePath_0004";
+        result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        int64_t offset = 0;
+        int64_t maxCount = 1000;
+        FileFilter filter;
+        std::vector<FileInfo> fileInfoVec;
+        result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GT(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
+
+        result = g_fah->Delete(newDir);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_GetFileInfoFromRelativePath_0004 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_GetFileInfoFromRelativePath_0004";
 }
 } // namespace

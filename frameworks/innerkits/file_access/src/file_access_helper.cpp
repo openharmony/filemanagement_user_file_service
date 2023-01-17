@@ -363,7 +363,12 @@ sptr<IFileAccessExtBase> FileAccessHelper::GetProxyByUri(Uri &uri)
         HILOG_ERROR("Get BundleName failed.");
         return nullptr;
     }
+    auto fileAccessExtProxy = GetProxyByBundleName(bundleName);
+    return fileAccessExtProxy;
+}
 
+sptr<IFileAccessExtBase> FileAccessHelper::GetProxyByBundleName(const std::string &bundleName)
+{
     auto connectInfo = GetConnectInfo(bundleName);
     if (connectInfo == nullptr) {
         HILOG_ERROR("GetProxyByUri failed with invalid connectInfo");
@@ -818,6 +823,32 @@ int FileAccessHelper::UriToFileInfo(Uri &selectFile, FileInfo &fileInfo)
     int ret = fileExtProxy->UriToFileInfo(selectFile, fileInfo);
     if (ret != ERR_OK) {
         HILOG_ERROR("UriToFileInfo get result error, code:%{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
+int FileAccessHelper::GetFileInfoFromRelativePath(std::string &selectFile, FileInfo &fileInfo)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromRelativePath");
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::GetFileInfoFromRelativePath check IsSystemAppByFullTokenID failed");
+        return E_PERMISSION_SYS;
+    }
+
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByBundleName(MEDIA_BNUDLE_NAME);
+    if (fileExtProxy == nullptr) {
+        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    int ret = fileExtProxy->GetFileInfoFromRelativePath(selectFile, fileInfo);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("GetFileInfoFromRelativePath get result error, code:%{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }

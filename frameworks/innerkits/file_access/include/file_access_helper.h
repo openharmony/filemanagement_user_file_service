@@ -81,11 +81,13 @@ public:
     int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount, const FileFilter &filter,
         std::vector<FileInfo> &fileInfoVec);
     int UriToFileInfo(Uri &selectFile, FileInfo &fileInfo);
+    int GetFileInfoFromRelativePath(std::string &selectFile, FileInfo &fileInfo);
     int GetRoots(std::vector<RootInfo> &rootInfoVec);
     int On(std::shared_ptr<INotifyCallback> &callback);
     int Off();
 private:
     sptr<IFileAccessExtBase> GetProxyByUri(Uri &uri);
+    sptr<IFileAccessExtBase> GetProxyByBundleName(const std::string &bundleName);
     bool GetProxy();
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
     FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
