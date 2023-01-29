@@ -64,69 +64,69 @@ void FileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &recor
 int FileAccessExtAbility::OpenFile(const Uri &uri, const int flags, int &fd)
 {
     HILOG_ERROR("FileAccessExtAbility::OpenFile Undefined operation");
-    return ERR_OPERATION_NOT_SUPPORT;
+    return EPERM;
 }
 
 int FileAccessExtAbility::CreateFile(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
     HILOG_ERROR("FileAccessExtAbility::CreateFile Undefined operation");
-    return ERR_OPERATION_NOT_SUPPORT;
+    return EPERM;
 }
 
 int FileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
     HILOG_ERROR("FileAccessExtAbility::Mkdir Undefined operation");
-    return ERR_OPERATION_NOT_SUPPORT;
+    return EPERM;
 }
 
 int FileAccessExtAbility::Delete(const Uri &sourceFile)
 {
     HILOG_ERROR("FileAccessExtAbility::Delete Undefined operation");
-    return ERR_OPERATION_NOT_SUPPORT;
+    return EPERM;
 }
 
 int FileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile)
 {
     HILOG_ERROR("FileAccessExtAbility::Move Undefined operation");
-    return ERR_OPERATION_NOT_SUPPORT;
+    return EPERM;
 }
 
 int FileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
     HILOG_ERROR("FileAccessExtAbility::Rename Undefined operation");
-    return ERR_OPERATION_NOT_SUPPORT;
+    return EPERM;
 }
 
 int FileAccessExtAbility::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
     const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
 {
     HILOG_ERROR("FileAccessExtAbility::ListFile Undefined operation");
-    return ERR_OPERATION_NOT_SUPPORT;
+    return EPERM;
 }
 
 int FileAccessExtAbility::ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
     const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
 {
     HILOG_ERROR("FileAccessExtAbility::ScanFile Undefined operation");
-    return ERR_OPERATION_NOT_SUPPORT;
+    return EPERM;
 }
 
 int FileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
     HILOG_ERROR("FileAccessExtAbility::GetRoots Undefined operation");
-    return ERR_OPERATION_NOT_SUPPORT;
+    return EPERM;
 }
 
 int FileAccessExtAbility::UriToFileInfo(const Uri &selectFile, FileInfo &fileInfo)
 {
     HILOG_ERROR("FileAccessExtAbility::UriToFileInfo Undefined operation");
-    return ERR_OPERATION_NOT_SUPPORT;
+    return EPERM;
 }
 
 int FileAccessExtAbility::Access(const Uri &uri, bool &isExist)
 {
     HILOG_ERROR("FileAccessExtAbility::IsFileExist Undefined operation");
-    return ERR_OPERATION_NOT_SUPPORT;
+    return EPERM;
 }
 
 bool FileAccessExtAbility::GetNotifyManager()
@@ -146,7 +146,7 @@ int FileAccessExtAbility::RegisterNotify(sptr<IFileAccessNotify> &notify)
     if (!GetNotifyManager()) {
         HILOG_ERROR("GetNotifyManager fail.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_INVALID_PARAM;
+        return E_REGISTER;
     }
     int ret = notifyManager_->RegisterNotify(notify);
     if (ret != ERR_OK) {
@@ -162,7 +162,7 @@ int FileAccessExtAbility::UnregisterNotify(sptr<IFileAccessNotify> &notify)
     if (!GetNotifyManager()) {
         HILOG_ERROR("GetNotifyManager fail.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_INVALID_PARAM;
+        return E_REMOVE;
     }
     int ret = notifyManager_->UnregisterNotify(notify);
     if (ret != ERR_OK) {
@@ -178,7 +178,7 @@ int FileAccessExtAbility::Notify(const NotifyMessage& message)
     if (!GetNotifyManager()) {
         HILOG_ERROR("GetNotifyManager fail.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_INVALID_PARAM;
+        return E_NOTIFY;
     }
     int ret = notifyManager_->Notify(message);
     if (ret != ERR_OK) {

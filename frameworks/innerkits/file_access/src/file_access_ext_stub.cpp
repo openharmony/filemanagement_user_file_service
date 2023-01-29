@@ -67,7 +67,7 @@ int FileAccessExtStub::OnRemoteRequest(uint32_t code, MessageParcel& data, Messa
     if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
         HILOG_ERROR("permission error");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PERMISSION_DENIED;
+        return E_PERMISSION;
     }
 
     std::u16string descriptor = FileAccessExtStub::GetDescriptor();
@@ -94,20 +94,20 @@ ErrCode FileAccessExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply
     if (uri == nullptr) {
         HILOG_ERROR("Parameter OpenFile fail to ReadParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
-    int flags = ERR_PARCEL_FAIL;
+    int flags = E_IPCS;
     if (!data.ReadInt32(flags)) {
         HILOG_ERROR("Parameter OpenFile fail to ReadInt32 flags");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (flags < 0) {
         HILOG_ERROR("Parameter OpenFile flags is invalid");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_INVALID_PARAM;
+        return EINVAL;
     }
 
     int fd = -1;
@@ -115,13 +115,13 @@ ErrCode FileAccessExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter OpenFile fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!reply.WriteFileDescriptor(fd)) {
         HILOG_ERROR("Parameter OpenFile fail to WriteFileDescriptor fd");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -135,20 +135,20 @@ ErrCode FileAccessExtStub::CmdCreateFile(MessageParcel &data, MessageParcel &rep
     if (parent == nullptr) {
         HILOG_ERROR("Parameter CreateFile fail to ReadParcelable parent");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     std::string displayName = "";
     if (!data.ReadString(displayName)) {
         HILOG_ERROR("Parameter CreateFile fail to ReadString displayName");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (displayName.empty()) {
         HILOG_ERROR("Parameter CreateFile displayName is empty");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_INVALID_PARAM;
+        return EINVAL;
     }
 
     std::string newFile = "";
@@ -157,13 +157,13 @@ ErrCode FileAccessExtStub::CmdCreateFile(MessageParcel &data, MessageParcel &rep
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter CreateFile fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!reply.WriteParcelable(&newFileUri)) {
         HILOG_ERROR("Parameter CreateFile fail to WriteParcelable newFileUri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -177,20 +177,20 @@ ErrCode FileAccessExtStub::CmdMkdir(MessageParcel &data, MessageParcel &reply)
     if (parent == nullptr) {
         HILOG_ERROR("Parameter Mkdir fail to ReadParcelable parent");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     std::string displayName = "";
     if (!data.ReadString(displayName)) {
         HILOG_ERROR("Parameter Mkdir fail to ReadString displayName");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (displayName.empty()) {
         HILOG_ERROR("Parameter Mkdir displayName is empty");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_INVALID_PARAM;
+        return EINVAL;
     }
 
     std::string newFile = "";
@@ -199,13 +199,13 @@ ErrCode FileAccessExtStub::CmdMkdir(MessageParcel &data, MessageParcel &reply)
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter Mkdir fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!reply.WriteParcelable(&newFileUri)) {
         HILOG_ERROR("Parameter Mkdir fail to WriteParcelable newFileUri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -219,14 +219,14 @@ ErrCode FileAccessExtStub::CmdDelete(MessageParcel &data, MessageParcel &reply)
     if (uri == nullptr) {
         HILOG_ERROR("Parameter Delete fail to ReadParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     int ret = Delete(*uri);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter Delete fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -240,14 +240,14 @@ ErrCode FileAccessExtStub::CmdMove(MessageParcel &data, MessageParcel &reply)
     if (sourceFile == nullptr) {
         HILOG_ERROR("Parameter Move fail to ReadParcelable sourceFile");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     std::shared_ptr<Uri> targetParent(data.ReadParcelable<Uri>());
     if (targetParent == nullptr) {
         HILOG_ERROR("Parameter Move fail to ReadParcelable targetParent");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     std::string newFile = "";
@@ -256,13 +256,13 @@ ErrCode FileAccessExtStub::CmdMove(MessageParcel &data, MessageParcel &reply)
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter Move fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!reply.WriteParcelable(&newFileUri)) {
         HILOG_ERROR("Parameter Move fail to WriteParcelable newFileUri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -276,20 +276,20 @@ ErrCode FileAccessExtStub::CmdRename(MessageParcel &data, MessageParcel &reply)
     if (sourceFile == nullptr) {
         HILOG_ERROR("Parameter Rename fail to ReadParcelable sourceFile");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     std::string displayName = "";
     if (!data.ReadString(displayName)) {
         HILOG_ERROR("Parameter Rename fail to ReadString displayName");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (displayName.empty()) {
         HILOG_ERROR("Parameter Rename displayName is empty");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_INVALID_PARAM;
+        return EINVAL;
     }
 
     std::string newFile = "";
@@ -298,13 +298,13 @@ ErrCode FileAccessExtStub::CmdRename(MessageParcel &data, MessageParcel &reply)
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter Rename fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!reply.WriteParcelable(&newFileUri)) {
         HILOG_ERROR("Parameter Rename fail to WriteParcelable newFileUri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -318,28 +318,28 @@ ErrCode FileAccessExtStub::CmdListFile(MessageParcel &data, MessageParcel &reply
     if (fileInfo == nullptr) {
         HILOG_ERROR("Parameter ListFile fail to ReadParcelable fileInfo");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     int64_t offset = 0;
     if (!data.ReadInt64(offset)) {
         HILOG_ERROR("parameter ListFile offset is invalid");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     int64_t maxCount = 0;
     if (!data.ReadInt64(maxCount)) {
         HILOG_ERROR("parameter ListFile maxCount is invalid");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     std::shared_ptr<FileFilter> filter(data.ReadParcelable<FileFilter>());
     if (filter == nullptr) {
         HILOG_ERROR("parameter ListFile FileFilter is invalid");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     std::vector<FileInfo> fileInfoVec;
@@ -347,21 +347,21 @@ ErrCode FileAccessExtStub::CmdListFile(MessageParcel &data, MessageParcel &reply
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter ListFile fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     int64_t count {fileInfoVec.size()};
     if (!reply.WriteInt64(count)) {
         HILOG_ERROR("Parameter ListFile fail to WriteInt64 count");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     for (const auto &fileInfo : fileInfoVec) {
         if (!reply.WriteParcelable(&fileInfo)) {
             HILOG_ERROR("parameter ListFile fail to WriteParcelable fileInfoVec");
             FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-            return ERR_PARCEL_FAIL;
+            return E_IPCS;
         }
     }
 
@@ -376,28 +376,28 @@ ErrCode FileAccessExtStub::CmdScanFile(MessageParcel &data, MessageParcel &reply
     if (fileInfo == nullptr) {
         HILOG_ERROR("Parameter ScanFile fail to ReadParcelable fileInfo");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     int64_t offset = 0;
     if (!data.ReadInt64(offset)) {
         HILOG_ERROR("parameter ScanFile offset is invalid");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     int64_t maxCount = 0;
     if (!data.ReadInt64(maxCount)) {
         HILOG_ERROR("parameter ScanFile maxCount is invalid");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     std::shared_ptr<FileFilter> filter(data.ReadParcelable<FileFilter>());
     if (filter == nullptr) {
         HILOG_ERROR("parameter ScanFile FileFilter is invalid");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     std::vector<FileInfo> fileInfoVec;
@@ -405,21 +405,21 @@ ErrCode FileAccessExtStub::CmdScanFile(MessageParcel &data, MessageParcel &reply
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter ScanFile fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     int64_t count {fileInfoVec.size()};
     if (!reply.WriteInt64(count)) {
         HILOG_ERROR("Parameter ScanFile fail to WriteInt64 count");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     for (const auto &fileInfo : fileInfoVec) {
         if (!reply.WriteParcelable(&fileInfo)) {
             HILOG_ERROR("parameter ScanFile fail to WriteParcelable fileInfoVec");
             FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-            return ERR_PARCEL_FAIL;
+            return E_IPCS;
         }
     }
 
@@ -436,21 +436,21 @@ ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter GetRoots fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     int64_t count {rootInfoVec.size()};
     if (!reply.WriteInt64(count)) {
         HILOG_ERROR("Parameter GetRoots fail to WriteInt64 count");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     for (const auto &rootInfo : rootInfoVec) {
         if (!reply.WriteParcelable(&rootInfo)) {
             HILOG_ERROR("parameter ListFile fail to WriteParcelable rootInfo");
             FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-            return ERR_PARCEL_FAIL;
+            return E_IPCS;
         }
     }
 
@@ -465,7 +465,7 @@ ErrCode FileAccessExtStub::CmdUriToFileInfo(MessageParcel &data, MessageParcel &
     if (uri == nullptr) {
         HILOG_ERROR("SelectFile uri is nullptr");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_INVALID_URI;
+        return E_URIS;
     }
 
     FileInfo fileInfoTemp;
@@ -473,13 +473,13 @@ ErrCode FileAccessExtStub::CmdUriToFileInfo(MessageParcel &data, MessageParcel &
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter UriToFileInfo fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!reply.WriteParcelable(&fileInfoTemp)) {
         HILOG_ERROR("Parameter UriToFileInfo fail to WriteParcelable fileInfoTemp");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -493,7 +493,7 @@ ErrCode FileAccessExtStub::CmdAccess(MessageParcel &data, MessageParcel &reply)
     if (uri == nullptr) {
         HILOG_ERROR("Access uri is nullptr");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_INVALID_URI;
+        return E_URIS;
     }
 
     bool isExist = false;
@@ -501,13 +501,13 @@ ErrCode FileAccessExtStub::CmdAccess(MessageParcel &data, MessageParcel &reply)
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter Access fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!reply.WriteBool(isExist)) {
         HILOG_ERROR("Parameter Access fail to WriteBool isExist");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -536,21 +536,21 @@ ErrCode FileAccessExtStub::CmdRegisterNotify(MessageParcel &data, MessageParcel 
     if (remote == nullptr) {
         HILOG_INFO("get remote obj fail.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     auto notify = iface_cast<IFileAccessNotify>(remote);
     if (notify == nullptr) {
         HILOG_INFO("get notify fail");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     int ret = RegisterNotify(notify);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter RegisterNotify fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
@@ -563,21 +563,21 @@ ErrCode FileAccessExtStub::CmdUnregisterNotify(MessageParcel &data, MessageParce
     if (remote == nullptr) {
         HILOG_INFO("get remote obj fail.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     auto notify = iface_cast<IFileAccessNotify>(remote);
     if (notify == nullptr) {
         HILOG_INFO("get notify fail");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     int ret = UnregisterNotify(notify);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter UnregisterNotify fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;

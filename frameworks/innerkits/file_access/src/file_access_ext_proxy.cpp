@@ -31,19 +31,19 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags, int &fd)
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteParcelable(&uri)) {
         HILOG_ERROR("fail to WriteParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteInt32(flags)) {
         HILOG_ERROR("fail to WriteInt32 flags");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     MessageParcel reply;
@@ -55,11 +55,11 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags, int &fd)
         return err;
     }
 
-    int ret = ERR_PARCEL_FAIL;
+    int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (ret != ERR_OK) {
@@ -72,7 +72,7 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags, int &fd)
     if (fd < ERR_OK) {
         HILOG_ERROR("fail to ReadFileDescriptor fd: %{public}d", fd);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_GETRESULT;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -86,19 +86,19 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteParcelable(&parent)) {
         HILOG_ERROR("fail to WriteParcelable parent");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteString(displayName)) {
         HILOG_ERROR("fail to WriteString displayName");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     MessageParcel reply;
@@ -110,11 +110,11 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
         return err;
     }
 
-    int ret = ERR_PARCEL_FAIL;
+    int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (ret != ERR_OK) {
@@ -127,14 +127,14 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
     if (tempUri == nullptr) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     newFile = Uri(*tempUri);
     if (newFile.ToString().empty()) {
         HILOG_ERROR("get uri is empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_INVALID_RESULT;
+        return E_GETRESULT;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -148,19 +148,19 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteParcelable(&parent)) {
         HILOG_ERROR("fail to WriteParcelable parent");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteString(displayName)) {
         HILOG_ERROR("fail to WriteString displayName");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     MessageParcel reply;
@@ -172,11 +172,11 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
         return err;
     }
 
-    int ret = ERR_PARCEL_FAIL;
+    int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (ret != ERR_OK) {
@@ -189,14 +189,14 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
     if (tempUri == nullptr) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     newFile = Uri(*tempUri);
     if (newFile.ToString().empty()) {
         HILOG_ERROR("get uri is empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_INVALID_RESULT;
+        return E_GETRESULT;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -210,13 +210,13 @@ int FileAccessExtProxy::Delete(const Uri &sourceFile)
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteParcelable(&sourceFile)) {
         HILOG_ERROR("fail to WriteParcelable sourceFile");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     MessageParcel reply;
@@ -228,11 +228,11 @@ int FileAccessExtProxy::Delete(const Uri &sourceFile)
         return err;
     }
 
-    int ret = ERR_PARCEL_FAIL;
+    int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (ret != ERR_OK) {
@@ -252,19 +252,19 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteParcelable(&sourceFile)) {
         HILOG_ERROR("fail to WriteParcelable sourceFile");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteParcelable(&targetParent)) {
         HILOG_ERROR("fail to WriteParcelable targetParent");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     MessageParcel reply;
@@ -276,11 +276,11 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
         return err;
     }
 
-    int ret = ERR_PARCEL_FAIL;
+    int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (ret != ERR_OK) {
@@ -293,14 +293,14 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
     if (tempUri == nullptr) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     newFile = Uri(*tempUri);
     if (newFile.ToString().empty()) {
         HILOG_ERROR("get uri is empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_INVALID_RESULT;
+        return E_GETRESULT;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -314,19 +314,19 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteParcelable(&sourceFile)) {
         HILOG_ERROR("fail to WriteParcelable sourceFile");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteString(displayName)) {
         HILOG_ERROR("fail to WriteString displayName");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     MessageParcel reply;
@@ -338,11 +338,11 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
         return err;
     }
 
-    int ret = ERR_PARCEL_FAIL;
+    int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (ret != ERR_OK) {
@@ -355,14 +355,14 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
     if (tempUri == nullptr) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     newFile = Uri(*tempUri);
     if (newFile.ToString().empty()) {
         HILOG_ERROR("get uri is empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_INVALID_RESULT;
+        return E_GETRESULT;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -371,10 +371,10 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
 
 static int GetListFileResult(MessageParcel &reply, std::vector<FileInfo> &fileInfoVec)
 {
-    int ret = ERR_PARCEL_FAIL;
+    int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (ret != ERR_OK) {
@@ -385,7 +385,7 @@ static int GetListFileResult(MessageParcel &reply, std::vector<FileInfo> &fileIn
     int64_t count = 0;
     if (!reply.ReadInt64(count)) {
         HILOG_ERROR("ListFile operation failed to Read count");
-        return ERR_INVALID_RESULT;
+        return E_IPCS;
     }
 
     fileInfoVec.clear();
@@ -406,31 +406,31 @@ int FileAccessExtProxy::ListFile(const FileInfo &fileInfo, const int64_t offset,
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteParcelable(&fileInfo)) {
         HILOG_ERROR("fail to WriteParcelable fileInfo");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteInt64(offset)) {
         HILOG_ERROR("fail to WriteInt64 offset");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteInt64(maxCount)) {
         HILOG_ERROR("fail to WriteInt64 maxCount");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteParcelable(&filter)) {
         HILOG_ERROR("fail to WriteParcelable filter");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     MessageParcel reply;
@@ -461,31 +461,31 @@ int FileAccessExtProxy::ScanFile(const FileInfo &fileInfo, const int64_t offset,
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteParcelable(&fileInfo)) {
         HILOG_ERROR("fail to WriteParcelable fileInfo");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteInt64(offset)) {
         HILOG_ERROR("fail to WriteInt64 offset");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteInt64(maxCount)) {
         HILOG_ERROR("fail to WriteInt64 maxCount");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteParcelable(&filter)) {
         HILOG_ERROR("fail to WriteParcelable filter");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     MessageParcel reply;
@@ -515,7 +515,7 @@ int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfoVec)
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     MessageParcel reply;
@@ -527,11 +527,11 @@ int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfoVec)
         return err;
     }
 
-    int ret = ERR_PARCEL_FAIL;
+    int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (ret != ERR_OK) {
@@ -544,7 +544,7 @@ int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfoVec)
     if (!reply.ReadUint64(count)) {
         HILOG_ERROR("GetRoots operation failed to Read count");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_INVALID_RESULT;
+        return E_IPCS;
     }
 
     rootInfoVec.clear();
@@ -566,13 +566,13 @@ int FileAccessExtProxy::UriToFileInfo(const Uri &selectFile, FileInfo &fileInfo)
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteParcelable(&selectFile)) {
         HILOG_ERROR("fail to WriteParcelable selectFile");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     MessageParcel reply;
@@ -584,11 +584,11 @@ int FileAccessExtProxy::UriToFileInfo(const Uri &selectFile, FileInfo &fileInfo)
         return err;
     }
 
-    int ret = ERR_PARCEL_FAIL;
+    int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (ret != ERR_OK) {
@@ -601,7 +601,7 @@ int FileAccessExtProxy::UriToFileInfo(const Uri &selectFile, FileInfo &fileInfo)
     if (fileInfoTemp == nullptr) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     fileInfo = *fileInfoTemp;
@@ -616,13 +616,13 @@ int FileAccessExtProxy::Access(const Uri &uri, bool &isExist)
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteParcelable(&uri)) {
         HILOG_ERROR("fail to WriteParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     MessageParcel reply;
@@ -634,11 +634,11 @@ int FileAccessExtProxy::Access(const Uri &uri, bool &isExist)
         return err;
     }
 
-    int ret = ERR_PARCEL_FAIL;
+    int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (ret != ERR_OK) {
@@ -650,7 +650,7 @@ int FileAccessExtProxy::Access(const Uri &uri, bool &isExist)
     if (!reply.ReadBool(isExist)) {
         HILOG_ERROR("fail to ReadInt32 isExist");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -664,13 +664,13 @@ int FileAccessExtProxy::RegisterNotify(sptr<IFileAccessNotify> &notify)
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteRemoteObject(notify->AsObject())) {
         HILOG_ERROR("write subscribe type or parcel failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     MessageParcel reply;
@@ -682,11 +682,11 @@ int FileAccessExtProxy::RegisterNotify(sptr<IFileAccessNotify> &notify)
         return err;
     }
 
-    int ret = ERR_PARCEL_FAIL;
+    int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (ret != ERR_OK) {
@@ -705,13 +705,13 @@ int FileAccessExtProxy::UnregisterNotify(sptr<IFileAccessNotify> &notify)
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (!data.WriteRemoteObject(notify->AsObject())) {
         HILOG_ERROR("write subscribe type or parcel failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     MessageParcel reply;
@@ -723,11 +723,11 @@ int FileAccessExtProxy::UnregisterNotify(sptr<IFileAccessNotify> &notify)
         return err;
     }
 
-    int ret = ERR_PARCEL_FAIL;
+    int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_PARCEL_FAIL;
+        return E_IPCS;
     }
 
     if (ret != ERR_OK) {

@@ -34,14 +34,13 @@ bool NapiRootIteratorExporter::Export()
     std::tie(succ, classValue) = NClass::DefineClass(exports_.env_, className,
         NapiRootIteratorExporter::Constructor, std::move(props));
     if (!succ) {
-        NError(ERR_NULL_POINTER).ThrowErr(exports_.env_,
-            "INNER BUG. Failed to define class NapiRootIteratorExporter");
+        NError(E_GETRESULT).ThrowErr(exports_.env_);
         return false;
     }
 
     succ = NClass::SaveClass(exports_.env_, className, classValue);
     if (!succ) {
-        NError(ERR_NULL_POINTER).ThrowErr(exports_.env_, "INNER BUG. Failed to save class NapiRootIteratorExporter");
+        NError(E_GETRESULT).ThrowErr(exports_.env_);
         return false;
     }
 
@@ -52,18 +51,18 @@ napi_value NapiRootIteratorExporter::Constructor(napi_env env, napi_callback_inf
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
-        NError(ERR_PARAM_NUMBER).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
 
     auto rootIteratorEntity = std::make_unique<RootIteratorEntity>();
     if (rootIteratorEntity == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get entity of rootIteratorEntity");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
     if (!NClass::SetEntityFor<RootIteratorEntity>(env, funcArg.GetThisVar(), std::move(rootIteratorEntity))) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "INNER BUG. Failed to wrap entity for obj FileIteratorEntity");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
@@ -74,26 +73,26 @@ napi_value NapiRootIteratorExporter::Next(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
-        NError(ERR_PARAM_NUMBER).ThrowErr(env, "Number of arguments unmatched");
+        NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
 
     napi_value thisVar = funcArg.GetThisVar();
     auto rootIterator = NClass::GetEntityOf<RootIteratorEntity>(env, thisVar);
     if (rootIterator == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get entity of RootIteratorEntity");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
     napi_value objRootInfoExporter = NClass::InstantiateClass(env, NapiRootInfoExporter::className_, {});
     if (objRootInfoExporter == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot instantiate class NapiRootInfoExporter");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 
     auto rootInfoEntity = NClass::GetEntityOf<RootInfoEntity>(env, objRootInfoExporter);
     if (rootInfoEntity == nullptr) {
-        NError(ERR_NULL_POINTER).ThrowErr(env, "Cannot get the entity of RootInfoEntity");
+        NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
 

@@ -44,13 +44,13 @@ int NapiNotifyCallback::OnNotify(const NotifyMessage& message)
     uv_work_t* work = new uv_work_t();
     if (work == nullptr) {
         HILOG_ERROR("failed to new uv_work_t");
-        return ERR_INVALID_PARAM;
+        return EINVAL;
     }
     CallbackParam* param = new CallbackParam(this, message);
     if (param == nullptr) {
         HILOG_ERROR("failed to new param");
         delete work;
-        return ERR_INVALID_PARAM;
+        return EINVAL;
     }
     work->data = param;
     int ret = uv_queue_work(loop_, work,
@@ -85,7 +85,7 @@ int NapiNotifyCallback::OnNotify(const NotifyMessage& message)
         work->data = nullptr;
         delete work;
         work = nullptr;
-        return ERR_NOTIFY_FAIL;
+        return E_NOTIFY;
     }
 
     return ERR_OK;
