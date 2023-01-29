@@ -123,6 +123,12 @@ int FileAccessExtAbility::UriToFileInfo(const Uri &selectFile, FileInfo &fileInf
     return EPERM;
 }
 
+int FileAccessExtAbility::GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo)
+{
+    HILOG_ERROR("FileAccessExtAbility::GetFileInfoFromRelativePath Undefined operation");
+    return EPERM;
+}
+
 int FileAccessExtAbility::Access(const Uri &uri, bool &isExist)
 {
     HILOG_ERROR("FileAccessExtAbility::IsFileExist Undefined operation");

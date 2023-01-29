@@ -53,6 +53,7 @@ public:
     virtual int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec);
     virtual int UriToFileInfo(const Uri &selectFile, FileInfo &fileInfo);
+    virtual int GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo);
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec);
     virtual int Access(const Uri &uri, bool &isExist);
     virtual int RegisterNotify(sptr<IFileAccessNotify> &notify);

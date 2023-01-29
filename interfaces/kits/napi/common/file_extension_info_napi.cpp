@@ -118,6 +118,8 @@ void InitFileInfo(napi_env env, napi_value exports)
     char className[] = "FileInfo";
     napi_property_descriptor desc[] = {
         { "uri", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "uri"), napi_writable, nullptr },
+        { "relativePath", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "relativePath"),
+            napi_writable, nullptr },
         { "fileName", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "fileName"), napi_writable, nullptr },
         { "mode", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "mode"), napi_writable, nullptr },
         { "size", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "size"), napi_writable, nullptr },
@@ -156,6 +158,8 @@ void InitRootInfo(napi_env env, napi_value exports)
         { "deviceType", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "deviceType"),
             napi_writable, nullptr },
         { "uri", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "uri"), napi_writable, nullptr },
+        { "relativePath", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "relativePath"),
+            napi_writable, nullptr },
         { "displayName", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "displayName"),
             napi_writable, nullptr },
         { "deviceFlags", nullptr, nullptr, nullptr, nullptr, CreateStringUtf8(env, "deviceFlags"),

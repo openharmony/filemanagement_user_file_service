@@ -37,6 +37,7 @@ public:
     static napi_value ListFile(napi_env env, napi_callback_info info);
     static napi_value ScanFile(napi_env env, napi_callback_info info);
     static napi_value GetUri(napi_env env, napi_callback_info info);
+    static napi_value GetRelativePath(napi_env env, napi_callback_info info);
     static napi_value GetFileName(napi_env env, napi_callback_info info);
     static napi_value GetMode(napi_env env, napi_callback_info info);
     static napi_value GetSize(napi_env env, napi_callback_info info);

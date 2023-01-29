@@ -30,6 +30,7 @@ bool NapiFileInfoExporter::Export()
         NVal::DeclareNapiFunction("listFile", ListFile),
         NVal::DeclareNapiFunction("scanFile", ScanFile),
         NVal::DeclareNapiGetter("uri", GetUri),
+        NVal::DeclareNapiGetter("relativePath", GetRelativePath),
         NVal::DeclareNapiGetter("fileName", GetFileName),
         NVal::DeclareNapiGetter("mode", GetMode),
         NVal::DeclareNapiGetter("size", GetSize),
@@ -234,6 +235,17 @@ napi_value NapiFileInfoExporter::GetUri(napi_env env, napi_callback_info info)
     }
 
     return NVal::CreateUTF8String(env, fileInfoEntity->fileInfo.uri).val_;
+}
+
+napi_value NapiFileInfoExporter::GetRelativePath(napi_env env, napi_callback_info info)
+{
+    auto fileInfoEntity = GetFileInfoEntity(env, info);
+    if (fileInfoEntity == nullptr) {
+        HILOG_ERROR("Failed to get entity of FileInfoEntity");
+        return NVal::CreateUndefined(env).val_;
+    }
+
+    return NVal::CreateUTF8String(env, fileInfoEntity->fileInfo.relativePath).val_;
 }
 
 napi_value NapiFileInfoExporter::GetFileName(napi_env env, napi_callback_info info)
