@@ -156,16 +156,16 @@ int FileAccessExtStubImpl::GetRoots(std::vector<RootInfo> &rootInfoVec)
     return ret;
 }
 
-int FileAccessExtStubImpl::UriToFileInfo(const Uri &selectFile, FileInfo &fileInfo)
+int FileAccessExtStubImpl::GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "UriToFileInfo");
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromUri");
     if (extension_ == nullptr) {
-        HILOG_ERROR("UriToFileInfo get extension failed.");
+        HILOG_ERROR("GetFileInfoFromUri get extension failed.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
-    int ret = extension_->UriToFileInfo(selectFile, fileInfo);
+    int ret = extension_->GetFileInfoFromUri(selectFile, fileInfo);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }

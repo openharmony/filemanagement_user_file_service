@@ -407,7 +407,7 @@ bool ScanFileFuzzTest(const uint8_t* data, size_t size)
     return true;
 }
 
-bool UriToFileInfoFuzzTest(const uint8_t* data, size_t size)
+bool GetFileInfoFromUriFuzzTest(const uint8_t* data, size_t size)
 {
     if ((data == nullptr) || (size <= 0)) {
         HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
@@ -420,9 +420,9 @@ bool UriToFileInfoFuzzTest(const uint8_t* data, size_t size)
         return false;
     }
     FileInfo fileinfo;
-    int result = helper->UriToFileInfo(uri, fileinfo);
+    int result = helper->GetFileInfoFromUri(uri, fileinfo);
     if (result != OHOS::FileAccessFwk::ERR_OK) {
-        HILOG_ERROR("UriToFileInfo failed. ret : %{public}d", result);
+        HILOG_ERROR("GetFileInfoFromUri failed. ret : %{public}d", result);
         return false;
     }
     return true;
@@ -444,6 +444,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::RenameFuzzTest(data, size);
     OHOS::ListFileFuzzTest(data, size);
     OHOS::ScanFileFuzzTest(data, size);
-    OHOS::UriToFileInfoFuzzTest(data, size);
+    OHOS::GetFileInfoFromUriFuzzTest(data, size);
     return 0;
 }

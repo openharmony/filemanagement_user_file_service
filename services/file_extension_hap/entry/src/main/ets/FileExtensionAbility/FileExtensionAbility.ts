@@ -484,7 +484,7 @@ export default class FileExtAbility extends Extension {
         };
     }
 
-    uriToFileInfo(selectFileUri) {
+    getFileInfoFromUri(selectFileUri) {
         if (!this.checkUri(selectFileUri)) {
             return {
                 fileInfo: {},
@@ -511,7 +511,7 @@ export default class FileExtAbility extends Extension {
                 mimeType: '',
             };
         } catch (e) {
-            hilog.error(DOMAIN_CODE, TAG, 'UriToFileInfo error ' + e.message);
+            hilog.error(DOMAIN_CODE, TAG, 'getFileInfoFromUri error ' + e.message);
             return {
                 fileInfo: {},
                 code: e.code,

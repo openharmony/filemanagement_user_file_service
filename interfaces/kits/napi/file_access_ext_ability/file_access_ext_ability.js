@@ -82,7 +82,7 @@ class FileAccessExtensionAbility {
         };
     }
 
-    uriToFileInfo(selectFileUri) {
+    getFileInfoFromUri(selectFileUri) {
         return {
             fileInfo: [],
             code: ERR_ERROR,

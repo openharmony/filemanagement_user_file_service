@@ -2415,18 +2415,18 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Access_0001, testing::ext
 }
 
 /**
- * @tc.number: user_file_service_external_file_access_UriToFileInfo_0000
- * @tc.name: external_file_access_UriToFileInfo_0000
- * @tc.desc: Test function of UriToFileInfo interface.
+ * @tc.number: user_file_service_external_file_access_GetFileInfoFromUri_0000
+ * @tc.name: external_file_access_GetFileInfoFromUri_0000
+ * @tc.desc: Test function of GetFileInfoFromUri interface.
  * @tc.desc: convert the root directory uri to fileinfo and call listfile for SUCCESS.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, external_file_access_UriToFileInfo_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0000, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_UriToFileInfo_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetFileInfoFromUri_0000";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -2434,7 +2434,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_UriToFileInfo_0000, testi
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             FileInfo fileinfo;
-            result = g_fah->UriToFileInfo(parentUri, fileinfo);
+            result = g_fah->GetFileInfoFromUri(parentUri, fileinfo);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int64_t offset = 0;
@@ -2446,24 +2446,24 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_UriToFileInfo_0000, testi
             EXPECT_GE(fileInfoVecTemp.size(), OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(ERROR) << "external_file_access_UriToFileInfo_0000 occurs an exception.";
+        GTEST_LOG_(ERROR) << "external_file_access_GetFileInfoFromUri_0000 occurs an exception.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_UriToFileInfo_0000";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_GetFileInfoFromUri_0000";
 }
 
 /**
- * @tc.number: user_file_service_external_file_access_UriToFileInfo_0001
- * @tc.name: external_file_access_UriToFileInfo_0001
- * @tc.desc: Test function of UriToFileInfo interface.
+ * @tc.number: user_file_service_external_file_access_GetFileInfoFromUri_0001
+ * @tc.name: external_file_access_GetFileInfoFromUri_0001
+ * @tc.desc: Test function of GetFileInfoFromUri interface.
  * @tc.desc: convert the general directory uri to fileinfo and call listfile for SUCCESS.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, external_file_access_UriToFileInfo_0001, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0001, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_UriToFileInfo_0001";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetFileInfoFromUri_0001";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -2475,7 +2475,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_UriToFileInfo_0001, testi
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             FileInfo dirInfo;
-            result = g_fah->UriToFileInfo(newDirUriTest, dirInfo);
+            result = g_fah->GetFileInfoFromUri(newDirUriTest, dirInfo);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int64_t offset = 0;
@@ -2490,24 +2490,24 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_UriToFileInfo_0001, testi
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(ERROR) << "external_file_access_UriToFileInfo_0001 occurs an exception.";
+        GTEST_LOG_(ERROR) << "external_file_access_GetFileInfoFromUri_0001 occurs an exception.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_UriToFileInfo_0001";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_GetFileInfoFromUri_0001";
 }
 
 /**
- * @tc.number: user_file_service_external_file_access_UriToFileInfo_0002
- * @tc.name: external_file_access_UriToFileInfo_0002
- * @tc.desc: Test function of UriToFileInfo interface.
+ * @tc.number: user_file_service_external_file_access_GetFileInfoFromUri_0002
+ * @tc.name: external_file_access_GetFileInfoFromUri_0002
+ * @tc.desc: Test function of GetFileInfoFromUri interface.
  * @tc.desc: convert the general filepath uri to fileinfo and call listfile for ERROR.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, external_file_access_UriToFileInfo_0002, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0002, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_UriToFileInfo_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetFileInfoFromUri_0002";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -2518,11 +2518,11 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_UriToFileInfo_0002, testi
             result = g_fah->Mkdir(parentUri, "testDir", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri newFileUri("");
-            result = g_fah->CreateFile(newDirUriTest, "external_file_access_UriToFileInfo_0002.txt", newFileUri);
+            result = g_fah->CreateFile(newDirUriTest, "external_file_access_GetFileInfoFromUri_0002.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             FileInfo fileinfo;
-            result = g_fah->UriToFileInfo(newFileUri, fileinfo);
+            result = g_fah->GetFileInfoFromUri(newFileUri, fileinfo);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int64_t offset = 0;
@@ -2537,24 +2537,24 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_UriToFileInfo_0002, testi
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
-        GTEST_LOG_(ERROR) << "external_file_access_UriToFileInfo_0002 occurs an exception.";
+        GTEST_LOG_(ERROR) << "external_file_access_GetFileInfoFromUri_0002 occurs an exception.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_UriToFileInfo_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_GetFileInfoFromUri_0002";
 }
 
 /**
- * @tc.number: user_file_service_external_file_access_UriToFileInfo_0003
- * @tc.name: external_file_access_UriToFileInfo_0003
- * @tc.desc: Test function of UriToFileInfo interface.
+ * @tc.number: user_file_service_external_file_access_GetFileInfoFromUri_0003
+ * @tc.name: external_file_access_GetFileInfoFromUri_0003
+ * @tc.desc: Test function of GetFileInfoFromUri interface.
  * @tc.desc: convert the root directory uri to fileinfo and call listfile for CheckUri failed.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, external_file_access_UriToFileInfo_0003, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0003, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_UriToFileInfo_0003";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetFileInfoFromUri_0003";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -2562,28 +2562,28 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_UriToFileInfo_0003, testi
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(std::string("\?\?\?\?/") + info[i].uri);
             FileInfo fileinfo;
-            result = g_fah->UriToFileInfo(parentUri, fileinfo);
+            result = g_fah->GetFileInfoFromUri(parentUri, fileinfo);
             EXPECT_EQ(result, OHOS::FileAccessFwk::E_URIS);
         }
     } catch (...) {
-        GTEST_LOG_(ERROR) << "external_file_access_UriToFileInfo_0003 occurs an exception.";
+        GTEST_LOG_(ERROR) << "external_file_access_GetFileInfoFromUri_0003 occurs an exception.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_UriToFileInfo_0003";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_GetFileInfoFromUri_0003";
 }
 
 /**
- * @tc.number: user_file_service_external_file_access_UriToFileInfo_0004
- * @tc.name: external_file_access_UriToFileInfo_0004
- * @tc.desc: Test function of UriToFileInfo interface.
+ * @tc.number: user_file_service_external_file_access_GetFileInfoFromUri_0004
+ * @tc.name: external_file_access_GetFileInfoFromUri_0004
+ * @tc.desc: Test function of GetFileInfoFromUri interface.
  * @tc.desc: convert the root directory uri to fileinfo and call listfile FAILED because of GetProxyByUri failed.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, external_file_access_UriToFileInfo_0004, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0004, testing::ext::TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_UriToFileInfo_0004";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetFileInfoFromUri_0004";
     try {
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
@@ -2596,13 +2596,13 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_UriToFileInfo_0004, testi
             }
             Uri parentUri(str);
             FileInfo fileinfo;
-            result = g_fah->UriToFileInfo(parentUri, fileinfo);
+            result = g_fah->GetFileInfoFromUri(parentUri, fileinfo);
             EXPECT_EQ(result, OHOS::FileAccessFwk::E_IPCS);
         }
     } catch (...) {
-        GTEST_LOG_(ERROR) << "external_file_access_UriToFileInfo_0004 occurs an exception.";
+        GTEST_LOG_(ERROR) << "external_file_access_GetFileInfoFromUri_0004 occurs an exception.";
     }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_UriToFileInfo_0004";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_GetFileInfoFromUri_0004";
 }
 
 /**
