@@ -1072,12 +1072,12 @@ int JsFileAccessExtAbility::Access(const Uri &uri, bool &isExist)
     return ERR_OK;
 }
 
-int JsFileAccessExtAbility::UriToFileInfo(const Uri &selectFile, FileInfo &fileInfo)
+int JsFileAccessExtAbility::GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "UriToFileInfo");
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromUri");
     auto value = std::make_shared<Value<FileInfo>>();
     if (value == nullptr) {
-        HILOG_ERROR("UriToFileInfo value is nullptr.");
+        HILOG_ERROR("GetFileInfoFromUri value is nullptr.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
@@ -1125,7 +1125,7 @@ int JsFileAccessExtAbility::UriToFileInfo(const Uri &selectFile, FileInfo &fileI
         return ret;
     };
 
-    auto errCode = CallJsMethod("uriToFileInfo", jsRuntime_, jsObj_.get(), argParser, retParser);
+    auto errCode = CallJsMethod("getFileInfoFromUri", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);

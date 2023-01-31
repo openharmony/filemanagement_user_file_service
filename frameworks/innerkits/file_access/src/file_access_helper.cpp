@@ -799,11 +799,11 @@ int FileAccessHelper::Access(Uri &uri, bool &isExist)
     return ERR_OK;
 }
 
-int FileAccessHelper::UriToFileInfo(Uri &selectFile, FileInfo &fileInfo)
+int FileAccessHelper::GetFileInfoFromUri(Uri &selectFile, FileInfo &fileInfo)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "UriToFileInfo");
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromUri");
     if (!IsSystemApp()) {
-        HILOG_ERROR("FileAccessHelper::UriToFileInfo check IsSystemAppByFullTokenID failed");
+        HILOG_ERROR("FileAccessHelper::GetFileInfoFromUri check IsSystemAppByFullTokenID failed");
         return E_PERMISSION_SYS;
     }
 
@@ -820,9 +820,9 @@ int FileAccessHelper::UriToFileInfo(Uri &selectFile, FileInfo &fileInfo)
         return E_IPCS;
     }
 
-    int ret = fileExtProxy->UriToFileInfo(selectFile, fileInfo);
+    int ret = fileExtProxy->GetFileInfoFromUri(selectFile, fileInfo);
     if (ret != ERR_OK) {
-        HILOG_ERROR("UriToFileInfo get result error, code:%{public}d", ret);
+        HILOG_ERROR("GetFileInfoFromUri get result error, code:%{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }

@@ -46,7 +46,7 @@ public:
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;
     virtual int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;
-    virtual int UriToFileInfo(const Uri &selectFile, FileInfo &fileInfo) override;
+    virtual int GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo) override;
     virtual int GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo) override;
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec) override;
     virtual int Access(const Uri &uri, bool &isExist) override;

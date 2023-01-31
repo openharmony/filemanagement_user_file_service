@@ -559,9 +559,9 @@ int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfoVec)
     return ERR_OK;
 }
 
-int FileAccessExtProxy::UriToFileInfo(const Uri &selectFile, FileInfo &fileInfo)
+int FileAccessExtProxy::GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "UriToFileInfo");
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromUri");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -577,7 +577,7 @@ int FileAccessExtProxy::UriToFileInfo(const Uri &selectFile, FileInfo &fileInfo)
 
     MessageParcel reply;
     MessageOption option;
-    int err = Remote()->SendRequest(CMD_URI_TO_FILEINFO, data, reply, option);
+    int err = Remote()->SendRequest(CMD_GET_FILEINFO_FROM_URI, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -592,7 +592,7 @@ int FileAccessExtProxy::UriToFileInfo(const Uri &selectFile, FileInfo &fileInfo)
     }
 
     if (ret != ERR_OK) {
-        HILOG_ERROR("UriToFileInfo operation failed ret : %{public}d", ret);
+        HILOG_ERROR("GetFileInfoFromUri operation failed ret : %{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }

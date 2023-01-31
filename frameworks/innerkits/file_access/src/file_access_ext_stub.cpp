@@ -50,7 +50,7 @@ FileAccessExtStub::FileAccessExtStub()
     stubFuncMap_[CMD_SCAN_FILE] = &FileAccessExtStub::CmdScanFile;
     stubFuncMap_[CMD_GET_ROOTS] = &FileAccessExtStub::CmdGetRoots;
     stubFuncMap_[CMD_ACCESS] = &FileAccessExtStub::CmdAccess;
-    stubFuncMap_[CMD_URI_TO_FILEINFO] = &FileAccessExtStub::CmdUriToFileInfo;
+    stubFuncMap_[CMD_GET_FILEINFO_FROM_URI] = &FileAccessExtStub::CmdGetFileInfoFromUri;
     stubFuncMap_[CMD_GET_FILEINFO_FROM_RELATIVE_PATH] = &FileAccessExtStub::CmdGetFileInfoFromRelativePath;
     stubFuncMap_[CMD_REGISTER_NOTIFY] = &FileAccessExtStub::CmdRegisterNotify;
     stubFuncMap_[CMD_UNREGISTER_NOTIFY] = &FileAccessExtStub::CmdUnregisterNotify;
@@ -459,9 +459,9 @@ ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply
     return ERR_OK;
 }
 
-ErrCode FileAccessExtStub::CmdUriToFileInfo(MessageParcel &data, MessageParcel &reply)
+ErrCode FileAccessExtStub::CmdGetFileInfoFromUri(MessageParcel &data, MessageParcel &reply)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdUriToFileInfo");
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdGetFileInfoFromUri");
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
         HILOG_ERROR("SelectFile uri is nullptr");
@@ -470,15 +470,15 @@ ErrCode FileAccessExtStub::CmdUriToFileInfo(MessageParcel &data, MessageParcel &
     }
 
     FileInfo fileInfoTemp;
-    int ret = UriToFileInfo(*uri, fileInfoTemp);
+    int ret = GetFileInfoFromUri(*uri, fileInfoTemp);
     if (!reply.WriteInt32(ret)) {
-        HILOG_ERROR("Parameter UriToFileInfo fail to WriteInt32 ret");
+        HILOG_ERROR("Parameter GetFileInfoFromUri fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!reply.WriteParcelable(&fileInfoTemp)) {
-        HILOG_ERROR("Parameter UriToFileInfo fail to WriteParcelable fileInfoTemp");
+        HILOG_ERROR("Parameter GetFileInfoFromUri fail to WriteParcelable fileInfoTemp");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }

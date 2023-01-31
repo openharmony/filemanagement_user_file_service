@@ -117,9 +117,9 @@ int FileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfoVec)
     return EPERM;
 }
 
-int FileAccessExtAbility::UriToFileInfo(const Uri &selectFile, FileInfo &fileInfo)
+int FileAccessExtAbility::GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo)
 {
-    HILOG_ERROR("FileAccessExtAbility::UriToFileInfo Undefined operation");
+    HILOG_ERROR("FileAccessExtAbility::GetFileInfoFromUri Undefined operation");
     return EPERM;
 }
 

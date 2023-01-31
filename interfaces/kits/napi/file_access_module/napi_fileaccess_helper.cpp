@@ -231,7 +231,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("rename", NAPI_Rename),
         DECLARE_NAPI_FUNCTION("getRoots", NAPI_GetRoots),
         DECLARE_NAPI_FUNCTION("access", NAPI_Access),
-        DECLARE_NAPI_FUNCTION("uriToFileInfo", NAPI_UriToFileInfo),
+        DECLARE_NAPI_FUNCTION("getFileInfoFromUri", NAPI_GetFileInfoFromUri),
         DECLARE_NAPI_FUNCTION("getFileInfoFromRelativePath", NAPI_GetFileInfoFromRelativePath),
         DECLARE_NAPI_FUNCTION("on", NAPI_On),
         DECLARE_NAPI_FUNCTION("off", NAPI_Off)
@@ -806,7 +806,7 @@ static int MakeFileInfoResult(napi_env &env, FileAccessHelper *helper, FileInfo 
     return ERR_OK;
 }
 
-napi_value NAPI_UriToFileInfo(napi_env env, napi_callback_info info)
+napi_value NAPI_GetFileInfoFromUri(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
@@ -836,7 +836,7 @@ napi_value NAPI_UriToFileInfo(napi_env env, napi_callback_info info)
     string uriString(uri.get());
     auto cbExec = [uriString, result, fileAccessHelper]() -> NError {
         OHOS::Uri uri(uriString);
-        int ret = fileAccessHelper->UriToFileInfo(uri, *result);
+        int ret = fileAccessHelper->GetFileInfoFromUri(uri, *result);
         return NError(ret);
     };
     auto cbComplete = [fileAccessHelper, result](napi_env env, NError err) -> NVal {
@@ -855,7 +855,7 @@ napi_value NAPI_UriToFileInfo(napi_env env, napi_callback_info info)
         return nVal;
     };
 
-    const std::string procedureName = "uriToFileInfo";
+    const std::string procedureName = "getFileInfoFromUri";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
