@@ -37,7 +37,8 @@
                 "//foundation/filemanagement/user_file_service/frameworks/innerkits:frameworks_innerkits",
                 "//foundation/filemanagement/user_file_service/interfaces/kits/napi/file_access_module:fileaccess",
                 "//foundation/filemanagement/user_file_service/interfaces/kits/napi/file_access_ext_ability:fileaccessextensionability_napi",
-                "//foundation/filemanagement/user_file_service/interfaces/kits/napi/file_extension_info_module:fileextensioninfo"
+                "//foundation/filemanagement/user_file_service/interfaces/kits/napi/file_extension_info_module:fileextensioninfo",
+                "//foundation/filemanagement/user_file_service/interfaces/kits/napi/picker:picker"
             ],
             "test": [
               "//foundation/filemanagement/user_file_service/frameworks/innerkits/file_access/test/unittest:user_file_service_unit_test",
