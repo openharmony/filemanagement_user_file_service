@@ -2546,7 +2546,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0002, 
  * @tc.number: user_file_service_external_file_access_GetFileInfoFromUri_0003
  * @tc.name: external_file_access_GetFileInfoFromUri_0003
  * @tc.desc: Test function of GetFileInfoFromUri interface.
- * @tc.desc: convert the root directory uri to fileinfo and call listfile for CheckUri failed.
+ * @tc.desc: convert the root directory uri to fileinfo for CheckUri failed.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
@@ -2575,7 +2575,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0003, 
  * @tc.number: user_file_service_external_file_access_GetFileInfoFromUri_0004
  * @tc.name: external_file_access_GetFileInfoFromUri_0004
  * @tc.desc: Test function of GetFileInfoFromUri interface.
- * @tc.desc: convert the root directory uri to fileinfo and call listfile FAILED because of GetProxyByUri failed.
+ * @tc.desc: convert the root directory uri to fileinfo failed because of GetProxyByUri failed.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
