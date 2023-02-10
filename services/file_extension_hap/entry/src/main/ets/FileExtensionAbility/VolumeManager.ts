@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 // @ts-nocheck
-import volumeManager from '@ohos.volumeManager'
+import volumeManager from '@ohos.file.volumeManager'
 import fileExtensionInfo from "@ohos.file.fileExtensionInfo"
 import hilog from '@ohos.hilog'
 if (!globalThis.volumeInfoList) {
