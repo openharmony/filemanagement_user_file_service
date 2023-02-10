@@ -38,8 +38,8 @@ async function photoPickerSelect() {
             config.parameters.uri = (option.maxSelectNumber == 1) ? "singleselect" : "multipleselect";
             config.parameters.maxSelectCount = option.maxSelectNumber;
         }
-        if (option.MIMEType != undefined && MIMETYPE_MAP.has(option.MIMEType)) {
-            config.parameters.filterMediaType = MIMETYPE_MAP.get(option.MIMEType);
+        if (option.MIMEType != undefined && PHOTO_VIEW_MIME_TYPE_MAP.has(option.MIMEType)) {
+            config.parameters.filterMediaType = PHOTO_VIEW_MIME_TYPE_MAP.get(option.MIMEType);
         }
     }
     console.log("[picker] photoPickerSelect config: " + JSON.stringify(config));
@@ -50,9 +50,9 @@ async function photoPickerSelect() {
         let uri = result.want.parameters["select-item-list"];
         let isOrigin = result.want.parameters["isOriginal"];
         if (arguments.length == 2 && typeof arguments[1] == "function") {
-            return arguments[1](uri, isOrigin);
+            return arguments[1](result.resultCode, uri, isOrigin);
         } else if (arguments.length == 1 && typeof arguments[0] == "function") {
-            return arguments[0](uri, isOrigin);
+            return arguments[0](result.resultCode, uri, isOrigin);
         }
         return new Promise((resolve, reject) => {
             if (result.resultCode == 0) {
@@ -86,9 +86,9 @@ async function documentPickerSelect() {
         console.log("[picker] documentPickerSelect result: " + JSON.stringify(result));
         let uri = result.want.parameters.select_item_list;
         if (arguments.length == 2 && typeof arguments[1] == "function") {
-            return arguments[1](uri);
+            return arguments[1](result.resultCode, uri);
         } else if (arguments.length == 1 && typeof arguments[0] == "function") {
-            return arguments[0](uri);
+            return arguments[0](result.resultCode, uri);
         }
         return new Promise((resolve, reject) => {
             if (result.resultCode == 0) {
@@ -129,9 +129,9 @@ async function documentPickerSave() {
         console.log("[picker] documentPickerSave result: " + JSON.stringify(result));
         let uri = result.want["parameters"].pick_path_return;
         if (arguments.length == 2 && typeof arguments[1] == "function") {
-            return arguments[1](uri);
+            return arguments[1](result.resultCode, uri);
         } else if (arguments.length == 1 && typeof arguments[0] == "function") {
-            return arguments[0](uri);
+            return arguments[0](result.resultCode, uri);
         }
         return new Promise((resolve, reject) => {
             if (result.resultCode == 0) {
@@ -172,9 +172,9 @@ async function audioPickerSelect() {
         console.log("[picker] audioPickerSelect result: " + JSON.stringify(result));
         let uri = result.want.parameters.select_item_list;
         if (arguments.length == 2 && typeof arguments[1] == "function") {
-            return arguments[1](uri);
+            return arguments[1](result.resultCode, uri);
         } else if (arguments.length == 1 && typeof arguments[0] == "function") {
-            return arguments[0](uri);
+            return arguments[0](result.resultCode, uri);
         }
         return new Promise((resolve, reject) => {
             if (result.resultCode == 0) {
