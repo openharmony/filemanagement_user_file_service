@@ -2321,6 +2321,38 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromUri_0004,
 }
 
 /**
+ * @tc.number: user_file_service_medialibrary_file_access_GetFileInfoFromUri_0005
+ * @tc.name: medialibrary_file_access_GetFileInfoFromUri_0005
+ * @tc.desc: Test function of GetFileInfoFromUri interface.
+ * @tc.desc: convert the invalid uri to fileinfo failed.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000HRLBS
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromUri_0005, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin medialibrary_file_access_GetFileInfoFromUri_0005";
+    try {
+        Uri uri("~!@#$%^&*()_");
+        FileInfo fileInfo;
+        int result = g_fah->GetFileInfoFromUri(uri, fileInfo);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+
+        uri = Uri("/");
+        result = g_fah->GetFileInfoFromUri(uri, fileInfo);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+
+        uri = Uri("");
+        result = g_fah->GetFileInfoFromUri(uri, fileInfo);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_GetFileInfoFromUri_0005 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end medialibrary_file_access_GetFileInfoFromUri_0005";
+}
+
+/**
  * @tc.number: user_file_service_medialibrary_file_access_GetFileInfoFromRelativePath_0000
  * @tc.name: medialibrary_file_access_GetFileInfoFromRelativePath_0000
  * @tc.desc: Test function of GetFileInfoFromRelativePath interface.
@@ -2388,6 +2420,14 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromRelativeP
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
 
         relativePath = "/";
+        result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+
+        relativePath = "~!@#$%^&*()_";
+        result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+
+        relativePath = "/d";
         result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
