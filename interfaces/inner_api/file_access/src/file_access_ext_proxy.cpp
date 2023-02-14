@@ -508,6 +508,81 @@ int FileAccessExtProxy::ScanFile(const FileInfo &fileInfo, const int64_t offset,
     return ERR_OK;
 }
 
+static int GetQueryResult(MessageParcel &reply, std::vector<std::string> &results)
+{
+    int ret = E_IPCS;
+    if (!reply.ReadInt32(ret)) {
+        HILOG_ERROR("fail to ReadInt32 ret");
+        return E_IPCS;
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Query operation failed ret : %{public}d", ret);
+        return ret;
+    }
+
+    int64_t count = 0;
+    if (!reply.ReadInt64(count)) {
+        HILOG_ERROR("Query operation failed to Read count");
+        return E_IPCS;
+    }
+
+    results.clear();
+    for (int64_t i = 0; i < count; i++) {
+        results.push_back(reply.ReadString());
+    }
+    return ERR_OK;
+}
+
+int FileAccessExtProxy::Query(const Uri &uri, std::vector<std::string> &columns, std::vector<std::string> &results)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Query");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    if (!data.WriteParcelable(&uri)) {
+        HILOG_ERROR("fail to WriteParcelable sourceFile");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+    int64_t count = columns.size();
+    if (!data.WriteInt64(count)) {
+        HILOG_ERROR("Parameter Query fail to WriteInt64 count");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    for (const auto &column : columns) {
+        if (!data.WriteString(column)) {
+            HILOG_ERROR("parameter Query fail to WriteParcelable column");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+            return E_IPCS;
+        }
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int err = Remote()->SendRequest(CMD_QUERY, data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return err;
+    }
+    
+    err = GetQueryResult(reply, results);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to GetQueryResult. err: %{public}d", err);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return err;
+    }
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
 int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");

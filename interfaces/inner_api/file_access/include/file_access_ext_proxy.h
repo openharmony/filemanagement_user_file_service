@@ -49,6 +49,7 @@ public:
     virtual int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;
     virtual int GetThumbnail(const Uri &uri, const ThumbnailSize &thumbnailSize, std::shared_ptr<PixelMap> &pixelMap) override;
+    virtual int Query(const Uri &uri, std::vector<std::string> &columns, std::vector<std::string> &results) override;
     virtual int GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo) override;
     virtual int GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo) override;
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec) override;

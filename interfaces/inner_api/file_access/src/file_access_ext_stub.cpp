@@ -51,6 +51,7 @@ FileAccessExtStub::FileAccessExtStub()
     stubFuncMap_[CMD_RENAME] = &FileAccessExtStub::CmdRename;
     stubFuncMap_[CMD_LIST_FILE] = &FileAccessExtStub::CmdListFile;
     stubFuncMap_[CMD_SCAN_FILE] = &FileAccessExtStub::CmdScanFile;
+    stubFuncMap_[CMD_QUERY] = &FileAccessExtStub::CmdQuery;
     stubFuncMap_[CMD_GET_ROOTS] = &FileAccessExtStub::CmdGetRoots;
     stubFuncMap_[CMD_ACCESS] = &FileAccessExtStub::CmdAccess;
     stubFuncMap_[CMD_GET_THUMBNAIL] = &FileAccessExtStub::CmdGetThumbnail;
@@ -455,6 +456,53 @@ ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply
     for (const auto &rootInfo : rootInfoVec) {
         if (!reply.WriteParcelable(&rootInfo)) {
             HILOG_ERROR("parameter ListFile fail to WriteParcelable rootInfo");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+            return E_IPCS;
+        }
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
+ErrCode FileAccessExtStub::CmdQuery(MessageParcel &data, MessageParcel &reply)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdQuery");
+    std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
+    if (uri == nullptr) {
+        HILOG_ERROR("Parameter Query fail to ReadParcelable uri");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    int64_t count = 0;
+    if (!data.ReadInt64(count)) {
+        HILOG_ERROR("Query operation failed to Read count");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+    std::vector<std::string> columns;
+    for (int64_t i = 0; i < count; i++) {
+        columns.push_back(data.ReadString());
+    }
+    std::vector<std::string> results;
+    int ret = Query(*uri, columns, results);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("Parameter Query fail to WriteInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+    
+    int64_t resCount {results.size()};
+    if (!reply.WriteInt64(resCount)) {
+        HILOG_ERROR("Parameter Query fail to WriteInt64 count");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    for (const auto &result : results) {
+        if (!reply.WriteString(result)) {
+            HILOG_ERROR("parameter Query fail to WriteParcelable column");
             FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return E_IPCS;
         }

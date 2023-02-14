@@ -80,6 +80,7 @@ public:
     int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount, const FileFilter &filter,
         std::vector<FileInfo> &fileInfoVec);
     int GetThumbnail(Uri &uri, ThumbnailSize &thumbnailSize, std::shared_ptr<PixelMap> &pixelMap);
+    int Query(Uri &uri, std::string &metaJson);
     int GetFileInfoFromUri(Uri &selectFile, FileInfo &fileInfo);
     int GetFileInfoFromRelativePath(std::string &selectFile, FileInfo &fileInfo);
     int GetRoots(std::vector<RootInfo> &rootInfoVec);

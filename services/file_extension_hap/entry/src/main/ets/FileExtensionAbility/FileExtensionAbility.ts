@@ -36,6 +36,10 @@ const ERR_ERROR = -1;
 const E_EXIST = 13900015;
 const E_URIS = 14300002;
 const E_GETRESULT = 14300004;
+const DATA_DB_DATE_ADDED = 'date_added';
+const DATA_DB_DATE_MODIFIED = 'date_modified';
+const FILE_DATA_ATIME = 'atime';
+const FILE_DATA_MTIME = 'mtime';
 let callbackFun = null;
 
 export default class FileExtAbility extends Extension {
@@ -535,6 +539,78 @@ export default class FileExtAbility extends Extension {
         roots = roots.concat(getVolumeInfoList());
         return {
             roots: roots,
+            code: ERR_OK,
+        };
+    }
+
+    query(uri, columns) {
+        if (!this.checkUri(uri)) {
+            return {
+                results: [],
+                code: E_URIS,
+            };
+        }
+        let queryResults = [];
+
+        try {
+            let dirPath = this.getPath(uri);
+            let stat = fileio.statSync(dirPath);
+            let convertColumn = new Map([
+                [DATA_DB_DATE_ADDED, FILE_DATA_ATIME],
+                [DATA_DB_DATE_MODIFIED, FILE_DATA_MTIME]
+            ]);
+            for (let index in columns) {
+                let column = columns[index];
+                convertColumn.forEach((value, key) =>{
+                    if (column === key) {
+                        column = value;
+                    }
+                });
+
+                if (column === 'display_name') {
+                    let index = dirPath.lastIndexOf('/');
+                    let target = dirPath.substring(index + 1, );
+                    queryResults.push(String(target));
+                    continue;
+                }
+
+                if (column === 'relative_path') {
+                    let index = dirPath.lastIndexOf('/');
+                    let target = dirPath.substring(0, index + 1);
+                    queryResults.push(target);
+                    continue;
+                }
+
+                if (column in stat) {
+                    if (column === 'size' && stat.isDirectory()) {
+                        let size = 0;
+                        this.recurseDir(dirPath, function (filePath, isDirectory, hasNextFile) {
+                            if (isDirectory && !hasNextFile) {
+                                return;
+                            }
+
+                            if (!isDirectory) {
+                                let stat = fileio.statSync(filePath);
+                                size += stat.size;
+                            }
+                        });
+                        queryResults.push(String(size));
+                        continue;
+                    }
+                    queryResults.push(String(stat[column]));
+                } else {
+                    queryResults.push('0');
+                }
+            }
+        } catch (e) {
+            hilog.error(DOMAIN_CODE, TAG, 'query error ' + e.message);
+            return {
+                results: [],
+                code: e.code,
+            };
+        }
+        return {
+            results: queryResults,
             code: ERR_OK,
         };
     }

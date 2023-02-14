@@ -184,5 +184,24 @@ void InitOpenFlags(napi_env env, napi_value exports)
     napi_define_properties(env, obj, sizeof(desc) / sizeof(desc[0]), desc);
     napi_set_named_property(env, exports, propertyName, obj);
 }
+
+void InitQueryFlags(napi_env env, napi_value exports)
+{
+    char propertyName[] = "FileKey";
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("DISPLAY_NAME", NVal::CreateUTF8String(env, DISPLAY_NAME).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("DATE_ADDED", NVal::CreateUTF8String(env, DATE_ADDED).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("DATE_MODIFIED", NVal::CreateUTF8String(env, DATE_MODIFIED).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("RELATIVE_PATH", NVal::CreateUTF8String(env, RELATIVE_PATH).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("FILE_SIZE", NVal::CreateUTF8String(env, FILE_SIZE).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("WIDTH", NVal::CreateUTF8String(env, WIDTH).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("HEIGHT", NVal::CreateUTF8String(env, HEIGHT).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("DURATION", NVal::CreateUTF8String(env, DURATION).val_),
+    };
+    napi_value obj = nullptr;
+    napi_create_object(env, &obj);
+    napi_define_properties(env, obj, sizeof(desc) / sizeof(desc[0]), desc);
+    napi_set_named_property(env, exports, propertyName, obj);
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

@@ -230,6 +230,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("createFile", NAPI_CreateFile),
         DECLARE_NAPI_FUNCTION("delete", NAPI_Delete),
         DECLARE_NAPI_FUNCTION("move", NAPI_Move),
+        DECLARE_NAPI_FUNCTION("query", NAPI_Query),
         DECLARE_NAPI_FUNCTION("rename", NAPI_Rename),
         DECLARE_NAPI_FUNCTION("getRoots", NAPI_GetRoots),
         DECLARE_NAPI_FUNCTION("access", NAPI_Access),
@@ -588,6 +589,59 @@ napi_value NAPI_Move(napi_env env, napi_callback_info info)
         NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
+}
+
+napi_value NAPI_Query(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    bool succ = false;
+    std::unique_ptr<char[]> uri;
+    std::unique_ptr<char[]> metaJson;
+    std::tie(succ, uri, metaJson) = GetReadArg(env, funcArg[NARG_POS::FIRST], funcArg[NARG_POS::SECOND]);
+    if (!succ) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    if (fileAccessHelper == nullptr) {
+        return nullptr;
+    }
+
+    std::string uriString(uri.get());
+    std::string metaJsonString(metaJson.get());
+    auto metaJsonPtr = std::make_shared<string>(metaJsonString);
+    auto cbExec = [uriString, metaJsonPtr, fileAccessHelper]() -> NError {
+        OHOS::Uri uri(uriString);
+        int ret = fileAccessHelper->Query(uri, *metaJsonPtr);
+        return NError(ret);
+    };
+
+    auto cbComplete = [metaJsonPtr](napi_env env, NError err) -> NVal {
+        if (err) {
+            return { env, err.GetNapiErr(env) };
+        }
+        return { NVal::CreateUTF8String(env, *metaJsonPtr) };
+    };
+
+    const std::string procedureName = "query";
+    NVal thisVar(env, funcArg.GetThisVar());
+    if (funcArg.GetArgc() == NARG_CNT::TWO) {
+        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
+    }
+
+    NVal cb(env, funcArg[NARG_POS::THIRD]);
+    if (!cb.TypeIs(napi_function)) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
