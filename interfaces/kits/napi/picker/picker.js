@@ -13,10 +13,17 @@
  * limitations under the License.
  */
 
+const PhotoViewMIMETypes = {
+    IMAGE_TYPE: "image/*",
+    VIDEO_TYPE: "video/*",
+    IMAGE_VIDEO_TYPE: "*/*",
+    INVALID_TYPE: ""
+}
+
 const PHOTO_VIEW_MIME_TYPE_MAP = new Map([
-    ["image/*", "FILTER_MEDIA_TYPE_IMAGE"],
-    ["video/*", "FILTER_MEDIA_TYPE_VIDEO"],
-    ["*/*", "FILTER_MEDIA_TYPE_ALL"],
+    [PhotoViewMIMETypes.IMAGE_TYPE, "FILTER_MEDIA_TYPE_IMAGE"],
+    [PhotoViewMIMETypes.VIDEO_TYPE, "FILTER_MEDIA_TYPE_VIDEO"],
+    [PhotoViewMIMETypes.IMAGE_VIDEO_TYPE, "FILTER_MEDIA_TYPE_ALL"],
 ]);
 
 async function photoPickerSelect() {
@@ -34,11 +41,11 @@ async function photoPickerSelect() {
     }
     if (arguments.length > 0 && typeof arguments[0] == 'object') {
         let option = arguments[0];
-        if (option.maxSelectNumber != undefined) {
+        if (option.maxSelectNumber > 0) {
             config.parameters.uri = (option.maxSelectNumber == 1) ? "singleselect" : "multipleselect";
             config.parameters.maxSelectCount = option.maxSelectNumber;
         }
-        if (option.MIMEType != undefined && PHOTO_VIEW_MIME_TYPE_MAP.has(option.MIMEType)) {
+        if (option.MIMEType.length > 0 && PHOTO_VIEW_MIME_TYPE_MAP.has(option.MIMEType)) {
             config.parameters.filterMediaType = PHOTO_VIEW_MIME_TYPE_MAP.get(option.MIMEType);
         }
     }
@@ -47,16 +54,17 @@ async function photoPickerSelect() {
     try {
         let result = await globalThis.abilityContext.startAbilityForResult(config, {windowMode: 1});
         console.log("[picker] photoPickerSelect result: " + JSON.stringify(result));
-        let uri = result.want.parameters["select-item-list"];
+        let uris = result.want.parameters["select-item-list"];
         let isOrigin = result.want.parameters["isOriginal"];
+        let selectResult = new PhotoSelectResult(uris, isOrigin);
         if (arguments.length == 2 && typeof arguments[1] == "function") {
-            return arguments[1](result.resultCode, uri, isOrigin);
+            return arguments[1]({code: result.resultCode}, selectResult);
         } else if (arguments.length == 1 && typeof arguments[0] == "function") {
-            return arguments[0](result.resultCode, uri, isOrigin);
+            return arguments[0]({code: result.resultCode}, selectResult);
         }
         return new Promise((resolve, reject) => {
             if (result.resultCode == 0) {
-                resolve({photoUris: uri, isOriginalPhoto: isOrigin});
+                resolve(selectResult);
             } else {
                 console.log("[picker] photoPickerSelect err: " + result.resultCode);
                 reject(result.resultCode);
@@ -84,15 +92,15 @@ async function documentPickerSelect() {
     try {
         let result = await globalThis.abilityContext.startAbilityForResult(config, {windowMode: 1});
         console.log("[picker] documentPickerSelect result: " + JSON.stringify(result));
-        let uri = result.want.parameters.select_item_list;
+        let uris = result.want.parameters.select_item_list;
         if (arguments.length == 2 && typeof arguments[1] == "function") {
-            return arguments[1](result.resultCode, uri);
+            return arguments[1]({code: result.resultCode}, uris);
         } else if (arguments.length == 1 && typeof arguments[0] == "function") {
-            return arguments[0](result.resultCode, uri);
+            return arguments[0]({code: result.resultCode}, uris);
         }
         return new Promise((resolve, reject) => {
             if (result.resultCode == 0) {
-                resolve(uri);
+                resolve(uris);
             } else {
                 console.log("[picker] documentPickerSelect err: " + result.resultCode);
                 reject(result.resultCode);
@@ -117,7 +125,7 @@ async function documentPickerSave() {
     }
     if (arguments.length > 0 && typeof arguments[0] == 'object') {
         let option = arguments[0];
-        if (option.newFileNames != undefined) {
+        if (option.newFileNames.length > 0) {
             config.parameters.key_pick_file_name = JSON.stringify(option.newFileNames);
             config.parameters.saveFile = option.newFileNames[0];
         }
@@ -127,15 +135,15 @@ async function documentPickerSave() {
     try {
         let result = await globalThis.abilityContext.startAbilityForResult(config, {windowMode: 1});
         console.log("[picker] documentPickerSave result: " + JSON.stringify(result));
-        let uri = result.want["parameters"].pick_path_return;
+        let uris = result.want["parameters"].pick_path_return;
         if (arguments.length == 2 && typeof arguments[1] == "function") {
-            return arguments[1](result.resultCode, uri);
+            return arguments[1]({code: result.resultCode}, uris);
         } else if (arguments.length == 1 && typeof arguments[0] == "function") {
-            return arguments[0](result.resultCode, uri);
+            return arguments[0]({code: result.resultCode}, uris);
         }
         return new Promise((resolve, reject) => {
             if (result.resultCode == 0) {
-                resolve(uri);
+                resolve(uris);
             } else {
                 console.log("[picker] documentPickerSave err: " + result.resultCode);
                 reject(result.resultCode);
@@ -156,13 +164,6 @@ async function audioPickerSelect() {
         action: "ohos.want.action.OPEN_FILE",
         parameters: {
             'startMode': 'choose',
-            'key_pick_location': JSON.stringify([0]),
-        }
-    }
-    if (arguments.length > 0 && typeof arguments[0] == 'object') {
-        let option = arguments[0];
-        if (option.maxSelectNumber != undefined) {
-            config.parameters.key_pick_num = option.maxSelectNumber;
         }
     }
     console.log("[picker] audioPickerSelect config: " + JSON.stringify(config));
@@ -170,15 +171,15 @@ async function audioPickerSelect() {
     try {
         let result = await globalThis.abilityContext.startAbilityForResult(config, {windowMode: 1});
         console.log("[picker] audioPickerSelect result: " + JSON.stringify(result));
-        let uri = result.want.parameters.select_item_list;
+        let uris = result.want.parameters.select_item_list;
         if (arguments.length == 2 && typeof arguments[1] == "function") {
-            return arguments[1](result.resultCode, uri);
+            return arguments[1]({code: result.resultCode}, uris);
         } else if (arguments.length == 1 && typeof arguments[0] == "function") {
-            return arguments[0](result.resultCode, uri);
+            return arguments[0]({code: result.resultCode}, uris);
         }
         return new Promise((resolve, reject) => {
             if (result.resultCode == 0) {
-                resolve(uri);
+                resolve(uris);
             } else {
                 console.log("[picker] audioPickerSelect err: " + result.resultCode);
                 reject(result.resultCode);
@@ -189,11 +190,37 @@ async function audioPickerSelect() {
     }
 }
 
+function PhotoSelectOptions() {
+    this.MIMEType = PhotoViewMIMETypes.INVALID_TYPE;
+    this.maxSelectNumber = -1;
+}
+
+function PhotoSelectResult(uris, isOriginalPhoto) {
+    this.photoUris = uris;
+    this.isOriginalPhoto = isOriginalPhoto;
+}
+
+function PhotoSaveOptions() {
+    this.newFileNames = [];
+}
+
+function DocumentSelectOptions() {}
+
+function DocumentSaveOptions() {
+    this.newFileNames = [];
+}
+
+function AudioSelectOptions() {}
+
+function AudioSaveOptions() {
+    this.newFileNames = [];
+}
+
 function PhotoViewPicker() {
     this.select = photoPickerSelect;
     this.save = documentPickerSave;
 }
-  
+
 function DocumentViewPicker() {
     this.select = documentPickerSelect;
     this.save = documentPickerSave;
@@ -205,6 +232,14 @@ function AudioViewPicker() {
 }
 
 export default {
+    PhotoViewMIMETypes : PhotoViewMIMETypes,
+    PhotoSelectOptions : PhotoSelectOptions,
+    PhotoSelectResult : PhotoSelectResult,
+    PhotoSaveOptions : PhotoSaveOptions,
+    DocumentSelectOptions : DocumentSelectOptions,
+    DocumentSaveOptions : DocumentSaveOptions,
+    AudioSelectOptions : AudioSelectOptions,
+    AudioSaveOptions : AudioSaveOptions,
     PhotoViewPicker : PhotoViewPicker,
     DocumentViewPicker: DocumentViewPicker,
     AudioViewPicker : AudioViewPicker,
