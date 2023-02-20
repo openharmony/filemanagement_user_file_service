@@ -117,6 +117,12 @@ int FileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfoVec)
     return EPERM;
 }
 
+int FileAccessExtAbility::GetThumbnail(const Uri &uri, Size &size, std::shared_ptr<PixelMap> &pixelMap)
+{
+    HILOG_ERROR("FileAccessExtAbility::GetThumbnail Undefined operation");
+    return EPERM;
+}
+
 int FileAccessExtAbility::GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo)
 {
     HILOG_ERROR("FileAccessExtAbility::GetFileInfoFromUri Undefined operation");

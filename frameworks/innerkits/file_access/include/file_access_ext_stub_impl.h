@@ -22,11 +22,13 @@
 #include "file_access_ext_ability.h"
 #include "file_access_ext_stub.h"
 #include "file_access_extension_info.h"
+#include "image_source.h"
 #include "js_native_api_types.h"
 #include "uri.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
+using namespace OHOS::Media;
 class FileAccessExtStubImpl : public FileAccessExtStub {
 public:
     explicit FileAccessExtStubImpl(const std::shared_ptr<FileAccessExtAbility>& extension, napi_env env)
@@ -44,6 +46,7 @@ public:
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;
     int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;
+    int GetThumbnail(const Uri &uri, Size &size, std::shared_ptr<PixelMap> &pixelMap) override;
     int GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo) override;
     int GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo) override;
     int GetRoots(std::vector<RootInfo> &rootInfoVec) override;

@@ -26,6 +26,7 @@
 #include "accesstoken_kit.h"
 #include "file_access_extension_info.h"
 #include "file_access_framework_errno.h"
+#include "image_source.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ipc_object_stub.h"
@@ -35,6 +36,7 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
+using namespace OHOS::Media;
 namespace {
     const std::string FILE_ACCESS_PERMISSION = "ohos.permission.FILE_ACCESS_MANAGER";
 }
@@ -50,6 +52,7 @@ FileAccessExtStub::FileAccessExtStub()
     stubFuncMap_[CMD_SCAN_FILE] = &FileAccessExtStub::CmdScanFile;
     stubFuncMap_[CMD_GET_ROOTS] = &FileAccessExtStub::CmdGetRoots;
     stubFuncMap_[CMD_ACCESS] = &FileAccessExtStub::CmdAccess;
+    stubFuncMap_[CMD_GET_THUMBNAIL] = &FileAccessExtStub::CmdGetThumbnail;
     stubFuncMap_[CMD_GET_FILEINFO_FROM_URI] = &FileAccessExtStub::CmdGetFileInfoFromUri;
     stubFuncMap_[CMD_GET_FILEINFO_FROM_RELATIVE_PATH] = &FileAccessExtStub::CmdGetFileInfoFromRelativePath;
     stubFuncMap_[CMD_REGISTER_NOTIFY] = &FileAccessExtStub::CmdRegisterNotify;
@@ -455,6 +458,46 @@ ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply
         }
     }
 
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
+ErrCode FileAccessExtStub::CmdGetThumbnail(MessageParcel &data, MessageParcel &reply)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdGetThumbnail");
+    std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
+    std::string uriString = uri->ToString();
+    HILOG_DEBUG("cjw uriString = %{public}s", uriString.c_str());
+    if (uri == nullptr) {
+        HILOG_ERROR("Parameter Move fail to ReadParcelable uri");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_URIS;
+    }
+    Size size;
+    if (!data.ReadInt32(size.width)) {
+        HILOG_ERROR("Parameter CmdGetThumbnail fail to ReadInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+    if (!data.ReadInt32(size.height)) {
+        HILOG_ERROR("Parameter CmdGetThumbnail fail to ReadInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+    std::shared_ptr<PixelMap> pixelMap;
+
+    int ret = GetThumbnail(*uri, size, pixelMap);
+    HILOG_ERROR("cjw stub a = %{public}d", pixelMap->GetWidth());
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("Parameter CmdGetThumbnail fail to WriteInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+    if (!reply.WriteParcelable(pixelMap.get())) {
+        HILOG_ERROR("Parameter CmdGetThumbnail fail to WriteParcelable pixelMap");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }

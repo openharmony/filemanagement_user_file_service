@@ -51,6 +51,7 @@ ohos_unittest("medialibrary_file_access_test") {
     "c_utils:utils",
     "ipc:ipc_core",
     "ipc_js:rpc",
+    "multimedia_image_framework:image_native",
     "samgr:samgr_proxy",
   ]
 }

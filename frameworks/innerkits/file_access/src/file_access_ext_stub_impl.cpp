@@ -156,6 +156,21 @@ int FileAccessExtStubImpl::GetRoots(std::vector<RootInfo> &rootInfoVec)
     return ret;
 }
 
+int FileAccessExtStubImpl::GetThumbnail(const Uri &uri, Size &size, std::shared_ptr<PixelMap> &pixelMap)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetThumbnail");
+    HILOG_DEBUG("cjw enter impl");
+    if (extension_ == nullptr) {
+        HILOG_ERROR("GetFileInfoFromUri get extension failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+    int ret = extension_->GetThumbnail(uri, size, pixelMap);
+    HILOG_ERROR("cjw stub a = %{public}d", pixelMap->GetWidth());
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
+}
+
 int FileAccessExtStubImpl::GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromUri");

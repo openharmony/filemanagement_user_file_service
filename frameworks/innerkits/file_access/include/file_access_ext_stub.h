@@ -43,6 +43,7 @@ private:
     ErrCode CmdRename(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdListFile(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdScanFile(MessageParcel &data, MessageParcel &reply);
+    ErrCode CmdGetThumbnail(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdGetFileInfoFromUri(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdGetFileInfoFromRelativePath(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdGetRoots(MessageParcel &data, MessageParcel &reply);

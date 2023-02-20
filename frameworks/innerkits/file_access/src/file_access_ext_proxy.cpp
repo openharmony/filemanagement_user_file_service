@@ -559,6 +559,64 @@ int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfoVec)
     return ERR_OK;
 }
 
+int FileAccessExtProxy::GetThumbnail(const Uri &uri, Size &size, std::shared_ptr<PixelMap> &pixelMap)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetThumbnail");
+    HILOG_DEBUG("cjw enter proxy");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    if (!data.WriteParcelable(&uri)) {
+        HILOG_ERROR("fail to WriteParcelable sourceFile");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+    if (!data.WriteInt32(size.width)) {
+        HILOG_ERROR("fail to WriteParcelable sourceFile");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+    if (!data.WriteInt32(size.height)) {
+        HILOG_ERROR("fail to WriteParcelable sourceFile");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    std::string uriString = uri.ToString();
+    HILOG_DEBUG("cjw sendRequest uri = %{public}s", uriString.c_str());
+    int err = Remote()->SendRequest(CMD_GET_THUMBNAIL, data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return err;
+    }
+    int ret = 0;
+    if (!reply.ReadInt32(ret)) {
+        HILOG_ERROR("Parameter GetThumbnail fail to WriteInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+    std::shared_ptr<PixelMap> TempPixelMap = std::shared_ptr<PixelMap>(reply.ReadParcelable<PixelMap>());
+    if (TempPixelMap != nullptr) {
+        HILOG_ERROR("cjw proxy TempPtr not nullptr");
+        HILOG_ERROR("cjw proxy a = %{public}d", TempPixelMap->GetWidth());
+    }
+    //HILOG_ERROR("cjw proxy a = %{public}d", pixelMap->GetWidth());
+    if (TempPixelMap == nullptr) {
+        HILOG_ERROR("ReadParcelable value is nullptr.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+    pixelMap = TempPixelMap;
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
 int FileAccessExtProxy::GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromUri");
