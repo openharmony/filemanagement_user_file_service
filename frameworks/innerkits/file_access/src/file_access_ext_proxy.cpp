@@ -562,7 +562,6 @@ int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfoVec)
 int FileAccessExtProxy::GetThumbnail(const Uri &uri, Size &size, std::shared_ptr<PixelMap> &pixelMap)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetThumbnail");
-    HILOG_DEBUG("cjw enter proxy");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -588,7 +587,6 @@ int FileAccessExtProxy::GetThumbnail(const Uri &uri, Size &size, std::shared_ptr
     MessageParcel reply;
     MessageOption option;
     std::string uriString = uri.ToString();
-    HILOG_DEBUG("cjw sendRequest uri = %{public}s", uriString.c_str());
     int err = Remote()->SendRequest(CMD_GET_THUMBNAIL, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
@@ -602,11 +600,6 @@ int FileAccessExtProxy::GetThumbnail(const Uri &uri, Size &size, std::shared_ptr
         return E_IPCS;
     }
     std::shared_ptr<PixelMap> TempPixelMap = std::shared_ptr<PixelMap>(reply.ReadParcelable<PixelMap>());
-    if (TempPixelMap != nullptr) {
-        HILOG_ERROR("cjw proxy TempPtr not nullptr");
-        HILOG_ERROR("cjw proxy a = %{public}d", TempPixelMap->GetWidth());
-    }
-    //HILOG_ERROR("cjw proxy a = %{public}d", pixelMap->GetWidth());
     if (TempPixelMap == nullptr) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);

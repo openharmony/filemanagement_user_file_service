@@ -804,7 +804,6 @@ int FileAccessHelper::Access(Uri &uri, bool &isExist)
 int FileAccessHelper::GetThumbnail(Uri &uri, Size &size, std::shared_ptr<PixelMap> &pixelMap)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetThumbnail");
-    HILOG_DEBUG("cjw enter Helper");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::GetThumbnail check IsSystemAppByFullTokenID failed");
         return E_PERMISSION_SYS;
@@ -824,9 +823,6 @@ int FileAccessHelper::GetThumbnail(Uri &uri, Size &size, std::shared_ptr<PixelMa
     }
 
     int ret = fileExtProxy->GetThumbnail(uri, size, pixelMap);
-    if (pixelMap != nullptr) {
-        HILOG_ERROR("cjw helper a = %{public}d", pixelMap->GetWidth());
-    }
     if (ret != ERR_OK) {
         HILOG_ERROR("GetThumbnail get result error, code:%{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
