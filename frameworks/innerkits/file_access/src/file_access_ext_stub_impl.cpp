@@ -165,7 +165,12 @@ int FileAccessExtStubImpl::GetThumbnail(const Uri &uri, Size &size, std::shared_
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
-    int ret = extension_->GetThumbnail(uri, size, pixelMap);
+    std::unique_ptr<PixelMap> tempPtr;
+    int ret = extension_->GetThumbnail(uri, size, tempPtr);
+    if (tempPtr == nullptr) {
+        return E_IPCS;
+    }
+    pixelMap = std::move(tempPtr);
     HILOG_ERROR("cjw stub a = %{public}d", pixelMap->GetWidth());
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;

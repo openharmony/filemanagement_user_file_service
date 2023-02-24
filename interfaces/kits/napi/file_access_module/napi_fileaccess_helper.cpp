@@ -233,7 +233,6 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("access", NAPI_Access),
         DECLARE_NAPI_FUNCTION("getFileInfoFromUri", NAPI_GetFileInfoFromUri),
         DECLARE_NAPI_FUNCTION("getFileInfoFromRelativePath", NAPI_GetFileInfoFromRelativePath),
-        DECLARE_NAPI_FUNCTION("getThumbnail", NAPI_GetThumbnail),
         DECLARE_NAPI_FUNCTION("on", NAPI_On),
         DECLARE_NAPI_FUNCTION("off", NAPI_Off)
     };
@@ -931,53 +930,51 @@ napi_value NAPI_GetFileInfoFromRelativePath(napi_env env, napi_callback_info inf
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
-napi_value NAPI_GetThumbnail(napi_env env, napi_callback_info info)
-{
-    NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
-    }
+// napi_value NAPI_GetThumbnail(napi_env env, napi_callback_info info)
+// {
+//     NFuncArg funcArg(env, info);
+//     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
+//         NError(EINVAL).ThrowErr(env);
+//         return nullptr;
+//     }
 
-    bool succ = false;
-    std::unique_ptr<char[]> uri;
-    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
-    if (!succ) {
-        return nullptr;
-    }
-    std::string uriString(uri.get());
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
-    if (fileAccessHelper == nullptr) {
-        return nullptr;
-    }
-    auto result = std::make_shared<bool>();
-    //std::shared_ptr<Size> size = std::make_shared<Size>;
-    auto pixelMap = std::make_shared<PixelMap>();
-    auto cbExec = [uriString, result, fileAccessHelper]() -> NError {
-        OHOS::Uri uri(uriString);
-        int ret = fileAccessHelper->GetThumbnail(uri);
-        *result = true;
-        return NError(ret);
-    };
-    auto cbComplete = [result](napi_env env, NError err) -> NVal {
-        if (err) {
-            return { env, err.GetNapiErr(env) };
-        }
-        return { NVal::CreateBool(env, *result) };
-    };
-    const std::string procedureName = "getThumbnail";
-    NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == NARG_CNT::ONE) {
-        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-    }
+//     bool succ = false;
+//     std::unique_ptr<char[]> uri;
+//     std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+//     if (!succ) {
+//         return nullptr;
+//     }
+//     std::string uriString(uri.get());
+//     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+//     if (fileAccessHelper == nullptr) {
+//         return nullptr;
+//     }
+//     auto size = std::make_shared<Size>;
+//     auto pixelMap = std::make_shared<PixelMap>();
+//     auto cbExec = [uriString, size, pixelMap, fileAccessHelper]() -> NError {
+//         OHOS::Uri uri(uriString);
+//         int ret = fileAccessHelper->GetThumbnail(uri, *size, *pixelMap);
+//         return NError(ret);
+//     };
+//     auto cbComplete = [pixelMap](napi_env env, NError err) -> NVal {
+//         if (err) {
+//             return { env, err.GetNapiErr(env) };
+//         }
+//         return NVal::CreateUndefined(env).val_;
+//     };
+//     const std::string procedureName = "getThumbnail";
+//     NVal thisVar(env, funcArg.GetThisVar());
+//     if (funcArg.GetArgc() == NARG_CNT::ONE) {
+//         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
+//     }
 
-    NVal cb(env, funcArg[NARG_POS::SECOND]);
-    if (!cb.TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
-    }
-    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
-}
+//     NVal cb(env, funcArg[NARG_POS::SECOND]);
+//     if (!cb.TypeIs(napi_function)) {
+//         NError(EINVAL).ThrowErr(env);
+//         return nullptr;
+//     }
+//     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
+// }
 
 napi_value NAPI_On(napi_env env, napi_callback_info info)
 {
