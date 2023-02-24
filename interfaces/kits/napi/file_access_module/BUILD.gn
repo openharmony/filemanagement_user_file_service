@@ -55,6 +55,7 @@ ohos_shared_library("fileaccess") {
     "ability_runtime:napi_base_context",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
+    "multimedia_image_framework:image",
     "napi:ace_napi",
   ]
 }

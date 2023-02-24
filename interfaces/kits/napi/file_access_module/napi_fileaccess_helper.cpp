@@ -30,6 +30,7 @@
 #include "napi_file_info_exporter.h"
 #include "napi_notify_callback.h"
 #include "napi_root_iterator_exporter.h"
+#include "pixel_map_napi.h"
 #include "root_iterator_entity.h"
 #include "securec.h"
 #include "uri.h"
@@ -931,47 +932,73 @@ napi_value NAPI_GetFileInfoFromRelativePath(napi_env env, napi_callback_info inf
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
+static bool parseGetThumbnailArgs(napi_env env, NFuncArg &nArg, std::string &uri, Media::Size &size)
+{
+    bool succ = false;
+    std::unique_ptr<char[]> uriArray;
+    std::tie(succ, uriArray, std::ignore) = NVal(env, nArg[NARG_POS::FIRST]).ToUTF8String();
+    if (!succ) {
+        return false;
+    }
+    uri.assign(uriArray.get());
+
+    NVal nSize(env, nArg[NARG_POS::SECOND]);
+    if (!(nSize.HasProp("width") && nSize.HasProp("height"))) {
+        return false;
+    }
+
+    bool succ1 = false;
+    bool succ2 = false;
+    std::tie(succ1, size.width) = nSize.GetProp("width").ToInt32();
+    std::tie(succ2, size.height) = nSize.GetProp("height").ToInt32();
+    return succ1 && succ2;
+}
+
 napi_value NAPI_GetThumbnail(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
+    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
         NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
 
-    bool succ = false;
-    std::unique_ptr<char[]> uri;
-    std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
-    if (!succ) {
+    std::string uriString;
+    Media::Size imageSize;
+    if (!parseGetThumbnailArgs(env, funcArg, uriString, imageSize)) {
+        NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
-    std::string uriString(uri.get());
+
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
-    auto result = std::make_shared<bool>();
-    //std::shared_ptr<Size> size = std::make_shared<Size>;
-    auto pixelMap = std::make_shared<PixelMap>();
-    auto cbExec = [uriString, result, fileAccessHelper]() -> NError {
+
+    std::shared_ptr<PixelMap> pixelMap;
+    auto cbExec = [fileAccessHelper, uriString, &imageSize, &pixelMap]() -> NError {
         OHOS::Uri uri(uriString);
-        int ret = fileAccessHelper->GetThumbnail(uri);
-        *result = true;
+        int ret = fileAccessHelper->GetThumbnail(uri, imageSize, pixelMap);
         return NError(ret);
     };
-    auto cbComplete = [result](napi_env env, NError err) -> NVal {
+
+    auto cbComplete = [&pixelMap](napi_env env, NError err) -> NVal {
         if (err) {
             return { env, err.GetNapiErr(env) };
         }
-        return { NVal::CreateBool(env, *result) };
+        if (pixelMap == nullptr) {
+            return { env, NError(ENOSPC).GetNapiErr(env) };
+        }
+        napi_value nPixelmap = Media::PixelMapNapi::CreatePixelMap(env, pixelMap);
+        return { env, nPixelmap };
     };
+
     const std::string procedureName = "getThumbnail";
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == NARG_CNT::ONE) {
+    if (funcArg.GetArgc() == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     }
 
-    NVal cb(env, funcArg[NARG_POS::SECOND]);
+    NVal cb(env, funcArg[NARG_POS::THIRD]);
     if (!cb.TypeIs(napi_function)) {
         NError(EINVAL).ThrowErr(env);
         return nullptr;
