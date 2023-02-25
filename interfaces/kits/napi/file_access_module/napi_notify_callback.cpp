@@ -57,6 +57,14 @@ int NapiNotifyCallback::OnNotify(const NotifyMessage& message)
         [](uv_work_t *work) {},
         [](uv_work_t *work, int status) {
             CallbackParam *param = reinterpret_cast<CallbackParam *>(work->data);
+            napi_handle_scope scope = nullptr;
+            // 打开handle scope用于管理napi_value的生命周期，否则会内存泄漏
+            napi_open_handle_scope(param->callback_->env_, &scope);
+            if (scope == nullptr) {
+                HILOG_ERROR("napi_open_handle_scope failed");
+                return;
+            }
+
             NVal napiNotifyMessage = NVal::CreateObject(param->callback_->env_);
             napiNotifyMessage.AddProp("deviceType",
                 NVal::CreateInt32(param->callback_->env_, param->message_.deviceType).val_);
@@ -77,6 +85,8 @@ int NapiNotifyCallback::OnNotify(const NotifyMessage& message)
             if (ret != napi_ok) {
                 HILOG_ERROR("Notify failed, status:%{public}d.", ret);
             }
+            // 关闭handle scope释放napi_value
+            napi_close_handle_scope(param->callback_->env_, scope);
             delete param;
             delete work;
         });
