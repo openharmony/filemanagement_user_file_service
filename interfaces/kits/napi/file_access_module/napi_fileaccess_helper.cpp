@@ -954,6 +954,10 @@ static bool parseGetThumbnailArgs(napi_env env, NFuncArg &nArg, std::string &uri
     return succ1 && succ2;
 }
 
+struct PixelMapWrapper {
+    std::shared_ptr<PixelMap> pixelMap = nullptr;
+};
+
 napi_value NAPI_GetThumbnail(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
@@ -974,21 +978,20 @@ napi_value NAPI_GetThumbnail(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    std::shared_ptr<PixelMap> pixelMap;
-    auto cbExec = [fileAccessHelper, uriString, &imageSize, &pixelMap]() -> NError {
+    auto wrapper = std::make_shared<PixelMapWrapper>();
+    auto cbExec = [fileAccessHelper, uriString, imageSize, wrapper]() -> NError {
         OHOS::Uri uri(uriString);
-        int ret = fileAccessHelper->GetThumbnail(uri, imageSize, pixelMap);
+        Media::Size size = imageSize;
+        int ret = fileAccessHelper->GetThumbnail(uri, size, wrapper->pixelMap);
         return NError(ret);
     };
 
-    auto cbComplete = [&pixelMap](napi_env env, NError err) -> NVal {
+    auto cbComplete = [wrapper](napi_env env, NError err) -> NVal {
         if (err) {
             return { env, err.GetNapiErr(env) };
         }
-        if (pixelMap == nullptr) {
-            return { env, NError(ENOSPC).GetNapiErr(env) };
-        }
-        napi_value nPixelmap = Media::PixelMapNapi::CreatePixelMap(env, pixelMap);
+
+        napi_value nPixelmap = Media::PixelMapNapi::CreatePixelMap(env, wrapper->pixelMap);
         return { env, nPixelmap };
     };
 
