@@ -810,11 +810,16 @@ int FileAccessHelper::GetThumbnail(Uri &uri, Size &size, std::shared_ptr<PixelMa
     }
 
     if (!CheckUri(uri)) {
-        HILOG_ERROR("sourceFile format check error.");
+        HILOG_ERROR("Uri format check error.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_URIS;
     }
-
+    string uriStr = uri.ToString();
+    if (size.width <= 0 || size.height <= 0) {
+        HILOG_ERROR("Size format check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_URIS;
+    }
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");

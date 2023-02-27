@@ -570,7 +570,7 @@ int FileAccessExtProxy::GetThumbnail(const Uri &uri, Size &size, std::shared_ptr
     }
 
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("fail to WriteParcelable sourceFile");
+        HILOG_ERROR("fail to WriteParcelable selectfile");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
@@ -599,13 +599,13 @@ int FileAccessExtProxy::GetThumbnail(const Uri &uri, Size &size, std::shared_ptr
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
-    std::shared_ptr<PixelMap> TempPixelMap = std::shared_ptr<PixelMap>(reply.ReadParcelable<PixelMap>());
-    if (TempPixelMap == nullptr) {
+    std::shared_ptr<PixelMap> tempPixelMap = std::shared_ptr<PixelMap>(reply.ReadParcelable<PixelMap>());
+    if (tempPixelMap == nullptr) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
-    pixelMap = TempPixelMap;
+    pixelMap = tempPixelMap;
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
