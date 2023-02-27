@@ -156,7 +156,7 @@ int FileAccessExtStubImpl::GetRoots(std::vector<RootInfo> &rootInfoVec)
     return ret;
 }
 
-int FileAccessExtStubImpl::GetThumbnail(const Uri &uri, Size &size, std::shared_ptr<PixelMap> &pixelMap)
+int FileAccessExtStubImpl::GetThumbnail(const Uri &uri, const ThumbnailSize &thumbnailSize, std::shared_ptr<PixelMap> &pixelMap)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetThumbnail");
     if (extension_ == nullptr) {
@@ -165,6 +165,7 @@ int FileAccessExtStubImpl::GetThumbnail(const Uri &uri, Size &size, std::shared_
         return E_IPCS;
     }
     std::unique_ptr<PixelMap> tempPtr;
+    Size size{ thumbnailSize.width, thumbnailSize.height };
     int ret = extension_->GetThumbnail(uri, size, tempPtr);
     if (tempPtr == nullptr) {
         return E_IPCS;

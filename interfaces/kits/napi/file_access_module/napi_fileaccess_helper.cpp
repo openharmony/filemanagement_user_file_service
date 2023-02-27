@@ -19,6 +19,7 @@
 #include <utility>
 #include <vector>
 
+#include "file_access_extension_info.h"
 #include "file_access_framework_errno.h"
 #include "file_access_helper.h"
 #include "file_info_entity.h"
@@ -932,7 +933,7 @@ napi_value NAPI_GetFileInfoFromRelativePath(napi_env env, napi_callback_info inf
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
-static bool parseGetThumbnailArgs(napi_env env, NFuncArg &nArg, std::string &uri, Media::Size &size)
+static bool parseGetThumbnailArgs(napi_env env, NFuncArg &nArg, std::string &uri, ThumbnailSize &thumbnailSize)
 {
     bool succ = false;
     std::unique_ptr<char[]> uriArray;
@@ -949,8 +950,8 @@ static bool parseGetThumbnailArgs(napi_env env, NFuncArg &nArg, std::string &uri
 
     bool succ1 = false;
     bool succ2 = false;
-    std::tie(succ1, size.width) = nSize.GetProp("width").ToInt32();
-    std::tie(succ2, size.height) = nSize.GetProp("height").ToInt32();
+    std::tie(succ1, thumbnailSize.width) = nSize.GetProp("width").ToInt32();
+    std::tie(succ2, thumbnailSize.height) = nSize.GetProp("height").ToInt32();
     return succ1 && succ2;
 }
 
@@ -967,8 +968,8 @@ napi_value NAPI_GetThumbnail(napi_env env, napi_callback_info info)
     }
 
     std::string uriString;
-    Media::Size imageSize;
-    if (!parseGetThumbnailArgs(env, funcArg, uriString, imageSize)) {
+    ThumbnailSize thumbnailSize;
+    if (!parseGetThumbnailArgs(env, funcArg, uriString, thumbnailSize)) {
         NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
@@ -979,9 +980,9 @@ napi_value NAPI_GetThumbnail(napi_env env, napi_callback_info info)
     }
 
     auto wrapper = std::make_shared<PixelMapWrapper>();
-    auto cbExec = [fileAccessHelper, uriString, imageSize, wrapper]() -> NError {
+    auto cbExec = [fileAccessHelper, uriString, thumbnailSize, wrapper]() -> NError {
         OHOS::Uri uri(uriString);
-        Media::Size size = imageSize;
+        ThumbnailSize size = thumbnailSize;
         int ret = fileAccessHelper->GetThumbnail(uri, size, wrapper->pixelMap);
         return NError(ret);
     };

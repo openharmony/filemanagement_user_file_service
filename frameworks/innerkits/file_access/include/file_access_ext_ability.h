@@ -27,7 +27,7 @@ namespace AbilityRuntime {
 class Runtime;
 }
 namespace FileAccessFwk {
-using namespace OHOS::Media;
+using namespace Media;
 using namespace DistributedFS;
 using namespace AbilityRuntime;
 class FileAccessExtAbility;
@@ -54,7 +54,7 @@ public:
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec);
     virtual int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec);
-    virtual int GetThumbnail(const Uri &uri, Size &size, std::unique_ptr<PixelMap> &pixelMap);
+    virtual int GetThumbnail(const Uri &uri, const Size &size, std::unique_ptr<PixelMap> &pixelMap);
     virtual int GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo);
     virtual int GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo);
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec);

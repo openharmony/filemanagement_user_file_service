@@ -31,7 +31,7 @@
 namespace OHOS {
 namespace FileAccessFwk {
 using namespace DistributedFS;
-using namespace OHOS::Media;
+using namespace Media;
 
 class IFileAccessExtBase : public IRemoteBroker {
 public:
@@ -65,7 +65,7 @@ public:
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) = 0;
     virtual int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) = 0;
-    virtual int GetThumbnail(const Uri &uri, Size &size, std::shared_ptr<PixelMap> &pixelMap) = 0;
+    virtual int GetThumbnail(const Uri &uri, const ThumbnailSize &thumbnailSize, std::shared_ptr<PixelMap> &pixelMap) = 0;
     virtual int GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo) = 0;
     virtual int GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo) = 0;
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec) = 0;

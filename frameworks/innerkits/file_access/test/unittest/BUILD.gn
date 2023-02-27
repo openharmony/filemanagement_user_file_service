@@ -55,8 +55,7 @@ ohos_unittest("medialibrary_file_access_test") {
     "samgr:samgr_proxy",
   ]
 
-  resource_config_file =
-      "${BASE_DIR}/frameworks/innerkits/file_access/test/unittest/resources/ohos_test.xml"
+  resource_config_file = "${BASE_DIR}/frameworks/innerkits/file_access/test/unittest/resources/ohos_test.xml"
 }
 
 ohos_unittest("external_file_access_test") {

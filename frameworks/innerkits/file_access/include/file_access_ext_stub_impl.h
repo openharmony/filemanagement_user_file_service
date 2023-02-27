@@ -28,7 +28,7 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-using namespace OHOS::Media;
+using namespace Media;
 class FileAccessExtStubImpl : public FileAccessExtStub {
 public:
     explicit FileAccessExtStubImpl(const std::shared_ptr<FileAccessExtAbility>& extension, napi_env env)
@@ -46,7 +46,7 @@ public:
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;
     int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;
-    int GetThumbnail(const Uri &uri, Size &size, std::shared_ptr<PixelMap> &pixelMap) override;
+    int GetThumbnail(const Uri &uri, const ThumbnailSize &thumbnailSize, std::shared_ptr<PixelMap> &pixelMap) override;
     int GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo) override;
     int GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo) override;
     int GetRoots(std::vector<RootInfo> &rootInfoVec) override;

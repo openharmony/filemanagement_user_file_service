@@ -39,7 +39,7 @@ using Uri = OHOS::Uri;
 
 namespace OHOS {
 namespace FileAccessFwk {
-using namespace OHOS::Media;
+using namespace Media;
 using string = std::string;
 
 namespace {
@@ -82,7 +82,7 @@ public:
         std::vector<FileInfo> &fileInfoVec);
     int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount, const FileFilter &filter,
         std::vector<FileInfo> &fileInfoVec);
-    int GetThumbnail(Uri &uri, Size &size, std::shared_ptr<PixelMap> &pixelMap);
+    int GetThumbnail(Uri &uri, ThumbnailSize &thumbnailSize, std::shared_ptr<PixelMap> &pixelMap);
     int GetFileInfoFromUri(Uri &selectFile, FileInfo &fileInfo);
     int GetFileInfoFromRelativePath(std::string &selectFile, FileInfo &fileInfo);
     int GetRoots(std::vector<RootInfo> &rootInfoVec);

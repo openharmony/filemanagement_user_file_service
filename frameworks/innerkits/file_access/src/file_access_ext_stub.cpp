@@ -36,7 +36,7 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-using namespace OHOS::Media;
+using namespace Media;
 namespace {
     const std::string FILE_ACCESS_PERMISSION = "ohos.permission.FILE_ACCESS_MANAGER";
 }
@@ -471,29 +471,28 @@ ErrCode FileAccessExtStub::CmdGetThumbnail(MessageParcel &data, MessageParcel &r
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_URIS;
     }
-    Size size;
-    if (!data.ReadInt32(size.width)) {
-        HILOG_ERROR("Parameter CmdGetThumbnail fail to ReadInt32 width");
+
+    std::shared_ptr<ThumbnailSize> thumbnailSize(data.ReadParcelable<ThumbnailSize>());
+    if (thumbnailSize == nullptr) {
+        HILOG_ERROR("Parameter Move fail to ReadParcelable thumbnailSize");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_IPCS;
+        return E_URIS;
     }
-    if (!data.ReadInt32(size.height)) {
-        HILOG_ERROR("Parameter CmdGetThumbnail fail to ReadInt32 height");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_IPCS;
-    }
+
     std::shared_ptr<PixelMap> pixelMap;
-    int ret = GetThumbnail(*uri, size, pixelMap);
+    int ret = GetThumbnail(*uri, *thumbnailSize, pixelMap);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter CmdGetThumbnail fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
+
     if (!reply.WriteParcelable(pixelMap.get())) {
         HILOG_ERROR("Parameter CmdGetThumbnail fail to WriteParcelable pixelMap");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
+
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }

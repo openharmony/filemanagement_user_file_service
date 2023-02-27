@@ -2552,11 +2552,14 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0000, testi
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri uri(fileInfo.uri);
         std::shared_ptr<PixelMap> getPixelMap = nullptr;
-        Size size { 256, 256 };
-        result = g_fah->GetThumbnail(uri, size, getPixelMap);
+        ThumbnailSize thumbnailSize;
+        thumbnailSize.width = 256;
+        thumbnailSize.height = 256;
+        result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         ASSERT_NE(getPixelMap, nullptr);
-        EXPECT_EQ(getPixelMap->GetWidth(), size.width);
+        EXPECT_EQ(getPixelMap->GetWidth(), thumbnailSize.width);
+        EXPECT_EQ(getPixelMap->GetHeight(), thumbnailSize.height);
     } catch (...) {
         GTEST_LOG_(ERROR) << "medialibrary_file_access_GetThumbnail_0000 occurs an exception.";
     }
@@ -2583,11 +2586,14 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0001, testi
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri uri(fileInfo.uri);
         std::shared_ptr<PixelMap> getPixelMap = nullptr;
-        Size size { 300, 300 };
-        result = g_fah->GetThumbnail(uri, size, getPixelMap);
+        ThumbnailSize thumbnailSize;
+        thumbnailSize.width = 300;
+        thumbnailSize.height = 300;
+        result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         ASSERT_NE(getPixelMap, nullptr);
-        EXPECT_EQ(getPixelMap->GetWidth(), size.width);
+        EXPECT_EQ(getPixelMap->GetWidth(), thumbnailSize.width);
+        EXPECT_EQ(getPixelMap->GetHeight(), thumbnailSize.height);
     } catch (...) {
         GTEST_LOG_(ERROR) << "medialibrary_file_access_GetThumbnail_0001 occurs an exception.";
     }
@@ -2614,11 +2620,14 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0002, testi
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri uri(fileInfo.uri);
         std::shared_ptr<PixelMap> getPixelMap = nullptr;
-        Size size { 256, 256 };
-        result = g_fah->GetThumbnail(uri, size, getPixelMap);
+        ThumbnailSize thumbnailSize;
+        thumbnailSize.width = 256;
+        thumbnailSize.height = 256;
+        result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         ASSERT_NE(getPixelMap, nullptr);
-        EXPECT_EQ(getPixelMap->GetWidth(), size.width);
+        EXPECT_EQ(getPixelMap->GetWidth(), thumbnailSize.width);
+        EXPECT_EQ(getPixelMap->GetHeight(), thumbnailSize.height);
     } catch (...) {
         GTEST_LOG_(ERROR) << "medialibrary_file_access_GetThumbnail_0002 occurs an exception.";
     }
@@ -2641,8 +2650,10 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0003, testi
     try {
         Uri uri("");
         std::shared_ptr<PixelMap> getPixelMap = nullptr;
-        Size size { 256, 256 };
-        int result = g_fah->GetThumbnail(uri, size, getPixelMap);
+        ThumbnailSize thumbnailSize;
+        thumbnailSize.width = 256;
+        thumbnailSize.height = 256;
+        int result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         ASSERT_EQ(getPixelMap, nullptr);
     } catch (...) {
@@ -2667,8 +2678,10 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0004, testi
     try {
         Uri uri("//Pictures/CreateImageThumbnailTest_001.jpg");
         std::shared_ptr<PixelMap> getPixelMap = nullptr;
-        Size size { 256, 256 };
-        int result = g_fah->GetThumbnail(uri, size, getPixelMap);
+        ThumbnailSize thumbnailSize;
+        thumbnailSize.width = 256;
+        thumbnailSize.height = 256;
+        int result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         ASSERT_EQ(getPixelMap, nullptr);
     } catch (...) {
@@ -2693,8 +2706,10 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0005, testi
     try {
         Uri uri("file:///media/image/7");
         std::shared_ptr<PixelMap> getPixelMap = nullptr;
-        Size size { 256, 256 };
-        int result = g_fah->GetThumbnail(uri, size, getPixelMap);
+        ThumbnailSize thumbnailSize;
+        thumbnailSize.width = 256;
+        thumbnailSize.height = 256;
+        int result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         ASSERT_EQ(getPixelMap, nullptr);
     } catch (...) {
@@ -2719,8 +2734,10 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0006, testi
     try {
         Uri uri("&*()*/?");
         std::shared_ptr<PixelMap> getPixelMap = nullptr;
-        Size size { 256, 256 };
-        int result = g_fah->GetThumbnail(uri, size, getPixelMap);
+        ThumbnailSize thumbnailSize;
+        thumbnailSize.width = 256;
+        thumbnailSize.height = 256;
+        int result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         ASSERT_EQ(getPixelMap, nullptr);
     } catch (...) {
@@ -2745,8 +2762,10 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0007, testi
     try {
         Uri uri("datashare:///media/image/7");
         std::shared_ptr<PixelMap> getPixelMap = nullptr;
-        Size size { 0, 0 };
-        int result = g_fah->GetThumbnail(uri, size, getPixelMap);
+        ThumbnailSize thumbnailSize;
+        thumbnailSize.width = 0;
+        thumbnailSize.height = 0;
+        int result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         ASSERT_EQ(getPixelMap, nullptr);
     } catch (...) {
@@ -2771,8 +2790,10 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0008, testi
     try {
         Uri uri("datashare:///media/image/7");
         std::shared_ptr<PixelMap> getPixelMap = nullptr;
-        Size size { -1, -1 };
-        int result = g_fah->GetThumbnail(uri, size, getPixelMap);
+        ThumbnailSize thumbnailSize;
+        thumbnailSize.width = -1;
+        thumbnailSize.height = -1;
+        int result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         ASSERT_EQ(getPixelMap, nullptr);
     } catch (...) {
