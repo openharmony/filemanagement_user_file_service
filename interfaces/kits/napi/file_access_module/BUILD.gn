@@ -27,7 +27,6 @@ ohos_shared_library("fileaccess") {
     "${BASE_DIR}/interfaces/kits/napi/file_access_module/root_info",
     "${BASE_DIR}/utils",
     "//foundation/filemanagement/file_api/interfaces/kits/js/src/common",
-    "//foundation/filemanagement/file_api/utils/filemgmt_libn/include",
   ]
 
   sources = [
@@ -45,7 +44,6 @@ ohos_shared_library("fileaccess") {
   deps = [
     "${BASE_DIR}/frameworks/innerkits/file_access:file_access_extension_ability_kit",
     "//foundation/ability/ability_runtime/frameworks/js/napi/inner/napi_common:napi_common",
-    "//foundation/filemanagement/file_api/utils/filemgmt_libn:filemgmt_libn",
   ]
 
   external_deps = [
@@ -54,7 +52,7 @@ ohos_shared_library("fileaccess") {
     "ability_runtime:abilitykit_native",
     "ability_runtime:napi_base_context",
     "c_utils:utils",
+    "file_api:filemgmt_libn",
     "hiviewdfx_hilog_native:libhilog",
-    "napi:ace_napi",
   ]
 }

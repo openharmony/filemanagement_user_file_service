@@ -23,7 +23,6 @@ ohos_shared_library("fileextensioninfo") {
 
   include_dirs = [
     ".",
-    "//foundation/filemanagement/file_api/utils/filemgmt_libn/include",
     "${FRAMEWORK_PATH}/innerkits/file_access/include",
     "${FRAMEWORK_PATH}/innerkits/file_access/include/notify",
     "${UFS_BASE_PATH}/interfaces/kits/napi/common",
@@ -36,13 +35,9 @@ ohos_shared_library("fileextensioninfo") {
     "module_export_napi.cpp",
   ]
 
-  deps = [
-    "//foundation/arkui/napi:ace_napi",
-    "//foundation/filemanagement/file_api/utils/filemgmt_libn:filemgmt_libn",
-  ]
-
   external_deps = [
     "c_utils:utils",
+    "file_api:filemgmt_libn",
     "hiviewdfx_hilog_native:libhilog",
   ]
 }
