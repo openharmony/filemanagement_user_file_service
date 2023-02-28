@@ -563,19 +563,16 @@ static int WriteThumbnailArgs(MessageParcel &data, const Uri &uri, const Thumbna
 {
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteParcelable(&uri)) {
         HILOG_ERROR("fail to WriteParcelable selectfile");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteParcelable(&thumbnailSize)) {
         HILOG_ERROR("fail to WriteParcelable thumbnailSize");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
     return ERR_OK;
@@ -594,7 +591,6 @@ int FileAccessExtProxy::GetThumbnail(const Uri &uri, const ThumbnailSize &thumbn
 
     MessageParcel reply;
     MessageOption option;
-    std::string uriString = uri.ToString();
     err = Remote()->SendRequest(CMD_GET_THUMBNAIL, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
@@ -615,7 +611,7 @@ int FileAccessExtProxy::GetThumbnail(const Uri &uri, const ThumbnailSize &thumbn
         return ret;
     }
 
-    std::shared_ptr<PixelMap> tempPixelMap = std::shared_ptr<PixelMap>(reply.ReadParcelable<PixelMap>());
+    std::shared_ptr<PixelMap> tempPixelMap(reply.ReadParcelable<PixelMap>());
     if (tempPixelMap == nullptr) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);

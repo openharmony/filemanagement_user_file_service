@@ -467,14 +467,14 @@ ErrCode FileAccessExtStub::CmdGetThumbnail(MessageParcel &data, MessageParcel &r
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdGetThumbnail");
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        HILOG_ERROR("Parameter Move fail to ReadParcelable uri");
+        HILOG_ERROR("Parameter GetThumbnail fail to ReadParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_URIS;
     }
 
     std::shared_ptr<ThumbnailSize> thumbnailSize(data.ReadParcelable<ThumbnailSize>());
     if (thumbnailSize == nullptr) {
-        HILOG_ERROR("Parameter Move fail to ReadParcelable thumbnailSize");
+        HILOG_ERROR("Parameter GetThumbnail fail to ReadParcelable thumbnailSize");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_URIS;
     }

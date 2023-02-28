@@ -819,7 +819,7 @@ int FileAccessHelper::GetThumbnail(Uri &uri, ThumbnailSize &thumbnailSize, std::
     if (thumbnailSize.width <= 0 || thumbnailSize.height <= 0) {
         HILOG_ERROR("Size format check error.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_URIS;
+        return E_GETRESULT;
     }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);

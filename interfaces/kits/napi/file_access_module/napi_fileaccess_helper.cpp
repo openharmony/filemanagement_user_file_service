@@ -936,23 +936,29 @@ napi_value NAPI_GetFileInfoFromRelativePath(napi_env env, napi_callback_info inf
 static bool parseGetThumbnailArgs(napi_env env, NFuncArg &nArg, std::string &uri, ThumbnailSize &thumbnailSize)
 {
     bool succ = false;
-    std::unique_ptr<char[]> uriArray;
-    std::tie(succ, uriArray, std::ignore) = NVal(env, nArg[NARG_POS::FIRST]).ToUTF8String();
+    std::unique_ptr<char[]> uriPtr;
+    std::tie(succ, uriPtr, std::ignore) = NVal(env, nArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
         return false;
     }
-    uri.assign(uriArray.get());
+    uri.assign(uriPtr.get());
 
     NVal nSize(env, nArg[NARG_POS::SECOND]);
     if (!(nSize.HasProp("width") && nSize.HasProp("height"))) {
         return false;
     }
 
-    bool succ1 = false;
-    bool succ2 = false;
-    std::tie(succ1, thumbnailSize.width) = nSize.GetProp("width").ToInt32();
-    std::tie(succ2, thumbnailSize.height) = nSize.GetProp("height").ToInt32();
-    return succ1 && succ2;
+    succ = false;
+    std::tie(succ, thumbnailSize.width) = nSize.GetProp("width").ToInt32();
+    if (!succ) {
+        return false;
+    }
+
+    std::tie(succ, thumbnailSize.height) = nSize.GetProp("height").ToInt32();
+    if (!succ) {
+        return false;
+    }
+    return succ;
 }
 
 struct PixelMapWrapper {
@@ -976,6 +982,7 @@ napi_value NAPI_GetThumbnail(napi_env env, napi_callback_info info)
 
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
+        NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
 

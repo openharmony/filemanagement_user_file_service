@@ -2704,12 +2704,17 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0005, testi
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetThumbnail_0005";
     try {
-        Uri uri("file:///media/image/7");
+        Uri newDirUriTest("");
+        int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri testUri("");
+        result = g_fah->CreateFile(newDirUriTest, "test.txt", testUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         std::shared_ptr<PixelMap> getPixelMap = nullptr;
         ThumbnailSize thumbnailSize;
         thumbnailSize.width = 256;
         thumbnailSize.height = 256;
-        int result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
+        result = g_fah->GetThumbnail(testUri, thumbnailSize, getPixelMap);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         ASSERT_EQ(getPixelMap, nullptr);
     } catch (...) {
@@ -2760,12 +2765,16 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0007, testi
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetThumbnail_0007";
     try {
-        Uri uri("datashare:///media/image/7");
+        FileAccessFwk::FileInfo fileInfo;
+        std::string relativePath = "Pictures/CreateImageThumbnailTest_001.jpg";
+        int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri uri(fileInfo.uri);
         std::shared_ptr<PixelMap> getPixelMap = nullptr;
         ThumbnailSize thumbnailSize;
         thumbnailSize.width = 0;
         thumbnailSize.height = 0;
-        int result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
+        result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         ASSERT_EQ(getPixelMap, nullptr);
     } catch (...) {
@@ -2788,12 +2797,16 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0008, testi
 {
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetThumbnail_0008";
     try {
-        Uri uri("datashare:///media/image/7");
+        FileAccessFwk::FileInfo fileInfo;
+        std::string relativePath = "Pictures/CreateImageThumbnailTest_001.jpg";
+        int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri uri(fileInfo.uri);
         std::shared_ptr<PixelMap> getPixelMap = nullptr;
         ThumbnailSize thumbnailSize;
         thumbnailSize.width = -1;
         thumbnailSize.height = -1;
-        int result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
+        result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         ASSERT_EQ(getPixelMap, nullptr);
     } catch (...) {
