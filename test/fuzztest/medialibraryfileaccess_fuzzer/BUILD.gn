@@ -20,11 +20,11 @@ BASE_DIR = "//foundation/filemanagement/user_file_service"
 ##############################fuzztest##########################################
 ohos_fuzztest("MedialibraryFileAccessFuzzTest") {
   module_out_path = "filemanagement/user_file_service"
-  fuzz_config_file = "//foundation/filemanagement/user_file_service/frameworks/innerkits/file_access/test/fuzztest/medialibraryfileaccess_fuzzer"
+  fuzz_config_file = "${BASE_DIR}/test/fuzztest/medialibraryfileaccess_fuzzer"
 
   include_dirs = [
     "//foundation/ability/ability_runtime/frameworks/kits/appkit/native/ability_runtime/context",
-    "//foundation/filemanagement/user_file_service/frameworks/innerkits/file_access/include",
+    "${BASE_DIR}/interfaces/inner_api/file_access/include",
     "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common",
     "${BASE_DIR}/utils",
   ]
@@ -33,12 +33,11 @@ ohos_fuzztest("MedialibraryFileAccessFuzzTest") {
   configs = [ "//build/config/compiler:exceptions" ]
 
   deps = [
-    "${BASE_DIR}/frameworks/innerkits/file_access:file_access_extension_ability_kit",
+    "${BASE_DIR}/interfaces/inner_api/file_access:file_access_extension_ability_kit",
     "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
     "${ability_runtime_path}/frameworks/native/appkit:app_context",
     "//base/security/access_token/frameworks/accesstoken:accesstoken_communication_adapter_cxx",
     "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
-    "//foundation/filemanagement/user_file_service/frameworks/innerkits/file_access:file_access_extension_ability_kit",
   ]
 
   external_deps = [

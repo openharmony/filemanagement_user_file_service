@@ -14,7 +14,6 @@
 import("//build/ohos.gni")
 
 UFS_BASE_PATH = "//foundation/filemanagement/user_file_service"
-FRAMEWORK_PATH = "${UFS_BASE_PATH}/frameworks"
 
 ohos_shared_library("fileextensioninfo") {
   subsystem_name = "filemanagement"
@@ -23,15 +22,15 @@ ohos_shared_library("fileextensioninfo") {
 
   include_dirs = [
     ".",
-    "${FRAMEWORK_PATH}/innerkits/file_access/include",
-    "${FRAMEWORK_PATH}/innerkits/file_access/include/notify",
-    "${UFS_BASE_PATH}/interfaces/kits/napi/common",
+    "${UFS_BASE_PATH}/interfaces/inner_api/file_access/include",
+    "${UFS_BASE_PATH}/interfaces/inner_api/file_access/include/notify",
+    "${UFS_BASE_PATH}/frameworks/js/napi/common",
     "${UFS_BASE_PATH}/utils",
     "//foundation/ability/ability_base/interfaces/kits/native/uri/include",
   ]
 
   sources = [
-    "${UFS_BASE_PATH}/interfaces/kits/napi/common/file_extension_info_napi.cpp",
+    "${UFS_BASE_PATH}/frameworks/js/napi/common/file_extension_info_napi.cpp",
     "module_export_napi.cpp",
   ]
 
