@@ -72,6 +72,8 @@ ohos_shared_library("file_access_extension_ability_kit") {
     "src/notify/file_access_notify_stub.cpp",
   ]
   configs = [ ":ability_config" ]
+
+  version_script = "libfile_access_extension_ability_kit.map"
   public_configs = [
     ":ability_public_config",
     "${ability_runtime_path}/frameworks/native/ability:ability_context_public_config",
@@ -92,18 +94,16 @@ ohos_shared_library("file_access_extension_ability_kit") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hitrace_native:hitrace_meter",
+    "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "multimedia_image_framework:image_native",
+    "napi:ace_napi",
     "samgr:samgr_proxy",
-  ]
-
-  public_deps = [
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
-    "//foundation/arkui/napi:ace_napi",
   ]
 
   subsystem_name = "filemanagement"
   part_name = "user_file_service"
+  innerapi_tags = [ "platformsdk" ]
 }
 
 ohos_shared_library("file_access_extension_ability_module") {

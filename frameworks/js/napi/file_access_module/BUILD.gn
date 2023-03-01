@@ -22,15 +22,15 @@ ohos_shared_library("fileaccess") {
 
   include_dirs = [
     "./",
-    "${BASE_DIR}/interfaces/kits/napi/common",
-    "${BASE_DIR}/interfaces/kits/napi/file_access_module/file_info",
-    "${BASE_DIR}/interfaces/kits/napi/file_access_module/root_info",
+    "${BASE_DIR}/frameworks/js/napi/common",
+    "${BASE_DIR}/frameworks/js/napi/file_access_module/file_info",
+    "${BASE_DIR}/frameworks/js/napi/file_access_module/root_info",
     "${BASE_DIR}/utils",
     "//foundation/filemanagement/file_api/interfaces/kits/js/src/common",
   ]
 
   sources = [
-    "${BASE_DIR}/interfaces/kits/napi/common/file_extension_info_napi.cpp",
+    "${BASE_DIR}/frameworks/js/napi/common/file_extension_info_napi.cpp",
     "file_info/napi_file_info_exporter.cpp",
     "file_info/napi_file_iterator_exporter.cpp",
     "napi_fileaccess_helper.cpp",
@@ -42,7 +42,7 @@ ohos_shared_library("fileaccess") {
   ]
 
   deps = [
-    "${BASE_DIR}/frameworks/innerkits/file_access:file_access_extension_ability_kit",
+    "${BASE_DIR}/interfaces/inner_api/file_access:file_access_extension_ability_kit",
     "//foundation/ability/ability_runtime/frameworks/js/napi/inner/napi_common:napi_common",
   ]
 

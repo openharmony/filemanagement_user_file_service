@@ -25,9 +25,7 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-namespace {
-    constexpr int WAIT_TIME = 3;    // second
-}
+
 std::mutex FileAccessExtConnection::mutex_;
 
 void FileAccessExtConnection::OnAbilityConnectDone(
@@ -62,6 +60,7 @@ void FileAccessExtConnection::ConnectFileExtAbility(const AAFwk::Want &want, con
         return;
     }
     std::unique_lock<std::mutex> lock(connectLockInfo_.mutex);
+    const int WAIT_TIME = 3;  // second
     if (!connectLockInfo_.condition.wait_for(lock, std::chrono::seconds(WAIT_TIME),
         [this] { return fileExtProxy_ != nullptr && connectLockInfo_.isReady; })) {
         HILOG_INFO("Wait connect timeout.");

@@ -806,6 +806,7 @@ int FileAccessHelper::GetThumbnail(Uri &uri, ThumbnailSize &thumbnailSize, std::
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetThumbnail");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::GetThumbnail check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 

@@ -169,6 +169,7 @@ int FileAccessExtStubImpl::GetThumbnail(const Uri &uri, const ThumbnailSize &thu
     int ret = extension_->GetThumbnail(uri, size, tempPtr);
     if (ret != ERR_OK) {
         HILOG_ERROR("GetThumbnail failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
     pixelMap = std::move(tempPtr);
