@@ -153,13 +153,16 @@ static bool IsSystemApp()
 std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> &context)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Creator");
     if (context == nullptr) {
         HILOG_ERROR("FileAccessHelper::Creator failed, context == nullptr");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return {nullptr, EINVAL};
     }
 
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::Creator check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return {nullptr, E_PERMISSION_SYS};
     }
 
@@ -171,6 +174,7 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, GetUserId(), extensionInfos);
     if (!ret) {
         HILOG_ERROR("FileAccessHelper::Creator QueryExtensionAbilityInfos failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return {nullptr, E_GETINFO};
     }
 
@@ -180,6 +184,7 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         sptr<FileAccessExtConnection> fileAccessExtConnection = new(std::nothrow) FileAccessExtConnection();
         if (fileAccessExtConnection == nullptr) {
             HILOG_ERROR("new fileAccessExtConnection fail");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return {nullptr, E_GETRESULT};
         }
 
@@ -190,12 +195,14 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         sptr<IFileAccessExtBase> fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
         if (fileExtProxy == nullptr) {
             HILOG_ERROR("Creator get invalid fileExtProxy");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return {nullptr, E_CONNECT};
         }
 
         std::shared_ptr<ConnectInfo> connectInfo = std::make_shared<ConnectInfo>();
         if (connectInfo == nullptr) {
             HILOG_ERROR("Creator, connectInfo == nullptr");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return {nullptr, E_GETRESULT};
         }
         FileAccessHelper::wants_.push_back(wantTem);
@@ -207,32 +214,39 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
     FileAccessHelper *ptrFileAccessHelper = new (std::nothrow) FileAccessHelper(context, cMap);
     if (ptrFileAccessHelper == nullptr) {
         HILOG_ERROR("FileAccessHelper::Creator failed, create FileAccessHelper failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return {nullptr, E_GETRESULT};
     }
 
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return {std::shared_ptr<FileAccessHelper>(ptrFileAccessHelper), ERR_OK};
 }
 
 std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::vector<AAFwk::Want> &wants)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Creator");
     if (context == nullptr) {
         HILOG_ERROR("FileAccessHelper::Creator failed, context == nullptr");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return {nullptr, EINVAL};
     }
 
     if (wants.size() == 0) {
         HILOG_ERROR("FileAccessHelper::Creator failed, wants is empty");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return {nullptr, EINVAL};
     }
 
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::Creator check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return {nullptr, E_PERMISSION_SYS};
     }
 
     if (GetRegisteredFileAccessExtAbilityInfo(FileAccessHelper::wants_) != ERR_OK) {
         HILOG_ERROR("GetRegisteredFileAccessExtAbilityInfo failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return {nullptr, E_GETINFO};
     }
 
@@ -241,6 +255,7 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         sptr<FileAccessExtConnection> fileAccessExtConnection = new(std::nothrow) FileAccessExtConnection();
         if (fileAccessExtConnection == nullptr) {
             HILOG_ERROR("new fileAccessExtConnection fail");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return {nullptr, E_GETRESULT};
         }
 
@@ -251,12 +266,14 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         sptr<IFileAccessExtBase> fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
         if (fileExtProxy == nullptr) {
             HILOG_ERROR("Creator get invalid fileExtProxy");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return {nullptr, E_CONNECT};
         }
 
         std::shared_ptr<ConnectInfo> connectInfo = std::make_shared<ConnectInfo>();
         if (connectInfo == nullptr) {
             HILOG_ERROR("Creator, connectInfo == nullptr");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return {nullptr, E_GETRESULT};
         }
 
@@ -265,6 +282,7 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         string bundleName = FileAccessHelper::GetKeyOfWants(wants[i]);
         if (bundleName.length() == 0) {
             HILOG_ERROR("Creator GetKeyOfWants bundleName not found");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return {nullptr, E_GETRESULT};
         }
         cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(bundleName, connectInfo));
@@ -272,32 +290,39 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
     FileAccessHelper *ptrFileAccessHelper = new (std::nothrow) FileAccessHelper(context, cMap);
     if (ptrFileAccessHelper == nullptr) {
         HILOG_ERROR("Creator failed, create FileAccessHelper failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return {nullptr, E_GETRESULT};
     }
 
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return {std::shared_ptr<FileAccessHelper>(ptrFileAccessHelper), ERR_OK};
 }
 
 std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteObject> &token,
     const std::vector<AAFwk::Want> &wants)
 {
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Creator");
     if (token == nullptr) {
         HILOG_ERROR("FileAccessHelper::Creator failed, token == nullptr");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return nullptr;
     }
 
     if (wants.size() == 0) {
         HILOG_ERROR("FileAccessHelper::Creator failed, wants is empty");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return nullptr;
     }
 
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::Creator check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return nullptr;
     }
 
     if (GetRegisteredFileAccessExtAbilityInfo(FileAccessHelper::wants_) != ERR_OK) {
         HILOG_ERROR("GetRegisteredFileAccessExtAbilityInfo failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return nullptr;
     }
 
@@ -306,6 +331,7 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteOb
         sptr<FileAccessExtConnection> fileAccessExtConnection = new(std::nothrow) FileAccessExtConnection();
         if (fileAccessExtConnection == nullptr) {
             HILOG_ERROR("new fileAccessExtConnection fail");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return nullptr;
         }
 
@@ -316,12 +342,14 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteOb
         sptr<IFileAccessExtBase> fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
         if (fileExtProxy == nullptr) {
             HILOG_ERROR("Creator get invalid fileExtProxy");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return nullptr;
         }
 
         std::shared_ptr<ConnectInfo> connectInfo = std::make_shared<ConnectInfo>();
         if (connectInfo == nullptr) {
             HILOG_ERROR("Creator, connectInfo == nullptr");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return nullptr;
         }
 
@@ -330,6 +358,7 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteOb
         string bundleName = FileAccessHelper::GetKeyOfWants(wants[i]);
         if (bundleName.length() == 0) {
             HILOG_ERROR("Creator GetKeyOfWants bundleName not found");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return nullptr;
         }
         cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(bundleName, connectInfo));
@@ -337,9 +366,11 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteOb
     FileAccessHelper *ptrFileAccessHelper = new (std::nothrow) FileAccessHelper(token, cMap);
     if (ptrFileAccessHelper == nullptr) {
         HILOG_ERROR("Creator failed, create FileAccessHelper failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return nullptr;
     }
 
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return std::shared_ptr<FileAccessHelper>(ptrFileAccessHelper);
 }
 
@@ -418,6 +449,7 @@ int FileAccessHelper::OpenFile(Uri &uri, int flags, int &fd)
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::OpenFile check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
@@ -456,6 +488,7 @@ int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Ur
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::CreateFile check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
@@ -488,6 +521,7 @@ int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &ne
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Mkdir");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::Mkdir check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
@@ -520,6 +554,7 @@ int FileAccessHelper::Delete(Uri &selectFile)
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::Delete check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
@@ -552,6 +587,7 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::Move check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
@@ -598,6 +634,7 @@ int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Ur
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Rename");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::Rename check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
@@ -631,6 +668,7 @@ int FileAccessHelper::ListFile(const FileInfo &fileInfo, const int64_t offset, c
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::ListFile check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
@@ -665,6 +703,7 @@ int FileAccessHelper::ScanFile(const FileInfo &fileInfo, const int64_t offset, c
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ScanFile");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::ScanFile check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
@@ -698,6 +737,7 @@ int FileAccessHelper::GetRoots(std::vector<RootInfo> &rootInfoVec)
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::GetRoots check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
@@ -738,6 +778,7 @@ int FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::W
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRegisteredFileAccessExtAbilityInfo");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::GetRoots check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
@@ -772,6 +813,7 @@ int FileAccessHelper::Access(Uri &uri, bool &isExist)
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Access");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::Access check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
@@ -804,6 +846,7 @@ int FileAccessHelper::GetFileInfoFromUri(Uri &selectFile, FileInfo &fileInfo)
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromUri");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::GetFileInfoFromUri check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
@@ -836,6 +879,7 @@ int FileAccessHelper::GetFileInfoFromRelativePath(std::string &selectFile, FileI
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromRelativePath");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::GetFileInfoFromRelativePath check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
