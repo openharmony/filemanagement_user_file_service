@@ -2606,6 +2606,38 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0004, 
 }
 
 /**
+ * @tc.number: user_file_service_external_file_access_GetFileInfoFromUri_0005
+ * @tc.name: external_file_access_GetFileInfoFromUri_0005
+ * @tc.desc: Test function of GetFileInfoFromUri interface.
+ * @tc.desc: convert the invalid uri to fileinfo failed.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0005, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetFileInfoFromUri_0005";
+    try {
+        Uri uri("~!@#$%^&*()_");
+        FileInfo fileInfo;
+        int result = g_fah->GetFileInfoFromUri(uri, fileInfo);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+
+        uri = Uri("/");
+        result = g_fah->GetFileInfoFromUri(uri, fileInfo);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+
+        uri = Uri("");
+        result = g_fah->GetFileInfoFromUri(uri, fileInfo);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_GetFileInfoFromUri_0005 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_GetFileInfoFromUri_0005";
+}
+
+/**
  * @tc.number: user_file_service_external_file_access_on_0000
  * @tc.name: external_file_access_on_0000
  * @tc.desc: Test function of On interface.
