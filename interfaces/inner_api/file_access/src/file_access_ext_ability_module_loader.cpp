@@ -22,9 +22,7 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-namespace {
-const std::string FILE_ACCESS_TYPE = "12";
-}
+
 FileAccessExtAbilityModuleLoader::FileAccessExtAbilityModuleLoader() = default;
 FileAccessExtAbilityModuleLoader::~FileAccessExtAbilityModuleLoader() = default;
 
@@ -46,6 +44,7 @@ extern "C" __attribute__((visibility("default"))) void SetCreator(const CreatorF
 std::map<std::string, std::string> FileAccessExtAbilityModuleLoader::GetParams()
 {
     std::map<std::string, std::string> params;
+    const std::string FILE_ACCESS_TYPE = "12";
     params.insert(std::pair<std::string, std::string>("type", FILE_ACCESS_TYPE));
     params.insert(std::pair<std::string, std::string>("name", "FileAccessExtension"));
     return params;
