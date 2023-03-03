@@ -20,16 +20,59 @@ const PhotoViewMIMETypes = {
     INVALID_TYPE: ""
 }
 
+const ErrCode = {
+    INVALID_ARGS: 13900020,
+    RESULT_ERROR: 13900042,
+}
+
+const ERRCODE_MAP = new Map([
+    [ErrCode.INVALID_ARGS, "Invalid argument"],
+    [ErrCode.RESULT_ERROR, "Unknown error"],
+]);
+
 const PHOTO_VIEW_MIME_TYPE_MAP = new Map([
     [PhotoViewMIMETypes.IMAGE_TYPE, "FILTER_MEDIA_TYPE_IMAGE"],
     [PhotoViewMIMETypes.VIDEO_TYPE, "FILTER_MEDIA_TYPE_VIDEO"],
     [PhotoViewMIMETypes.IMAGE_VIDEO_TYPE, "FILTER_MEDIA_TYPE_ALL"],
 ]);
 
+const CREATE_FILE_NAME_LENGTH_LIMIT = 256;
+
+function checkArguments(args) {
+    if (args.length == 2 && typeof args[1] != "function") {
+        return false;
+    }
+
+    if (args.length > 0 && typeof args[0] == 'object') {
+        let option = args[0];
+        if (option.maxSelectNumber != undefined) {
+            if (option.maxSelectNumber.toString().indexOf(".") != -1) {
+                return false;
+            }
+        }
+        
+        if (option.newFileNames != undefined && option.newFileNames.length > 0) {
+            for (let i = 0; i < option.newFileNames.length; i++) {
+                let value = option.newFileNames[i];
+                if ((value.indexOf(".") == -1) || (value.length > CREATE_FILE_NAME_LENGTH_LIMIT)) {
+                    console.log("[picker] checkArguments Invalid name: " + value);
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+function getErr(errCode) {
+    return {code: errCode, message: ERRCODE_MAP.get(errCode)};
+}
+
 async function photoPickerSelect() {
-    if (arguments.length == 2 && typeof arguments[1] != "function") {
-        console.log("[picker] photoPickerSelect callback invalid");
-        throw Error("invalid callback");
+    if (!checkArguments(arguments)) {
+        console.log("[picker] Invalid argument");
+        throw Error(getErr(ErrCode.INVALID_ARGS));
     }
 
     let config = {
@@ -49,36 +92,41 @@ async function photoPickerSelect() {
             config.parameters.filterMediaType = PHOTO_VIEW_MIME_TYPE_MAP.get(option.MIMEType);
         }
     }
-    console.log("[picker] photoPickerSelect config: " + JSON.stringify(config));
+    console.log("[picker] config: " + JSON.stringify(config));
 
     try {
         let result = await globalThis.abilityContext.startAbilityForResult(config, {windowMode: 1});
-        console.log("[picker] photoPickerSelect result: " + JSON.stringify(result));
+        console.log("[picker] result: " + JSON.stringify(result));
         let uris = result.want.parameters["select-item-list"];
         let isOrigin = result.want.parameters["isOriginal"];
-        let selectResult = new PhotoSelectResult(uris, isOrigin);
+        if (result.resultCode == -1) {
+            result.resultCode = 0;
+            uris = [];
+        }
+        let err = (result.resultCode == 0) ? null : getErr(ErrCode.RESULT_ERROR);
+        let selectResult = (result.resultCode == 0) ? new PhotoSelectResult(uris, isOrigin) : null;
         if (arguments.length == 2 && typeof arguments[1] == "function") {
-            return arguments[1]({code: result.resultCode}, selectResult);
+            return arguments[1](err, selectResult);
         } else if (arguments.length == 1 && typeof arguments[0] == "function") {
-            return arguments[0]({code: result.resultCode}, selectResult);
+            return arguments[0](err, selectResult);
         }
         return new Promise((resolve, reject) => {
             if (result.resultCode == 0) {
                 resolve(selectResult);
             } else {
-                console.log("[picker] photoPickerSelect err: " + result.resultCode);
+                console.log("[picker] err: " + result.resultCode);
                 reject(result.resultCode);
             }
         })
     } catch (error) {
-        console.log("[picker] photoPickerSelect error: " + error);
+        console.log("[picker] error: " + error);
     }
 }
 
 async function documentPickerSelect() {
-    if (arguments.length == 2 && typeof arguments[1] != "function") {
-        console.log("[picker] documentPickerSelect callback invalid");
-        throw Error("invalid callback");
+    if (!checkArguments(arguments)) {
+        console.log("[picker] Invalid argument");
+        throw Error(getErr(ErrCode.INVALID_ARGS));
     }
 
     let config = {
@@ -87,34 +135,40 @@ async function documentPickerSelect() {
             'startMode': 'choose',
         }
     }
-    console.log("[picker] documentPickerSelect config: " + JSON.stringify(config));
+    console.log("[picker] config: " + JSON.stringify(config));
 
     try {
         let result = await globalThis.abilityContext.startAbilityForResult(config, {windowMode: 1});
-        console.log("[picker] documentPickerSelect result: " + JSON.stringify(result));
+        console.log("[picker] result: " + JSON.stringify(result));
         let uris = result.want.parameters.select_item_list;
+        if (result.resultCode == -1) {
+            result.resultCode = 0;
+            uris = [];
+        }
+        let err = (result.resultCode == 0) ? null : getErr(ErrCode.RESULT_ERROR);
+        let uriResult = (result.resultCode == 0) ? uris : null;
         if (arguments.length == 2 && typeof arguments[1] == "function") {
-            return arguments[1]({code: result.resultCode}, uris);
+            return arguments[1](err, uriResult);
         } else if (arguments.length == 1 && typeof arguments[0] == "function") {
-            return arguments[0]({code: result.resultCode}, uris);
+            return arguments[0](err, uriResult);
         }
         return new Promise((resolve, reject) => {
             if (result.resultCode == 0) {
                 resolve(uris);
             } else {
-                console.log("[picker] documentPickerSelect err: " + result.resultCode);
+                console.log("[picker] err: " + result.resultCode);
                 reject(result.resultCode);
             }
         })
     } catch (error) {
-        console.log("[picker] documentPickerSelect error: " + error);
+        console.log("[picker] error: " + error);
     }
 }
 
 async function documentPickerSave() {
-    if (arguments.length == 2 && typeof arguments[1] != "function") {
-        console.log("[picker] documentPickerSave callback invalid");
-        throw Error("invalid callback");
+    if (!checkArguments(arguments)) {
+        console.log("[picker] Invalid argument");
+        throw Error({code: 13900020, message: "Invalid argument"});
     }
 
     let config = {
@@ -130,34 +184,40 @@ async function documentPickerSave() {
             config.parameters.saveFile = option.newFileNames[0];
         }
     }
-    console.log("[picker] documentPickerSave config: " + JSON.stringify(config));
+    console.log("[picker] config: " + JSON.stringify(config));
 
     try {
         let result = await globalThis.abilityContext.startAbilityForResult(config, {windowMode: 1});
-        console.log("[picker] documentPickerSave result: " + JSON.stringify(result));
+        console.log("[picker] result: " + JSON.stringify(result));
         let uris = result.want["parameters"].pick_path_return;
+        if (result.resultCode == -1) {
+            result.resultCode = 0;
+            uris = [];
+        }
+        let err = (result.resultCode == 0) ? null : getErr(ErrCode.RESULT_ERROR);
+        let uriResult = (result.resultCode == 0) ? uris : null;
         if (arguments.length == 2 && typeof arguments[1] == "function") {
-            return arguments[1]({code: result.resultCode}, uris);
+            return arguments[1](err, uriResult);
         } else if (arguments.length == 1 && typeof arguments[0] == "function") {
-            return arguments[0]({code: result.resultCode}, uris);
+            return arguments[0](err, uriResult);
         }
         return new Promise((resolve, reject) => {
             if (result.resultCode == 0) {
                 resolve(uris);
             } else {
-                console.log("[picker] documentPickerSave err: " + result.resultCode);
+                console.log("[picker] err: " + result.resultCode);
                 reject(result.resultCode);
             }
         })
     } catch (error) {
-        console.log("[picker] documentPickerSave error: " + error);
+        console.log("[picker] error: " + error);
     }
 }
 
 async function audioPickerSelect() {
-    if (arguments.length == 2 && typeof arguments[1] != "function") {
-        console.log("[picker] audioPickerSelect callback invalid");
-        throw Error("invalid callback");
+    if (!checkArguments(arguments)) {
+        console.log("[picker] Invalid argument");
+        throw Error({code: 13900020, message: "Invalid argument"});
     }
 
     let config = {
@@ -166,27 +226,33 @@ async function audioPickerSelect() {
             'startMode': 'choose',
         }
     }
-    console.log("[picker] audioPickerSelect config: " + JSON.stringify(config));
+    console.log("[picker] config: " + JSON.stringify(config));
 
     try {
         let result = await globalThis.abilityContext.startAbilityForResult(config, {windowMode: 1});
-        console.log("[picker] audioPickerSelect result: " + JSON.stringify(result));
+        console.log("[picker] result: " + JSON.stringify(result));
         let uris = result.want.parameters.select_item_list;
+        if (result.resultCode == -1) {
+            result.resultCode = 0;
+            uris = [];
+        }
+        let err = (result.resultCode == 0) ? null : getErr(ErrCode.RESULT_ERROR);
+        let uriResult = (result.resultCode == 0) ? uris : null;
         if (arguments.length == 2 && typeof arguments[1] == "function") {
-            return arguments[1]({code: result.resultCode}, uris);
+            return arguments[1](err, uriResult);
         } else if (arguments.length == 1 && typeof arguments[0] == "function") {
-            return arguments[0]({code: result.resultCode}, uris);
+            return arguments[0](err, uriResult);
         }
         return new Promise((resolve, reject) => {
             if (result.resultCode == 0) {
                 resolve(uris);
             } else {
-                console.log("[picker] audioPickerSelect err: " + result.resultCode);
+                console.log("[picker] err: " + result.resultCode);
                 reject(result.resultCode);
             }
         })
     } catch (error) {
-        console.log("[picker] audioPickerSelect error: " + error);
+        console.log("[picker] error: " + error);
     }
 }
 
