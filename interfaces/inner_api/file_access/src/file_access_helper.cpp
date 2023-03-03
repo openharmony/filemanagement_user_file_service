@@ -24,11 +24,13 @@
 #include "ifile_access_ext_base.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#include "image_source.h"
 #include "system_ability_definition.h"
 #include "tokenid_kit.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
+using namespace Media;
 std::vector<AAFwk::Want> FileAccessHelper::wants_;
 
 static int GetUserId()
@@ -833,6 +835,46 @@ int FileAccessHelper::Access(Uri &uri, bool &isExist)
     int ret = fileExtProxy->Access(uri, isExist);
     if (ret != ERR_OK) {
         HILOG_ERROR("Access get result error, code:%{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
+int FileAccessHelper::GetThumbnail(Uri &uri, ThumbnailSize &thumbnailSize, std::shared_ptr<PixelMap> &pixelMap)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetThumbnail");
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::GetThumbnail check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_PERMISSION_SYS;
+    }
+
+    if (!CheckUri(uri)) {
+        HILOG_ERROR("Uri format check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_URIS;
+    }
+
+    string uriStr = uri.ToString();
+    if (thumbnailSize.width <= 0 || thumbnailSize.height <= 0) {
+        HILOG_ERROR("Size format check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_GETRESULT;
+    }
+
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
+    if (fileExtProxy == nullptr) {
+        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    int ret = fileExtProxy->GetThumbnail(uri, thumbnailSize, pixelMap);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("GetThumbnail get result error, code:%{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }

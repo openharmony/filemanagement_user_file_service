@@ -20,12 +20,14 @@
 #include "file_access_extension_info.h"
 #include "file_access_notify_manager.h"
 #include "file_filter.h"
+#include "image_source.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 class Runtime;
 }
 namespace FileAccessFwk {
+using namespace Media;
 using namespace DistributedFS;
 using namespace AbilityRuntime;
 class FileAccessExtAbility;
@@ -52,6 +54,7 @@ public:
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec);
     virtual int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec);
+    virtual int GetThumbnail(const Uri &uri, const Size &size, std::unique_ptr<PixelMap> &pixelMap);
     virtual int GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo);
     virtual int GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo);
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec);

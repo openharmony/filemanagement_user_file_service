@@ -559,6 +559,70 @@ int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfoVec)
     return ERR_OK;
 }
 
+static int WriteThumbnailArgs(MessageParcel &data, const Uri &uri, const ThumbnailSize &thumbnailSize)
+{
+    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return E_IPCS;
+    }
+
+    if (!data.WriteParcelable(&uri)) {
+        HILOG_ERROR("fail to WriteParcelable selectfile");
+        return E_IPCS;
+    }
+
+    if (!data.WriteParcelable(&thumbnailSize)) {
+        HILOG_ERROR("fail to WriteParcelable thumbnailSize");
+        return E_IPCS;
+    }
+    return ERR_OK;
+}
+
+int FileAccessExtProxy::GetThumbnail(const Uri &uri, const ThumbnailSize &thumbnailSize, std::shared_ptr<PixelMap> &pixelMap)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetThumbnail");
+    MessageParcel data;
+    int err = WriteThumbnailArgs(data, uri, thumbnailSize);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to WriteThumbnailArgs. err: %{public}d", err);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return err;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    err = Remote()->SendRequest(CMD_GET_THUMBNAIL, data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return err;
+    }
+
+    int ret = E_IPCS;
+    if (!reply.ReadInt32(ret)) {
+        HILOG_ERROR("Parameter GetThumbnail fail to WriteInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("GetThumbnail operation failed ret : %{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    std::shared_ptr<PixelMap> tempPixelMap(reply.ReadParcelable<PixelMap>());
+    if (tempPixelMap == nullptr) {
+        HILOG_ERROR("ReadParcelable value is nullptr.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+    pixelMap = tempPixelMap;
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
 int FileAccessExtProxy::GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromUri");

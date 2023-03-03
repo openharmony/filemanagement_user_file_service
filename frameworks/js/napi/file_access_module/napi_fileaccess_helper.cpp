@@ -19,6 +19,7 @@
 #include <utility>
 #include <vector>
 
+#include "file_access_extension_info.h"
 #include "file_access_framework_errno.h"
 #include "file_access_helper.h"
 #include "file_info_entity.h"
@@ -30,6 +31,7 @@
 #include "napi_file_info_exporter.h"
 #include "napi_notify_callback.h"
 #include "napi_root_iterator_exporter.h"
+#include "pixel_map_napi.h"
 #include "root_iterator_entity.h"
 #include "securec.h"
 #include "uri.h"
@@ -233,6 +235,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("access", NAPI_Access),
         DECLARE_NAPI_FUNCTION("getFileInfoFromUri", NAPI_GetFileInfoFromUri),
         DECLARE_NAPI_FUNCTION("getFileInfoFromRelativePath", NAPI_GetFileInfoFromRelativePath),
+        DECLARE_NAPI_FUNCTION("getThumbnail", NAPI_GetThumbnail),
         DECLARE_NAPI_FUNCTION("on", NAPI_On),
         DECLARE_NAPI_FUNCTION("off", NAPI_Off)
     };
@@ -923,6 +926,90 @@ napi_value NAPI_GetFileInfoFromRelativePath(napi_env env, napi_callback_info inf
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     }
     NVal cb(env, funcArg[NARG_POS::SECOND]);
+    if (!cb.TypeIs(napi_function)) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
+}
+
+static bool parseGetThumbnailArgs(napi_env env, NFuncArg &nArg, std::string &uri, ThumbnailSize &thumbnailSize)
+{
+    bool succ = false;
+    std::unique_ptr<char[]> uriPtr;
+    std::tie(succ, uriPtr, std::ignore) = NVal(env, nArg[NARG_POS::FIRST]).ToUTF8String();
+    if (!succ) {
+        return false;
+    }
+    uri.assign(uriPtr.get());
+
+    NVal nSize(env, nArg[NARG_POS::SECOND]);
+    if (!(nSize.HasProp("width") && nSize.HasProp("height"))) {
+        return false;
+    }
+
+    succ = false;
+    std::tie(succ, thumbnailSize.width) = nSize.GetProp("width").ToInt32();
+    if (!succ) {
+        return false;
+    }
+
+    std::tie(succ, thumbnailSize.height) = nSize.GetProp("height").ToInt32();
+    if (!succ) {
+        return false;
+    }
+    return succ;
+}
+
+struct PixelMapWrapper {
+    std::shared_ptr<PixelMap> pixelMap = nullptr;
+};
+
+napi_value NAPI_GetThumbnail(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    std::string uriString;
+    ThumbnailSize thumbnailSize;
+    if (!parseGetThumbnailArgs(env, funcArg, uriString, thumbnailSize)) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    if (fileAccessHelper == nullptr) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    auto wrapper = std::make_shared<PixelMapWrapper>();
+    auto cbExec = [fileAccessHelper, uriString, thumbnailSize, wrapper]() -> NError {
+        OHOS::Uri uri(uriString);
+        ThumbnailSize size = thumbnailSize;
+        int ret = fileAccessHelper->GetThumbnail(uri, size, wrapper->pixelMap);
+        return NError(ret);
+    };
+
+    auto cbComplete = [wrapper](napi_env env, NError err) -> NVal {
+        if (err) {
+            return { env, err.GetNapiErr(env) };
+        }
+
+        napi_value nPixelmap = Media::PixelMapNapi::CreatePixelMap(env, wrapper->pixelMap);
+        return { env, nPixelmap };
+    };
+
+    const std::string procedureName = "getThumbnail";
+    NVal thisVar(env, funcArg.GetThisVar());
+    if (funcArg.GetArgc() == NARG_CNT::TWO) {
+        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
+    }
+
+    NVal cb(env, funcArg[NARG_POS::THIRD]);
     if (!cb.TypeIs(napi_function)) {
         NError(EINVAL).ThrowErr(env);
         return nullptr;

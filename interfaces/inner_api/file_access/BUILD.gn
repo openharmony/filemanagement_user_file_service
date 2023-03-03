@@ -96,6 +96,7 @@ ohos_shared_library("file_access_extension_ability_kit") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "multimedia_image_framework:image_native",
     "napi:ace_napi",
     "samgr:samgr_proxy",
   ]

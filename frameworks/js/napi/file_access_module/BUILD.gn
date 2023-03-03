@@ -54,5 +54,6 @@ ohos_shared_library("fileaccess") {
     "c_utils:utils",
     "file_api:filemgmt_libn",
     "hiviewdfx_hilog_native:libhilog",
+    "multimedia_image_framework:image",
   ]
 }

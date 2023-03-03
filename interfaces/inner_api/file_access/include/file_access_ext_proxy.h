@@ -22,6 +22,7 @@
 
 #include "file_access_extension_info.h"
 #include "ifile_access_ext_base.h"
+#include "image_source.h"
 #include "iremote_broker.h"
 #include "iremote_object.h"
 #include "iremote_proxy.h"
@@ -30,6 +31,7 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
+using namespace Media;
 class FileAccessExtProxy : public IRemoteProxy<IFileAccessExtBase> {
 public:
     explicit FileAccessExtProxy(const sptr<IRemoteObject> &remote) : IRemoteProxy<IFileAccessExtBase>(remote) {}
@@ -46,6 +48,7 @@ public:
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;
     virtual int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;
+    virtual int GetThumbnail(const Uri &uri, const ThumbnailSize &thumbnailSize, std::shared_ptr<PixelMap> &pixelMap) override;
     virtual int GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo) override;
     virtual int GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo) override;
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec) override;

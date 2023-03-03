@@ -25,11 +25,13 @@
 #include "file_access_framework_errno.h"
 #include "file_filter.h"
 #include "ifile_access_notify.h"
+#include "image_source.h"
 #include "uri.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
 using namespace DistributedFS;
+using namespace Media;
 
 class IFileAccessExtBase : public IRemoteBroker {
 public:
@@ -46,6 +48,7 @@ public:
         CMD_SCAN_FILE,
         CMD_GET_ROOTS,
         CMD_ACCESS,
+        CMD_GET_THUMBNAIL,
         CMD_GET_FILEINFO_FROM_URI,
         CMD_GET_FILEINFO_FROM_RELATIVE_PATH,
         CMD_REGISTER_NOTIFY,
@@ -62,6 +65,7 @@ public:
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) = 0;
     virtual int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) = 0;
+    virtual int GetThumbnail(const Uri &uri, const ThumbnailSize &thumbnailSize, std::shared_ptr<PixelMap> &pixelMap) = 0;
     virtual int GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo) = 0;
     virtual int GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo) = 0;
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec) = 0;
