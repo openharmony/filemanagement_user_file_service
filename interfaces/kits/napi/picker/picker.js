@@ -76,8 +76,8 @@ async function photoPickerSelect() {
     }
 
     let config = {
-        bundleName: "com.ohos.photos",
-        abilityName: "com.ohos.photos.MainAbility",
+        "action": "ohos.want.action.photoPicker",
+        "type": "multipleselect",
         parameters: {
             'uri': "multipleselect",
         },
@@ -85,7 +85,9 @@ async function photoPickerSelect() {
     if (arguments.length > 0 && typeof arguments[0] == 'object') {
         let option = arguments[0];
         if (option.maxSelectNumber > 0) {
-            config.parameters.uri = (option.maxSelectNumber == 1) ? "singleselect" : "multipleselect";
+            let select = (option.maxSelectNumber == 1) ? "singleselect" : "multipleselect";
+            config.type = select;
+            config.parameters.uri = select;
             config.parameters.maxSelectCount = option.maxSelectNumber;
         }
         if (option.MIMEType.length > 0 && PHOTO_VIEW_MIME_TYPE_MAP.has(option.MIMEType)) {
