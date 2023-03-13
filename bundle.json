@@ -32,14 +32,19 @@
             ]
         },
         "build": {
-            "sub_component": [
-                "//foundation/filemanagement/user_file_service/services:user_file_managers",
-                "//foundation/filemanagement/user_file_service/interfaces/inner_api/file_access:file_access_extension_ability_module",
-                "//foundation/filemanagement/user_file_service/frameworks/js/napi/file_access_module:fileaccess",
-                "//foundation/filemanagement/user_file_service/frameworks/js/napi/file_access_ext_ability:fileaccessextensionability_napi",
-                "//foundation/filemanagement/user_file_service/frameworks/js/napi/file_extension_info_module:fileextensioninfo",
-                "//foundation/filemanagement/user_file_service/interfaces/kits/picker:picker"
-            ],
+            "group_type":{
+                "fwk_group": [
+                    "//foundation/filemanagement/user_file_service/interfaces/kits/picker:picker"
+                ],
+                "service_group": [
+                    "//foundation/filemanagement/user_file_service/services:user_file_managers",
+                    "//foundation/filemanagement/user_file_service/interfaces/inner_api/file_access:file_access_extension_ability_module",
+                    "//foundation/filemanagement/user_file_service/frameworks/js/napi/file_access_module:fileaccess",
+                    "//foundation/filemanagement/user_file_service/frameworks/js/napi/file_access_ext_ability:fileaccessextensionability_napi",
+                    "//foundation/filemanagement/user_file_service/frameworks/js/napi/file_extension_info_module:fileextensioninfo"
+                ],
+                "base_group": []
+            } ,
             "inner_kits": [
                 {
                   "name": "//foundation/filemanagement/user_file_service/interfaces/inner_api/file_access:file_access_extension_ability_kit",
