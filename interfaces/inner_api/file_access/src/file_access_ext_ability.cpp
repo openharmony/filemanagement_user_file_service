@@ -15,7 +15,6 @@
 
 #include "file_access_ext_ability.h"
 
-#include "ability_loader.h"
 #include "connection_manager.h"
 #include "extension_context.h"
 #include "file_access_framework_errno.h"
