@@ -20,7 +20,6 @@
 #include <memory>
 #include <string>
 #include <utility>
-#include <unistd.h>
 #include <vector>
 
 #include "access_token.h"
@@ -125,12 +124,10 @@ ErrCode FileAccessExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply
 
     if (!reply.WriteFileDescriptor(fd)) {
         HILOG_ERROR("Parameter OpenFile fail to WriteFileDescriptor fd");
-        close(fd);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
-    close(fd);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
