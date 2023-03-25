@@ -182,7 +182,7 @@ async function documentPickerSave() {
     if (arguments.length > 0 && typeof arguments[0] == 'object') {
         let option = arguments[0];
         if (option.newFileNames.length > 0) {
-            config.parameters.key_pick_file_name = JSON.stringify(option.newFileNames);
+            config.parameters.key_pick_file_name = option.newFileNames;
             config.parameters.saveFile = option.newFileNames[0];
         }
     }
