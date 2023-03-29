@@ -22,12 +22,14 @@
 ```
 /foundation/storage/user_file_service
 ├── figures                                     # 插图文件
+├── frameworks                                  # 部件无独立进程的实现
+│   └──js                                       # JS API的实现
+│      └── napi                                 # 通过napi封装的JS接口代码实现
+├── interfaces                                  # 接口
+│   ├── inner_api                               # 系统内部件间接口
+│   └── kits                                    # 应用接口
 ├── service                                     # 服务实现
-│   ├── etc                                     # 内部接口实现
-│   ├── src                                     # 内部接口实现
-├── interfaces                                  # 接口代码
-│   ├── innerkits                               # 内部 Native 接口
-│   └── kits                                    # 外部 JS 接口
+├── test                                        # 测试代码
 ├── BUILD.gn                                    # 编译入口
 └── bundle.json                                 # 部件描述文件
 ```
@@ -36,11 +38,11 @@
 接口支持情况：FileAccessFramework 所有接口目前仅支持文件管理器和文件选择器，且需要基于stage模型。
 
 ## 相关仓
-[媒体库服务](https://gitee.com/openharmony/multimedia_medialibrary_standard)  
-[存储管理服务](https://gitee.com/openharmony/filemanagement_storage_service)  
-[文件访问接口](https://gitee.com/openharmony/filemanagement_file_api)  
-[多用户管理](http:////gitee.com/openharmony/account_os_account)  
-[**公共文件访问框架**](https://gitee.com/openharmony/filemanagement_user_file_service)  
+[媒体库服务](https://gitee.com/openharmony/multimedia_medialibrary_standard)
+[存储管理服务](https://gitee.com/openharmony/filemanagement_storage_service)
+[文件访问接口](https://gitee.com/openharmony/filemanagement_file_api)
+[多用户管理](http:////gitee.com/openharmony/account_os_account)
+[**公共文件访问框架**](https://gitee.com/openharmony/filemanagement_user_file_service)
 
 
 
