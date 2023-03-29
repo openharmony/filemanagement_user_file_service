@@ -49,6 +49,13 @@ const uint32_t DOCUMENT_FLAG_REPRESENTS_DIR = 1 << 1;
 const uint32_t DOCUMENT_FLAG_SUPPORTS_READ = 1 << 2;
 const uint32_t DOCUMENT_FLAG_SUPPORTS_WRITE = 1 << 3;
 
+/**
+ * Indicators of the supported capabilities of the file descriptor.
+ */
+constexpr int32_t READ = 0;
+constexpr int32_t WRITE = 1;
+constexpr int32_t WRITE_READ = 2;
+
 struct FileInfo : public virtual OHOS::Parcelable {
 public:
     std::string uri { "" };

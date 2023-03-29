@@ -37,7 +37,6 @@ namespace FileAccessFwk {
     napi_value NAPI_GetThumbnail(napi_env env, napi_callback_info info);
     napi_value NAPI_On(napi_env env, napi_callback_info info);
     napi_value NAPI_Off(napi_env env, napi_callback_info info);
-    void InitOpenFlags(napi_env env, napi_value exports);
 } // namespace FileAccessFwk
 } // namespace OHOS
 #endif // NAPI_FILEACCESS_HELPER_H

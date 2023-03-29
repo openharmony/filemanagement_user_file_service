@@ -170,5 +170,19 @@ void InitRootInfo(napi_env env, napi_value exports)
         sizeof(desc) / sizeof(*desc), desc, &obj);
     napi_set_named_property(env, exports, className, obj);
 }
+
+void InitOpenFlags(napi_env env, napi_value exports)
+{
+    char propertyName[] = "OPENFLAGS";
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("READ", NVal::CreateInt32(env, READ).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("WRITE", NVal::CreateInt32(env, WRITE).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("WRITE_READ", NVal::CreateInt32(env, WRITE_READ).val_)
+    };
+    napi_value obj = nullptr;
+    napi_create_object(env, &obj);
+    napi_define_properties(env, obj, sizeof(desc) / sizeof(desc[0]), desc);
+    napi_set_named_property(env, exports, propertyName, obj);
+}
 } // namespace FileAccessFwk
 } // namespace OHOS
