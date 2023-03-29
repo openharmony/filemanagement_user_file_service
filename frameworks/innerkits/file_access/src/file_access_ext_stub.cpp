@@ -31,6 +31,7 @@
 #include "ipc_object_stub.h"
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
+#include "unique_fd.h"
 #include "uri.h"
 
 namespace OHOS {
@@ -112,6 +113,7 @@ ErrCode FileAccessExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply
 
     int fd = -1;
     int ret = OpenFile(*uri, flags, fd);
+    UniqueFd uniqueFd(fd);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter OpenFile fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
