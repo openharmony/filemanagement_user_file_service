@@ -97,7 +97,8 @@ async function photoPickerSelect() {
     console.log("[picker] config: " + JSON.stringify(config));
 
     try {
-        let result = await globalThis.abilityContext.startAbilityForResult(config, {windowMode: 1});
+        let context = getContext(this);
+        let result = await context.startAbilityForResult(config, {windowMode: 1});
         console.log("[picker] result: " + JSON.stringify(result));
         let uris = result.want.parameters["select-item-list"];
         let isOrigin = result.want.parameters["isOriginal"];
@@ -140,7 +141,8 @@ async function documentPickerSelect() {
     console.log("[picker] config: " + JSON.stringify(config));
 
     try {
-        let result = await globalThis.abilityContext.startAbilityForResult(config, {windowMode: 1});
+        let context = getContext(this);
+        let result = await context.startAbilityForResult(config, {windowMode: 1});
         console.log("[picker] result: " + JSON.stringify(result));
         let uris = result.want.parameters.select_item_list;
         if (result.resultCode == -1) {
@@ -189,7 +191,8 @@ async function documentPickerSave() {
     console.log("[picker] config: " + JSON.stringify(config));
 
     try {
-        let result = await globalThis.abilityContext.startAbilityForResult(config, {windowMode: 1});
+        let context = getContext(this);
+        let result = await context.startAbilityForResult(config, {windowMode: 1});
         console.log("[picker] result: " + JSON.stringify(result));
         let uris = result.want["parameters"].pick_path_return;
         if (result.resultCode == -1) {
@@ -231,7 +234,8 @@ async function audioPickerSelect() {
     console.log("[picker] config: " + JSON.stringify(config));
 
     try {
-        let result = await globalThis.abilityContext.startAbilityForResult(config, {windowMode: 1});
+        let context = getContext(this);
+        let result = await context.startAbilityForResult(config, {windowMode: 1});
         console.log("[picker] result: " + JSON.stringify(result));
         let uris = result.want.parameters.select_item_list;
         if (result.resultCode == -1) {
