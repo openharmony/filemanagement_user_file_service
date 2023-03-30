@@ -18,6 +18,7 @@
 #include <unistd.h>
 
 #include <gtest/gtest.h>
+#include <nlohmann/json.hpp>
 
 #include "accesstoken_kit.h"
 #include "context_impl.h"
@@ -35,6 +36,7 @@ namespace {
 using namespace std;
 using namespace OHOS;
 using namespace FileAccessFwk;
+using json = nlohmann::json;
 const int ABILITY_ID = 5003;
 const int INIT_THREADS_NUMBER = 4;
 const int ACTUAL_SUCCESS_THREADS_NUMBER = 1;
@@ -3009,4 +3011,336 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetProxyByUri_0001, testi
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_GetProxyByUri_0001";
 }
 
+/**
+ * @tc.number: user_file_service_external_file_access_Query_0000
+ * @tc.name: external_file_access_Query_0000
+ * @tc.desc: Test function of Query directory for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6S4VV
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Query_0000";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri parentUri(info[0].uri);
+        GTEST_LOG_(INFO) << parentUri.ToString();
+        Uri newDirUriTest1("");
+        Uri newDirUriTest2("");
+        std::string displayName = "QueryTest1";
+        std::string relativePath = "/data/storage/el1/bundle/storage_daemon/";
+        result = g_fah->Mkdir(parentUri, "QueryTest1", newDirUriTest1);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->Mkdir(newDirUriTest1, "QueryTest2", newDirUriTest2);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri newFileUri1("");
+        Uri newFileUri2("");
+        std::string fileName = "external_file_access_Query_00001.txt";
+        result = g_fah->CreateFile(newDirUriTest1, fileName, newFileUri1);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->CreateFile(newDirUriTest2, fileName, newFileUri2);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        int fd = -1;
+        std::string buff = "query test";
+        result = g_fah->OpenFile(newFileUri1, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        ssize_t fileSize = write(fd, buff.c_str(), buff.size());
+        close(fd);
+        EXPECT_EQ(fileSize, buff.size());
+        result = g_fah->OpenFile(newFileUri2, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        fileSize = write(fd, buff.c_str(), buff.size());
+        close(fd);
+        EXPECT_EQ(fileSize, buff.size());
+        json testJson = {
+            {RELATIVE_PATH, " "},
+            {DISPLAY_NAME, " "},
+            {FILE_SIZE, " "},
+            {DATE_MODIFIED, " "},
+            {DATE_ADDED, " "},
+            {HEIGHT, " "},
+            {WIDTH, " "},
+            {DURATION, " "}
+        };
+        auto testJsonString = testJson.dump();
+        result = g_fah->Query(newDirUriTest1, testJsonString);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        auto jsonObject = json::parse(testJsonString);
+        EXPECT_EQ(jsonObject.at(DISPLAY_NAME), displayName);
+        EXPECT_EQ(jsonObject.at(FILE_SIZE), buff.size() * 2);
+        EXPECT_EQ(jsonObject.at(RELATIVE_PATH), relativePath);
+        ASSERT_TRUE(jsonObject.at(DATE_MODIFIED) > 0);
+        ASSERT_TRUE(jsonObject.at(DATE_ADDED) > 0);
+        GTEST_LOG_(INFO) << " result" << testJsonString;
+        result = g_fah->Delete(newDirUriTest1);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_Query_0000 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Query_0000";
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_Query_0001
+ * @tc.name: external_file_access_Query_0001
+ * @tc.desc: Test function of Query file for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6S4VV
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Query_0001";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri parentUri(info[0].uri);
+        GTEST_LOG_(INFO) << parentUri.ToString();
+        Uri newDirUriTest("");
+        result = g_fah->Mkdir(parentUri, "QueryTest3", newDirUriTest);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri newFileUri("");
+        std::string displayName = "external_file_access_Query_0001.txt";
+        std::string relativePath = "/data/storage/el1/bundle/storage_daemon/QueryTest3/";
+        result = g_fah->CreateFile(newDirUriTest, displayName, newFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        int fd = -1;
+        result = g_fah->OpenFile(newFileUri, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        std::string buff = "query test";
+        ssize_t fileSize = write(fd, buff.c_str(), buff.size());
+        close(fd);
+        EXPECT_EQ(fileSize, buff.size());
+        json testJson = {
+            {RELATIVE_PATH, " "},
+            {DISPLAY_NAME, " "},
+            {FILE_SIZE, " "},
+            {DATE_MODIFIED, " "},
+            {DATE_ADDED, " "},
+            {HEIGHT, " "},
+            {WIDTH, " "},
+            {DURATION, " "}
+        };
+        auto testJsonString = testJson.dump();
+        result = g_fah->Query(newFileUri, testJsonString);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        auto jsonObject = json::parse(testJsonString);
+        EXPECT_EQ(jsonObject.at(DISPLAY_NAME), displayName);
+        EXPECT_EQ(jsonObject.at(FILE_SIZE), buff.size());
+        EXPECT_EQ(jsonObject.at(RELATIVE_PATH), relativePath);
+        ASSERT_TRUE(jsonObject.at(DATE_MODIFIED) > 0);
+        ASSERT_TRUE(jsonObject.at(DATE_ADDED) > 0);
+        GTEST_LOG_(INFO) << " result" << testJsonString;
+        result = g_fah->Delete(newDirUriTest);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_Query_0001 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Query_0001";
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_Query_0002
+ * @tc.name: external_file_access_Query_0002
+ * @tc.desc: Test function of Query directory for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6S4VV
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Query_0002";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri parentUri(info[0].uri);
+        GTEST_LOG_(INFO) << parentUri.ToString();
+        Uri newDirUriTest1("");
+        Uri newDirUriTest2("");
+        result = g_fah->Mkdir(parentUri, "QueryTest4", newDirUriTest1);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->Mkdir(newDirUriTest1, "QueryTest5", newDirUriTest2);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri newFileUri1("");
+        Uri newFileUri2("");
+        std::string fileName = "external_file_access_Query_00001.txt";
+        result = g_fah->CreateFile(newDirUriTest1, fileName, newFileUri1);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->CreateFile(newDirUriTest2, fileName, newFileUri2);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        int fd = -1;
+        std::string buff = "query test";
+        result = g_fah->OpenFile(newFileUri1, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        ssize_t fileSize = write(fd, buff.c_str(), buff.size());
+        close(fd);
+        EXPECT_EQ(fileSize, buff.size());
+        result = g_fah->OpenFile(newFileUri2, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        fileSize = write(fd, buff.c_str(), buff.size());
+        close(fd);
+        EXPECT_EQ(fileSize, buff.size());
+        json testJson = {
+            {FILE_SIZE, " "}
+        };
+        auto testJsonString = testJson.dump();
+        result = g_fah->Query(newDirUriTest1, testJsonString);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        auto jsonObject = json::parse(testJsonString);
+        EXPECT_EQ(jsonObject.at(FILE_SIZE), buff.size() * 2);
+        GTEST_LOG_(INFO) << " result" << testJsonString;
+        result = g_fah->Delete(newDirUriTest1);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_Query_0002 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Query_0002";
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_Query_0003
+ * @tc.name: external_file_access_Query_0003
+ * @tc.desc: Test function of Query interface for which is unreadable code.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6S4VV
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0003, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Query_0003";
+    try {
+        Uri testUri("&*()*/?");
+        json testJson = {
+            {RELATIVE_PATH, " "},
+            {DISPLAY_NAME, " "}
+        };
+        auto testJsonString = testJson.dump();
+        int result = g_fah->Query(testUri, testJsonString);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        GTEST_LOG_(INFO) << " result" << testJsonString;
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_Query_0003 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Query_0003";
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_Query_0004
+ * @tc.name: external_file_access_Query_0004
+ * @tc.desc: Test function of Query interface for which all column nonexistence.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6S4VV
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0004, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Query_0004";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri parentUri(info[0].uri);
+        GTEST_LOG_(INFO) << parentUri.ToString();
+        Uri newDirUriTest("");
+        result = g_fah->Mkdir(parentUri, "QueryTest6", newDirUriTest);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        json testJson = {
+            {"001", " "},
+            {"#", " "},
+            {"test", " "},
+            {"target", " "}
+        };
+        auto testJsonString = testJson.dump();
+        result = g_fah->Query(newDirUriTest, testJsonString);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        GTEST_LOG_(INFO) << " result" << testJsonString;
+        result = g_fah->Delete(newDirUriTest);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_Query_0004 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Query_0004";
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_Query_0005
+ * @tc.name: external_file_access_Query_0005
+ * @tc.desc: Test function of Query interface for which part of column nonexistence.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6S4VV
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0005, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Query_0005";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri parentUri(info[0].uri);
+        GTEST_LOG_(INFO) << parentUri.ToString();
+        Uri newDirUriTest("");
+        result = g_fah->Mkdir(parentUri, "QueryTest7", newDirUriTest);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        json testJson = {
+            {RELATIVE_PATH, " "},
+            {DISPLAY_NAME, " "},
+            {"test", " "}
+        };
+        auto testJsonString = testJson.dump();
+        result = g_fah->Query(newDirUriTest, testJsonString);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        GTEST_LOG_(INFO) << " result" << testJsonString;
+        result = g_fah->Delete(newDirUriTest);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_Query_0005 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Query_0005";
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_Query_0006
+ * @tc.name: external_file_access_Query_0006
+ * @tc.desc: Test function of Query interface for which column is null.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6S4VV
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0006, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Query_0006";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri parentUri(info[0].uri);
+        GTEST_LOG_(INFO) << parentUri.ToString();
+        Uri newDirUriTest("");
+        result = g_fah->Mkdir(parentUri, "QueryTest8", newDirUriTest);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        json testJson;
+        auto testJsonString = testJson.dump();
+        result = g_fah->Query(newDirUriTest, testJsonString);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        GTEST_LOG_(INFO) << " result" << testJsonString;
+        result = g_fah->Delete(newDirUriTest);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_Query_0006 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Query_0006";
+}
 } // namespace
