@@ -142,6 +142,20 @@ int FileAccessExtStubImpl::ScanFile(const FileInfo &fileInfo, const int64_t offs
     return ret;
 }
 
+int FileAccessExtStubImpl::Query(const Uri &uri, std::vector<std::string> &columns, std::vector<std::string> &results)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Query");
+    if (extension_ == nullptr) {
+        HILOG_ERROR("Query get extension failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    int ret = extension_->Query(uri, columns, results);
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
+}
+
 int FileAccessExtStubImpl::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");

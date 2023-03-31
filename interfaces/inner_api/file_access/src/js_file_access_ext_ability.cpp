@@ -1072,6 +1072,105 @@ int JsFileAccessExtAbility::Access(const Uri &uri, bool &isExist)
     return ERR_OK;
 }
 
+static bool ParserQueryFileJsResult(NativeEngine &engine, NativeValue *nativeValue,
+    Value<std::vector<std::string>> &results)
+{
+    NativeObject *obj = ConvertNativeValueTo<NativeObject>(nativeValue);
+    if (obj == nullptr) {
+        HILOG_ERROR("Convert js object fail.");
+        return false;
+    }
+
+    bool ret = ConvertFromJsValue(engine, obj->GetProperty("code"), results.code);
+    if (!ret) {
+        HILOG_ERROR("Convert the code of js value fail.");
+        return ret;
+    }
+
+    NativeArray *nativeArray = ConvertNativeValueTo<NativeArray>(obj->GetProperty("results"));
+    if (nativeArray == nullptr) {
+        HILOG_ERROR("Convert js array object fail.");
+        return false;
+    }
+
+    for (uint32_t i = 0; i < nativeArray->GetLength(); i++) {
+        NativeValue *queryResult = nativeArray->GetElement(i);
+        if (queryResult == nullptr) {
+            HILOG_ERROR("get native queryResult fail.");
+            return false;
+        }
+        std::string tempValue;
+        ret = ConvertFromJsValue(engine, queryResult, tempValue);
+        if (!ret) {
+            HILOG_ERROR("Convert js value fail.");
+            return ret;
+        }
+        results.data.emplace_back(std::move(tempValue));
+    }
+    return true;
+}
+
+int JsFileAccessExtAbility::Query(const Uri &uri, std::vector<std::string> &columns, std::vector<std::string> &results)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Query");
+    auto value = std::make_shared<Value<std::vector<std::string>>>();
+    if (value == nullptr) {
+        HILOG_ERROR("Query value is nullptr.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_GETRESULT;
+    }
+
+    auto argParser = [uri, &columns](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
+        NativeValue *nativeUri = engine.CreateString(uri.ToString().c_str(), uri.ToString().length());
+        if (nativeUri == nullptr) {
+            HILOG_ERROR("create uri native js value fail.");
+            return false;
+        }
+        NativeValue *resultArray = engine.CreateArray(columns.size());
+        if (resultArray == nullptr) {
+            HILOG_ERROR("Create MimeType native array value fail.");
+            return false;
+        }
+        int errorCode = MakeStringNativeArray(engine, columns, resultArray);
+        if (errorCode != ERR_OK) {
+            HILOG_ERROR("Create native array value fail, code:%{public}d.", errorCode);
+            return false;
+        }
+        argv[ARGC_ZERO] = nativeUri;
+        argv[ARGC_ONE] = resultArray;
+        argc = ARGC_TWO;
+        return true;
+    };
+    auto retParser = [value](NativeEngine &engine, NativeValue *result) -> bool {
+        Value<std::vector<std::string>> queryResult;
+        bool ret = ParserQueryFileJsResult(engine, result, queryResult);
+        if (!ret) {
+            HILOG_ERROR("Parser js value fail.");
+            return ret;
+        }
+        value->code = queryResult.code;
+        value->data = queryResult.data;
+        return ret;
+    };
+
+    auto errCode = CallJsMethod("query", jsRuntime_, jsObj_.get(), argParser, retParser);
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return errCode;
+    }
+
+    if (value->code != ERR_OK) {
+        HILOG_ERROR("fileio fail.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return value->code;
+    }
+
+    results = std::move(value->data);
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
 int JsFileAccessExtAbility::GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromUri");

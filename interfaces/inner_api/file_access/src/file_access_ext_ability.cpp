@@ -110,6 +110,12 @@ int FileAccessExtAbility::ScanFile(const FileInfo &fileInfo, const int64_t offse
     return EPERM;
 }
 
+int FileAccessExtAbility::Query(const Uri &uri, std::vector<std::string> &columns, std::vector<std::string> &results)
+{
+    HILOG_ERROR("FileAccessExtAbility::Query Undefined operation");
+    return EPERM;
+}
+
 int FileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
     HILOG_ERROR("FileAccessExtAbility::GetRoots Undefined operation");

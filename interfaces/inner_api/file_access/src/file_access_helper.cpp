@@ -15,9 +15,11 @@
 
 #include "file_access_helper.h"
 
+#include <nlohmann/json.hpp>
 #include "bundle_constants.h"
 #include "bundle_mgr_proxy.h"
 #include "file_access_framework_errno.h"
+#include "file_access_extension_info.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
@@ -31,6 +33,7 @@
 namespace OHOS {
 namespace FileAccessFwk {
 using namespace Media;
+using json = nlohmann::json;
 std::vector<AAFwk::Want> FileAccessHelper::wants_;
 
 static int GetUserId()
@@ -726,6 +729,109 @@ int FileAccessHelper::ScanFile(const FileInfo &fileInfo, const int64_t offset, c
     int ret = fileExtProxy->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     if (ret != ERR_OK) {
         HILOG_ERROR("ScanFile get result error, code:%{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
+static int GetQueryColumns(std::string &uri, std::string &metaJson, std::vector<std::string> &columns)
+{
+    if (!json::accept(metaJson)) {
+        HILOG_ERROR("metaJson format check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return EINVAL;
+    }
+
+    auto jsonObject = json::parse(metaJson);
+    for (json::iterator it = jsonObject.begin(); it != jsonObject.end(); ++it) {
+        auto iterator = FILE_RESULT_TYPE.find(it.key());
+        if (iterator == FILE_RESULT_TYPE.end()) {
+            HILOG_ERROR("columns format check error.");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+            return EINVAL;
+        }
+        columns.push_back(it.key());
+    }
+
+    if (columns.empty()) {
+        HILOG_ERROR("columns is empty.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return EINVAL;
+    }
+    return ERR_OK;
+}
+
+static int GetQueryResult(std::string &uri, std::vector<std::string> &columns, std::vector<std::string> &results,
+    std::string &metaJson)
+{
+    json jsonObject;
+    for (size_t i = 0; i < columns.size(); i++) {
+        auto memberType = FILE_RESULT_TYPE.at(columns.at(i));
+        switch (memberType) {
+            case STRING_TYPE:
+                jsonObject[columns[i]] = results[i];
+                break;
+            case INT32_TYPE:
+                jsonObject[columns[i]] = std::stoi(results[i]);
+                break;
+            case INT64_TYPE:
+                jsonObject[columns[i]] = std::stol(results[i]);
+                break;
+            default:
+                jsonObject[columns[i]] = ' ';
+                HILOG_ERROR("not match  memberType %{public}d", memberType);
+                break;
+        }
+    }
+    metaJson = jsonObject.dump();
+    return ERR_OK;
+}
+
+int FileAccessHelper::Query(Uri &uri, std::string &metaJson)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Query");
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::Query check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_PERMISSION_SYS;
+    }
+
+    if (!CheckUri(uri)) {
+        HILOG_ERROR("Uri format check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_URIS;
+    }
+
+    std::string uriString(uri.ToString());
+    std::vector<std::string> columns;
+    std::vector<std::string> results;
+    int ret = GetQueryColumns(uriString, metaJson, columns);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Query get columns error, code:%{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
+    if (fileExtProxy == nullptr) {
+        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    ret = fileExtProxy->Query(uri, columns, results);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Query get result error, code:%{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    ret = GetQueryResult(uriString, columns, results, metaJson);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Query get result error, code:%{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }

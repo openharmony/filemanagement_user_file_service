@@ -43,6 +43,7 @@ static napi_value Init(napi_env env, napi_value exports)
     InitFileInfo(env, exports);
     InitRootInfo(env, exports);
     InitOpenFlags(env, exports);
+    InitQueryFlags(env, exports);
 
     std::vector<std::unique_ptr<NExporter>> products;
     products.emplace_back(std::make_unique<NapiRootIteratorExporter>(env, exports));

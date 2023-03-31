@@ -18,12 +18,24 @@
 
 #include <bitset>
 #include <string>
+#include <unordered_map>
 
 #include "parcel.h"
 #include "uri.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
+//Properties of the Common file
+const std::string DISPLAY_NAME = "display_name";
+const std::string RELATIVE_PATH = "relative_path";
+const std::string FILE_SIZE = "size";
+const std::string DATE_MODIFIED = "date_modified";
+const std::string DATE_ADDED = "date_added";
+//Properties of the picture file
+const std::string HEIGHT = "height";
+const std::string WIDTH = "width";
+//Properties of an image or audio file
+const std::string DURATION = "duration";
 /**
  * Indicates the type of the device.
  */
@@ -213,6 +225,23 @@ public:
         }
         return size;
     }
+};
+
+enum ResultType {
+    STRING_TYPE = 1,
+    INT32_TYPE,
+    INT64_TYPE,
+};
+
+static const std::unordered_map<std::string, ResultType> FILE_RESULT_TYPE = {
+    { DISPLAY_NAME, STRING_TYPE },
+    { RELATIVE_PATH, STRING_TYPE },
+    { FILE_SIZE, INT64_TYPE },
+    { DATE_ADDED, INT64_TYPE },
+    { DATE_MODIFIED, INT64_TYPE },
+    { WIDTH, INT32_TYPE },
+    { HEIGHT, INT32_TYPE },
+    { DURATION, INT32_TYPE },
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

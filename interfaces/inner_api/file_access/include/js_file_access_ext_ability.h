@@ -71,6 +71,7 @@ public:
     int GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo) override;
     int GetRoots(std::vector<RootInfo> &rootInfoVec) override;
     int Access(const Uri &uri, bool &isExist) override;
+    int Query(const Uri &uri, std::vector<std::string> &columns, std::vector<std::string> &results) override;
 
 private:
     NativeValue* CallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
