@@ -23,9 +23,13 @@
             <option name="shell" value="mkdir /storage/media/100/local/files/Pictures"/>
             <option name="shell" value="mkdir /storage/media/100/local/files/Videos"/>
             <option name="shell" value="mkdir /storage/media/100/local/files/Audios"/>
+            <option name="shell" value="mkdir /storage/media/100/local/files/Documents"/>
+            <option name="shell" value="mkdir /storage/media/100/local/files/Documents/Test"/>
             <option name="push" value="thumbnail_testfile/CreateImageThumbnailTest_001.jpg -> /storage/media/100/local/files/Pictures" src="res"/>
             <option name="push" value="thumbnail_testfile/CreateAudioThumbnailTest_001.mp3 -> /storage/media/100/local/files/Audios" src="res"/>
             <option name="push" value="thumbnail_testfile/CreateVideoThumbnailTest_001.mp4 -> /storage/media/100/local/files/Videos" src="res"/>
+            <option name="push" value="query_testfile/CreateQueryTest_001.txt -> /storage/media/100/local/files/Documents" src="res"/>
+            <option name="push" value="query_testfile/CreateQueryTest_002.txt -> /storage/media/100/local/files/Documents/Test" src="res"/>
             <option name="shell" value="scanner"/>
             <option name="shell" value="sleep 10"/>
         </preparer>

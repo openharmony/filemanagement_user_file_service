@@ -18,6 +18,7 @@
 #include <unistd.h>
 
 #include <gtest/gtest.h>
+#include <nlohmann/json.hpp>
 
 #include "accesstoken_kit.h"
 #include "file_access_extension_info.h"
@@ -33,6 +34,7 @@ using namespace std;
 using namespace OHOS;
 using namespace FileAccessFwk;
 using namespace OHOS::Media;
+using json = nlohmann::json;
 const int ABILITY_ID = 5003;
 const int INIT_THREADS_NUMBER = 4;
 const int ACTUAL_SUCCESS_THREADS_NUMBER = 1;
@@ -2853,5 +2855,268 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0008, testi
         GTEST_LOG_(ERROR) << "medialibrary_file_access_GetThumbnail_0008 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_GetThumbnail_0008";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_Query_0000
+ * @tc.name: medialibrary_file_access_Query_0000
+ * @tc.desc: Test function of Query directory for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6S4VV
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Query_0000";
+    try {
+        FileAccessFwk::FileInfo fileInfo;
+        std::string relativePath = "Documents/";
+        std::string displayName = "Documents";
+        int targetSize = 46;
+        int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri dirUriTest(fileInfo.uri);
+
+        json testJson = {
+            {RELATIVE_PATH, " "},
+            {DISPLAY_NAME, " "},
+            {FILE_SIZE, " "},
+            {DATE_MODIFIED, " "},
+            {DATE_ADDED, " "},
+            {HEIGHT, " "},
+            {WIDTH, " "},
+            {DURATION, " "}
+        };
+        auto testJsonString = testJson.dump();
+        int ret = g_fah->Query(dirUriTest, testJsonString);
+        EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
+        auto jsonObject = json::parse(testJsonString);
+        EXPECT_EQ(jsonObject.at(DISPLAY_NAME), displayName);
+        EXPECT_EQ(jsonObject.at(FILE_SIZE), targetSize);
+        ASSERT_TRUE(jsonObject.at(DATE_MODIFIED) > 0);
+        ASSERT_TRUE(jsonObject.at(DATE_ADDED) > 0);
+        GTEST_LOG_(INFO) << testJsonString;
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Query_0000 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Query_0000";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_Query_0001
+ * @tc.name: medialibrary_file_access_Query_0001
+ * @tc.desc: Test function of Query file for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6S4VV
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Query_0001";
+    try {
+        FileAccessFwk::FileInfo fileInfo;
+        std::string relativePath = "Documents/Test/";
+        std::string displayName = "CreateQueryTest_002.txt";
+        int targetSize = 23;
+        std::string filePath = "Documents/Test/CreateQueryTest_002.txt";
+        int ret = g_fah->GetFileInfoFromRelativePath(filePath, fileInfo);
+        EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
+        Uri testUri(fileInfo.uri);
+
+        json testJson = {
+            {RELATIVE_PATH, " "},
+            {DISPLAY_NAME, " "},
+            {FILE_SIZE, " "},
+            {DATE_MODIFIED, " "},
+            {DATE_ADDED, " "},
+            {HEIGHT, " "},
+            {WIDTH, " "},
+            {DURATION, " "}
+        };
+        auto testJsonString = testJson.dump();
+        ret = g_fah->Query(testUri, testJsonString);
+        EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
+        GTEST_LOG_(INFO) << testJsonString;
+        auto jsonObject = json::parse(testJsonString);
+        EXPECT_EQ(jsonObject.at(RELATIVE_PATH), relativePath);
+        EXPECT_EQ(jsonObject.at(DISPLAY_NAME), displayName);
+        EXPECT_EQ(jsonObject.at(FILE_SIZE), targetSize);
+        ASSERT_TRUE(jsonObject.at(DATE_MODIFIED) > 0);
+        ASSERT_TRUE(jsonObject.at(DATE_ADDED) > 0);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Query_0001 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Query_0001";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_Query_0002
+ * @tc.name: medialibrary_file_access_Query_0002
+ * @tc.desc: Test function of Query directory size for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require:
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Query_0002";
+    try {
+        FileAccessFwk::FileInfo fileInfo;
+        std::string relativePath = "Documents/";
+        std::string displayName = "Documents";
+        int targetSize = 46;
+        int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri dirUriTest(fileInfo.uri);
+
+        json testJson = {
+            {FILE_SIZE, " "}
+        };
+        auto testJsonString = testJson.dump();
+        int ret = g_fah->Query(dirUriTest, testJsonString);
+        EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
+        auto jsonObject = json::parse(testJsonString);
+        EXPECT_EQ(jsonObject.at(FILE_SIZE), targetSize);
+        GTEST_LOG_(INFO) << testJsonString;
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Query_0002 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Query_0002";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_Query_0003
+ * @tc.name: medialibrary_file_access_Query_0003
+ * @tc.desc: Test function of Query interface for ERROR which Uri is unreadable code.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6S4VV
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0003, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Query_0003";
+    try {
+        Uri testUri("&*()*/?");
+        json testJson = {
+            {RELATIVE_PATH, " "},
+            {DISPLAY_NAME, " "}
+        };
+        auto testJsonString = testJson.dump();
+        int ret = g_fah->Query(testUri, testJsonString);
+        EXPECT_NE(ret, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Query_0004 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Query_0003";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_Query_0004
+ * @tc.name: medialibrary_file_access_Query_0004
+ * @tc.desc: Test function of Query interface for which all column nonexistence.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6S4VV
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0004, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Query_0004";
+    try {
+        Uri newDirUriTest("");
+        std::string fileName = "test.txt";
+        int ret = g_fah->Mkdir(g_newDirUri, "Query004", newDirUriTest);
+        EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
+        Uri testUri("");
+        ret = g_fah->CreateFile(newDirUriTest, fileName, testUri);
+        EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
+        json testJson = {
+            {"001", " "},
+            {"#", " "},
+            {"test", " "},
+            {"target", " "}
+        };
+        auto testJsonString = testJson.dump();
+        ret = g_fah->Query(testUri, testJsonString);
+        EXPECT_NE(ret, OHOS::FileAccessFwk::ERR_OK);
+        ret = g_fah->Delete(newDirUriTest);
+        EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Query_0004 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Query_0004";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_Query_0005
+ * @tc.name: medialibrary_file_access_Query_0005
+ * @tc.desc: Test function of Query interface for which part of column nonexistence.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6S4VV
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0005, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Query_0005";
+    try {
+        Uri newDirUriTest("");
+        std::string fileName = "test.txt";
+        int ret = g_fah->Mkdir(g_newDirUri, "Query005", newDirUriTest);
+        EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
+        Uri testUri("");
+        ret = g_fah->CreateFile(newDirUriTest, fileName, testUri);
+        EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
+        json testJson = {
+            {RELATIVE_PATH, " "},
+            {DISPLAY_NAME, " "},
+            {"test", " "}
+        };
+        auto testJsonString = testJson.dump();
+        ret = g_fah->Query(testUri, testJsonString);
+        EXPECT_NE(ret, OHOS::FileAccessFwk::ERR_OK);
+        ret = g_fah->Delete(newDirUriTest);
+        EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Query_0005 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Query_0005";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_Query_0006
+ * @tc.name: medialibrary_file_access_Query_0006
+ * @tc.desc: Test function of Query interface for which column is null.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6S4VV
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0006, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Query_0006";
+    try {
+        Uri newDirUriTest("");
+        std::string fileName = "test.txt";
+        std::string relativePath = "test/test.txt";
+        int ret = g_fah->Mkdir(g_newDirUri, "Query006", newDirUriTest);
+        EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
+        Uri testUri("");
+        ret = g_fah->CreateFile(newDirUriTest, fileName, testUri);
+        EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
+        json testJson;
+        auto testJsonString = testJson.dump();
+        ret = g_fah->Query(testUri, testJsonString);
+        EXPECT_NE(ret, OHOS::FileAccessFwk::ERR_OK);
+        ret = g_fah->Delete(newDirUriTest);
+        EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Query_0006 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Query_0006";
 }
 } // namespace
