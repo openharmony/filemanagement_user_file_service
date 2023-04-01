@@ -1110,6 +1110,17 @@ static bool ParserQueryFileJsResult(NativeEngine &engine, NativeValue *nativeVal
     return true;
 }
 
+static void ConvertColumn(std::vector<std::string> &columns)
+{
+    for (auto &column : columns) {
+        for (auto &it : CONVERT_FILE_COLUMN) {
+            if (column == it.first) {
+                column = it.second;
+            }
+        }
+    }
+}
+
 int JsFileAccessExtAbility::Query(const Uri &uri, std::vector<std::string> &columns, std::vector<std::string> &results)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Query");
@@ -1120,6 +1131,7 @@ int JsFileAccessExtAbility::Query(const Uri &uri, std::vector<std::string> &colu
         return E_GETRESULT;
     }
 
+    ConvertColumn(columns);
     auto argParser = [uri, &columns](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
         NativeValue *nativeUri = engine.CreateString(uri.ToString().c_str(), uri.ToString().length());
         if (nativeUri == nullptr) {

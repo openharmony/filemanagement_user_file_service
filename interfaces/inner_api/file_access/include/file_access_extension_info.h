@@ -36,6 +36,9 @@ const std::string HEIGHT = "height";
 const std::string WIDTH = "width";
 //Properties of an image or audio file
 const std::string DURATION = "duration";
+
+const std::string FILE_DATA_ATIME = "atime";
+const std::string FILE_DATA_MTIME = "mtime";
 /**
  * Indicates the type of the device.
  */
@@ -242,6 +245,11 @@ static const std::unordered_map<std::string, ResultType> FILE_RESULT_TYPE = {
     { WIDTH, INT32_TYPE },
     { HEIGHT, INT32_TYPE },
     { DURATION, INT32_TYPE },
+};
+
+static const std::unordered_map<std::string, std::string> CONVERT_FILE_COLUMN = {
+    {DATE_ADDED, FILE_DATA_ATIME},
+    {DATE_MODIFIED, FILE_DATA_MTIME}
 };
 
 struct CopyResult : public virtual OHOS::Parcelable {
