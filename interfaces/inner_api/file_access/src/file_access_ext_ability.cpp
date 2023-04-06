@@ -90,6 +90,13 @@ int FileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent, U
     return EPERM;
 }
 
+int FileAccessExtAbility::Copy(const Uri &sourceUri, const Uri &destUri, std::vector<CopyResult> &copyResult,
+    bool force)
+{
+    HILOG_ERROR("FileAccessExtAbility::Copy Undefined operation");
+    return EPERM;
+}
+
 int FileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
     HILOG_ERROR("FileAccessExtAbility::Rename Undefined operation");

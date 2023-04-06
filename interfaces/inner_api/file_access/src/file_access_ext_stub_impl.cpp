@@ -98,6 +98,20 @@ int FileAccessExtStubImpl::Move(const Uri &sourceFile, const Uri &targetParent, 
     return ret;
 }
 
+int FileAccessExtStubImpl::Copy(const Uri &sourceUri, const Uri &destUri, std::vector<CopyResult> &copyResult,
+    bool force)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Copy");
+    if (extension_ == nullptr) {
+        HILOG_ERROR("Copy get extension failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+    int ret = extension_->Copy(sourceUri, destUri, copyResult, force);
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
+}
+
 int FileAccessExtStubImpl::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Rename");

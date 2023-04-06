@@ -24,6 +24,10 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
+namespace {
+    constexpr int COPY_EXCEPTION = -1;
+    constexpr uint32_t MAX_COPY_ERROR_COUNT = 1000;
+};
 int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags, int &fd)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
@@ -305,6 +309,83 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
+}
+
+int FileAccessExtProxy::Copy(const Uri &sourceUri, const Uri &destUri, std::vector<CopyResult> &copyResult,
+    bool force)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Copy");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    if (!data.WriteParcelable(&sourceUri)) {
+        HILOG_ERROR("fail to WriteParcelable uri");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    if (!data.WriteParcelable(&destUri)) {
+        HILOG_ERROR("fail to WriteParcelable targetParent");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    if (!data.WriteBool(force)) {
+        HILOG_ERROR("fail to WriteBool force");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int err = Remote()->SendRequest(CMD_COPY, data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return err;
+    }
+
+    int ret = E_IPCS;
+    if (!reply.ReadInt32(ret)) {
+        HILOG_ERROR("fail to ReadInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+    if (ret == ERR_OK) {
+        HILOG_ERROR("Copy operation success");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_OK;
+    }
+
+    uint32_t count = 0;
+    if (!reply.ReadUint32(count)) {
+        HILOG_ERROR("Copy operation failed to Read count");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+    if (count > MAX_COPY_ERROR_COUNT) {
+        HILOG_ERROR("Copy operation failed, count value greater than max count");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        CopyResult result { "", "", E_COUNT, "Count value greater than max count"};
+        copyResult.clear();
+        copyResult.push_back(result);
+        return COPY_EXCEPTION;
+    }
+
+    copyResult.clear();
+    for (uint32_t i = 0; i < count; i++) {
+        std::unique_ptr<CopyResult> copyResultPtr(reply.ReadParcelable<CopyResult>());
+        if (copyResultPtr != nullptr) {
+            copyResult.push_back(*copyResultPtr);
+        }
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
 }
 
 int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)

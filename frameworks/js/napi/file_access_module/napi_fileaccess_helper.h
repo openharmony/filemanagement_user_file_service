@@ -30,6 +30,7 @@ namespace FileAccessFwk {
     napi_value NAPI_Delete(napi_env env, napi_callback_info info);
     napi_value NAPI_Move(napi_env env, napi_callback_info info);
     napi_value NAPI_Query(napi_env env, napi_callback_info info);
+    napi_value NAPI_Copy(napi_env env, napi_callback_info info);
     napi_value NAPI_Rename(napi_env env, napi_callback_info info);
     napi_value NAPI_GetRoots(napi_env env, napi_callback_info info);
     napi_value NAPI_Access(napi_env env, napi_callback_info info);
