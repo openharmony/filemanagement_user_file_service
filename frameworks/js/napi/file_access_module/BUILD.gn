@@ -52,6 +52,7 @@ ohos_shared_library("fileaccess") {
     "ability_runtime:abilitykit_native",
     "ability_runtime:napi_base_context",
     "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
     "file_api:filemgmt_libn",
     "hiviewdfx_hilog_native:libhilog",
     "multimedia_image_framework:image",

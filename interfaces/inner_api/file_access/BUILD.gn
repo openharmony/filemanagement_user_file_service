@@ -121,6 +121,7 @@ ohos_shared_library("file_access_extension_ability_module") {
   external_deps = [
     "ability_runtime:runtime",
     "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
   ]
 
   relative_install_dir = "extensionability/"
