@@ -21,6 +21,9 @@
 namespace OHOS {
 namespace FileAccessFwk {
 
+const int ERR_EXIST = 13900015;
+const int ERR_NOMEM = 13900011;
+const int ERR_PERM = 13900001;
 const int BASE_OFFSET = 14300001;
 enum {
     ERR_OK = 0,
@@ -34,7 +37,8 @@ enum {
     E_NOTIFY,                               // Fail to notify agent
     E_CONNECT,                              // Fail to connect file access extension ability
     E_PERMISSION = 201,                     // Permission verification failed
-    E_PERMISSION_SYS                        // is not system app
+    E_PERMISSION_SYS,                       // is not system app
+    E_COUNT
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

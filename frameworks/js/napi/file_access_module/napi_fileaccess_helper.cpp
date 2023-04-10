@@ -46,6 +46,7 @@ namespace {
     const std::string FILEACCESS_CLASS_NAME = "FileAccessHelper";
     static napi_ref g_constructorRef = nullptr;
     constexpr uint32_t INITIAL_REFCOUNT = 1;
+    constexpr int COPY_EXCEPTION = -1;
 }
 
 std::list<std::shared_ptr<FileAccessHelper>> g_fileAccessHelperList;
@@ -231,6 +232,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("delete", NAPI_Delete),
         DECLARE_NAPI_FUNCTION("move", NAPI_Move),
         DECLARE_NAPI_FUNCTION("query", NAPI_Query),
+        DECLARE_NAPI_FUNCTION("copy", NAPI_Copy),
         DECLARE_NAPI_FUNCTION("rename", NAPI_Rename),
         DECLARE_NAPI_FUNCTION("getRoots", NAPI_GetRoots),
         DECLARE_NAPI_FUNCTION("access", NAPI_Access),
@@ -642,6 +644,150 @@ napi_value NAPI_Query(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
+}
+
+static napi_value CreateObjectArray(napi_env env, std::vector<CopyResult> result)
+{
+    uint32_t status = napi_ok;
+    napi_value copyResultArray = nullptr;
+    status = napi_create_array_with_length(env, result.size(), &copyResultArray);
+    if (status != napi_ok) {
+        HILOG_ERROR("Create napi array fail");
+        return nullptr;
+    }
+
+    for (size_t i = 0; i < result.size(); i++) {
+        CopyResult &tmpResult = result.at(i);
+        napi_value resultVal;
+        status |= napi_create_object(env, &resultVal);
+        napi_value tmpVal;
+        status |= napi_create_string_utf8(env, tmpResult.sourceUri.c_str(), tmpResult.sourceUri.length(), &tmpVal);
+        status |= napi_set_named_property(env, resultVal, "sourceUri", tmpVal);
+        status |= napi_create_string_utf8(env, tmpResult.destUri.c_str(), tmpResult.destUri.length(), &tmpVal);
+        status |= napi_set_named_property(env, resultVal, "destUri", tmpVal);
+        status |= napi_create_int32(env, tmpResult.errCode, &tmpVal);
+        status |= napi_set_named_property(env, resultVal, "errCode", tmpVal);
+        status |= napi_create_string_utf8(env, tmpResult.errMsg.c_str(), tmpResult.errMsg.length(), &tmpVal);
+        status |= napi_set_named_property(env, resultVal, "errMsg", tmpVal);
+        status |= napi_set_element(env, copyResultArray, i, resultVal);
+        if (status != napi_ok) {
+            HILOG_ERROR("Create CopyResult object error");
+            return nullptr;
+        }
+    }
+    return copyResultArray;
+}
+
+std::tuple<bool, std::string, std::string, bool> GetCopyArguments(napi_env env, NFuncArg &funcArg)
+{
+    bool retStatus = false;
+    std::unique_ptr<char[]> srcPath;
+    std::unique_ptr<char[]> destPath;
+    std::tie(retStatus, srcPath, destPath) = GetReadArg(env, funcArg[NARG_POS::FIRST], funcArg[NARG_POS::SECOND]);
+    if (!retStatus) {
+        HILOG_ERROR("Get first or second argument error");
+        return std::make_tuple(false, "", "", false);
+    }
+    std::string srcPathStr (srcPath.get());
+    std::string destPathStr (destPath.get());
+
+    bool force = false;
+    if (funcArg.GetArgc() == NARG_CNT::THREE) {
+        NVal thirdArg(env, funcArg[NARG_POS::THIRD]);
+        if (thirdArg.TypeIs(napi_boolean)) {
+            std::tie(retStatus, force) = NVal(env, funcArg[NARG_POS::THIRD]).ToBool();
+            if (!retStatus) {
+                HILOG_ERROR("Get third argument error");
+                return std::make_tuple(false, "", "", false);
+            }
+        }
+    }
+
+    if (funcArg.GetArgc() == NARG_CNT::FOUR) {
+        NVal thirdArg(env, funcArg[NARG_POS::THIRD]);
+        if (thirdArg.TypeIs(napi_boolean)) {
+            std::tie(retStatus, force) = NVal(env, funcArg[NARG_POS::THIRD]).ToBool();
+            if (!retStatus) {
+                HILOG_ERROR("Get third argument error");
+                return std::make_tuple(false, "", "", false);
+            }
+        }
+    }
+
+    return std::make_tuple(true, srcPathStr, destPathStr, force);
+}
+
+napi_value NAPI_Copy(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::FOUR)) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    bool retStatus = false;
+    std::string srcPathStr;
+    std::string destPathStr;
+    bool force = false;
+    std::tie(retStatus, srcPathStr, destPathStr, force) = GetCopyArguments(env, funcArg);
+    if (!retStatus) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    if (fileAccessHelper == nullptr) {
+        return nullptr;
+    }
+
+    auto result = std::make_shared<std::vector<CopyResult>>();
+    if (result == nullptr) {
+        NError(E_GETRESULT).ThrowErr(env);
+        return nullptr;
+    }
+
+    int ret = ERR_OK;
+    auto cbExec = [srcPathStr, destPathStr, force, result, &ret, fileAccessHelper]() -> NError {
+        OHOS::Uri srcUri(srcPathStr);
+        OHOS::Uri destUri(destPathStr);
+        ret = fileAccessHelper->Copy(srcUri, destUri, *result, force);
+        if ((ret == COPY_EXCEPTION) && !result->empty()) {
+            return NError(result->at(0).errCode);
+        }
+        return NError();
+    };
+    auto cbComplete = [&ret, result](napi_env env, NError err) -> NVal {
+        if (ret == COPY_EXCEPTION) {
+            return { env, err.GetNapiErr(env) };
+        }
+        return { env, CreateObjectArray(env, *result) };
+    };
+
+    const std::string procedureName = "copy";
+    NVal thisVar(env, funcArg.GetThisVar());
+
+    if (funcArg.GetArgc() == NARG_CNT::TWO) {
+        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
+    }
+
+    if (funcArg.GetArgc() == NARG_CNT::THREE) {
+        NVal thirdArg(env, funcArg[NARG_POS::THIRD]);
+        if (thirdArg.TypeIs(napi_boolean)) {
+            return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
+        }
+        if (thirdArg.TypeIs(napi_function)) {
+            return NAsyncWorkCallback(env, thisVar, thirdArg).Schedule(procedureName, cbExec, cbComplete).val_;
+        }
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    NVal cb(env, funcArg[NARG_POS::FOURTH]);
+    if (!cb.TypeIs(napi_function)) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 

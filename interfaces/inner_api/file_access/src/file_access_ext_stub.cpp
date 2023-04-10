@@ -48,6 +48,7 @@ FileAccessExtStub::FileAccessExtStub()
     stubFuncMap_[CMD_MKDIR] = &FileAccessExtStub::CmdMkdir;
     stubFuncMap_[CMD_DELETE] = &FileAccessExtStub::CmdDelete;
     stubFuncMap_[CMD_MOVE] = &FileAccessExtStub::CmdMove;
+    stubFuncMap_[CMD_COPY] = &FileAccessExtStub::CmdCopy;
     stubFuncMap_[CMD_RENAME] = &FileAccessExtStub::CmdRename;
     stubFuncMap_[CMD_LIST_FILE] = &FileAccessExtStub::CmdListFile;
     stubFuncMap_[CMD_SCAN_FILE] = &FileAccessExtStub::CmdScanFile;
@@ -270,6 +271,56 @@ ErrCode FileAccessExtStub::CmdMove(MessageParcel &data, MessageParcel &reply)
         HILOG_ERROR("Parameter Move fail to WriteParcelable newFileUri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
+ErrCode FileAccessExtStub::CmdCopy(MessageParcel &data, MessageParcel &reply)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdCopy");
+    std::shared_ptr<Uri> sourceUri(data.ReadParcelable<Uri>());
+    if (sourceUri == nullptr) {
+        HILOG_ERROR("Parameter Copy fail to ReadParcelable sourceUri");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    std::shared_ptr<Uri> destUri(data.ReadParcelable<Uri>());
+    if (destUri == nullptr) {
+        HILOG_ERROR("Parameter Copy fail to ReadParcelable destUri");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    bool force = false;
+    if (!data.ReadBool(force)) {
+        HILOG_ERROR("Parameter Copy fail to ReadBool force");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    std::vector<CopyResult> copyResult;
+    int ret = Copy(*sourceUri, *destUri, copyResult, force);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("Parameter Copy fail to WriteInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    if (!reply.WriteUint32(copyResult.size())) {
+        HILOG_ERROR("Parameter Copy fail to WriteInt32 size of copyResult");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    for (auto &result : copyResult) {
+        if (!reply.WriteParcelable(&result)) {
+            HILOG_ERROR("Parameter Copy fail to WriteParcelable copyResult");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+            return E_IPCS;
+        }
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);

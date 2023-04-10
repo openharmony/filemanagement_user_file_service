@@ -243,6 +243,59 @@ static const std::unordered_map<std::string, ResultType> FILE_RESULT_TYPE = {
     { HEIGHT, INT32_TYPE },
     { DURATION, INT32_TYPE },
 };
+
+struct CopyResult : public virtual OHOS::Parcelable {
+public:
+    std::string sourceUri { "" };
+    std::string destUri { "" };
+    int32_t errCode { 0 };
+    std::string errMsg { "" };
+
+    CopyResult() = default;
+    CopyResult(std::string sourceUri, std::string destUri, int32_t errCode, std::string errMsg)
+        : sourceUri(sourceUri), destUri(destUri), errCode(errCode),  errMsg(errMsg)
+    {}
+
+    bool ReadFromParcel(Parcel &parcel)
+    {
+        sourceUri = parcel.ReadString();
+        destUri = parcel.ReadString();
+        errCode = parcel.ReadInt32();
+        errMsg = parcel.ReadString();
+        return true;
+    }
+
+    virtual bool Marshalling(Parcel &parcel) const override
+    {
+        if (!parcel.WriteString(sourceUri)) {
+            return false;
+        }
+        if (!parcel.WriteString(destUri)) {
+            return false;
+        }
+        if (!parcel.WriteInt32(errCode)) {
+            return false;
+        }
+        if (!parcel.WriteString(errMsg)) {
+            return false;
+        }
+        return true;
+    }
+
+    static CopyResult *Unmarshalling(Parcel &parcel)
+    {
+        CopyResult *result = new (std::nothrow)CopyResult();
+        if (result == nullptr) {
+            return nullptr;
+        }
+
+        if (!result->ReadFromParcel(parcel)) {
+            delete result;
+            result = nullptr;
+        }
+        return result;
+    }
+};
 } // namespace FileAccessFwk
 } // namespace OHOS
 #endif // FILE_ACCESS_EXTENSION_INFO_H

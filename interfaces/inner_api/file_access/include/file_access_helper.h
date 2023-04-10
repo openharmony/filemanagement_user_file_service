@@ -46,6 +46,7 @@ namespace {
     static const std::string SCHEME_NAME = "datashare";
     static const std::string MEDIA_BNUDLE_NAME_ALIAS = "media";
     static const std::string MEDIA_BNUDLE_NAME = "com.ohos.medialibrary.medialibrarydata";
+    static const std::string EXTERNAL_BNUDLE_NAME = "com.ohos.UserFile.ExternalFileManager";
 }
 
 struct ConnectInfo {
@@ -74,6 +75,7 @@ public:
     int Mkdir(Uri &parent, const std::string &displayName, Uri &newDir);
     int Delete(Uri &selectFile);
     int Move(Uri &sourceFile, Uri &targetParent, Uri &newFile);
+    int Copy(Uri &sourceUri, Uri &destUri, std::vector<CopyResult> &copyResult, bool force = false);
     int Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile);
     int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount, const FileFilter &filter,
         std::vector<FileInfo> &fileInfoVec);
@@ -100,6 +102,8 @@ private:
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
 
     std::shared_ptr<ConnectInfo> GetConnectInfo(const std::string &bundleName);
+
+    int CopyInsideService(Uri &sourceUri, Uri &destUri, std::vector<CopyResult> &copyResult, bool force = false);
 
     sptr<IRemoteObject> token_ = nullptr;
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap_;

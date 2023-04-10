@@ -203,5 +203,20 @@ void InitQueryFlags(napi_env env, napi_value exports)
     napi_define_properties(env, obj, sizeof(desc) / sizeof(desc[0]), desc);
     napi_set_named_property(env, exports, propertyName, obj);
 }
+
+void InitCopyResult(napi_env env, napi_value exports)
+{
+    char className[] = "CopyResult";
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("sourceUri", NVal::CreateUTF8String(env, "sourceUri").val_),
+        DECLARE_NAPI_STATIC_PROPERTY("destUri", NVal::CreateUTF8String(env, "destUri").val_),
+        DECLARE_NAPI_STATIC_PROPERTY("errCode", NVal::CreateInt32(env, 0).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("errMsg", NVal::CreateUTF8String(env, "errMsg").val_),
+    };
+    napi_value obj = nullptr;
+    napi_define_class(env, className, NAPI_AUTO_LENGTH, RootInfoConstructor, nullptr,
+        sizeof(desc) / sizeof(*desc), desc, &obj);
+    napi_set_named_property(env, exports, className, obj);
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

@@ -43,6 +43,7 @@ public:
         CMD_MKDIR,
         CMD_DELETE,
         CMD_MOVE,
+        CMD_COPY,
         CMD_RENAME,
         CMD_LIST_FILE,
         CMD_SCAN_FILE,
@@ -61,6 +62,8 @@ public:
     virtual int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile) = 0;
     virtual int Delete(const Uri &sourceFile) = 0;
     virtual int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) = 0;
+    virtual int Copy(const Uri &sourceUri, const Uri &destUri, std::vector<CopyResult> &copyResult,
+        bool force = false) = 0;
     virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) = 0;
     virtual int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) = 0;

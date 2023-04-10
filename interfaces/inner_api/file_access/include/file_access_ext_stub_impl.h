@@ -41,6 +41,8 @@ public:
     int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile) override;
     int Delete(const Uri &sourceFile) override;
     int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) override;
+    int Copy(const Uri &sourceUri, const Uri &destUri, std::vector<CopyResult> &copyResult,
+        bool force = false) override;
     int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) override;
     int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;

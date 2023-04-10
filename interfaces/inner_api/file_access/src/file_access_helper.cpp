@@ -29,12 +29,19 @@
 #include "image_source.h"
 #include "system_ability_definition.h"
 #include "tokenid_kit.h"
+#include "n_error.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
 using namespace Media;
 using json = nlohmann::json;
+namespace {
+    constexpr int COPY_EXCEPTION = -1;
+    constexpr int COPY_NOEXCEPTION = -2;
+}
 std::vector<AAFwk::Want> FileAccessHelper::wants_;
+sptr<IFileAccessExtBase> g_sourceExtProxy;
+sptr<IFileAccessExtBase> g_destExtProxy;
 
 static int GetUserId()
 {
@@ -632,6 +639,110 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
+}
+
+static bool IsMediaUri(Uri &uri)
+{
+    string path = uri.GetPath();
+    std::size_t len = MEDIA_BNUDLE_NAME_ALIAS.length();
+    if (path.length() > len) {
+        string media = path.substr(1, len);
+        return (media == MEDIA_BNUDLE_NAME_ALIAS);
+    }
+    return false;
+}
+
+static int ThrowExceptionByErrorCode(int errCode, CopyResult &copyResult)
+{
+    if (errCode == COPY_EXCEPTION || errCode == ERR_OK) {
+        return errCode;
+    }
+
+    int ret = ERR_OK;
+    switch (errCode) {
+        case E_IPCS:
+        case E_URIS:
+        case ERR_NOMEM:
+        case ERR_PERM: {
+            HILOG_ERROR("Copy exception, terminate copy");
+            ret = COPY_EXCEPTION;
+            break;
+        }
+        default: {
+            HILOG_ERROR("Copy exception, continue copy");
+            ret = COPY_NOEXCEPTION;
+            break;
+        }
+    }
+    if (OHOS::FileManagement::LibN::errCodeTable.find(errCode) !=
+        OHOS::FileManagement::LibN::errCodeTable.end()) {
+        copyResult.errCode = OHOS::FileManagement::LibN::errCodeTable.at(errCode).first;
+        copyResult.errMsg = OHOS::FileManagement::LibN::errCodeTable.at(errCode).second;
+    }
+    return ret;
+}
+
+int FileAccessHelper::CopyInsideService(Uri &sourceUri, Uri &destUri, std::vector<CopyResult> &copyResult, bool force)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CopyInsideService");
+    int ret = COPY_EXCEPTION;
+    sptr<IFileAccessExtBase> proxy = GetProxyByUri(sourceUri);
+    if (proxy == nullptr) {
+        HILOG_ERROR("Failed with invalid fileAccessExtProxy");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        CopyResult result;
+        ret = ThrowExceptionByErrorCode(E_IPCS, result);
+        copyResult.push_back(result);
+        return ret;
+    }
+
+    ret = proxy->Copy(sourceUri, destUri, copyResult, force);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Copy error, code:%{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        if ((ret == COPY_EXCEPTION) || (ret == COPY_NOEXCEPTION)) {
+            HILOG_ERROR("Copy exception, code:%{public}d", ret);
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+            return ret;
+        }
+        CopyResult result { "", "", ret, ""};
+        copyResult.push_back(result);
+        return COPY_EXCEPTION;
+    }
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
+}
+
+int FileAccessHelper::Copy(Uri &sourceUri, Uri &destUri, std::vector<CopyResult> &copyResult, bool force)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Copy");
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::Copy check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        CopyResult result { sourceUri.ToString(), destUri.ToString(), E_PERMISSION_SYS, "" };
+        copyResult.push_back(result);
+        return COPY_EXCEPTION;
+    }
+
+    if (!CheckUri(sourceUri) || !CheckUri(destUri)) {
+        HILOG_ERROR("Uri format check error");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        CopyResult result { sourceUri.ToString(), destUri.ToString(), E_URIS, "" };
+        copyResult.push_back(result);
+        return COPY_EXCEPTION;
+    }
+
+    int ret = COPY_EXCEPTION;
+    if (IsMediaUri(sourceUri) && IsMediaUri(destUri)) {
+        ret = CopyInsideService(sourceUri, destUri, copyResult, force);
+    } else {
+        HILOG_ERROR("External storage copy is not supported.");
+        CopyResult result { sourceUri.ToString(), destUri.ToString(), EPERM, "" };
+        copyResult.push_back(result);
+        return COPY_NOEXCEPTION;
+    }
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
 }
 
 int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile)
