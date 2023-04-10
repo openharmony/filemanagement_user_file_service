@@ -1378,6 +1378,440 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0011, testing::ext:
 }
 
 /**
+ * @tc.number: user_file_service_medialibrary_file_access_Copy_0000
+ * @tc.name: medialibrary_file_access_Copy_0000
+ * @tc.desc: Test function of Copy interface, copy a file and argument of force is false
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6UI3H
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Copy_0000";
+    try {
+        Uri srcUri("");
+        int result = g_fah->Mkdir(g_newDirUri, "Copy_0000_src", srcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri aFileUri("");
+        result = g_fah->CreateFile(srcUri, "a.txt", aFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        int fd;
+        result = g_fah->OpenFile(aFileUri, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        std::string aFileBuff = "Copy test content for a.txt";
+        ssize_t aFileSize = write(fd, aFileBuff.c_str(), aFileBuff.size());
+        close(fd);
+        EXPECT_EQ(aFileSize, aFileBuff.size());
+
+        Uri destUri("");
+        result = g_fah->Mkdir(g_newDirUri, "Copy_0000_dest", destUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        vector<CopyResult> copyResult;
+        result = g_fah->Copy(aFileUri, destUri, copyResult, false);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        result = g_fah->Delete(srcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->Delete(destUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Copy_0000 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Copy_0000";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_Copy_0001
+ * @tc.name: medialibrary_file_access_Copy_0001
+ * @tc.desc: Test function of Copy interface, copy a directory and argument of force is false
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6UI3H
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Copy_0001";
+    try {
+        Uri srcUri("");
+        int result = g_fah->Mkdir(g_newDirUri, "Copy_0001_src", srcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri aFileUri("");
+        result = g_fah->CreateFile(srcUri, "a.txt", aFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        int fd;
+        result = g_fah->OpenFile(aFileUri, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        std::string aFileBuff = "Copy test content for a.txt";
+        ssize_t aFileSize = write(fd, aFileBuff.c_str(), aFileBuff.size());
+        close(fd);
+        EXPECT_EQ(aFileSize, aFileBuff.size());
+
+        Uri bFileUri("");
+        result = g_fah->CreateFile(srcUri, "b.txt", bFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        std::string bFileBuff = "Copy test content for b.txt";
+        ssize_t bFileSize = write(fd, bFileBuff.c_str(), bFileBuff.size());
+        close(fd);
+        EXPECT_EQ(bFileSize, bFileBuff.size());
+
+        Uri destUri("");
+        result = g_fah->Mkdir(g_newDirUri, "Copy_0001_dest", destUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        vector<CopyResult> copyResult;
+        result = g_fah->Copy(srcUri, destUri, copyResult, false);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        result = g_fah->Delete(srcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->Delete(destUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Copy_0001 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Copy_0001";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_Copy_0002
+ * @tc.name: medialibrary_file_access_Copy_0002
+ * @tc.desc: Test function of Copy interface, copy a file with the same name and argument of force is false
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6UI3H
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Copy_0002";
+    try {
+        Uri srcUri("");
+        int result = g_fah->Mkdir(g_newDirUri, "Copy_0002_src", srcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri srcFileUri("");
+        result = g_fah->CreateFile(srcUri, "a.txt", srcFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        int fd;
+        result = g_fah->OpenFile(srcFileUri, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        std::string aFileBuff = "Copy test content for a.txt";
+        ssize_t aFileSize = write(fd, aFileBuff.c_str(), aFileBuff.size());
+        close(fd);
+        EXPECT_EQ(aFileSize, aFileBuff.size());
+
+        Uri destUri("");
+        result = g_fah->Mkdir(g_newDirUri, "Copy_0002_dest_false", destUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri destFileUri("");
+        result = g_fah->CreateFile(destUri, "a.txt", destFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        vector<CopyResult> copyResult;
+        result = g_fah->Copy(srcFileUri, destUri, copyResult, false);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GT(copyResult.size(), 0);
+
+        result = g_fah->Delete(srcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->Delete(destUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Copy_0002 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Copy_0002";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_Copy_0003
+ * @tc.name: medialibrary_file_access_Copy_0003
+ * @tc.desc: Test function of Copy interface, copy a file with the same name and argument of force is true
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6UI3H
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0003, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Copy_0003";
+    try {
+        Uri srcUri("");
+        int result = g_fah->Mkdir(g_newDirUri, "Copy_0003_src", srcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri srcFileUri("");
+        result = g_fah->CreateFile(srcUri, "a.txt", srcFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        int fd;
+        result = g_fah->OpenFile(srcFileUri, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        std::string aFileBuff = "Copy test content for a.txt";
+        ssize_t aFileSize = write(fd, aFileBuff.c_str(), aFileBuff.size());
+        close(fd);
+        EXPECT_EQ(aFileSize, aFileBuff.size());
+
+        Uri destUri("");
+        result = g_fah->Mkdir(g_newDirUri, "Copy_0003_dest_true", destUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri destFileUri("");
+        result = g_fah->CreateFile(destUri, "a.txt", destFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        vector<CopyResult> copyResult;
+        result = g_fah->Copy(srcFileUri, destUri, copyResult, true);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        result = g_fah->Delete(srcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->Delete(destUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Copy_0003 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Copy_0003";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_Copy_0004
+ * @tc.name: medialibrary_file_access_Copy_0004
+ * @tc.desc: Test function of Copy interface, copy a directory with the same name and argument of force is false
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6UI3H
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0004, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Copy_0004";
+    try {
+        Uri srcUri("");
+        int result = g_fah->Mkdir(g_newDirUri, "Copy_0004_src", srcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        Uri aFileUri("");
+        result = g_fah->CreateFile(srcUri, "a.txt", aFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        int fd;
+        result = g_fah->OpenFile(aFileUri, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        std::string aFileBuff = "Copy test content for a.txt";
+        ssize_t aFileSize = write(fd, aFileBuff.c_str(), aFileBuff.size());
+        close(fd);
+        EXPECT_EQ(aFileSize, aFileBuff.size());
+
+        Uri bFileUri("");
+        result = g_fah->CreateFile(srcUri, "b.txt", bFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        std::string bFileBuff = "Copy test content for b.txt";
+        ssize_t bFileSize = write(fd, bFileBuff.c_str(), bFileBuff.size());
+        close(fd);
+        EXPECT_EQ(bFileSize, bFileBuff.size());
+
+        Uri destUri("");
+        result = g_fah->Mkdir(g_newDirUri, "Copy_0004_dest_false", destUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri destSrcUri("");
+        result = g_fah->Mkdir(destUri, "Copy_0004_src", destSrcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri destSrcAUri("");
+        result = g_fah->CreateFile(destSrcUri, "a.txt", destSrcAUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        vector<CopyResult> copyResult;
+        result = g_fah->Copy(srcUri, destUri, copyResult, false);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GT(copyResult.size(), 0);
+
+        result = g_fah->Delete(srcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->Delete(destUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Copy_0004 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Copy_0004";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_Copy_0005
+ * @tc.name: medialibrary_file_access_Copy_0005
+ * @tc.desc: Test function of Copy interface, copy a directory with the same name and argument of force is true
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6UI3H
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0005, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Copy_0005";
+    try {
+        Uri srcUri("");
+        int result = g_fah->Mkdir(g_newDirUri, "Copy_0005_src", srcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        Uri aFileUri("");
+        result = g_fah->CreateFile(srcUri, "a.txt", aFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        int fd;
+        result = g_fah->OpenFile(aFileUri, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        std::string aFileBuff = "Copy test content for a.txt";
+        ssize_t aFileSize = write(fd, aFileBuff.c_str(), aFileBuff.size());
+        close(fd);
+        EXPECT_EQ(aFileSize, aFileBuff.size());
+
+        Uri bFileUri("");
+        result = g_fah->CreateFile(srcUri, "b.txt", bFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        std::string bFileBuff = "Copy test content for b.txt";
+        ssize_t bFileSize = write(fd, bFileBuff.c_str(), bFileBuff.size());
+        close(fd);
+        EXPECT_EQ(bFileSize, bFileBuff.size());
+
+        Uri destUri("");
+        result = g_fah->Mkdir(g_newDirUri, "Copy_0005_dest_true", destUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri destSrcUri("");
+        result = g_fah->Mkdir(destUri, "Copy_0005_src", destSrcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri destSrcAUri("");
+        result = g_fah->CreateFile(destSrcUri, "a.txt", destSrcAUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        vector<CopyResult> copyResult;
+        result = g_fah->Copy(srcUri, destUri, copyResult, true);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        result = g_fah->Delete(srcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->Delete(destUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Copy_0005 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Copy_0005";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_Copy_0006
+ * @tc.name: medialibrary_file_access_Copy_0006
+ * @tc.desc: Test function of Copy interface, copy a file with the same name
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6UI3H
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0006, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Copy_0006";
+    try {
+        Uri srcUri("");
+        int result = g_fah->Mkdir(g_newDirUri, "Copy_0006_src", srcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri srcFileUri("");
+        result = g_fah->CreateFile(srcUri, "a.txt", srcFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        int fd;
+        result = g_fah->OpenFile(srcFileUri, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        std::string aFileBuff = "Copy test content for a.txt";
+        ssize_t aFileSize = write(fd, aFileBuff.c_str(), aFileBuff.size());
+        close(fd);
+        EXPECT_EQ(aFileSize, aFileBuff.size());
+
+        Uri destUri("");
+        result = g_fah->Mkdir(g_newDirUri, "Copy_0006_dest_false", destUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri destFileUri("");
+        result = g_fah->CreateFile(destUri, "a.txt", destFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        vector<CopyResult> copyResult;
+        result = g_fah->Copy(srcFileUri, destUri, copyResult);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GT(copyResult.size(), 0);
+
+        result = g_fah->Delete(srcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->Delete(destUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Copy_0006 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Copy_0006";
+}
+
+/**
+ * @tc.number: user_file_service_medialibrary_file_access_Copy_0007
+ * @tc.name: medialibrary_file_access_Copy_0007
+ * @tc.desc: Test function of Copy interface, copy a directory with the same name
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I6UI3H
+ */
+HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0007, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Copy_0007";
+    try {
+        Uri srcUri("");
+        int result = g_fah->Mkdir(g_newDirUri, "Copy_0007_src", srcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        Uri aFileUri("");
+        result = g_fah->CreateFile(srcUri, "a.txt", aFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        int fd;
+        result = g_fah->OpenFile(aFileUri, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        std::string aFileBuff = "Copy test content for a.txt";
+        ssize_t aFileSize = write(fd, aFileBuff.c_str(), aFileBuff.size());
+        close(fd);
+        EXPECT_EQ(aFileSize, aFileBuff.size());
+
+        Uri bFileUri("");
+        result = g_fah->CreateFile(srcUri, "b.txt", bFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        std::string bFileBuff = "Copy test content for b.txt";
+        ssize_t bFileSize = write(fd, bFileBuff.c_str(), bFileBuff.size());
+        close(fd);
+        EXPECT_EQ(bFileSize, bFileBuff.size());
+
+        Uri destUri("");
+        result = g_fah->Mkdir(g_newDirUri, "Copy_0007_dest_false", destUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri destSrcUri("");
+        result = g_fah->Mkdir(destUri, "Copy_0007_src", destSrcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri destSrcAUri("");
+        result = g_fah->CreateFile(destSrcUri, "a.txt", destSrcAUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        vector<CopyResult> copyResult;
+        result = g_fah->Copy(srcUri, destUri, copyResult);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GT(copyResult.size(), 0);
+
+        result = g_fah->Delete(srcUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->Delete(destUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "medialibrary_file_access_Copy_0007 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_Copy_0007";
+}
+
+/**
  * @tc.number: user_file_service_medialibrary_file_access_Rename_0000
  * @tc.name: medialibrary_file_access_Rename_0000
  * @tc.desc: Test function of Rename interface for SUCCESS which rename file.
