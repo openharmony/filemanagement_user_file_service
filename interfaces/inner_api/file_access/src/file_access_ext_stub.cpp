@@ -543,7 +543,7 @@ ErrCode FileAccessExtStub::CmdQuery(MessageParcel &data, MessageParcel &reply)
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
-    
+
     int64_t resCount {results.size()};
     if (!reply.WriteInt64(resCount)) {
         HILOG_ERROR("Parameter Query fail to WriteInt64 count");

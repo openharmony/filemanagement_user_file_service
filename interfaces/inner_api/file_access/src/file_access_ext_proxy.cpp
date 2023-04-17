@@ -653,7 +653,7 @@ int FileAccessExtProxy::Query(const Uri &uri, std::vector<std::string> &columns,
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
-    
+
     err = GetQueryResult(reply, results);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to GetQueryResult. err: %{public}d", err);

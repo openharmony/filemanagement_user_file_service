@@ -881,18 +881,28 @@ static int GetQueryResult(std::string &uri, std::vector<std::string> &columns, s
     json jsonObject;
     for (size_t i = 0; i < columns.size(); i++) {
         auto memberType = FILE_RESULT_TYPE.at(columns.at(i));
+        // Assign a default value based on the type, When fileIo obtains an invalid value.
         switch (memberType) {
             case STRING_TYPE:
+                if (results[i].empty()) {
+                    results[i] = " ";
+                }
                 jsonObject[columns[i]] = results[i];
                 break;
             case INT32_TYPE:
+                if (results[i].empty()) {
+                    results[i] = "0";
+                }
                 jsonObject[columns[i]] = std::stoi(results[i]);
                 break;
             case INT64_TYPE:
+                if (results[i].empty()) {
+                    results[i] = "0";
+                }
                 jsonObject[columns[i]] = std::stol(results[i]);
                 break;
             default:
-                jsonObject[columns[i]] = ' ';
+                jsonObject[columns[i]] = " ";
                 HILOG_ERROR("not match  memberType %{public}d", memberType);
                 break;
         }
