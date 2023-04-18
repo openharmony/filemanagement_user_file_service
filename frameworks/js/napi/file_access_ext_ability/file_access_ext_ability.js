@@ -14,80 +14,80 @@
  */
 
 class FileAccessExtensionAbility {
-    onCreate(want) {
-    }
+  onCreate(want) {
+  }
 
-    registerCallback(callback) {
-    }
+  registerCallback(callback) {
+  }
 
-    openFile(sourceFileUri, flags) {
-        return {
-            fd: -1,
-            code: ERR_ERROR,
-        };
-    }
+  openFile(sourceFileUri, flags) {
+    return {
+      fd: -1,
+      code: ERR_ERROR,
+    };
+  }
 
-    createFile(parentUri, displayName) {
-        return {
-            uri: "",
-            code: ERR_ERROR,
-        };
-    }
+  createFile(parentUri, displayName) {
+    return {
+      uri: "",
+      code: ERR_ERROR,
+    };
+  }
 
-    mkdir(parentUri, displayName) {
-        return {
-            uri: "",
-            code: ERR_ERROR,
-        };
-    }
+  mkdir(parentUri, displayName) {
+    return {
+      uri: "",
+      code: ERR_ERROR,
+    };
+  }
 
-    delete(selectFileUri) {
-        return {
-            code: ERR_ERROR,
-        };
-    }
+  delete(selectFileUri) {
+    return {
+      code: ERR_ERROR,
+    };
+  }
 
-    move(sourceFileUri, targetParentUri) {
-        return {
-            uri: '',
-            code: ERR_ERROR,
-        };
-    }
+  move(sourceFileUri, targetParentUri) {
+    return {
+      uri: '',
+      code: ERR_ERROR,
+    };
+  }
 
-    rename(sourceFileUri, displayName) {
-        return {
-            uri: '',
-            code: ERR_ERROR,
-        };
-    }
+  rename(sourceFileUri, displayName) {
+    return {
+      uri: '',
+      code: ERR_ERROR,
+    };
+  }
 
-    listFile(sourceFileUri, offset, count, filter) {
-        return {
-            infos: [],
-            code: ERR_ERROR,
-        };
-    }
+  listFile(sourceFileUri, offset, count, filter) {
+    return {
+      infos: [],
+      code: ERR_ERROR,
+    };
+  }
 
-    getRoots() {
-        return {
-            roots: [],
-            code: ERR_ERROR,
-        };
-    }
+  getRoots() {
+    return {
+      roots: [],
+      code: ERR_ERROR,
+    };
+  }
 
-    access(sourceFileUri) {
-        return {
-            isExist: false,
-            code: ERR_ERROR,
-        };
-    }
+  access(sourceFileUri) {
+    return {
+      isExist: false,
+      code: ERR_ERROR,
+    };
+  }
 
-    getFileInfoFromUri(selectFileUri) {
-        return {
-            fileInfo: [],
-            code: ERR_ERROR,
-        };
-    }
+  getFileInfoFromUri(selectFileUri) {
+    return {
+      fileInfo: [],
+      code: ERR_ERROR,
+    };
+  }
 }
 
 export default FileAccessExtensionAbility
