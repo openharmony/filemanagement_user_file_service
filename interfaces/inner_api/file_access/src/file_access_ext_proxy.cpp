@@ -38,7 +38,8 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags, int &fd)
         return E_IPCS;
     }
 
-    if (!data.WriteParcelable(&uri)) {
+    std::string insideInputUri = uri.ToString();
+    if (!data.WriteString(insideInputUri)) {
         HILOG_ERROR("fail to WriteParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
@@ -93,7 +94,8 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
         return E_IPCS;
     }
 
-    if (!data.WriteParcelable(&parent)) {
+    std::string insideInputUri = parent.ToString();
+    if (!data.WriteString(insideInputUri)) {
         HILOG_ERROR("fail to WriteParcelable parent");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
@@ -127,19 +129,19 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
         return ret;
     }
 
-    std::unique_ptr<Uri> tempUri(reply.ReadParcelable<Uri>());
-    if (tempUri == nullptr) {
+    std::string tempUri;
+    if (!reply.ReadString(tempUri)) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
-    newFile = Uri(*tempUri);
-    if (newFile.ToString().empty()) {
+    if (tempUri.empty()) {
         HILOG_ERROR("get uri is empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
+    newFile = Uri(tempUri);
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
@@ -155,7 +157,8 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
         return E_IPCS;
     }
 
-    if (!data.WriteParcelable(&parent)) {
+    std::string insideInputUri = parent.ToString();
+    if (!data.WriteString(insideInputUri)) {
         HILOG_ERROR("fail to WriteParcelable parent");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
@@ -189,19 +192,19 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
         return ret;
     }
 
-    std::unique_ptr<Uri> tempUri(reply.ReadParcelable<Uri>());
-    if (tempUri == nullptr) {
+    std::string tempUri;
+    if (!reply.ReadString(tempUri)) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
-    newFile = Uri(*tempUri);
-    if (newFile.ToString().empty()) {
+    if (tempUri.empty()) {
         HILOG_ERROR("get uri is empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
+    newFile = Uri(tempUri);
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
@@ -217,7 +220,8 @@ int FileAccessExtProxy::Delete(const Uri &sourceFile)
         return E_IPCS;
     }
 
-    if (!data.WriteParcelable(&sourceFile)) {
+    std::string insideInputUri = sourceFile.ToString();
+    if (!data.WriteString(insideInputUri)) {
         HILOG_ERROR("fail to WriteParcelable sourceFile");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
@@ -259,13 +263,15 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
         return E_IPCS;
     }
 
-    if (!data.WriteParcelable(&sourceFile)) {
+    std::string insideInputSourceUri = sourceFile.ToString();
+    if (!data.WriteString(insideInputSourceUri)) {
         HILOG_ERROR("fail to WriteParcelable sourceFile");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
-    if (!data.WriteParcelable(&targetParent)) {
+    std::string insideInputTargetUri = targetParent.ToString();
+    if (!data.WriteString(insideInputTargetUri)) {
         HILOG_ERROR("fail to WriteParcelable targetParent");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
@@ -293,19 +299,19 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
         return ret;
     }
 
-    std::unique_ptr<Uri> tempUri(reply.ReadParcelable<Uri>());
-    if (tempUri == nullptr) {
+    std::string tempUri;
+    if (!reply.ReadString(tempUri)) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
-    }
+    };
 
-    newFile = Uri(*tempUri);
-    if (newFile.ToString().empty()) {
+    if (tempUri.empty()) {
         HILOG_ERROR("get uri is empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
+    newFile = Uri(tempUri);
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
@@ -322,14 +328,16 @@ int FileAccessExtProxy::Copy(const Uri &sourceUri, const Uri &destUri, std::vect
         return E_IPCS;
     }
 
-    if (!data.WriteParcelable(&sourceUri)) {
-        HILOG_ERROR("fail to WriteParcelable uri");
+    std::string insideInputSourceUri = sourceUri.ToString();
+    if (!data.WriteString(insideInputSourceUri)) {
+        HILOG_ERROR("fail to WriteParcelable insideInputSourceUri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
-    if (!data.WriteParcelable(&destUri)) {
-        HILOG_ERROR("fail to WriteParcelable targetParent");
+    std::string insideInputTargetUri = destUri.ToString();
+    if (!data.WriteString(insideInputTargetUri)) {
+        HILOG_ERROR("fail to WriteParcelable insideInputTargetUri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
@@ -398,7 +406,8 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
         return E_IPCS;
     }
 
-    if (!data.WriteParcelable(&sourceFile)) {
+    std::string insideInputSourceUri = sourceFile.ToString();
+    if (!data.WriteString(insideInputSourceUri)) {
         HILOG_ERROR("fail to WriteParcelable sourceFile");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
@@ -432,19 +441,19 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
         return ret;
     }
 
-    std::unique_ptr<Uri> tempUri(reply.ReadParcelable<Uri>());
-    if (tempUri == nullptr) {
+    std::string tempUri;
+    if (!reply.ReadString(tempUri)) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
-    newFile = Uri(*tempUri);
-    if (newFile.ToString().empty()) {
+    if (tempUri.empty()) {
         HILOG_ERROR("get uri is empty.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
+    newFile = Uri(tempUri);
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
@@ -625,7 +634,8 @@ int FileAccessExtProxy::Query(const Uri &uri, std::vector<std::string> &columns,
         return E_IPCS;
     }
 
-    if (!data.WriteParcelable(&uri)) {
+    std::string insideInputUri = uri.ToString();
+    if (!data.WriteString(insideInputUri)) {
         HILOG_ERROR("fail to WriteParcelable sourceFile");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
@@ -721,8 +731,8 @@ static int WriteThumbnailArgs(MessageParcel &data, const Uri &uri, const Thumbna
         HILOG_ERROR("WriteInterfaceToken failed");
         return E_IPCS;
     }
-
-    if (!data.WriteParcelable(&uri)) {
+    std::string insideInputUri = uri.ToString();
+    if (!data.WriteString(insideInputUri)) {
         HILOG_ERROR("fail to WriteParcelable selectfile");
         return E_IPCS;
     }
@@ -789,7 +799,8 @@ int FileAccessExtProxy::GetFileInfoFromUri(const Uri &selectFile, FileInfo &file
         return E_IPCS;
     }
 
-    if (!data.WriteParcelable(&selectFile)) {
+    std::string insideInputUri = selectFile.ToString();
+    if (!data.WriteString(insideInputUri)) {
         HILOG_ERROR("fail to WriteParcelable selectFile");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
@@ -889,7 +900,8 @@ int FileAccessExtProxy::Access(const Uri &uri, bool &isExist)
         return E_IPCS;
     }
 
-    if (!data.WriteParcelable(&uri)) {
+    std::string insideInputUri = uri.ToString();
+    if (!data.WriteString(insideInputUri)) {
         HILOG_ERROR("fail to WriteParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;

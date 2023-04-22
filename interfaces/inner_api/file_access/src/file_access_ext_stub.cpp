@@ -97,11 +97,17 @@ int FileAccessExtStub::OnRemoteRequest(uint32_t code, MessageParcel& data, Messa
 ErrCode FileAccessExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdOpenFile");
-    std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
-    if (uri == nullptr) {
+    std::string insideInputUri;
+    if (!data.ReadString(insideInputUri)) {
         HILOG_ERROR("Parameter OpenFile fail to ReadParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
+    }
+
+    if (insideInputUri.empty()) {
+        HILOG_ERROR("Parameter OpenFile insideInputUri is empty");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return EINVAL;
     }
 
     int flags = E_IPCS;
@@ -118,7 +124,8 @@ ErrCode FileAccessExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply
     }
 
     int fd = -1;
-    int ret = OpenFile(*uri, flags, fd);
+    Uri uri(insideInputUri);
+    int ret = OpenFile(uri, flags, fd);
     UniqueFd uniqueFd(fd);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter OpenFile fail to WriteInt32 ret");
@@ -139,11 +146,17 @@ ErrCode FileAccessExtStub::CmdOpenFile(MessageParcel &data, MessageParcel &reply
 ErrCode FileAccessExtStub::CmdCreateFile(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdCreateFile");
-    std::shared_ptr<Uri> parent(data.ReadParcelable<Uri>());
-    if (parent == nullptr) {
-        HILOG_ERROR("Parameter CreateFile fail to ReadParcelable parent");
+    std::string insideInputUri;
+    if (!data.ReadString(insideInputUri)) {
+        HILOG_ERROR("Parameter OpenFile fail to ReadParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
+    }
+
+    if (insideInputUri.empty()) {
+        HILOG_ERROR("Parameter CreateFile insideInputUri is empty");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return EINVAL;
     }
 
     std::string displayName = "";
@@ -161,14 +174,16 @@ ErrCode FileAccessExtStub::CmdCreateFile(MessageParcel &data, MessageParcel &rep
 
     std::string newFile = "";
     OHOS::Uri newFileUri(newFile);
-    int ret = CreateFile(*parent, displayName, newFileUri);
+    Uri uri(insideInputUri);
+    int ret = CreateFile(uri, displayName, newFileUri);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter CreateFile fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
-    if (!reply.WriteParcelable(&newFileUri)) {
+    std::string insideOutputUri = newFileUri.ToString();
+    if (!reply.WriteString(insideOutputUri)) {
         HILOG_ERROR("Parameter CreateFile fail to WriteParcelable newFileUri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
@@ -181,11 +196,17 @@ ErrCode FileAccessExtStub::CmdCreateFile(MessageParcel &data, MessageParcel &rep
 ErrCode FileAccessExtStub::CmdMkdir(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdMkdir");
-    std::shared_ptr<Uri> parent(data.ReadParcelable<Uri>());
-    if (parent == nullptr) {
-        HILOG_ERROR("Parameter Mkdir fail to ReadParcelable parent");
+    std::string insideInputUri;
+    if (!data.ReadString(insideInputUri)) {
+        HILOG_ERROR("Parameter Mkdir fail to ReadParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
+    }
+
+    if (insideInputUri.empty()) {
+        HILOG_ERROR("Parameter Mkdir insideInputUri is empty");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return EINVAL;
     }
 
     std::string displayName = "";
@@ -203,14 +224,16 @@ ErrCode FileAccessExtStub::CmdMkdir(MessageParcel &data, MessageParcel &reply)
 
     std::string newFile = "";
     OHOS::Uri newFileUri(newFile);
-    int ret = Mkdir(*parent, displayName, newFileUri);
+    Uri uri(insideInputUri);
+    int ret = Mkdir(uri, displayName, newFileUri);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter Mkdir fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
-    if (!reply.WriteParcelable(&newFileUri)) {
+    std::string insideOutputUri = newFileUri.ToString();
+    if (!reply.WriteString(insideOutputUri)) {
         HILOG_ERROR("Parameter Mkdir fail to WriteParcelable newFileUri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
@@ -223,14 +246,21 @@ ErrCode FileAccessExtStub::CmdMkdir(MessageParcel &data, MessageParcel &reply)
 ErrCode FileAccessExtStub::CmdDelete(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdDelete");
-    std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
-    if (uri == nullptr) {
+    std::string insideInputUri;
+    if (!data.ReadString(insideInputUri)) {
         HILOG_ERROR("Parameter Delete fail to ReadParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
-    int ret = Delete(*uri);
+    if (insideInputUri.empty()) {
+        HILOG_ERROR("Parameter Delete insideInputUri is empty");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return EINVAL;
+    }
+
+    Uri uri(insideInputUri);
+    int ret = Delete(uri);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter Delete fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -244,30 +274,33 @@ ErrCode FileAccessExtStub::CmdDelete(MessageParcel &data, MessageParcel &reply)
 ErrCode FileAccessExtStub::CmdMove(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdMove");
-    std::shared_ptr<Uri> sourceFile(data.ReadParcelable<Uri>());
-    if (sourceFile == nullptr) {
-        HILOG_ERROR("Parameter Move fail to ReadParcelable sourceFile");
+    std::string sourceFile;
+    if (!data.ReadString(sourceFile)) {
+        HILOG_ERROR("Parameter Move fail to ReadParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
-    std::shared_ptr<Uri> targetParent(data.ReadParcelable<Uri>());
-    if (targetParent == nullptr) {
-        HILOG_ERROR("Parameter Move fail to ReadParcelable targetParent");
+    std::string targetParent;
+    if (!data.ReadString(targetParent)) {
+        HILOG_ERROR("Parameter Move fail to ReadParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     std::string newFile = "";
     OHOS::Uri newFileUri(newFile);
-    int ret = Move(*sourceFile, *targetParent, newFileUri);
+    Uri source(sourceFile);
+    Uri target(targetParent);
+    int ret = Move(source, target, newFileUri);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter Move fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
-    if (!reply.WriteParcelable(&newFileUri)) {
+    std::string insideOutputUri = newFileUri.ToString();
+    if (!reply.WriteString(insideOutputUri)) {
         HILOG_ERROR("Parameter Move fail to WriteParcelable newFileUri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
@@ -280,16 +313,16 @@ ErrCode FileAccessExtStub::CmdMove(MessageParcel &data, MessageParcel &reply)
 ErrCode FileAccessExtStub::CmdCopy(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdCopy");
-    std::shared_ptr<Uri> sourceUri(data.ReadParcelable<Uri>());
-    if (sourceUri == nullptr) {
-        HILOG_ERROR("Parameter Copy fail to ReadParcelable sourceUri");
+    std::string sourceUri;
+    if (!data.ReadString(sourceUri)) {
+        HILOG_ERROR("Parameter Copy fail to ReadParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
-    std::shared_ptr<Uri> destUri(data.ReadParcelable<Uri>());
-    if (destUri == nullptr) {
-        HILOG_ERROR("Parameter Copy fail to ReadParcelable destUri");
+    std::string destUri;
+    if (!data.ReadString(destUri)) {
+        HILOG_ERROR("Parameter Copy fail to ReadParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
@@ -302,7 +335,9 @@ ErrCode FileAccessExtStub::CmdCopy(MessageParcel &data, MessageParcel &reply)
     }
 
     std::vector<CopyResult> copyResult;
-    int ret = Copy(*sourceUri, *destUri, copyResult, force);
+    Uri source(sourceUri);
+    Uri dest(destUri);
+    int ret = Copy(source, dest, copyResult, force);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter Copy fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -330,9 +365,9 @@ ErrCode FileAccessExtStub::CmdCopy(MessageParcel &data, MessageParcel &reply)
 ErrCode FileAccessExtStub::CmdRename(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdRename");
-    std::shared_ptr<Uri> sourceFile(data.ReadParcelable<Uri>());
-    if (sourceFile == nullptr) {
-        HILOG_ERROR("Parameter Rename fail to ReadParcelable sourceFile");
+    std::string sourceFile;
+    if (!data.ReadString(sourceFile)) {
+        HILOG_ERROR("Parameter Rename fail to ReadParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
@@ -352,14 +387,16 @@ ErrCode FileAccessExtStub::CmdRename(MessageParcel &data, MessageParcel &reply)
 
     std::string newFile = "";
     OHOS::Uri newFileUri(newFile);
-    int ret = Rename(*sourceFile, displayName, newFileUri);
+    Uri source(sourceFile);
+    int ret = Rename(source, displayName, newFileUri);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter Rename fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
-    if (!reply.WriteParcelable(&newFileUri)) {
+    std::string insideOutputUri = newFileUri.ToString();
+    if (!reply.WriteString(insideOutputUri)) {
         HILOG_ERROR("Parameter Rename fail to WriteParcelable newFileUri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
@@ -519,8 +556,8 @@ ErrCode FileAccessExtStub::CmdGetRoots(MessageParcel &data, MessageParcel &reply
 ErrCode FileAccessExtStub::CmdQuery(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdQuery");
-    std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
-    if (uri == nullptr) {
+    std::string uri;
+    if (!data.ReadString(uri)) {
         HILOG_ERROR("Parameter Query fail to ReadParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
@@ -537,7 +574,8 @@ ErrCode FileAccessExtStub::CmdQuery(MessageParcel &data, MessageParcel &reply)
         columns.push_back(data.ReadString());
     }
     std::vector<std::string> results;
-    int ret = Query(*uri, columns, results);
+    Uri sourceUri(uri);
+    int ret = Query(sourceUri, columns, results);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter Query fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -566,11 +604,11 @@ ErrCode FileAccessExtStub::CmdQuery(MessageParcel &data, MessageParcel &reply)
 ErrCode FileAccessExtStub::CmdGetThumbnail(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdGetThumbnail");
-    std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
-    if (uri == nullptr) {
+    std::string uri;
+    if (!data.ReadString(uri)) {
         HILOG_ERROR("Parameter GetThumbnail fail to ReadParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_URIS;
+        return E_IPCS;
     }
 
     std::shared_ptr<ThumbnailSize> thumbnailSize(data.ReadParcelable<ThumbnailSize>());
@@ -581,7 +619,8 @@ ErrCode FileAccessExtStub::CmdGetThumbnail(MessageParcel &data, MessageParcel &r
     }
 
     std::shared_ptr<PixelMap> pixelMap;
-    int ret = GetThumbnail(*uri, *thumbnailSize, pixelMap);
+    Uri sourceUri(uri);
+    int ret = GetThumbnail(sourceUri, *thumbnailSize, pixelMap);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter CmdGetThumbnail fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -601,15 +640,16 @@ ErrCode FileAccessExtStub::CmdGetThumbnail(MessageParcel &data, MessageParcel &r
 ErrCode FileAccessExtStub::CmdGetFileInfoFromUri(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdGetFileInfoFromUri");
-    std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
-    if (uri == nullptr) {
-        HILOG_ERROR("SelectFile uri is nullptr");
+    std::string uri;
+    if (!data.ReadString(uri)) {
+        HILOG_ERROR("Parameter GetFileInfoFromUri fail to ReadParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_URIS;
+        return E_IPCS;
     }
 
     FileInfo fileInfoTemp;
-    int ret = GetFileInfoFromUri(*uri, fileInfoTemp);
+    Uri sourceUri(uri);
+    int ret = GetFileInfoFromUri(sourceUri, fileInfoTemp);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter GetFileInfoFromUri fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -652,15 +692,16 @@ ErrCode FileAccessExtStub::CmdGetFileInfoFromRelativePath(MessageParcel &data, M
 ErrCode FileAccessExtStub::CmdAccess(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdAccess");
-    std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
-    if (uri == nullptr) {
-        HILOG_ERROR("Access uri is nullptr");
+    std::string uri;
+    if (!data.ReadString(uri)) {
+        HILOG_ERROR("Parameter Query fail to ReadParcelable uri");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_URIS;
+        return E_IPCS;
     }
 
     bool isExist = false;
-    int ret = Access(*uri, isExist);
+    Uri sourceUri(uri);
+    int ret = Access(sourceUri, isExist);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter Access fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
