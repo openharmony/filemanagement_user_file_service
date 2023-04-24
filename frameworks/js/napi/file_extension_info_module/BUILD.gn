@@ -12,8 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-
-UFS_BASE_PATH = "//foundation/filemanagement/user_file_service"
+import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
 
 ohos_shared_library("fileextensioninfo") {
   subsystem_name = "filemanagement"
@@ -22,19 +21,19 @@ ohos_shared_library("fileextensioninfo") {
 
   include_dirs = [
     ".",
-    "${UFS_BASE_PATH}/interfaces/inner_api/file_access/include",
-    "${UFS_BASE_PATH}/interfaces/inner_api/file_access/include/notify",
-    "${UFS_BASE_PATH}/frameworks/js/napi/common",
-    "${UFS_BASE_PATH}/utils",
-    "//foundation/ability/ability_base/interfaces/kits/native/uri/include",
+    "${user_file_service_path}/interfaces/inner_api/file_access/include",
+    "${user_file_service_path}/interfaces/inner_api/file_access/include/notify",
+    "${user_file_service_path}/frameworks/js/napi/common",
+    "${user_file_service_path}/utils",
   ]
 
   sources = [
-    "${UFS_BASE_PATH}/frameworks/js/napi/common/file_extension_info_napi.cpp",
+    "${user_file_service_path}/frameworks/js/napi/common/file_extension_info_napi.cpp",
     "module_export_napi.cpp",
   ]
 
   external_deps = [
+    "ability_base:want",
     "c_utils:utils",
     "file_api:filemgmt_libn",
     "hiviewdfx_hilog_native:libhilog",

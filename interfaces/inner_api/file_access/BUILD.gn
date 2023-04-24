@@ -14,23 +14,18 @@
 import("//build/ohos.gni")
 import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
 
-BASE_DIR = "//foundation/filemanagement/user_file_service"
-
 config("ability_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "include",
-    "${BASE_DIR}/utils",
+    "${user_file_service_path}/utils",
     "${ability_runtime_services_path}/common/include",
     "${ability_runtime_kits_path}/ability/native/include/continuation/distributed",
     "${ability_runtime_kits_path}/ability/native/include/continuation/kits",
     "${ability_runtime_kits_path}/appkit/native/app/include",
     "${ability_runtime_napi_path}/inner/napi_common",
     "${access_token_path}/interfaces/innerkits/accesstoken/include",
-    "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/include",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base/include",
-    "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_base/include",
-    "//foundation/distributeddatamgr/distributedfile/interfaces/kits/js/src/common",
+    "${distributed_file_path}/interfaces/kits/js/src/common",
   ]
 
   cflags = []
@@ -44,7 +39,7 @@ config("ability_public_config") {
   include_dirs = [
     "include",
     "include/notify",
-    "${BASE_DIR}/utils",
+    "${user_file_service_path}/utils",
     "${ability_runtime_kits_path}/appkit/native/ability_runtime/app",
     "${ability_runtime_kits_path}/appkit/native/app/include",
     "${ability_runtime_kits_path}/appkit/native/ability_runtime/context",
@@ -54,7 +49,6 @@ config("ability_public_config") {
 ohos_shared_library("file_access_extension_ability_kit") {
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
-    "//foundation/communication/ipc/ipc/native/src/napi/include",
     "${file_api_path}/utils/filemgmt_libn/include",
   ]
 
@@ -93,6 +87,7 @@ ohos_shared_library("file_access_extension_ability_kit") {
     "ability_runtime:napi_common",
     "ability_runtime:runtime",
     "access_token:libaccesstoken_sdk",
+    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hitrace_native:hitrace_meter",
@@ -121,6 +116,7 @@ ohos_shared_library("file_access_extension_ability_module") {
 
   external_deps = [
     "ability_runtime:runtime",
+    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
   ]
