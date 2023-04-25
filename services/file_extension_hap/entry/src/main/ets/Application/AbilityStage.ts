@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import AbilityStage from "@ohos.app.ability.AbilityStage"
+import AbilityStage from '@ohos.app.ability.AbilityStage';
 
 export default class MyAbilityStage extends AbilityStage {
-    onCreate() {
-    }
+  onCreate(): void {
+  }
 }

@@ -12,21 +12,21 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-import CommonEvent from '@ohos.commonEvent'
-async function onReceiveEvent(callBack) {
-    var subscribeInfo = {
-        events: [
-            "usual.event.data.VOLUME_REMOVED",
-            "usual.event.data.VOLUME_UNMOUNTED",
-            "usual.event.data.VOLUME_MOUNTED",
-            "usual.event.data.VOLUME_BAD_REMOVAL",
-            "usual.event.data.VOLUME_EJECT"
-        ]
-    };
-    let subscriber = await CommonEvent.createSubscriber(subscribeInfo);
-    CommonEvent.subscribe(subscriber, function (err, data) {
-        callBack(data)
-    })
+import CommonEvent from '@ohos.commonEvent';
+async function onReceiveEvent(callBack): Promise<void> {
+  let subscribeInfo = {
+    events: [
+      'usual.event.data.VOLUME_REMOVED',
+      'usual.event.data.VOLUME_UNMOUNTED',
+      'usual.event.data.VOLUME_MOUNTED',
+      'usual.event.data.VOLUME_BAD_REMOVAL',
+      'usual.event.data.VOLUME_EJECT'
+    ]
+  };
+  let subscriber = await CommonEvent.createSubscriber(subscribeInfo);
+  CommonEvent.subscribe(subscriber, function (err, data) {
+    callBack(data);
+  });
 }
 
-export { onReceiveEvent }
+export { onReceiveEvent };
