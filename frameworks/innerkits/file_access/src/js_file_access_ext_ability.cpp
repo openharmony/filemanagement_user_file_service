@@ -53,7 +53,11 @@ JsFileAccessExtAbility* JsFileAccessExtAbility::Create(const std::unique_ptr<Run
 }
 
 JsFileAccessExtAbility::JsFileAccessExtAbility(JsRuntime &jsRuntime) : jsRuntime_(jsRuntime) {}
-JsFileAccessExtAbility::~JsFileAccessExtAbility() = default;
+
+JsFileAccessExtAbility::~JsFileAccessExtAbility()
+{
+    jsRuntime_.FreeNativeReference(std::move(jsObj_));
+}
 
 void JsFileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
