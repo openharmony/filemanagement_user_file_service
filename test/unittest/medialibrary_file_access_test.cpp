@@ -143,7 +143,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0000, testing::
             result = g_fah->Mkdir(parentUri, "Download", g_newDirUri);
             EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         }
-        Uri newDirUriTest("datashare:///media/root/file");
+        Uri newDirUriTest("file://media/root/file");
         FileInfo fileInfo;
         fileInfo.uri = newDirUriTest.ToString();
         int64_t offset = 0;
@@ -2283,7 +2283,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0000, testing::
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ScanFile_0000.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        fileInfo.uri = "datashare:///media/root";
+        fileInfo.uri = "file://media/root";
         int64_t offset = 0;
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
@@ -2318,7 +2318,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0001, testing::
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri("");
         FileInfo fileInfo;
-        fileInfo.uri = "datashare:///media/root";
+        fileInfo.uri = "file://media/root";
         result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ScanFile_0001.q1w2e3r4", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ScanFile_0001.txt", testUri);
@@ -2458,7 +2458,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0004, testing::
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->CreateFile(newDirUriTest, "medialibrary_file_access_ScanFile_0000.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        fileInfo.uri = "datashare:///media/root";
+        fileInfo.uri = "file://media/root";
         int64_t offset = 0;
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
@@ -2567,7 +2567,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetRoots_0000, testing::
             GTEST_LOG_(INFO) << info[0].deviceType;
             GTEST_LOG_(INFO) << info[0].deviceFlags;
         }
-        string uri = "datashare:///media/root";
+        string uri = "file://media/root";
         string displayName = "LOCAL";
         EXPECT_EQ(info[0].uri, uri);
         EXPECT_EQ(info[0].displayName, displayName);

@@ -50,32 +50,12 @@ static int GetUserId()
     return userId;
 }
 
-static bool GetBundleNameFromPath(const std::string &path, std::string &bundleName)
-{
-    if (path.size() == 0) {
-        HILOG_ERROR("Uri path error.");
-        return false;
-    }
-
-    if (path.front() != '/') {
-        HILOG_ERROR("Uri path format error.");
-        return false;
-    }
-
-    auto tmpPath = path.substr(1);
-    auto index = tmpPath.find_first_of("/");
-    bundleName = tmpPath.substr(0, index);
-    if (bundleName.compare(MEDIA_BNUDLE_NAME_ALIAS) == 0) {
-        bundleName = MEDIA_BNUDLE_NAME;
-    }
-    return true;
-}
 
 static bool CheckUri(Uri &uri)
 {
     HILOG_DEBUG("Uri : %{public}s.", uri.ToString().c_str());
     std::string schemeStr = std::string(uri.GetScheme());
-    if (schemeStr.compare(SCHEME_NAME) != 0) {
+    if (schemeStr.compare(FILE_SCHEME_NAME) != 0) {
         HILOG_ERROR("Uri scheme error.");
         return false;
     }
@@ -401,12 +381,11 @@ bool FileAccessHelper::Release()
 
 sptr<IFileAccessExtBase> FileAccessHelper::GetProxyByUri(Uri &uri)
 {
-    std::string bundleName;
-    if (!GetBundleNameFromPath(uri.GetPath(), bundleName)) {
-        HILOG_ERROR("Get BundleName failed.");
-        return nullptr;
+    string authority = uri.GetAuthority();
+    if (authority == MEDIA_BNUDLE_NAME_ALIAS) {
+        authority = MEDIA_BNUDLE_NAME;
     }
-    auto fileAccessExtProxy = GetProxyByBundleName(bundleName);
+    auto fileAccessExtProxy = GetProxyByBundleName(authority);
     return fileAccessExtProxy;
 }
 
@@ -643,13 +622,7 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
 
 static bool IsMediaUri(Uri &uri)
 {
-    string path = uri.GetPath();
-    std::size_t len = MEDIA_BNUDLE_NAME_ALIAS.length();
-    if (path.length() > len) {
-        string media = path.substr(1, len);
-        return (media == MEDIA_BNUDLE_NAME_ALIAS);
-    }
-    return false;
+    return uri.GetAuthority() == MEDIA_BNUDLE_NAME_ALIAS;
 }
 
 static int ThrowExceptionByErrorCode(int errCode, CopyResult &copyResult)

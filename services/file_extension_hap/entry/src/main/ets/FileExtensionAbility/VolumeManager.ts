@@ -15,6 +15,7 @@
 // @ts-nocheck
 import volumeManager from '@ohos.file.volumeManager';
 import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
+import fileuri from '@ohos.file.fileuri';
 import hilog from '@ohos.hilog';
 if (!globalThis.volumeInfoList) {
   globalThis.volumeInfoList = [];
@@ -40,7 +41,7 @@ function init(): void {
         'volumeId': volume.id,
         'fsUuid': volume.uuid,
         'path': volume.path,
-        'uri': path2uri('', volume.path),
+        'uri': path2uri(volume.path),
         'displayName': volume.id,
         'deviceFlags': flags,
         'deviceType': deviceType.DEVICE_EXTERNAL_USB
@@ -54,8 +55,9 @@ function addVolumeInfo(volumeInfo): void {
   globalThis.volumeInfoList.push(volumeInfo);
 }
 
-function path2uri(id, path): string {
-  return `datashare://${id}/com.ohos.UserFile.ExternalFileManager${path}`;
+function path2uri(path): string {
+  let uri = fileuri.getUriFromPath(path);
+  return uri;
 }
 
 function findVolumeInfo(volumeId) {
