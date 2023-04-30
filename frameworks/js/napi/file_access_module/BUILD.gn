@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-BASE_DIR = "//foundation/filemanagement/user_file_service"
+import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
 
 ohos_shared_library("fileaccess") {
   subsystem_name = "filemanagement"
@@ -22,15 +22,15 @@ ohos_shared_library("fileaccess") {
 
   include_dirs = [
     "./",
-    "${BASE_DIR}/frameworks/js/napi/common",
-    "${BASE_DIR}/frameworks/js/napi/file_access_module/file_info",
-    "${BASE_DIR}/frameworks/js/napi/file_access_module/root_info",
-    "${BASE_DIR}/utils",
-    "//foundation/filemanagement/file_api/interfaces/kits/js/src/common",
+    "${user_file_service_path}/frameworks/js/napi/common",
+    "${user_file_service_path}/frameworks/js/napi/file_access_module/file_info",
+    "${user_file_service_path}/frameworks/js/napi/file_access_module/root_info",
+    "${user_file_service_path}/utils",
+    "${file_api_path}/interfaces/kits/js/src/common",
   ]
 
   sources = [
-    "${BASE_DIR}/frameworks/js/napi/common/file_extension_info_napi.cpp",
+    "${user_file_service_path}/frameworks/js/napi/common/file_extension_info_napi.cpp",
     "file_info/napi_file_info_exporter.cpp",
     "file_info/napi_file_iterator_exporter.cpp",
     "napi_fileaccess_helper.cpp",
@@ -41,16 +41,14 @@ ohos_shared_library("fileaccess") {
     "root_info/napi_root_iterator_exporter.cpp",
   ]
 
-  deps = [
-    "${BASE_DIR}/interfaces/inner_api/file_access:file_access_extension_ability_kit",
-    "//foundation/ability/ability_runtime/frameworks/js/napi/inner/napi_common:napi_common",
-  ]
+  deps = [ "${user_file_service_path}/interfaces/inner_api/file_access:file_access_extension_ability_kit" ]
 
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:abilitykit_native",
     "ability_runtime:napi_base_context",
+    "ability_runtime:napi_common",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "file_api:filemgmt_libn",
