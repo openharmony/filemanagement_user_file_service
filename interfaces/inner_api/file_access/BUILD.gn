@@ -25,7 +25,6 @@ config("ability_config") {
     "${ability_runtime_kits_path}/appkit/native/app/include",
     "${ability_runtime_napi_path}/inner/napi_common",
     "${access_token_path}/interfaces/innerkits/accesstoken/include",
-    "${distributed_file_path}/interfaces/kits/js/src/common",
   ]
 
   cflags = []
@@ -43,6 +42,7 @@ config("ability_public_config") {
     "${ability_runtime_kits_path}/appkit/native/ability_runtime/app",
     "${ability_runtime_kits_path}/appkit/native/app/include",
     "${ability_runtime_kits_path}/appkit/native/ability_runtime/context",
+    "${user_file_service_path}/interfaces/kits/js/src/common",
   ]
 }
 
