@@ -69,6 +69,26 @@ export default class FileExtAbility extends Extension {
     callbackFun = callback;
   }
 
+  encode(uri): string {
+    try {
+      uri = encodeURI(uri);
+    } catch (e) {
+      hilog.error(DOMAIN_CODE, TAG, 'The reason of encodeURI: ' + e.message + ' code: ' + e.code);
+      uri = '';
+    }
+    return uri;
+  }
+
+  decode(uri): string {
+    try {
+      uri = decodeURI(uri);
+    } catch (e) {
+      hilog.error(DOMAIN_CODE, TAG, 'The reason of decodeURI: ' + e.message + ' code: ' + e.code);
+      uri = '';
+    }
+    return uri;
+  }
+
   checkUri(uri): boolean {
     if (uri.indexOf(URI_SCHEME) === 0) {
       uri = uri.replace(URI_SCHEME, '');
@@ -176,6 +196,13 @@ export default class FileExtAbility extends Extension {
   }
 
   openFile(sourceFileUri, flags): {number, number} {
+    sourceFileUri = this.decode(sourceFileUri);
+    if (sourceFileUri === '') {
+      return {
+        fd: ERR_ERROR,
+        code: E_URIS,
+      };
+    }
     if (!this.checkUri(sourceFileUri)) {
       return {
         fd: ERR_ERROR,
@@ -200,6 +227,13 @@ export default class FileExtAbility extends Extension {
   }
 
   createFile(parentUri, displayName): {string, number} {
+    parentUri = this.decode(parentUri);
+    if (parentUri === '') {
+      return {
+        uri: '',
+        code: E_URIS
+      };
+    }
     if (!this.checkUri(parentUri)) {
       return {
         uri: '',
@@ -217,6 +251,7 @@ export default class FileExtAbility extends Extension {
       let path = this.getPath(newFileUri);
       let fd = fileio.openSync(path, CREATE_FILE_FLAGS, DEFAULT_MODE);
       fileio.closeSync(fd);
+      newFileUri = encodeURI(newFileUri);
       return {
         uri: newFileUri,
         code: ERR_OK,
@@ -231,6 +266,13 @@ export default class FileExtAbility extends Extension {
   }
 
   mkdir(parentUri, displayName): {string, number} {
+    parentUri = this.decode(parentUri);
+    if (parentUri === '') {
+      return {
+        uri: '',
+        code: E_URIS
+      };
+    }
     if (!this.checkUri(parentUri)) {
       return {
         uri: '',
@@ -241,6 +283,7 @@ export default class FileExtAbility extends Extension {
       let newFileUri = this.genNewFileUri(parentUri, displayName);
       let path = this.getPath(newFileUri);
       fileio.mkdirSync(path);
+      newFileUri = encodeURI(newFileUri);
       return {
         uri: newFileUri,
         code: ERR_OK,
@@ -255,6 +298,13 @@ export default class FileExtAbility extends Extension {
   }
 
   delete(selectFileUri): number {
+    selectFileUri = this.decode(selectFileUri);
+    if (selectFileUri === '') {
+      return {
+        uri: '',
+        code: E_URIS
+      };
+    }
     if (!this.checkUri(selectFileUri)) {
       return E_URIS;
     }
@@ -281,6 +331,15 @@ export default class FileExtAbility extends Extension {
   }
 
   move(sourceFileUri, targetParentUri): {string, number} {
+    sourceFileUri = this.decode(sourceFileUri);
+    targetParentUri = this.decode(targetParentUri);
+    if (sourceFileUri === '' || targetParentUri === '') {
+      return {
+        uri: '',
+        code: E_URIS,
+      };
+    }
+
     if (!this.checkUri(sourceFileUri) || !this.checkUri(targetParentUri)) {
       return {
         uri: '',
@@ -291,6 +350,14 @@ export default class FileExtAbility extends Extension {
     let newFileUri = this.genNewFileUri(targetParentUri, displayName);
     let oldPath = this.getPath(sourceFileUri);
     let newPath = this.getPath(newFileUri);
+    newFileUri = this.encode(newFileUri);
+    if (newFileUri === '') {
+      return {
+        uri: '',
+        code: E_URIS,
+      };
+    }
+
     if (oldPath === newPath) {
       // move to the same directory
       return {
@@ -369,6 +436,14 @@ export default class FileExtAbility extends Extension {
   }
 
   rename(sourceFileUri, displayName): {string, number} {
+    sourceFileUri = this.decode(sourceFileUri);
+    if (sourceFileUri === '') {
+      return {
+        uri: '',
+        code: E_URIS,
+      };
+    }
+
     if (!this.checkUri(sourceFileUri)) {
       return {
         uri: '',
@@ -380,6 +455,7 @@ export default class FileExtAbility extends Extension {
       let oldPath = this.getPath(sourceFileUri);
       let newPath = this.getPath(newFileUri);
       fileio.renameSync(oldPath, newPath);
+      newFileUri = encodeURI(newFileUri);
       return {
         uri: newFileUri,
         code: ERR_OK,
@@ -394,6 +470,13 @@ export default class FileExtAbility extends Extension {
   }
 
   access(sourceFileUri): {boolean, number} {
+    sourceFileUri = this.decode(sourceFileUri);
+    if (sourceFileUri === '') {
+      return {
+        uri: '',
+        code: E_URIS,
+      };
+    }
     if (!this.checkUri(sourceFileUri)) {
       hilog.error(DOMAIN_CODE, TAG, 'access checkUri fail');
       return {
@@ -424,6 +507,14 @@ export default class FileExtAbility extends Extension {
   }
 
   listFile(sourceFileUri, offset, count, filter) {
+    sourceFileUri = this.decode(sourceFileUri);
+    if (sourceFileUri === '') {
+      return {
+        uri: '',
+        code: E_URIS,
+      };
+    }
+
     if (!this.checkUri(sourceFileUri)) {
       return {
         infos: [],
@@ -451,9 +542,10 @@ export default class FileExtAbility extends Extension {
             i++;
             continue;
           }
-
+          let newFileUri = this.genNewFileUri(sourceFileUri, dirent.name);
+          newFileUri = encodeURI(newFileUri);
           infos.push({
-            uri: this.genNewFileUri(sourceFileUri, dirent.name),
+            uri: newFileUri,
             fileName: dirent.name,
             mode: mode,
             size: stat.size,
@@ -488,6 +580,14 @@ export default class FileExtAbility extends Extension {
   }
 
   getFileInfoFromUri(selectFileUri) {
+    selectFileUri = this.decode(selectFileUri);
+    if (selectFileUri === '') {
+      return {
+        uri: '',
+        code: E_URIS,
+      };
+    }
+
     if (!this.checkUri(selectFileUri)) {
       return {
         fileInfo: {},
@@ -505,6 +605,7 @@ export default class FileExtAbility extends Extension {
       } else {
         mode |= documentFlag.REPRESENTS_FILE;
       }
+      selectFileUri = encodeURI(selectFileUri);
       fileInfo = {
         uri: selectFileUri,
         fileName: fileName,
@@ -576,6 +677,14 @@ export default class FileExtAbility extends Extension {
   }
 
   query(uri, columns): {[], number} {
+    uri = this.decode(uri);
+    if (uri === '') {
+      return {
+        uri: '',
+        code: E_URIS,
+      };
+    }
+
     if (!this.checkUri(uri)) {
       return {
         results: [],
