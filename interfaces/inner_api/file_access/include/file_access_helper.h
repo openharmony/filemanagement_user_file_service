@@ -26,10 +26,8 @@
 #include "context.h"
 #include "file_access_ext_connection.h"
 #include "file_access_extension_info.h"
-#include "file_access_notify_agent.h"
 #include "ifile_access_ext_base.h"
 #include "image_source.h"
-#include "inotify_callback.h"
 #include "iremote_object.h"
 #include "refbase.h"
 #include "uri.h"
@@ -86,8 +84,6 @@ public:
     int GetFileInfoFromUri(Uri &selectFile, FileInfo &fileInfo);
     int GetFileInfoFromRelativePath(std::string &selectFile, FileInfo &fileInfo);
     int GetRoots(std::vector<RootInfo> &rootInfoVec);
-    int On(std::shared_ptr<INotifyCallback> &callback);
-    int Off();
 private:
     sptr<IFileAccessExtBase> GetProxyByUri(Uri &uri);
     sptr<IFileAccessExtBase> GetProxyByBundleName(const std::string &bundleName);
@@ -112,9 +108,6 @@ private:
     static std::string GetKeyOfWants(const AAFwk::Want &want);
 
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
-
-    std::mutex notifyAgentMutex_;
-    sptr<IFileAccessNotify> notifyAgent_ = nullptr;
 };
 
 class FileAccessDeathRecipient : public IRemoteObject::DeathRecipient {

@@ -94,56 +94,6 @@ void JsFileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &rec
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
 }
 
-NativeValue* JsFileAccessExtAbility::FuncCallback(NativeEngine* engine, NativeCallbackInfo* info)
-{
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "FuncCallback");
-    if (engine == nullptr) {
-        HILOG_ERROR("NativeEngine pointer is null.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return nullptr;
-    }
-
-    if (info == nullptr) {
-        HILOG_ERROR("invalid param.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return engine->CreateUndefined();
-    }
-
-    if (info->argc != ARGC_THREE) {
-        HILOG_ERROR("invalid args.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return engine->CreateUndefined();
-    }
-
-    int32_t deviceType = UnwrapInt32FromJS(reinterpret_cast<napi_env>(engine),
-        reinterpret_cast<napi_value>(info->argv[ARGC_ZERO]));
-    int32_t notifyType = UnwrapInt32FromJS(reinterpret_cast<napi_env>(engine),
-        reinterpret_cast<napi_value>(info->argv[ARGC_ONE]));
-    std::string uri = UnwrapStringFromJS(reinterpret_cast<napi_env>(engine),
-        reinterpret_cast<napi_value>(info->argv[ARGC_TWO]));
-
-    if (info->functionInfo == nullptr || info->functionInfo->data == nullptr) {
-        HILOG_ERROR("invalid object.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return engine->CreateUndefined();
-    }
-
-    JsFileAccessExtAbility* jsExtension = static_cast<JsFileAccessExtAbility*>(info->functionInfo->data);
-    if (jsExtension == nullptr) {
-        HILOG_ERROR("invalid JsFileAccessExtAbility.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return engine->CreateUndefined();
-    }
-
-    NotifyMessage message(deviceType, notifyType, "", uri);
-    auto ret = jsExtension->Notify(message);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("JsFileAccessExtAbility notify error, ret:%{public}d", ret);
-    }
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return engine->CreateUndefined();
-}
-
 void JsFileAccessExtAbility::OnStart(const AAFwk::Want &want)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OnStart");
@@ -154,13 +104,6 @@ void JsFileAccessExtAbility::OnStart(const AAFwk::Want &want)
     NativeValue* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
     NativeValue* argv[] = {nativeWant};
     CallObjectMethod("onCreate", argv, ARGC_ONE);
-
-    const std::string funcName = "FuncCallback";
-    auto& nativeEngine = jsRuntime_.GetNativeEngine();
-    NativeValue* func = nativeEngine.CreateFunction(funcName.c_str(), funcName.length(),
-        JsFileAccessExtAbility::FuncCallback, this);
-    NativeValue* argvCallback[] = {func};
-    CallObjectMethod("registerCallback", argvCallback, ARGC_ONE);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
 }
 

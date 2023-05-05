@@ -17,9 +17,6 @@ class FileAccessExtensionAbility {
   onCreate(want) {
   }
 
-  registerCallback(callback) {
-  }
-
   openFile(sourceFileUri, flags) {
     return {
       fd: -1,

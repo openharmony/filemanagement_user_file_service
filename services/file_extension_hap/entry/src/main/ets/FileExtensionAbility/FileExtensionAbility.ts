@@ -15,7 +15,7 @@
 // @ts-nocheck
 import Extension from '@ohos.application.FileAccessExtensionAbility';
 import fileio from '@ohos.fileio';
-import { init, findVolumeInfo, delVolumeInfo, getVolumeInfoList, path2uri } from './VolumeManager';
+import { init, delVolumeInfo, getVolumeInfoList, path2uri } from './VolumeManager';
 import { onReceiveEvent } from './Subcriber';
 import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
 import hilog from '@ohos.hilog';
@@ -23,7 +23,6 @@ import process from '@ohos.process';
 
 const deviceFlag = fileExtensionInfo.DeviceFlag;
 const documentFlag = fileExtensionInfo.DocumentFlag;
-const notifyType = fileExtensionInfo.NotifyType;
 const deviceType = fileExtensionInfo.DeviceType;
 const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
 const DEFAULT_MODE = 0o666;
@@ -37,36 +36,17 @@ const E_EXIST = 13900015;
 const E_NOEXIST = 13900002;
 const E_URIS = 14300002;
 const E_GETRESULT = 14300004;
-let callbackFun = null;
 
 export default class FileExtAbility extends Extension {
   onCreate(want): void {
     init();
     onReceiveEvent(function (data) {
       if (data.event === 'usual.event.data.VOLUME_MOUNTED') {
-        if (callbackFun !== null) {
-          let uri = path2uri('', data.parameters.path);
-          callbackFun(data.parameters.type, notifyType.DEVICE_ONLINE, uri);
-        }
         process.exit(0);
       } else {
-        if (callbackFun !== null) {
-          let uri = '';
-          let deviceType = 0;
-          let volumeInfo = findVolumeInfo(data.parameters.id);
-          if (volumeInfo) {
-            uri = volumeInfo.uri;
-            deviceType = volumeInfo.type;
-          }
-          callbackFun(deviceType, notifyType.DEVICE_OFFLINE, uri);
-        }
         delVolumeInfo(data.parameters.id);
       }
     });
-  }
-
-  registerCallback(callback): void {
-    callbackFun = callback;
   }
 
   checkUri(uri): boolean {

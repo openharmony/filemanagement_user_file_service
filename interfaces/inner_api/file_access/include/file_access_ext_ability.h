@@ -18,7 +18,6 @@
 
 #include "extension_base.h"
 #include "file_access_extension_info.h"
-#include "file_access_notify_manager.h"
 #include "file_filter.h"
 #include "image_source.h"
 
@@ -61,14 +60,9 @@ public:
     virtual int GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo);
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec);
     virtual int Access(const Uri &uri, bool &isExist);
-    virtual int RegisterNotify(sptr<IFileAccessNotify> &notify);
-    virtual int UnregisterNotify(sptr<IFileAccessNotify> &notify);
-    virtual int Notify(const NotifyMessage &message);
     static void SetCreator(const CreatorFunc& creator);
 private:
-    bool GetNotifyManager();
     static CreatorFunc creator_;
-    std::unique_ptr<FileAccessNotifyManager> notifyManager_;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

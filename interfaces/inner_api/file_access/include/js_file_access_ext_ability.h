@@ -77,7 +77,6 @@ private:
     NativeValue* CallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
     int CallJsMethod(const std::string &funcName, JsRuntime &jsRuntime, NativeReference *jsObj,
         InputArgsParser argParser, ResultValueParser retParser);
-    static NativeValue* FuncCallback(NativeEngine *engine, NativeCallbackInfo *info);
     void GetSrcPath(std::string &srcPath);
 
     JsRuntime &jsRuntime_;
