@@ -440,7 +440,18 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0008, testing::e
 
 static bool ReplaceBundleNameFromPath(std::string &path, const std::string &newName)
 {
-    std::string tPath = Uri(path).GetPath();
+    Uri uri(path);
+    std::string scheme = uri.GetScheme();
+    if (scheme == FILE_SCHEME_NAME) {
+        std::string curName = uri.GetAuthority();
+        if (curName.empty()) {
+            return false;
+        }
+        path.replace(path.find(curName), curName.length(), newName);
+        return true;
+    }
+
+    std::string tPath = uri.GetPath();
     if (tPath.empty()) {
         GTEST_LOG_(INFO) << "Uri path error.";
         return false;
