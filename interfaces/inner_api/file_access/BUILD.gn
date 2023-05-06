@@ -37,7 +37,6 @@ config("ability_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "include",
-    "include/notify",
     "${user_file_service_path}/utils",
     "${ability_runtime_kits_path}/appkit/native/ability_runtime/app",
     "${ability_runtime_kits_path}/appkit/native/app/include",
@@ -61,10 +60,6 @@ ohos_shared_library("file_access_extension_ability_kit") {
     "src/file_access_helper.cpp",
     "src/js_file_access_ext_ability.cpp",
     "src/napi_common_fileaccess.cpp",
-    "src/notify/file_access_notify_agent.cpp",
-    "src/notify/file_access_notify_manager.cpp",
-    "src/notify/file_access_notify_proxy.cpp",
-    "src/notify/file_access_notify_stub.cpp",
   ]
   configs = [ ":ability_config" ]
 

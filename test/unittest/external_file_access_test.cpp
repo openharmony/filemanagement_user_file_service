@@ -23,7 +23,6 @@
 #include "accesstoken_kit.h"
 #include "context_impl.h"
 #include "file_access_framework_errno.h"
-#include "inotify_callback.h"
 #include "iservice_registry.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
@@ -111,16 +110,6 @@ public:
     };
     void SetUp(){};
     void TearDown(){};
-};
-
-class ExternalNotify : public OHOS::FileAccessFwk::INotifyCallback {
-public:
-    int OnNotify(const NotifyMessage &message) override
-    {
-        return 0;
-    }
-
-    virtual ~ExternalNotify() = default;
 };
 
 /**
@@ -2637,51 +2626,6 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0005, 
         GTEST_LOG_(ERROR) << "external_file_access_GetFileInfoFromUri_0005 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_GetFileInfoFromUri_0005";
-}
-
-/**
- * @tc.number: user_file_service_external_file_access_on_0000
- * @tc.name: external_file_access_on_0000
- * @tc.desc: Test function of On interface.
- * @tc.desc: register notify callback for SUCCESS.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: SR000H0386
- */
-HWTEST_F(FileExtensionHelperTest, external_file_access_on_0000, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_on_0000";
-    try {
-        shared_ptr<INotifyCallback> callback = make_shared<ExternalNotify>();
-        int result = g_fah->On(callback);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-    } catch (...) {
-        GTEST_LOG_(ERROR) << "external_file_access_on_0000 occurs an exception.";
-    }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_on_0000";
-}
-
-/**
- * @tc.number: user_file_service_external_file_access_off_0000
- * @tc.name: external_file_access_off_0000
- * @tc.desc: Test function of Off interface.
- * @tc.desc: unregister notify for SUCCESS.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: SR000H0386
- */
-HWTEST_F(FileExtensionHelperTest, external_file_access_off_0000, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_off_0000";
-    try {
-        int result = g_fah->Off();
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-    } catch (...) {
-        GTEST_LOG_(ERROR) << "external_file_access_off_0000 occurs an exception.";
-    }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_off_0000";
 }
 
 /**
