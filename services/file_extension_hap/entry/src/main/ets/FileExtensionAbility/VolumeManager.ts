@@ -55,7 +55,7 @@ function addVolumeInfo(volumeInfo): void {
 }
 
 function path2uri(id, path): string {
-  return `datashare://${id}/com.ohos.UserFile.ExternalFileManager${path}`;
+  return `file://com.ohos.UserFile.ExternalFileManager${path}`;
 }
 
 function delVolumeInfo(volumeId): void {

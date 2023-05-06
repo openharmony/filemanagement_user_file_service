@@ -20,6 +20,7 @@ import { onReceiveEvent } from './Subcriber';
 import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
 import hilog from '@ohos.hilog';
 import process from '@ohos.process';
+import baseUri from '@ohos.uri';
 
 const deviceFlag = fileExtensionInfo.DeviceFlag;
 const documentFlag = fileExtensionInfo.DocumentFlag;
@@ -28,6 +29,8 @@ const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
 const DEFAULT_MODE = 0o666;
 const CREATE_FILE_FLAGS = 0o100;
 const URI_SCHEME = 'datashare://';
+const FILE_SCHEME_NAME = 'file';
+const FILE_PREFIX_NAME = 'file://';
 const DOMAIN_CODE = 0x0001;
 const TAG = 'ExternalFileManager';
 const ERR_OK = 0;
@@ -50,10 +53,19 @@ export default class FileExtAbility extends Extension {
   }
 
   checkUri(uri): boolean {
-    if (uri.indexOf(URI_SCHEME) === 0) {
-      uri = uri.replace(URI_SCHEME, '');
-      return /^\/([^\/]+\/?)+$/.test(uri);
-    } else {
+    try {
+      let uriTmp = new baseUri.URI(uri);
+      if (uriTmp.scheme === FILE_SCHEME_NAME) {
+        uri = uri.replace(FILE_PREFIX_NAME, '/');
+        return true;
+      } else if (uri.indexOf(URI_SCHEME) === 0) {
+        uri = uri.replace(URI_SCHEME, '');
+        return /^\/([^\/]+\/?)+$/.test(uri);
+      } else {
+        hilog.error(DOMAIN_CODE, TAG, 'checkUri error, uri is ' + uri);
+        return false;
+      }
+    } catch (error) {
       hilog.error(DOMAIN_CODE, TAG, 'checkUri error, uri is ' + uri);
       return false;
     }
@@ -509,7 +521,7 @@ export default class FileExtAbility extends Extension {
   getRoots() {
     let roots = [
       {
-        uri: 'datashare:///com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon',
+        uri: 'file://com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon',
         displayName: 'shared_disk',
         deviceType: deviceType.DEVICE_SHARED_DISK,
         deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,

@@ -429,7 +429,18 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0008, testing::e
 
 static bool ReplaceBundleNameFromPath(std::string &path, const std::string &newName)
 {
-    std::string tPath = Uri(path).GetPath();
+    Uri uri(path);
+    std::string scheme = uri.GetScheme();
+    if (scheme == FILE_SCHEME_NAME) {
+        std::string curName = uri.GetAuthority();
+        if (curName.empty()) {
+            return false;
+        }
+        path.replace(path.find(curName), curName.length(), newName);
+        return true;
+    }
+
+    std::string tPath = uri.GetPath();
     if (tPath.empty()) {
         GTEST_LOG_(INFO) << "Uri path error.";
         return false;
@@ -2315,7 +2326,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetRoots_0000, testing::e
             GTEST_LOG_(INFO) << info[i].deviceFlags;
             GTEST_LOG_(INFO) << info[i].deviceType;
         }
-        string uri = "datashare:///com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon";
+        string uri = "file://com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon";
         string displayName = "shared_disk";
         EXPECT_EQ(info[0].uri, uri);
         EXPECT_EQ(info[0].displayName, displayName);
@@ -2946,7 +2957,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetProxyByUri_0001, testi
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetProxyByUri_0001";
     try {
-        Uri uri("datashare:///com.ohos.UserFile.NotExistBundleName/data/storage/el1/bundle/storage_daemon");
+        Uri uri("file://com.ohos.UserFile.NotExistBundleName/data/storage/el1/bundle/storage_daemon");
         sptr<IFileAccessExtBase> proxy = g_fah->GetProxyByUri(uri);
         ASSERT_TRUE(proxy == nullptr);
     } catch (...) {
