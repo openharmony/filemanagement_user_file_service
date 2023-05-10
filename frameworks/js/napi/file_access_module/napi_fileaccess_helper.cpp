@@ -25,11 +25,9 @@
 #include "file_info_entity.h"
 #include "filemgmt_libn.h"
 #include "hilog_wrapper.h"
-#include "ifile_access_notify.h"
 #include "napi_base_context.h"
 #include "napi_common_fileaccess.h"
 #include "napi_file_info_exporter.h"
-#include "napi_notify_callback.h"
 #include "napi_root_iterator_exporter.h"
 #include "pixel_map_napi.h"
 #include "root_iterator_entity.h"
@@ -238,9 +236,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("access", NAPI_Access),
         DECLARE_NAPI_FUNCTION("getFileInfoFromUri", NAPI_GetFileInfoFromUri),
         DECLARE_NAPI_FUNCTION("getFileInfoFromRelativePath", NAPI_GetFileInfoFromRelativePath),
-        DECLARE_NAPI_FUNCTION("getThumbnail", NAPI_GetThumbnail),
-        DECLARE_NAPI_FUNCTION("on", NAPI_On),
-        DECLARE_NAPI_FUNCTION("off", NAPI_Off)
+        DECLARE_NAPI_FUNCTION("getThumbnail", NAPI_GetThumbnail)
     };
     napi_value cons = nullptr;
     NAPI_CALL(env,
@@ -1201,62 +1197,6 @@ napi_value NAPI_GetThumbnail(napi_env env, napi_callback_info info)
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
-}
-
-napi_value NAPI_On(napi_env env, napi_callback_info info)
-{
-    NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ONE)) {
-        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
-        return nullptr;
-    }
-
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
-    if (fileAccessHelper == nullptr) {
-        NError(EINVAL).ThrowErr(env, "Get FileAccessHelper fail");
-        return nullptr;
-    }
-
-    napi_value napiCallback = funcArg[NARG_POS::FIRST];
-    if (!NVal(env, napiCallback).TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env, "Argument must be function");
-        return nullptr;
-    }
-
-    std::shared_ptr<INotifyCallback> callback = std::make_shared<NapiNotifyCallback>(env, napiCallback);
-    if (callback == nullptr) {
-        NError(EINVAL).ThrowErr(env, "new NapiNotifyCallback fail.");
-        return nullptr;
-    }
-
-    auto retCode = fileAccessHelper->On(callback);
-    if (retCode != ERR_OK) {
-        NError(retCode).ThrowErr(env, "FileAccessHelper::On fail.");
-        return nullptr;
-    }
-    return NVal::CreateUndefined(env).val_;
-}
-
-napi_value NAPI_Off(napi_env env, napi_callback_info info)
-{
-    NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
-        NError(EINVAL).ThrowErr(env, "Number of arguments unmatched");
-        return nullptr;
-    }
-
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
-    if (fileAccessHelper == nullptr) {
-        NError(EINVAL).ThrowErr(env, "Get FileAccessHelper fail");
-        return nullptr;
-    }
-
-    auto retCode = fileAccessHelper->Off();
-    if (retCode != ERR_OK) {
-        NError(retCode).ThrowErr(env, "FileAccessHelper::Off fail.");
-        return nullptr;
-    }
-    return NVal::CreateUndefined(env).val_;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS

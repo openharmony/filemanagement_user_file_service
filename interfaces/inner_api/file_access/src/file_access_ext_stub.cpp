@@ -58,8 +58,6 @@ FileAccessExtStub::FileAccessExtStub()
     stubFuncMap_[CMD_GET_THUMBNAIL] = &FileAccessExtStub::CmdGetThumbnail;
     stubFuncMap_[CMD_GET_FILEINFO_FROM_URI] = &FileAccessExtStub::CmdGetFileInfoFromUri;
     stubFuncMap_[CMD_GET_FILEINFO_FROM_RELATIVE_PATH] = &FileAccessExtStub::CmdGetFileInfoFromRelativePath;
-    stubFuncMap_[CMD_REGISTER_NOTIFY] = &FileAccessExtStub::CmdRegisterNotify;
-    stubFuncMap_[CMD_UNREGISTER_NOTIFY] = &FileAccessExtStub::CmdUnregisterNotify;
 }
 
 FileAccessExtStub::~FileAccessExtStub()
@@ -731,60 +729,6 @@ bool FileAccessExtStub::CheckCallingPermission(const std::string &permission)
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return true;
-}
-
-ErrCode FileAccessExtStub::CmdRegisterNotify(MessageParcel &data, MessageParcel &reply)
-{
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdRegisterNotify");
-    auto remote = data.ReadRemoteObject();
-    if (remote == nullptr) {
-        HILOG_INFO("get remote obj fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_IPCS;
-    }
-
-    auto notify = iface_cast<IFileAccessNotify>(remote);
-    if (notify == nullptr) {
-        HILOG_INFO("get notify fail");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_IPCS;
-    }
-
-    int ret = RegisterNotify(notify);
-    if (!reply.WriteInt32(ret)) {
-        HILOG_ERROR("Parameter RegisterNotify fail to WriteInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_IPCS;
-    }
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return ERR_OK;
-}
-
-ErrCode FileAccessExtStub::CmdUnregisterNotify(MessageParcel &data, MessageParcel &reply)
-{
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdUnregisterNotify");
-    auto remote = data.ReadRemoteObject();
-    if (remote == nullptr) {
-        HILOG_INFO("get remote obj fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_IPCS;
-    }
-
-    auto notify = iface_cast<IFileAccessNotify>(remote);
-    if (notify == nullptr) {
-        HILOG_INFO("get notify fail");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_IPCS;
-    }
-
-    int ret = UnregisterNotify(notify);
-    if (!reply.WriteInt32(ret)) {
-        HILOG_ERROR("Parameter UnregisterNotify fail to WriteInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_IPCS;
-    }
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return ERR_OK;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS

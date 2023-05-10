@@ -24,7 +24,6 @@
 #include "file_access_extension_info.h"
 #include "file_access_framework_errno.h"
 #include "file_filter.h"
-#include "ifile_access_notify.h"
 #include "image_source.h"
 #include "uri.h"
 
@@ -52,9 +51,7 @@ public:
         CMD_ACCESS,
         CMD_GET_THUMBNAIL,
         CMD_GET_FILEINFO_FROM_URI,
-        CMD_GET_FILEINFO_FROM_RELATIVE_PATH,
-        CMD_REGISTER_NOTIFY,
-        CMD_UNREGISTER_NOTIFY
+        CMD_GET_FILEINFO_FROM_RELATIVE_PATH
     };
 
     virtual int OpenFile(const Uri &uri, const int flags, int &fd) = 0;
@@ -75,8 +72,6 @@ public:
     virtual int GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo) = 0;
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec) = 0;
     virtual int Access(const Uri &uri, bool &isExist) = 0;
-    virtual int RegisterNotify(sptr<IFileAccessNotify> &notify) = 0;
-    virtual int UnregisterNotify(sptr<IFileAccessNotify> &notify) = 0;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

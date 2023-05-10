@@ -15,20 +15,22 @@
 // @ts-nocheck
 import Extension from '@ohos.application.FileAccessExtensionAbility';
 import fileio from '@ohos.fileio';
-import { init, findVolumeInfo, delVolumeInfo, getVolumeInfoList, path2uri } from './VolumeManager';
+import { init, delVolumeInfo, getVolumeInfoList } from './VolumeManager';
 import { onReceiveEvent } from './Subcriber';
 import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
 import hilog from '@ohos.hilog';
 import process from '@ohos.process';
+import baseUri from '@ohos.uri';
 
 const deviceFlag = fileExtensionInfo.DeviceFlag;
 const documentFlag = fileExtensionInfo.DocumentFlag;
-const notifyType = fileExtensionInfo.NotifyType;
 const deviceType = fileExtensionInfo.DeviceType;
 const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
 const DEFAULT_MODE = 0o666;
 const CREATE_FILE_FLAGS = 0o100;
 const URI_SCHEME = 'datashare://';
+const FILE_SCHEME_NAME = 'file';
+const FILE_PREFIX_NAME = 'file://';
 const DOMAIN_CODE = 0x0001;
 const TAG = 'ExternalFileManager';
 const ERR_OK = 0;
@@ -37,36 +39,17 @@ const E_EXIST = 13900015;
 const E_NOEXIST = 13900002;
 const E_URIS = 14300002;
 const E_GETRESULT = 14300004;
-let callbackFun = null;
 
 export default class FileExtAbility extends Extension {
   onCreate(want): void {
     init();
     onReceiveEvent(function (data) {
       if (data.event === 'usual.event.data.VOLUME_MOUNTED') {
-        if (callbackFun !== null) {
-          let uri = path2uri('', data.parameters.path);
-          callbackFun(data.parameters.type, notifyType.DEVICE_ONLINE, uri);
-        }
         process.exit(0);
       } else {
-        if (callbackFun !== null) {
-          let uri = '';
-          let deviceType = 0;
-          let volumeInfo = findVolumeInfo(data.parameters.id);
-          if (volumeInfo) {
-            uri = volumeInfo.uri;
-            deviceType = volumeInfo.type;
-          }
-          callbackFun(deviceType, notifyType.DEVICE_OFFLINE, uri);
-        }
         delVolumeInfo(data.parameters.id);
       }
     });
-  }
-
-  registerCallback(callback): void {
-    callbackFun = callback;
   }
 
   encode(uri): string {
@@ -90,10 +73,19 @@ export default class FileExtAbility extends Extension {
   }
 
   checkUri(uri): boolean {
-    if (uri.indexOf(URI_SCHEME) === 0) {
-      uri = uri.replace(URI_SCHEME, '');
-      return /^\/([^\/]+\/?)+$/.test(uri);
-    } else {
+    try {
+      let uriTmp = new baseUri.URI(uri);
+      if (uriTmp.scheme === FILE_SCHEME_NAME) {
+        uri = uri.replace(FILE_PREFIX_NAME, '/');
+        return true;
+      } else if (uri.indexOf(URI_SCHEME) === 0) {
+        uri = uri.replace(URI_SCHEME, '');
+        return /^\/([^\/]+\/?)+$/.test(uri);
+      } else {
+        hilog.error(DOMAIN_CODE, TAG, 'checkUri error, uri is ' + uri);
+        return false;
+      }
+    } catch (error) {
       hilog.error(DOMAIN_CODE, TAG, 'checkUri error, uri is ' + uri);
       return false;
     }
@@ -630,7 +622,7 @@ export default class FileExtAbility extends Extension {
   getRoots() {
     let roots = [
       {
-        uri: 'datashare:///com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon',
+        uri: 'file://com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon',
         displayName: 'shared_disk',
         deviceType: deviceType.DEVICE_SHARED_DISK,
         deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,

@@ -56,8 +56,6 @@ public:
     virtual int GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo) override;
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec) override;
     virtual int Access(const Uri &uri, bool &isExist) override;
-    virtual int RegisterNotify(sptr<IFileAccessNotify> &notify) override;
-    virtual int UnregisterNotify(sptr<IFileAccessNotify> &notify) override;
 private:
     static inline BrokerDelegator<FileAccessExtProxy> delegator_;
 };

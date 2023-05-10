@@ -55,11 +55,7 @@ function addVolumeInfo(volumeInfo): void {
 }
 
 function path2uri(id, path): string {
-  return `datashare://${id}/com.ohos.UserFile.ExternalFileManager${path}`;
-}
-
-function findVolumeInfo(volumeId) {
-  return globalThis.volumeInfoList.find((volume) => volume.volumeId === volumeId);
+  return `file://com.ohos.UserFile.ExternalFileManager${path}`;
 }
 
 function delVolumeInfo(volumeId): void {
@@ -70,4 +66,4 @@ function getVolumeInfoList() {
   return globalThis.volumeInfoList;
 }
 
-export { init, addVolumeInfo, findVolumeInfo, delVolumeInfo, getVolumeInfoList, path2uri };
+export { init, addVolumeInfo, delVolumeInfo, getVolumeInfoList, path2uri };
