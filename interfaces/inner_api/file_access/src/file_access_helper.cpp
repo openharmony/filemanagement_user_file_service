@@ -75,7 +75,8 @@ static bool CheckUri(Uri &uri)
 {
     HILOG_DEBUG("Uri : %{public}s.", uri.ToString().c_str());
     std::string schemeStr = std::string(uri.GetScheme());
-    if (schemeStr.compare(SCHEME_NAME) != 0) {
+    if (schemeStr.compare(SCHEME_NAME) != 0 &&
+        schemeStr.compare(FILE_SCHEME_NAME) != 0) {
         HILOG_ERROR("Uri scheme error.");
         return false;
     }
@@ -401,11 +402,21 @@ bool FileAccessHelper::Release()
 
 sptr<IFileAccessExtBase> FileAccessHelper::GetProxyByUri(Uri &uri)
 {
+    std::string scheme = uri.GetScheme();
     std::string bundleName;
-    if (!GetBundleNameFromPath(uri.GetPath(), bundleName)) {
-        HILOG_ERROR("Get BundleName failed.");
-        return nullptr;
+    if (scheme == SCHEME_NAME) {
+        if (!GetBundleNameFromPath(uri.GetPath(), bundleName)) {
+            HILOG_ERROR("Get BundleName1 failed.");
+            return nullptr;
+        }
+    } else if (scheme == FILE_SCHEME_NAME) {
+        std::string path = "/" + uri.GetAuthority() + uri.GetPath();
+        if (!GetBundleNameFromPath(path, bundleName)) {
+            HILOG_ERROR("Get BundleName failed.");
+            return nullptr;
+        }
     }
+
     auto fileAccessExtProxy = GetProxyByBundleName(bundleName);
     return fileAccessExtProxy;
 }
@@ -643,11 +654,17 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
 
 static bool IsMediaUri(Uri &uri)
 {
-    string path = uri.GetPath();
-    std::size_t len = MEDIA_BNUDLE_NAME_ALIAS.length();
-    if (path.length() > len) {
-        string media = path.substr(1, len);
-        return (media == MEDIA_BNUDLE_NAME_ALIAS);
+    string scheme = uri.GetScheme();
+    if (scheme == SCHEME_NAME) {
+        string path = uri.GetPath();
+        std::size_t len = MEDIA_BNUDLE_NAME_ALIAS.length();
+        if (path.length() > len) {
+            string media = path.substr(1, len);
+            return (media == MEDIA_BNUDLE_NAME_ALIAS);
+        }
+        return false;
+    } else if (scheme == FILE_SCHEME_NAME) {
+        return uri.GetAuthority() == MEDIA_BNUDLE_NAME_ALIAS;
     }
     return false;
 }
@@ -1166,88 +1183,6 @@ int FileAccessHelper::GetFileInfoFromRelativePath(std::string &selectFile, FileI
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return ERR_OK;
-}
-
-int FileAccessHelper::On(std::shared_ptr<INotifyCallback> &callback)
-{
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "On");
-    if (callback == nullptr) {
-        HILOG_ERROR("failed with invalid callback");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return EINVAL;
-    }
-
-    if (!GetProxy()) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_IPCS;
-    }
-
-    std::lock_guard<std::mutex> lock(notifyAgentMutex_);
-    if (notifyAgent_ == nullptr) {
-        notifyAgent_ = new(std::nothrow) FileAccessNotifyAgent(callback);
-        if (notifyAgent_ == nullptr) {
-            HILOG_ERROR("new FileAccessNotifyAgent fail");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-            return EINVAL;
-        }
-    }
-
-    int errorCode = ERR_OK;
-    for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
-        auto connectInfo = iter->second;
-        auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
-        if (fileAccessExtProxy == nullptr) {
-            HILOG_ERROR("fileAccessExtProxy RegisterNotify fail");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-            return E_IPCS;
-        }
-
-        errorCode = fileAccessExtProxy->RegisterNotify(notifyAgent_);
-        if (errorCode != ERR_OK) {
-            HILOG_ERROR("fileAccessExtProxy RegisterNotify fail, bundleName:%{public}s, ret:%{public}d.",
-                connectInfo->want.GetElement().GetBundleName().c_str(), errorCode);
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-            return errorCode;
-        }
-    }
-
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-    return ERR_OK;
-}
-
-int FileAccessHelper::Off()
-{
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Off");
-    std::lock_guard<std::mutex> lock(notifyAgentMutex_);
-    if (notifyAgent_ == nullptr) {
-        HILOG_ERROR("not registered notify");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_NOTIFY;
-    }
-
-    int errorCode = ERR_OK;
-    for (auto [key, value] : cMap_) {
-        auto connectInfo = value;
-        auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
-        if (fileAccessExtProxy == nullptr) {
-            HILOG_INFO("fileAccessExtProxy UnregisterNotify fail, bundleName:%{public}s",
-                connectInfo->want.GetElement().GetBundleName().c_str());
-            continue;
-        }
-
-        errorCode = fileAccessExtProxy->UnregisterNotify(notifyAgent_);
-        if (errorCode != ERR_OK) {
-            HILOG_ERROR("fileAccessExtProxy UnregisterNotify fail, bundleName:%{public}s, ret:%{public}d.",
-                connectInfo->want.GetElement().GetBundleName().c_str(), errorCode);
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-            return errorCode;
-        }
-    }
-
-    notifyAgent_.clear();
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }

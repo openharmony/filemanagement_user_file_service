@@ -54,8 +54,6 @@ public:
     int GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo) override;
     int GetRoots(std::vector<RootInfo> &rootInfoVec) override;
     int Access(const Uri &uri, bool &isExist) override;
-    int RegisterNotify(sptr<IFileAccessNotify> &notify) override;
-    int UnregisterNotify(sptr<IFileAccessNotify> &notify) override;
 
 private:
     std::shared_ptr<FileAccessExtAbility> GetOwner();

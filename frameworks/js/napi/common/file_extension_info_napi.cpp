@@ -21,7 +21,6 @@
 
 #include "filemgmt_libn.h"
 #include "file_access_extension_info.h"
-#include "file_access_notify_common.h"
 #include "hilog_wrapper.h"
 #include "js_native_api.h"
 #include "napi/native_common.h"
@@ -93,19 +92,6 @@ void InitDocumentFlag(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_PROPERTY("REPRESENTS_DIR", NVal::CreateInt32(env, DOCUMENT_FLAG_REPRESENTS_DIR).val_),
         DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_READ", NVal::CreateInt32(env, DOCUMENT_FLAG_SUPPORTS_READ).val_),
         DECLARE_NAPI_STATIC_PROPERTY("SUPPORTS_WRITE", NVal::CreateInt32(env, DOCUMENT_FLAG_SUPPORTS_WRITE).val_)
-    };
-    napi_value obj = nullptr;
-    napi_create_object(env, &obj);
-    napi_define_properties(env, obj, sizeof(desc) / sizeof(desc[0]), desc);
-    napi_set_named_property(env, exports, propertyName, obj);
-}
-
-void InitNotifyType(napi_env env, napi_value exports)
-{
-    char propertyName[] = "NotifyType";
-    napi_property_descriptor desc[] = {
-        DECLARE_NAPI_STATIC_PROPERTY("DEVICE_ONLINE", NVal::CreateInt32(env, NOTIFY_DEVICE_ONLINE).val_),
-        DECLARE_NAPI_STATIC_PROPERTY("DEVICE_OFFLINE", NVal::CreateInt32(env, NOTIFY_DEVICE_OFFLINE).val_)
     };
     napi_value obj = nullptr;
     napi_create_object(env, &obj);

@@ -23,7 +23,6 @@
 #include "accesstoken_kit.h"
 #include "context_impl.h"
 #include "file_access_framework_errno.h"
-#include "inotify_callback.h"
 #include "iservice_registry.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
@@ -111,16 +110,6 @@ public:
     };
     void SetUp(){};
     void TearDown(){};
-};
-
-class ExternalNotify : public OHOS::FileAccessFwk::INotifyCallback {
-public:
-    int OnNotify(const NotifyMessage &message) override
-    {
-        return 0;
-    }
-
-    virtual ~ExternalNotify() = default;
 };
 
 /**
@@ -440,7 +429,18 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0008, testing::e
 
 static bool ReplaceBundleNameFromPath(std::string &path, const std::string &newName)
 {
-    std::string tPath = Uri(path).GetPath();
+    Uri uri(path);
+    std::string scheme = uri.GetScheme();
+    if (scheme == FILE_SCHEME_NAME) {
+        std::string curName = uri.GetAuthority();
+        if (curName.empty()) {
+            return false;
+        }
+        path.replace(path.find(curName), curName.length(), newName);
+        return true;
+    }
+
+    std::string tPath = uri.GetPath();
     if (tPath.empty()) {
         GTEST_LOG_(INFO) << "Uri path error.";
         return false;
@@ -503,7 +503,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0009, testing::e
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: I70SX9
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0010, testing::ext::TestSize.Level1)
 {
@@ -516,15 +516,17 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0010, testing::e
             Uri parentUri(info[i].uri);
             GTEST_LOG_(INFO) << parentUri.ToString();
             Uri newDirUriTest1("");
-            result = g_fah->Mkdir(parentUri, "test1", newDirUriTest1);
+            result = g_fah->Mkdir(parentUri, "测试目录", newDirUriTest1);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(newDirUriTest1.ToString().find("测试目录"), std::string::npos);
             Uri newFileUri("");
             result = g_fah->CreateFile(newDirUriTest1, "打开文件.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(newFileUri.ToString().find("打开文件.txt"), std::string::npos);
             int fd;
             result = g_fah->OpenFile(newFileUri, WRITE_READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            GTEST_LOG_(INFO) << "OpenFile_0000 result:" << result;
+            GTEST_LOG_(INFO) << "OpenFile_0010 result:" << result;
             close(fd);
             result = g_fah->Delete(newDirUriTest1);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -760,7 +762,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0006, testing:
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: I70SX9
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0007, testing::ext::TestSize.Level1)
 {
@@ -774,6 +776,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0007, testing:
             Uri newFileUri("");
             result = g_fah->CreateFile(parentUri, "新建文件.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(newFileUri.ToString().find("新建文件.txt"), std::string::npos);
             GTEST_LOG_(INFO) << "CreateFile_0007 result:" << result;
             result = g_fah->Delete(newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1009,7 +1012,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0006, testing::ext:
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: I70SX9
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0007, testing::ext::TestSize.Level1)
 {
@@ -1023,6 +1026,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0007, testing::ext:
             Uri newDirUriTest("");
             result = g_fah->Mkdir(parentUri, "新建目录", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(newDirUriTest.ToString().find("新建目录"), std::string::npos);
             GTEST_LOG_(INFO) << "Mkdir_0007 result:" << result;
             result = g_fah->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1273,7 +1277,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0006, testing::ext
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: I70SX9
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0007, testing::ext::TestSize.Level1)
 {
@@ -1285,14 +1289,16 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0007, testing::ext
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = g_fah->Mkdir(parentUri, "测试目录", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(newDirUriTest.ToString().find("测试目录"), std::string::npos);
             Uri newFileUri("");
             result = g_fah->CreateFile(newDirUriTest, "删除文件.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(newFileUri.ToString().find("删除文件.txt"), std::string::npos);
             result = g_fah->Delete(newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            GTEST_LOG_(INFO) << "Delete_0000 result:" << result;
+            GTEST_LOG_(INFO) << "Delete_0007 result:" << result;
             result = g_fah->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
@@ -1905,7 +1911,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0013, testing::ext::
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0387
+ * @tc.require: I70SX9
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0014, testing::ext::TestSize.Level1)
 {
@@ -1918,17 +1924,20 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0014, testing::ext::
             Uri parentUri(info[i].uri);
             Uri newDirUriTest1("");
             Uri newDirUriTest2("");
-            result = g_fah->Mkdir(parentUri, "test1", newDirUriTest1);
+            result = g_fah->Mkdir(parentUri, "测试目录1", newDirUriTest1);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            result = g_fah->Mkdir(parentUri, "test2", newDirUriTest2);
+            EXPECT_EQ(newDirUriTest1.ToString().find("测试目录1"), std::string::npos);
+            result = g_fah->Mkdir(parentUri, "测试目录2", newDirUriTest2);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(newDirUriTest2.ToString().find("测试目录2"), std::string::npos);
             Uri testUri("");
             result = g_fah->CreateFile(newDirUriTest1, "移动文件.txt", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(testUri.ToString().find("移动文件.txt"), std::string::npos);
             Uri testUri2("");
             result = g_fah->Move(testUri, newDirUriTest2, testUri2);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            GTEST_LOG_(INFO) << "Move_0000 result:" << result;
+            GTEST_LOG_(INFO) << "Move_0014 result:" << result;
             result = g_fah->Delete(newDirUriTest1);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             result = g_fah->Delete(newDirUriTest2);
@@ -1948,7 +1957,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0014, testing::ext::
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0387
+ * @tc.require: I70SX9
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0015, testing::ext::TestSize.Level1)
 {
@@ -1963,12 +1972,13 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0015, testing::ext::
             Uri newDirUriTest2("");
             result = g_fah->Mkdir(parentUri, "移动目录", newDirUriTest1);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(newDirUriTest1.ToString().find("移动目录"), std::string::npos);
             result = g_fah->Mkdir(parentUri, "test2", newDirUriTest2);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri testUri2("");
             result = g_fah->Move(newDirUriTest1, newDirUriTest2, testUri2);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            GTEST_LOG_(INFO) << "Move_0010 result:" << result;
+            GTEST_LOG_(INFO) << "Move_0015 result:" << result;
             result = g_fah->Delete(newDirUriTest2);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
@@ -1986,7 +1996,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0015, testing::ext::
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0387
+ * @tc.require: I70SX9
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0016, testing::ext::TestSize.Level1)
 {
@@ -2006,7 +2016,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0016, testing::ext::
             Uri testUri2("");
             result = g_fah->Move(newDirUriTest1, newDirUriTest2, testUri2);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            GTEST_LOG_(INFO) << "Move_0010 result:" << result;
+            GTEST_LOG_(INFO) << "Move_0016 result:" << result;
             result = g_fah->Delete(newDirUriTest2);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
@@ -2313,7 +2323,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0007, testing::ext
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0387
+ * @tc.require: I70SX9
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0008, testing::ext::TestSize.Level1)
 {
@@ -2325,14 +2335,16 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0008, testing::ext
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = g_fah->Mkdir(parentUri, "测试目录", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(newDirUriTest.ToString().find("测试目录"), std::string::npos);
             Uri testUri("");
             result = g_fah->CreateFile(newDirUriTest, "test.txt", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri renameUri("");
             result = g_fah->Rename(testUri, "测试文件.txt", renameUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(renameUri.ToString().find("测试文件.txt"), std::string::npos);
             GTEST_LOG_(INFO) << "Rename_0008 result:" << result;
             result = g_fah->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -2350,7 +2362,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0008, testing::ext
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0387
+ * @tc.require: I70SX9
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0009, testing::ext::TestSize.Level1)
 {
@@ -2370,7 +2382,8 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0009, testing::ext
             Uri renameUri("");
             result = g_fah->Rename(newDirUriTest, "重命名目录", renameUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            GTEST_LOG_(INFO) << "Rename_0008 result:" << result;
+            EXPECT_EQ(renameUri.ToString().find("重命名目录"), std::string::npos);
+            GTEST_LOG_(INFO) << "Rename_0009 result:" << result;
             result = g_fah->Delete(renameUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
@@ -2638,7 +2651,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0005, testing::e
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0387
+ * @tc.require: I70SX9
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0006, testing::ext::TestSize.Level1)
 {
@@ -2652,9 +2665,11 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0006, testing::e
             Uri newDirUriTest("");
             result = g_fah->Mkdir(parentUri, "测试目录", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(newDirUriTest.ToString().find("测试目录"), std::string::npos);
             Uri testUri("");
             result = g_fah->CreateFile(newDirUriTest, "测试文件.txt", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(testUri.ToString().find("测试文件.txt"), std::string::npos);
             FileInfo fileInfo;
             fileInfo.uri = newDirUriTest.ToString();
             int64_t offset = 0;
@@ -2697,7 +2712,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetRoots_0000, testing::e
             GTEST_LOG_(INFO) << info[i].deviceFlags;
             GTEST_LOG_(INFO) << info[i].deviceType;
         }
-        string uri = "datashare:///com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon";
+        string uri = "file://com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon";
         string displayName = "shared_disk";
         EXPECT_EQ(info[0].uri, uri);
         EXPECT_EQ(info[0].displayName, displayName);
@@ -2794,7 +2809,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Access_0001, testing::ext
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: I70SX9
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Access_0002, testing::ext::TestSize.Level1)
 {
@@ -2809,9 +2824,11 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Access_0002, testing::ext
             Uri newDirUriTest("");
             result = g_fah->Mkdir(parentUri, "访问目录", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(newDirUriTest.ToString().find("访问目录"), std::string::npos);
             Uri newFileUri("");
             result = g_fah->CreateFile(newDirUriTest, "访问文件.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(newFileUri.ToString().find("访问文件.txt"), std::string::npos);
             bool isExist = false;
             result = g_fah->Access(newDirUriTest, isExist);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -3062,7 +3079,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0005, 
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: I70SX9
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0006, testing::ext::TestSize.Level1)
 {
@@ -3076,6 +3093,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0006, 
             Uri newDirUriTest("");
             result = g_fah->Mkdir(parentUri, "测试目录", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(newDirUriTest.ToString().find("测试目录"), std::string::npos);
 
             FileInfo dirInfo;
             result = g_fah->GetFileInfoFromUri(newDirUriTest, dirInfo);
@@ -3106,7 +3124,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0006, 
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: SR000H0386
+ * @tc.require: I70SX9
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0007, testing::ext::TestSize.Level1)
 {
@@ -3118,11 +3136,13 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0007, 
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "testDir", newDirUriTest);
+            result = g_fah->Mkdir(parentUri, "测试目录", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(newDirUriTest.ToString().find("测试目录"), std::string::npos);
             Uri newFileUri("");
             result = g_fah->CreateFile(newDirUriTest, "测试文件.txt", newFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(newFileUri.ToString().find("测试文件.txt"), std::string::npos);
 
             FileInfo fileinfo;
             result = g_fah->GetFileInfoFromUri(newFileUri, fileinfo);
@@ -3143,53 +3163,6 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0007, 
         GTEST_LOG_(ERROR) << "external_file_access_GetFileInfoFromUri_0007 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_GetFileInfoFromUri_0007";
-}
-
-
-
-/**
- * @tc.number: user_file_service_external_file_access_on_0000
- * @tc.name: external_file_access_on_0000
- * @tc.desc: Test function of On interface.
- * @tc.desc: register notify callback for SUCCESS.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: SR000H0386
- */
-HWTEST_F(FileExtensionHelperTest, external_file_access_on_0000, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_on_0000";
-    try {
-        shared_ptr<INotifyCallback> callback = make_shared<ExternalNotify>();
-        int result = g_fah->On(callback);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-    } catch (...) {
-        GTEST_LOG_(ERROR) << "external_file_access_on_0000 occurs an exception.";
-    }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_on_0000";
-}
-
-/**
- * @tc.number: user_file_service_external_file_access_off_0000
- * @tc.name: external_file_access_off_0000
- * @tc.desc: Test function of Off interface.
- * @tc.desc: unregister notify for SUCCESS.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: SR000H0386
- */
-HWTEST_F(FileExtensionHelperTest, external_file_access_off_0000, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_off_0000";
-    try {
-        int result = g_fah->Off();
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-    } catch (...) {
-        GTEST_LOG_(ERROR) << "external_file_access_off_0000 occurs an exception.";
-    }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_off_0000";
 }
 
 /**
@@ -3510,7 +3483,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetProxyByUri_0001, testi
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetProxyByUri_0001";
     try {
-        Uri uri("datashare:///com.ohos.UserFile.NotExistBundleName/data/storage/el1/bundle/storage_daemon");
+        Uri uri("file://com.ohos.UserFile.NotExistBundleName/data/storage/el1/bundle/storage_daemon");
         sptr<IFileAccessExtBase> proxy = g_fah->GetProxyByUri(uri);
         ASSERT_TRUE(proxy == nullptr);
     } catch (...) {
@@ -3859,7 +3832,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0006, testing::ext:
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 1
- * @tc.require: I6S4VV
+ * @tc.require: I70SX9
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0007, testing::ext::TestSize.Level1)
 {
@@ -3876,15 +3849,19 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0007, testing::ext:
         std::string relativePath = "/data/storage/el1/bundle/storage_daemon/";
         result = g_fah->Mkdir(parentUri, displayName, newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(newDirUriTest1.ToString().find(displayName), std::string::npos);
         result = g_fah->Mkdir(newDirUriTest1, "查询目录2", newDirUriTest2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(newDirUriTest2.ToString().find("查询目录2"), std::string::npos);
         Uri newFileUri1("");
         Uri newFileUri2("");
         std::string fileName = "查询文件.txt";
         result = g_fah->CreateFile(newDirUriTest1, fileName, newFileUri1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(newFileUri1.ToString().find(fileName), std::string::npos);
         result = g_fah->CreateFile(newDirUriTest2, fileName, newFileUri2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(newFileUri2.ToString().find(fileName), std::string::npos);
         int fd = -1;
         std::string buff = "query test";
         result = g_fah->OpenFile(newFileUri1, WRITE_READ, fd);
