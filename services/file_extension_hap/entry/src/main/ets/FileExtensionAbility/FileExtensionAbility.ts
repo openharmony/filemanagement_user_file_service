@@ -14,7 +14,7 @@
  */
 // @ts-nocheck
 import Extension from '@ohos.application.FileAccessExtensionAbility';
-import fileio from '@ohos.fileio';
+import fs from '@ohos.file.fs';
 import { init, delVolumeInfo, getVolumeInfoList, path2uri } from './VolumeManager';
 import { onReceiveEvent } from './Subcriber';
 import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
@@ -26,8 +26,7 @@ const deviceFlag = fileExtensionInfo.DeviceFlag;
 const documentFlag = fileExtensionInfo.DocumentFlag;
 const deviceType = fileExtensionInfo.DeviceType;
 const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
-const DEFAULT_MODE = 0o666;
-const CREATE_FILE_FLAGS = 0o100;
+const DEFAULT_MODE = 0;
 const URI_SCHEME = 'datashare://';
 const FILE_SCHEME_NAME = 'file';
 const FILE_PREFIX_NAME = 'file://';
@@ -132,21 +131,17 @@ export default class FileExtAbility extends Extension {
 
   recurseDir(path, cb): void {
     try {
-      let stat = fileio.statSync(path);
+      let stat = fs.statSync(path);
       if (stat.isDirectory()) {
-        let dir = fileio.opendirSync(path);
-        let hasNextFile = true;
-        cb(path, true, hasNextFile);
-        while (hasNextFile) {
-          try {
-            let dirent = dir.readSync();
-            this.recurseDir(path + '/' + dirent.name, cb);
-          } catch (e) {
-            hasNextFile = false;
-            cb(path, true, hasNextFile);
+        let fileName = fs.listFileSync(path);
+        for (let fileLen = 0; fileLen < fileName.length; fileLen++) {
+          stat = fs.statSync(path + '/' + fileName[fileLen]);
+          if (stat.isDirectory()) {
+            this.recurseDir(path + '/' + fileName[fileLen], cb);
+          } else {
+            cb(path + '/' + fileName[fileLen], false);
           }
         }
-        dir.closeSync();
       } else {
         cb(path, false);
       }
@@ -174,12 +169,11 @@ export default class FileExtAbility extends Extension {
         code: E_URIS,
       };
     }
-    let fd = 0;
     try {
       let path = this.getPath(sourceFileUri);
-      fd = fileio.openSync(path, flags, DEFAULT_MODE);
+      let file = fs.openSync(path, flags);
       return {
-        fd: fd,
+        fd: file.fd,
         code: ERR_OK,
       };
     } catch (e) {
@@ -207,8 +201,8 @@ export default class FileExtAbility extends Extension {
         };
       }
       let path = this.getPath(newFileUri);
-      let fd = fileio.openSync(path, CREATE_FILE_FLAGS, DEFAULT_MODE);
-      fileio.closeSync(fd);
+      let file = fs.openSync(path, fs.OpenMode.CREATE);
+      fs.closeSync(file);
       return {
         uri: newFileUri,
         code: ERR_OK,
@@ -232,7 +226,7 @@ export default class FileExtAbility extends Extension {
     try {
       let newFileUri = this.genNewFileUri(parentUri, displayName);
       let path = this.getPath(newFileUri);
-      fileio.mkdirSync(path);
+      fs.mkdirSync(path);
       return {
         uri: newFileUri,
         code: ERR_OK,
@@ -252,24 +246,29 @@ export default class FileExtAbility extends Extension {
     }
     let path = this.getPath(selectFileUri);
     let code = ERR_OK;
-    this.recurseDir(path, function (filePath, isDirectory, hasNextFile) {
-      try {
-        if (isDirectory) {
-          if (!hasNextFile) {
-            fileio.rmdirSync(filePath);
-          }
-        } else {
-          fileio.unlinkSync(filePath);
-        }
-      } catch (e) {
-        hilog.error(DOMAIN_CODE, TAG, 'delete error ' + e.message);
-        // At present, the master libn has modified the interface exception throwing mechanism
-        // and the exception has no code attribute, which will lead to the failure of some faf use cases.
-        // In the later stage, the new file_api interfaces will be merged and modified in a unified way.
-        code = E_GETRESULT;
+    try {
+      let stat = fs.statSync(path);
+      if (stat.isDirectory()) {
+        fs.rmdirSync(path);
+      } else {
+        fs.unlinkSync(path);
       }
-    });
+    } catch (e) {
+      hilog.error(DOMAIN_CODE, TAG, 'deleteFile error ' + e.message);
+      return e.code;
+    }
     return code;
+  }
+
+  async movedir(oldPath, newPath, mode): boolean {
+    try {
+      // The default mode of the fs.moveDir interface is 0
+      await fs.moveDir(oldPath, newPath, mode);
+    } catch (e) {
+      hilog.error(DOMAIN_CODE, TAG, 'movedir error ' + e.message, 'movedir error code' + e.code);
+      return false;
+    }
+    return true;
   }
 
   move(sourceFileUri, targetParentUri): {string, number} {
@@ -298,17 +297,23 @@ export default class FileExtAbility extends Extension {
     }
     try {
       // The source file does not exist or the destination is not a directory
-      fileio.accessSync(oldPath);
-      let stat = fileio.statSync(this.getPath(targetParentUri));
+      let isAccess = fs.accessSync(oldPath);
+      if (!isAccess) {
+        return {
+          uri: '',
+          code: E_GETRESULT,
+        };
+      }
+      let stat = fs.statSync(this.getPath(targetParentUri));
       if (!stat || !stat.isDirectory()) {
         return {
           uri: '',
           code: E_GETRESULT,
         };
       }
-      // If not across devices, use fileio.renameSync to move
+      // If not across devices, use fs.renameSync to move
       if (!this.isCrossDeviceLink(sourceFileUri, targetParentUri)) {
-        fileio.renameSync(oldPath, newPath);
+        fs.renameSync(oldPath, newPath);
         return {
           uri: newFileUri,
           code: ERR_OK,
@@ -321,43 +326,18 @@ export default class FileExtAbility extends Extension {
         code: e.code,
       };
     }
-
-    /**
-     * Recursive source directory
-     * If it is a directory, create a new directory first and then delete the source directory.
-     * If it is a file, copy the file first and then delete the source file.
-     * The source directory will be deleted after the sub files are deleted
-     */
-    this.recurseDir(oldPath, function (filePath, isDirectory, hasNextFile) {
-      try {
-        let newFilePath = filePath.replace(oldPath, newPath);
-        if (isDirectory) {
-          if (hasNextFile) {
-            try {
-              // If the target directory already has a directory with the same name, it will not be created
-              fileio.accessSync(newFilePath);
-            } catch (e) {
-              fileio.mkdirSync(newFilePath);
-            }
-          } else {
-            fileio.rmdirSync(filePath);
-          }
-        } else {
-          fileio.copyFileSync(filePath, newFilePath);
-          fileio.unlinkSync(filePath);
-        }
-      } catch (e) {
-        hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
-        return {
-          uri: '',
-          code: e.code,
-        };
-      }
-    });
-    return {
-      uri: newFileUri,
-      code: ERR_OK,
-    };
+    let result = this.movedir(srcPath, destPath, DEFAULT_MODE);
+    if (result) {
+      return {
+        uri: newFileUri,
+        code: ERR_OK,
+      };
+    } else {
+      return {
+        uri: '',
+        code: E_GETRESULT,
+      };
+    }
   }
 
   rename(sourceFileUri, displayName): {string, number} {
@@ -371,7 +351,7 @@ export default class FileExtAbility extends Extension {
       let newFileUri = this.renameUri(sourceFileUri, displayName);
       let oldPath = this.getPath(sourceFileUri);
       let newPath = this.getPath(newFileUri);
-      fileio.renameSync(oldPath, newPath);
+      fs.renameSync(oldPath, newPath);
       return {
         uri: newFileUri,
         code: ERR_OK,
@@ -393,17 +373,18 @@ export default class FileExtAbility extends Extension {
         code: E_URIS,
       };
     }
+    let isAccess = false;
     try {
       let path = this.getPath(sourceFileUri);
-      fileio.accessSync(path);
-    } catch (e) {
-      hilog.error(DOMAIN_CODE, TAG, 'access error ' + e.message);
-      if (e.message === 'No such file or directory') {
+      isAccess = fs.accessSync(path);
+      if (!isAccess) {
         return {
           isExist: false,
           code: ERR_OK,
         };
       }
+    } catch (e) {
+      hilog.error(DOMAIN_CODE, TAG, 'access error ' + e.message);
       return {
         isExist: false,
         code: e.code,
@@ -423,53 +404,44 @@ export default class FileExtAbility extends Extension {
       };
     }
     let infos = [];
+    let path = this.getPath(sourceFileUri);
+    let statPath = fs.statSync(path);
+    if (!statPath.isDirectory()) {
+      return {
+        infos: [],
+        code: E_GETRESULT,
+      };
+    }
+
     try {
-      let path = this.getPath(sourceFileUri);
-      let dir = fileio.opendirSync(path);
-      let hasNextFile = true;
-      let i = 0;
-      while (hasNextFile) {
-        try {
-          let dirent = dir.readSync();
-          let stat = fileio.statSync(path + '/' + dirent.name);
-          let mode = documentFlag.SUPPORTS_READ | documentFlag.SUPPORTS_WRITE;
-          if (stat.isDirectory()) {
-            mode |= documentFlag.REPRESENTS_DIR;
-          } else {
-            mode |= documentFlag.REPRESENTS_FILE;
-          }
-
-          if (offset > i) {
-            i++;
-            continue;
-          }
-
-          infos.push({
-            uri: this.genNewFileUri(sourceFileUri, dirent.name),
-            fileName: dirent.name,
-            mode: mode,
-            size: stat.size,
-            mtime: stat.mtime,
-            mimeType: '',
-          });
-
-          i++;
-          if (i === (offset + count)) {
-            hasNextFile = false;
-            break;
-          }
-        } catch (e) {
-          hasNextFile = false;
+      let fileName = fs.listFileSync(path);
+      for (let i = 0; i < fileName.length; i++) {
+        if (offset > i) {
+          continue;
         }
+        if (i === (offset + count)) {
+          break;
+        }
+        let mode = documentFlag.SUPPORTS_READ | documentFlag.SUPPORTS_WRITE;
+        let stat = fs.statSync(path + '/' + fileName[i]);
+        if (stat.isDirectory()) {
+          mode |= documentFlag.REPRESENTS_DIR;
+        } else {
+          mode |= documentFlag.REPRESENTS_FILE;
+        }
+        infos.push({
+          uri: this.genNewFileUri(sourceFileUri, fileName[i]),
+          fileName: fileName[i],
+          mode: mode,
+          size: stat.size,
+          mtime: stat.mtime,
+          mimeType: '',
+        });
       }
-      dir.closeSync();
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'listFile error ' + e.message);
       return {
         infos: [],
-        // At present, the master libn has modified the interface exception throwing mechanism
-        // and the exception has no code attribute, which will lead to the failure of some faf use cases.
-        // In the later stage, the new file_api interfaces will be merged and modified in a unified way.
         code: E_GETRESULT,
       };
     }
@@ -490,7 +462,7 @@ export default class FileExtAbility extends Extension {
     try {
       let path = this.getPath(selectFileUri);
       let fileName = this.getFileName(path);
-      let stat = fileio.statSync(path);
+      let stat = fs.statSync(path);
       let mode = documentFlag.SUPPORTS_READ | documentFlag.SUPPORTS_WRITE;
       if (stat.isDirectory()) {
         mode |= documentFlag.REPRESENTS_DIR;
@@ -551,13 +523,9 @@ export default class FileExtAbility extends Extension {
   getResultFromStat(dirPath, column, stat, queryResults): void {
     if (column === 'size' && stat.isDirectory()) {
       let size = 0;
-      this.recurseDir(dirPath, function (filePath, isDirectory, hasNextFile) {
-        if (isDirectory && !hasNextFile) {
-          return;
-        }
-
+      this.recurseDir(dirPath, function (filePath, isDirectory) {
         if (!isDirectory) {
-          let fileStat = fileio.statSync(filePath);
+          let fileStat = fs.statSync(filePath);
           size += fileStat.size;
         }
       });
@@ -585,7 +553,7 @@ export default class FileExtAbility extends Extension {
     let queryResults = [];
     try {
       let dirPath = this.getPath(uri);
-      let stat = fileio.statSync(dirPath);
+      let stat = fs.statSync(dirPath);
       for (let index in columns) {
         let column = columns[index];
         if (column in stat) {
