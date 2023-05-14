@@ -246,5 +246,33 @@ int FileAccessExtStubImpl::Access(const Uri &uri, bool &isExist)
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
+
+int FileAccessExtStubImpl::StartWatcher(const Uri &uri)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "StartWatcher");
+    if (extension_ == nullptr) {
+        HILOG_ERROR("StartWatcher get extension failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    int ret = extension_->StartWatcher(uri);
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
+}
+
+int FileAccessExtStubImpl::StopWatcher(const Uri &uri)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "StopWatcher");
+    if (extension_ == nullptr) {
+        HILOG_ERROR("StopWatcher get extension failed.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    int ret = extension_->StopWatcher(uri);
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

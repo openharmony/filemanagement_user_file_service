@@ -18,6 +18,7 @@
 
 #include "extension_base.h"
 #include "file_access_extension_info.h"
+#include "file_access_observer_common.h"
 #include "file_filter.h"
 #include "image_source.h"
 
@@ -61,6 +62,9 @@ public:
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec);
     virtual int Access(const Uri &uri, bool &isExist);
     static void SetCreator(const CreatorFunc& creator);
+    virtual int StartWatcher(const Uri &uri);
+    virtual int StopWatcher(const Uri &uri);
+    virtual int Notify(Uri &uri, NotifyType notifyType);
 private:
     static CreatorFunc creator_;
 };

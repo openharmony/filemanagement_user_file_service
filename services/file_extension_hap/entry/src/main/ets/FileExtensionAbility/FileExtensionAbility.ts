@@ -37,6 +37,41 @@ const E_EXIST = 13900015;
 const E_NOEXIST = 13900002;
 const E_URIS = 14300002;
 const E_GETRESULT = 14300004;
+const CREATE_EVENT_CODE = 0x00000100;
+const DELETE_EVENT_CODE = 0x00000200 | 0x00000400;
+const UPDATE_EVENT_CODE = 0x00000040 | 0x00000080 | 0x00000800;
+const CREATE_EVENT = 0;
+const DELETE_EVENT = 1;
+const UPDATE_EVENT = 2;
+const CONVERT_TO_HEX = 16;
+
+// ['IN_ACCESS', 0x00000001],
+// ['IN_MODIFY', 0x00000002],
+// ['IN_ATTRIB', 0x00000004],
+// ['IN_CLOSE_WRITE', 0x00000008],
+// ['IN_CLOSE_NOWRITE', 0x00000010],
+// ['IN_OPE', 0x00000020],
+// ['IN_MOVED_FROM', 0x00000040],
+// ['IN_MOVED_TO', 0x00000080],
+// ['IN_CREATE', 0x00000100],
+// ['IN_DELETE', 0x00000200],
+// ['IN_DELETE_SELF', 0x00000400],
+// ['IN_MOVE_SELF', 0x00000800]
+
+enum createEvent {
+  create = 100
+}
+
+enum deleteEvent {
+  delete = 200,
+  deleteSelf = 400
+}
+
+enum updataEvent {
+  moveSelf = 800,
+  moveFrom = 40,
+  moveTo = 80
+}
 
 export default class FileExtAbility extends Extension {
   onCreate(want): void {
@@ -680,5 +715,70 @@ export default class FileExtAbility extends Extension {
       results: queryResults,
       code: ERR_OK,
     };
+  }
+
+  startWatcher(uri, callback): number {
+    uri = this.decode(uri);
+    if (uri === '') {
+      return {
+        code: E_URIS,
+      };
+    }
+    if (!this.checkUri(uri)) {
+      return E_URIS;
+    }
+    let watchPath = this.getPath(uri);
+    try {
+      let watcher = fs.createWatcher(watchPath, CREATE_EVENT_CODE | DELETE_EVENT_CODE | UPDATE_EVENT_CODE, (data) => {
+        try {
+          let notifyEvent = (data.event).toString(CONVERT_TO_HEX);
+          if (notifyEvent in createEvent) {
+            notifyEvent = CREATE_EVENT;
+          }
+
+          if (notifyEvent in deleteEvent) {
+            notifyEvent = DELETE_EVENT;
+          }
+
+          if (notifyEvent in updataEvent) {
+            notifyEvent = UPDATE_EVENT;
+          }
+          let watchUri = FILE_PREFIX_NAME + BUNDLE_NAME + watchPath;
+          watchUri = this.encode(watchUri);
+          callback(watchUri, notifyEvent);
+        } catch (error) {
+          hilog.error(DOMAIN_CODE, TAG, 'onchange error ' + error.message);
+          return E_GETRESULT;
+        }
+      });
+      observerMap.set(uri, watcher);
+      watcher.start();
+    } catch (e) {
+      hilog.error(DOMAIN_CODE, TAG, 'startWatcher error ' + e.message);
+      return E_GETRESULT;
+    }
+    return ERR_OK;
+  }
+
+  stopWatcher(uri): number {
+    uri = this.decode(uri);
+    if (uri === '') {
+      return {
+        code: E_URIS,
+      };
+    }
+
+    if (!this.checkUri(uri)) {
+      return E_URIS;
+    }
+    try {
+      let watcher = observerMap.get(uri);
+      watcher.stop();
+      observerMap.delete(uri);
+    } catch (e) {
+      hilog.error(DOMAIN_CODE, TAG, 'stopWatcher error ' + e.message);
+      return E_GETRESULT;
+    }
+    return ERR_OK;
   }
 };

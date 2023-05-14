@@ -50,6 +50,8 @@ private:
     ErrCode CmdGetFileInfoFromRelativePath(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdGetRoots(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdAccess(MessageParcel &data, MessageParcel &reply);
+    ErrCode CmdStartWatcher(MessageParcel &data, MessageParcel &reply);
+    ErrCode CmdStopWatcher(MessageParcel &data, MessageParcel &reply);
     bool CheckCallingPermission(const std::string &permission);
     using RequestFuncType = int (FileAccessExtStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, RequestFuncType> stubFuncMap_;
