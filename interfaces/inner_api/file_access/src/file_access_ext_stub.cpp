@@ -567,6 +567,11 @@ ErrCode FileAccessExtStub::CmdQuery(MessageParcel &data, MessageParcel &reply)
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
+    if (count > FILE_RESULT_TYPE.size()) {
+        HILOG_ERROR(" The number of query operations exceeds %{public}d ", FILE_RESULT_TYPE.size());
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return EINVAL;
+    }
     std::vector<std::string> columns;
     for (int64_t i = 0; i < count; i++) {
         columns.push_back(data.ReadString());
