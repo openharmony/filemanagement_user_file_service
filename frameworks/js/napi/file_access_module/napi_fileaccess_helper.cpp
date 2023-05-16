@@ -769,7 +769,7 @@ napi_value NAPI_Copy(napi_env env, napi_callback_info info)
 
     if (funcArg.GetArgc() == NARG_CNT::THREE) {
         NVal thirdArg(env, funcArg[NARG_POS::THIRD]);
-        if (thirdArg.TypeIs(napi_boolean)) {
+        if (thirdArg.TypeIs(napi_boolean) || thirdArg.TypeIs(napi_undefined)) {
             return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
         }
         if (thirdArg.TypeIs(napi_function)) {
