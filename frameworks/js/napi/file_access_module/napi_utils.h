@@ -23,7 +23,6 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-using namespace DistributedFS;
 using namespace FileManagement::LibN;
 
 int IsDirectory(const int64_t mode);

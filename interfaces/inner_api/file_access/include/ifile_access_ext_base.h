@@ -29,7 +29,6 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-using namespace DistributedFS;
 using namespace Media;
 
 class IFileAccessExtBase : public IRemoteBroker {
