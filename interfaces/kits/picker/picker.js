@@ -145,7 +145,7 @@ async function documentPickerSelect(...args) {
 
   try {
     let context = getContext(this);
-    let result = await context.startAbilityForResult(config, {windowMode: 1});
+    let result = await context.startAbilityForResult(config, {windowMode: 0});
     console.log('[picker] result: ' + JSON.stringify(result));
     let uris = result.want.parameters.select_item_list;
     if (result.resultCode === -1) {
@@ -196,7 +196,7 @@ async function documentPickerSave(...args) {
 
   try {
     let context = getContext(this);
-    let result = await context.startAbilityForResult(config, {windowMode: 1});
+    let result = await context.startAbilityForResult(config, {windowMode: 0});
     console.log('[picker] result: ' + JSON.stringify(result));
     let uris = result.want['parameters'].pick_path_return;
     if (result.resultCode === -1) {
@@ -240,7 +240,7 @@ async function audioPickerSelect(...args) {
 
   try {
     let context = getContext(this);
-    let result = await context.startAbilityForResult(config, {windowMode: 1});
+    let result = await context.startAbilityForResult(config, {windowMode: 0});
     console.log('[picker] result: ' + JSON.stringify(result));
     let uris = result.want.parameters.select_item_list;
     if (result.resultCode === -1) {
