@@ -2479,6 +2479,17 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0004, testing::
 
 static bool ReplaceBundleNameFromPath(std::string &path, const std::string &newName)
 {
+    Uri uri(path);
+    std::string scheme = uri.GetScheme();
+    if (scheme == FILE_SCHEME_NAME) {
+        std::string curName = uri.GetAuthority();
+        if (curName.empty()) {
+            return false;
+        }
+        path.replace(path.find(curName), curName.length(), newName);
+        return true;
+    }
+
     std::string tPath = Uri(path).GetPath();
     if (tPath.empty()) {
         GTEST_LOG_(INFO) << "Uri path error.";
