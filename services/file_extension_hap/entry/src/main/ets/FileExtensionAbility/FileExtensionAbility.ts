@@ -28,7 +28,6 @@ const deviceType = fileExtensionInfo.DeviceType;
 const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
 const DEFAULT_MODE = 0o666;
 const CREATE_FILE_FLAGS = 0o100;
-const URI_SCHEME = 'datashare://';
 const FILE_SCHEME_NAME = 'file';
 const FILE_PREFIX_NAME = 'file://';
 const DOMAIN_CODE = 0x0001;
@@ -58,9 +57,6 @@ export default class FileExtAbility extends Extension {
       if (uriTmp.scheme === FILE_SCHEME_NAME) {
         uri = uri.replace(FILE_PREFIX_NAME, '/');
         return true;
-      } else if (uri.indexOf(URI_SCHEME) === 0) {
-        uri = uri.replace(URI_SCHEME, '');
-        return /^\/([^\/]+\/?)+$/.test(uri);
       } else {
         hilog.error(DOMAIN_CODE, TAG, 'checkUri error, uri is ' + uri);
         return false;
