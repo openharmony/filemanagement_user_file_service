@@ -63,6 +63,9 @@ int GetFileFilterParam(const NVal &argv, FileFilter &filter)
 {
     bool ret = false;
     filter.SetHasFilter(false);
+    if (argv.TypeIs(napi_undefined)) {
+        return ERR_OK;
+    }
     if (argv.HasProp("suffix")) {
         std::vector<std::string> suffixs;
         std::tie(ret, suffixs, std::ignore) = argv.GetProp("suffix").ToStringArray();
