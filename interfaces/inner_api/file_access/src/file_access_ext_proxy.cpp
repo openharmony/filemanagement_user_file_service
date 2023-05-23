@@ -16,6 +16,7 @@
 #include "file_access_ext_proxy.h"
 
 #include "file_access_framework_errno.h"
+#include "file_access_extension_info.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ipc_types.h"
@@ -645,6 +646,11 @@ int FileAccessExtProxy::Query(const Uri &uri, std::vector<std::string> &columns,
         HILOG_ERROR("Parameter Query fail to WriteInt64 count");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
+    }
+    if (count > FILE_RESULT_TYPE.size()) {
+        HILOG_ERROR(" The number of query operations exceeds %{public}d ", FILE_RESULT_TYPE.size());
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return EINVAL;
     }
 
     for (const auto &column : columns) {

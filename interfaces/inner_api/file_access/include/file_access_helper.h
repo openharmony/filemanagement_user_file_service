@@ -42,7 +42,6 @@ using string = std::string;
 
 namespace {
     static const std::string FILE_SCHEME_NAME = "file";
-    static const std::string SCHEME_NAME = "datashare";
     static const std::string MEDIA_BNUDLE_NAME_ALIAS = "media";
     static const std::string MEDIA_BNUDLE_NAME = "com.ohos.medialibrary.medialibrarydata";
     static const std::string EXTERNAL_BNUDLE_NAME = "com.ohos.UserFile.ExternalFileManager";
