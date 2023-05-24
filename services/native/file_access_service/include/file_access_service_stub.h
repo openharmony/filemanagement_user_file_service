@@ -31,6 +31,7 @@ public:
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
 private:
+    ErrCode CmdOnChange(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdRegisterNotify(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdUnregisterNotify(MessageParcel &data, MessageParcel &reply);
     bool CheckCallingPermission(const std::string &permission);
