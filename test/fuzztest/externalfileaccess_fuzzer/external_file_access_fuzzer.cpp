@@ -357,7 +357,7 @@ bool RenameFuzzTest(const uint8_t* data, size_t size)
 
 bool ListFileFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
+    if ((data == nullptr) || (size == 0)) {
         HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
         return false;
     }
@@ -383,7 +383,7 @@ bool ListFileFuzzTest(const uint8_t* data, size_t size)
 
 bool ScanFileFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
+    if ((data == nullptr) || (size == 0)) {
         HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
         return false;
     }
@@ -409,7 +409,7 @@ bool ScanFileFuzzTest(const uint8_t* data, size_t size)
 
 bool GetFileInfoFromUriFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
+    if ((data == nullptr) || (size == 0)) {
         HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
         return false;
     }
