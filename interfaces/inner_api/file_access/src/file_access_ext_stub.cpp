@@ -568,7 +568,7 @@ ErrCode FileAccessExtStub::CmdQuery(MessageParcel &data, MessageParcel &reply)
         return E_IPCS;
     }
     if (count > FILE_RESULT_TYPE.size()) {
-        HILOG_ERROR(" The number of query operations exceeds %{public}d ", FILE_RESULT_TYPE.size());
+        HILOG_ERROR(" The number of query operations exceeds %{public}zu ", FILE_RESULT_TYPE.size());
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return EINVAL;
     }
