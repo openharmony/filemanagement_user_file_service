@@ -25,6 +25,7 @@ class FileAccessServiceProxy : public IRemoteProxy<IFileAccessServiceBase> {
 public:
     explicit FileAccessServiceProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IFileAccessServiceBase>(impl) {}
     ~FileAccessServiceProxy() = default;
+    int32_t OnChange(Uri uri, NotifyType notifyType) override;
     int32_t RegisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer, bool notifyForDescendants) override;
     int32_t UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer) override;
 

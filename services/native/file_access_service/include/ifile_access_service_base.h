@@ -31,8 +31,11 @@ public:
 public:
     enum {
         CMD_REGISTER_NOTIFY = 0,
-        CMD_UNREGISTER_NOTIFY
+        CMD_UNREGISTER_NOTIFY,
+        CMD_ONCHANGE
     };
+
+    virtual int32_t OnChange(Uri uri, NotifyType notifyType) = 0;
     virtual int32_t RegisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer, bool notifyForDescendants) = 0;
     virtual int32_t UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer) = 0;
 };
