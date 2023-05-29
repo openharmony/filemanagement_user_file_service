@@ -648,7 +648,7 @@ int FileAccessExtProxy::Query(const Uri &uri, std::vector<std::string> &columns,
         return E_IPCS;
     }
     if (count > FILE_RESULT_TYPE.size()) {
-        HILOG_ERROR(" The number of query operations exceeds %{public}d ", FILE_RESULT_TYPE.size());
+        HILOG_ERROR(" The number of query operations exceeds %{public}lu ", FILE_RESULT_TYPE.size());
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return EINVAL;
     }
