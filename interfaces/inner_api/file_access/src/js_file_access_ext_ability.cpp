@@ -358,7 +358,7 @@ int JsFileAccessExtAbility::CreateFile(const Uri &parent, const std::string &dis
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
     auto value = std::make_shared<Value<std::string>>();
-    if (value == nullptr) {
+    if (!value) {
         HILOG_ERROR("CreateFile value is nullptr.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
@@ -419,7 +419,7 @@ int JsFileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayN
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Mkdir");
     auto value = std::make_shared<Value<std::string>>();
-    if (value == nullptr) {
+    if (!value) {
         HILOG_ERROR("Mkdir value is nullptr.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
@@ -480,7 +480,7 @@ int JsFileAccessExtAbility::Delete(const Uri &sourceFile)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
     auto ret = std::make_shared<int>();
-    if (ret == nullptr) {
+    if (!ret) {
         HILOG_ERROR("Delete value is nullptr.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;

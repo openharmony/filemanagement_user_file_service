@@ -26,14 +26,14 @@ class FileAccessExtensionAbility {
 
   createFile(parentUri, displayName) {
     return {
-      uri: "",
+      uri: '',
       code: ERR_ERROR,
     };
   }
 
   mkdir(parentUri, displayName) {
     return {
-      uri: "",
+      uri: '',
       code: ERR_ERROR,
     };
   }
