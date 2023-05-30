@@ -21,6 +21,48 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
+int32_t FileAccessServiceProxy::OnChange(Uri uri, NotifyType notifyType)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OnChange");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessObserverProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    if (!data.WriteParcelable(&uri)) {
+        HILOG_ERROR("fail to WriteParcelable uri");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    if (!data.WriteInt32(static_cast<int32_t>(notifyType))) {
+        HILOG_ERROR("fail to WriteParcelable notifyType");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int err = Remote()->SendRequest(CMD_ONCHANGE, data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return err;
+    }
+
+    int ret = E_IPCS;
+    if (!reply.ReadInt32(ret) || ret != ERR_OK) {
+        HILOG_ERROR("OnChange operation failed ret : %{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
 int32_t FileAccessServiceProxy::RegisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer,
     bool notifyForDescendants)
 {
@@ -60,13 +102,7 @@ int32_t FileAccessServiceProxy::RegisterNotify(Uri uri, const sptr<IFileAccessOb
     }
 
     int ret = E_IPCS;
-    if (!reply.ReadInt32(ret)) {
-        HILOG_ERROR("fail to ReadInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_IPCS;
-    }
-
-    if (ret != ERR_OK) {
+    if (!reply.ReadInt32(ret) || ret != ERR_OK) {
         HILOG_ERROR("RegisterNotify operation failed ret : %{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
@@ -108,13 +144,7 @@ int32_t FileAccessServiceProxy::UnregisterNotify(Uri uri, const sptr<IFileAccess
     }
 
     int ret = E_IPCS;
-    if (!reply.ReadInt32(ret)) {
-        HILOG_ERROR("fail to ReadInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_IPCS;
-    }
-
-    if (ret != ERR_OK) {
+    if (!reply.ReadInt32(ret) || ret != ERR_OK) {
         HILOG_ERROR("UnregisterNotify operation failed ret : %{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;

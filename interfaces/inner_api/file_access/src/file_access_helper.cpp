@@ -212,7 +212,7 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         }
 
         std::shared_ptr<ConnectInfo> connectInfo = std::make_shared<ConnectInfo>();
-        if (connectInfo == nullptr) {
+        if (!connectInfo) {
             HILOG_ERROR("Creator, connectInfo == nullptr");
             FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return {nullptr, E_GETRESULT};
@@ -359,7 +359,7 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteOb
         }
 
         std::shared_ptr<ConnectInfo> connectInfo = std::make_shared<ConnectInfo>();
-        if (connectInfo == nullptr) {
+        if (!connectInfo) {
             HILOG_ERROR("Creator, connectInfo == nullptr");
             FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return nullptr;

@@ -42,9 +42,10 @@ public:
 public:
     int32_t RegisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer, bool notifyForDescendants) override;
     int32_t UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer) override;
+    int32_t OnChange(Uri uri, NotifyType notifyType) override;
 
 private:
-    explicit FileAccessService();
+    FileAccessService();
     bool IsServiceReady() const;
     static sptr<FileAccessService> instance_;
     bool ready_ = false;

@@ -38,6 +38,7 @@ FileAccessServiceStub::FileAccessServiceStub()
 {
     stubFuncMap_[CMD_REGISTER_NOTIFY] = &FileAccessServiceStub::CmdRegisterNotify;
     stubFuncMap_[CMD_UNREGISTER_NOTIFY] = &FileAccessServiceStub::CmdUnregisterNotify;
+    stubFuncMap_[CMD_ONCHANGE] = &FileAccessServiceStub::CmdOnChange;
 }
 
 FileAccessServiceStub::~FileAccessServiceStub()
@@ -72,6 +73,28 @@ int32_t FileAccessServiceStub::OnRemoteRequest(uint32_t code, MessageParcel &dat
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
+ErrCode FileAccessServiceStub::CmdOnChange(MessageParcel &data, MessageParcel &reply)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdOnChange");
+    std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
+    if (uri == nullptr) {
+        HILOG_ERROR("UnregisterNotify uri is nullptr");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    NotifyType notifyType = static_cast<NotifyType>(data.ReadInt32());
+    int ret = OnChange(*uri, notifyType);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("Parameter OnChange fail to WriteInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
+}
+
 ErrCode FileAccessServiceStub::CmdRegisterNotify(MessageParcel &data, MessageParcel &reply)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdRegisterNotify");
@@ -79,7 +102,7 @@ ErrCode FileAccessServiceStub::CmdRegisterNotify(MessageParcel &data, MessagePar
     if (uri == nullptr) {
         HILOG_ERROR("RegisterNotify uri is nullptr");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_URIS;
+        return E_IPCS;
     }
 
     sptr<IRemoteObject> obj = data.ReadRemoteObject();
@@ -114,7 +137,7 @@ ErrCode FileAccessServiceStub::CmdUnregisterNotify(MessageParcel &data, MessageP
     if (uri == nullptr) {
         HILOG_ERROR("UnregisterNotify uri is nullptr");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_URIS;
+        return E_IPCS;
     }
 
     sptr<IRemoteObject> obj = data.ReadRemoteObject();

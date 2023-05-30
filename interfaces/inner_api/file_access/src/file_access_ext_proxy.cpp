@@ -750,7 +750,8 @@ static int WriteThumbnailArgs(MessageParcel &data, const Uri &uri, const Thumbna
     return ERR_OK;
 }
 
-int FileAccessExtProxy::GetThumbnail(const Uri &uri, const ThumbnailSize &thumbnailSize, std::shared_ptr<PixelMap> &pixelMap)
+int FileAccessExtProxy::GetThumbnail(const Uri &uri, const ThumbnailSize &thumbnailSize,
+    std::shared_ptr<PixelMap> &pixelMap)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetThumbnail");
     MessageParcel data;

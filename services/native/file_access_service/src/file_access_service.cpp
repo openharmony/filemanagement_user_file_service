@@ -90,5 +90,10 @@ int32_t FileAccessService::UnregisterNotify(Uri uri, const sptr<IFileAccessObser
 {
     return ERR_OK;
 }
+
+int32_t FileAccessService::OnChange(Uri uri, NotifyType notifyType)
+{
+    return ERR_OK;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

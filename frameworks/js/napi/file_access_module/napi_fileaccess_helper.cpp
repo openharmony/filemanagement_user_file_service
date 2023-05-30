@@ -192,7 +192,7 @@ napi_value NAPI_GetFileAccessAbilityInfo(napi_env env, napi_callback_info info)
     }
 
     auto result = std::make_shared<std::vector<AAFwk::Want>>();
-    if (result == nullptr) {
+    if (!result) {
         NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
@@ -332,7 +332,7 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
     }
 
     auto result = std::make_shared<int>();
-    if (result == nullptr) {
+    if (!result) {
         NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
@@ -386,7 +386,7 @@ napi_value NAPI_CreateFile(napi_env env, napi_callback_info info)
     }
 
     auto result = std::make_shared<string>();
-    if (result == nullptr) {
+    if (!result) {
         NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
@@ -443,7 +443,7 @@ napi_value NAPI_Mkdir(napi_env env, napi_callback_info info)
     }
 
     auto result = std::make_shared<string>();
-    if (result == nullptr) {
+    if (!result) {
         NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
@@ -500,7 +500,7 @@ napi_value NAPI_Delete(napi_env env, napi_callback_info info)
     }
 
     auto result = std::make_shared<int>();
-    if (result == nullptr) {
+    if (!result) {
         NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
@@ -554,7 +554,7 @@ napi_value NAPI_Move(napi_env env, napi_callback_info info)
     }
 
     auto result = std::make_shared<string>();
-    if (result == nullptr) {
+    if (!result) {
         NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
@@ -738,7 +738,7 @@ napi_value NAPI_Copy(napi_env env, napi_callback_info info)
     }
 
     auto result = std::make_shared<std::vector<CopyResult>>();
-    if (result == nullptr) {
+    if (!result) {
         NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
@@ -809,7 +809,7 @@ napi_value NAPI_Rename(napi_env env, napi_callback_info info)
     }
 
     auto result = std::make_shared<string>();
-    if (result == nullptr) {
+    if (!result) {
         NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
@@ -882,7 +882,7 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
     }
 
     auto result = std::make_shared<std::vector<RootInfo>>();
-    if (result == nullptr) {
+    if (!result) {
         NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
@@ -1013,7 +1013,7 @@ napi_value NAPI_GetFileInfoFromUri(napi_env env, napi_callback_info info)
     }
 
     auto result = std::make_shared<FileInfo>();
-    if (result == nullptr) {
+    if (!result) {
         NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
@@ -1075,7 +1075,7 @@ napi_value NAPI_GetFileInfoFromRelativePath(napi_env env, napi_callback_info inf
     }
 
     auto result = std::make_shared<FileInfo>();
-    if (result == nullptr) {
+    if (!result) {
         NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
