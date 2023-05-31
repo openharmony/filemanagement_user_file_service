@@ -16,17 +16,67 @@
 #ifndef FILE_ACCESS_SERVICE_H
 #define FILE_ACCESS_SERVICE_H
 
+#include <atomic>
 #include <memory>
 #include <mutex>
 #include <system_ability.h>
+#include <unordered_map>
 #include <vector>
 
 #include "file_access_service_stub.h"
+#include "holder_manager.h"
 #include "iremote_object.h"
 #include "uri.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
+
+class ObserverContext {
+    public:
+        ObserverContext(sptr<IFileAccessObserver> obs): obs_(obs) {}
+        virtual ~ObserverContext() = default;
+        sptr<IFileAccessObserver> obs_ = nullptr;
+        void Ref()
+        {
+            if (ref_ == std::numeric_limits<int32_t>::max()) {
+                HILOG_ERROR("Ref is over max");
+                return;
+            }
+            ref_++;
+        }
+
+        void UnRef()
+        {
+            if (ref_ == 0) {
+                HILOG_ERROR("Ref is already zero");
+                return;
+            }
+            ref_--;
+        }
+
+        bool IsValid()
+        {
+            return ref_ > 0;
+        }
+
+        bool EqualTo(std::shared_ptr<ObserverContext> observerContext)
+        {
+            return obs_->AsObject() == observerContext->obs_->AsObject();
+        }
+
+    private:
+        std::atomic<int32_t> ref_;
+};
+
+class ObserverNode {
+    public:
+        ObserverNode(const bool needChildNote): needChildNote_(needChildNote) {}
+        virtual ~ObserverNode() = default;
+        std::shared_ptr<ObserverNode> parent_;
+        std::vector<std::shared_ptr<ObserverNode>> children_;
+        std::vector<uint32_t> obsCodeList_;
+        bool needChildNote_;
+};
 
 class FileAccessService final : public SystemAbility, public FileAccessServiceStub {
     DECLARE_SYSTEM_ABILITY(FileAccessService)
@@ -45,11 +95,17 @@ public:
     int32_t OnChange(Uri uri, NotifyType notifyType) override;
 
 private:
+    void SendListNotify(const std::vector<uint32_t> list, NotifyMessage &notifyMessage);
+    void RemoveRelations(std::string &uriStr, std::shared_ptr<ObserverNode> obsNode);
+    int FindUri(const std::string &uriStr, std::shared_ptr<ObserverNode> &outObsNode);
     FileAccessService();
     bool IsServiceReady() const;
     static sptr<FileAccessService> instance_;
     bool ready_ = false;
     static std::mutex mutex_;
+    std::mutex nodeMutex_;
+    std::unordered_map<std::string, std::shared_ptr<ObserverNode>> relationshipMap_;
+    HolderManager<std::shared_ptr<ObserverContext>> obsManager_;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
