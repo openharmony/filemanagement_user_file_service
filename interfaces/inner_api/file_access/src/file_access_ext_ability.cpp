@@ -152,5 +152,23 @@ int FileAccessExtAbility::Access(const Uri &uri, bool &isExist)
     HILOG_ERROR("FileAccessExtAbility::IsFileExist Undefined operation");
     return EPERM;
 }
+
+int FileAccessExtAbility::StartWatcher(const Uri &uri)
+{
+    HILOG_ERROR("FileAccessExtAbility::StartWatcher Undefined operation");
+    return EPERM;
+}
+
+int FileAccessExtAbility::StopWatcher(const Uri &uri)
+{
+    HILOG_ERROR("FileAccessExtAbility::StopWatcher Undefined operation");
+    return EPERM;
+}
+
+int FileAccessExtAbility::Notify(Uri &uri, NotifyType notifyType)
+{
+    HILOG_ERROR("FileAccessExtAbility::Notify Undefined operation");
+    return EPERM;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

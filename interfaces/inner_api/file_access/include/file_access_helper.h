@@ -85,6 +85,8 @@ public:
     int GetFileInfoFromRelativePath(std::string &selectFile, FileInfo &fileInfo);
     int GetRoots(std::vector<RootInfo> &rootInfoVec);
 private:
+    int StartWatcher(Uri &uri);
+    int StopWatcher(Uri &uri);
     sptr<IFileAccessExtBase> GetProxyByUri(Uri &uri);
     sptr<IFileAccessExtBase> GetProxyByBundleName(const std::string &bundleName);
     bool GetProxy();

@@ -45,6 +45,8 @@ FileAccessExtStub::FileAccessExtStub()
 {
     stubFuncMap_[CMD_OPEN_FILE] = &FileAccessExtStub::CmdOpenFile;
     stubFuncMap_[CMD_CREATE_FILE] = &FileAccessExtStub::CmdCreateFile;
+    stubFuncMap_[CMD_START_WATCHER] = &FileAccessExtStub::CmdStartWatcher;
+    stubFuncMap_[CMD_STOP_WATCHER] = &FileAccessExtStub::CmdStopWatcher;
     stubFuncMap_[CMD_MKDIR] = &FileAccessExtStub::CmdMkdir;
     stubFuncMap_[CMD_DELETE] = &FileAccessExtStub::CmdDelete;
     stubFuncMap_[CMD_MOVE] = &FileAccessExtStub::CmdMove;
@@ -721,6 +723,61 @@ ErrCode FileAccessExtStub::CmdAccess(MessageParcel &data, MessageParcel &reply)
     return ERR_OK;
 }
 
+ErrCode FileAccessExtStub::CmdStartWatcher(MessageParcel &data, MessageParcel &reply)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdStartWatcher");
+    std::string uriString;
+    if (!data.ReadString(uriString)) {
+        HILOG_ERROR("Parameter StartWatcher fail to ReadParcelable uri");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    if (uriString.empty()) {
+        HILOG_ERROR("Parameter StartWatcher insideInputUri is empty");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return EINVAL;
+    }
+
+    Uri uri(uriString);
+    int ret = StartWatcher(uri);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("Parameter StartWatcher fail to WriteInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
+ErrCode FileAccessExtStub::CmdStopWatcher(MessageParcel &data, MessageParcel &reply)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CmdStopWatcher");
+    std::string uriString;
+    if (!data.ReadString(uriString)) {
+        HILOG_ERROR("Parameter StopWatcher fail to ReadParcelable uri");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    if (uriString.empty()) {
+        HILOG_ERROR("Parameter StopWatcher insideInputUri is empty");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return EINVAL;
+    }
+
+    Uri uri(uriString);
+    int ret = StopWatcher(uri);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("Parameter StopWatcher fail to WriteInt32 ret");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
 bool FileAccessExtStub::CheckCallingPermission(const std::string &permission)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CheckCallingPermission");

@@ -19,6 +19,7 @@
 #include "accesstoken_kit.h"
 #include "extension_context.h"
 #include "file_access_ext_stub_impl.h"
+#include "file_access_observer_common.h"
 #include "file_access_extension_info.h"
 #include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
@@ -1197,6 +1198,151 @@ int JsFileAccessExtAbility::GetFileInfoFromUri(const Uri &selectFile, FileInfo &
     }
 
     fileInfo = std::move(value->data);
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
+NativeValue* JsFileAccessExtAbility::FuncCallback(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "FuncCallback");
+    if (engine == nullptr) {
+        HILOG_ERROR("NativeEngine pointer is null.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return nullptr;
+    }
+
+    if (info == nullptr) {
+        HILOG_ERROR("invalid param.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return engine->CreateUndefined();
+    }
+
+    if (info->argc != ARGC_TWO) {
+        HILOG_ERROR("invalid args.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return engine->CreateUndefined();
+    }
+
+    if (info->functionInfo == nullptr || info->functionInfo->data == nullptr) {
+        HILOG_ERROR("invalid object.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return engine->CreateUndefined();
+    }
+
+    std::string uriString = UnwrapStringFromJS(reinterpret_cast<napi_env>(engine),
+        reinterpret_cast<napi_value>(info->argv[ARGC_ZERO]));
+    int32_t event = UnwrapInt32FromJS(reinterpret_cast<napi_env>(engine),
+        reinterpret_cast<napi_value>(info->argv[ARGC_ONE]));
+
+    JsFileAccessExtAbility* jsExtension = static_cast<JsFileAccessExtAbility*>(info->functionInfo->data);
+    if (jsExtension == nullptr) {
+        HILOG_ERROR("invalid JsFileAccessExtAbility.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return engine->CreateUndefined();
+    }
+
+    Uri uri(uriString);
+    NotifyType notifyType = static_cast<NotifyType>(event);
+    auto ret = jsExtension->Notify(uri, notifyType);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("JsFileAccessExtAbility notify error, ret:%{public}d", ret);
+    }
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return engine->CreateUndefined();
+}
+
+int JsFileAccessExtAbility::StartWatcher(const Uri &uri)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "StartWatcher");
+    auto ret = std::make_shared<int>();
+    if (ret == nullptr) {
+        HILOG_ERROR("StartWatcher value is nullptr.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_GETRESULT;
+    }
+
+    auto argParser = [uri, this](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
+        NativeValue *nativeUri = engine.CreateString(uri.ToString().c_str(), uri.ToString().length());
+        if (nativeUri == nullptr) {
+            HILOG_ERROR("create uri native js value fail.");
+            return false;
+        }
+        const std::string funcName = "FuncCallback";
+        NativeValue* func = engine.CreateFunction(funcName.c_str(), funcName.length(),
+            JsFileAccessExtAbility::FuncCallback, this);
+        argv[ARGC_ZERO] = nativeUri;
+        argv[ARGC_ONE] = func;
+        argc = ARGC_TWO;
+        return true;
+    };
+
+    auto retParser = [ret](NativeEngine &engine, NativeValue *result) -> bool {
+        bool res = ConvertFromJsValue(engine, result, *ret);
+        if (!res) {
+            HILOG_ERROR("Convert js value fail.");
+        }
+        return res;
+    };
+
+    auto errCode = CallJsMethod("startWatcher", jsRuntime_, jsObj_.get(), argParser, retParser);
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return errCode;
+    }
+
+    if (*ret != ERR_OK) {
+        HILOG_ERROR("fileio fail.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return *ret;
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
+int JsFileAccessExtAbility::StopWatcher(const Uri &uri)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "StopWatcher");
+    auto ret = std::make_shared<int>();
+    if (ret == nullptr) {
+        HILOG_ERROR("StopWatcher value is nullptr.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_GETRESULT;
+    }
+
+    auto argParser = [uri](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
+        NativeValue *nativeUri = engine.CreateString(uri.ToString().c_str(), uri.ToString().length());
+        if (nativeUri == nullptr) {
+            HILOG_ERROR("create uri native js value fail.");
+            return false;
+        }
+        argv[ARGC_ZERO] = nativeUri;
+        argc = ARGC_ONE;
+        return true;
+    };
+
+    auto retParser = [ret](NativeEngine &engine, NativeValue *result) -> bool {
+        bool res = ConvertFromJsValue(engine, result, *ret);
+        if (!res) {
+            HILOG_ERROR("Convert js value fail.");
+        }
+        return res;
+    };
+
+    auto errCode = CallJsMethod("stopWatcher", jsRuntime_, jsObj_.get(), argParser, retParser);
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return errCode;
+    }
+
+    if (*ret != ERR_OK) {
+        HILOG_ERROR("fileio fail.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return *ret;
+    }
+
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }

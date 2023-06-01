@@ -46,6 +46,8 @@ public:
         CMD_RENAME,
         CMD_LIST_FILE,
         CMD_SCAN_FILE,
+        CMD_START_WATCHER,
+        CMD_STOP_WATCHER,
         CMD_QUERY,
         CMD_GET_ROOTS,
         CMD_ACCESS,
@@ -73,6 +75,8 @@ public:
     virtual int GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo) = 0;
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec) = 0;
     virtual int Access(const Uri &uri, bool &isExist) = 0;
+    virtual int StartWatcher(const Uri &uri) = 0;
+    virtual int StopWatcher(const Uri &uri) = 0;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

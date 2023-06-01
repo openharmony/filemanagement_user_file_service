@@ -1173,6 +1173,48 @@ int FileAccessHelper::GetFileInfoFromRelativePath(std::string &selectFile, FileI
     return ERR_OK;
 }
 
+int FileAccessHelper::StartWatcher(Uri &uri)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "StartWatcher");
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
+    if (fileExtProxy == nullptr) {
+        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    int ret = fileExtProxy->StartWatcher(uri);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Delete get result error, code:%{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
+int FileAccessHelper::StopWatcher(Uri &uri)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "StopWatcher");
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
+    if (fileExtProxy == nullptr) {
+        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    int ret = fileExtProxy->StopWatcher(uri);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Delete get result error, code:%{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
 void FileAccessDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     if (handler_) {
