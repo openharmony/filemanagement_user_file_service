@@ -15,12 +15,10 @@
 // @ts-nocheck
 import Extension from '@ohos.application.FileAccessExtensionAbility';
 import fs from '@ohos.file.fs';
-import { init, delVolumeInfo, getVolumeInfoList } from './VolumeManager';
+import { init, addVolumeInfoById, delVolumeInfo, getVolumeInfoList } from './VolumeManager';
 import { onReceiveEvent } from './Subcriber';
 import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
 import hilog from '@ohos.hilog';
-import process from '@ohos.process';
-import baseUri from '@ohos.uri';
 
 const deviceFlag = fileExtensionInfo.DeviceFlag;
 const documentFlag = fileExtensionInfo.DocumentFlag;
@@ -77,8 +75,10 @@ export default class FileExtAbility extends Extension {
   onCreate(want): void {
     init();
     onReceiveEvent(function (data) {
+      hilog.info(DOMAIN_CODE, TAG, 'received volume event: ' + data.event);
       if (data.event === 'usual.event.data.VOLUME_MOUNTED') {
-        process.exit(0);
+        hilog.info(DOMAIN_CODE, TAG, 'new device has mounted, volume id is ' + data.parameters.id);
+        addVolumeInfoById(data.parameters.id);
       } else {
         delVolumeInfo(data.parameters.id);
       }
@@ -107,8 +107,7 @@ export default class FileExtAbility extends Extension {
 
   checkUri(uri): boolean {
     try {
-      let uriTmp = new baseUri.URI(uri);
-      if (uriTmp.scheme === FILE_SCHEME_NAME) {
+      if (uri.indexOf(FILE_PREFIX_NAME) === 0) {
         uri = uri.replace(FILE_PREFIX_NAME, '/');
         return true;
       } else {
