@@ -26,6 +26,7 @@ ohos_shared_library("fileaccess") {
     "${user_file_service_path}/frameworks/js/napi/file_access_module/file_info",
     "${user_file_service_path}/frameworks/js/napi/file_access_module/root_info",
     "${user_file_service_path}/utils",
+    "${user_file_service_path}/services/native/file_access_service/include",
     "${user_file_service_path}/interfaces/kits/js/src/common",
   ]
 

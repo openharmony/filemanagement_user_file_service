@@ -28,6 +28,7 @@
 #include "napi_base_context.h"
 #include "napi_common_fileaccess.h"
 #include "napi_file_info_exporter.h"
+#include "napi_observer_callback.h"
 #include "napi_root_iterator_exporter.h"
 #include "pixel_map_napi.h"
 #include "root_iterator_entity.h"
@@ -236,7 +237,9 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("access", NAPI_Access),
         DECLARE_NAPI_FUNCTION("getFileInfoFromUri", NAPI_GetFileInfoFromUri),
         DECLARE_NAPI_FUNCTION("getFileInfoFromRelativePath", NAPI_GetFileInfoFromRelativePath),
-        DECLARE_NAPI_FUNCTION("getThumbnail", NAPI_GetThumbnail)
+        DECLARE_NAPI_FUNCTION("getThumbnail", NAPI_GetThumbnail),
+        DECLARE_NAPI_FUNCTION("on", NAPI_RegisterObserver),
+        DECLARE_NAPI_FUNCTION("off", NAPI_UnregisterObserver)
     };
     napi_value cons = nullptr;
     NAPI_CALL(env,
@@ -1197,6 +1200,133 @@ napi_value NAPI_GetThumbnail(napi_env env, napi_callback_info info)
         return nullptr;
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
+}
+
+struct FileObserverCallbackWrapper {
+    sptr<IFileAccessObserver> callback;
+};
+
+static bool parseRegisterObserverArgs(napi_env env, NFuncArg &funcArg, std::string &uri, bool &notifyForDescendants)
+{
+    bool succ = false;
+    std::unique_ptr<char[]> uriPtr;
+
+    std::tie(succ, uriPtr, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    if (!succ) {
+        NError(EINVAL).ThrowErr(env);
+        return false;
+    }
+    std::tie(succ, notifyForDescendants) = NVal(env, funcArg[NARG_POS::SECOND]).ToBool();
+    if (!succ) {
+        NError(EINVAL).ThrowErr(env);
+        return false;
+    }
+
+    napi_value napiCallback = funcArg[NARG_POS::THIRD];
+    if (!NVal(env, napiCallback).TypeIs(napi_function)) {
+        NError(EINVAL).ThrowErr(env);
+        return false;
+    }
+    return succ;
+}
+
+napi_value NAPI_RegisterObserver(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::THREE)) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    std::string uriString;
+    bool notifyForDescendants = false;
+    if (!parseRegisterObserverArgs(env, funcArg, uriString, notifyForDescendants)) {
+        NError(EINVAL).ThrowErr(env);
+        HILOG_ERROR("parse Args error");
+        return nullptr;
+    }
+
+    sptr<IFileAccessObserver> callback;
+    if (callback == nullptr) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    auto finalize = [](napi_env env, void *data, void *hint) {
+        FileObserverCallbackWrapper *observerWrapper = static_cast<FileObserverCallbackWrapper *>(data);
+        if (observerWrapper != nullptr) {
+            delete observerWrapper;
+        }
+    };
+    std::unique_ptr<FileObserverCallbackWrapper> observerWrapper = std::make_unique<FileObserverCallbackWrapper>();
+    observerWrapper->callback = callback;
+    napi_value napiCallback = funcArg[NARG_POS::THIRD];
+    if (napi_wrap(env, napiCallback, observerWrapper.get(), finalize, nullptr, nullptr) != napi_ok) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+    observerWrapper.release();
+
+    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    if (fileAccessHelper == nullptr) {
+        return nullptr;
+    }
+    OHOS::Uri uri(uriString);
+    auto retCode = fileAccessHelper->RegisterNotify(uri, callback, notifyForDescendants);
+    if (retCode != ERR_OK) {
+        NError(retCode).ThrowErr(env);
+        return nullptr;
+    }
+    return NVal::CreateUndefined(env).val_;
+}
+
+napi_value NAPI_UnregisterObserver(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::TWO)) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    bool succ = false;
+    std::unique_ptr<char[]> uriPtr;
+    std::tie(succ, uriPtr, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
+    if (!succ) {
+        NError(EINVAL).ThrowErr(env);
+        HILOG_ERROR("Get uri error");
+        return nullptr;
+    }
+
+    napi_value napiCallback = funcArg[NARG_POS::SECOND];
+    if (!NVal(env, napiCallback).TypeIs(napi_function)) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    std::unique_ptr<FileObserverCallbackWrapper> observerWrapper;
+    if (napi_unwrap(env, napiCallback, (void **)&(observerWrapper)) != napi_ok) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+    if (observerWrapper == nullptr) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+    auto wrapper = observerWrapper.release();
+
+    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    if (fileAccessHelper == nullptr) {
+        return nullptr;
+    }
+
+    std::string uriString(uriPtr.get());
+    OHOS::Uri uri(uriString);
+    auto retCode = fileAccessHelper->UnregisterNotify(uri, wrapper->callback);
+    if (retCode != ERR_OK) {
+        NError(retCode).ThrowErr(env);
+        return nullptr;
+    }
+    return NVal::CreateUndefined(env).val_;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS

@@ -1215,6 +1215,18 @@ int FileAccessHelper::StopWatcher(Uri &uri)
     return ERR_OK;
 }
 
+int FileAccessHelper::RegisterNotify(Uri uri, sptr<IFileAccessObserver> &observer, bool notifyForDescendants)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "RegisterNotify");
+    return ERR_OK;
+}
+
+int FileAccessHelper::UnregisterNotify(Uri uri, sptr<IFileAccessObserver> &observer)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "UnregisterNotify");
+    return ERR_OK;
+}
+
 void FileAccessDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     if (handler_) {

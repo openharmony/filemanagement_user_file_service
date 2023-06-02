@@ -28,6 +28,7 @@
 #include "file_access_extension_info.h"
 #include "ifile_access_ext_base.h"
 #include "image_source.h"
+#include "iobserver_callback.h"
 #include "iremote_object.h"
 #include "refbase.h"
 #include "uri.h"
@@ -84,6 +85,8 @@ public:
     int GetFileInfoFromUri(Uri &selectFile, FileInfo &fileInfo);
     int GetFileInfoFromRelativePath(std::string &selectFile, FileInfo &fileInfo);
     int GetRoots(std::vector<RootInfo> &rootInfoVec);
+    int RegisterNotify(Uri uri, sptr<IFileAccessObserver> &observer, bool notifyForDescendants);
+    int UnregisterNotify(Uri uri, sptr<IFileAccessObserver> &observer);
 private:
     int StartWatcher(Uri &uri);
     int StopWatcher(Uri &uri);
