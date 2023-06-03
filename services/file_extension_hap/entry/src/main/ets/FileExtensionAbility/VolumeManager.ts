@@ -37,13 +37,13 @@ function init(): void {
         continue;
       }
       let volumeInfo = {
-        'volumeId': volume.id,
-        'fsUuid': volume.uuid,
-        'path': volume.path,
-        'uri': path2uri('', volume.path),
-        'displayName': volume.id,
-        'deviceFlags': flags,
-        'deviceType': deviceType.DEVICE_EXTERNAL_USB
+        volumeId: volume.id,
+        fsUuid: volume.uuid,
+        path: volume.path,
+        uri: path2uri('', volume.path),
+        displayName: volume.id,
+        deviceFlags: flags,
+        deviceType: deviceType.DEVICE_EXTERNAL_USB
       };
       globalThis.volumeInfoList.push(volumeInfo);
     }
@@ -66,4 +66,24 @@ function getVolumeInfoList() {
   return globalThis.volumeInfoList;
 }
 
-export { init, addVolumeInfo, delVolumeInfo, getVolumeInfoList, path2uri };
+function addVolumeInfoById(volumeId): void {
+  volumeManager.getVolumeById(volumeId, function(error, volume) {
+    if (error) {
+      hilog.error(DOMAIN_CODE, TAG, 'getAllVolume failed, error message = ' + error.message);
+      return;
+    }
+    let flags = deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE;
+    let volumeInfo = {
+      volumeId: volume.id,
+      fsUuid: volume.uuid,
+      path: volume.path,
+      uri: path2uri('', volume.path),
+      displayName: volume.id,
+      deviceFlags: flags,
+      deviceType: deviceType.DEVICE_EXTERNAL_USB
+    };
+    addVolumeInfo(volumeInfo);
+  });
+}
+
+export { init, addVolumeInfoById, delVolumeInfo, getVolumeInfoList, path2uri };
