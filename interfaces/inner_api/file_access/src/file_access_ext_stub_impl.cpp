@@ -262,7 +262,7 @@ int FileAccessExtStubImpl::StartWatcher(const Uri &uri)
     return ret;
 }
 
-int FileAccessExtStubImpl::StopWatcher(const Uri &uri)
+int FileAccessExtStubImpl::StopWatcher(const Uri &uri, bool isUnregisterAll)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "StopWatcher");
     if (extension_ == nullptr) {
@@ -271,7 +271,7 @@ int FileAccessExtStubImpl::StopWatcher(const Uri &uri)
         return E_IPCS;
     }
 
-    int ret = extension_->StopWatcher(uri);
+    int ret = extension_->StopWatcher(uri, isUnregisterAll);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }

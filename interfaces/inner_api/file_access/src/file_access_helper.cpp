@@ -20,6 +20,7 @@
 #include "bundle_mgr_proxy.h"
 #include "file_access_framework_errno.h"
 #include "file_access_extension_info.h"
+#include "file_access_service_proxy.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
@@ -1190,7 +1191,7 @@ int FileAccessHelper::StartWatcher(Uri &uri)
     return ERR_OK;
 }
 
-int FileAccessHelper::StopWatcher(Uri &uri)
+int FileAccessHelper::StopWatcher(Uri &uri, bool isUnregisterAll)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "StopWatcher");
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
@@ -1200,9 +1201,9 @@ int FileAccessHelper::StopWatcher(Uri &uri)
         return E_IPCS;
     }
 
-    int ret = fileExtProxy->StopWatcher(uri);
+    int ret = fileExtProxy->StopWatcher(uri, isUnregisterAll);
     if (ret != ERR_OK) {
-        HILOG_ERROR("Delete get result error, code:%{public}d", ret);
+        HILOG_ERROR("StopWatcher get result error, code:%{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
@@ -1211,16 +1212,117 @@ int FileAccessHelper::StopWatcher(Uri &uri)
     return ERR_OK;
 }
 
-int FileAccessHelper::RegisterNotify(Uri uri, sptr<IFileAccessObserver> &observer, bool notifyForDescendants)
+int FileAccessHelper::RegisterNotify(Uri uri, bool notifyForDescendants, sptr<IFileAccessObserver> &observer)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "RegisterNotify");
-    return ERR_OK;
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::RegisterNotify check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_PERMISSION_SYS;
+    }
+
+    if (!CheckUri(uri) || observer == nullptr) {
+        HILOG_ERROR("parameter check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return EINVAL;
+    }
+
+    auto proxy = FileAccessServiceProxy::GetInstance();
+    if (proxy == nullptr) {
+        HILOG_ERROR("RegisterNotify get SA failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_LOAD_SA;
+    }
+
+    int ret = proxy->RegisterNotify(uri, notifyForDescendants, observer);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("RegisterNotify error ret = %{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    ret = StartWatcher(uri);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("StartWatcher error ret = %{public}d", ret);
+    }
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
 }
 
 int FileAccessHelper::UnregisterNotify(Uri uri, sptr<IFileAccessObserver> &observer)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "UnregisterNotify");
-    return ERR_OK;
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::UnregisterNotify check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_PERMISSION_SYS;
+    }
+
+    if (!CheckUri(uri) || observer == nullptr) {
+        HILOG_ERROR("parameter check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return EINVAL;
+    }
+
+    auto proxy = FileAccessServiceProxy::GetInstance();
+    if (proxy == nullptr) {
+        HILOG_ERROR("UnregisterNotify get SA failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_LOAD_SA;
+    }
+
+    int ret = proxy->UnregisterNotify(uri, observer);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("UnregisterNotify error ret = %{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    bool isUnregisterAll = false;
+    ret = StopWatcher(uri, isUnregisterAll);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("StopWatcher error ret = %{public}d", ret);
+    }
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
+}
+
+int FileAccessHelper::UnregisterNotify(Uri uri)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "UnregisterNotify");
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileAccessHelper::UnregisterNotify check IsSystemAppByFullTokenID failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_PERMISSION_SYS;
+    }
+
+    if (!CheckUri(uri)) {
+        HILOG_ERROR("parameter check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return EINVAL;
+    }
+    auto proxy = FileAccessServiceProxy::GetInstance();
+    if (proxy == nullptr) {
+        HILOG_ERROR("UnregisterNotify get SA failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_LOAD_SA;
+    }
+
+    sptr<IFileAccessObserver> observer = nullptr;
+    int ret = proxy->UnregisterNotify(uri, observer);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("UnregisterNotify error ret = %{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    bool isUnregisterAll = true;
+    ret = StopWatcher(uri, isUnregisterAll);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("StopWatcher error ret = %{public}d", ret);
+    }
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
 }
 
 void FileAccessDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)

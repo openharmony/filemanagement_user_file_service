@@ -34,13 +34,27 @@ const E_INVAL = 13900020;
 const E_URIS = 14300002;
 const E_GETRESULT = 14300004;
 const CREATE_EVENT_CODE = 0x00000100;
-const DELETE_EVENT_CODE = 0x00000200 | 0x00000400;
-const UPDATE_EVENT_CODE = 0x00000040 | 0x00000080 | 0x00000800;
+const IN_DELETE_EVENT_CODE = 0x00000200;
+const DELETE_SELF_EVENT_CODE = 0x00000400;
+const MOVE_TO_CODE = 0x00000080;
+const MOVED_FROM_CODE = 0x00000040;
+const MOVE_SELF_CODE = 0x00000800;
+const MOVE_MODLE_CODE = 3;
 const CREATE_EVENT = 0;
 const DELETE_EVENT = 1;
-const UPDATE_EVENT = 2;
-const CONVERT_TO_HEX = 16;
-const MOVE_MODLE_CODE = 3;
+const MOVED_TO = 2;
+const MOVED_FROM = 3;
+const MOVED_SELF = 4;
+let observerMap = new Map();
+let watcherCountMap = new Map();
+let eventMap = new Map([
+  [CREATE_EVENT_CODE, CREATE_EVENT],
+  [IN_DELETE_EVENT_CODE, DELETE_EVENT],
+  [DELETE_SELF_EVENT_CODE, DELETE_EVENT],
+  [MOVE_TO_CODE, MOVED_TO],
+  [MOVED_FROM_CODE, MOVED_FROM],
+  [MOVE_SELF_CODE, MOVED_SELF]
+]);
 
 // ['IN_ACCESS', 0x00000001],
 // ['IN_MODIFY', 0x00000002],
@@ -54,21 +68,6 @@ const MOVE_MODLE_CODE = 3;
 // ['IN_DELETE', 0x00000200],
 // ['IN_DELETE_SELF', 0x00000400],
 // ['IN_MOVE_SELF', 0x00000800]
-
-enum createEvent {
-  create = 100
-}
-
-enum deleteEvent {
-  delete = 200,
-  deleteSelf = 400
-}
-
-enum updataEvent {
-  moveSelf = 800,
-  moveFrom = 40,
-  moveTo = 80
-}
 
 export default class FileExtAbility extends Extension {
   onCreate(want): void {
@@ -378,8 +377,8 @@ export default class FileExtAbility extends Extension {
       fs.moveFileSync(oldPath, newPath, 0);
 
       return {
-          uri: newFileUri,
-          code: ERR_OK,
+        uri: newFileUri,
+        code: ERR_OK,
       };
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
@@ -760,29 +759,34 @@ export default class FileExtAbility extends Extension {
     }
     let watchPath = getPath(uri);
     try {
-      let watcher = fs.createWatcher(watchPath, CREATE_EVENT_CODE | DELETE_EVENT_CODE | UPDATE_EVENT_CODE, (data) => {
-        try {
-          let notifyEvent = (data.event).toString(CONVERT_TO_HEX);
-          if (notifyEvent in createEvent) {
-            notifyEvent = CREATE_EVENT;
+      if (!observerMap.has(uri)) {
+        let watcher = fs.createWatcher(watchPath, CREATE_EVENT_CODE | IN_DELETE_EVENT_CODE | DELETE_SELF_EVENT_CODE |
+          MOVE_TO_CODE | MOVED_FROM_CODE | MOVE_SELF_CODE, (data) => {
+          try {
+            let eventCode = -1;
+            eventMap.forEach((value, key) => {
+              if (data.event & key) {
+                eventCode = value;
+              }
+            });
+            let targetUri = FILE_PREFIX_NAME + BUNDLE_NAME + data.fileName;
+            targetUri = this.encode(targetUri);
+            if (eventCode >= 0) {
+              callback(targetUri, eventCode);
+            } else {
+              hilog.info(DOMAIN_CODE, TAG, 'eventCode =' + data.event);
+            }
+          } catch (error) {
+            hilog.error(DOMAIN_CODE, TAG, 'onchange error ' + error.message);
           }
-
-          if (notifyEvent in deleteEvent) {
-            notifyEvent = DELETE_EVENT;
-          }
-
-          if (notifyEvent in updataEvent) {
-            notifyEvent = UPDATE_EVENT;
-          }
-          let watchUri = FILE_PREFIX_NAME + BUNDLE_NAME + watchPath;
-          watchUri = this.encode(watchUri);
-          callback(watchUri, notifyEvent);
-        } catch (error) {
-          hilog.error(DOMAIN_CODE, TAG, 'onchange error ' + error.message);
-        }
-      });
-      observerMap.set(uri, watcher);
-      watcher.start();
+        });
+        watcher.start();
+        observerMap.set(uri, watcher);
+        watcherCountMap.set(uri, 1);
+      } else {
+        let temp = watcherCountMap.get(uri) + 1;
+        watcherCountMap.set(uri, temp);
+      }
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'startWatcher error ' + e.message);
       return E_GETRESULT;
@@ -790,7 +794,7 @@ export default class FileExtAbility extends Extension {
     return ERR_OK;
   }
 
-  stopWatcher(uri): number {
+  stopWatcher(uri, isUnregisterAll): number {
     uri = this.decode(uri);
     if (uri === '') {
       return {
@@ -802,9 +806,23 @@ export default class FileExtAbility extends Extension {
       return E_URIS;
     }
     try {
-      let watcher = observerMap.get(uri);
-      watcher.stop();
-      observerMap.delete(uri);
+      if (!watcherCountMap.has(uri)) {
+        return E_GETRESULT;
+      }
+      if (isUnregisterAll) {
+        watcherCountMap.set(uri, 0);
+      } else {
+        let temp = watcherCountMap.get(uri) - 1;
+        watcherCountMap.set(uri, temp);
+      }
+      if (watcherCountMap.get(uri) === 0) {
+        watcherCountMap.delete(uri);
+        let watcher = observerMap.get(uri);
+        if (typeof watcher !== undefined) {
+          watcher.stop();
+          observerMap.delete(uri);
+        }
+      }
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'stopWatcher error ' + e.message);
       return E_GETRESULT;

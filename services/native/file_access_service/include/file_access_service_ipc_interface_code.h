@@ -13,25 +13,12 @@
  * limitations under the License.
  */
 
-#ifndef OBSERVER_CALLBACK_PROXY_H
-#define OBSERVER_CALLBACK_PROXY_H
-
-#include "iobserver_callback.h"
-#include "iremote_broker.h"
-#include "iremote_proxy.h"
-#include "hilog_wrapper.h"
-
 namespace OHOS {
 namespace FileAccessFwk {
-class ObserverCallbackProxy : public IRemoteProxy<IFileAccessObserver> {
-public:
-    explicit ObserverCallbackProxy(const sptr<IRemoteObject>& remote) : IRemoteProxy<IFileAccessObserver>(remote) {}
-    ~ObserverCallbackProxy() = default;
-    void OnChange(NotifyMessage &notifyMessage) override;
-
-private:
-    static inline BrokerDelegator<ObserverCallbackProxy> delegator_;
-};
+    enum class FileAccessServiceInterfaceCode {
+        CMD_REGISTER_NOTIFY = 0,
+        CMD_UNREGISTER_NOTIFY,
+        CMD_ONCHANGE
+    };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // OBSERVER_CALLBACK_PROXY_H

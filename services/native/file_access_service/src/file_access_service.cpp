@@ -22,17 +22,22 @@
 #include "hitrace_meter.h"
 #include "system_ability_definition.h"
 
+using namespace std;
 namespace OHOS {
 namespace FileAccessFwk {
+namespace {
+    auto pms = FileAccessService::GetInstance();
+    const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(pms.GetRefPtr());
+}
 sptr<FileAccessService> FileAccessService::instance_;
-std::mutex FileAccessService::mutex_;
+mutex FileAccessService::mutex_;
 sptr<FileAccessService> FileAccessService::GetInstance()
 {
     if (instance_ != nullptr) {
         return instance_;
     }
 
-    std::lock_guard<std::mutex> lock(mutex_);
+    lock_guard<mutex> lock(mutex_);
     if (instance_ == nullptr) {
         instance_ = new FileAccessService();
         if (instance_ == nullptr) {
@@ -70,7 +75,7 @@ void FileAccessService::OnStop()
     ready_ = false;
 }
 
-int32_t FileAccessService::Dump(int32_t fd, const std::vector<std::u16string> &args)
+int32_t FileAccessService::Dump(int32_t fd, const vector<u16string> &args)
 {
     return ERR_OK;
 }
@@ -110,8 +115,7 @@ static bool IsChildUri(const string &comparedUriStr, string &srcUriStr)
     return false;
 }
 
-int32_t FileAccessService::RegisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer,
-    bool notifyForDescendants)
+int32_t FileAccessService::RegisterNotify(Uri uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "RegisterNotify");
     shared_ptr<ObserverContext> obsContext = make_shared<ObserverContext>(observer);
@@ -119,7 +123,7 @@ int32_t FileAccessService::RegisterNotify(Uri uri, const sptr<IFileAccessObserve
     uint32_t code = obsManager_.getId([obsContext](const shared_ptr<ObserverContext> &afterContext) {
         return obsContext->EqualTo(afterContext);
     });
-    if (code == HolderManager<std::shared_ptr<ObserverContext>>::CODE_CAN_NOT_FIND) {
+    if (code == HolderManager<shared_ptr<ObserverContext>>::CODE_CAN_NOT_FIND) {
         // this is new callback, save this context
         obsContext->Ref();
         code = obsManager_.save(obsContext);
@@ -128,7 +132,7 @@ int32_t FileAccessService::RegisterNotify(Uri uri, const sptr<IFileAccessObserve
         obsManager_.get(code)->Ref();
     }
     string uriStr = uri.ToString();
-    std::lock_guard<std::mutex> lock(nodeMutex_);
+    lock_guard<mutex> lock(nodeMutex_);
     auto iter = relationshipMap_.find(uriStr);
     shared_ptr<ObserverNode> obsNode;
     if (iter != relationshipMap_.end()) {
@@ -174,10 +178,10 @@ int32_t FileAccessService::RegisterNotify(Uri uri, const sptr<IFileAccessObserve
 
 void FileAccessService::RemoveRelations(string &uriStr, shared_ptr<ObserverNode> obsNode)
 {
-    std::lock_guard<std::mutex> lock(nodeMutex_);
+    lock_guard<mutex> lock(nodeMutex_);
     for (auto &[comUri, node] : relationshipMap_) {
         auto childrenIter = find_if(node->children_.begin(), node->children_.end(),
-            [obsNode](const std::shared_ptr<ObserverNode> &obsListNode) { return obsNode == obsListNode; });
+            [obsNode](const shared_ptr<ObserverNode> &obsListNode) { return obsNode == obsListNode; });
         if (childrenIter != node->children_.end()) {
             node->children_.erase(childrenIter);
         }
@@ -190,13 +194,35 @@ void FileAccessService::RemoveRelations(string &uriStr, shared_ptr<ObserverNode>
 
 int FileAccessService::FindUri(const string &uriStr, shared_ptr<ObserverNode> &outObsNode)
 {
-    std::lock_guard<std::mutex> lock(nodeMutex_);
+    lock_guard<mutex> lock(nodeMutex_);
     auto iter = relationshipMap_.find(uriStr);
     if (iter == relationshipMap_.end()) {
         HILOG_ERROR("Can not find uri");
         return E_CAN_NOT_FIND_URI;
     }
     outObsNode = iter->second;
+    return ERR_OK;
+}
+
+int32_t FileAccessService::CleanAllNotify(Uri uri)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CleanAllNotify");
+    string uriStr = uri.ToString();
+    shared_ptr<ObserverNode> obsNode;
+    if (FindUri(uriStr, obsNode) != ERR_OK) {
+        HILOG_ERROR("Can not find unregisterNotify uri");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_CAN_NOT_FIND_URI;
+    }
+    for (auto code : obsNode->obsCodeList_) {
+        auto context = obsManager_.get(code);
+        context->UnRef();
+        if (!context->IsValid()) {
+            obsManager_.release(code);
+        }
+    }
+    RemoveRelations(uriStr, obsNode);
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
@@ -220,7 +246,7 @@ int32_t FileAccessService::UnregisterNotify(Uri uri, const sptr<IFileAccessObser
     uint32_t code = obsManager_.getId([obsContext](const shared_ptr<ObserverContext>  &afterContext) {
         return obsContext->EqualTo(afterContext);
     });
-    if (code == HolderManager<std::shared_ptr<ObserverContext>>::CODE_CAN_NOT_FIND) {
+    if (code == HolderManager<shared_ptr<ObserverContext>>::CODE_CAN_NOT_FIND) {
         HILOG_ERROR("Can not find observer");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_CALLBACK_IS_NOT_REGISTER;
@@ -266,15 +292,33 @@ int32_t FileAccessService::OnChange(Uri uri, NotifyType notifyType)
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OnChange");
     string uriStr = uri.ToString();
     shared_ptr<ObserverNode> node;
-    if (FindUri(uriStr, node) != ERR_OK) {
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        HILOG_ERROR("Can not find onChange uri");
-        return E_CAN_NOT_FIND_URI;
-    }
     NotifyMessage notifyMessage;
     notifyMessage.notifyType_ = notifyType;
-    std::vector<std::string> uris {uriStr};
+    vector<string> uris {uriStr};
     notifyMessage.uris_ = uris;
+    //When the path is not found, search for its parent path
+    if (FindUri(uriStr, node) != ERR_OK) {
+        size_t slashIndex = uriStr.rfind("/");
+        if (slashIndex == string::npos) {
+            HILOG_ERROR("Do not have parent");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+            return E_DO_NOT_HAVE_PARENT;
+        }
+        string parentUri = uriStr.substr(0, slashIndex);
+        if (FindUri(parentUri, node) != ERR_OK) {
+            HILOG_DEBUG("Can not find onChange parent uri");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+            return ERR_OK;
+        }
+        if (!node->needChildNote_) {
+            HILOG_DEBUG("Do not need send onChange message");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+            return ERR_OK;
+        }
+        SendListNotify(node->obsCodeList_, notifyMessage);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ERR_OK;
+    }
     SendListNotify(node->obsCodeList_, notifyMessage);
     if ((node->parent_ == nullptr) || (!node->parent_->needChildNote_)) {
         HILOG_DEBUG("Do not need notify parent");

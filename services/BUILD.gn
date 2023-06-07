@@ -15,7 +15,12 @@ import("//build/ohos.gni")
 import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
 
 group("user_file_managers") {
-  deps = [ ":external_file_manager_hap" ]
+  deps = [
+    ":external_file_manager_hap",
+    ":file_access_service",
+    ":file_access_service.cfg",
+    ":file_access_service_profile",
+  ]
 }
 
 ohos_hap("external_file_manager_hap") {
@@ -42,8 +47,82 @@ ohos_app_scope("external_file_manager_app_profile") {
   sources = [ "file_extension_hap/AppScope/resources" ]
 }
 
+ohos_sa_profile("file_access_service_profile") {
+  sources = [ "5010.json" ]
+  part_name = "user_file_service"
+}
+
+ohos_prebuilt_etc("file_access_service.cfg") {
+  source = "file_access_service.cfg"
+  relative_install_dir = "init"
+  subsystem_name = "filemanagement"
+  part_name = "user_file_service"
+}
+
+config("ability_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "native/file_access_service/include",
+    "${user_file_service_path}/utils",
+    "${user_file_service_path}/interfaces/inner_api/file_access/include",
+    "${user_file_service_path}/frameworks/js/napi/file_access_module",
+    "${ability_runtime_services_path}/common/include",
+    "${ability_runtime_kits_path}/ability/native/include/continuation/distributed",
+    "${ability_runtime_kits_path}/ability/native/include/continuation/kits",
+    "${ability_runtime_kits_path}/appkit/native/app/include",
+    "${ability_runtime_napi_path}/inner/napi_common",
+    "${access_token_path}/interfaces/innerkits/accesstoken/include",
+  ]
+}
+
+config("ability_public_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "native/file_access_service/include",
+    "${user_file_service_path}/utils",
+    "${ability_runtime_kits_path}/appkit/native/ability_runtime/app",
+    "${ability_runtime_kits_path}/appkit/native/app/include",
+    "${ability_runtime_kits_path}/appkit/native/ability_runtime/context",
+    "${user_file_service_path}/interfaces/kits/js/src/common",
+  ]
+}
+
 ohos_resources("external_file_manager_resources") {
   sources = [ "file_extension_hap/entry/src/main/resources" ]
   deps = [ ":external_file_manager_app_profile" ]
   hap_profile = "file_extension_hap/entry/src/main/module.json"
+}
+
+ohos_shared_library("file_access_service") {
+  include_dirs = [
+    "${user_file_service_path}/services/native/file_access_service/include",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
+  ]
+  shlib_type = "sa"
+  sources = [
+    "native/file_access_service/src/file_access_service.cpp",
+    "native/file_access_service/src/file_access_service_proxy.cpp",
+    "native/file_access_service/src/file_access_service_stub.cpp",
+    "native/file_access_service/src/observer_callback_proxy.cpp",
+    "native/file_access_service/src/observer_callback_stub.cpp",
+  ]
+  configs = [ ":ability_config" ]
+  version_script = "libfile_access_service.map"
+  public_configs = [ ":ability_public_config" ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libtokenid_sdk",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  subsystem_name = "filemanagement"
+  part_name = "user_file_service"
 }

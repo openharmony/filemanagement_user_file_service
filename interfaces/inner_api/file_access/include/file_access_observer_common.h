@@ -29,7 +29,9 @@ namespace FileAccessFwk {
 enum NotifyType {
     NOTIFY_ADD = 0,
     NOTIFY_DELETE,
-    NOTIFY_UPDATE
+    NOTIFY_MOVE_TO,
+    NOTIFY_MOVE_FROM,
+    NOTIFY_MOVE_SELE
 };
 
 struct NotifyMessage : public OHOS::Parcelable {
