@@ -204,5 +204,21 @@ void InitCopyResult(napi_env env, napi_value exports)
         sizeof(desc) / sizeof(*desc), desc, &obj);
     napi_set_named_property(env, exports, className, obj);
 }
+
+void InitNotifyType(napi_env env, napi_value exports)
+{
+    char className[] = "NotifyType";
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("NOTIFY_ADD", NVal::CreateInt32(env, ADD_EVENT).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("NOTIFY_DELETE", NVal::CreateInt32(env, DELETE_EVENT).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("NOTIFY_MOVED_TO", NVal::CreateInt32(env, MOVED_TO).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("NOTIFY_MOVED_FROM", NVal::CreateInt32(env, MOVED_FROM).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("NOTIFY_MOVE_SELF", NVal::CreateInt32(env, MOVED_SELF).val_),
+    };
+    napi_value obj = nullptr;
+    napi_define_class(env, className, NAPI_AUTO_LENGTH, RootInfoConstructor, nullptr,
+        sizeof(desc) / sizeof(*desc), desc, &obj);
+    napi_set_named_property(env, exports, className, obj);
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

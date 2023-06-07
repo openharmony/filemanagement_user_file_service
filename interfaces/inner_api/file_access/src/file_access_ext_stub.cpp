@@ -71,12 +71,6 @@ int FileAccessExtStub::OnRemoteRequest(uint32_t code, MessageParcel& data, Messa
     MessageOption& option)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OnRemoteRequest");
-    if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
-        HILOG_ERROR("permission error");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_PERMISSION;
-    }
-
     std::u16string descriptor = FileAccessExtStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
@@ -90,6 +84,11 @@ int FileAccessExtStub::OnRemoteRequest(uint32_t code, MessageParcel& data, Messa
         return (this->*(itFunc->second))(data, reply);
     }
 
+    if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
+        HILOG_ERROR("permission error");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_PERMISSION;
+    }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
@@ -767,8 +766,15 @@ ErrCode FileAccessExtStub::CmdStopWatcher(MessageParcel &data, MessageParcel &re
         return EINVAL;
     }
 
+    bool isUnregisterAll = false;
+    if (!data.ReadBool(isUnregisterAll)) {
+        HILOG_ERROR("Parameter Copy fail to ReadBool isUnregisterAll");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
     Uri uri(uriString);
-    int ret = StopWatcher(uri);
+    int ret = StopWatcher(uri, isUnregisterAll);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter StopWatcher fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);

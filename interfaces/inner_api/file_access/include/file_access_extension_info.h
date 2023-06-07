@@ -71,6 +71,15 @@ constexpr int32_t READ = 0;
 constexpr int32_t WRITE = 1;
 constexpr int32_t WRITE_READ = 2;
 
+/**
+ * Indicates the supported Event change type.
+ */
+constexpr int32_t ADD_EVENT = 0;
+constexpr int32_t DELETE_EVENT = 1;
+constexpr int32_t MOVED_TO = 2;
+constexpr int32_t MOVED_FROM = 3;
+constexpr int32_t MOVED_SELF = 4;
+
 struct FileInfo : public virtual OHOS::Parcelable {
 public:
     std::string uri { "" };

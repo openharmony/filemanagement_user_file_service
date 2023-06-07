@@ -18,6 +18,7 @@
 
 #include <errors.h>
 #include <cstdint>
+#include <map>
 
 #include "iobserver_callback.h"
 #include "iremote_stub.h"
@@ -30,13 +31,14 @@ namespace FileAccessFwk {
 class ObserverCallbackStub : public IRemoteStub<IFileAccessObserver> {
 public:
     ObserverCallbackStub() = default;
-    virtual ~ObserverCallbackStub() = default;
-    int OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
-    void OnChange(NotifyMessage &notifyMessage) override {}
+    virtual ~ObserverCallbackStub();
+    int32_t OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
 
 private:
     int32_t OnChangeStub(MessageParcel &data, MessageParcel &reply);
-    int32_t ChooseCodeStub(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    void InitStubFuncMap();
+    using RequestFuncType = int (ObserverCallbackStub::*)(MessageParcel &data, MessageParcel &reply);
+    std::map<uint32_t, RequestFuncType> stubFuncMap_ = {};
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

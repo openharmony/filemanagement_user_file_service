@@ -62,8 +62,7 @@ public:
     virtual int Access(const Uri &uri, bool &isExist);
     static void SetCreator(const CreatorFunc& creator);
     virtual int StartWatcher(const Uri &uri);
-    virtual int StopWatcher(const Uri &uri);
-    virtual int Notify(Uri &uri, NotifyType notifyType);
+    virtual int StopWatcher(const Uri &uri, bool isUnregisterAll);
 private:
     static CreatorFunc creator_;
 };

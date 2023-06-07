@@ -28,6 +28,7 @@ class FileAccessServiceStub : public IRemoteStub<IFileAccessServiceBase> {
 public:
     FileAccessServiceStub();
     virtual ~FileAccessServiceStub();
+    virtual int32_t CleanAllNotify (Uri uri) = 0;
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
 private:

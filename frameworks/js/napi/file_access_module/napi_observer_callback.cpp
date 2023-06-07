@@ -83,11 +83,11 @@ void NapiObserver::OnChange(NotifyMessage &notifyMessage)
         work_ = std::make_unique<uv_work_t>();
     }
 
-    std::unique_ptr<CallbackParam> callbackParam = std::make_unique<CallbackParam>(this, notifyMessage);
     if (work_ == nullptr) {
         HILOG_ERROR("napi_get_work failed");
         return;
     }
+    std::unique_ptr<CallbackParam> callbackParam = std::make_unique<CallbackParam>(this, notifyMessage);
     work_->data = callbackParam.get();
     int ret = uv_queue_work(loop, work_.get(),
         [](uv_work_t *work) {},
@@ -107,9 +107,9 @@ void NapiObserver::OnChange(NotifyMessage &notifyMessage)
 
             napi_value callback = nullptr;
             napi_value args[ARGS_ONE] = {napiNotifyMessage.val_};
-            napi_status status = napi_get_reference_value(param->napiObserver->env_, param->napiObserver->cbOnRef_,
+            napi_status ret = napi_get_reference_value(param->napiObserver->env_, param->napiObserver->cbOnRef_,
                 &callback);
-            if (status != napi_ok) {
+            if (ret != napi_ok) {
                 HILOG_ERROR("Notify get reference failed, status:%{public}d.", status);
                 napi_close_handle_scope(param->napiObserver->env_, scope);
                 return;
@@ -117,7 +117,7 @@ void NapiObserver::OnChange(NotifyMessage &notifyMessage)
             napi_value global = nullptr;
             napi_get_global(param->napiObserver->env_, &global);
             napi_value result = nullptr;
-            napi_status ret = napi_call_function(param->napiObserver->env_, global, callback, ARGS_ONE, args, &result);
+            ret = napi_call_function(param->napiObserver->env_, global, callback, ARGS_ONE, args, &result);
             if (ret != napi_ok) {
                 HILOG_ERROR("Notify failed, status:%{public}d.", ret);
                 napi_close_handle_scope(param->napiObserver->env_, scope);
@@ -127,6 +127,7 @@ void NapiObserver::OnChange(NotifyMessage &notifyMessage)
         });
     if (ret == 0) {
         callbackParam.release();
+        work_.release();
     }
 }
 } // namespace FileAccessFwk
