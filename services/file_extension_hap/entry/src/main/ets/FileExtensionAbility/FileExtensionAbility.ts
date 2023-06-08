@@ -24,7 +24,8 @@ const deviceFlag = fileExtensionInfo.DeviceFlag;
 const documentFlag = fileExtensionInfo.DocumentFlag;
 const deviceType = fileExtensionInfo.DeviceType;
 const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
-const DEFAULT_MODE = 0;
+const DIRECTORY_MODE = 2;
+const FILE_MODE = 0;
 const FILE_SCHEME_NAME = 'file';
 const FILE_PREFIX_NAME = 'file://';
 const DOMAIN_CODE = 0x0001;
@@ -341,12 +342,17 @@ export default class FileExtAbility extends Extension {
     return code;
   }
 
-  async movedir(oldPath, newPath, mode): boolean {
+  async moveCore(oldPath, newPath): boolean {
     try {
-      // The default mode of the fs.moveDir interface is 0
-      await fs.moveDir(oldPath, newPath, mode);
+      if (fs.statSync(oldPath).isDirectory()) {
+        // The mode of the fs.moveDir interface is 2
+        await fs.moveDir(oldPath, newPath, DIRECTORY_MODE);
+      } else {
+        // The default mode of the fs.moveFileSync interface is 0
+        fs.moveFileSync(oldPath, newPath, FILE_MODE);
+      }
     } catch (e) {
-      hilog.error(DOMAIN_CODE, TAG, 'movedir error ' + e.message, 'movedir error code' + e.code);
+      hilog.error(DOMAIN_CODE, TAG, 'moveCore error ' + e.message + 'moveCore error code' + e.code);
       return false;
     }
     return true;
@@ -417,23 +423,19 @@ export default class FileExtAbility extends Extension {
           code: ERR_OK,
         };
       }
+
+      let result = this.moveCore(oldPath, newPath);
+      if (result) {
+        return {
+          uri: newFileUri,
+          code: ERR_OK,
+        };
+      }
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
       return {
         uri: '',
         code: e.code,
-      };
-    }
-    let result = this.movedir(srcPath, destPath, DEFAULT_MODE);
-    if (result) {
-      return {
-        uri: newFileUri,
-        code: ERR_OK,
-      };
-    } else {
-      return {
-        uri: '',
-        code: E_GETRESULT,
       };
     }
   }
