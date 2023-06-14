@@ -822,13 +822,13 @@ int JsFileAccessExtAbility::ListFile(const FileInfo &fileInfo, const int64_t off
 
         NativeValue *nativeOffset = engine.CreateNumber(offset);
         if (nativeOffset == nullptr) {
-            HILOG_ERROR("create nativeMaxNum native js value fail.");
+            HILOG_ERROR("create offset native js value fail.");
             return false;
         }
 
         NativeValue *nativeMaxCount = engine.CreateNumber(maxCount);
         if (nativeMaxCount == nullptr) {
-            HILOG_ERROR("create nativeMaxNum native js value fail.");
+            HILOG_ERROR("create maxCount native js value fail.");
             return false;
         }
 
