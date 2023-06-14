@@ -15,18 +15,15 @@
 // @ts-nocheck
 import Extension from '@ohos.application.FileAccessExtensionAbility';
 import fs from '@ohos.file.fs';
-import { init, addVolumeInfoById, delVolumeInfo, getVolumeInfoList } from './VolumeManager';
-import { onReceiveEvent } from './Subcriber';
 import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
 import hilog from '@ohos.hilog';
-
 const deviceFlag = fileExtensionInfo.DeviceFlag;
 const documentFlag = fileExtensionInfo.DocumentFlag;
 const deviceType = fileExtensionInfo.DeviceType;
 const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
 const DIRECTORY_MODE = 2;
 const FILE_MODE = 0;
-const FILE_SCHEME_NAME = 'file';
+const DEFAULT_MODE = 0;
 const FILE_PREFIX_NAME = 'file://';
 const DOMAIN_CODE = 0x0001;
 const TAG = 'ExternalFileManager';
@@ -74,16 +71,7 @@ enum updataEvent {
 
 export default class FileExtAbility extends Extension {
   onCreate(want): void {
-    init();
-    onReceiveEvent(function (data) {
-      hilog.info(DOMAIN_CODE, TAG, 'received volume event: ' + data.event);
-      if (data.event === 'usual.event.data.VOLUME_MOUNTED') {
-        hilog.info(DOMAIN_CODE, TAG, 'new device has mounted, volume id is ' + data.parameters.id);
-        addVolumeInfoById(data.parameters.id);
-      } else {
-        delVolumeInfo(data.parameters.id);
-      }
-    });
+    hilog.info(DOMAIN_CODE, TAG, 'Extension init process');
   }
 
   encode(uri): string {
@@ -536,7 +524,6 @@ export default class FileExtAbility extends Extension {
         code: E_GETRESULT,
       };
     }
-
     try {
       let fileName = fs.listFileSync(path);
       for (let i = 0; i < fileName.length; i++) {
@@ -625,6 +612,10 @@ export default class FileExtAbility extends Extension {
     };
   }
 
+  volumePath2uri(path): string {
+    return `file://com.ohos.UserFile.ExternalFileManager/mnt/external/${path}`;
+  }
+
   getRoots() {
     let roots = [
       {
@@ -634,11 +625,33 @@ export default class FileExtAbility extends Extension {
         deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
       },
     ];
-    roots = roots.concat(getVolumeInfoList());
-    return {
-      roots: roots,
-      code: ERR_OK,
-    };
+    try {
+      let rootPath = '/mnt/external';
+      let volumeInfoList = [];
+      let volumeName = fs.listFileSync(rootPath);
+      hilog.info(DOMAIN_CODE, TAG, 'listFileSync-result: ' + volumeName);
+      for (let i = 0; i < volumeName.length; i++) {
+        let volumeInfo = {
+          uri: this.volumePath2uri(volumeName[i]),
+          displayName: volumeName[i],
+          deviceType: deviceType.DEVICE_EXTERNAL_USB,
+          deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
+        };
+        hilog.info(DOMAIN_CODE, TAG, 'volumeInfo-uri: ' + volumeInfo.uri);
+        volumeInfoList.push(volumeInfo);
+      }
+      roots = roots.concat(volumeInfoList);
+      return {
+        roots: roots,
+        code: ERR_OK,
+      };
+    } catch (e) {
+      hilog.error(DOMAIN_CODE, TAG, 'getRoots errorcode: ' + e.code, ' message: ' + e.message);
+      return {
+        roots: [],
+        code: e.code,
+      };
+    }
   }
 
   getNormalResult(dirPath, column, queryResults): void {
