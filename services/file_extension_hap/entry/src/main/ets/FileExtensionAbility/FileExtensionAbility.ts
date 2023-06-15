@@ -374,6 +374,7 @@ export default class FileExtAbility extends Extension {
         };
       }
 
+      newPath = this.getPath(targetParentUri);
       if (fs.statSync(oldPath).isDirectory()) {
         await fs.moveDir(oldPath, newPath, DIRECTORY_MODE);
       } else {
