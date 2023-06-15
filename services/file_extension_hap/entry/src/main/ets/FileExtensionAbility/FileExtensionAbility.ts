@@ -168,28 +168,6 @@ export default class FileExtAbility extends Extension {
     return newFileUri;
   }
 
-  recurseDir(path, cb): void {
-    try {
-      let stat = fs.statSync(path);
-      if (stat.isDirectory()) {
-        let fileName = fs.listFileSync(path);
-        for (let fileLen = 0; fileLen < fileName.length; fileLen++) {
-          stat = fs.statSync(path + '/' + fileName[fileLen]);
-          if (stat.isDirectory()) {
-            this.recurseDir(path + '/' + fileName[fileLen], cb);
-          } else {
-            cb(path + '/' + fileName[fileLen], false);
-          }
-        }
-      } else {
-        cb(path, false);
-      }
-    } catch (e) {
-      hilog.error(DOMAIN_CODE, TAG, 'recurseDir error ' + e.message);
-      cb(path, true);
-    }
-  }
-
   isCrossDeviceLink(sourceFileUri, targetParentUri): boolean {
     let roots = this.getRoots().roots;
     for (let index = 0; index < roots.length; index++) {
@@ -330,23 +308,7 @@ export default class FileExtAbility extends Extension {
     return code;
   }
 
-  async moveCore(oldPath, newPath): boolean {
-    try {
-      if (fs.statSync(oldPath).isDirectory()) {
-        // The mode of the fs.moveDir interface is 2
-        await fs.moveDir(oldPath, newPath, DIRECTORY_MODE);
-      } else {
-        // The default mode of the fs.moveFileSync interface is 0
-        fs.moveFileSync(oldPath, newPath, FILE_MODE);
-      }
-    } catch (e) {
-      hilog.error(DOMAIN_CODE, TAG, 'moveCore error ' + e.message + 'moveCore error code' + e.code);
-      return false;
-    }
-    return true;
-  }
-
-  move(sourceFileUri, targetParentUri): {string, number} {
+  async move(sourceFileUri, targetParentUri): {string, number} {
     sourceFileUri = this.decode(sourceFileUri);
     targetParentUri = this.decode(targetParentUri);
     if (sourceFileUri === '' || targetParentUri === '') {
@@ -412,13 +374,15 @@ export default class FileExtAbility extends Extension {
         };
       }
 
-      let result = this.moveCore(oldPath, newPath);
-      if (result) {
-        return {
+      if (fs.statSync(oldPath).isDirectory()) {
+        await fs.moveDir(oldPath, newPath, DIRECTORY_MODE);
+      } else {
+        fs.moveFileSync(oldPath, newPath, FILE_MODE);
+      }
+      return {
           uri: newFileUri,
           code: ERR_OK,
-        };
-      }
+      };
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
       return {
