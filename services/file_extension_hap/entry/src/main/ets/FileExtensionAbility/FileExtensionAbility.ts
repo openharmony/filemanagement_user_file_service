@@ -308,7 +308,7 @@ export default class FileExtAbility extends Extension {
     return code;
   }
 
-  async move(sourceFileUri, targetParentUri): {string, number} {
+  move(sourceFileUri, targetParentUri): {string, number} {
     sourceFileUri = this.decode(sourceFileUri);
     targetParentUri = this.decode(targetParentUri);
     if (sourceFileUri === '' || targetParentUri === '') {
@@ -376,7 +376,7 @@ export default class FileExtAbility extends Extension {
 
       if (fs.statSync(oldPath).isDirectory()) {
         newPath = this.getPath(targetParentUri);
-        await fs.moveDir(oldPath, newPath, DIRECTORY_MODE);
+        fs.moveDirSync(oldPath, newPath, DIRECTORY_MODE);
       } else {
         fs.moveFileSync(oldPath, newPath, FILE_MODE);
       }
