@@ -374,15 +374,9 @@ export default class FileExtAbility extends Extension {
         };
       }
 
-      if (fs.statSync(oldPath).isDirectory()) {
-        newPath = this.getPath(targetParentUri);
-        fs.moveDirSync(oldPath, newPath, DIRECTORY_MODE);
-      } else {
-        fs.moveFileSync(oldPath, newPath, FILE_MODE);
-      }
       return {
-          uri: newFileUri,
-          code: ERR_OK,
+          uri: '',
+          code: E_GETRESULT,
       };
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
