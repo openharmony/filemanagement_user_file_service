@@ -166,6 +166,28 @@ export default class FileExtAbility extends Extension {
     return newFileUri;
   }
 
+  recurseDir(path, cb): void {
+    try {
+      let stat = fs.statSync(path);
+      if (stat.isDirectory()) {
+        let fileName = fs.listFileSync(path);
+        for (let fileLen = 0; fileLen < fileName.length; fileLen++) {
+          stat = fs.statSync(path + '/' + fileName[fileLen]);
+          if (stat.isDirectory()) {
+            this.recurseDir(path + '/' + fileName[fileLen], cb);
+          } else {
+            cb(path + '/' + fileName[fileLen], false);
+          }
+        }
+      } else {
+        cb(path, false);
+      }
+    } catch (e) {
+      hilog.error(DOMAIN_CODE, TAG, 'recurseDir error ' + e.message);
+      cb(path, true);
+    }
+  }
+
   isCrossDeviceLink(sourceFileUri, targetParentUri): boolean {
     let roots = this.getRoots().roots;
     for (let index = 0; index < roots.length; index++) {
