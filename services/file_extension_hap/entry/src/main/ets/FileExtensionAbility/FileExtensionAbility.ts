@@ -21,15 +21,13 @@ const deviceFlag = fileExtensionInfo.DeviceFlag;
 const documentFlag = fileExtensionInfo.DocumentFlag;
 const deviceType = fileExtensionInfo.DeviceType;
 const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
-const DIRECTORY_MODE = 2;
-const FILE_MODE = 0;
-const DEFAULT_MODE = 0;
 const FILE_PREFIX_NAME = 'file://';
 const DOMAIN_CODE = 0x0001;
 const TAG = 'ExternalFileManager';
 const ERR_OK = 0;
 const ERR_ERROR = -1;
 const E_EXIST = 13900015;
+const ERR_PERM = 13900001;
 const E_NOEXIST = 13900002;
 const E_URIS = 14300002;
 const E_GETRESULT = 14300004;
@@ -376,7 +374,7 @@ export default class FileExtAbility extends Extension {
       //Cross device move not currently supported
       return {
           uri: '',
-          code: E_GETRESULT,
+          code: ERR_PERM,
       };
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
