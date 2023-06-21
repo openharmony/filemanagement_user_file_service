@@ -63,8 +63,9 @@ ohos_shared_library("picker") {
   deps = [
     ":picker_abc",
     ":picker_js",
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
   ]
+
+  external_deps = [ "ability_runtime:abilitykit_native" ]
 
   sanitize = {
     cfi = true
