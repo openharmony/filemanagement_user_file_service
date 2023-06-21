@@ -373,7 +373,7 @@ export default class FileExtAbility extends Extension {
           code: ERR_OK,
         };
       }
-
+      //Cross device move not currently supported
       return {
           uri: '',
           code: E_GETRESULT,
