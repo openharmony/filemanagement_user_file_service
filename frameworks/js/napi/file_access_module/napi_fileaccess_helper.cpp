@@ -48,8 +48,6 @@ namespace {
     constexpr int COPY_EXCEPTION = -1;
 }
 
-std::list<std::shared_ptr<FileAccessHelper>> g_fileAccessHelperList;
-
 static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
@@ -92,20 +90,14 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
         NError(createResult.second).ThrowErr(env);
         return nullptr;
     }
-    g_fileAccessHelperList.emplace_back(createResult.first);
 
     auto finalize = [](napi_env env, void *data, void *hint) {
         FileAccessHelper *objectInfo = static_cast<FileAccessHelper *>(data);
         if (objectInfo != nullptr) {
-            objectInfo->Release();
-            g_fileAccessHelperList.remove_if([objectInfo](const std::shared_ptr<FileAccessHelper> &fileAccessHelper) {
-                    return objectInfo == fileAccessHelper.get();
-                });
-            objectInfo = nullptr;
+            delete objectInfo;
         }
     };
     if (napi_wrap(env, thisVar, createResult.first.get(), finalize, nullptr, nullptr) != napi_ok) {
-        finalize(env, createResult.first.get(), nullptr);
         NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
@@ -161,7 +153,7 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    FileAccessHelper *fileAccessHelper = nullptr;
+    shared_ptr<FileAccessHelper> fileAccessHelper = nullptr;
     if (napi_unwrap(env, result, (void **)&fileAccessHelper) != napi_ok) {
         HILOG_ERROR("Faild to get fileAccessHelper");
         return nullptr;
@@ -251,10 +243,8 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
             sizeof(properties) / sizeof(*properties),
             properties,
             &cons));
-    g_fileAccessHelperList.clear();
     NAPI_CALL(env, napi_create_reference(env, cons, INITIAL_REFCOUNT, &g_constructorRef));
     NAPI_CALL(env, napi_set_named_property(env, exports, FILEACCESS_CLASS_NAME.c_str(), cons));
-
     napi_property_descriptor export_properties[] = {
         DECLARE_NAPI_FUNCTION("createFileAccessHelper", NAPI_CreateFileAccessHelper),
         DECLARE_NAPI_FUNCTION("getFileAccessAbilityInfo", NAPI_GetFileAccessAbilityInfo),
@@ -264,14 +254,14 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
     return exports;
 }
 
-static FileAccessHelper *GetFileAccessHelper(napi_env env, napi_value thisVar)
+static std::shared_ptr<FileAccessHelper> GetFileAccessHelper(napi_env env, napi_value thisVar)
 {
     if (thisVar == nullptr) {
         NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
 
-    FileAccessHelper *fileAccessHelper = nullptr;
+    std::shared_ptr<FileAccessHelper> fileAccessHelper = nullptr;
     if (napi_unwrap(env, thisVar, (void **)&fileAccessHelper) != napi_ok) {
         NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
@@ -329,7 +319,7 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    auto fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
@@ -383,7 +373,7 @@ napi_value NAPI_CreateFile(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    auto fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
@@ -440,7 +430,7 @@ napi_value NAPI_Mkdir(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    auto fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
@@ -497,7 +487,7 @@ napi_value NAPI_Delete(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    auto fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
@@ -551,7 +541,7 @@ napi_value NAPI_Move(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    auto fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
@@ -610,7 +600,7 @@ napi_value NAPI_Query(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    auto fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
@@ -735,7 +725,7 @@ napi_value NAPI_Copy(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    auto fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
@@ -806,7 +796,7 @@ napi_value NAPI_Rename(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    auto fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
@@ -847,7 +837,7 @@ napi_value NAPI_Rename(napi_env env, napi_callback_info info)
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
-static int MakeGetRootsResult(napi_env &env, FileAccessHelper *helper, std::vector<RootInfo> &rootInfoVec, NVal &nVal)
+static int MakeGetRootsResult(napi_env &env, shared_ptr<FileAccessHelper> helper, std::vector<RootInfo> &rootInfoVec, NVal &nVal)
 {
     auto objRootIterator = NClass::InstantiateClass(env, NapiRootIteratorExporter::className_, {});
     if (objRootIterator == nullptr) {
@@ -878,7 +868,7 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    auto fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
@@ -940,7 +930,7 @@ napi_value NAPI_Access(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    auto fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
@@ -974,7 +964,7 @@ napi_value NAPI_Access(napi_env env, napi_callback_info info)
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
-static int MakeFileInfoResult(napi_env &env, FileAccessHelper *helper, FileInfo &fileinfo, NVal &nVal)
+static int MakeFileInfoResult(napi_env &env, shared_ptr<FileAccessHelper> helper, FileInfo &fileinfo, NVal &nVal)
 {
     auto objFileInfo = NClass::InstantiateClass(env, NapiFileInfoExporter::className_, {});
     if (objFileInfo == nullptr) {
@@ -1010,7 +1000,7 @@ napi_value NAPI_GetFileInfoFromUri(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    auto fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
@@ -1072,7 +1062,7 @@ napi_value NAPI_GetFileInfoFromRelativePath(napi_env env, napi_callback_info inf
         return nullptr;
     }
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    auto fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
@@ -1165,7 +1155,7 @@ napi_value NAPI_GetThumbnail(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    auto fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         NError(EINVAL).ThrowErr(env);
         return nullptr;
@@ -1267,7 +1257,7 @@ napi_value NAPI_RegisterObserver(napi_env env, napi_callback_info info)
     }
     observerWrapper.release();
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    auto fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
@@ -1314,7 +1304,7 @@ napi_value NAPI_UnregisterObserver(napi_env env, napi_callback_info info)
     }
     auto wrapper = observerWrapper.release();
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    auto fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
