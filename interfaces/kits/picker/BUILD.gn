@@ -12,29 +12,25 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("../../../../../../arkcompiler/ets_frontend/ts2panda/ts2abc_config.gni")
+import("../../../../../../arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("../../../filemanagement_aafwk.gni")
 
 # compile .js to .abc.
 action("gen_picker_abc") {
   visibility = [ ":*" ]
-  script = "../../../../../../arkcompiler/ets_frontend/ts2panda/scripts/generate_js_bytecode.py"
+  script = "../../../../../../arkcompiler/ets_frontend/es2panda/scripts/generate_js_bytecode.py"
 
   args = [
     "--src-js",
     rebase_path("picker.js"),
     "--dst-file",
     rebase_path(target_out_dir + "/picker.abc"),
-    "--node",
-    rebase_path("${node_path}"),
     "--frontend-tool-path",
-    rebase_path("${ts2abc_build_path}"),
-    "--node-modules",
-    rebase_path("${node_modules}"),
+    rebase_path("${es2abc_build_path}"),
     "--module",
   ]
   deps =
-      [ "../../../../../../arkcompiler/ets_frontend/ts2panda:ark_ts2abc_build" ]
+      [ "../../../../../../arkcompiler/ets_frontend/es2panda:es2panda_build" ]
   inputs = [ "picker.js" ]
   outputs = [ target_out_dir + "/picker.abc" ]
 }
