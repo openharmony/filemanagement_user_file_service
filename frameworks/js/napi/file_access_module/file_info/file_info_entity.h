@@ -22,12 +22,11 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-using namespace DistributedFS;
 
 struct FileInfoEntity {
     FileAccessHelper *fileAccessHelper { nullptr };
     FileInfo fileInfo;
-    FileFilter filter { {}, {}, {}, 0, 0, false, false };
+    FileFilter filter { {}, {}, {}, FileFilter::INVALID_SIZE, FileFilter::INVALID_MODIFY_AFTER, false, false };
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
