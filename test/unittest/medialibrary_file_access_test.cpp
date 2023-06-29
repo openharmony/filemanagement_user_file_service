@@ -2993,10 +2993,10 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromRelativeP
         ASSERT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         Uri fileUri("");
-        result = g_fah->CreateFile(newDir, "file1", fileUri);
+        result = g_fah->CreateFile(newDir, "file1.jpg", fileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
-        result = g_fah->CreateFile(newDir, "file2", fileUri);
+        result = g_fah->CreateFile(newDir, "file2.jpg", fileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         relativePath = "Download/DirGetFileInfoFromRelativePath_0004";
@@ -3034,7 +3034,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0000, testi
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetThumbnail_0000";
     try {
         FileAccessFwk::FileInfo fileInfo;
-        std::string relativePath = "Pictures/CreateImageThumbnailTest_001.jpg";
+        std::string relativePath = "Documents/CreateImageThumbnailTest_001.jpg";
         int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri uri(fileInfo.uri);
@@ -3068,7 +3068,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0001, testi
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetThumbnail_0001";
     try {
         FileAccessFwk::FileInfo fileInfo;
-        std::string relativePath = "Videos/CreateVideoThumbnailTest_001.mp4";
+        std::string relativePath = "Documents/CreateVideoThumbnailTest_001.mp4";
         int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri uri(fileInfo.uri);
@@ -3102,7 +3102,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0002, testi
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetThumbnail_0002";
     try {
         FileAccessFwk::FileInfo fileInfo;
-        std::string relativePath = "Audios/CreateAudioThumbnailTest_001.mp3";
+        std::string relativePath = "Documents/CreateAudioThumbnailTest_001.mp3";
         int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri uri(fileInfo.uri);
@@ -3253,7 +3253,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0007, testi
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetThumbnail_0007";
     try {
         FileAccessFwk::FileInfo fileInfo;
-        std::string relativePath = "Pictures/CreateImageThumbnailTest_001.jpg";
+        std::string relativePath = "Documents/CreateImageThumbnailTest_001.jpg";
         int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri uri(fileInfo.uri);
@@ -3285,7 +3285,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0008, testi
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetThumbnail_0008";
     try {
         FileAccessFwk::FileInfo fileInfo;
-        std::string relativePath = "Pictures/CreateImageThumbnailTest_001.jpg";
+        std::string relativePath = "Documents/CreateImageThumbnailTest_001.jpg";
         int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri uri(fileInfo.uri);
@@ -3318,7 +3318,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0000, testing::ext
         FileAccessFwk::FileInfo fileInfo;
         std::string relativePath = "Documents/";
         std::string displayName = "Documents";
-        int targetSize = 46;
+        int targetSize = 1347231;
         int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri dirUriTest(fileInfo.uri);
@@ -3412,7 +3412,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0002, testing::ext
         FileAccessFwk::FileInfo fileInfo;
         std::string relativePath = "Documents/";
         std::string displayName = "Documents";
-        int targetSize = 46;
+        int targetSize = 1347231;
         int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri dirUriTest(fileInfo.uri);
