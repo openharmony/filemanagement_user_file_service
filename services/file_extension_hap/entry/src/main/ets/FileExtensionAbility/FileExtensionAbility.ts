@@ -24,7 +24,6 @@ import { getPath, BUNDLE_NAME, DOMAIN_CODE } from './Common';
 const deviceFlag = fileExtensionInfo.DeviceFlag;
 const documentFlag = fileExtensionInfo.DocumentFlag;
 const deviceType = fileExtensionInfo.DeviceType;
-const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
 const FILE_PREFIX_NAME = 'file://';
 
 const TAG = 'ExternalFileManager';
