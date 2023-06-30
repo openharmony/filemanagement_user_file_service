@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,14 +15,18 @@
 // @ts-nocheck
 import Extension from '@ohos.application.FileAccessExtensionAbility';
 import fs from '@ohos.file.fs';
+import type { Filter } from '@ohos.file.fs';
 import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
 import hilog from '@ohos.hilog';
+import { getFileInfos } from './ListScanFileInfo';
+import type { Fileinfo } from './Common';
+import { getPath, BUNDLE_NAME, DOMAIN_CODE } from './Common';
 const deviceFlag = fileExtensionInfo.DeviceFlag;
 const documentFlag = fileExtensionInfo.DocumentFlag;
 const deviceType = fileExtensionInfo.DeviceType;
 const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
 const FILE_PREFIX_NAME = 'file://';
-const DOMAIN_CODE = 0x0001;
+
 const TAG = 'ExternalFileManager';
 const ERR_OK = 0;
 const ERR_ERROR = -1;
@@ -105,24 +109,6 @@ export default class FileExtAbility extends Extension {
       hilog.error(DOMAIN_CODE, TAG, 'checkUri error, uri is ' + uri);
       return false;
     }
-  }
-
-  getPath(uri): string {
-    let sep = '://';
-    let arr = uri.split(sep);
-    let minLength = 2;
-    if (arr.length < minLength) {
-      return uri;
-    }
-    let path = uri.replace(arr[0] + sep, '');
-    if (arr[1].indexOf('/') > 0) {
-      path = path.replace(arr[1].split('/')[0], '');
-    }
-    path = path.replace('/' + BUNDLE_NAME, '');
-    if (path.charAt(path.length - 1) === '/') {
-      path = path.substr(0, path.length - 1);
-    }
-    return path;
   }
 
   genNewFileUri(uri, displayName) {
@@ -214,7 +200,7 @@ export default class FileExtAbility extends Extension {
       };
     }
     try {
-      let path = this.getPath(sourceFileUri);
+      let path = getPath(sourceFileUri);
       let file = fs.openSync(path, flags);
       return {
         fd: file.fd,
@@ -251,7 +237,7 @@ export default class FileExtAbility extends Extension {
           code: E_EXIST,
         };
       }
-      let path = this.getPath(newFileUri);
+      let path = getPath(newFileUri);
       let file = fs.openSync(path, fs.OpenMode.CREATE);
       fs.closeSync(file);
       newFileUri = encodeURI(newFileUri);
@@ -284,7 +270,7 @@ export default class FileExtAbility extends Extension {
     }
     try {
       let newFileUri = this.genNewFileUri(parentUri, displayName);
-      let path = this.getPath(newFileUri);
+      let path = getPath(newFileUri);
 
       fs.mkdirSync(path);
       newFileUri = encodeURI(newFileUri);
@@ -312,7 +298,7 @@ export default class FileExtAbility extends Extension {
     if (!this.checkUri(selectFileUri)) {
       return E_URIS;
     }
-    let path = this.getPath(selectFileUri);
+    let path = getPath(selectFileUri);
     let code = ERR_OK;
     try {
       let stat = fs.statSync(path);
@@ -337,7 +323,6 @@ export default class FileExtAbility extends Extension {
         code: E_URIS,
       };
     }
-
     if (!this.checkUri(sourceFileUri) || !this.checkUri(targetParentUri)) {
       return {
         uri: '',
@@ -346,8 +331,8 @@ export default class FileExtAbility extends Extension {
     }
     let displayName = this.getFileName(sourceFileUri);
     let newFileUri = this.genNewFileUri(targetParentUri, displayName);
-    let oldPath = this.getPath(sourceFileUri);
-    let newPath = this.getPath(newFileUri);
+    let oldPath = getPath(sourceFileUri);
+    let newPath = getPath(newFileUri);
     newFileUri = this.encode(newFileUri);
     if (newFileUri === '') {
       return {
@@ -355,7 +340,6 @@ export default class FileExtAbility extends Extension {
         code: E_URIS,
       };
     }
-
     if (oldPath === newPath) {
       // move to the same directory
       return {
@@ -378,7 +362,7 @@ export default class FileExtAbility extends Extension {
           code: E_GETRESULT,
         };
       }
-      let stat = fs.statSync(this.getPath(targetParentUri));
+      let stat = fs.statSync(getPath(targetParentUri));
       if (!stat || !stat.isDirectory()) {
         return {
           uri: '',
@@ -424,8 +408,8 @@ export default class FileExtAbility extends Extension {
     }
     try {
       let newFileUri = this.renameUri(sourceFileUri, displayName);
-      let oldPath = this.getPath(sourceFileUri);
-      let newPath = this.getPath(newFileUri);
+      let oldPath = getPath(sourceFileUri);
+      let newPath = getPath(newFileUri);
       fs.renameSync(oldPath, newPath);
       newFileUri = encodeURI(newFileUri);
       return {
@@ -458,7 +442,7 @@ export default class FileExtAbility extends Extension {
     }
     let isAccess = false;
     try {
-      let path = this.getPath(sourceFileUri);
+      let path = getPath(sourceFileUri);
       isAccess = fs.accessSync(path);
       if (!isAccess) {
         return {
@@ -479,68 +463,43 @@ export default class FileExtAbility extends Extension {
     };
   }
 
-  listFile(sourceFileUri, offset, count, filter) {
+  listFile(sourceFileUri: string, offset: number, count: number, filter: Filter) :
+  {infos: Fileinfo[], code: number} {
+    let infos : Fileinfo[] = [];
     sourceFileUri = this.decode(sourceFileUri);
     if (sourceFileUri === '') {
       return {
-        uri: '',
+        infos: [],
         code: E_URIS,
       };
     }
-
     if (!this.checkUri(sourceFileUri)) {
       return {
         infos: [],
         code: E_URIS,
       };
     }
-    let infos = [];
-    let path = this.getPath(sourceFileUri);
-    let statPath = fs.statSync(path);
-    if (!statPath.isDirectory()) {
+    return getFileInfos(sourceFileUri, offset, count, filter, false);
+  }
+
+  scanFile(sourceFileUri: string, offset: number, count: number, filter: Filter) :
+  {infos: Fileinfo[], code: number} {
+    let infos : Fileinfo[] = [];
+    sourceFileUri = this.decode(sourceFileUri);
+    if (sourceFileUri === '') {
       return {
         infos: [],
-        code: E_GETRESULT,
+        code: E_URIS,
       };
     }
-    try {
-      let fileName = fs.listFileSync(path);
-      for (let i = 0; i < fileName.length; i++) {
-        if (offset > i) {
-          continue;
-        }
-        if (i === (offset + count)) {
-          break;
-        }
-        let mode = documentFlag.SUPPORTS_READ | documentFlag.SUPPORTS_WRITE;
-        let stat = fs.statSync(path + '/' + fileName[i]);
-        if (stat.isDirectory()) {
-          mode |= documentFlag.REPRESENTS_DIR;
-        } else {
-          mode |= documentFlag.REPRESENTS_FILE;
-        }
-        let newFileUri = this.genNewFileUri(sourceFileUri, fileName[i]);
-        newFileUri = encodeURI(newFileUri);
-        infos.push({
-          uri: newFileUri,
-          fileName: fileName[i],
-          mode: mode,
-          size: stat.size,
-          mtime: stat.mtime,
-          mimeType: '',
-        });
-      }
-    } catch (e) {
-      hilog.error(DOMAIN_CODE, TAG, 'listFile error ' + e.message);
+    if (!this.checkUri(sourceFileUri)) {
       return {
         infos: [],
-        code: E_GETRESULT,
+        code: E_URIS,
       };
     }
-    return {
-      infos: infos,
-      code: ERR_OK,
-    };
+
+    return getFileInfos(sourceFileUri, offset, count, filter, true);
   }
 
   getFileInfoFromUri(selectFileUri) {
@@ -560,7 +519,7 @@ export default class FileExtAbility extends Extension {
     }
     let fileInfo = {};
     try {
-      let path = this.getPath(selectFileUri);
+      let path = getPath(selectFileUri);
       let fileName = this.getFileName(path);
       let stat = fs.statSync(path);
       let mode = documentFlag.SUPPORTS_READ | documentFlag.SUPPORTS_WRITE;
@@ -687,7 +646,7 @@ export default class FileExtAbility extends Extension {
 
     let queryResults = [];
     try {
-      let dirPath = this.getPath(uri);
+      let dirPath = getPath(uri);
       let stat = fs.statSync(dirPath);
       for (let index in columns) {
         let column = columns[index];
@@ -720,7 +679,7 @@ export default class FileExtAbility extends Extension {
     if (!this.checkUri(uri)) {
       return E_URIS;
     }
-    let watchPath = this.getPath(uri);
+    let watchPath = getPath(uri);
     try {
       let watcher = fs.createWatcher(watchPath, CREATE_EVENT_CODE | DELETE_EVENT_CODE | UPDATE_EVENT_CODE, (data) => {
         try {

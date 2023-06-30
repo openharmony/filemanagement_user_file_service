@@ -2086,7 +2086,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0001, testing::
         int64_t offset = 0;
         int64_t maxCount = 1000;
         vector<FileAccessFwk::FileInfo> fileInfoVec;
-        FileFilter filter({}, {}, {}, 0, 0, false, false);
+        FileFilter filter({}, {}, {}, -1, -1, false, false);
         int result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
@@ -2122,7 +2122,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0002, testing::
         int64_t offset = 0;
         int64_t maxCount = 1000;
         vector<FileAccessFwk::FileInfo> fileInfoVec;
-        FileFilter filter({}, {}, {}, 0, 0, false, false);
+        FileFilter filter({}, {}, {}, -1, -1, false, false);
         result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
@@ -2192,7 +2192,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0004, testing::
         int64_t offset = 0;
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
-        FileFilter filter({".txt"}, {}, {}, 0, 0, false, true);
+        FileFilter filter({".txt"}, {}, {}, -1, 1, false, true);
         result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), 1);
@@ -2247,7 +2247,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0005, testing::
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
         g_num = 0;
-        FileFilter filter({".txt"}, {}, {}, 0, 0, false, true);
+        FileFilter filter({".txt"}, {}, {}, -1, -1, false, true);
         for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
             std::thread execthread(ListFileTdd, g_fah, fileInfo, offset, maxCount, filter, fileInfoVec);
             execthread.join();
@@ -2287,7 +2287,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0000, testing::
         int64_t offset = 0;
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
-        FileFilter filter({".q1w2e3r4"}, {}, {}, 0, 0, false, true);
+        FileFilter filter({".q1w2e3r4"}, {}, {}, -1, -1, false, true);
         result = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_GE(fileInfoVec.size(), 1);
@@ -2326,7 +2326,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0001, testing::
         int64_t offset = 0;
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
-        FileFilter filter({}, {}, {}, 0, 0, false, false);
+        FileFilter filter({}, {}, {}, -1, -1, false, false);
         result = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_GE(fileInfoVec.size(), 2);
@@ -2367,11 +2367,11 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0002, testing::
         int64_t offset = 0;
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
-        FileFilter filter({".q1w2e3r4"}, {}, {}, 0, 0, false, true);
+        FileFilter filter({".q1w2e3r4"}, {}, {}, -1, -1, false, true);
         result = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), 1);
-        FileFilter filter1({".q1w2e3r4", ".txt"}, {}, {}, 0, 0, false, true);
+        FileFilter filter1({".q1w2e3r4", ".txt"}, {}, {}, -1, -1, false, true);
         result = g_fah->ScanFile(fileInfo, offset, maxCount, filter1, fileInfoVec);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), 2);
@@ -2408,7 +2408,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0003, testing::
         int64_t offset = 0;
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
-        FileFilter filter({".q1w2e3r4"}, {}, {}, 0, 0, false, true);
+        FileFilter filter({".q1w2e3r4"}, {}, {}, -1, -1, false, true);
         result = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), 1);
@@ -2462,7 +2462,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0004, testing::
         int64_t offset = 0;
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
-        FileFilter filter({".q1w2e3r4"}, {}, {}, 0, 0, false, true);
+        FileFilter filter({".q1w2e3r4"}, {}, {}, -1, -1, false, true);
         g_num = 0;
         for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
             std::thread execthread(ScanFileTdd, fileInfo, offset, maxCount, filter, fileInfoVec);
@@ -2542,7 +2542,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0005, testing::
         int64_t offset = 0;
         int64_t maxCount = 1000;
         std::vector<FileInfo> fileInfoVec;
-        FileFilter filter({".q1w2e3r4"}, {}, {}, 0, 0, false, true);
+        FileFilter filter({".q1w2e3r4"}, {}, {}, -1, -1, false, true);
         result = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_EQ(result, OHOS::FileAccessFwk::E_IPCS);
         EXPECT_EQ(fileInfoVec.size(), 0);

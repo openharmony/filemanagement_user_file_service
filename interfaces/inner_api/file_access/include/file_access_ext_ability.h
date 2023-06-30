@@ -28,7 +28,6 @@ class Runtime;
 }
 namespace FileAccessFwk {
 using namespace Media;
-using namespace DistributedFS;
 using namespace AbilityRuntime;
 class FileAccessExtAbility;
 using CreatorFunc = std::function<FileAccessExtAbility* (const std::unique_ptr<Runtime>& runtime)>;

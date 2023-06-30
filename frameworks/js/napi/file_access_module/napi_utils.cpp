@@ -78,8 +78,6 @@ int GetFileFilterParam(const NVal &argv, FileFilter &filter)
         }
         filter.SetSuffix(suffixs);
         filter.SetHasFilter(true);
-    } else {
-        return EINVAL;
     }
 
     if (argv.HasProp("displayName")) {
@@ -113,7 +111,10 @@ int GetFileFilterParam(const NVal &argv, FileFilter &filter)
             HILOG_ERROR("FileFilter get fileSizeOver param fail.");
             return EINVAL;
         }
-
+        if (fileSizeOver < 0) {
+            HILOG_ERROR("FileFilter fileSizeOver need not less than 0.");
+            return EINVAL;
+        }
         filter.SetFileSizeOver(fileSizeOver);
         filter.SetHasFilter(true);
     }
@@ -125,7 +126,10 @@ int GetFileFilterParam(const NVal &argv, FileFilter &filter)
             HILOG_ERROR("FileFilter get lastModifiedAfter param fail.");
             return EINVAL;
         }
-
+        if (lastModifiedAfter < 0) {
+            HILOG_ERROR("FileFilter lastModifiedAfter need not less than 0.");
+            return EINVAL;
+        }
         filter.SetLastModifiedAfter(lastModifiedAfter);
         filter.SetHasFilter(true);
     }

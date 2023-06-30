@@ -48,6 +48,12 @@ using namespace OHOS::AppExecFwk;
 using namespace OHOS::AbilityRuntime;
 using OHOS::Security::AccessToken::AccessTokenKit;
 
+struct FilterParam {
+    FileInfo fileInfo;
+    int64_t offset;
+    int64_t maxCount;
+};
+
 JsFileAccessExtAbility* JsFileAccessExtAbility::Create(const std::unique_ptr<Runtime> &runtime)
 {
     return new JsFileAccessExtAbility(static_cast<JsRuntime&>(*runtime));
@@ -699,7 +705,7 @@ static int MakeStringNativeArray(NativeEngine &engine, std::vector<std::string> 
     }
 
     bool ret = false;
-    for (uint32_t i = 0; i < nativeArray->GetLength(); i++) {
+    for (uint32_t i = 0; i < inputArray.size(); i++) {
         NativeValue* nativeValue = engine.CreateString(inputArray[i].c_str(), inputArray[i].length());
         if (nativeValue == nullptr) {
             HILOG_ERROR("Create NativeValue fail.");
@@ -718,12 +724,6 @@ static int MakeStringNativeArray(NativeEngine &engine, std::vector<std::string> 
 
 static int MakeJsNativeFileFilter(NativeEngine &engine, const FileFilter &filter, NativeValue *nativeFilter)
 {
-    nativeFilter = engine.CreateObject();
-    if (nativeFilter == nullptr) {
-        HILOG_ERROR("Create js NativeValue fail.");
-        return E_GETRESULT;
-    }
-
     NativeValue *suffixArray = engine.CreateArray(filter.GetSuffix().size());
     if (suffixArray == nullptr) {
         HILOG_ERROR("Create Suffix native array value fail.");
@@ -786,7 +786,6 @@ static int MakeJsNativeFileFilter(NativeEngine &engine, const FileFilter &filter
         HILOG_ERROR("Convert js object fail.");
         return E_GETRESULT;
     }
-
     bool ret = objFilter->SetProperty("suffix", suffixArray);
     ret = ret && objFilter->SetProperty("displayName", displayNameArray);
     ret = ret && objFilter->SetProperty("mimeType", mimeTypeArray);
@@ -799,6 +798,57 @@ static int MakeJsNativeFileFilter(NativeEngine &engine, const FileFilter &filter
     }
 
     return ERR_OK;
+}
+
+static bool BuildFilterParam(NativeEngine &engine, const FileFilter &filter, const FilterParam &param,
+    NativeValue *argv[], size_t &argc)
+{
+    string uriStr = param.fileInfo.uri;
+    NativeValue *uri = engine.CreateString(uriStr.c_str(), uriStr.length());
+    if (uri == nullptr) {
+        HILOG_ERROR("Create sourceFile uri native js value fail.");
+        return false;
+    }
+
+    NativeValue *nativeOffset = engine.CreateNumber(param.offset);
+    if (nativeOffset == nullptr) {
+        HILOG_ERROR("Create offset native js value fail.");
+        return false;
+    }
+
+    NativeValue *nativeMaxCount = engine.CreateNumber(param.maxCount);
+    if (nativeMaxCount == nullptr) {
+        HILOG_ERROR("Create maxCount native js value fail.");
+        return false;
+    }
+
+    NativeValue *nativeFilter = nullptr;
+    if (filter.GetHasFilter()) {
+        nativeFilter = engine.CreateObject();
+        if (nativeFilter == nullptr) {
+            HILOG_ERROR("Create js NativeValue fail.");
+            return false;
+        }
+        int ret = MakeJsNativeFileFilter(engine, filter, nativeFilter);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("Create js NativeValue fail.");
+            return false;
+        }
+    } else {
+        nativeFilter = engine.CreateNull();
+        if (nativeFilter == nullptr) {
+            HILOG_ERROR("Create js NativeValue fail.");
+            return false;
+        }
+    }
+
+    argv[ARGC_ZERO] = uri;
+    argv[ARGC_ONE] = nativeOffset;
+    argv[ARGC_TWO] = nativeMaxCount;
+    argv[ARGC_THREE] = nativeFilter;
+    argc = ARGC_FOUR;
+
+    return true;
 }
 
 int JsFileAccessExtAbility::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
@@ -814,45 +864,12 @@ int JsFileAccessExtAbility::ListFile(const FileInfo &fileInfo, const int64_t off
 
     auto argParser =
         [fileInfo, offset, maxCount, filter](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
-        NativeValue *uri = engine.CreateString(fileInfo.uri.c_str(), fileInfo.uri.length());
-        if (uri == nullptr) {
-            HILOG_ERROR("create sourceFile uri native js value fail.");
-            return false;
-        }
+        struct FilterParam param;
+        param.fileInfo = fileInfo;
+        param.offset = offset;
+        param.maxCount = maxCount;
 
-        NativeValue *nativeOffset = engine.CreateNumber(offset);
-        if (nativeOffset == nullptr) {
-            HILOG_ERROR("create offset native js value fail.");
-            return false;
-        }
-
-        NativeValue *nativeMaxCount = engine.CreateNumber(maxCount);
-        if (nativeMaxCount == nullptr) {
-            HILOG_ERROR("create maxCount native js value fail.");
-            return false;
-        }
-
-        NativeValue* nativeFilter = nullptr;
-        if (filter.GetHasFilter()) {
-            int ret = MakeJsNativeFileFilter(engine, filter, nativeFilter);
-            if (ret != ERR_OK) {
-                HILOG_ERROR("Create js NativeValue fail.");
-                return ret;
-            }
-        } else {
-            nativeFilter = engine.CreateNull();
-            if (nativeFilter == nullptr) {
-                HILOG_ERROR("Create js NativeValue fail.");
-                return E_GETRESULT;
-            }
-        }
-
-        argv[ARGC_ZERO] = uri;
-        argv[ARGC_ONE] = nativeOffset;
-        argv[ARGC_TWO] = nativeMaxCount;
-        argv[ARGC_THREE] = nativeFilter;
-        argc = ARGC_FOUR;
-        return true;
+        return BuildFilterParam(engine, filter, param, argv, argc);
     };
     auto retParser = [value](NativeEngine &engine, NativeValue *result) -> bool {
         Value<std::vector<FileInfo>> fileInfo;
@@ -867,6 +884,57 @@ int JsFileAccessExtAbility::ListFile(const FileInfo &fileInfo, const int64_t off
     };
 
     auto errCode = CallJsMethod("listFile", jsRuntime_, jsObj_.get(), argParser, retParser);
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return errCode;
+    }
+
+    if (value->code != ERR_OK) {
+        HILOG_ERROR("fileio fail.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return value->code;
+    }
+
+    fileInfoVec = std::move(value->data);
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
+int JsFileAccessExtAbility::ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
+    const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ScanFile");
+    auto value = std::make_shared<Value<std::vector<FileInfo>>>();
+    if (value == nullptr) {
+        HILOG_ERROR("ScanFile value is nullptr.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_GETRESULT;
+    }
+
+    auto argParser =
+        [fileInfo, offset, maxCount, filter](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
+        struct FilterParam param;
+        param.fileInfo = fileInfo;
+        param.offset = offset;
+        param.maxCount = maxCount;
+
+        return BuildFilterParam(engine, filter, param, argv, argc);
+    };
+
+    auto retParser = [value](NativeEngine &engine, NativeValue *result) -> bool {
+        Value<std::vector<FileInfo>> fileInfo;
+        bool ret = ParserListFileJsResult(engine, result, fileInfo);
+        if (!ret) {
+            HILOG_ERROR("Parser js value fail.");
+            return ret;
+        }
+
+        *value = std::move(fileInfo);
+        return true;
+    };
+
+    auto errCode = CallJsMethod("scanFile", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
