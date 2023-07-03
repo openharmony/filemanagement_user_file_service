@@ -24,13 +24,13 @@ import { getPath, BUNDLE_NAME, DOMAIN_CODE } from './Common';
 const deviceFlag = fileExtensionInfo.DeviceFlag;
 const documentFlag = fileExtensionInfo.DocumentFlag;
 const deviceType = fileExtensionInfo.DeviceType;
-const DEFAULT_MODE = 0;
 const FILE_PREFIX_NAME = 'file://';
 
 const TAG = 'ExternalFileManager';
 const ERR_OK = 0;
 const ERR_ERROR = -1;
 const E_EXIST = 13900015;
+const ERR_PERM = 13900001;
 const E_NOEXIST = 13900002;
 const E_URIS = 14300002;
 const E_GETRESULT = 14300004;
@@ -313,17 +313,6 @@ export default class FileExtAbility extends Extension {
     return code;
   }
 
-  async movedir(oldPath, newPath, mode): boolean {
-    try {
-      // The default mode of the fs.moveDir interface is 0
-      await fs.moveDir(oldPath, newPath, mode);
-    } catch (e) {
-      hilog.error(DOMAIN_CODE, TAG, 'movedir error ' + e.message, 'movedir error code' + e.code);
-      return false;
-    }
-    return true;
-  }
-
   move(sourceFileUri, targetParentUri): {string, number} {
     sourceFileUri = this.decode(sourceFileUri);
     targetParentUri = this.decode(targetParentUri);
@@ -387,23 +376,16 @@ export default class FileExtAbility extends Extension {
           code: ERR_OK,
         };
       }
+      //Cross device move not currently supported
+      return {
+          uri: '',
+          code: ERR_PERM,
+      };
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
       return {
         uri: '',
         code: e.code,
-      };
-    }
-    let result = this.movedir(srcPath, destPath, DEFAULT_MODE);
-    if (result) {
-      return {
-        uri: newFileUri,
-        code: ERR_OK,
-      };
-    } else {
-      return {
-        uri: '',
-        code: E_GETRESULT,
       };
     }
   }
