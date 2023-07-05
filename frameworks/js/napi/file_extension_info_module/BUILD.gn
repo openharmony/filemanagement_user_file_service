@@ -35,6 +35,6 @@ ohos_shared_library("fileextensioninfo") {
     "ability_base:want",
     "c_utils:utils",
     "file_api:filemgmt_libn",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 }
