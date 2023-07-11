@@ -1862,7 +1862,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0001, testing::ex
         result = g_fah->Rename(newDirUriTest, "testRename", renameUri);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Rename_0001 result:" << result;
-        result = g_fah->Delete(newDirUriTest);
+        result = g_fah->Delete(renameUri);
         EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
         GTEST_LOG_(ERROR) << "medialibrary_file_access_Rename_0001 occurs an exception.";
