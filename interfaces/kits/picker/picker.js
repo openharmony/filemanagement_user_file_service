@@ -72,11 +72,7 @@ function getErr(errCode) {
   return {code: errCode, message: ERRCODE_MAP.get(errCode)};
 }
 
-async function photoPickerSelect(...args) {
-  if (!checkArguments(args)) {
-    console.log('[picker] Invalid argument');
-    throw Error(getErr(ErrCode.INVALID_ARGS));
-  }
+function parsePhotoPickerSelectOption(args) {
   let config = {
     action: 'ohos.want.action.photoPicker',
     type: 'multipleselect',
@@ -84,49 +80,90 @@ async function photoPickerSelect(...args) {
       uri: 'multipleselect',
     },
   }
+
   if (args.length > ARGS_ZERO && typeof args[ARGS_ZERO] === 'object') {
     let option = args[ARGS_ZERO];
-    if (option.maxSelectNumber > 0) {
+    if (option.maxSelectNumber && option.maxSelectNumber > 0) {
       let select = (option.maxSelectNumber === 1) ? 'singleselect' : 'multipleselect';
       config.type = select;
       config.parameters.uri = select;
       config.parameters.maxSelectCount = option.maxSelectNumber;
     }
-    if (option.MIMEType.length > 0 && PHOTO_VIEW_MIME_TYPE_MAP.has(option.MIMEType)) {
+    if (option.MIMEType && PHOTO_VIEW_MIME_TYPE_MAP.has(option.MIMEType)) {
       config.parameters.filterMediaType = PHOTO_VIEW_MIME_TYPE_MAP.get(option.MIMEType);
     }
   }
+
+  return config;
+}
+
+function getPhotoPickerSelectResult(args) {
+  let selectResult = {
+    error: undefined,
+    data: undefined,
+  }
+  if (args.resultCode === 0) {
+    if (args.want && args.want.parameters) {
+      let uris = args.want.parameters['select-item-list'];
+      let isOrigin = args.want.parameters['isOriginal'];
+      selectResult.data = new PhotoSelectResult(uris, isOrigin);
+    }
+  } else if (result.resultCode === -1) {
+    selectResult.data = new PhotoSelectResult([], undefined);
+  } else {
+    selectResult.error = getErr(ErrCode.RESULT_ERROR);
+  }
+
+  return selectResult;
+}
+
+async function photoPickerSelect(...args) {
+  if (!checkArguments(args)) {
+    console.log('[picker] Invalid argument');
+    throw Error(getErr(ErrCode.INVALID_ARGS));
+  }
+
+  const config = parsePhotoPickerSelectOption(args);
   console.log('[picker] config: ' + JSON.stringify(config));
 
   try {
     let context = getContext(this);
     let result = await context.startAbilityForResult(config, {windowMode: 1});
     console.log('[picker] result: ' + JSON.stringify(result));
-    let uris = result.want.parameters['select-item-list'];
-    let isOrigin = result.want.parameters['isOriginal'];
-    if (result.resultCode === -1) {
-      result.resultCode = 0;
-      uris = [];
-    }
-    let err = (result.resultCode === 0) ? null : getErr(ErrCode.RESULT_ERROR);
-    let selectResult = (result.resultCode === 0) ? new PhotoSelectResult(uris, isOrigin) : null;
-    if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
-      return args[ARGS_ONE](err, selectResult);
-    } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
-      return args[ARGS_ZERO](err, selectResult);
-    }
-    return new Promise((resolve, reject) => {
-      if (result.resultCode === 0) {
-        resolve(selectResult);
-      } else {
-        console.log('[picker] err: ' + result.resultCode);
-        reject(result.resultCode);
-      }
-    })
+    const selectResult = getPhotoPickerSelectResult(result);
+    processResult(args, selectResult);
   } catch (error) {
     console.log('[picker] error: ' + error);
   }
-  return undefined;
+}
+
+function parseDocumentPickerSelectOption(args) {
+  let config = {
+    action: 'ohos.want.action.OPEN_FILE',
+    parameters: {
+      startMode: 'choose',
+    }
+  }
+
+  return config;
+}
+
+function getDocumentPickerSelectResult(args) {
+  let selectResult = {
+    error: undefined,
+    data: undefined
+  };
+  if (args.resultCode === 0) {
+    if (args.want && args.want.parameters) {
+      selectResult.data = args.want.parameters.select_item_list;
+    }
+  } else if (args.resultCode === -1) {
+    selectResult.data = [];
+  } else {
+    selectResult.error = getErr(ErrCode.RESULT_ERROR);
+  }
+
+  return selectResult;
 }
 
 async function documentPickerSelect(...args) {
@@ -135,50 +172,21 @@ async function documentPickerSelect(...args) {
     throw Error(getErr(ErrCode.INVALID_ARGS));
   }
 
-  let config = {
-    action: 'ohos.want.action.OPEN_FILE',
-    parameters: {
-      startMode: 'choose',
-    }
-  }
+  const config = parseDocumentPickerSelectOption(args);
   console.log('[picker] config: ' + JSON.stringify(config));
 
   try {
     let context = getContext(this);
     let result = await context.startAbilityForResult(config, {windowMode: 0});
     console.log('[picker] result: ' + JSON.stringify(result));
-    let uris = result.want.parameters.select_item_list;
-    if (result.resultCode === -1) {
-      result.resultCode = 0;
-      uris = [];
-    }
-    let err = (result.resultCode === 0) ? null : getErr(ErrCode.RESULT_ERROR);
-    let uriResult = (result.resultCode === 0) ? uris : null;
-    if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
-      return args[ARGS_ONE](err, uriResult);
-    } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
-      return args[ARGS_ZERO](err, uriResult);
-    }
-    return new Promise((resolve, reject) => {
-      if (result.resultCode === 0) {
-        resolve(uris);
-      } else {
-        console.log('[picker] err: ' + result.resultCode);
-        reject(result.resultCode);
-      }
-    })
+    const selectResult = getDocumentPickerSelectResult(result);
+    processResult(args, selectResult);
   } catch (error) {
     console.log('[picker] error: ' + error);
   }
-  return undefined;
 }
 
-async function documentPickerSave(...args) {
-  if (!checkArguments(args)) {
-    console.log('[picker] Invalid argument');
-    throw Error({code: 13900020, message: 'Invalid argument'});
-  }
-
+function parseDocumentPickerSaveOption(args) {
   let config = {
     action: 'ohos.want.action.CREATE_FILE',
     parameters: {
@@ -192,36 +200,46 @@ async function documentPickerSave(...args) {
       config.parameters.saveFile = option.newFileNames[0];
     }
   }
+
+  return config;
+}
+
+function getDocumentPickerSaveResult(args) {
+  let saveResult = {
+    error: undefined,
+    data: undefined
+  };
+  if (args.resultCode === 0) {
+    if (args.want && args.want.parameters) {
+      saveResult.data = args.want.parameters.pick_path_return;
+    }
+  } else if (args.resultCode === -1) {
+    saveResult.data = [];
+  } else {
+    saveResult.error = getErr(ErrCode.RESULT_ERROR);
+  }
+
+  return saveResult;
+}
+
+async function documentPickerSave(...args) {
+  if (!checkArguments(args)) {
+    console.log('[picker] Invalid argument');
+    throw Error({code: 13900020, message: 'Invalid argument'});
+  }
+
+  const config = parseDocumentPickerSaveOption(args);
   console.log('[picker] config: ' + JSON.stringify(config));
 
   try {
     let context = getContext(this);
     let result = await context.startAbilityForResult(config, {windowMode: 0});
     console.log('[picker] result: ' + JSON.stringify(result));
-    let uris = result.want['parameters'].pick_path_return;
-    if (result.resultCode === -1) {
-      result.resultCode = 0;
-      uris = [];
-    }
-    let err = (result.resultCode === 0) ? null : getErr(ErrCode.RESULT_ERROR);
-    let uriResult = (result.resultCode === 0) ? uris : null;
-    if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
-      return args[ARGS_ONE](err, uriResult);
-    } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
-      return args[ARGS_ZERO](err, uriResult);
-    }
-    return new Promise((resolve, reject) => {
-      if (result.resultCode === 0) {
-        resolve(uris);
-      } else {
-        console.log('[picker] err: ' + result.resultCode);
-        reject(result.resultCode);
-      }
-    })
+    const saveResult = getDocumentPickerSaveResult(result);
+    processResult(args, saveResult);
   } catch (error) {
     console.log('[picker] error: ' + error);
   }
-  return undefined;
 }
 
 async function audioPickerSelect(...args) {
@@ -230,42 +248,34 @@ async function audioPickerSelect(...args) {
     throw Error({code: 13900020, message: 'Invalid argument'});
   }
 
-  let config = {
-    action: 'ohos.want.action.OPEN_FILE',
-    parameters: {
-      startMode: 'choose',
-    }
-  }
+  const config = parseDocumentPickerSelectOption(args);
   console.log('[picker] config: ' + JSON.stringify(config));
 
   try {
     let context = getContext(this);
     let result = await context.startAbilityForResult(config, {windowMode: 0});
     console.log('[picker] result: ' + JSON.stringify(result));
-    let uris = result.want.parameters.select_item_list;
-    if (result.resultCode === -1) {
-      result.resultCode = 0;
-      uris = [];
-    }
-    let err = (result.resultCode === 0) ? null : getErr(ErrCode.RESULT_ERROR);
-    let uriResult = (result.resultCode === 0) ? uris : null;
-    if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
-      return args[ARGS_ONE](err, uriResult);
-    } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
-      return args[ARGS_ZERO](err, uriResult);
-    }
-    return new Promise((resolve, reject) => {
-      if (result.resultCode === 0) {
-        resolve(uris);
-      } else {
-        console.log('[picker] err: ' + result.resultCode);
-        reject(result.resultCode);
-      }
-    })
+    const selectResult = getDocumentPickerSelectResult(result);
+    processResult(args, selectResult);
   } catch (error) {
     console.log('[picker] error: ' + error);
   }
-  return undefined;
+}
+
+function processResult(args, result) {
+  console.log('[picker] processResult: ' + JSON.stringify(result));
+  if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
+    return args[ARGS_ONE](result.error, result.data);
+  } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
+    return args[ARGS_ZERO](result.error, result.data);
+  }
+  return new Promise((resolve, reject) => {
+    if (result.data !== undefined) {
+      resolve(result.data);
+    } else {
+      reject(result.error);
+    }
+  })
 }
 
 function PhotoSelectOptions() {
