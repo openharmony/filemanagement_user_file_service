@@ -61,7 +61,10 @@ ohos_shared_library("picker") {
     ":picker_js",
   ]
 
-  external_deps = [ "ability_runtime:abilitykit_native" ]
+  external_deps = [
+    "ability_runtime:abilitykit_native",
+    "napi:ace_napi",
+  ]
 
   sanitize = {
     cfi = true
