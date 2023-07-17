@@ -2715,7 +2715,7 @@ static double GetTime()
     return static_cast<double>(t.tv_sec);
 }
 
-static double InitListFile(Uri newDirUriTest, const std::string &caseNumber)
+static double InitListFile(Uri newDirUriTest, const std::string &caseNumber, const bool &needSleep = false)
 {
     Uri testUri1("");
     int result = g_fah->CreateFile(newDirUriTest, "external_file_access_ListFile_" + caseNumber + ".txt", testUri1);
@@ -2725,7 +2725,9 @@ static double InitListFile(Uri newDirUriTest, const std::string &caseNumber)
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri testUri3("");
     double time = GetTime();
-    sleep(1);
+    if (needSleep) {
+      sleep(2);
+    }
     result = g_fah->CreateFile(newDirUriTest, "external_file_access_ListFile_01_" + caseNumber + ".txt", testUri3);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri testUri4("");
@@ -2783,9 +2785,9 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0007, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0007";
 }
 
-static double InitListFileFolder(Uri newDirUriTest, const std::string &caseNumber)
+static double InitListFileFolder(Uri newDirUriTest, const std::string &caseNumber, const bool &needSleep = false)
 {
-    double time = InitListFile(newDirUriTest, caseNumber);
+    double time = InitListFile(newDirUriTest, caseNumber, needSleep);
     Uri folderUri("");
     int result = g_fah->Mkdir(newDirUriTest, "test" + caseNumber, folderUri);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -2948,7 +2950,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0010, testing::e
             Uri newDirUriTest("");
             result = g_fah->Mkdir(parentUri, "listfile0010", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            double time = InitListFile(newDirUriTest, "0010");
+            double time = InitListFile(newDirUriTest, "0010", true);
             ListFileFilter10(newDirUriTest, time);
             result = g_fah->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -3014,7 +3016,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0011, testing::e
             Uri newDirUriTest("");
             result = g_fah->Mkdir(parentUri, "listfile测试", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            double time = InitListFileFolder(newDirUriTest, "测试");
+            double time = InitListFileFolder(newDirUriTest, "测试", true);
             ListFileFilter11(newDirUriTest, time);
             result = g_fah->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -3025,7 +3027,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0011, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0011";
 }
 
-static double InitScanFile(Uri newDirUriTest, const std::string &caseNumber)
+static double InitScanFile(Uri newDirUriTest, const std::string &caseNumber, const bool &needSleep = false)
 {
     Uri forlderUriTest("");
     int result = g_fah->Mkdir(newDirUriTest, "test" + caseNumber, forlderUriTest);
@@ -3038,7 +3040,9 @@ static double InitScanFile(Uri newDirUriTest, const std::string &caseNumber)
     result = g_fah->CreateFile(newDirUriTest, "external_file_access_ScanFile_" + caseNumber + ".docx", testUri2);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     double time = GetTime();
-    sleep(1);
+    if (needSleep) {
+      sleep(2);
+    }
     Uri testUri3("");
     result = g_fah->CreateFile(forlderUriTest, "external_file_access_ScanFile_01_" + caseNumber + ".txt", testUri3);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -3107,7 +3111,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0000, testing::e
             Uri newDirUriTest("");
             result = g_fah->Mkdir(parentUri, "scanfile0000", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            double time = InitScanFile(newDirUriTest, "0000");
+            double time = InitScanFile(newDirUriTest, "0000", true);
             ScanFileFilter0(newDirUriTest, time);
             result = g_fah->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -3242,7 +3246,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0003, testing::e
             Uri newDirUriTest("");
             result = g_fah->Mkdir(parentUri, "scanfile0003", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            double time = InitScanFile(newDirUriTest, "0003");
+            double time = InitScanFile(newDirUriTest, "0003", true);
             ScanFileFilter3(newDirUriTest, time);
             result = g_fah->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
