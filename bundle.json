@@ -33,7 +33,7 @@
                 "hitrace",
                 "access_token",
                 "c_utils",
-                "multimedia_image_framework",
+                "image_framework",
                 "common_event_service"
             ]
         },
