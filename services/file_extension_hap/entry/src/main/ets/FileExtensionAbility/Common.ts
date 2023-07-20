@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
+const BUNDLE_NAME = 'docs';
 const DOMAIN_CODE = 0x0001;
 
 function getPath(uri): string {

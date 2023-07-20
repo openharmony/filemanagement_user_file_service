@@ -530,6 +530,7 @@ export default class FileExtAbility extends Extension {
       selectFileUri = encodeURI(selectFileUri);
       fileInfo = {
         uri: selectFileUri,
+        relativePath: path,
         fileName: fileName,
         mode: mode,
         size: stat.size,
@@ -550,20 +551,32 @@ export default class FileExtAbility extends Extension {
   }
 
   volumePath2uri(path): string {
-    return `file://com.ohos.UserFile.ExternalFileManager/mnt/external/${path}`;
+    return `file://docs/storage/External/${path}`;
   }
 
   getRoots() {
     let roots = [
       {
-        uri: 'file://com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon',
+        uri: 'file://docs/storage/local/Documents',
+        displayName: 'Documents',
+        deviceType: deviceType.DEVICE_LOCAL_DISK,
+        deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
+      },
+      {
+        uri: 'file://docs/storage/local/Download',
+        displayName: 'Download',
+        deviceType: deviceType.DEVICE_LOCAL_DISK,
+        deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
+      },
+      {
+        uri: 'file://docs/storage/Share',
         displayName: 'shared_disk',
         deviceType: deviceType.DEVICE_SHARED_DISK,
         deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
       },
     ];
     try {
-      let rootPath = '/mnt/external';
+      let rootPath = '/storage/External';
       let volumeInfoList = [];
       let volumeName = fs.listFileSync(rootPath);
       hilog.info(DOMAIN_CODE, TAG, 'listFileSync-result: ' + volumeName);
