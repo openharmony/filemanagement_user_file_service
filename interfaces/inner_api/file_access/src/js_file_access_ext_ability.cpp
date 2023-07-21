@@ -1240,7 +1240,6 @@ int JsFileAccessExtAbility::GetFileInfoFromUri(const Uri &selectFile, FileInfo &
 
         FileInfo fileInfo;
         ret = ret && ConvertFromJsValue(engine, obj->GetProperty("uri"), fileInfo.uri);
-        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("relativePath"), fileInfo.relativePath);
         ret = ret && ConvertFromJsValue(engine, obj->GetProperty("fileName"), fileInfo.fileName);
         ret = ret && ConvertFromJsValue(engine, obj->GetProperty("mode"), fileInfo.mode);
         ret = ret && ConvertFromJsValue(engine, obj->GetProperty("size"), fileInfo.size);
@@ -1270,11 +1269,6 @@ int JsFileAccessExtAbility::GetFileInfoFromUri(const Uri &selectFile, FileInfo &
     fileInfo = std::move(value->data);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
-}
-
-int JsFileAccessExtAbility::GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo)
-{
-    return E_GETRESULT;
 }
 
 NativeValue* JsFileAccessExtAbility::FuncCallback(NativeEngine* engine, NativeCallbackInfo* info)

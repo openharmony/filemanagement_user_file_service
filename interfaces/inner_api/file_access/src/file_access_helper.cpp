@@ -67,14 +67,8 @@ static bool GetBundleNameFromPath(const std::string &path, std::string &bundleNa
     bundleName = tmpPath.substr(0, index);
     if (bundleName.compare(MEDIA_BNUDLE_NAME_ALIAS) == 0) {
         bundleName = MEDIA_BNUDLE_NAME;
-        return true;
     }
-    if (bundleName.compare(EXTERNAL_BNUDLE_NAME_ALIAS) == 0) {
-        bundleName = EXTERNAL_BNUDLE_NAME;
-        return true;
-    }
-    HILOG_ERROR("Uri-authority error.");
-    return false;
+    return true;
 }
 
 static bool CheckUri(Uri &uri)
@@ -616,13 +610,19 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
 
     Uri sourceFileUri(sourceFile.ToString());
     Uri targetParentUri(targetParent.ToString());
-    if (!CheckUri(sourceFile) || !CheckUri(targetParent)) {
-        HILOG_ERROR("uri format check error.");
+    if (!CheckUri(sourceFile)) {
+        HILOG_ERROR("sourceFile format check error.");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_URIS;
     }
 
-    if (sourceFileUri.GetAuthority() != targetParentUri.GetAuthority()) {
+    if (!CheckUri(targetParent)) {
+        HILOG_ERROR("targetParent format check error.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_URIS;
+    }
+
+    if (sourceFileUri.GetScheme() != targetParentUri.GetScheme()) {
         HILOG_WARN("Operation failed, move not supported");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return EPERM;
@@ -648,7 +648,11 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
 
 static bool IsMediaUri(Uri &uri)
 {
-    return uri.GetAuthority() == MEDIA_BNUDLE_NAME_ALIAS;
+    string scheme = uri.GetScheme();
+    if (scheme == FILE_SCHEME_NAME) {
+        return uri.GetAuthority() == MEDIA_BNUDLE_NAME_ALIAS;
+    }
+    return false;
 }
 
 static int ThrowExceptionByErrorCode(int errCode, CopyResult &copyResult)
@@ -1151,7 +1155,7 @@ int FileAccessHelper::GetFileInfoFromRelativePath(std::string &selectFile, FileI
         return E_PERMISSION_SYS;
     }
 
-    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByBundleName(EXTERNAL_BNUDLE_NAME);
+    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByBundleName(MEDIA_BNUDLE_NAME);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);

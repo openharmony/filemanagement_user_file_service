@@ -71,7 +71,6 @@ public:
     int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount, const FileFilter &filter,
         std::vector<FileInfo> &fileInfoVec) override;
     int GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo) override;
-    int GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo) override;
     int GetRoots(std::vector<RootInfo> &rootInfoVec) override;
     int Access(const Uri &uri, bool &isExist) override;
     int Query(const Uri &uri, std::vector<std::string> &columns, std::vector<std::string> &results) override;
