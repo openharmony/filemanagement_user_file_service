@@ -12,29 +12,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const BUNDLE_NAME = 'com.ohos.UserFile.ExternalFileManager';
+
+import hilog from '@ohos.hilog';
+const BUNDLE_NAME = 'docs';
 const DOMAIN_CODE = 0x0001;
+const TAG = 'ExternalFileManager';
+const FILE_PREFIX_NAME = 'file://';
+
+function checkUri(uri): boolean {
+  try {
+    if (uri.indexOf(FILE_PREFIX_NAME) === 0) {
+      hilog.info(DOMAIN_CODE, TAG, 'uri is ' + uri);
+      return true;
+    } else {
+      hilog.error(DOMAIN_CODE, TAG, 'checkUri error, uri is ' + uri);
+      return false;
+    }
+  } catch (error) {
+    hilog.error(DOMAIN_CODE, TAG, 'checkUri error, uri is ' + uri);
+    return false;
+  }
+}
 
 function getPath(uri): string {
+  hilog.info(DOMAIN_CODE, TAG, 'getPath before0 ' + uri);
   let sep = '://';
   let arr = uri.split(sep);
   let minLength = 2;
   if (arr.length < minLength) {
-    return uri;
+    hilog.error(DOMAIN_CODE, TAG, 'getPath-parameter-uri format exception, uri is' + uri);
+    return '';
   }
   let path = uri.replace(arr[0] + sep, '');
-  if (arr[1].indexOf('/') > 0) {
+  if (arr[1].indexOf('/') > 0 && arr[1].split('/')[0] == BUNDLE_NAME) {
     path = path.replace(arr[1].split('/')[0], '');
+  } else {
+    hilog.error(DOMAIN_CODE, TAG, 'getPath-parameter-uri format exception, uri is ' + uri);
+    return '';
   }
-  path = path.replace('/' + BUNDLE_NAME, '');
+
   if (path.charAt(path.length - 1) === '/') {
     path = path.substr(0, path.length - 1);
   }
+  hilog.info(DOMAIN_CODE, TAG, 'getPath after ' + path);
   return path;
 }
 
 interface Fileinfo {
   uri: string,
+  relativePath: string,
   fileName: string,
   mode: number,
   size: number,
@@ -42,5 +68,5 @@ interface Fileinfo {
   mimeType: string
 }
 
-export { getPath, BUNDLE_NAME, DOMAIN_CODE };
+export { getPath, checkUri, BUNDLE_NAME, DOMAIN_CODE, FILE_PREFIX_NAME, TAG };
 export type { Fileinfo };

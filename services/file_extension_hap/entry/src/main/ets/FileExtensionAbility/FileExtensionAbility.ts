@@ -20,18 +20,17 @@ import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
 import hilog from '@ohos.hilog';
 import { getFileInfos } from './ListScanFileInfo';
 import type { Fileinfo } from './Common';
-import { getPath, BUNDLE_NAME, DOMAIN_CODE } from './Common';
+import { getPath, checkUri, BUNDLE_NAME, DOMAIN_CODE, FILE_PREFIX_NAME, TAG } from './Common';
 const deviceFlag = fileExtensionInfo.DeviceFlag;
 const documentFlag = fileExtensionInfo.DocumentFlag;
 const deviceType = fileExtensionInfo.DeviceType;
-const FILE_PREFIX_NAME = 'file://';
 
-const TAG = 'ExternalFileManager';
 const ERR_OK = 0;
 const ERR_ERROR = -1;
 const E_EXIST = 13900015;
 const ERR_PERM = 13900001;
 const E_NOEXIST = 13900002;
+const E_INVAL = 13900020;
 const E_URIS = 14300002;
 const E_GETRESULT = 14300004;
 const CREATE_EVENT_CODE = 0x00000100;
@@ -93,21 +92,6 @@ export default class FileExtAbility extends Extension {
       uri = '';
     }
     return uri;
-  }
-
-  checkUri(uri): boolean {
-    try {
-      if (uri.indexOf(FILE_PREFIX_NAME) === 0) {
-        uri = uri.replace(FILE_PREFIX_NAME, '/');
-        return true;
-      } else {
-        hilog.error(DOMAIN_CODE, TAG, 'checkUri error, uri is ' + uri);
-        return false;
-      }
-    } catch (error) {
-      hilog.error(DOMAIN_CODE, TAG, 'checkUri error, uri is ' + uri);
-      return false;
-    }
   }
 
   genNewFileUri(uri, displayName) {
@@ -192,7 +176,7 @@ export default class FileExtAbility extends Extension {
         code: E_URIS,
       };
     }
-    if (!this.checkUri(sourceFileUri)) {
+    if (!checkUri(sourceFileUri)) {
       return {
         fd: ERR_ERROR,
         code: E_URIS,
@@ -222,13 +206,14 @@ export default class FileExtAbility extends Extension {
         code: E_URIS
       };
     }
-    if (!this.checkUri(parentUri)) {
+    if (!checkUri(parentUri)) {
       return {
         uri: '',
         code: E_URIS,
       };
     }
     try {
+      hilog.info(DOMAIN_CODE, TAG, 'createFile, uri is ' + parentUri);
       let newFileUri = this.genNewFileUri(parentUri, displayName);
       if (this.access(newFileUri).isExist) {
         return {
@@ -261,7 +246,7 @@ export default class FileExtAbility extends Extension {
         code: E_URIS
       };
     }
-    if (!this.checkUri(parentUri)) {
+    if (!checkUri(parentUri)) {
       return {
         uri: '',
         code: E_URIS,
@@ -270,7 +255,6 @@ export default class FileExtAbility extends Extension {
     try {
       let newFileUri = this.genNewFileUri(parentUri, displayName);
       let path = getPath(newFileUri);
-
       fs.mkdirSync(path);
       newFileUri = encodeURI(newFileUri);
       return {
@@ -294,7 +278,7 @@ export default class FileExtAbility extends Extension {
         code: E_URIS
       };
     }
-    if (!this.checkUri(selectFileUri)) {
+    if (!checkUri(selectFileUri)) {
       return E_URIS;
     }
     let path = getPath(selectFileUri);
@@ -322,7 +306,7 @@ export default class FileExtAbility extends Extension {
         code: E_URIS,
       };
     }
-    if (!this.checkUri(sourceFileUri) || !this.checkUri(targetParentUri)) {
+    if (!checkUri(sourceFileUri) || !checkUri(targetParentUri)) {
       return {
         uri: '',
         code: E_URIS,
@@ -369,6 +353,7 @@ export default class FileExtAbility extends Extension {
         };
       }
       // If not across devices, use fs.renameSync to move
+      // 730 version after, use move interface replace and support to cross rootinfo.
       if (!this.isCrossDeviceLink(sourceFileUri, targetParentUri)) {
         fs.renameSync(oldPath, newPath);
         return {
@@ -399,7 +384,7 @@ export default class FileExtAbility extends Extension {
       };
     }
 
-    if (!this.checkUri(sourceFileUri)) {
+    if (!checkUri(sourceFileUri)) {
       return {
         uri: '',
         code: E_URIS,
@@ -432,7 +417,7 @@ export default class FileExtAbility extends Extension {
         code: E_URIS,
       };
     }
-    if (!this.checkUri(sourceFileUri)) {
+    if (!checkUri(sourceFileUri)) {
       hilog.error(DOMAIN_CODE, TAG, 'access checkUri fail');
       return {
         isExist: false,
@@ -472,7 +457,7 @@ export default class FileExtAbility extends Extension {
         code: E_URIS,
       };
     }
-    if (!this.checkUri(sourceFileUri)) {
+    if (!checkUri(sourceFileUri)) {
       return {
         infos: [],
         code: E_URIS,
@@ -491,7 +476,7 @@ export default class FileExtAbility extends Extension {
         code: E_URIS,
       };
     }
-    if (!this.checkUri(sourceFileUri)) {
+    if (!checkUri(sourceFileUri)) {
       return {
         infos: [],
         code: E_URIS,
@@ -510,7 +495,7 @@ export default class FileExtAbility extends Extension {
       };
     }
 
-    if (!this.checkUri(selectFileUri)) {
+    if (!checkUri(selectFileUri)) {
       return {
         fileInfo: {},
         code: E_URIS,
@@ -528,8 +513,10 @@ export default class FileExtAbility extends Extension {
         mode |= documentFlag.REPRESENTS_FILE;
       }
       selectFileUri = encodeURI(selectFileUri);
+      hilog.info(DOMAIN_CODE, TAG, 'getFileInfoFromUri-return-relativePath ' + path);
       fileInfo = {
         uri: selectFileUri,
+        relativePath: path,
         fileName: fileName,
         mode: mode,
         size: stat.size,
@@ -549,21 +536,102 @@ export default class FileExtAbility extends Extension {
     };
   }
 
+  checkRelativePath(selectFileRelativePath): boolean {
+    try {
+      // Processing format: The first character is '/'
+      if (selectFileRelativePath.indexOf('/') == 0) {
+        hilog.info(DOMAIN_CODE, TAG, 'checkRelativePath-path is ' + selectFileRelativePath);
+        return true;
+      } else {
+        hilog.error(DOMAIN_CODE, TAG, 'checkRelativePath error, path is ' + selectFileRelativePath);
+        return false;
+      }
+    } catch (error) {
+      hilog.error(DOMAIN_CODE, TAG, 'checkRelativePath error, path is ' + selectFileRelativePath);
+      return false;
+    }
+  }
+
+  /*
+   * selectFileRelativePath formate： /dir/file
+   */
+  getFileInfoFromRelativePath(selectFileRelativePath) {
+    let fileInfo = {};
+    if (!this.checkRelativePath(selectFileRelativePath)) {
+      return {
+        fileInfo: {},
+        code: E_INVAL,
+      };
+    }
+    try {
+      let fileName = this.getFileName(selectFileRelativePath);
+      // Processing format: Delete the last '/'
+      if (selectFileRelativePath.charAt(selectFileRelativePath.length - 1) === '/') {
+        selectFileRelativePath = selectFileRelativePath.substr(0, selectFileRelativePath.length - 1);
+      }
+      let stat = fs.statSync(selectFileRelativePath);
+      let mode = documentFlag.SUPPORTS_READ | documentFlag.SUPPORTS_WRITE;
+      if (stat.isDirectory()) {
+        mode |= documentFlag.REPRESENTS_DIR;
+      } else {
+        mode |= documentFlag.REPRESENTS_FILE;
+      }
+      let selectFileUri = encodeURI(this.relativePath2uri(selectFileRelativePath));
+      hilog.info(DOMAIN_CODE, TAG, 'getFileInfoFromRelativePath-return-selectFileUri ' + selectFileUri);
+      hilog.info(DOMAIN_CODE, TAG, 'getFileInfoFromRelativePath-return-relativePath ' + selectFileRelativePath);
+      fileInfo = {
+        uri: selectFileUri,
+        relativePath: selectFileRelativePath,
+        fileName: fileName,
+        mode: mode,
+        size: stat.size,
+        mtime: stat.mtime,
+        mimeType: '',
+      };
+    } catch (e) {
+      hilog.error(DOMAIN_CODE, TAG, 'getFileInfoFromRelativePath error ' + e.message);
+      return {
+        fileInfo: {},
+        code: e.code,
+      };
+    }
+    return {
+      fileInfo: fileInfo,
+      code: ERR_OK,
+    };
+  }
+
+  relativePath2uri(path): string {
+    return `file://docs${path}`;
+  }
+
   volumePath2uri(path): string {
-    return `file://com.ohos.UserFile.ExternalFileManager/mnt/external/${path}`;
+    return `file://docs/storage/External/${path}`;
   }
 
   getRoots() {
     let roots = [
       {
-        uri: 'file://com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon',
+        uri: 'file://docs/storage/local/Documents',
+        displayName: 'Documents',
+        deviceType: deviceType.DEVICE_LOCAL_DISK,
+        deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
+      },
+      {
+        uri: 'file://docs/storage/local/Download',
+        displayName: 'Download',
+        deviceType: deviceType.DEVICE_LOCAL_DISK,
+        deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
+      },
+      {
+        uri: 'file://docs/storage/Share',
         displayName: 'shared_disk',
         deviceType: deviceType.DEVICE_SHARED_DISK,
         deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
       },
     ];
     try {
-      let rootPath = '/mnt/external';
+      let rootPath = '/storage/External';
       let volumeInfoList = [];
       let volumeName = fs.listFileSync(rootPath);
       hilog.info(DOMAIN_CODE, TAG, 'listFileSync-result: ' + volumeName);
@@ -597,9 +665,7 @@ export default class FileExtAbility extends Extension {
       let target = dirPath.substring(index + 1, );
       queryResults.push(String(target));
     } else if (column === 'relative_path') {
-      let index = dirPath.lastIndexOf('/');
-      let target = dirPath.substring(0, index + 1);
-      queryResults.push(target);
+      queryResults.push(dirPath);
     } else {
       queryResults.push('');
     }
@@ -629,7 +695,7 @@ export default class FileExtAbility extends Extension {
       };
     }
 
-    if (!this.checkUri(uri)) {
+    if (!checkUri(uri)) {
       return {
         results: [],
         code: E_URIS,
@@ -675,7 +741,7 @@ export default class FileExtAbility extends Extension {
         code: E_URIS,
       };
     }
-    if (!this.checkUri(uri)) {
+    if (!checkUri(uri)) {
       return E_URIS;
     }
     let watchPath = getPath(uri);
@@ -719,7 +785,7 @@ export default class FileExtAbility extends Extension {
       };
     }
 
-    if (!this.checkUri(uri)) {
+    if (!checkUri(uri)) {
       return E_URIS;
     }
     try {

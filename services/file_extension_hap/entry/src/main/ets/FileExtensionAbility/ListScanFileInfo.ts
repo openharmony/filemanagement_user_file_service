@@ -17,10 +17,9 @@ import fs from '@ohos.file.fs';
 import type { Filter } from '@ohos.file.fs';
 import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
 import type { Fileinfo } from './Common';
-import { getPath, DOMAIN_CODE } from './Common';
+import { getPath, DOMAIN_CODE, TAG } from './Common';
 
 const documentFlag = fileExtensionInfo.DocumentFlag;
-const TAG = 'ExternalFileManager';
 const ERR_OK = 0;
 const E_GETRESULT = 14300004;
 
@@ -134,6 +133,7 @@ function getFileInfos(sourceFileUri: string, offset: number, count: number, filt
 {infos: Fileinfo[], code: number} {
   let infos : Fileinfo[] = [];
   let path = getPath(sourceFileUri);
+  hilog.info(DOMAIN_CODE, TAG, 'getFileInfos-getPath ' + path);
   let statPath = fs.statSync(path);
   if (!statPath.isDirectory()) {
     return {
@@ -167,8 +167,11 @@ function getFileInfos(sourceFileUri: string, offset: number, count: number, filt
       }
       let newFileUri = getNewPathOrUri(sourceFileUri, fileNameList[i]);
       newFileUri = encodeURI(newFileUri);
+      hilog.info(DOMAIN_CODE, TAG, 'getFileInfos-return-uri ' + newFileUri);
+      hilog.info(DOMAIN_CODE, TAG, 'getFileInfos-return-relativePath ' + filePath);
       infos.push({
         uri: newFileUri,
+        relativePath: filePath,
         fileName: genNewFileName(fileNameList[i]),
         mode: mode,
         size: stat.size,
