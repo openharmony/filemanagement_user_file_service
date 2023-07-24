@@ -119,9 +119,9 @@ sptr<IRemoteObject> JsFileAccessExtAbility::OnConnect(const AAFwk::Want &want)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OnConnect");
     Extension::OnConnect(want);
-    sptr<FileAccessExtStubImpl> remoteObject = new (std::nothrow) FileAccessExtStubImpl(
+    sptr<FileAccessExtStubImpl> remoteObject(new (std::nothrow) FileAccessExtStubImpl(
         std::static_pointer_cast<JsFileAccessExtAbility>(shared_from_this()),
-        reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine()));
+        reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine())));
     if (remoteObject == nullptr) {
         HILOG_ERROR("No memory allocated for FileExtStubImpl");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
