@@ -44,7 +44,7 @@ function getPath(uri): string {
     return '';
   }
   let path = uri.replace(arr[0] + sep, '');
-  if (arr[1].indexOf('/') > 0 && arr[1].split('/')[0] == BUNDLE_NAME) {
+  if (arr[1].indexOf('/') > 0 && arr[1].split('/')[0] === BUNDLE_NAME) {
     path = path.replace(arr[1].split('/')[0], '');
   } else {
     hilog.error(DOMAIN_CODE, TAG, 'getPath-parameter-uri format exception, uri is ' + uri);

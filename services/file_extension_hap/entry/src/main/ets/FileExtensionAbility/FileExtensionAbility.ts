@@ -539,7 +539,7 @@ export default class FileExtAbility extends Extension {
   checkRelativePath(selectFileRelativePath): boolean {
     try {
       // Processing format: The first character is '/'
-      if (selectFileRelativePath.indexOf('/') == 0) {
+      if (selectFileRelativePath.indexOf('/') === 0) {
         hilog.info(DOMAIN_CODE, TAG, 'checkRelativePath-path is ' + selectFileRelativePath);
         return true;
       } else {

@@ -1,8 +1,8 @@
 {
   "app": {
     "bundleName": "com.ohos.UserFile.ExternalFileManager",
-    "versionCode": 1000001,
-    "versionName": "1.0.0.1",
+    "versionCode": 1000002,
+    "versionName": "1.0.0.2",
     "minAPIVersion": 9,
     "targetAPIVersion": 9,
     "icon": "$media:app_icon",
