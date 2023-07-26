@@ -21,7 +21,7 @@
 #include "parcel.h"
 
 namespace OHOS {
-namespace DistributedFS {
+namespace FileAccessFwk {
 class FileFilter : public Parcelable {
 public:
     FileFilter() = default;
@@ -32,7 +32,7 @@ public:
         double lastModifiedAfter, bool excludeMedia, bool hasFilter)
         : suffix_(suffix), displayName_(displayName), mimeType_(mimeType), fileSizeOver_(fileSizeOver),
         lastModifiedAfter_(lastModifiedAfter), excludeMedia_(excludeMedia), hasFilter_(hasFilter) {}
-    explicit FileFilter(std::vector<std::string> suffix): suffix_(suffix) {}
+
     FileFilter(const FileFilter &filter) = default;
     FileFilter &operator=(const FileFilter& filter) = default;
 
@@ -160,15 +160,18 @@ public:
         return true;
     }
 
+    static const int32_t INVALID_SIZE = -1;
+    static const int32_t INVALID_MODIFY_AFTER = -1;
+    
 private:
     std::vector<std::string> suffix_ = std::vector<std::string>();
     std::vector<std::string> displayName_ = std::vector<std::string>();
     std::vector<std::string> mimeType_ = std::vector<std::string>();
-    int64_t fileSizeOver_ = 0;
-    double lastModifiedAfter_ = 0;
+    int64_t fileSizeOver_ = -1;
+    double lastModifiedAfter_ = -1;
     bool excludeMedia_ = false;
     bool hasFilter_ = false;
 };
-} // namespace DistributedFS
+} // namespace FileAccessFwk
 } // namespace OHOS
 #endif // FILE_FILTER_H

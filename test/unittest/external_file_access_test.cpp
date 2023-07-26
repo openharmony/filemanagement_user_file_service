@@ -44,6 +44,12 @@ int g_num = 0;
 const int UID_TRANSFORM_TMP = 20000000;
 const int UID_DEFAULT = 0;
 shared_ptr<OHOS::AbilityRuntime::Context> g_context = nullptr;
+const int FILE_COUNT_1 = 1;
+const int FILE_COUNT_2 = 2;
+const int FILE_COUNT_3 = 3;
+const int FILE_COUNT_4 = 4;
+const int FILE_COUNT_5 = 5;
+const int FILE_COUNT_6 = 6;
 
 void SetNativeToken()
 {
@@ -2686,6 +2692,659 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0006, testing::e
         GTEST_LOG_(ERROR) << "external_file_access_ListFile_0006 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0006";
+}
+
+
+static void WriteData(Uri &uri)
+{
+    int fd = -1;
+    std::string buff = "extenal_file_access_test";
+    int result = g_fah->OpenFile(uri, WRITE_READ, fd);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    ssize_t fileSize = write(fd, buff.c_str(), buff.size());
+    close(fd);
+    EXPECT_EQ(fileSize, buff.size());
+}
+
+static double GetTime()
+{
+    struct timespec t{};
+    t.tv_sec = 0;
+    t.tv_nsec = 0;
+    clock_gettime(CLOCK_REALTIME, &t);
+    return static_cast<double>(t.tv_sec);
+}
+
+static double InitListFile(Uri newDirUriTest, const std::string &caseNumber, const bool &needSleep = false)
+{
+    Uri testUri1("");
+    int result = g_fah->CreateFile(newDirUriTest, "external_file_access_ListFile_" + caseNumber + ".txt", testUri1);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri testUri2("");
+    result = g_fah->CreateFile(newDirUriTest, "external_file_access_ListFile_" + caseNumber + ".docx", testUri2);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri testUri3("");
+    double time = GetTime();
+    if (needSleep) {
+      sleep(2);
+    }
+    result = g_fah->CreateFile(newDirUriTest, "external_file_access_ListFile_01_" + caseNumber + ".txt", testUri3);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri testUri4("");
+    result = g_fah->CreateFile(newDirUriTest, "external_file_access_ListFile_01_" + caseNumber +  ".docx", testUri4);
+    WriteData(testUri4);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri testUri5("");
+    result = g_fah->CreateFile(newDirUriTest, "external_file_access_ListFile_01_" + caseNumber + "_01.docx", testUri5);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    return time;
+}
+
+static void ListFileFilter7(Uri newDirUriTest)
+{
+    FileInfo fileInfo;
+    fileInfo.uri = newDirUriTest.ToString();
+    int64_t offset = 4;
+    int64_t maxCount = 1;
+    std::vector<FileInfo> fileInfoVec;
+    FileFilter filter({".txt", ".docx"}, {}, {}, -1, -1, false, true);
+    int result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_1);
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_ListFile_0007
+ * @tc.name: external_file_access_ListFile_0007
+ * @tc.desc: Test function of ListFile for Success, filter is File Extensions.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I79CSX
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0007, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0007";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        for (size_t i = 0; i < info.size(); i++) {
+            Uri parentUri(info[i].uri);
+            Uri newDirUriTest("");
+            result = g_fah->Mkdir(parentUri, "listfile007", newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            InitListFile(newDirUriTest, "0007");
+            ListFileFilter7(newDirUriTest);
+            result = g_fah->Delete(newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        }
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_ListFile_0007 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0007";
+}
+
+static double InitListFileFolder(Uri newDirUriTest, const std::string &caseNumber, const bool &needSleep = false)
+{
+    double time = InitListFile(newDirUriTest, caseNumber, needSleep);
+    Uri folderUri("");
+    int result = g_fah->Mkdir(newDirUriTest, "test" + caseNumber, folderUri);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri testUri6("");
+    result = g_fah->CreateFile(folderUri, "external_file_access_ListFile_01_" + caseNumber + "_02.docx", testUri6);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    return time;
+}
+
+static void ShowInfo(const std::vector<FileInfo> &fileInfoVec, const std::string &caseNumber)
+{
+    for (auto fileInfo : fileInfoVec) {
+        GTEST_LOG_(INFO) << caseNumber << ", uri:" << fileInfo.uri << endl;
+    }
+}
+
+static void ListFileFilter8(Uri newDirUriTest)
+{
+    FileInfo fileInfo;
+    fileInfo.uri = newDirUriTest.ToString();
+    int64_t offset = 0;
+    int64_t maxCount = 1000;
+    std::vector<FileInfo> fileInfoVec;
+    FileFilter filter({}, {}, {}, -1, 0, false, true);
+    int result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_6);
+    ShowInfo(fileInfoVec, "external_file_access_ListFile_0008");
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_ListFile_0008
+ * @tc.name: external_file_access_ListFile_0008
+ * @tc.desc: Test function of ListFile for Success, filter is filesize >= 0
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I79CSX
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0008, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0008";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        for (size_t i = 0; i < info.size(); i++) {
+            Uri parentUri(info[i].uri);
+            Uri newDirUriTest("");
+            result = g_fah->Mkdir(parentUri, "listfile008", newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            InitListFileFolder(newDirUriTest, "0008");
+            ListFileFilter8(newDirUriTest);
+            result = g_fah->Delete(newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        }
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_ListFile_0008 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0008";
+}
+
+static void ListFileFilter9(Uri newDirUriTest)
+{
+    FileInfo fileInfo;
+    fileInfo.uri = newDirUriTest.ToString();
+    int64_t offset = 0;
+    int64_t maxCount = 1000;
+    std::vector<FileInfo> fileInfoVec;
+    FileFilter filter;
+    int result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_6);
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_ListFile_0009
+ * @tc.name: external_file_access_ListFile_0009
+ * @tc.desc: Test function of ListFile for Success, filter is offset from 0 and maxCount is 1000
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I79CSX
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0009, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0008";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        for (size_t i = 0; i < info.size(); i++) {
+            Uri parentUri(info[i].uri);
+            Uri newDirUriTest("");
+            result = g_fah->Mkdir(parentUri, "listfile009", newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            InitListFileFolder(newDirUriTest, "0009");
+            ListFileFilter9(newDirUriTest);
+            result = g_fah->Delete(newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        }
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_ListFile_0009 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0009";
+}
+
+static void ListFileFilter10(Uri newDirUriTest, const double &time)
+{
+    FileInfo fileInfo;
+    fileInfo.uri = newDirUriTest.ToString();
+    int64_t offset = 0;
+    int64_t maxCount = 1000;
+    std::vector<FileInfo> fileInfoVec;
+    FileFilter filter({".txt", ".docx"}, {}, {}, -1, -1, false, true);
+    int result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_5);
+
+    FileFilter filter1({".txt", ".docx"}, {"0010.txt", "0010.docx"}, {}, -1, -1, false, true);
+    result = g_fah->ListFile(fileInfo, offset, maxCount, filter1, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_4);
+
+    FileFilter filter2({".txt", ".docx"}, {"0010.txt", "0010.docx"}, {}, 0, 0, false, true);
+    result = g_fah->ListFile(fileInfo, offset, maxCount, filter2, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_1);
+
+    FileFilter filter3({".txt", ".docx"}, {"0010.txt", "0010.docx"}, {}, -1, time, false, true);
+    result = g_fah->ListFile(fileInfo, offset, maxCount, filter3, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_2);
+
+    double nowTime = GetTime();
+    FileFilter filter4({".txt", ".docx"}, {"0010.txt", "0010.docx"}, {}, -1, nowTime, false, true);
+    result = g_fah->ListFile(fileInfo, offset, maxCount, filter4, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), 0);
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_ListFile_0010
+ * @tc.name: external_file_access_ListFile_0010
+ * @tc.desc: Test function of ListFile interface for SUCCESS, filter is filename, extension, file size, modify time
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I79CSX
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0010, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0010";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        for (size_t i = 0; i < info.size(); i++) {
+            Uri parentUri(info[i].uri);
+            Uri newDirUriTest("");
+            result = g_fah->Mkdir(parentUri, "listfile0010", newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            double time = InitListFile(newDirUriTest, "0010", true);
+            ListFileFilter10(newDirUriTest, time);
+            result = g_fah->Delete(newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        }
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_ListFile_0010 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0010";
+}
+
+static void ListFileFilter11(Uri newDirUriTest, const double &time)
+{
+    FileInfo fileInfo;
+    fileInfo.uri = newDirUriTest.ToString();
+    int64_t offset = 0;
+    int64_t maxCount = 1000;
+    std::vector<FileInfo> fileInfoVec;
+    FileFilter filter({".txt", ".docx"}, {}, {}, -1, -1, false, true);
+    int result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_6);
+
+    FileFilter filter1({".txt", ".docx"}, {"测试.txt", "测试.docx"}, {}, -1, -1, false, true);
+    result = g_fah->ListFile(fileInfo, offset, maxCount, filter1, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_4);
+
+    FileFilter filter2({".txt", ".docx"}, {"测试.txt", "测试.docx"}, {}, 0, 0, false, true);
+    result = g_fah->ListFile(fileInfo, offset, maxCount, filter2, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_1);
+
+    FileFilter filter3({".txt", ".docx"}, {"测试.txt", "测试.docx"}, {}, -1, time, false, true);
+    result = g_fah->ListFile(fileInfo, offset, maxCount, filter3, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_2);
+
+    double nowTime = GetTime();
+    FileFilter filter4({".txt", ".docx"}, {"测试.txt", "测试.docx"}, {}, -1, nowTime, false, true);
+    result = g_fah->ListFile(fileInfo, offset, maxCount, filter4, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), 0);
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_ListFile_0011
+ * @tc.name: external_file_access_ListFile_0011
+ * @tc.desc: Test function of ListFile interface for SUCCESS, for filename is Chinese
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I79CSX
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0011, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0011";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        for (size_t i = 0; i < info.size(); i++) {
+            Uri parentUri(info[i].uri);
+            Uri newDirUriTest("");
+            result = g_fah->Mkdir(parentUri, "listfile测试", newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            double time = InitListFileFolder(newDirUriTest, "测试", true);
+            ListFileFilter11(newDirUriTest, time);
+            result = g_fah->Delete(newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        }
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_ListFile_0011 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0011";
+}
+
+static double InitScanFile(Uri newDirUriTest, const std::string &caseNumber, const bool &needSleep = false)
+{
+    Uri forlderUriTest("");
+    int result = g_fah->Mkdir(newDirUriTest, "test" + caseNumber, forlderUriTest);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+    Uri testUri1("");
+    result = g_fah->CreateFile(newDirUriTest, "external_file_access_ScanFile_" + caseNumber + ".txt", testUri1);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri testUri2("");
+    result = g_fah->CreateFile(newDirUriTest, "external_file_access_ScanFile_" + caseNumber + ".docx", testUri2);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    double time = GetTime();
+    if (needSleep) {
+      sleep(2);
+    }
+    Uri testUri3("");
+    result = g_fah->CreateFile(forlderUriTest, "external_file_access_ScanFile_01_" + caseNumber + ".txt", testUri3);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri testUri4("");
+    result = g_fah->CreateFile(forlderUriTest, "external_file_access_ScanFile_01_" + caseNumber + ".docx", testUri4);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    WriteData(testUri4);
+    Uri testUri5("");
+    result = g_fah->CreateFile(forlderUriTest, "external_file_access_ScanFile_01_" + caseNumber + "_01.docx", testUri5);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    return time;
+}
+
+static void ScanFileFilter0(Uri newDirUriTest, const double &time)
+{
+    FileInfo fileInfo;
+    fileInfo.uri = newDirUriTest.ToString();
+    int64_t offset = 0;
+    int64_t maxCount = 1000;
+    std::vector<FileInfo> fileInfoVec;
+    FileFilter filter({".txt", ".docx"}, {}, {}, -1, -1, false, true);
+    int result = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_5);
+
+    FileFilter filter1({".txt", ".docx"}, {"0000.txt", "0000.docx"}, {}, -1, -1, false, true);
+    result = g_fah->ScanFile(fileInfo, offset, maxCount, filter1, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_4);
+
+    FileFilter filter2({".txt", ".docx"}, {"0000.txt", "0000.docx"}, {}, 0, 0, false, true);
+    result = g_fah->ScanFile(fileInfo, offset, maxCount, filter2, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_1);
+
+    FileFilter filter3({".txt", ".docx"}, {"0000.txt", "0000.docx"}, {}, -1, time, false, true);
+    result = g_fah->ScanFile(fileInfo, offset, maxCount, filter3, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_2);
+
+    double nowTime = GetTime();
+    FileFilter filter4({".txt", ".docx"}, {"0000.txt", "0000.docx"}, {}, -1, nowTime, false, true);
+    result = g_fah->ScanFile(fileInfo, offset, maxCount, filter4, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), 0);
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_ScanFile_0000
+ * @tc.name: external_file_access_ScanFile_0000
+ * @tc.desc: Test function of ScanFile interface for SUCCESS, filter is filename, extension, file size, modify time
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I79CSX
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ScanFile_0000";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        for (size_t i = 0; i < info.size(); i++) {
+            Uri parentUri(info[i].uri);
+            Uri newDirUriTest("");
+            result = g_fah->Mkdir(parentUri, "scanfile0000", newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            double time = InitScanFile(newDirUriTest, "0000", true);
+            ScanFileFilter0(newDirUriTest, time);
+            result = g_fah->Delete(newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        }
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_ScanFile_0000 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ScanFile_0000";
+}
+
+static void ScanFileFilter1(Uri newDirUriTest)
+{
+    FileInfo fileInfo;
+    fileInfo.uri = newDirUriTest.ToString();
+    int64_t offset = 0;
+    int64_t maxCount = 1000;
+    std::vector<FileInfo> fileInfoVec;
+    FileFilter filter;
+    int result = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_5);
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_ScanFile_0001
+ * @tc.name: external_file_access_ScanFile_0001
+ * @tc.desc: Test function of ScanFile interface for SUCCESS, the filter is offset from 0 to maxcount
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I79CSX
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ScanFile_0001";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        for (size_t i = 0; i < info.size(); i++) {
+            Uri parentUri(info[i].uri);
+            Uri newDirUriTest("");
+            result = g_fah->Mkdir(parentUri, "scanfile0001", newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            InitScanFile(newDirUriTest, "0001");
+            ScanFileFilter1(newDirUriTest);
+            result = g_fah->Delete(newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        }
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_ScanFile_0001 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ScanFile_0001";
+}
+
+static void ScanFileFilter2(Uri newDirUriTest)
+{
+    FileInfo fileInfo;
+    fileInfo.uri = newDirUriTest.ToString();
+    int64_t offset = 3;
+    int64_t maxCount = 3;
+    std::vector<FileInfo> fileInfoVec;
+    FileFilter filter({".txt", ".docx"}, {}, {}, -1, -1, false, true);
+    int result = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_2);
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_ScanFile_0002
+ * @tc.name: external_file_access_ScanFile_0002
+ * @tc.desc: Test function of ScanFile interface for SUCCESS, the filter is extenstion offset maxCount
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I79CSX
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ScanFile_0002";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        for (size_t i = 0; i < info.size(); i++) {
+            Uri parentUri(info[i].uri);
+            Uri newDirUriTest("");
+            result = g_fah->Mkdir(parentUri, "scanfile0002", newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            InitScanFile(newDirUriTest, "0002");
+            ScanFileFilter2(newDirUriTest);
+            result = g_fah->Delete(newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        }
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_ScanFile_0002 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ScanFile_0002";
+}
+
+static void ScanFileFilter3(Uri newDirUriTest, const double &time)
+{
+    FileInfo fileInfo;
+    fileInfo.uri = newDirUriTest.ToString();
+    int64_t offset = 0;
+    int64_t maxCount = 1000;
+    std::vector<FileInfo> fileInfoVec;
+    FileFilter filter({}, {}, {}, -1, time, false, true);
+    int result = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_3);
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_ScanFile_0003
+ * @tc.name: external_file_access_ScanFile_0003
+ * @tc.desc: Test function of ScanFile interface for SUCCESS, the filter is modify time
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I79CSX
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0003, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ScanFile_0003";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        for (size_t i = 0; i < info.size(); i++) {
+            Uri parentUri(info[i].uri);
+            Uri newDirUriTest("");
+            result = g_fah->Mkdir(parentUri, "scanfile0003", newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            double time = InitScanFile(newDirUriTest, "0003", true);
+            ScanFileFilter3(newDirUriTest, time);
+            result = g_fah->Delete(newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        }
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_ScanFile_0003 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ScanFile_0003";
+}
+
+static void ScanFileFilter4(Uri newDirUriTest)
+{
+    FileInfo fileInfo;
+    fileInfo.uri = newDirUriTest.ToString();
+    int64_t offset = 0;
+    int64_t maxCount = 1000;
+    std::vector<FileInfo> fileInfoVec;
+    FileFilter filter;
+    int result = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_5);
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_ScanFile_0004
+ * @tc.name: external_file_access_ScanFile_0004
+ * @tc.desc: Test function of ScanFile interface for SUCCESS, the filter is offset from 0 to maxCount
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I79CSX
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0004, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin user_file_service_external_file_access_ScanFile_0004";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        for (size_t i = 0; i < info.size(); i++) {
+            Uri parentUri(info[i].uri);
+            Uri newDirUriTest("");
+            result = g_fah->Mkdir(parentUri, "scanfile0004", newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            InitScanFile(newDirUriTest, "0004");
+            ScanFileFilter4(newDirUriTest);
+            result = g_fah->Delete(newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        }
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "user_file_service_external_file_access_ScanFile_0004 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end user_file_service_external_file_access_ScanFile_0004";
+}
+
+static void ScanFileFilter5(Uri newDirUriTest)
+{
+    FileInfo fileInfo;
+    fileInfo.uri = newDirUriTest.ToString();
+    int64_t offset = 0;
+    int64_t maxCount = 1000;
+    std::vector<FileInfo> fileInfoVec;
+    FileFilter filter({".txt", ".docx"}, {"测试.txt", "测试.docx"}, {}, -1, -1, false, true);
+    int result = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_4);
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_ScanFile_0005
+ * @tc.name: external_file_access_ScanFile_0005
+ * @tc.desc: Test function of ScanFile interface for SUCCESS, the filter is Chinese filename
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I79CSX
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0005, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin user_file_service_external_file_access_ScanFile_0005";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        for (size_t i = 0; i < info.size(); i++) {
+            Uri parentUri(info[i].uri);
+            Uri newDirUriTest("");
+            result = g_fah->Mkdir(parentUri, "scanfile测试", newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            InitScanFile(newDirUriTest, "测试");
+            ScanFileFilter5(newDirUriTest);
+            result = g_fah->Delete(newDirUriTest);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        }
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "user_file_service_external_file_access_ScanFile_0005 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end user_file_service_external_file_access_ScanFile_0005";
 }
 
 /**

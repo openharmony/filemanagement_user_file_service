@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -47,9 +47,9 @@ ohos_unittest("medialibrary_file_access_test") {
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
     "c_utils:utils",
+    "image_framework:image_native",
     "ipc:ipc_core",
     "ipc_js:rpc",
-    "multimedia_image_framework:image_native",
     "samgr:samgr_proxy",
   ]
 
@@ -90,6 +90,7 @@ ohos_unittest("external_file_access_test") {
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
     "c_utils:utils",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "ipc_js:rpc",
     "samgr:samgr_proxy",
@@ -129,6 +130,7 @@ ohos_unittest("abnormal_file_access_test") {
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
     "c_utils:utils",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]

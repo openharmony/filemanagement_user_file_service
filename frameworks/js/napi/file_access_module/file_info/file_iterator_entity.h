@@ -25,7 +25,6 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-using namespace DistributedFS;
 
 constexpr int64_t MAX_COUNT = 1000;     // ListFile get file's max count
 
@@ -36,7 +35,7 @@ struct FileIteratorEntity {
     std::vector<FileInfo> fileInfoVec;
     int64_t offset { 0 };
     uint64_t pos { 0 };
-    FileFilter filter { {}, {}, {}, 0, 0, false, false };
+    FileFilter filter { {}, {}, {}, FileFilter::INVALID_SIZE, FileFilter::INVALID_MODIFY_AFTER, false, false };
     int flag { 0 };
 };
 } // namespace FileAccessFwk

@@ -87,7 +87,7 @@ napi_value NapiFileInfoExporter::ListFile(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    FileFilter filter({}, {}, {}, 0, 0, false, false);
+    FileFilter filter({}, {}, {}, FileFilter::INVALID_SIZE, FileFilter::INVALID_MODIFY_AFTER, false, false);
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         auto ret = GetFileFilterParam(NVal(env, funcArg.GetArg(NARG_POS::FIRST)), filter);
         if (ret != ERR_OK) {
@@ -152,7 +152,7 @@ napi_value NapiFileInfoExporter::ScanFile(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    FileFilter filter({}, {}, {}, 0, 0, false, false);
+    FileFilter filter({}, {}, {}, FileFilter::INVALID_SIZE, FileFilter::INVALID_MODIFY_AFTER, false, false);
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         auto ret = GetFileFilterParam(NVal(env, funcArg.GetArg(NARG_POS::FIRST)), filter);
         if (ret != ERR_OK) {
