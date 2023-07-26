@@ -25,7 +25,7 @@ namespace FileAccessFwk {
 using namespace DistributedFS;
 
 struct FileInfoEntity {
-    std::shared_ptr<FileAccessHelper> fileAccessHelper { nullptr };
+    FileAccessHelper *fileAccessHelper { nullptr };
     FileInfo fileInfo;
     FileFilter filter { {}, {}, {}, 0, 0, false, false };
 };

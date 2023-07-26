@@ -30,7 +30,7 @@ using namespace DistributedFS;
 constexpr int64_t MAX_COUNT = 1000;     // ListFile get file's max count
 
 struct FileIteratorEntity {
-    std::shared_ptr<FileAccessHelper> fileAccessHelper { nullptr };
+    FileAccessHelper *fileAccessHelper { nullptr };
     std::mutex entityOperateMutex;
     FileInfo fileInfo;
     std::vector<FileInfo> fileInfoVec;

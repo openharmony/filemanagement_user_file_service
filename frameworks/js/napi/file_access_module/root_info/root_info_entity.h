@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace FileAccessFwk {
 struct RootInfoEntity {
-    std::shared_ptr<FileAccessHelper> fileAccessHelper { nullptr };
+    FileAccessHelper *fileAccessHelper { nullptr };
     RootInfo rootInfo;
 };
 } // namespace FileAccessFwk
