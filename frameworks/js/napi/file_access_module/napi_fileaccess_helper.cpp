@@ -48,7 +48,7 @@ namespace {
     constexpr int COPY_EXCEPTION = -1;
 }
 
-std::list<std::shared_ptr<FileAccessHelper>> g_fileAccessHelperList;
+std::list<std::shared_ptr<FileAccessHelper>> g_fileAccessHelperList = {};
 
 static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info info)
 {
@@ -93,6 +93,7 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
         return nullptr;
     }
     g_fileAccessHelperList.emplace_back(createResult.first);
+    HILOG_INFO("g_fileAccessHelperList size %{public}u", g_fileAccessHelperList.size());
 
     auto finalize = [](napi_env env, void *data, void *hint) {
         FileAccessHelper *objectInfo = static_cast<FileAccessHelper *>(data);
@@ -172,6 +173,7 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
+    HILOG_INFO("g_fileAccessHelperList size %{public}u", g_fileAccessHelperList.size());
     return result;
 }
 
@@ -251,7 +253,6 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
             sizeof(properties) / sizeof(*properties),
             properties,
             &cons));
-    g_fileAccessHelperList.clear();
     NAPI_CALL(env, napi_create_reference(env, cons, INITIAL_REFCOUNT, &g_constructorRef));
     NAPI_CALL(env, napi_set_named_property(env, exports, FILEACCESS_CLASS_NAME.c_str(), cons));
 
