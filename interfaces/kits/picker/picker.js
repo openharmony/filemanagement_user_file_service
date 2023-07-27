@@ -79,7 +79,7 @@ function parsePhotoPickerSelectOption(args) {
     parameters: {
       uri: 'multipleselect',
     },
-  }
+  };
 
   if (args.length > ARGS_ZERO && typeof args[ARGS_ZERO] === 'object') {
     let option = args[ARGS_ZERO];
@@ -101,11 +101,12 @@ function getPhotoPickerSelectResult(args) {
   let selectResult = {
     error: undefined,
     data: undefined,
-  }
+  };
+
   if (args.resultCode === 0) {
     if (args.want && args.want.parameters) {
       let uris = args.want.parameters['select-item-list'];
-      let isOrigin = args.want.parameters['isOriginal'];
+      let isOrigin = args.want.parameters.isOriginal;
       selectResult.data = new PhotoSelectResult(uris, isOrigin);
     }
   } else if (result.resultCode === -1) {
@@ -131,7 +132,19 @@ async function photoPickerSelect(...args) {
     let result = await context.startAbilityForResult(config, {windowMode: 1});
     console.log('[picker] result: ' + JSON.stringify(result));
     const selectResult = getPhotoPickerSelectResult(result);
-    processResult(args, selectResult);
+    console.log('[picker] selectResult: ' + JSON.stringify(selectResult));
+    if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
+      return args[ARGS_ONE](selectResult.error, selectResult.data);
+    } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
+      return args[ARGS_ZERO](selectResult.error, selectResult.data);
+    }
+    return new Promise((resolve, reject) => {
+      if (selectResult.data !== undefined) {
+        resolve(selectResult.data);
+      } else {
+        reject(selectResult.error);
+      }
+    })
   } catch (error) {
     console.log('[picker] error: ' + error);
   }
@@ -143,7 +156,7 @@ function parseDocumentPickerSelectOption(args) {
     parameters: {
       startMode: 'choose',
     }
-  }
+  };
 
   return config;
 }
@@ -153,6 +166,7 @@ function getDocumentPickerSelectResult(args) {
     error: undefined,
     data: undefined
   };
+
   if (args.resultCode === 0) {
     if (args.want && args.want.parameters) {
       selectResult.data = args.want.parameters.select_item_list;
@@ -180,7 +194,19 @@ async function documentPickerSelect(...args) {
     let result = await context.startAbilityForResult(config, {windowMode: 0});
     console.log('[picker] result: ' + JSON.stringify(result));
     const selectResult = getDocumentPickerSelectResult(result);
-    processResult(args, selectResult);
+    console.log('[picker] selectResult: ' + JSON.stringify(selectResult));
+    if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
+      return args[ARGS_ONE](selectResult.error, selectResult.data);
+    } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
+      return args[ARGS_ZERO](selectResult.error, selectResult.data);
+    }
+    return new Promise((resolve, reject) => {
+      if (selectResult.data !== undefined) {
+        resolve(selectResult.data);
+      } else {
+        reject(selectResult.error);
+      }
+    })
   } catch (error) {
     console.log('[picker] error: ' + error);
   }
@@ -192,7 +218,8 @@ function parseDocumentPickerSaveOption(args) {
     parameters: {
       startMode: 'save',
     }
-  }
+  };
+
   if (args.length > ARGS_ZERO && typeof args[ARGS_ZERO] === 'object') {
     let option = args[ARGS_ZERO];
     if (option.newFileNames.length > 0) {
@@ -209,6 +236,7 @@ function getDocumentPickerSaveResult(args) {
     error: undefined,
     data: undefined
   };
+
   if (args.resultCode === 0) {
     if (args.want && args.want.parameters) {
       saveResult.data = args.want.parameters.pick_path_return;
@@ -236,7 +264,19 @@ async function documentPickerSave(...args) {
     let result = await context.startAbilityForResult(config, {windowMode: 0});
     console.log('[picker] result: ' + JSON.stringify(result));
     const saveResult = getDocumentPickerSaveResult(result);
-    processResult(args, saveResult);
+    console.log('[picker] saveResult: ' + JSON.stringify(saveResult));
+    if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
+      return args[ARGS_ONE](saveResult.error, saveResult.data);
+    } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
+      return args[ARGS_ZERO](saveResult.error, saveResult.data);
+    }
+    return new Promise((resolve, reject) => {
+      if (saveResult.data !== undefined) {
+        resolve(saveResult.data);
+      } else {
+        reject(saveResult.error);
+      }
+    })
   } catch (error) {
     console.log('[picker] error: ' + error);
   }
@@ -256,26 +296,22 @@ async function audioPickerSelect(...args) {
     let result = await context.startAbilityForResult(config, {windowMode: 0});
     console.log('[picker] result: ' + JSON.stringify(result));
     const selectResult = getDocumentPickerSelectResult(result);
-    processResult(args, selectResult);
+    console.log('[picker] selectResult: ' + JSON.stringify(selectResult));
+    if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
+      return args[ARGS_ONE](selectResult.error, selectResult.data);
+    } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
+      return args[ARGS_ZERO](selectResult.error, selectResult.data);
+    }
+    return new Promise((resolve, reject) => {
+      if (selectResult.data !== undefined) {
+        resolve(selectResult.data);
+      } else {
+        reject(selectResult.error);
+      }
+    })
   } catch (error) {
     console.log('[picker] error: ' + error);
   }
-}
-
-function processResult(args, result) {
-  console.log('[picker] processResult: ' + JSON.stringify(result));
-  if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
-    return args[ARGS_ONE](result.error, result.data);
-  } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
-    return args[ARGS_ZERO](result.error, result.data);
-  }
-  return new Promise((resolve, reject) => {
-    if (result.data !== undefined) {
-      resolve(result.data);
-    } else {
-      reject(result.error);
-    }
-  })
 }
 
 function PhotoSelectOptions() {
