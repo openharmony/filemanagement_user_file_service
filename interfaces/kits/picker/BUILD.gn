@@ -68,6 +68,7 @@ ohos_shared_library("picker") {
 
   sanitize = {
     cfi = true
+    cfi_cross_dso = true
     debug = false
   }
 
