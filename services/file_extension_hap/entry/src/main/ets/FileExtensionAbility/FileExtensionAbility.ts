@@ -345,7 +345,7 @@ export default class FileExtAbility extends Extension {
         uri: newFileUri,
         code: ERR_OK,
       };
-    } else if (newPath.indexOf(oldPath) === 0) {
+    } else if (newPath.match(new RegExp('^' + oldPath + '(/|$)'))) {
       // move to a subdirectory of the source directory
       return {
         uri: '',
