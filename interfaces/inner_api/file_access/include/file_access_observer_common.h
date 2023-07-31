@@ -60,7 +60,7 @@ public:
             HILOG_ERROR("NotifyMessage Unmarshalling error:write notifyType fail.");
             return false;
         }
-        for (int i = 0; i < uris_.size(); i++) {
+        for (unsigned int i = 0; i < uris_.size(); i++) {
             if (!parcel.WriteString(uris_[i])) {
                 HILOG_ERROR("NotifyMessage Unmarshalling error:write srcUri fail.");
                 return false;

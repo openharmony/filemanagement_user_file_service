@@ -40,6 +40,7 @@ void FileAccessExtConnection::OnAbilityConnectDone(
         HILOG_ERROR("fileExtProxy_ is nullptr");
         return;
     }
+    HILOG_INFO("OnAbilityConnectDone set connected info");
     isConnected_.store(true);
     std::lock_guard<std::mutex> lock(connectLockInfo_.mutex);
     connectLockInfo_.isReady = true;
@@ -55,6 +56,7 @@ void FileAccessExtConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementN
 void FileAccessExtConnection::ConnectFileExtAbility(const AAFwk::Want &want, const sptr<IRemoteObject> &token)
 {
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, this, token);
+    HILOG_INFO("ConnectFileExtAbility ret: %{public}d ", ret);
     if (ret != ERR_OK) {
         HILOG_INFO("ConnectAbility ret=%{public}d", ret);
         return;
