@@ -699,7 +699,6 @@ export default class FileExtAbility extends Extension {
           callback(watchUri, notifyEvent);
         } catch (error) {
           hilog.error(DOMAIN_CODE, TAG, 'onchange error ' + error.message);
-          return E_GETRESULT;
         }
       });
       observerMap.set(uri, watcher);
