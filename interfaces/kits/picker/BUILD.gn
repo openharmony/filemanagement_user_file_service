@@ -54,7 +54,6 @@ gen_js_obj("picker_abc") {
 ohos_shared_library("picker") {
   ldflags = [ "-Wl" ]
   sources = [ "native_module_ohos_picker.cpp" ]
-  cflags = [ "-fstack-protector-all" ]
 
   deps = [
     ":picker_abc",
