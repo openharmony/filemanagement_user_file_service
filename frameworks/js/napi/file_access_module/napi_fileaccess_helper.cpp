@@ -93,7 +93,7 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
         return nullptr;
     }
     g_fileAccessHelperList.emplace_back(createResult.first);
-    HILOG_INFO("g_fileAccessHelperList size %{public}u", g_fileAccessHelperList.size());
+    HILOG_INFO("g_fileAccessHelperList size %{public}zu", g_fileAccessHelperList.size());
 
     auto finalize = [](napi_env env, void *data, void *hint) {
         FileAccessHelper *objectInfo = static_cast<FileAccessHelper *>(data);
@@ -173,7 +173,7 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    HILOG_INFO("g_fileAccessHelperList size %{public}u", g_fileAccessHelperList.size());
+    HILOG_INFO("g_fileAccessHelperList size %{public}zu", g_fileAccessHelperList.size());
     return result;
 }
 
