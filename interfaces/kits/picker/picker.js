@@ -148,6 +148,7 @@ async function photoPickerSelect(...args) {
   } catch (error) {
     console.log('[picker] error: ' + error);
   }
+  return undefined;
 }
 
 function parseDocumentPickerSelectOption(args) {
@@ -210,6 +211,7 @@ async function documentPickerSelect(...args) {
   } catch (error) {
     console.log('[picker] error: ' + error);
   }
+  return undefined;
 }
 
 function parseDocumentPickerSaveOption(args) {
@@ -280,6 +282,7 @@ async function documentPickerSave(...args) {
   } catch (error) {
     console.log('[picker] error: ' + error);
   }
+  return undefined;
 }
 
 async function audioPickerSelect(...args) {
@@ -312,6 +315,7 @@ async function audioPickerSelect(...args) {
   } catch (error) {
     console.log('[picker] error: ' + error);
   }
+  return undefined;
 }
 
 function PhotoSelectOptions() {
