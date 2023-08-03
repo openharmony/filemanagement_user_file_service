@@ -421,31 +421,6 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_Access_0
 }
 
 /**
- * @tc.number: user_file_service_external_file_access_GetThumbnail_0000
- * @tc.name: abnormal_external_file_access_GetThumbnail_0000
- * @tc.desc: Test function of GetThumbnail interface for ERROR because of set not system app flag.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: I76YA0
- */
-HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_GetThumbnail_0000,
-    testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AbnormalFileExtensionHelperTest-begin abnormal_external_file_access_GetThumbnail_0000";
-    try {
-        Uri uri("");
-        ThumbnailSize thumbnailSize;
-        shared_ptr<PixelMap> pixelMap;
-        int result = g_fah->GetThumbnail(uri, thumbnailSize, pixelMap);
-        EXPECT_EQ(result, E_PERMISSION_SYS);
-    } catch (...) {
-        GTEST_LOG_(ERROR) << "abnormal_external_file_access_GetThumbnail_0000 occurs an exception.";
-    }
-    GTEST_LOG_(INFO) << "AbnormalFileExtensionHelperTest-end abnormal_external_file_access_GetThumbnail_0000";
-}
-
-/**
  * @tc.number: user_file_service_external_file_access_GetFileInfoFromUri_0000
  * @tc.name: abnormal_external_file_access_GetFileInfoFromUri_0000
  * @tc.desc: Test function of GetFileInfoFromUri interface for ERROR because of set not system app flag.

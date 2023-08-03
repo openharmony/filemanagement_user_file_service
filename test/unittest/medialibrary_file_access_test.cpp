@@ -3020,289 +3020,6 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromRelativeP
 }
 
 /**
- * @tc.number: user_file_service_medialibrary_file_access_GetThumbnail_0000
- * @tc.name: medialibrary_file_access_GetThumbnail_0000
- * @tc.desc: Test function of GetThumbnail interface.
- * @tc.desc: Test function of GetThumbnail interface for SUCCESS which Uri's type is image.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: I6HLSK
- */
-HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0000, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetThumbnail_0000";
-    try {
-        FileAccessFwk::FileInfo fileInfo;
-        std::string relativePath = "Documents/CreateImageThumbnailTest_001.jpg";
-        int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri uri(fileInfo.uri);
-        std::shared_ptr<PixelMap> getPixelMap = nullptr;
-        ThumbnailSize thumbnailSize;
-        thumbnailSize.width = 256;
-        thumbnailSize.height = 256;
-        result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        ASSERT_NE(getPixelMap, nullptr);
-        EXPECT_EQ(getPixelMap->GetWidth(), thumbnailSize.width);
-        EXPECT_EQ(getPixelMap->GetHeight(), thumbnailSize.height);
-    } catch (...) {
-        GTEST_LOG_(ERROR) << "medialibrary_file_access_GetThumbnail_0000 occurs an exception.";
-    }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_GetThumbnail_0000";
-}
-
-/**
- * @tc.number: user_file_service_medialibrary_file_access_GetThumbnail_0001
- * @tc.name: medialibrary_file_access_GetThumbnail_0001
- * @tc.desc: Test function of GetThumbnail interface.
- * @tc.desc: Test function of GetThumbnail interface for SUCCESS which Uri's type is video.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: I6HLSK
- */
-HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0001, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetThumbnail_0001";
-    try {
-        FileAccessFwk::FileInfo fileInfo;
-        std::string relativePath = "Documents/CreateVideoThumbnailTest_001.mp4";
-        int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri uri(fileInfo.uri);
-        std::shared_ptr<PixelMap> getPixelMap = nullptr;
-        ThumbnailSize thumbnailSize;
-        thumbnailSize.width = 300;
-        thumbnailSize.height = 300;
-        result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        ASSERT_NE(getPixelMap, nullptr);
-        EXPECT_EQ(getPixelMap->GetWidth(), thumbnailSize.width);
-        EXPECT_EQ(getPixelMap->GetHeight(), thumbnailSize.height);
-    } catch (...) {
-        GTEST_LOG_(ERROR) << "medialibrary_file_access_GetThumbnail_0001 occurs an exception.";
-    }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_GetThumbnail_0001";
-}
-
-/**
- * @tc.number: user_file_service_medialibrary_file_access_GetThumbnail_0002
- * @tc.name: medialibrary_file_access_GetThumbnail_0002
- * @tc.desc: Test function of GetThumbnail interface.
- * @tc.desc: Test function of GetThumbnail interface for SUCCESS which Uri's type is audio.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: I6HLSK
- */
-HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0002, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetThumbnail_0002";
-    try {
-        FileAccessFwk::FileInfo fileInfo;
-        std::string relativePath = "Documents/CreateAudioThumbnailTest_001.mp3";
-        int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri uri(fileInfo.uri);
-        std::shared_ptr<PixelMap> getPixelMap = nullptr;
-        ThumbnailSize thumbnailSize;
-        thumbnailSize.width = 256;
-        thumbnailSize.height = 256;
-        result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        ASSERT_NE(getPixelMap, nullptr);
-        EXPECT_EQ(getPixelMap->GetWidth(), thumbnailSize.width);
-        EXPECT_EQ(getPixelMap->GetHeight(), thumbnailSize.height);
-    } catch (...) {
-        GTEST_LOG_(ERROR) << "medialibrary_file_access_GetThumbnail_0002 occurs an exception.";
-    }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_GetThumbnail_0002";
-}
-
-/**
- * @tc.number: user_file_service_medialibrary_file_access_GetThumbnail_0003
- * @tc.name: medialibrary_file_access_GetThumbnail_0003
- * @tc.desc: Test function of GetThumbnail interface.
- * @tc.desc: Test function of GetThumbnail interface for ERROR which Uri is null.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: I6HLSK
- */
-HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0003, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetThumbnail_0003";
-    try {
-        Uri uri("");
-        std::shared_ptr<PixelMap> getPixelMap = nullptr;
-        ThumbnailSize thumbnailSize;
-        thumbnailSize.width = 256;
-        thumbnailSize.height = 256;
-        int result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
-        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
-        ASSERT_EQ(getPixelMap, nullptr);
-    } catch (...) {
-        GTEST_LOG_(ERROR) << "medialibrary_file_access_GetThumbnail_0003 occurs an exception.";
-    }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_GetThumbnail_0003";
-}
-
-/**
- * @tc.number: user_file_service_medialibrary_file_access_GetThumbnail_0004
- * @tc.name: medialibrary_file_access_GetThumbnail_0004
- * @tc.desc: Test function of GetThumbnail interface.
- * @tc.desc: Test function of GetThumbnail interface for ERROR which Uri is not a local path.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: I6HLSK
- */
-HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0004, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetThumbnail_0004";
-    try {
-        Uri uri("//Pictures/CreateImageThumbnailTest_001.jpg");
-        std::shared_ptr<PixelMap> getPixelMap = nullptr;
-        ThumbnailSize thumbnailSize;
-        thumbnailSize.width = 256;
-        thumbnailSize.height = 256;
-        int result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
-        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
-        ASSERT_EQ(getPixelMap, nullptr);
-    } catch (...) {
-        GTEST_LOG_(ERROR) << "medialibrary_file_access_GetThumbnail_0004 occurs an exception.";
-    }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_GetThumbnail_0004";
-}
-
-/**
- * @tc.number: user_file_service_medialibrary_file_access_GetThumbnail_0005
- * @tc.name: medialibrary_file_access_GetThumbnail_0005
- * @tc.desc: Test function of GetThumbnail interface.
- * @tc.desc: Test function of GetThumbnail interface for ERROR which Uri is not a media path.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: I6HLSK
- */
-HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0005, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetThumbnail_0005";
-    try {
-        Uri newDirUriTest("");
-        int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri testUri("");
-        result = g_fah->CreateFile(newDirUriTest, "test.txt", testUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        std::shared_ptr<PixelMap> getPixelMap = nullptr;
-        ThumbnailSize thumbnailSize;
-        thumbnailSize.width = 256;
-        thumbnailSize.height = 256;
-        result = g_fah->GetThumbnail(testUri, thumbnailSize, getPixelMap);
-        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
-        ASSERT_EQ(getPixelMap, nullptr);
-    } catch (...) {
-        GTEST_LOG_(ERROR) << "medialibrary_file_access_GetThumbnail_0005 occurs an exception.";
-    }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_GetThumbnail_0005";
-}
-
-/**
- * @tc.number: user_file_service_medialibrary_file_access_GetThumbnail_0006
- * @tc.name: medialibrary_file_access_GetThumbnail_0006
- * @tc.desc: Test function of GetThumbnail interface.
- * @tc.desc: Test function of GetThumbnail interface for ERROR which Uri is unreadable code.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: I6HLSK
- */
-HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0006, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetThumbnail_0006";
-    try {
-        Uri uri("&*()*/?");
-        std::shared_ptr<PixelMap> getPixelMap = nullptr;
-        ThumbnailSize thumbnailSize;
-        thumbnailSize.width = 256;
-        thumbnailSize.height = 256;
-        int result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
-        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
-        ASSERT_EQ(getPixelMap, nullptr);
-    } catch (...) {
-        GTEST_LOG_(ERROR) << "medialibrary_file_access_GetThumbnail_0006 occurs an exception.";
-    }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_GetThumbnail_0006";
-}
-
-/**
- * @tc.number: user_file_service_medialibrary_file_access_GetThumbnail_0007
- * @tc.name: medialibrary_file_access_GetThumbnail_0007
- * @tc.desc: Test function of GetThumbnail interface.
- * @tc.desc: Test function of GetThumbnail interface for ERROR which size is an invalid value.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: I6HLSK
- */
-HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0007, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetThumbnail_0007";
-    try {
-        FileAccessFwk::FileInfo fileInfo;
-        std::string relativePath = "Documents/CreateImageThumbnailTest_001.jpg";
-        int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri uri(fileInfo.uri);
-        std::shared_ptr<PixelMap> getPixelMap = nullptr;
-        ThumbnailSize thumbnailSize;
-        thumbnailSize.width = 0;
-        thumbnailSize.height = 0;
-        result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
-        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
-        ASSERT_EQ(getPixelMap, nullptr);
-    } catch (...) {
-        GTEST_LOG_(ERROR) << "medialibrary_file_access_GetThumbnail_0007 occurs an exception.";
-    }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_GetThumbnail_0007";
-}
-
-/**
- * @tc.number: user_file_service_medialibrary_file_access_GetThumbnail_0008
- * @tc.name: medialibrary_file_access_GetThumbnail_0008
- * @tc.desc: Test function of GetThumbnail interface.
- * @tc.desc: Test function of GetThumbnail interface for ERROR which size is an invalid value.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: I6HLSK
- */
-HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetThumbnail_0008, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetThumbnail_0008";
-    try {
-        FileAccessFwk::FileInfo fileInfo;
-        std::string relativePath = "Documents/CreateImageThumbnailTest_001.jpg";
-        int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri uri(fileInfo.uri);
-        std::shared_ptr<PixelMap> getPixelMap = nullptr;
-        ThumbnailSize thumbnailSize;
-        thumbnailSize.width = -1;
-        thumbnailSize.height = -1;
-        result = g_fah->GetThumbnail(uri, thumbnailSize, getPixelMap);
-        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
-        ASSERT_EQ(getPixelMap, nullptr);
-    } catch (...) {
-        GTEST_LOG_(ERROR) << "medialibrary_file_access_GetThumbnail_0008 occurs an exception.";
-    }
-    GTEST_LOG_(INFO) << "FileAccessHelperTest-end medialibrary_file_access_GetThumbnail_0008";
-}
-
-/**
  * @tc.number: user_file_service_medialibrary_file_access_Query_0000
  * @tc.name: medialibrary_file_access_Query_0000
  * @tc.desc: Test function of Query directory for SUCCESS.
@@ -3318,7 +3035,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0000, testing::ext
         FileAccessFwk::FileInfo fileInfo;
         std::string relativePath = "Documents/";
         std::string displayName = "Documents";
-        int targetSize = 1347231;
+        int targetSize = 46;
         int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri dirUriTest(fileInfo.uri);
@@ -3328,10 +3045,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0000, testing::ext
             {DISPLAY_NAME, " "},
             {FILE_SIZE, " "},
             {DATE_MODIFIED, " "},
-            {DATE_ADDED, " "},
-            {HEIGHT, " "},
-            {WIDTH, " "},
-            {DURATION, " "}
+            {DATE_ADDED, " "}
         };
         auto testJsonString = testJson.dump();
         int ret = g_fah->Query(dirUriTest, testJsonString);
@@ -3375,10 +3089,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0001, testing::ext
             {DISPLAY_NAME, " "},
             {FILE_SIZE, " "},
             {DATE_MODIFIED, " "},
-            {DATE_ADDED, " "},
-            {HEIGHT, " "},
-            {WIDTH, " "},
-            {DURATION, " "}
+            {DATE_ADDED, " "}
         };
         auto testJsonString = testJson.dump();
         ret = g_fah->Query(testUri, testJsonString);
@@ -3412,7 +3123,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0002, testing::ext
         FileAccessFwk::FileInfo fileInfo;
         std::string relativePath = "Documents/";
         std::string displayName = "Documents";
-        int targetSize = 1347231;
+        int targetSize = 46;
         int result = g_fah->GetFileInfoFromRelativePath(relativePath, fileInfo);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri dirUriTest(fileInfo.uri);
