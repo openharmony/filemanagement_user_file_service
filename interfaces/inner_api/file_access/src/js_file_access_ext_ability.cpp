@@ -984,6 +984,7 @@ static bool ParserGetRootsJsResult(NativeEngine &engine, NativeValue *nativeValu
         RootInfo rootInfo;
         ret = ret && ConvertFromJsValue(engine, obj->GetProperty("deviceType"), rootInfo.deviceType);
         ret = ret && ConvertFromJsValue(engine, obj->GetProperty("uri"), rootInfo.uri);
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("relativePath"), rootInfo.relativePath);
         ret = ret && ConvertFromJsValue(engine, obj->GetProperty("displayName"), rootInfo.displayName);
         ret = ret && ConvertFromJsValue(engine, obj->GetProperty("deviceFlags"), rootInfo.deviceFlags);
         if (!ret) {
