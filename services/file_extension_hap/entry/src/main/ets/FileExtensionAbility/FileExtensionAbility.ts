@@ -612,13 +612,6 @@ export default class FileExtAbility extends Extension {
   getRoots() {
     let roots = [
       {
-        uri: 'file://docs/storage/local/Docs',
-        displayName: 'Docs',
-        relativePath: '/storage/local/Docs',
-        deviceType: deviceType.DEVICE_LOCAL_DISK,
-        deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
-      },
-      {
         uri: 'file://docs/storage/local/Documents',
         displayName: 'Documents',
         relativePath: '/storage/local/Documents',
@@ -636,6 +629,13 @@ export default class FileExtAbility extends Extension {
         uri: 'file://docs/storage/local/Desktop',
         displayName: 'Desktop',
         relativePath: '/storage/local/Desktop',
+        deviceType: deviceType.DEVICE_LOCAL_DISK,
+        deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
+      },
+      {
+        uri: 'file://docs/storage/local/Docs',
+        displayName: 'Docs',
+        relativePath: '/storage/local/Docs',
         deviceType: deviceType.DEVICE_LOCAL_DISK,
         deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
       },
