@@ -612,30 +612,9 @@ export default class FileExtAbility extends Extension {
   getRoots() {
     let roots = [
       {
-        uri: 'file://docs/storage/local/Documents',
-        displayName: 'Documents',
-        relativePath: '/storage/local/Documents',
-        deviceType: deviceType.DEVICE_LOCAL_DISK,
-        deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
-      },
-      {
-        uri: 'file://docs/storage/local/Download',
-        displayName: 'Download',
-        relativePath: '/storage/local/Download',
-        deviceType: deviceType.DEVICE_LOCAL_DISK,
-        deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
-      },
-      {
-        uri: 'file://docs/storage/local/Desktop',
-        displayName: 'Desktop',
-        relativePath: '/storage/local/Desktop',
-        deviceType: deviceType.DEVICE_LOCAL_DISK,
-        deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
-      },
-      {
-        uri: 'file://docs/storage/local/Docs',
+        uri: 'file://docs/storage/Users/100',
         displayName: 'Docs',
-        relativePath: '/storage/local/Docs',
+        relativePath: '/storage/Users/100',
         deviceType: deviceType.DEVICE_LOCAL_DISK,
         deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
       },
@@ -645,7 +624,7 @@ export default class FileExtAbility extends Extension {
         relativePath: '/storage/Share',
         deviceType: deviceType.DEVICE_SHARED_DISK,
         deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
-      },
+      }
     ];
     try {
       let rootPath = '/storage/External';
