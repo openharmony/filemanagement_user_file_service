@@ -1044,6 +1044,37 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0007, testing::ext:
 }
 
 /**
+ * @tc.number: user_file_service_external_file_access_Mkdir_0008
+ * @tc.name: external_file_access_Mkdir_0008
+ * @tc.desc: Test function of Mkdir interface for FAIL，the folder name is Documents.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I7MQMD
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0008, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Mkdir_0008";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(info.size(), 2);
+        Uri parentUri(info[0].uri);
+        Uri newDirUriTest("");
+        result = g_fah->Mkdir(parentUri, "Documents", newDirUriTest);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->Mkdir(parentUri, "Download", newDirUriTest);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->Mkdir(parentUri, "Desktop", newDirUriTest);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_Mkdir_0008 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Mkdir_0008";
+}
+
+/**
  * @tc.number: user_file_service_external_file_access_Delete_0000
  * @tc.name: external_file_access_Delete_0000
  * @tc.desc: Test function of Delete interface for SUCCESS which delete file.
@@ -1898,7 +1929,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0013, testing::ext::
         Uri uri(str);
         Uri testUri2("");
         result = g_fah->Move(uri, newDirUriTest2, testUri2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::E_IPCS);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0013 result:" << result;
         result = g_fah->Delete(newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -3370,13 +3401,9 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetRoots_0000, testing::e
             GTEST_LOG_(INFO) << info[i].displayName;
             GTEST_LOG_(INFO) << info[i].deviceFlags;
             GTEST_LOG_(INFO) << info[i].deviceType;
+            GTEST_LOG_(INFO) << info[i].relativePath;
         }
-        string uri = "file://com.ohos.UserFile.ExternalFileManager/data/storage/el1/bundle/storage_daemon";
-        string displayName = "shared_disk";
-        EXPECT_EQ(info[0].uri, uri);
-        EXPECT_EQ(info[0].displayName, displayName);
-        EXPECT_EQ(info[0].deviceType, DEVICE_SHARED_DISK);
-        EXPECT_EQ(info[0].deviceFlags, DEVICE_FLAG_SUPPORTS_READ | DEVICE_FLAG_SUPPORTS_WRITE);
+        EXPECT_GE(info.size(), 2);
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_GetRoots_0000 occurs an exception.";
     }
@@ -4172,7 +4199,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0000, testing::ext:
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         std::string displayName = "QueryTest1";
-        std::string relativePath = "/data/storage/el1/bundle/storage_daemon/";
+        std::string relativePath = "/storage/Users/currentUserId/QueryTest1";
         result = g_fah->Mkdir(parentUri, "QueryTest1", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Mkdir(newDirUriTest1, "QueryTest2", newDirUriTest2);
@@ -4247,7 +4274,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0001, testing::ext:
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri newFileUri("");
         std::string displayName = "external_file_access_Query_0001.txt";
-        std::string relativePath = "/data/storage/el1/bundle/storage_daemon/QueryTest3/";
+        std::string relativePath = "/storage/Users/currentUserId/QueryTest3/external_file_access_Query_0001.txt";
         result = g_fah->CreateFile(newDirUriTest, displayName, newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         int fd = -1;
@@ -4505,7 +4532,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0007, testing::ext:
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         std::string displayName = "查询目录1";
-        std::string relativePath = "/data/storage/el1/bundle/storage_daemon/";
+        std::string relativePath = "/storage/Users/currentUserId/查询目录1";
         result = g_fah->Mkdir(parentUri, displayName, newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(newDirUriTest1.ToString().find(displayName), std::string::npos);

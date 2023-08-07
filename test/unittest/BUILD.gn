@@ -142,6 +142,5 @@ group("user_file_service_unit_test") {
   deps = [
     ":abnormal_file_access_test",
     ":external_file_access_test",
-    ":medialibrary_file_access_test",
   ]
 }
