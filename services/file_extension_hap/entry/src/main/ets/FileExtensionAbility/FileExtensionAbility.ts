@@ -18,6 +18,7 @@ import fs from '@ohos.file.fs';
 import type { Filter } from '@ohos.file.fs';
 import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
 import hilog from '@ohos.hilog';
+import osaccount from '@ohos.account.osAccount'
 import { getFileInfos } from './ListScanFileInfo';
 import type { Fileinfo } from './Common';
 import { getPath, checkUri, BUNDLE_NAME, DOMAIN_CODE, FILE_PREFIX_NAME, TAG } from './Common';
@@ -610,23 +611,26 @@ export default class FileExtAbility extends Extension {
   }
 
   getRoots() {
-    let roots = [
-      {
-        uri: 'file://docs/storage/Users/100',
-        displayName: 'Docs',
-        relativePath: '/storage/Users/100',
-        deviceType: deviceType.DEVICE_LOCAL_DISK,
-        deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
-      },
-      {
-        uri: 'file://docs/storage/Share',
-        displayName: 'shared_disk',
-        relativePath: '/storage/Share',
-        deviceType: deviceType.DEVICE_SHARED_DISK,
-        deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
-      }
-    ];
     try {
+      var osAccountManager = osaccount.getAccountManager();
+      var localId = await osAccountManager.getOsAccountLocalId();
+      hilog.info(DOMAIN_CODE, TAG, 'localId: ' + localId);
+      let roots = [
+        {
+          uri: 'file://docs/storage/Users/100',
+          displayName: 'Docs',
+          relativePath: '/storage/Users/100',
+          deviceType: deviceType.DEVICE_LOCAL_DISK,
+          deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
+        },
+        {
+          uri: 'file://docs/storage/Share',
+          displayName: 'shared_disk',
+          relativePath: '/storage/Share',
+          deviceType: deviceType.DEVICE_SHARED_DISK,
+          deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
+        }
+      ];
       let rootPath = '/storage/External';
       let volumeInfoList = [];
       let volumeName = fs.listFileSync(rootPath);
