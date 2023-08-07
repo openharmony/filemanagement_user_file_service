@@ -14,8 +14,5 @@
 group("user_file_service_fuzz_test") {
   testonly = true
 
-  deps = [
-    "externalfileaccess_fuzzer:ExternalFileAccessFuzzTest",
-    "medialibraryfileaccess_fuzzer:MedialibraryFileAccessFuzzTest",
-  ]
+  deps = [ "externalfileaccess_fuzzer:ExternalFileAccessFuzzTest" ]
 }

@@ -512,7 +512,6 @@ export default class FileExtAbility extends Extension {
         mode |= documentFlag.REPRESENTS_FILE;
       }
       selectFileUri = encodeURI(selectFileUri);
-      hilog.info(DOMAIN_CODE, TAG, 'getFileInfoFromUri-return-relativePath ' + path);
       fileInfo = {
         uri: selectFileUri,
         relativePath: path,
@@ -552,7 +551,7 @@ export default class FileExtAbility extends Extension {
   }
 
   /*
-   * selectFileRelativePath formate： /dir/file
+   * selectFileRelativePath formate： /storage/Users/currentUserId/filename
    */
   getFileInfoFromRelativePath(selectFileRelativePath) {
     let fileInfo = {};
@@ -563,11 +562,11 @@ export default class FileExtAbility extends Extension {
       };
     }
     try {
-      let fileName = this.getFileName(selectFileRelativePath);
       // Processing format: Delete the last '/'
       if (selectFileRelativePath.charAt(selectFileRelativePath.length - 1) === '/') {
         selectFileRelativePath = selectFileRelativePath.substr(0, selectFileRelativePath.length - 1);
       }
+      let fileName = this.getFileName(selectFileRelativePath);
       let stat = fs.statSync(selectFileRelativePath);
       let mode = documentFlag.SUPPORTS_READ | documentFlag.SUPPORTS_WRITE;
       if (stat.isDirectory()) {
@@ -576,8 +575,6 @@ export default class FileExtAbility extends Extension {
         mode |= documentFlag.REPRESENTS_FILE;
       }
       let selectFileUri = encodeURI(this.relativePath2uri(selectFileRelativePath));
-      hilog.info(DOMAIN_CODE, TAG, 'getFileInfoFromRelativePath-return-selectFileUri ' + selectFileUri);
-      hilog.info(DOMAIN_CODE, TAG, 'getFileInfoFromRelativePath-return-relativePath ' + selectFileRelativePath);
       fileInfo = {
         uri: selectFileUri,
         relativePath: selectFileRelativePath,
@@ -629,7 +626,6 @@ export default class FileExtAbility extends Extension {
       let rootPath = '/storage/External';
       let volumeInfoList = [];
       let volumeName = fs.listFileSync(rootPath);
-      hilog.info(DOMAIN_CODE, TAG, 'listFileSync-result: ' + volumeName);
       for (let i = 0; i < volumeName.length; i++) {
         let volumeInfo = {
           uri: this.volumePath2uri(volumeName[i]),
@@ -638,7 +634,6 @@ export default class FileExtAbility extends Extension {
           deviceType: deviceType.DEVICE_EXTERNAL_USB,
           deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
         };
-        hilog.info(DOMAIN_CODE, TAG, 'volumeInfo-uri: ' + volumeInfo.uri);
         volumeInfoList.push(volumeInfo);
       }
       roots = roots.concat(volumeInfoList);

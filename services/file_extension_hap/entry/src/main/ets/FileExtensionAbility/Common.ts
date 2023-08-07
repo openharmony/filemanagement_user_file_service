@@ -35,7 +35,6 @@ function checkUri(uri): boolean {
 }
 
 function getPath(uri): string {
-  hilog.info(DOMAIN_CODE, TAG, 'getPath before0 ' + uri);
   let sep = '://';
   let arr = uri.split(sep);
   let minLength = 2;

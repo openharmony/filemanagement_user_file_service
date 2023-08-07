@@ -133,7 +133,6 @@ function getFileInfos(sourceFileUri: string, offset: number, count: number, filt
 {infos: Fileinfo[], code: number} {
   let infos : Fileinfo[] = [];
   let path = getPath(sourceFileUri);
-  hilog.info(DOMAIN_CODE, TAG, 'getFileInfos-getPath ' + path);
   let statPath = fs.statSync(path);
   if (!statPath.isDirectory()) {
     return {
@@ -167,8 +166,6 @@ function getFileInfos(sourceFileUri: string, offset: number, count: number, filt
       }
       let newFileUri = getNewPathOrUri(sourceFileUri, fileNameList[i]);
       newFileUri = encodeURI(newFileUri);
-      hilog.info(DOMAIN_CODE, TAG, 'getFileInfos-return-uri ' + newFileUri);
-      hilog.info(DOMAIN_CODE, TAG, 'getFileInfos-return-relativePath ' + filePath);
       infos.push({
         uri: newFileUri,
         relativePath: filePath,

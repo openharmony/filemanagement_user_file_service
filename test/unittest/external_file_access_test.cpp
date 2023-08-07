@@ -1044,6 +1044,37 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0007, testing::ext:
 }
 
 /**
+ * @tc.number: user_file_service_external_file_access_Mkdir_0008
+ * @tc.name: external_file_access_Mkdir_0008
+ * @tc.desc: Test function of Mkdir interface for FAIL，the folder name is Documents.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I7MQMD
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0008, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Mkdir_0008";
+    try {
+        vector<RootInfo> info;
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_GE(info.size(), 2);
+        Uri parentUri(info[0].uri);
+        Uri newDirUriTest("");
+        result = g_fah->Mkdir(parentUri, "Documents", newDirUriTest);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->Mkdir(parentUri, "Download", newDirUriTest);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+        result = g_fah->Mkdir(parentUri, "Desktop", newDirUriTest);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_Mkdir_0008 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Mkdir_0008";
+}
+
+/**
  * @tc.number: user_file_service_external_file_access_Delete_0000
  * @tc.name: external_file_access_Delete_0000
  * @tc.desc: Test function of Delete interface for SUCCESS which delete file.
