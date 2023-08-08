@@ -4199,7 +4199,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0000, testing::ext:
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         std::string displayName = "QueryTest1";
-        std::string relativePath = "/storage/Users/currentUserId/QueryTest1";
+        std::string relativePath = "/storage/Users/currentUser/QueryTest1";
         result = g_fah->Mkdir(parentUri, "QueryTest1", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Mkdir(newDirUriTest1, "QueryTest2", newDirUriTest2);
@@ -4274,7 +4274,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0001, testing::ext:
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri newFileUri("");
         std::string displayName = "external_file_access_Query_0001.txt";
-        std::string relativePath = "/storage/Users/currentUserId/QueryTest3/external_file_access_Query_0001.txt";
+        std::string relativePath = "/storage/Users/currentUser/QueryTest3/external_file_access_Query_0001.txt";
         result = g_fah->CreateFile(newDirUriTest, displayName, newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         int fd = -1;
@@ -4532,7 +4532,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0007, testing::ext:
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
         std::string displayName = "查询目录1";
-        std::string relativePath = "/storage/Users/currentUserId/查询目录1";
+        std::string relativePath = "/storage/Users/currentUser/查询目录1";
         result = g_fah->Mkdir(parentUri, displayName, newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(newDirUriTest1.ToString().find(displayName), std::string::npos);

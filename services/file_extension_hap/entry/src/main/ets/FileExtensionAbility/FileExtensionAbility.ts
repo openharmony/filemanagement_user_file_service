@@ -537,7 +537,7 @@ export default class FileExtAbility extends Extension {
   checkRelativePath(selectFileRelativePath): boolean {
     try {
       // Processing format: The first character is '/'
-      if (selectFileRelativePath.indexOf('/') === 0) {
+      if (selectFileRelativePath !== undefined && selectFileRelativePath.indexOf('/') === 0) {
         hilog.info(DOMAIN_CODE, TAG, 'checkRelativePath-path is ' + selectFileRelativePath);
         return true;
       } else {
@@ -551,7 +551,7 @@ export default class FileExtAbility extends Extension {
   }
 
   /*
-   * selectFileRelativePath formate： /storage/Users/currentUserId/filename
+   * selectFileRelativePath formate： /storage/Users/currentUser/filename
    */
   getFileInfoFromRelativePath(selectFileRelativePath) {
     let fileInfo = {};
@@ -608,9 +608,9 @@ export default class FileExtAbility extends Extension {
   getRoots() {
     let roots = [
       {
-        uri: 'file://docs/storage/Users/currentUserId',
-        displayName: 'currentUserId',
-        relativePath: '/storage/Users/currentUserId',
+        uri: 'file://docs/storage/Users/currentUser',
+        displayName: 'currentUser',
+        relativePath: '/storage/Users/currentUser',
         deviceType: deviceType.DEVICE_LOCAL_DISK,
         deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
       },
