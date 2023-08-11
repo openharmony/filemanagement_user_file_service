@@ -352,18 +352,33 @@ export default class FileExtAbility extends Extension {
           code: E_GETRESULT,
         };
       }
-      // If not across devices, use fs.renameSync to move
-      if (!this.isCrossDeviceLink(sourceFileUri, targetParentUri)) {
-        fs.renameSync(oldPath, newPath);
-        return {
+
+      let statOld = fs.statSync(oldPath);
+      if (!statOld) {
+          return {
+              uri: '',
+              code: E_GETRESULT,
+          }
+      }
+
+      // isDir
+      if (statOld.isDirectory()) {
+          fs.moveDirSync(oldPath, getPath(targetParentUri), 3);
+          return {
+            uri: newFileUri,
+            code: ERR_OK,
+          };
+      }
+      // when targetFile is exist, delete it
+      let isAccessNewPath = fs.accessSync(newPath);
+      if (isAccessNewPath) {
+          fs.unlinkSync(newPath);
+      }
+      fs.moveFileSync(oldPath, newPath, 0);
+
+      return {
           uri: newFileUri,
           code: ERR_OK,
-        };
-      }
-      //Cross device move not currently supported
-      return {
-          uri: '',
-          code: ERR_PERM,
       };
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
