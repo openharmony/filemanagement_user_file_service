@@ -40,6 +40,7 @@ const CREATE_EVENT = 0;
 const DELETE_EVENT = 1;
 const UPDATE_EVENT = 2;
 const CONVERT_TO_HEX = 16;
+const MOVE_MODLE_CODE = 3;
 
 // ['IN_ACCESS', 0x00000001],
 // ['IN_MODIFY', 0x00000002],
@@ -355,24 +356,24 @@ export default class FileExtAbility extends Extension {
 
       let statOld = fs.statSync(oldPath);
       if (!statOld) {
-          return {
-              uri: '',
-              code: E_GETRESULT,
-          }
+        return {
+          uri: '',
+          code: E_GETRESULT,
+        }
       }
 
       // isDir
       if (statOld.isDirectory()) {
-          fs.moveDirSync(oldPath, getPath(targetParentUri), 3);
-          return {
-            uri: newFileUri,
-            code: ERR_OK,
-          };
+        fs.moveDirSync(oldPath, getPath(targetParentUri), MOVE_MODLE_CODE);
+        return {
+          uri: newFileUri,
+          code: ERR_OK,
+        };
       }
       // when targetFile is exist, delete it
       let isAccessNewPath = fs.accessSync(newPath);
       if (isAccessNewPath) {
-          fs.unlinkSync(newPath);
+        fs.unlinkSync(newPath);
       }
       fs.moveFileSync(oldPath, newPath, 0);
 
@@ -568,7 +569,7 @@ export default class FileExtAbility extends Extension {
   /*
    * selectFileRelativePath formate： /storage/Users/currentUser/filename
    */
-  getFileInfoFromRelativePath(selectFileRelativePath) {
+  getFileInfoFromRelativePath(selectFileRelativePath): {fileInfo:object, code:number} {
     let fileInfo = {};
     if (!this.checkRelativePath(selectFileRelativePath)) {
       return {
