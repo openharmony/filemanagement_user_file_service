@@ -393,6 +393,13 @@ export default class FileExtAbility extends Extension {
       let newFileUri = this.renameUri(sourceFileUri, displayName);
       let oldPath = getPath(sourceFileUri);
       let newPath = getPath(newFileUri);
+      let isAccess = fs.accessSync(newPath);
+      if (isAccess) {
+        return {
+          uri: '',
+          code: E_EXIST,
+        };
+      }
       fs.renameSync(oldPath, newPath);
       newFileUri = encodeURI(newFileUri);
       return {
