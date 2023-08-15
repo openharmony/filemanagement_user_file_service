@@ -318,17 +318,9 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
     return ERR_OK;
 }
 
-int FileAccessExtProxy::Copy(const Uri &sourceUri, const Uri &destUri, std::vector<CopyResult> &copyResult,
-    bool force)
+static int WriteCopyFuncArguments(OHOS::MessageParcel &data, const Uri &sourceUri, const Uri &destUri, bool force)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Copy");
-    MessageParcel data;
-    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
-        HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_IPCS;
-    }
-
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "WriteCopyFuncArguments");
     std::string insideInputSourceUri = sourceUri.ToString();
     if (!data.WriteString(insideInputSourceUri)) {
         HILOG_ERROR("fail to WriteParcelable insideInputSourceUri");
@@ -348,16 +340,13 @@ int FileAccessExtProxy::Copy(const Uri &sourceUri, const Uri &destUri, std::vect
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
 
-    MessageParcel reply;
-    MessageOption option;
-    int err = Remote()->SendRequest(CMD_COPY, data, reply, option);
-    if (err != ERR_OK) {
-        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return err;
-    }
-
+static int ReadCopyFuncResults(OHOS::MessageParcel &reply, std::vector<CopyResult> &copyResult)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ReadCopyFuncResults");
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
@@ -367,7 +356,7 @@ int FileAccessExtProxy::Copy(const Uri &sourceUri, const Uri &destUri, std::vect
     if (ret == ERR_OK) {
         HILOG_ERROR("Copy operation success");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_OK;
+        return ret;
     }
 
     uint32_t count = 0;
@@ -391,6 +380,43 @@ int FileAccessExtProxy::Copy(const Uri &sourceUri, const Uri &destUri, std::vect
         if (copyResultPtr != nullptr) {
             copyResult.push_back(*copyResultPtr);
         }
+    }
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
+}
+
+int FileAccessExtProxy::Copy(const Uri &sourceUri, const Uri &destUri, std::vector<CopyResult> &copyResult,
+    bool force)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Copy");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    int ret = WriteCopyFuncArguments(data, sourceUri, destUri, force);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Write copy function arguments error, code: %{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int err = Remote()->SendRequest(CMD_COPY, data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest, err: %{public}d", err);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return err;
+    }
+
+    ret = ReadCopyFuncResults(reply, copyResult);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Read copy function result error, code: %{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
     }
 
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);

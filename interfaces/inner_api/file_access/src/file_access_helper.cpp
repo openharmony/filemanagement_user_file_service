@@ -647,12 +647,25 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
     return ERR_OK;
 }
 
-static bool IsMediaUri(Uri &uri)
+int FileAccessHelper::IsDirectory(Uri &uri, bool &isDir)
 {
-    return uri.GetAuthority() == MEDIA_BNUDLE_NAME_ALIAS;
+    sptr<IFileAccessExtBase> proxy = FileAccessHelper::GetProxyByUri(uri);
+    if (proxy == nullptr) {
+        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        return E_IPCS;
+    }
+
+    FileInfo fileInfo;
+    int ret = proxy->GetFileInfoFromUri(uri, fileInfo);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("get FileInfo from uri error, code:%{public}d", ret);
+        return ret;
+    }
+    isDir = (fileInfo.mode & DOCUMENT_FLAG_REPRESENTS_DIR) != 0;
+    return ret;
 }
 
-static int ThrowExceptionByErrorCode(int errCode, CopyResult &copyResult)
+static int TranslateCopyResult(int errCode, CopyResult &result)
 {
     if (errCode == COPY_EXCEPTION || errCode == ERR_OK) {
         return errCode;
@@ -663,6 +676,7 @@ static int ThrowExceptionByErrorCode(int errCode, CopyResult &copyResult)
         case E_IPCS:
         case E_URIS:
         case ERR_NOMEM:
+        case E_PERMISSION_SYS:
         case ERR_PERM: {
             HILOG_ERROR("Copy exception, terminate copy");
             ret = COPY_EXCEPTION;
@@ -676,38 +690,49 @@ static int ThrowExceptionByErrorCode(int errCode, CopyResult &copyResult)
     }
     if (OHOS::FileManagement::LibN::errCodeTable.find(errCode) !=
         OHOS::FileManagement::LibN::errCodeTable.end()) {
-        copyResult.errCode = OHOS::FileManagement::LibN::errCodeTable.at(errCode).first;
-        copyResult.errMsg = OHOS::FileManagement::LibN::errCodeTable.at(errCode).second;
+        result.errCode = OHOS::FileManagement::LibN::errCodeTable.at(errCode).first;
+        result.errMsg = OHOS::FileManagement::LibN::errCodeTable.at(errCode).second;
     }
     return ret;
 }
 
-int FileAccessHelper::CopyInsideService(Uri &sourceUri, Uri &destUri, std::vector<CopyResult> &copyResult, bool force)
+static int GetCopyResult(const std::string &sourceUri, const std::string &destUri, int errCode,
+    const std::string &errMsg, std::vector<CopyResult> &copyResult)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CopyInsideService");
+    CopyResult result { sourceUri, destUri, errCode, errMsg };
+    int ret = TranslateCopyResult(errCode, result);
+    copyResult.clear();
+    copyResult.push_back(result);
+    return ret;
+}
+
+int FileAccessHelper::CopyOperation(Uri &sourceUri, Uri &destUri, std::vector<CopyResult> &copyResult, bool force)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CopyOperation");
     int ret = COPY_EXCEPTION;
     sptr<IFileAccessExtBase> proxy = GetProxyByUri(sourceUri);
     if (proxy == nullptr) {
         HILOG_ERROR("Failed with invalid fileAccessExtProxy");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         CopyResult result;
-        ret = ThrowExceptionByErrorCode(E_IPCS, result);
+        ret = TranslateCopyResult(E_IPCS, result);
         copyResult.push_back(result);
         return ret;
     }
 
     ret = proxy->Copy(sourceUri, destUri, copyResult, force);
     if (ret != ERR_OK) {
-        HILOG_ERROR("Copy error, code:%{public}d", ret);
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         if ((ret == COPY_EXCEPTION) || (ret == COPY_NOEXCEPTION)) {
             HILOG_ERROR("Copy exception, code:%{public}d", ret);
             FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return ret;
         }
-        CopyResult result { "", "", ret, ""};
+        HILOG_ERROR("Copy error, code:%{public}d", ret);
+        CopyResult result { "", "", ret, "" };
+        ret = TranslateCopyResult(ret, result);
         copyResult.push_back(result);
-        return COPY_EXCEPTION;
+        return ret;
     }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
@@ -717,30 +742,32 @@ int FileAccessHelper::Copy(Uri &sourceUri, Uri &destUri, std::vector<CopyResult>
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Copy");
     if (!IsSystemApp()) {
-        HILOG_ERROR("FileAccessHelper::Copy check IsSystemAppByFullTokenID failed");
+        HILOG_ERROR("Copy check IsSystemAppByFullTokenID failed");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        CopyResult result { sourceUri.ToString(), destUri.ToString(), E_PERMISSION_SYS, "" };
-        copyResult.push_back(result);
-        return COPY_EXCEPTION;
+        return GetCopyResult("", "", E_PERMISSION_SYS, "", copyResult);
     }
 
     if (!CheckUri(sourceUri) || !CheckUri(destUri)) {
         HILOG_ERROR("Uri format check error");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        CopyResult result { sourceUri.ToString(), destUri.ToString(), E_URIS, "" };
-        copyResult.push_back(result);
-        return COPY_EXCEPTION;
+        return GetCopyResult("", "", E_URIS, "", copyResult);
     }
 
-    int ret = COPY_EXCEPTION;
-    if (IsMediaUri(sourceUri) && IsMediaUri(destUri)) {
-        ret = CopyInsideService(sourceUri, destUri, copyResult, force);
-    } else {
-        HILOG_ERROR("External storage copy is not supported.");
-        CopyResult result { sourceUri.ToString(), destUri.ToString(), EPERM, "" };
-        copyResult.push_back(result);
-        return COPY_NOEXCEPTION;
+    bool isDir = false;
+    int ret = IsDirectory(destUri, isDir);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Get uri type error");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        GetCopyResult("", "", ret, "", copyResult);
+        return COPY_EXCEPTION;
     }
+    if (!isDir) {
+        HILOG_ERROR("Destination uri is not directory");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return GetCopyResult("", "", E_URIS, "", copyResult);
+    }
+
+    ret = CopyOperation(sourceUri, destUri, copyResult, force);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
