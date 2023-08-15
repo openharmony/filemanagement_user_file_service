@@ -24,12 +24,17 @@ import { getPath, checkUri, BUNDLE_NAME, DOMAIN_CODE, FILE_PREFIX_NAME, TAG } fr
 const deviceFlag = fileExtensionInfo.DeviceFlag;
 const documentFlag = fileExtensionInfo.DocumentFlag;
 const deviceType = fileExtensionInfo.DeviceType;
+const FILEOVERWRITE = 1;
+const THROWEXCEPTION = 0;
 
 const ERR_OK = 0;
 const ERR_ERROR = -1;
-const E_EXIST = 13900015;
-const ERR_PERM = 13900001;
+const COPY_EXCEPTION = -1;
+const COPY_NOEXCEPTION = -2;
+const E_PERM = 13900001;
 const E_NOEXIST = 13900002;
+const E_FAULT = 13900013;
+const E_EXIST = 13900015;
 const E_INVAL = 13900020;
 const E_URIS = 14300002;
 const E_GETRESULT = 14300004;
@@ -427,6 +432,150 @@ export default class FileExtAbility extends Extension {
         uri: '',
         code: e.code,
       };
+    }
+  }
+
+  getCopyReturnValue(sourceUri, destUri, errCode, errMsg, ret): {[], number} {
+    let copyResult = [
+      {
+        sourceUri: sourceUri,
+        destUri: destUri,
+        errCode: errCode,
+        errMsg: errMsg,
+      },
+    ];
+    return {
+      results: copyResult,
+      code: ret,
+    };
+  }
+
+  checkCopyArguments(sourceFileUri, targetParentUri): {[], number} {
+    if (!checkUri(sourceFileUri) || !checkUri(targetParentUri)) {
+      hilog.error(DOMAIN_CODE, TAG, 'check arguments error, invalid arguments');
+      return this.getCopyReturnValue(sourceFileUri, targetParentUri, E_URIS, '', COPY_EXCEPTION);
+    }
+
+    let displayName = this.getFileName(sourceFileUri);
+    let newFileOrDirUri = this.genNewFileUri(targetParentUri, displayName);
+    let oldPath = getPath(sourceFileUri);
+    let newPath = getPath(newFileOrDirUri);
+    if (oldPath === newPath) {
+      hilog.error(DOMAIN_CODE, TAG, 'the source and target files are the same file');
+      return this.getCopyReturnValue(sourceFileUri, targetParentUri, E_INVAL, '', COPY_NOEXCEPTION);
+    } else if (newPath.indexOf(oldPath) === 0 && newPath.charAt(oldPath.length) === '/') {
+      hilog.error(DOMAIN_CODE, TAG, 'copy to a subdirectory of the source directory');
+      return this.getCopyReturnValue(sourceFileUri, targetParentUri, E_FAULT, '', COPY_EXCEPTION);
+    }
+
+    try {
+      let isExist = fs.accessSync(oldPath);
+      if (!isExist) {
+        hilog.error(DOMAIN_CODE, TAG, 'source uri is not exist, invalid arguments');
+        return this.getCopyReturnValue(sourceFileUri, '', E_INVAL, '', COPY_NOEXCEPTION);
+      }
+
+      let stat = fs.statSync(getPath(targetParentUri));
+      if (!stat || !stat.isDirectory()) {
+        hilog.error(DOMAIN_CODE, TAG, 'target is not directory, invalid arguments');
+        return this.getCopyReturnValue('', targetParentUri, E_INVAL, '', COPY_NOEXCEPTION);
+      }
+    } catch (e) {
+      hilog.error(DOMAIN_CODE, TAG, 'copy error ' + e.message);
+      return this.getCopyReturnValue(sourceFileUri, targetParentUri, e.code, '', COPY_EXCEPTION);
+    }
+    return {
+      results: [],
+      code: ERR_OK,
+    };
+  }
+
+  processCopyReturnValue(ret, copyRet): void {
+    if (ret.code === COPY_EXCEPTION) {
+      copyRet = ret;
+    }
+    if (ret.code === COPY_NOEXCEPTION) {
+      for (let index in ret.results) {
+        copyRet.results.push(ret.results[index]);
+      }
+      copyRet.code = ret.code;
+    }
+  }
+
+  copyFile(sourceFilePath, newFilePath): {[], number} {
+    let copyRet = {
+      results: [],
+      code: ERR_OK,
+    };
+
+    try {
+      let isExist = fs.accessSync(newFilePath);
+      if (isExist) {
+        fs.unlinkSync(newFilePath);
+      }
+      fs.copyFileSync(sourceFilePath, newFilePath);
+    } catch (err) {
+      hilog.error(DOMAIN_CODE, TAG,
+        'copyFileSync failed with error message: ' + err.message + ', error code: ' + err.code);
+      return this.getCopyReturnValue(this.relativePath2uri(sourceFilePath), '', err.code, err.message, COPY_EXCEPTION);
+    }
+    return copyRet;
+  }
+
+  copyDirectory(sourceFilePath, targetFilePath, mode): {[], number} {
+    let copyRet = {
+      results: [],
+      code: ERR_OK,
+    };
+    try {
+      fs.copyDirSync(sourceFilePath, targetFilePath, mode);
+    } catch (err) {
+      if (err.code === E_EXIST) {
+        for (let i = 0; i < err.data.length; i++) {
+          hilog.error(DOMAIN_CODE, TAG,
+            'copy directory failed with conflicting files: ' + err.data[i].srcFile + ' ' + err.data[i].destFile);
+          let ret = this.getCopyReturnValue(
+            this.relativePath2uri(err.data[i].srcFile), this.relativePath2uri(err.data[i].destFile),
+            err.code, err.message, COPY_NOEXCEPTION);
+          this.processCopyReturnValue(ret, copyRet);
+        }
+        return copyRet;
+      }
+      hilog.error(DOMAIN_CODE, TAG,
+        'copy directory failed with error message: ' + err.message + ', error code: ' + err.code);
+      return this.getCopyReturnValue(
+        this.relativePath2uri(sourceFilePath), this.relativePath2uri(targetFilePath),
+        err.code, err.message, COPY_EXCEPTION);
+    }
+    return copyRet;
+  }
+
+  copy(sourceFileUri, targetParentUri, force): {[], number} {
+    let checkRet = this.checkCopyArguments(sourceFileUri, targetParentUri);
+    if (checkRet.code !== ERR_OK) {
+      return checkRet;
+    }
+
+    let sourceFilePath = getPath(sourceFileUri);
+    let targetFilePath = getPath(targetParentUri);
+    let displayName = this.getFileName(sourceFileUri);
+    let newFileOrDirUri = this.genNewFileUri(targetParentUri, displayName);
+    let newFilePath = getPath(newFileOrDirUri);
+
+    let stat = fs.statSync(sourceFilePath);
+    if (stat.isFile()) {
+      let isExist = fs.accessSync(newFilePath);
+      if (isExist && force === false) {
+        return this.getCopyReturnValue(sourceFileUri, newFileOrDirUri, E_EXIST, '', COPY_NOEXCEPTION);
+      }
+      return this.copyFile(sourceFilePath, newFilePath);
+    } else if (stat.isDirectory()) {
+      let mode = force ? FILEOVERWRITE : THROWEXCEPTION;
+      let copyRet = this.copyDirectory(sourceFilePath, targetFilePath, mode);
+      return copyRet;
+    } else {
+      hilog.error(DOMAIN_CODE, TAG, 'the copy operation is not permitted');
+      return this.getCopyReturnValue(sourceFileUri, targetParentUri, E_PERM, '', COPY_EXCEPTION);
     }
   }
 
