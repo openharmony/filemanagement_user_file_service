@@ -76,13 +76,14 @@ public:
     int Access(const Uri &uri, bool &isExist) override;
     int Query(const Uri &uri, std::vector<std::string> &columns, std::vector<std::string> &results) override;
     int StartWatcher(const Uri &uri) override;
-    int StopWatcher(const Uri &uri) override;
+    int StopWatcher(const Uri &uri, bool isUnregisterAll) override;
 
 private:
     NativeValue* CallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
     int CallJsMethod(const std::string &funcName, JsRuntime &jsRuntime, NativeReference *jsObj,
         InputArgsParser argParser, ResultValueParser retParser);
     void GetSrcPath(std::string &srcPath);
+    static int Notify(Uri &uri, NotifyType notifyType);
     static NativeValue* FuncCallback(NativeEngine *engine, NativeCallbackInfo *info);
     JsRuntime &jsRuntime_;
     std::shared_ptr<NativeReference> jsObj_;

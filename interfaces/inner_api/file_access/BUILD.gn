@@ -51,9 +51,11 @@ ohos_shared_library("file_access_extension_ability_kit") {
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${file_api_path}/utils/filemgmt_libn/include",
+    "${user_file_service_path}/services/native/file_access_service/include",
   ]
 
   sources = [
+    "${user_file_service_path}/services/native/file_access_service/src/file_access_service_proxy.cpp",
     "src/file_access_ext_ability.cpp",
     "src/file_access_ext_connection.cpp",
     "src/file_access_ext_proxy.cpp",

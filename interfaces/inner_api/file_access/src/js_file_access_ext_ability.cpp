@@ -18,13 +18,16 @@
 #include "ability_info.h"
 #include "accesstoken_kit.h"
 #include "extension_context.h"
+#include "file_access_service_proxy.h"
 #include "file_access_ext_stub_impl.h"
 #include "file_access_observer_common.h"
 #include "file_access_extension_info.h"
 #include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
+#include "iservice_registry.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
@@ -32,6 +35,7 @@
 #include "napi_common_util.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
+#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -1378,16 +1382,9 @@ NativeValue* JsFileAccessExtAbility::FuncCallback(NativeEngine* engine, NativeCa
     int32_t event = UnwrapInt32FromJS(reinterpret_cast<napi_env>(engine),
         reinterpret_cast<napi_value>(info->argv[ARGC_ONE]));
 
-    JsFileAccessExtAbility* jsExtension = static_cast<JsFileAccessExtAbility*>(info->functionInfo->data);
-    if (jsExtension == nullptr) {
-        HILOG_ERROR("invalid JsFileAccessExtAbility.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return engine->CreateUndefined();
-    }
-
     Uri uri(uriString);
     NotifyType notifyType = static_cast<NotifyType>(event);
-    auto ret = jsExtension->Notify(uri, notifyType);
+    auto ret = Notify(uri, notifyType);
     if (ret != ERR_OK) {
         HILOG_ERROR("JsFileAccessExtAbility notify error, ret:%{public}d", ret);
     }
@@ -1445,7 +1442,7 @@ int JsFileAccessExtAbility::StartWatcher(const Uri &uri)
     return ERR_OK;
 }
 
-int JsFileAccessExtAbility::StopWatcher(const Uri &uri)
+int JsFileAccessExtAbility::StopWatcher(const Uri &uri, bool isUnregisterAll)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "StopWatcher");
     auto ret = std::make_shared<int>();
@@ -1455,14 +1452,16 @@ int JsFileAccessExtAbility::StopWatcher(const Uri &uri)
         return E_GETRESULT;
     }
 
-    auto argParser = [uri](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
+    auto argParser = [uri, isUnregisterAll](NativeEngine &engine, NativeValue *argv[], size_t &argc) -> bool {
         NativeValue *nativeUri = engine.CreateString(uri.ToString().c_str(), uri.ToString().length());
         if (nativeUri == nullptr) {
             HILOG_ERROR("create uri native js value fail.");
             return false;
         }
+        NativeValue *isCleanAll = engine.CreateBoolean(isUnregisterAll);
         argv[ARGC_ZERO] = nativeUri;
-        argc = ARGC_ONE;
+        argv[ARGC_ONE] = isCleanAll;
+        argc = ARGC_TWO;
         return true;
     };
 
@@ -1487,6 +1486,25 @@ int JsFileAccessExtAbility::StopWatcher(const Uri &uri)
         return *ret;
     }
 
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ERR_OK;
+}
+
+int JsFileAccessExtAbility::Notify(Uri &uri, NotifyType notifyType)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Notify");
+    auto proxy = FileAccessServiceProxy::GetInstance();
+    if (proxy == nullptr) {
+        HILOG_ERROR("Notify get SA failed");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_LOAD_SA;
+    }
+    auto ret = proxy->OnChange(uri, notifyType);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("notify error, ret:%{public}d", ret);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return ret;
+    }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }

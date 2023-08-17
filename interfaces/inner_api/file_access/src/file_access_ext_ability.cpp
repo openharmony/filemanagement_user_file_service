@@ -20,6 +20,7 @@
 #include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "if_system_ability_manager.h"
 #include "js_file_access_ext_ability.h"
 #include "runtime.h"
 
@@ -159,15 +160,9 @@ int FileAccessExtAbility::StartWatcher(const Uri &uri)
     return EPERM;
 }
 
-int FileAccessExtAbility::StopWatcher(const Uri &uri)
+int FileAccessExtAbility::StopWatcher(const Uri &uri, bool isUnregisterAll)
 {
     HILOG_ERROR("FileAccessExtAbility::StopWatcher Undefined operation");
-    return EPERM;
-}
-
-int FileAccessExtAbility::Notify(Uri &uri, NotifyType notifyType)
-{
-    HILOG_ERROR("FileAccessExtAbility::Notify Undefined operation");
     return EPERM;
 }
 } // namespace FileAccessFwk

@@ -18,10 +18,12 @@
 
 #include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
+#include "observer_callback_stub.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
 #include "napi/native_api.h"
 #include "uri.h"
+#include "uv.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -42,11 +44,12 @@ private:
     std::unique_ptr<uv_work_t> work_ = nullptr;
 };
 
-class NapiObserverCallback {
+class NapiObserverCallback : public ObserverCallbackStub {
 public:
-    explicit NapiObserverCallback(std::shared_ptr<NapiObserver> observer): observer_(observer) {}
-    virtual ~NapiObserverCallback() {}
-    void OnChange(NotifyMessage &notifyMessage)
+    explicit NapiObserverCallback(std::shared_ptr<NapiObserver> observer): ObserverCallbackStub(),
+        observer_(observer) {}
+    virtual ~NapiObserverCallback() = default;
+    void OnChange(NotifyMessage &notifyMessage) override
     {
         observer_->OnChange(notifyMessage);
     }

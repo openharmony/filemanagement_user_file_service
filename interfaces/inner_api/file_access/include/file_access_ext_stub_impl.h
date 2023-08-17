@@ -55,7 +55,7 @@ public:
     int GetRoots(std::vector<RootInfo> &rootInfoVec) override;
     int Access(const Uri &uri, bool &isExist) override;
     int StartWatcher(const Uri &uri) override;
-    int StopWatcher(const Uri &uri) override;
+    int StopWatcher(const Uri &uri, bool isUnregisterAll) override;
 
 private:
     std::shared_ptr<FileAccessExtAbility> GetOwner();

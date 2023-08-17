@@ -75,7 +75,7 @@ public:
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec) = 0;
     virtual int Access(const Uri &uri, bool &isExist) = 0;
     virtual int StartWatcher(const Uri &uri) = 0;
-    virtual int StopWatcher(const Uri &uri) = 0;
+    virtual int StopWatcher(const Uri &uri, bool isUnregisterAll) = 0;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

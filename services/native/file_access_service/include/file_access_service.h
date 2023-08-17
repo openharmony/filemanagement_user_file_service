@@ -90,8 +90,9 @@ public:
     int32_t Dump(int32_t fd, const std::vector<std::u16string> &args) override;
 
 public:
-    int32_t RegisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer, bool notifyForDescendants) override;
+    int32_t RegisterNotify(Uri uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer) override;
     int32_t UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer) override;
+    int32_t CleanAllNotify(Uri uri) override;
     int32_t OnChange(Uri uri, NotifyType notifyType) override;
 
 private:

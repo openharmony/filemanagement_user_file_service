@@ -18,6 +18,7 @@
 
 #include "ifile_access_service_base.h"
 #include "iremote_proxy.h"
+#include "system_ability_load_callback_stub.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -25,11 +26,23 @@ class FileAccessServiceProxy : public IRemoteProxy<IFileAccessServiceBase> {
 public:
     explicit FileAccessServiceProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IFileAccessServiceBase>(impl) {}
     ~FileAccessServiceProxy() = default;
+    static sptr<IFileAccessServiceBase> GetInstance();
     int32_t OnChange(Uri uri, NotifyType notifyType) override;
-    int32_t RegisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer, bool notifyForDescendants) override;
+    int32_t RegisterNotify(Uri uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer) override;
     int32_t UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer) override;
 
+    class ServiceProxyLoadCallback : public SystemAbilityLoadCallbackStub {
+    public:
+        void OnLoadSystemAbilitySuccess(int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject) override;
+        void OnLoadSystemAbilityFail(int32_t systemAbilityId) override;
+        std::condition_variable proxyConVar_;
+        std::atomic<bool> isLoadSuccess_{false};
+    };
+
 private:
+    int32_t UnregisterNotifyInternal(MessageParcel &data);
+    static inline std::mutex proxyMutex_;
+    static inline sptr<IFileAccessServiceBase> serviceProxy_;
     static inline BrokerDelegator<FileAccessServiceProxy> delegator_;
 };
 } // namespace FileAccessFwk

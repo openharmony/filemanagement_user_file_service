@@ -21,6 +21,7 @@
 #include "access_token.h"
 #include "accesstoken_kit.h"
 #include "file_access_framework_errno.h"
+#include "file_access_service_ipc_interface_code.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ipc_object_stub.h"
@@ -36,9 +37,12 @@ namespace {
 }
 FileAccessServiceStub::FileAccessServiceStub()
 {
-    stubFuncMap_[CMD_REGISTER_NOTIFY] = &FileAccessServiceStub::CmdRegisterNotify;
-    stubFuncMap_[CMD_UNREGISTER_NOTIFY] = &FileAccessServiceStub::CmdUnregisterNotify;
-    stubFuncMap_[CMD_ONCHANGE] = &FileAccessServiceStub::CmdOnChange;
+    stubFuncMap_[static_cast<uint32_t>(FileAccessServiceInterfaceCode::CMD_REGISTER_NOTIFY)] =
+        &FileAccessServiceStub::CmdRegisterNotify;
+    stubFuncMap_[static_cast<uint32_t>(FileAccessServiceInterfaceCode::CMD_UNREGISTER_NOTIFY)] =
+        &FileAccessServiceStub::CmdUnregisterNotify;
+    stubFuncMap_[static_cast<uint32_t>(FileAccessServiceInterfaceCode::CMD_ONCHANGE)] =
+        &FileAccessServiceStub::CmdOnChange;
 }
 
 FileAccessServiceStub::~FileAccessServiceStub()
@@ -50,12 +54,6 @@ int32_t FileAccessServiceStub::OnRemoteRequest(uint32_t code, MessageParcel &dat
     MessageOption &option)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OnRemoteRequest");
-    if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
-        HILOG_ERROR("permission error");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_PERMISSION;
-    }
-
     std::u16string descriptor = FileAccessServiceStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
@@ -69,6 +67,11 @@ int32_t FileAccessServiceStub::OnRemoteRequest(uint32_t code, MessageParcel &dat
         return (this->*(itFunc->second))(data, reply);
     }
 
+    if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
+        HILOG_ERROR("permission error");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_PERMISSION;
+    }
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
@@ -120,7 +123,7 @@ ErrCode FileAccessServiceStub::CmdRegisterNotify(MessageParcel &data, MessagePar
     }
 
     bool notifyForDescendants = data.ReadBool();
-    int ret = RegisterNotify(*uri, observer, notifyForDescendants);
+    int ret = RegisterNotify(*uri, notifyForDescendants, observer);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter RegisterNotify fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -140,21 +143,27 @@ ErrCode FileAccessServiceStub::CmdUnregisterNotify(MessageParcel &data, MessageP
         return E_IPCS;
     }
 
-    sptr<IRemoteObject> obj = data.ReadRemoteObject();
-    if (obj == nullptr) {
-        HILOG_INFO("get remote obj fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_IPCS;
+    bool observerNotNull = data.ReadBool();
+    int ret = E_IPCS;
+    if (observerNotNull) {
+        sptr<IRemoteObject> obj = data.ReadRemoteObject();
+        if (obj == nullptr) {
+            HILOG_INFO("get remote obj fail.");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+            return E_IPCS;
+        }
+
+        sptr<IFileAccessObserver> observer = iface_cast<IFileAccessObserver>(obj);
+        if (observer == nullptr) {
+            HILOG_INFO("get observer fail");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+            return E_IPCS;
+        }
+        ret = UnregisterNotify(*uri, observer);
+    } else {
+        ret = CleanAllNotify(*uri);
     }
 
-    sptr<IFileAccessObserver> observer = iface_cast<IFileAccessObserver>(obj);
-    if (observer == nullptr) {
-        HILOG_INFO("get observer fail");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_IPCS;
-    }
-
-    int ret = UnregisterNotify(*uri, observer);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter UnregisterNotify fail to WriteInt32 ret");
         FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
