@@ -86,6 +86,7 @@ function parsePhotoPickerSelectOption(args) {
     parameters: {
       uri: 'multipleselect',
     },
+    uri: 'multipleselect',
   };
 
   if (args.length > ARGS_ZERO && typeof args[ARGS_ZERO] === 'object') {
