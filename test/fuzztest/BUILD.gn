@@ -14,5 +14,20 @@
 group("user_file_service_fuzz_test") {
   testonly = true
 
-  deps = [ "externalfileaccess_fuzzer:ExternalFileAccessFuzzTest" ]
+  deps = [
+    "externalfileaccess_fuzzer:ExternalFileAccessFuzzTest",
+    "externalfileaccessaccess_fuzzer:ExternalFileAccessAccessFuzzTest",
+    "externalfileaccesscreatefile_fuzzer:ExternalFileAccessCreateFileFuzzTest",
+    "externalfileaccessdelete_fuzzer:ExternalFileAccessDeleteFuzzTest",
+    "externalfileaccessgetfileinfofromrelativepath_fuzzer:ExternalFileAccessGetFileInfoFromRelativePathFuzzTest",
+    "externalfileaccessgetfileinfofromuri_fuzzer:ExternalFileAccessGetFileInfoFromUriFuzzTest",
+    "externalfileaccessgetroots_fuzzer:ExternalFileAccessGetRootsFuzzTest",
+    "externalfileaccessgetthumbnail_fuzzer:ExternalFileAccessGetThumbnailFuzzTest",
+    "externalfileaccesslistfile_fuzzer:ExternalFileAccessListFileFuzzTest",
+    "externalfileaccessmkdir_fuzzer:ExternalFileAccessMkdirFuzzTest",
+    "externalfileaccessmove_fuzzer:ExternalFileAccessMoveFuzzTest",
+    "externalfileaccessopenfile_fuzzer:ExternalFileAccessOpenFileFuzzTest",
+    "externalfileaccessrename_fuzzer:ExternalFileAccessRenameFuzzTest",
+    "externalfileaccessscanfile_fuzzer:ExternalFileAccessScanFileFuzzTest",
+  ]
 }
