@@ -1281,6 +1281,8 @@ napi_value NAPI_RegisterObserver(napi_env env, napi_callback_info info)
             return nullptr;
         }
         if (!RegisterObserver(env, funcArg, callback)) {
+            HILOG_ERROR("RegisterObserver failed");
+            NError(EINVAL).ThrowErr(env);
             return nullptr;
         }
 
@@ -1300,6 +1302,8 @@ napi_value NAPI_RegisterObserver(napi_env env, napi_callback_info info)
         observerWrapper.release();
     } else {
         if (!RegisterObserver(env, funcArg, wrapper->callback)) {
+            HILOG_ERROR("RegisterObserver failed");
+            NError(EINVAL).ThrowErr(env);
             return nullptr;
         }
     }
