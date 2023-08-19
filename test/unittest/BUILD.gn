@@ -181,8 +181,8 @@ group("user_file_service_unit_test") {
   testonly = true
 
   deps = [
-     ":js_file_access_ext_ability_test" ,
-     ":abnormal_file_access_test",
-     ":external_file_access_test",
-     ]
+    ":abnormal_file_access_test",
+    ":external_file_access_test",
+    ":js_file_access_ext_ability_test",
+  ]
 }
