@@ -92,7 +92,7 @@ ohos_unittest("external_file_access_test") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "ipc:ipc_rpc",
+    "ipc:ipc_js",
     "samgr:samgr_proxy",
   ]
 }
