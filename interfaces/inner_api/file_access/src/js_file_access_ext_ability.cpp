@@ -36,6 +36,7 @@
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
 #include "system_ability_definition.h"
+#include "n_error.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -46,10 +47,13 @@ namespace {
     constexpr size_t ARGC_THREE = 3;
     constexpr size_t ARGC_FOUR = 4;
     constexpr size_t MAX_ARG_COUNT = 5;
+    constexpr int COPY_EXCEPTION = -1;
+    constexpr int COPY_NOEXCEPTION = -2;
 }
 
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::AbilityRuntime;
+using namespace OHOS::FileManagement::LibN;
 using OHOS::Security::AccessToken::AccessTokenKit;
 
 struct FilterParam {
@@ -592,6 +596,129 @@ int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent,
     newFile = Uri(value->data);
     FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
+}
+
+static void TranslateCopyResult(CopyResult &copyResult)
+{
+    if (errCodeTable.find(copyResult.errCode) != errCodeTable.end()) {
+        copyResult.errCode = errCodeTable.at(copyResult.errCode).first;
+        if (copyResult.errMsg.empty()) {
+            copyResult.errMsg = errCodeTable.at(copyResult.errCode).second;
+        }
+    }
+}
+
+static bool GetResultByJs(NativeEngine &engine, NativeValue *nativeCopyResult, CopyResult &result, int &copyRet)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetResultsByJs");
+    NativeObject *obj = ConvertNativeValueTo<NativeObject>(nativeCopyResult);
+    if (obj == nullptr) {
+        HILOG_ERROR("Convert js object fail.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return false;
+    }
+
+    bool ret = true;
+    if (copyRet == COPY_NOEXCEPTION) {
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("sourceUri"), result.sourceUri);
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("destUri"), result.destUri);
+    }
+    if ((copyRet == COPY_NOEXCEPTION) || (copyRet == COPY_EXCEPTION)) {
+        ret = ret && ConvertFromJsValue(engine, obj->GetProperty("errCode"), result.errCode);
+    }
+    if (!ret) {
+        HILOG_ERROR("Convert js value fail.");
+    }
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return ret;
+}
+
+static bool ParserGetJsCopyResult(NativeEngine &engine, NativeValue *nativeValue,
+    std::vector<CopyResult> &copyResult, int &copyRet)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ParserGetJsCopyResult");
+    NativeObject *obj = ConvertNativeValueTo<NativeObject>(nativeValue);
+    if (obj == nullptr) {
+        HILOG_ERROR("Convert js object fail.");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return false;
+    }
+
+    bool ret = ConvertFromJsValue(engine, obj->GetProperty("code"), copyRet);
+    if (!ret) {
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        HILOG_ERROR("Convert js value fail.");
+        return false;
+    }
+    if (copyRet == ERR_OK) {
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return true;
+    }
+
+    NativeArray *nativeArray = ConvertNativeValueTo<NativeArray>(obj->GetProperty("results"));
+    if (nativeArray == nullptr) {
+        HILOG_ERROR("nativeArray is nullptr");
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return false;
+    }
+
+    for (uint32_t i = 0; i < nativeArray->GetLength(); i++) {
+        NativeValue *nativeCopyResult = nativeArray->GetElement(i);
+        if (nativeCopyResult == nullptr) {
+            HILOG_ERROR("get native FileInfo fail.");
+            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+            return false;
+        }
+
+        CopyResult result;
+        ret = GetResultByJs(engine, nativeCopyResult, result, copyRet);
+        if (ret) {
+            TranslateCopyResult(result);
+            copyResult.push_back(result);
+        }
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return true;
+}
+
+int JsFileAccessExtAbility::Copy(const Uri &sourceUri, const Uri &destUri, std::vector<CopyResult> &copyResult,
+    bool force)
+{
+    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Copy");
+    auto argParser = [sourceUri, destUri, force](NativeEngine &engine, NativeValue* argv[], size_t &argc) -> bool {
+        NativeValue *srcNativeUri = engine.CreateString(sourceUri.ToString().c_str(),
+            sourceUri.ToString().length());
+        NativeValue *dstNativeUri = engine.CreateString(destUri.ToString().c_str(), destUri.ToString().length());
+        NativeValue *forceCopy = engine.CreateBoolean(force);
+        if (srcNativeUri == nullptr || dstNativeUri == nullptr || forceCopy == nullptr) {
+            HILOG_ERROR("create arguments native js value fail.");
+            return false;
+        }
+        argv[ARGC_ZERO] = srcNativeUri;
+        argv[ARGC_ONE] = dstNativeUri;
+        argv[ARGC_TWO] = forceCopy;
+        argc = ARGC_THREE;
+        return true;
+    };
+
+    int copyRet = COPY_EXCEPTION;
+    auto retParser = [&copyResult, &copyRet](NativeEngine &engine, NativeValue *result) -> bool {
+        return ParserGetJsCopyResult(engine, result, copyResult, copyRet);
+    };
+
+    auto errCode = CallJsMethod("copy", jsRuntime_, jsObj_.get(), argParser, retParser);
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
+        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        CopyResult result { "", "", errCode, ""};
+        TranslateCopyResult(result);
+        copyResult.push_back(result);
+        return COPY_EXCEPTION;
+    }
+
+    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+    return copyRet;
 }
 
 int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)

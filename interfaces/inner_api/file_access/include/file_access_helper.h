@@ -106,7 +106,8 @@ private:
 
     std::shared_ptr<ConnectInfo> GetConnectInfo(const std::string &bundleName);
 
-    int CopyInsideService(Uri &sourceUri, Uri &destUri, std::vector<CopyResult> &copyResult, bool force = false);
+    int CopyOperation(Uri &sourceUri, Uri &destUri, std::vector<CopyResult> &copyResult, bool force = false);
+    int IsDirectory(Uri &uri, bool &isDir);
 
     sptr<IRemoteObject> token_ = nullptr;
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap_;

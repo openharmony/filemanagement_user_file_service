@@ -46,6 +46,8 @@ namespace {
     static napi_ref g_constructorRef = nullptr;
     constexpr uint32_t INITIAL_REFCOUNT = 1;
     constexpr int COPY_EXCEPTION = -1;
+    using CallbackExec = std::function<NError()>;
+    using CallbackComplete = std::function<NVal(napi_env, NError)>;
 }
 
 std::list<std::shared_ptr<FileAccessHelper>> g_fileAccessHelperList = {};
@@ -679,7 +681,7 @@ static napi_value CreateObjectArray(napi_env env, std::vector<CopyResult> result
     return copyResultArray;
 }
 
-std::tuple<bool, std::string, std::string, bool> GetCopyArguments(napi_env env, NFuncArg &funcArg)
+static std::tuple<bool, std::string, std::string, bool> GetCopyArguments(napi_env env, NFuncArg &funcArg)
 {
     bool retStatus = false;
     std::unique_ptr<char[]> srcPath;
@@ -718,6 +720,35 @@ std::tuple<bool, std::string, std::string, bool> GetCopyArguments(napi_env env, 
     return std::make_tuple(true, srcPathStr, destPathStr, force);
 }
 
+static napi_value AddCopyNAsyncWork(napi_env env, NFuncArg &funcArg, CallbackExec cbExec, CallbackComplete cbComplete)
+{
+    const std::string procedureName = "copy";
+    NVal thisVar(env, funcArg.GetThisVar());
+
+    if (funcArg.GetArgc() == NARG_CNT::TWO) {
+        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
+    }
+
+    if (funcArg.GetArgc() == NARG_CNT::THREE) {
+        NVal thirdArg(env, funcArg[NARG_POS::THIRD]);
+        if (thirdArg.TypeIs(napi_boolean)) {
+            return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
+        }
+        if (thirdArg.TypeIs(napi_function)) {
+            return NAsyncWorkCallback(env, thisVar, thirdArg).Schedule(procedureName, cbExec, cbComplete).val_;
+        }
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    NVal cb(env, funcArg[NARG_POS::FOURTH]);
+    if (!cb.TypeIs(napi_function)) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
+}
+
 napi_value NAPI_Copy(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
@@ -746,7 +777,6 @@ napi_value NAPI_Copy(napi_env env, napi_callback_info info)
         NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
-
     int ret = ERR_OK;
     auto cbExec = [srcPathStr, destPathStr, force, result, &ret, fileAccessHelper]() -> NError {
         OHOS::Uri srcUri(srcPathStr);
@@ -764,31 +794,7 @@ napi_value NAPI_Copy(napi_env env, napi_callback_info info)
         return { env, CreateObjectArray(env, *result) };
     };
 
-    const std::string procedureName = "copy";
-    NVal thisVar(env, funcArg.GetThisVar());
-
-    if (funcArg.GetArgc() == NARG_CNT::TWO) {
-        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-    }
-
-    if (funcArg.GetArgc() == NARG_CNT::THREE) {
-        NVal thirdArg(env, funcArg[NARG_POS::THIRD]);
-        if (thirdArg.TypeIs(napi_boolean) || thirdArg.TypeIs(napi_undefined)) {
-            return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-        }
-        if (thirdArg.TypeIs(napi_function)) {
-            return NAsyncWorkCallback(env, thisVar, thirdArg).Schedule(procedureName, cbExec, cbComplete).val_;
-        }
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
-    }
-
-    NVal cb(env, funcArg[NARG_POS::FOURTH]);
-    if (!cb.TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
-    }
-    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
+    return AddCopyNAsyncWork(env, funcArg, cbExec, cbComplete);
 }
 
 napi_value NAPI_Rename(napi_env env, napi_callback_info info)
