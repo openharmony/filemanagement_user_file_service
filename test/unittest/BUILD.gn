@@ -36,7 +36,6 @@ ohos_unittest("medialibrary_file_access_test") {
   ]
 
   external_deps = [
-    "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_context_native",
     "ability_runtime:ability_manager",
@@ -47,8 +46,6 @@ ohos_unittest("medialibrary_file_access_test") {
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
     "c_utils:utils",
-    "image_framework:image_native",
-    "ipc:ipc_core",
     "ipc_js:rpc",
     "samgr:samgr_proxy",
   ]
