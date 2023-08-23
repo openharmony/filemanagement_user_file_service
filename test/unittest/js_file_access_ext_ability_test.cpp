@@ -70,6 +70,15 @@ public:
     void TearDown(){};
 };
 
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_OpenFile_0000
+ * @tc.name: js_file_access_ext_ability_OpenFile_0000
+ * @tc.desc: Test function of OpenFile for error which CallJsMethod error
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I7U2SX
+ */
 HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0000, testing::ext::TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_OpenFile_0000";
@@ -85,7 +94,15 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0000, t
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_OpenFile_0000";
 }
 
-// Test function of CreateFile for error which CallJsMethod error (case )
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_CreateFile_0000
+ * @tc.name: js_file_access_ext_ability_CreateFile_0000
+ * @tc.desc: Test function of CreateFile for error which CallJsMethod error
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I7U2SX
+ */
 HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CreateFile_0000, testing::ext::TestSize.Level1) {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin js_file_access_ext_ability_CreateFile_0000";
     try {
@@ -100,7 +117,15 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CreateFile_0000,
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_CreateFile_0000";
 }
 
-// Test function of Mkdir for error which CallJsMethod error (case )
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_Mkdir_0000
+ * @tc.name: js_file_access_ext_ability_Mkdir_0000
+ * @tc.desc: Test function of Mkdir for error which CallJsMethod error
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I7U2SX
+ */
 HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Mkdir_0000, testing::ext::TestSize.Level1) {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin js_file_access_ext_ability_Mkdir_0000";
     try {
@@ -115,7 +140,15 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Mkdir_0000, test
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Mkdir_0000";
 }
 
-// Test function of Delete for error which CallJsMethod error (case )
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_Delete_0000
+ * @tc.name: js_file_access_ext_ability_Delete_0000
+ * @tc.desc: Test function of Delete for error which CallJsMethod error
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I7U2SX
+ */
 HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Delete_0000, testing::ext::TestSize.Level1) {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin js_file_access_ext_ability_Delete_0000";
     try {
@@ -128,7 +161,15 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Delete_0000, tes
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Delete_0000";
 }
 
-// Test function of Move for error which CallJsMethod error (case )
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_Move_0000
+ * @tc.name: js_file_access_ext_ability_Move_0000
+ * @tc.desc: Test function of Move for error which CallJsMethod error
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I7U2SX
+ */
 HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Move_0000, testing::ext::TestSize.Level1) {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin js_file_access_ext_ability_Move_0000";
     try {
@@ -143,7 +184,15 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Move_0000, testi
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Move_0000";
 }
 
-// Test function of Rename for error which CallJsMethod error (case )
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_Rename_0000
+ * @tc.name: js_file_access_ext_ability_Rename_0000
+ * @tc.desc: Test function of Rename for error which CallJsMethod error
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I7U2SX
+ */
 HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0000, testing::ext::TestSize.Level1) {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin js_file_access_ext_ability_Rename_0000";
     try {
@@ -158,7 +207,15 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0000, tes
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Rename_0000";
 }
 
-// Test function of ListFile calljsmethod error
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_ListFile_0000
+ * @tc.name: js_file_access_ext_ability_ListFile_0000
+ * @tc.desc: Test function of ListFile for error which CallJsMethod error
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I7U2SX
+ */
 HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ListFile_0000, testing::ext::TestSize.Level1) {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin js_file_access_ext_ability_ListFile_0000";
     try {
@@ -175,7 +232,15 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ListFile_0000, t
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_ListFile_0000";
 }
 
-// Test function of ScanFile calljsmethod error
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_ScanFile_0000
+ * @tc.name: js_file_access_ext_ability_ScanFile_0000
+ * @tc.desc: Test function of ScanFile for error which CallJsMethod error
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I7U2SX
+ */
 HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ScanFile_0000, testing::ext::TestSize.Level1) {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin js_file_access_ext_ability_ScanFile_0000";
     try {
@@ -192,7 +257,15 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ScanFile_0000, t
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_ScanFile_0000";
 }
 
-// Test function of GetRoots calljsmethod error
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_GetRoots_0000
+ * @tc.name: js_file_access_ext_ability_GetRoots_0000
+ * @tc.desc: Test function of GetRoots for error which CallJsMethod error
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I7U2SX
+ */
 HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetRoots_0000, testing::ext::TestSize.Level1) {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin js_file_access_ext_ability_GetRoots_0000";
     try {
@@ -205,7 +278,15 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetRoots_0000, t
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_ScanFile_0000";
 }
 
-// Test function of Access calljsmethod error
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_Access_0000
+ * @tc.name: js_file_access_ext_ability_Access_0000
+ * @tc.desc: Test function of Access for error which CallJsMethod error
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I7U2SX
+ */
 HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Access_0000, testing::ext::TestSize.Level1) {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin js_file_access_ext_ability_Access_0000";
     try {
@@ -219,7 +300,15 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Access_0000, tes
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Access_0000";
 }
 
-// Test function of Query calljsmethod error
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_Query_0000
+ * @tc.name: js_file_access_ext_ability_Query_0000
+ * @tc.desc: Test function of Query for error which CallJsMethod error
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I7U2SX
+ */
 HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Query_0000, testing::ext::TestSize.Level1) {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin js_file_access_ext_ability_Query_0000";
     try {
@@ -234,7 +323,15 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Query_0000, test
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Query_0000";
 }
 
-// Test function of GetFileInfoFromUri calljsmethod error
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_GetFileInfoFromUri_0000
+ * @tc.name: js_file_access_ext_ability_GetFileInfoFromUri_0000
+ * @tc.desc: Test function of GetFileInfoFromUri for error which CallJsMethod error
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I7U2SX
+ */
 HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromUri_0000,
         testing::ext::TestSize.Level1) {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin js_file_access_ext_ability_GetFileInfoFromUri_0000";
@@ -249,7 +346,15 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromU
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_GetFileInfoFromUri_0000";
 }
 
-// Test function of GetFileInfoFromRelativePath calljsmethod error
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_GetFileInfoFromRelativePath_0000
+ * @tc.name: js_file_access_ext_ability_GetFileInfoFromRelativePath_0000
+ * @tc.desc: Test function of GetFileInfoFromRelativePath for error which CallJsMethod error
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I7U2SX
+ */
 HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromRelativePath_0000,
         testing::ext::TestSize.Level1) {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin js_file_access_ext_ability_GetFileInfoFromRelativePath_0000";
@@ -264,7 +369,15 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromR
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_GetFileInfoFromRelativePath_0000";
 }
 
-// Test function of StartWatcher calljsmethod error
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_StartWatcher_0000
+ * @tc.name: js_file_access_ext_ability_StartWatcher_0000
+ * @tc.desc: Test function of StartWatcher for error which CallJsMethod error
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I7U2SX
+ */
 HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_StartWatcher_0000, testing::ext::TestSize.Level1) {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin js_file_access_ext_ability_StartWatcher_0000";
     try {
@@ -277,7 +390,15 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_StartWatcher_000
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_StartWatcher_0000";
 }
 
-// Test function of StopWatcher calljsmethod error
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_StopWatcher_0000
+ * @tc.name: js_file_access_ext_ability_StopWatcher_0000
+ * @tc.desc: Test function of StopWatcher for error which CallJsMethod error
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I7U2SX
+ */
 HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_StopWatcher_0000, testing::ext::TestSize.Level1) {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin js_file_access_ext_ability_StopWatcher_0000";
     try {

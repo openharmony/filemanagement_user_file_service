@@ -145,7 +145,6 @@ ohos_unittest("js_file_access_ext_ability_test") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "//third_party/googletest/googlemock/include/gmock",
     "${user_file_service_path}/interfaces/inner_api/file_access/include",
-    ".",
   ]
 
   configs = [ "//build/config/compiler:exceptions" ]
@@ -156,12 +155,10 @@ ohos_unittest("js_file_access_ext_ability_test") {
   ]
 
   external_deps = [
-    "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_manager",
     "ability_runtime:app_context",
     "ability_runtime:extensionkit_native",
-    "ability_runtime:napi_common",
     "ability_runtime:runtime",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
@@ -170,8 +167,6 @@ ohos_unittest("js_file_access_ext_ability_test") {
     "c_utils:utils",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
-    "image_framework:image_native",
-    "ipc:ipc_core",
     "napi:ace_napi",
     "samgr:samgr_proxy",
   ]
