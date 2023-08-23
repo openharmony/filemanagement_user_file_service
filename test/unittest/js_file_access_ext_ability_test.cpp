@@ -30,15 +30,9 @@
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "runtime.h"
-#include "ipc_skeleton.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "js_file_access_ext_ability.h"
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
-#include "napi_common_util.h"
-#include "napi_common_want.h"
-#include "napi_remote_object.h"
 
 namespace {
 using namespace std;
