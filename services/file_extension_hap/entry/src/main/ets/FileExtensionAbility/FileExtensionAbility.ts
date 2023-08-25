@@ -16,6 +16,7 @@
 import Extension from '@ohos.application.FileAccessExtensionAbility';
 import fs from '@ohos.file.fs';
 import type { Filter } from '@ohos.file.fs';
+import fileAccess from '@ohos.file.fileAccess';
 import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
 import hilog from '@ohos.hilog';
 import { getFileInfos } from './ListScanFileInfo';
@@ -54,6 +55,8 @@ const DELETE_EVENT = 1;
 const MOVED_TO = 2;
 const MOVED_FROM = 3;
 const MOVED_SELF = 4;
+const DEVICE_ONLINE = 5;
+const DEVICE_OFFLINE = 6;
 const TRASH_PATH = '/storage/.Trash/Users/100/';
 const TRASH_SUB_FODER = '/oh_trash_content';
 const EXTERNAL_PATH = '/storage/External';
@@ -66,6 +69,11 @@ let eventMap = new Map([
   [MOVE_TO_CODE, MOVED_TO],
   [MOVED_FROM_CODE, MOVED_FROM],
   [MOVE_SELF_CODE, MOVED_SELF]
+]);
+
+let deviceOnlineMap = new Map([
+  [CREATE_EVENT_CODE, DEVICE_ONLINE],
+  [IN_DELETE_EVENT_CODE, DEVICE_OFFLINE]
 ]);
 
 // ['IN_ACCESS', 0x00000001],
@@ -774,6 +782,15 @@ export default class FileExtAbility extends Extension {
     return resultsResultObject(queryResults, ERR_OK);
   }
 
+  isDeviceUri(uri): boolean {
+    let tempUri = uri.slice(0, uri.lastIndexOf('/'))
+    let deviceUris = fileAccess.DeviceRoots
+    if (deviceUris.indexOf(tempUri) != -1) {
+      return true;
+    }
+    return false;
+  }
+
   startWatcher(uri, callback): number {
     uri = decodeUri(uri);
     if (!checkUri(uri)) {
@@ -786,12 +803,16 @@ export default class FileExtAbility extends Extension {
           MOVE_TO_CODE | MOVED_FROM_CODE | MOVE_SELF_CODE, (data) => {
           try {
             let eventCode = -1;
-            eventMap.forEach((value, key) => {
+            let targetUri = FILE_PREFIX_NAME + BUNDLE_NAME + data.fileName;
+            let tempMap = eventMap;
+            if (this.isDeviceUri(targetUri)) {
+              tempMap = deviceOnlineMap;
+            }
+            tempMap.forEach((value, key) => {
               if (data.event & key) {
                 eventCode = value;
               }
             });
-            let targetUri = FILE_PREFIX_NAME + BUNDLE_NAME + data.fileName;
             targetUri = encodePathOfUri(targetUri);
             if (eventCode >= 0) {
               callback(targetUri, eventCode);

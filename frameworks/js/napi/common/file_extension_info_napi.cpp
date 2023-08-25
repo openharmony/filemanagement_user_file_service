@@ -214,11 +214,40 @@ void InitNotifyType(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_PROPERTY("NOTIFY_MOVED_TO", NVal::CreateInt32(env, MOVED_TO).val_),
         DECLARE_NAPI_STATIC_PROPERTY("NOTIFY_MOVED_FROM", NVal::CreateInt32(env, MOVED_FROM).val_),
         DECLARE_NAPI_STATIC_PROPERTY("NOTIFY_MOVE_SELF", NVal::CreateInt32(env, MOVED_SELF).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("NOTIFY_DEVICE_ONLINE", NVal::CreateInt32(env, DEVICE_ONLINE).val_),
+        DECLARE_NAPI_STATIC_PROPERTY("NOTIFY_DEVICE_OFFLINE", NVal::CreateInt32(env, DEVICE_OFFLINE).val_),
     };
     napi_value obj = nullptr;
     napi_define_class(env, className, NAPI_AUTO_LENGTH, RootInfoConstructor, nullptr,
         sizeof(desc) / sizeof(*desc), desc, &obj);
     napi_set_named_property(env, exports, className, obj);
+}
+
+void InitDeviceUri(napi_env env, napi_value exports)
+{
+    napi_value deviceUri = nullptr;
+    napi_create_string_utf8(env, DEVICE_URI.c_str(), DEVICE_URI.length(), &deviceUri);
+    napi_set_named_property(env, exports, "DEVICE_URI", deviceUri);
+}
+
+void InitDeviceRoots(napi_env env, napi_value exports)
+{
+    napi_value deviceRoots = nullptr;
+    napi_status status = napi_create_array_with_length(env, DEVICE_ROOTS.size(), &deviceRoots);
+    if (status != napi_ok) {
+        HILOG_ERROR("Create array failed, error: %{public}d", status);
+    }
+    int elementIndex = 0;
+    for (auto deviceRoot : DEVICE_ROOTS) {
+        napi_value deviceRootRet = nullptr;
+        napi_create_string_utf8(env, deviceRoot.c_str(), NAPI_AUTO_LENGTH, &deviceRootRet);
+        status = napi_set_element(env, deviceRoots, elementIndex++, deviceRootRet);
+        if (status != napi_ok) {
+            HILOG_ERROR("Set lite item failed, error: %{public}d", status);
+            break;
+        }
+    }
+    napi_set_named_property(env, exports, "DeviceRoots", deviceRoots);
 }
 } // namespace FileAccessFwk
 } // namespace OHOS
