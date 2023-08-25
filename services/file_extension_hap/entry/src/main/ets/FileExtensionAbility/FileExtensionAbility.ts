@@ -50,6 +50,8 @@ const DELETE_EVENT = 1;
 const MOVED_TO = 2;
 const MOVED_FROM = 3;
 const MOVED_SELF = 4;
+const TRASH_PATH = '/storage/.Trash/Users/100/';
+const TRASH_SUB_FODER = '/oh_trash_content';
 let observerMap = new Map();
 let watcherCountMap = new Map();
 let eventMap = new Map([
@@ -275,6 +277,74 @@ export default class FileExtAbility extends Extension {
     }
   }
 
+  mkdirs(path): void {
+    if (path.length > 0) {
+      // argument uri is dir, add '/'
+      path = path + '/';
+      for (let i = 1; i < path.length; ++i) {
+        if (path.charAt(i) === '/') {
+          let subDir = path.substring(0, i);
+          hilog.info(DOMAIN_CODE, TAG, 'mkdirs: subDir path = ' + subDir);
+          try {
+            let isAccess = fs.accessSync(subDir);
+            if (!isAccess) {
+              fs.mkdirSync(subDir);
+            }
+          } catch (e) {
+            hilog.error(DOMAIN_CODE, TAG, 'mkdirs error ' + e.message);
+          }
+        }
+      }
+    }
+  }
+
+  deleteToTrash(path): number {
+    hilog.info(DOMAIN_CODE, TAG, 'deleteToTrash: path:' + path);
+    let code = ERR_OK;
+    let pathLen = path.length;
+    if (path.charAt(pathLen - 1) === '/') {
+      path = path.substring(0, pathLen - 1);
+    }
+    // 取最后一级和前一层目录
+    let posLastSlash = path.lastIndexOf('/');
+    if (posLastSlash === -1) {
+      hilog.error(DOMAIN_CODE, TAG, 'Mkdirs: invalid uri');
+      return E_URIS;
+    }
+
+    let selectPathOnly = path.substring(0, posLastSlash);
+    // 获取时间戳
+    let curTime = new Date().getTime();
+    // 拼接新路径
+    let currentTrashParentPath = TRASH_PATH + curTime + selectPathOnly + TRASH_SUB_FODER + curTime;
+    hilog.info(DOMAIN_CODE, TAG, 'deleteToTrash: currentTrashParentPath:' + currentTrashParentPath);
+    // 创建回收站目录
+    this.mkdirs(currentTrashParentPath);
+    try {
+      let stat = fs.statSync(path);
+      if (!stat.isDirectory()) {
+        let selectFileOnly = path.substring(posLastSlash);
+        hilog.info(DOMAIN_CODE, TAG, 'deleteToTrash: selectFileOnly:' + selectFileOnly);
+        let newFileName = currentTrashParentPath + selectFileOnly;
+        hilog.info(DOMAIN_CODE, TAG, 'deleteToTrash: newFileName:' + newFileName);
+        // 移动文件
+        fs.moveFileSync(path, newFileName, 0);
+      } else {
+        // 待删除文件夹
+        let toDeleteDir = path.substring(posLastSlash);
+        // 移动待删除文件夹
+        fs.moveDirSync(selectPathOnly + toDeleteDir, currentTrashParentPath, MOVE_MODLE_CODE);
+        if (fs.accessSync(path)) {
+          fs.rmdirSync(path);
+        }
+      }
+    } catch (e) {
+      hilog.error(DOMAIN_CODE, TAG, 'deleteToTrash error ' + e.message);
+      return e.code;
+    }
+    return code;
+  }
+
   delete(selectFileUri): number {
     selectFileUri = this.decode(selectFileUri);
     if (selectFileUri === '') {
@@ -287,19 +357,9 @@ export default class FileExtAbility extends Extension {
       return E_URIS;
     }
     let path = getPath(selectFileUri);
-    let code = ERR_OK;
-    try {
-      let stat = fs.statSync(path);
-      if (stat.isDirectory()) {
-        fs.rmdirSync(path);
-      } else {
-        fs.unlinkSync(path);
-      }
-    } catch (e) {
-      hilog.error(DOMAIN_CODE, TAG, 'deleteFile error ' + e.message);
-      return e.code;
-    }
-    return code;
+
+    hilog.info(DOMAIN_CODE, TAG, 'Delete: path = ' + path);
+    return this.deleteToTrash(path);
   }
 
   move(sourceFileUri, targetParentUri): {string, number} {
