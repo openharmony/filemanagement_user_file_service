@@ -86,6 +86,7 @@ function parsePhotoPickerSelectOption(args) {
     parameters: {
       uri: 'multipleselect',
     },
+    uri: 'multipleselect',
   };
 
   if (args.length > ARGS_ZERO && typeof args[ARGS_ZERO] === 'object') {
@@ -366,7 +367,7 @@ async function audioPickerSelect(...args) {
     throw Error({code: 13900020, message: 'Invalid argument'});
   }
 
-  const config = parseDocumentPickerSelectOption(args, action.SELECT_ACTION);
+  const config = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION);
   console.log('[picker] config: ' + JSON.stringify(config));
 
   try {
