@@ -89,6 +89,54 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0000, t
 }
 
 /**
+ * @tc.number: user_file_service_js_file_access_OpenFile_0001
+ * @tc.name: js_file_access_OpenFile_0001
+ * @tc.desc: Test function of OpenFile interface for failed which openfile's fd is failed.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_OpenFile_0001";
+    try{
+    Uri uri("");
+    int flags = WRITE_READ;
+    int fd;
+    g_ability -> OpenFile(uri, flags, fd);
+    EXPECT_LE(fd, ERR_OK);
+    } catch(...) {
+        GTEST_LOG_(ERROR) << "js_file_access_ext_ability_OpenFile_0001 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_OpenFile_0001";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_OpenFile_0002
+ * @tc.name: js_file_access_OpenFile_0002
+ * @tc.desc: Test function of OpenFile interface for failed which openfile's uri is null.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_OpenFile_0002";
+    try{
+    Uri uri("");
+    int flags = WRITE_READ;
+    int fd;
+    int result = g_ability -> OpenFile(uri, flags, fd);
+    EXPECT_NE(result, E_URIS);
+    } catch(...) {
+        GTEST_LOG_(ERROR) << "js_file_access_ext_ability_OpenFile_0002 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_OpenFile_0002";
+}
+
+/**
  * @tc.number: user_file_service_js_file_access_ext_ability_CreateFile_0000
  * @tc.name: js_file_access_ext_ability_CreateFile_0000
  * @tc.desc: Test function of CreateFile for error which CallJsMethod error
