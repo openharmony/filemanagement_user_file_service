@@ -26,7 +26,7 @@
 namespace OHOS {
 namespace FileAccessFwk {
 
-constexpr int64_t MAX_COUNT = 1000;     // ListFile get file's max count
+constexpr int64_t MAX_COUNT = 500;     // ListFile get file's max count
 
 struct FileIteratorEntity {
     FileAccessHelper *fileAccessHelper { nullptr };

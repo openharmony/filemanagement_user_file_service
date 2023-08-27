@@ -44,6 +44,7 @@
             "group_type":{
                 "fwk_group": [
                     "//foundation/filemanagement/user_file_service/interfaces/kits/picker:picker",
+                    "//foundation/filemanagement/user_file_service/interfaces/kits/native/recent:recent",
                     "//foundation/filemanagement/user_file_service/interfaces/kits/native/trash:trash"
                 ],
                 "service_group": [
