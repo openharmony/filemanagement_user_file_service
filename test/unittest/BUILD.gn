@@ -49,7 +49,7 @@ ohos_unittest("medialibrary_file_access_test") {
     "c_utils:utils",
     "image_framework:image_native",
     "ipc:ipc_core",
-    "ipc_js:rpc",
+    "ipc:ipc_js",
     "samgr:samgr_proxy",
   ]
 
@@ -97,7 +97,7 @@ ohos_unittest("external_file_access_test") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "ipc_js:rpc",
+    "ipc:ipc_js",
     "samgr:samgr_proxy",
   ]
 }

@@ -52,7 +52,7 @@ ohos_fuzztest("ExternalFileAccessFuzzTest") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "ipc_js:rpc",
+    "ipc:ipc_js",
     "samgr:samgr_proxy",
   ]
 
