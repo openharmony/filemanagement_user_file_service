@@ -197,7 +197,7 @@ static bool Mkdirs(const string &path, bool isDir, string &newRecoveredPath)
     string recoveredPath = path;
     string folderName = "";
     size_t lastPos = 0;
-    if (recoveredPath.length() <= 0) {
+    if (recoveredPath.length() == 0) {
         return false;
     }
     // if argument uri is dir, then add "/"
@@ -248,7 +248,7 @@ static bool MoveFile(const string &srcFile, const string &destFile)
         HILOG_ERROR("MoveFile: Failed to request heap memory.");
         return false;
     }
-    
+
     int ret = uv_fs_access(nullptr, access_req.get(), destFile.c_str(), 0, nullptr);
     if (ret < 0 && (string_view(uv_err_name(ret)) != "ENOENT")) {
         HILOG_ERROR("MoveFile: destPath not access and err is not ENOENT");
@@ -269,7 +269,7 @@ static string RecurCheckIfOnlyContentInDir(const string &path, size_t trashWithT
     HILOG_INFO("RecurCheckIfOnlyContentInDir: path = %{public}s", path.c_str());
     size_t slashPos = path.find_last_of("/");
     if (slashPos <= trashWithTimePos) {
-        HILOG_DEBUG("RecurCheckIfOnlyContentInDir: slashPos = %{public}u", slashPos);
+        HILOG_DEBUG("RecurCheckIfOnlyContentInDir: slashPos = %{public}zu", slashPos);
         return trashWithTimePath;
     }
     string parentPath = path.substr(0, slashPos);
@@ -317,7 +317,7 @@ static string GetToDeletePath(const string &toDeletePath, napi_env env)
 static vector<FileInfo> GenerateFileInfoEntities(vector<string> filterDirents)
 {
     vector<FileInfo> fileInfoList;
-    for (int k = 0; k < filterDirents.size(); k++) {
+    for (size_t k = 0; k < filterDirents.size(); k++) {
         string filterDirent = filterDirents[k];
         HILOG_INFO("ListFile: After filter dirent  = %{public}s", filterDirent.c_str());
 
@@ -373,7 +373,7 @@ napi_value FileTrashNExporter::ListFile(napi_env env, napi_callback_info info)
 
     vector<string> filterDirents;
     size_t slashSize = 1;
-    for (int j = 0; j < dirents.size(); j++) {
+    for (size_t j = 0; j < dirents.size(); j++) {
         string dirent = dirents[j];
         HILOG_DEBUG("ListFile: After RecursiveFunc dirent = %{public}s", dirent.c_str());
 
@@ -385,7 +385,6 @@ napi_value FileTrashNExporter::ListFile(napi_env env, napi_callback_info info)
         size_t pos = dirent.find(TRASH_SUB_DIR + timeSlot + "/");
         if (pos != string::npos) {
             string trashSubDir = TRASH_SUB_DIR + timeSlot;
-            string pathBehTrashSub = dirent.substr(pos + trashSubDir.length() + slashSize, dirent.length());
             if (dirent.find("/", pos + trashSubDir.length() + slashSize) == string::npos) {
                 filterDirents.emplace_back(dirent);
             }
@@ -422,12 +421,12 @@ static napi_value RecoverFile(napi_env env, const string &filePath)
 static void RecoverFilePart(vector<string> filePathList, map<string, string> dirPath2UpdatedNameMap)
 {
     // 处理文件
-    for (int j = 0; j < filePathList.size(); j++) {
+    for (size_t j = 0; j < filePathList.size(); j++) {
         string filePath = filePathList[j];
         HILOG_INFO("RecoverFilePart: filePath  = %{public}s", filePath.c_str());
         string sourceFilePath = FindSourceFilePath(filePath);
         HILOG_INFO("RecoverFilePart: sourceFilePath  = %{public}s", sourceFilePath.c_str());
-                
+
         size_t lastSlashPos = sourceFilePath.find_last_of("/");
         string fileName = sourceFilePath.substr(lastSlashPos + 1);
         string sourceFilePathOnly = sourceFilePath.substr(0, lastSlashPos);
@@ -443,10 +442,10 @@ static vector<string> FilterDirsNoContains(vector<string> dirPathList)
 {
     //先处理目录，仅保留不互相包含的目录（取子目录较深的)
     vector<string> filterDirPathList;
-    for (int j = 0; j < dirPathList.size(); j++) {
+    for (size_t j = 0; j < dirPathList.size(); j++) {
         string dirPath = dirPathList[j];
         bool isIncluded = false;
-        for (int k = 0; k < filterDirPathList.size(); k++) {
+        for (size_t k = 0; k < filterDirPathList.size(); k++) {
             string filterDirPath = filterDirPathList[k];
             if (StartsWith(filterDirPath, dirPath)) {
                 isIncluded = true;
@@ -463,7 +462,7 @@ static vector<string> FilterDirsNoContains(vector<string> dirPathList)
 static map<string, string> MakeAndFindUpdateNameDir(vector<string> filterDirPathList)
 {
     map<string, string> dirPath2UpdatedNameMap;
-    for (int j = 0; j < filterDirPathList.size(); j++) {
+    for (size_t j = 0; j < filterDirPathList.size(); j++) {
         string dirPath = filterDirPathList[j];
         string sourceFilePath = FindSourceFilePath(dirPath);
         HILOG_DEBUG("MakeAndFindUpdateNameDir: sourceFilePath  = %{public}s", sourceFilePath.c_str());
@@ -496,7 +495,7 @@ static napi_value RecoverDir(napi_env env, const string &dirPath)
     // 区分目录和文件
     vector<string> dirPathList;
     vector<string> filePathList;
-    for (int j = 0; j < dirents.size(); j++) {
+    for (size_t j = 0; j < dirents.size(); j++) {
         string dirent = dirents[j];
         if (CheckDir(dirent)) {
             dirPathList.emplace_back(dirent);
