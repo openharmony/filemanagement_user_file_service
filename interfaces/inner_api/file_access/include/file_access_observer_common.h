@@ -46,7 +46,7 @@ public:
     {
         notifyType_ = NotifyType(parcel.ReadInt32());
         auto count = parcel.ReadInt32();
-        if(size>1000){
+        if (count > 1000) {
             return ;
         }
         for (int i = 0; i < count; i++) {
