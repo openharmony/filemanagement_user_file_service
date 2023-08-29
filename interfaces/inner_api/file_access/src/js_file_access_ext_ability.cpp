@@ -608,7 +608,7 @@ static void TranslateCopyResult(CopyResult &copyResult)
     }
 }
 
-static bool GetResultByJs(NativeEngine &engine, NativeValue *nativeCopyResult, CopyResult &result, int &copyRet)
+static bool GetResultByJs(NativeEngine &engine, NativeValue *nativeCopyResult, CopyResult &result, const int &copyRet)
 {
     StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetResultsByJs");
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(nativeCopyResult);
