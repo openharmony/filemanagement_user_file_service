@@ -47,7 +47,7 @@ public:
         notifyType_ = NotifyType(parcel.ReadInt32());
         auto count = parcel.ReadInt32();
         if (count > 1000) {
-            return ;
+            return false;
         }
         for (int i = 0; i < count; i++) {
             uris_.push_back(parcel.ReadString());
