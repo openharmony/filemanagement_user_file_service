@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#ifndef FILE_ACCESS_SERVICE_IPC_INTERFACE_CODE_H
+#define FILE_ACCESS_SERVICE_IPC_INTERFACE_CODE_H
+
 namespace OHOS {
 namespace FileAccessFwk {
     enum class FileAccessServiceInterfaceCode {
@@ -22,3 +25,4 @@ namespace FileAccessFwk {
     };
 } // namespace FileAccessFwk
 } // namespace OHOS
+#endif // FILE_ACCESS_SERVICE_IPC_INTERFACE_CODE_H

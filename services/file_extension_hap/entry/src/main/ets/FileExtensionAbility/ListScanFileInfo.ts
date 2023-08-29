@@ -133,14 +133,14 @@ function getFileInfos(sourceFileUri: string, offset: number, count: number, filt
 {infos: Fileinfo[], code: number} {
   let infos : Fileinfo[] = [];
   let path = getPath(sourceFileUri);
-  let statPath = fs.statSync(path);
-  if (!statPath.isDirectory()) {
-    return {
-      infos: [],
-      code: E_GETRESULT,
-    };
-  }
   try {
+    let statPath = fs.statSync(path);
+    if (!statPath.isDirectory()) {
+      return {
+        infos: [],
+        code: E_GETRESULT,
+      };
+    }
     let options;
     let listNum = offset + count;
     if (hasFilter(filter)) {
@@ -177,7 +177,7 @@ function getFileInfos(sourceFileUri: string, offset: number, count: number, filt
       });
     }
   } catch (e) {
-    hilog.error(DOMAIN_CODE, TAG, 'getFileInfos error ' + e.message);
+    hilog.error(DOMAIN_CODE, TAG, `getFileInfos error: ${e.message},code: ${e.code}`);
     return {
       infos: [],
       code: E_GETRESULT,
