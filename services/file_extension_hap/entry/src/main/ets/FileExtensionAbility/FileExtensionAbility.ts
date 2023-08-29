@@ -348,10 +348,7 @@ export default class FileExtAbility extends Extension {
   delete(selectFileUri): number {
     selectFileUri = this.decode(selectFileUri);
     if (selectFileUri === '') {
-      return {
-        uri: '',
-        code: E_URIS
-      };
+      return E_URIS;
     }
     if (!checkUri(selectFileUri)) {
       return E_URIS;
