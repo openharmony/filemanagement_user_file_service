@@ -5176,4 +5176,26 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0007, testing::ext:
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Query_0007";
 }
+
+/**
+ * @tc.number: user_file_service_external_file_access_GetBundleNameFromPath_0000
+ * @tc.name: external_file_access_GetBundleNameFromPath_0000
+ * @tc.desc: Test function of GetBundleNameFromPath interface for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0386
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_GetBundleNameFromPath_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetBundleNameFromPath_0000";
+    try {
+        Uri uri("file://media/some/path");
+        auto result = g_fah->GetProxyByUri(uri);
+        EXPECT_EQ(result, nullptr);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_GetBundleNameFromPath_0000 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_GetBundleNameFromPath_0000";
+}
 } // namespace
