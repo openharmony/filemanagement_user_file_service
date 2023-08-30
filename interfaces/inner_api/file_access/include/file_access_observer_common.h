@@ -25,7 +25,7 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-const int MAX_COUNT = 1000;
+const MAX_COUNT = 1000;
 enum NotifyType {
     NOTIFY_ADD = 0,
     NOTIFY_DELETE,
