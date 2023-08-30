@@ -25,7 +25,7 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-constexpr int64_t MAX_COUNT = 1000;
+constexpr int64_t MAX_COUNTNUM = 1000;
 enum NotifyType {
     NOTIFY_ADD = 0,
     NOTIFY_DELETE,
@@ -46,7 +46,7 @@ public:
     {
         notifyType_ = NotifyType(parcel.ReadInt32());
         auto count = parcel.ReadInt32();
-        if (count > MAX_COUNT) {
+        if (count > MAX_COUNTNUM) {
             HILOG_ERROR("ERROR:Count greater than 1000 .");
             return false;
         }
