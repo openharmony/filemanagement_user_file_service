@@ -15,7 +15,7 @@
 
 #ifndef FILE_ACCESS_OBSERVER_COMMON_H
 #define FILE_ACCESS_OBSERVER_COMMON_H
-
+#define MAX_COUNT = 1000
 #include <string>
 #include <vector>
 
@@ -46,7 +46,8 @@ public:
     {
         notifyType_ = NotifyType(parcel.ReadInt32());
         auto count = parcel.ReadInt32();
-        if (count > 1000) {
+        if (count > MAX_COUNT) {
+            HILOG_ERROR("ERROR:Count greater than 1000 .");
             return false;
         }
         for (int i = 0; i < count; i++) {
