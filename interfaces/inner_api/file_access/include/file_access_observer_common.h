@@ -15,7 +15,7 @@
 
 #ifndef FILE_ACCESS_OBSERVER_COMMON_H
 #define FILE_ACCESS_OBSERVER_COMMON_H
-#define MAX_COUNT = 1000
+
 #include <string>
 #include <vector>
 
@@ -25,7 +25,7 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-
+const int MAX_COUNT = 1000;
 enum NotifyType {
     NOTIFY_ADD = 0,
     NOTIFY_DELETE,
