@@ -112,19 +112,20 @@ static bool CheckDir(const string &path)
     return false;
 }
 
-static bool Access(const string &path)
+static tuple<bool, int> Access(const string &path)
 {
     unique_ptr<uv_fs_t, decltype(fs_req_cleanup)*> access_req = { new uv_fs_t, fs_req_cleanup };
     if (!access_req) {
         HILOG_ERROR("Failed to request heap memory.");
-        return false;
+        return {false, ENOMEM};
     }
     int ret = uv_fs_access(nullptr, access_req.get(), path.c_str(), 0, nullptr);
     if (ret < 0 && (string_view(uv_err_name(ret)) != "ENOENT")) {
         HILOG_ERROR("Failed to access file by path");
-        return false;
+        return {false, ret};
     }
-    return (ret == 0);
+    bool isExist = (ret == 0);
+    return {isExist, ERRNO_NOERR};
 }
 
 static bool Mkdir(const string &path)
@@ -249,5 +250,4 @@ static int ScanDir(const string &path)
     HILOG_INFO("RecursiveFunc: scandir path = %{public}s", path.c_str());
     return scandir(path.c_str(), &(pNameList->namelist), FilterFunc, alphasort);
 }
-
 } // OHOS::FileManagement

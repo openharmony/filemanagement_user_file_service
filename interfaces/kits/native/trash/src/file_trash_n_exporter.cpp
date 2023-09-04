@@ -193,7 +193,6 @@ static string FindSourceFilePath(const string &path)
 static bool Mkdirs(const string &path, bool isDir, string &newRecoveredPath)
 {
     HILOG_INFO("Mkdirs: path = %{public}s", path.c_str());
-    bool isExist = false;
     string recoveredPath = path;
     string folderName = "";
     size_t lastPos = 0;
@@ -205,7 +204,6 @@ static bool Mkdirs(const string &path, bool isDir, string &newRecoveredPath)
         recoveredPath = recoveredPath + "/";
     }
 
-    size_t recoveredPathLength = recoveredPath.length();
     for (size_t i = 1; i < recoveredPath.length(); ++i) {
         if (recoveredPath[i] != '/') {
             continue;
@@ -213,25 +211,8 @@ static bool Mkdirs(const string &path, bool isDir, string &newRecoveredPath)
         recoveredPath[i] = '\0';
         folderName = recoveredPath.substr(lastPos + 1, i);
         lastPos = i;
-        isExist = Access(recoveredPath);
-        if (isExist) {
-            HILOG_INFO("Mkdir: Access exist for %{public}s ", recoveredPath.c_str());
-            // 对于最后一层目录（即最后一层），如果存在同名，则需要新建（原名称+时间戳）的目录
-            if (i != recoveredPathLength - 1) {
-                recoveredPath[i] = '/';
-                continue;
-            }
-            recoveredPath[i] = '_';
-            int64_t curTime = chrono::duration_cast<chrono::milliseconds>
-                ((chrono::system_clock::now()).time_since_epoch()).count();
-            newRecoveredPath = recoveredPath + to_string(curTime);
-            if (!Mkdir(newRecoveredPath)) {
-                HILOG_ERROR("Access exist for last Mkdirs fail path = %{public}s", newRecoveredPath.c_str());
-                return false;
-            } else {
-                return true;
-            }
-        } else if (!Mkdir(recoveredPath)) {
+        auto [isExist, ret] = Access(recoveredPath);
+        if (!isExist && !Mkdir(recoveredPath)) {
             HILOG_ERROR("Mkdirs fail for %{public}s ", recoveredPath.c_str());
             return false;
         }
@@ -240,28 +221,74 @@ static bool Mkdirs(const string &path, bool isDir, string &newRecoveredPath)
     return true;
 }
 
+static string GenerateNewFileNameWithSuffix(const string &destFile, int32_t distinctSuffixIndex,
+    const string &newPrefix, const string &newSuffix)
+{
+    // 处理存在后缀名的文件
+    auto [isExist, ret] = Access(destFile);
+    if (isExist) {
+        distinctSuffixIndex += 1;
+        string newDestFile = newPrefix + to_string(distinctSuffixIndex) + newSuffix;
+        return GenerateNewFileNameWithSuffix(newDestFile, distinctSuffixIndex, newPrefix, newSuffix);
+    } else if (!isExist && (ret == ERRNO_NOERR)) {
+        HILOG_DEBUG("GenerateNewFileNameWithSuffix: destFile = %{public}s", destFile.c_str());
+        return destFile;
+    }
+    return "";
+}
+
+static string GenerateNewFileNameNoSuffix(const string &destFile, int32_t distinctSuffixIndex, const string &newPrefix)
+{
+    // 处理不存在后缀名的文件
+    auto [isExist, ret] = Access(destFile);
+    if (isExist) {
+        distinctSuffixIndex += 1;
+        string newDestFile = newPrefix + to_string(distinctSuffixIndex);
+        return GenerateNewFileNameNoSuffix(newDestFile, distinctSuffixIndex, newPrefix);
+    } else if (!isExist && (ret == ERRNO_NOERR)) {
+        HILOG_DEBUG("GenerateNewFileNameNoSuffix: destFile = %{public}s", destFile.c_str());
+        return destFile;
+    }
+    return "";
+}
+
 static bool MoveFile(const string &srcFile, const string &destFile)
 {
-    unique_ptr<uv_fs_t, decltype(fs_req_cleanup)*> access_req = {
-        new uv_fs_t, fs_req_cleanup };
-    if (!access_req) {
-        HILOG_ERROR("MoveFile: Failed to request heap memory.");
-        return false;
-    }
-
-    int ret = uv_fs_access(nullptr, access_req.get(), destFile.c_str(), 0, nullptr);
-    if (ret < 0 && (string_view(uv_err_name(ret)) != "ENOENT")) {
-        HILOG_ERROR("MoveFile: destPath not access and err is not ENOENT");
-        return false;
-    }
-    if (ret == 0) {
-        // 存在同名文件，需要加上时间戳
-        int64_t expireTime = chrono::duration_cast<chrono::milliseconds>
-            ((chrono::system_clock::now()).time_since_epoch()).count();
-        string newDestFile = destFile + to_string(expireTime);
+    // 判断目的文件是否存在
+    auto [isExist, ret] = Access(destFile);
+    if (isExist) {
+        // 存在同名文件，需要加上数字后缀区分
+        // 获取文件前一级目录'/' 位置，从这个位置出发寻找文件后缀分隔符'.'
+        size_t slashPos = destFile.find_last_of("/");
+        if (slashPos == string::npos) {
+            HILOG_ERROR("MoveFile: : Invalid Path");
+            return false;
+        }
+        size_t suffixPos = destFile.find_first_of('.', slashPos);
+        HILOG_DEBUG("MoveFile: slashPos = %{public}u", slashPos);
+        HILOG_DEBUG("MoveFile: suffixPos = %{public}u", suffixPos);
+        string newDestFile = destFile;
+        int32_t distinctSuffixIndex = 1;
+        if (suffixPos == string::npos) {
+            string newPrefix = newDestFile + " ";
+            newDestFile = newPrefix + to_string(distinctSuffixIndex);
+            newDestFile = GenerateNewFileNameNoSuffix(newDestFile, distinctSuffixIndex, newPrefix);
+        } else {
+            string newPrefix = destFile.substr(0, suffixPos) + " ";
+            string newSuffix =  destFile.substr(suffixPos);
+            HILOG_DEBUG("MoveFile: newPrefix = %{public}s", newPrefix.c_str());
+            HILOG_DEBUG("MoveFile: newSuffix = %{public}s", newSuffix.c_str());
+            // 查看加上数字后缀后文件是否已经存在，若存在，需要重新获取
+            newDestFile = GenerateNewFileNameWithSuffix(newPrefix + to_string(distinctSuffixIndex) + newSuffix,
+                distinctSuffixIndex, newPrefix, newSuffix);
+        }
+        HILOG_INFO("MoveFile: newDestFile = %{public}s", newDestFile.c_str());
         return RenameFile(srcFile, newDestFile);
+    } else if (!isExist && (ret == ERRNO_NOERR)) {
+        return RenameFile(srcFile, destFile);
     }
-    return RenameFile(srcFile, destFile);
+    HILOG_ERROR("MoveFile: : Invalid Path");
+    return false;
 }
 
 static string RecurCheckIfOnlyContentInDir(const string &path, size_t trashWithTimePos, const string &trashWithTimePath)
@@ -331,9 +358,18 @@ static vector<FileInfo> GenerateFileInfoEntities(vector<string> filterDirents)
         fileInfoEntity.srcPath = URI_PATH_PREFIX + realFilePath;
         fileInfoEntity.fileName = fileName;
 
+        int32_t mode = SUPPORTS_READ | SUPPORTS_WRITE;
         StatEntity statEntity;
         if (GetStat(filterDirent, statEntity)) {
-            fileInfoEntity.mode = static_cast<int64_t>(statEntity.stat_.st_mode);
+            bool check = (statEntity.stat_.st_mode & S_IFMT) == S_IFDIR;
+            if (check) {
+                mode |= REPRESENTS_DIR;
+            } else {
+                mode |= REPRESENTS_FILE;
+            }
+            HILOG_DEBUG("ListFile: After filter mode  = %{public}d", mode);
+
+            fileInfoEntity.mode = mode;
             fileInfoEntity.size = static_cast<int64_t>(statEntity.stat_.st_size);
             fileInfoEntity.mtime = static_cast<int64_t>(statEntity.stat_.st_mtim.tv_sec);
             fileInfoEntity.ctime = static_cast<int64_t>(statEntity.stat_.st_ctim.tv_sec);
@@ -574,7 +610,8 @@ napi_value FileTrashNExporter::Recover(napi_env env, napi_callback_info info)
     }
 
     // 判断路径是否存在
-    if (!Access(path)) {
+    auto [isExist, ret] = Access(path);
+    if (!isExist) {
         NError(EINVAL).ThrowErr(env);
         HILOG_ERROR("Recover: Path is not exist");
         return nullptr;
@@ -631,7 +668,8 @@ napi_value FileTrashNExporter::CompletelyDelete(napi_env env, napi_callback_info
     }
 
     // 判断路径是否存在
-    if (!Access(path)) {
+    auto [isExist, ret] = Access(path);
+    if (!isExist) {
         NError(EINVAL).ThrowErr(env);
         HILOG_ERROR("Recover: Path is not exist");
         return nullptr;

@@ -22,7 +22,7 @@ struct FileInfo {
     std::string uri;
     std::string srcPath;
     std::string fileName;
-    int64_t mode { 0 };
+    int32_t mode { 0 };
     int64_t size { 0 };
     int64_t mtime { 0 };
     int64_t ctime { 0 };
