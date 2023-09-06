@@ -23,11 +23,13 @@ const PhotoViewMIMETypes = {
 const ErrCode = {
   INVALID_ARGS: 13900020,
   RESULT_ERROR: 13900042,
+  NAME_TOO_LONG: 13900030,
 }
 
 const ERRCODE_MAP = new Map([
   [ErrCode.INVALID_ARGS, 'Invalid argument'],
   [ErrCode.RESULT_ERROR, 'Unknown error'],
+  [ErrCode.NAME_TOO_LONG, 'File name too long'],
 ]);
 
 const PHOTO_VIEW_MIME_TYPE_MAP = new Map([
@@ -48,31 +50,58 @@ const ARGS_ZERO = 0;
 const ARGS_ONE = 1;
 const ARGS_TWO = 2;
 
+/*
+* UTF-8字符编码数值对应的存储长度：
+* 0000 - 0x007F (eg: a~z A~Z 0~9）
+* 0080 - 0x07FF (eg: 希腊字母）
+* 0800 - 0xFFFF (eg: 中文）
+* 其他 (eg: 平面符号）
+*/
+function strSizeUTF8(str) {
+  let strLen = str.length;
+  let bytesLen = 0;
+  for (let i = 0; i < strLen; i++) {
+    let charCode = str.charCodeAt(i);
+    if (charCode <= 0x007f) {
+      bytesLen++;
+    } else if (charCode <= 0x07ff) {
+      bytesLen += 2;
+    } else if (charCode <= 0xffff) {
+      bytesLen += 3;
+    } else {
+      bytesLen += 4;
+    }
+  }
+  return bytesLen;
+}
+
 function checkArguments(args) {
+  let checkArgumentsResult = undefined;
+
   if (args.length === ARGS_TWO && typeof args[ARGS_ONE] !== 'function') {
-    return false;
+    checkArgumentsResult = getErr(ErrCode.INVALID_ARGS);
   }
 
   if (args.length > 0 && typeof args[ARGS_ZERO] === 'object') {
     let option = args[ARGS_ZERO];
     if (option.maxSelectNumber !== undefined) {
       if (option.maxSelectNumber.toString().indexOf('.') !== -1) {
-        return false;
+        checkArgumentsResult = getErr(ErrCode.INVALID_ARGS);
       }
     }
 
     if (option.newFileNames !== undefined && option.newFileNames.length > 0) {
       for (let i = 0; i < option.newFileNames.length; i++) {
         let value = option.newFileNames[i];
-        if (value.length > CREATE_FILE_NAME_LENGTH_LIMIT) {
+        if (strSizeUTF8(value) > CREATE_FILE_NAME_LENGTH_LIMIT) {
           console.log('[picker] checkArguments Invalid name: ' + value);
-          return false;
+          checkArgumentsResult = getErr(ErrCode.NAME_TOO_LONG);
         }
       }
     }
   }
 
-  return true;
+  return checkArgumentsResult;
 }
 
 function getErr(errCode) {
@@ -126,9 +155,10 @@ function getPhotoPickerSelectResult(args) {
 }
 
 async function photoPickerSelect(...args) {
-  if (!checkArguments(args)) {
+  let checkArgsResult = checkArguments(args);
+  if (checkArgsResult !== undefined) {
     console.log('[picker] Invalid argument');
-    throw Error(getErr(ErrCode.INVALID_ARGS));
+    throw checkArgsResult;
   }
 
   const config = parsePhotoPickerSelectOption(args);
@@ -209,9 +239,10 @@ function getDocumentPickerSelectResult(args) {
 }
 
 async function documentPickerSelect(...args) {
-  if (!checkArguments(args)) {
+  let checkArgsResult = checkArguments(args);
+  if (checkArgsResult !== undefined) {
     console.log('[picker] Select Invalid argument');
-    throw Error(getErr(ErrCode.INVALID_ARGS));
+    throw checkArgsResult;
   }
 
   let context = undefined;
@@ -311,9 +342,10 @@ function getDocumentPickerSaveResult(args) {
 }
 
 async function documentPickerSave(...args) {
-  if (!checkArguments(args)) {
-    console.log('[picker] Save Invalid argument');
-    throw Error({code: 13900020, message: 'Invalid argument'});
+  let checkArgsResult = checkArguments(args);
+  if (checkArgsResult !== undefined) {
+    console.log('[picker] Invalid argument');
+    throw checkArgsResult;
   }
 
   let context = undefined;
@@ -330,12 +362,12 @@ async function documentPickerSave(...args) {
     config = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION_MODAL);
     result = await context.requestDialogService(config);
   } catch (paramError) {
-    console.log('[picker] Save paramError: ' + JSON.stringify(paramError));
+    console.log('[picker] paramError: ' + JSON.stringify(paramError));
     try {
       config = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION);
       result = await context.startAbilityForResult(config, {windowMode: 0});
     } catch (error) {
-      console.log('[picker] Save error: ' + error);
+      console.log('[picker] error: ' + error);
       return undefined;
     }
   }
@@ -361,9 +393,10 @@ async function documentPickerSave(...args) {
 }
 
 async function audioPickerSelect(...args) {
-  if (!checkArguments(args)) {
+  let checkArgsResult = checkArguments(args);
+  if (checkArgsResult !== undefined) {
     console.log('[picker] Invalid argument');
-    throw Error({code: 13900020, message: 'Invalid argument'});
+    throw checkArgsResult;
   }
 
   const config = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION);
