@@ -14,9 +14,9 @@
  */
 #include "recent_n_exporter.h"
 
-#include <unistd.h>
-#include <utime.h>
 #include <sys/stat.h>
+#include <sys/time.h>
+#include <unistd.h>
 
 #include "access_token.h"
 #include "accesstoken_kit.h"
@@ -37,6 +37,19 @@ static bool CheckPermission(const std::string &permission)
     Security::AccessToken::AccessTokenID tokenCaller = IPCSkeleton::GetCallingTokenID();
     return Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenCaller, permission) ==
         Security::AccessToken::PermissionState::PERMISSION_GRANTED;
+}
+
+static napi_value SetFileTime(napi_env env, const string &recentFilePath, const struct stat &statBuf)
+{
+    struct timeval newTime[2] {};
+    newTime[0].tv_sec = statBuf.st_atime;
+    newTime[1].tv_sec = time(nullptr);
+    if (lutimes(recentFilePath.c_str(), newTime) < 0) {
+        HILOG_ERROR("Failed to lutimes recent link, errno=%{public}d", errno);
+        NError(errno).ThrowErr(env);
+        return nullptr;
+    }
+    return NVal::CreateUndefined(env).val_;
 }
 
 napi_value RecentNExporter::AddRecentFile(napi_env env, napi_callback_info cbinfo)
@@ -62,24 +75,25 @@ napi_value RecentNExporter::AddRecentFile(napi_env env, napi_callback_info cbinf
         return nullptr;
     }
     string recentFilePath = RECENT_PATH + to_string(statBuf.st_dev) + "_" + to_string(statBuf.st_ino);
-    auto accessRet = access(recentFilePath.c_str(), F_OK);
-    if (accessRet == 0) {
-        struct utimbuf newTime;
-        newTime.actime = statBuf.st_atime;
-        newTime.modtime = time(nullptr);
-        if (utime(recentFilePath.c_str(), &newTime) < 0) {
-            HILOG_ERROR("Failed to utime uri, errno=%{public}d", errno);
-            NError(errno).ThrowErr(env);
-            return nullptr;
+    auto lstatRet = lstat(recentFilePath.c_str(), &statBuf);
+    if (lstatRet == 0) {
+        auto accessRet = access(recentFilePath.c_str(), F_OK);
+        if (accessRet < 0 && errno == ENOENT) {
+            if (unlink(recentFilePath.c_str()) < 0) {
+                HILOG_ERROR("Failed to unlink invalid recent link, errno=%{public}d", errno);
+                NError(errno).ThrowErr(env);
+                return nullptr;
+            }
+        } else if (accessRet == 0) {
+            return SetFileTime(env, recentFilePath, statBuf);
         }
-    } else if (accessRet < 0 && errno == ENOENT) {
-        if (symlink(filePath.c_str(), recentFilePath.c_str()) < 0) {
-            HILOG_ERROR("Failed to symlink uri, errno=%{public}d", errno);
-            NError(errno).ThrowErr(env);
-            return nullptr;
-        }
-    } else {
-        HILOG_ERROR("Failed to access uri, errno=%{public}d", errno);
+    } else if (lstatRet < 0 && errno != ENOENT) {
+        HILOG_ERROR("Failed to lstat uri, errno=%{public}d", errno);
+        NError(errno).ThrowErr(env);
+        return nullptr;
+    }
+    if (symlink(filePath.c_str(), recentFilePath.c_str()) < 0) {
+        HILOG_ERROR("Failed to symlink uri, errno=%{public}d", errno);
         NError(errno).ThrowErr(env);
         return nullptr;
     }
@@ -109,11 +123,6 @@ napi_value RecentNExporter::RemoveRecentFile(napi_env env, napi_callback_info cb
         return nullptr;
     }
     string recentFilePath = RECENT_PATH + to_string(statBuf.st_dev) + "_" + to_string(statBuf.st_ino);
-    if (access(recentFilePath.c_str(), F_OK) < 0) {
-        HILOG_ERROR("Failed to access uri, errno=%{public}d", errno);
-        NError(errno).ThrowErr(env);
-        return nullptr;
-    }
     if (unlink(recentFilePath.c_str()) < 0) {
         HILOG_ERROR("Failed to unlink uri, errno=%{public}d", errno);
         NError(errno).ThrowErr(env);
@@ -134,8 +143,8 @@ static int64_t GetFileMtime(const string &fileName)
 {
     string filePath = RECENT_PATH + fileName;
     struct stat statBuf;
-    if (stat(filePath.c_str(), &statBuf) < 0) {
-        HILOG_ERROR("Failed to stat uri, errno=%{public}d, fileName=%{public}s", errno, fileName.c_str());
+    if (lstat(filePath.c_str(), &statBuf) < 0) {
+        HILOG_ERROR("Failed to lstat uri, errno=%{public}d, fileName=%{public}s", errno, fileName.c_str());
         return errno;
     }
     return static_cast<int64_t>(statBuf.st_mtime);
@@ -152,7 +161,7 @@ static string GetName(const string &path)
 
 static int SortReceneFile(const struct dirent **a, const struct dirent **b)
 {
-    return GetFileMtime(string((*a)->d_name)) > GetFileMtime(string((*b)->d_name));
+    return GetFileMtime(string((*b)->d_name)) - GetFileMtime(string((*a)->d_name));
 }
 
 static int FilterFunc(const struct dirent *filename)
@@ -161,6 +170,22 @@ static int FilterFunc(const struct dirent *filename)
         return false;
     }
     return true;
+}
+
+static int CheckRealFileExist(const string &recentFilePath)
+{
+    int accessRet = access(recentFilePath.c_str(), F_OK);
+    if (accessRet < 0 && errno == ENOENT) {
+        if (unlink(recentFilePath.c_str()) < 0) {
+            HILOG_ERROR("Failed to unlink non-existent file, errno=%{public}d", errno);
+            return errno;
+        }
+        return -1;
+    } else if (accessRet < 0) {
+        HILOG_ERROR("Failed to access file, errno=%{public}d", errno);
+        return errno;
+    }
+    return 0;
 }
 
 static napi_value GetFileInfo(napi_env env, const string &filePath, const struct stat &statBuf)
@@ -179,6 +204,55 @@ static napi_value GetFileInfo(napi_env env, const string &filePath, const struct
     return obj.val_;
 }
 
+static napi_value GetListFileResult(napi_env env, struct NameListArg* pNameList)
+{
+    napi_value res = nullptr;
+    if (napi_create_array(env, &res) != napi_ok) {
+        HILOG_ERROR("Failed to create array");
+        NError(UNKROWN_ERR).ThrowErr(env);
+        return nullptr;
+    }
+    auto buf = CreateUniquePtr<char[]>(BUF_SIZE);
+    for (int i = 0, index = 0; i < pNameList->direntNum; ++i) {
+        string recentFilePath = RECENT_PATH + string((*(pNameList->namelist[i])).d_name);
+        if (i < MAX_RECENT_SIZE) {
+            auto checkRealFileRes = CheckRealFileExist(recentFilePath);
+            if (checkRealFileRes < 0) {
+                continue;
+            } else if (checkRealFileRes > 0) {
+                NError(checkRealFileRes).ThrowErr(env);
+                return nullptr;
+            }
+            auto readLinkRes = readlink(recentFilePath.c_str(), buf.get(), BUF_SIZE);
+            if (readLinkRes < 0) {
+                HILOG_ERROR("Failed to readlink uri, errno=%{public}d", errno);
+                NError(errno).ThrowErr(env);
+                return nullptr;
+            }
+            struct stat statBuf;
+            if (stat(recentFilePath.c_str(), &statBuf) < 0) {
+                HILOG_ERROR("Failed to lstat file, errno=%{public}d", errno);
+                NError(errno).ThrowErr(env);
+                return nullptr;
+            }
+            if (napi_set_element(env, res, index, GetFileInfo(env, string(buf.get(), readLinkRes),
+                statBuf)) != napi_ok) {
+                HILOG_ERROR("Failed to set element");
+                NError(UNKROWN_ERR).ThrowErr(env);
+                return nullptr;
+            }
+            ++index;
+        } else {
+            if (unlink(recentFilePath.c_str()) < 0) {
+                HILOG_ERROR("Failed to unlink file, errno=%{public}d", errno);
+                NError(errno).ThrowErr(env);
+                return nullptr;
+            }
+        }
+    }
+    return res;
+}
+
 static napi_value ListFileCore(napi_env env)
 {
     unique_ptr<struct NameListArg, decltype(Deleter)*> pNameList = { new (nothrow) struct NameListArg, Deleter };
@@ -193,42 +267,7 @@ static napi_value ListFileCore(napi_env env)
         NError(errno).ThrowErr(env);
         return nullptr;
     }
-    napi_value res = nullptr;
-    if (napi_create_array(env, &res) != napi_ok) {
-        HILOG_ERROR("Failed to create array");
-        NError(UNKROWN_ERR).ThrowErr(env);
-        return nullptr;
-    }
-    auto buf = CreateUniquePtr<char[]>(BUF_SIZE);
-    for (int i = 0; i < pNameList->direntNum; ++i) {
-        string recentFilePath = RECENT_PATH + string((*(pNameList->namelist[i])).d_name);
-        if (i < MAX_RECENT_SIZE) {
-            auto readLinkRes = readlink(recentFilePath.c_str(), buf.get(), BUF_SIZE);
-            if (readLinkRes < 0) {
-                HILOG_ERROR("Failed to readlink uri, errno=%{public}d", errno);
-                NError(errno).ThrowErr(env);
-                return nullptr;
-            }
-            struct stat statBuf;
-            if (lstat(recentFilePath.c_str(), &statBuf) < 0) {
-                HILOG_ERROR("Failed to lstat file, errno=%{public}d", errno);
-                NError(errno).ThrowErr(env);
-                return nullptr;
-            }
-            if (napi_set_element(env, res, i, GetFileInfo(env, string(buf.get(), readLinkRes), statBuf)) != napi_ok) {
-                HILOG_ERROR("Failed to set element");
-                NError(UNKROWN_ERR).ThrowErr(env);
-                return nullptr;
-            }
-        } else {
-            if (unlink(recentFilePath.c_str()) < 0) {
-                HILOG_ERROR("Failed to unlink file, errno=%{public}d", errno);
-                NError(errno).ThrowErr(env);
-                return nullptr;
-            }
-        }
-    }
-    return res;
+    return GetListFileResult(env, pNameList.get());
 }
 
 napi_value RecentNExporter::ListRecentFile(napi_env env, napi_callback_info cbinfo)
