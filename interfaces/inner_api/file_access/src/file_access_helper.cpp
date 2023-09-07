@@ -23,6 +23,7 @@
 #include "file_access_service_proxy.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "user_access_tracer.h"
 #include "if_system_ability_manager.h"
 #include "ifile_access_ext_base.h"
 #include "ipc_skeleton.h"
@@ -172,16 +173,15 @@ static bool IsSystemApp()
 std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> &context)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Creator");
+    UserAccessTracer trace;
+    trace.Start("Creator");
     if (context == nullptr) {
         HILOG_ERROR("FileAccessHelper::Creator failed, context == nullptr");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return {nullptr, EINVAL};
     }
 
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::Creator check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return {nullptr, E_PERMISSION_SYS};
     }
 
@@ -193,7 +193,6 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, GetUserId(), extensionInfos);
     if (!ret) {
         HILOG_ERROR("FileAccessHelper::Creator QueryExtensionAbilityInfos failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return {nullptr, E_GETINFO};
     }
 
@@ -203,7 +202,6 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         sptr<FileAccessExtConnection> fileAccessExtConnection(new(std::nothrow) FileAccessExtConnection());
         if (fileAccessExtConnection == nullptr) {
             HILOG_ERROR("new fileAccessExtConnection fail");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return {nullptr, E_GETRESULT};
         }
 
@@ -214,14 +212,12 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         sptr<IFileAccessExtBase> fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
         if (fileExtProxy == nullptr) {
             HILOG_ERROR("Creator get invalid fileExtProxy");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return {nullptr, E_CONNECT};
         }
 
         std::shared_ptr<ConnectInfo> connectInfo = std::make_shared<ConnectInfo>();
         if (!connectInfo) {
             HILOG_ERROR("Creator, connectInfo == nullptr");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return {nullptr, E_GETRESULT};
         }
         FileAccessHelper::wants_.push_back(wantTem);
@@ -233,39 +229,34 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
     FileAccessHelper *ptrFileAccessHelper = new (std::nothrow) FileAccessHelper(context, cMap);
     if (ptrFileAccessHelper == nullptr) {
         HILOG_ERROR("FileAccessHelper::Creator failed, create FileAccessHelper failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return {nullptr, E_GETRESULT};
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return {std::shared_ptr<FileAccessHelper>(ptrFileAccessHelper), ERR_OK};
 }
 
 std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::vector<AAFwk::Want> &wants)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Creator");
+    UserAccessTracer trace;
+    trace.Start("Creator");
     if (context == nullptr) {
         HILOG_ERROR("FileAccessHelper::Creator failed, context == nullptr");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return {nullptr, EINVAL};
     }
 
     if (wants.size() == 0) {
         HILOG_ERROR("FileAccessHelper::Creator failed, wants is empty");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return {nullptr, EINVAL};
     }
 
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::Creator check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return {nullptr, E_PERMISSION_SYS};
     }
 
     if (GetRegisteredFileAccessExtAbilityInfo(FileAccessHelper::wants_) != ERR_OK) {
         HILOG_ERROR("GetRegisteredFileAccessExtAbilityInfo failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return {nullptr, E_GETINFO};
     }
 
@@ -274,7 +265,6 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         sptr<FileAccessExtConnection> fileAccessExtConnection(new(std::nothrow) FileAccessExtConnection());
         if (fileAccessExtConnection == nullptr) {
             HILOG_ERROR("new fileAccessExtConnection fail");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return {nullptr, E_GETRESULT};
         }
 
@@ -285,14 +275,12 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         sptr<IFileAccessExtBase> fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
         if (fileExtProxy == nullptr) {
             HILOG_ERROR("Creator get invalid fileExtProxy");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return {nullptr, E_CONNECT};
         }
 
         std::shared_ptr<ConnectInfo> connectInfo = std::make_shared<ConnectInfo>();
         if (connectInfo == nullptr) {
             HILOG_ERROR("Creator, connectInfo == nullptr");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return {nullptr, E_GETRESULT};
         }
 
@@ -301,7 +289,6 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         string bundleName = FileAccessHelper::GetKeyOfWants(wants[i]);
         if (bundleName.length() == 0) {
             HILOG_ERROR("Creator GetKeyOfWants bundleName not found");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return {nullptr, E_GETRESULT};
         }
         cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(bundleName, connectInfo));
@@ -309,39 +296,34 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
     FileAccessHelper *ptrFileAccessHelper = new (std::nothrow) FileAccessHelper(context, cMap);
     if (ptrFileAccessHelper == nullptr) {
         HILOG_ERROR("Creator failed, create FileAccessHelper failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return {nullptr, E_GETRESULT};
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return {std::shared_ptr<FileAccessHelper>(ptrFileAccessHelper), ERR_OK};
 }
 
 std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteObject> &token,
     const std::vector<AAFwk::Want> &wants)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Creator");
+    UserAccessTracer trace;
+    trace.Start("Creator");
     if (token == nullptr) {
         HILOG_ERROR("FileAccessHelper::Creator failed, token == nullptr");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return nullptr;
     }
 
     if (wants.size() == 0) {
         HILOG_ERROR("FileAccessHelper::Creator failed, wants is empty");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return nullptr;
     }
 
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::Creator check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return nullptr;
     }
 
     if (GetRegisteredFileAccessExtAbilityInfo(FileAccessHelper::wants_) != ERR_OK) {
         HILOG_ERROR("GetRegisteredFileAccessExtAbilityInfo failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return nullptr;
     }
 
@@ -350,7 +332,6 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteOb
         sptr<FileAccessExtConnection> fileAccessExtConnection(new(std::nothrow) FileAccessExtConnection());
         if (fileAccessExtConnection == nullptr) {
             HILOG_ERROR("new fileAccessExtConnection fail");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return nullptr;
         }
 
@@ -361,14 +342,12 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteOb
         sptr<IFileAccessExtBase> fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
         if (fileExtProxy == nullptr) {
             HILOG_ERROR("Creator get invalid fileExtProxy");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return nullptr;
         }
 
         std::shared_ptr<ConnectInfo> connectInfo = std::make_shared<ConnectInfo>();
         if (!connectInfo) {
             HILOG_ERROR("Creator, connectInfo == nullptr");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return nullptr;
         }
 
@@ -377,7 +356,6 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteOb
         string bundleName = FileAccessHelper::GetKeyOfWants(wants[i]);
         if (bundleName.length() == 0) {
             HILOG_ERROR("Creator GetKeyOfWants bundleName not found");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return nullptr;
         }
         cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(bundleName, connectInfo));
@@ -385,11 +363,9 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteOb
     FileAccessHelper *ptrFileAccessHelper = new (std::nothrow) FileAccessHelper(token, cMap);
     if (ptrFileAccessHelper == nullptr) {
         HILOG_ERROR("Creator failed, create FileAccessHelper failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return nullptr;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return std::shared_ptr<FileAccessHelper>(ptrFileAccessHelper);
 }
 
@@ -470,148 +446,131 @@ bool FileAccessHelper::GetProxy()
 
 int FileAccessHelper::OpenFile(Uri &uri, int flags, int &fd)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
+    UserAccessTracer trace;
+    trace.Start("OpenFile");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::OpenFile check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
     if (!CheckUri(uri)) {
         HILOG_ERROR("Uri format check error.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_URIS;
     }
 
     if (flags != READ && flags != WRITE && flags != WRITE_READ) {
         HILOG_ERROR("flags type error.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return EINVAL;
     }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     int ret = fileExtProxy->OpenFile(uri, flags, fd);
     if (ret != ERR_OK) {
         HILOG_ERROR("OpenFile get result error, code:%{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Uri &newFile)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
+    UserAccessTracer trace;
+    trace.Start("CreateFile");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::CreateFile check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
     if (!CheckUri(parent)) {
         HILOG_ERROR("Uri format check error.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_URIS;
     }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(parent);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     int ret = fileExtProxy->CreateFile(parent, displayName, newFile);
     if (ret != ERR_OK) {
         HILOG_ERROR("CreateFile get result error, code:%{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &newDir)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Mkdir");
+    UserAccessTracer trace;
+    trace.Start("Mkdir");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::Mkdir check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
     if (!CheckUri(parent)) {
         HILOG_ERROR("Uri format check error.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_URIS;
     }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(parent);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     int ret = fileExtProxy->Mkdir(parent, displayName, newDir);
     if (ret != ERR_OK) {
         HILOG_ERROR("Mkdir get result error, code:%{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessHelper::Delete(Uri &selectFile)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
+    UserAccessTracer trace;
+    trace.Start("Delete");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::Delete check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
     if (!CheckUri(selectFile)) {
         HILOG_ERROR("Uri format check error.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_URIS;
     }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(selectFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     int ret = fileExtProxy->Delete(selectFile);
     if (ret != ERR_OK) {
         HILOG_ERROR("Delete get result error, code:%{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move");
+    UserAccessTracer trace;
+    trace.Start("Move");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::Move check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
@@ -619,31 +578,26 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
     Uri targetParentUri(targetParent.ToString());
     if (!CheckUri(sourceFile) || !CheckUri(targetParent)) {
         HILOG_ERROR("uri format check error.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_URIS;
     }
 
     if (sourceFileUri.GetAuthority() != targetParentUri.GetAuthority()) {
         HILOG_WARN("Operation failed, move not supported");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return EPERM;
     }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     int ret = fileExtProxy->Move(sourceFile, targetParent, newFile);
     if (ret != ERR_OK) {
         HILOG_ERROR("Move get result error, code:%{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
@@ -708,12 +662,12 @@ static int GetCopyResult(const std::string &sourceUri, const std::string &destUr
 
 int FileAccessHelper::CopyOperation(Uri &sourceUri, Uri &destUri, std::vector<CopyResult> &copyResult, bool force)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CopyOperation");
+    UserAccessTracer trace;
+    trace.Start("CopyOperation");
     int ret = COPY_EXCEPTION;
     sptr<IFileAccessExtBase> proxy = GetProxyByUri(sourceUri);
     if (proxy == nullptr) {
         HILOG_ERROR("Failed with invalid fileAccessExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         CopyResult result;
         ret = TranslateCopyResult(E_IPCS, result);
         copyResult.push_back(result);
@@ -722,7 +676,6 @@ int FileAccessHelper::CopyOperation(Uri &sourceUri, Uri &destUri, std::vector<Co
 
     ret = proxy->Copy(sourceUri, destUri, copyResult, force);
     if (ret != ERR_OK) {
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         if ((ret == COPY_EXCEPTION) || (ret == COPY_NOEXCEPTION)) {
             HILOG_ERROR("Copy exception, code:%{public}d", ret);
             FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
@@ -734,22 +687,20 @@ int FileAccessHelper::CopyOperation(Uri &sourceUri, Uri &destUri, std::vector<Co
         copyResult.push_back(result);
         return ret;
     }
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
 
 int FileAccessHelper::Copy(Uri &sourceUri, Uri &destUri, std::vector<CopyResult> &copyResult, bool force)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Copy");
+    UserAccessTracer trace;
+    trace.Start("Copy");
     if (!IsSystemApp()) {
         HILOG_ERROR("Copy check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return GetCopyResult("", "", E_PERMISSION_SYS, "", copyResult);
     }
 
     if (!CheckUri(sourceUri) || !CheckUri(destUri)) {
         HILOG_ERROR("Uri format check error");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return GetCopyResult("", "", E_URIS, "", copyResult);
     }
 
@@ -757,121 +708,106 @@ int FileAccessHelper::Copy(Uri &sourceUri, Uri &destUri, std::vector<CopyResult>
     int ret = IsDirectory(destUri, isDir);
     if (ret != ERR_OK) {
         HILOG_ERROR("Get uri type error");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         GetCopyResult("", "", ret, "", copyResult);
         return COPY_EXCEPTION;
     }
     if (!isDir) {
         HILOG_ERROR("Destination uri is not directory");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return GetCopyResult("", "", E_URIS, "", copyResult);
     }
 
     ret = CopyOperation(sourceUri, destUri, copyResult, force);
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
 
 int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Rename");
+    UserAccessTracer trace;
+    trace.Start("Rename");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::Rename check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
     if (!CheckUri(sourceFile)) {
         HILOG_ERROR("sourceFile format check error.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_URIS;
     }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     int ret = fileExtProxy->Rename(sourceFile, displayName, newFile);
     if (ret != ERR_OK) {
         HILOG_ERROR("Rename get result error, code:%{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessHelper::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
     const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
+    UserAccessTracer trace;
+    trace.Start("ListFile");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::ListFile check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
     Uri sourceFile(fileInfo.uri);
     if (!CheckUri(sourceFile)) {
         HILOG_ERROR("sourceFile format check error.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_URIS;
     }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     int ret = fileExtProxy->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     if (ret != ERR_OK) {
         HILOG_ERROR("ListFile get result error, code:%{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessHelper::ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
     const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ScanFile");
+    UserAccessTracer trace;
+    trace.Start("ScanFile");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::ScanFile check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
     Uri sourceFile(fileInfo.uri);
     if (!CheckUri(sourceFile)) {
         HILOG_ERROR("sourceFile format check error.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_URIS;
     }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     int ret = fileExtProxy->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     if (ret != ERR_OK) {
         HILOG_ERROR("ScanFile get result error, code:%{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
@@ -940,16 +876,15 @@ static int GetQueryResult(std::string &uri, std::vector<std::string> &columns, s
 
 int FileAccessHelper::Query(Uri &uri, std::string &metaJson)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Query");
+    UserAccessTracer trace;
+    trace.Start("Query");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::Query check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
     if (!CheckUri(uri)) {
         HILOG_ERROR("Uri format check error.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_URIS;
     }
 
@@ -959,47 +894,41 @@ int FileAccessHelper::Query(Uri &uri, std::string &metaJson)
     int ret = GetQueryColumns(uriString, metaJson, columns);
     if (ret != ERR_OK) {
         HILOG_ERROR("Query get columns error, code:%{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     ret = fileExtProxy->Query(uri, columns, results);
     if (ret != ERR_OK) {
         HILOG_ERROR("Query get result error, code:%{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
     ret = GetQueryResult(uriString, columns, results, metaJson);
     if (ret != ERR_OK) {
         HILOG_ERROR("Query get result error, code:%{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessHelper::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
+    UserAccessTracer trace;
+    trace.Start("GetRoots");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::GetRoots check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
     if (!GetProxy()) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
@@ -1018,23 +947,21 @@ int FileAccessHelper::GetRoots(std::vector<RootInfo> &rootInfoVec)
         ret = fileAccessExtProxy->GetRoots(results);
         if (ret != ERR_OK) {
             HILOG_ERROR("getRoots get fail ret:%{public}d", ret);
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return ret;
         }
 
         rootInfoVec.insert(rootInfoVec.end(), results.begin(), results.end());
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::Want> &wantVec)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRegisteredFileAccessExtAbilityInfo");
+    UserAccessTracer trace;
+    trace.Start("GetRegisteredFileAccessExtAbilityInfo");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::GetRoots check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
@@ -1042,14 +969,12 @@ int FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::W
     sptr<AppExecFwk::IBundleMgr> bm = FileAccessHelper::GetBundleMgrProxy();
     if (bm == nullptr) {
         HILOG_ERROR("GetBundleMgrProxy nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETINFO;
     }
     bool ret = bm->QueryExtensionAbilityInfos(
         AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, GetUserId(), extensionInfos);
     if (!ret) {
         HILOG_ERROR("FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo QueryExtensionAbilityInfos error");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETINFO;
     }
 
@@ -1060,211 +985,187 @@ int FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::W
         wantVec.push_back(want);
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessHelper::Access(Uri &uri, bool &isExist)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Access");
+    UserAccessTracer trace;
+    trace.Start("Access");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::Access check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
     if (!CheckUri(uri)) {
         HILOG_ERROR("uri format check error.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_URIS;
     }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     int ret = fileExtProxy->Access(uri, isExist);
     if (ret != ERR_OK) {
         HILOG_ERROR("Access get result error, code:%{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessHelper::GetThumbnail(Uri &uri, ThumbnailSize &thumbnailSize, std::shared_ptr<PixelMap> &pixelMap)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetThumbnail");
+    UserAccessTracer trace;
+    trace.Start("GetThumbnail");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::GetThumbnail check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
     if (!CheckUri(uri)) {
         HILOG_ERROR("Uri format check error.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_URIS;
     }
 
     string uriStr = uri.ToString();
     if (thumbnailSize.width <= 0 || thumbnailSize.height <= 0) {
         HILOG_ERROR("Size format check error.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     int ret = fileExtProxy->GetThumbnail(uri, thumbnailSize, pixelMap);
     if (ret != ERR_OK) {
         HILOG_ERROR("GetThumbnail get result error, code:%{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessHelper::GetFileInfoFromUri(Uri &selectFile, FileInfo &fileInfo)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromUri");
+    UserAccessTracer trace;
+    trace.Start("GetFileInfoFromUri");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::GetFileInfoFromUri check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
     if (!CheckUri(selectFile)) {
         HILOG_ERROR("selectFile uri format check error.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_URIS;
     }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(selectFile);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     int ret = fileExtProxy->GetFileInfoFromUri(selectFile, fileInfo);
     if (ret != ERR_OK) {
         HILOG_ERROR("GetFileInfoFromUri get result error, code:%{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessHelper::GetFileInfoFromRelativePath(std::string &selectFile, FileInfo &fileInfo)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromRelativePath");
+    UserAccessTracer trace;
+    trace.Start("GetFileInfoFromRelativePath");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::GetFileInfoFromRelativePath check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByBundleName(EXTERNAL_BNUDLE_NAME);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     int ret = fileExtProxy->GetFileInfoFromRelativePath(selectFile, fileInfo);
     if (ret != ERR_OK) {
         HILOG_ERROR("GetFileInfoFromRelativePath get result error, code:%{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessHelper::StartWatcher(Uri &uri)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "StartWatcher");
+    UserAccessTracer trace;
+    trace.Start("StartWatcher");
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     int ret = fileExtProxy->StartWatcher(uri);
     if (ret != ERR_OK) {
         HILOG_ERROR("Delete get result error, code:%{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessHelper::StopWatcher(Uri &uri, bool isUnregisterAll)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "StopWatcher");
+    UserAccessTracer trace;
+    trace.Start("StopWatcher");
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
         HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     int ret = fileExtProxy->StopWatcher(uri, isUnregisterAll);
     if (ret != ERR_OK) {
         HILOG_ERROR("StopWatcher get result error, code:%{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessHelper::RegisterNotify(Uri uri, bool notifyForDescendants, sptr<IFileAccessObserver> &observer)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "RegisterNotify");
+    UserAccessTracer trace;
+    trace.Start("RegisterNotify");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::RegisterNotify check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
     if (!CheckUri(uri) || observer == nullptr) {
         HILOG_ERROR("parameter check error.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return EINVAL;
     }
 
     auto proxy = FileAccessServiceProxy::GetInstance();
     if (proxy == nullptr) {
         HILOG_ERROR("RegisterNotify get SA failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_LOAD_SA;
     }
 
     int ret = proxy->RegisterNotify(uri, notifyForDescendants, observer);
     if (ret != ERR_OK) {
         HILOG_ERROR("RegisterNotify error ret = %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
@@ -1272,36 +1173,32 @@ int FileAccessHelper::RegisterNotify(Uri uri, bool notifyForDescendants, sptr<IF
     if (ret != ERR_OK) {
         HILOG_ERROR("StartWatcher error ret = %{public}d", ret);
     }
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
 
 int FileAccessHelper::UnregisterNotify(Uri uri, sptr<IFileAccessObserver> &observer)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "UnregisterNotify");
+    UserAccessTracer trace;
+    trace.Start("UnregisterNotify");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::UnregisterNotify check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
     if (!CheckUri(uri) || observer == nullptr) {
         HILOG_ERROR("parameter check error.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return EINVAL;
     }
 
     auto proxy = FileAccessServiceProxy::GetInstance();
     if (proxy == nullptr) {
         HILOG_ERROR("UnregisterNotify get SA failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_LOAD_SA;
     }
 
     int ret = proxy->UnregisterNotify(uri, observer);
     if (ret != ERR_OK) {
         HILOG_ERROR("UnregisterNotify error ret = %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
@@ -1310,28 +1207,25 @@ int FileAccessHelper::UnregisterNotify(Uri uri, sptr<IFileAccessObserver> &obser
     if (ret != ERR_OK) {
         HILOG_ERROR("StopWatcher error ret = %{public}d", ret);
     }
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
 
 int FileAccessHelper::UnregisterNotify(Uri uri)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "UnregisterNotify");
+    UserAccessTracer trace;
+    trace.Start("UnregisterNotify");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::UnregisterNotify check IsSystemAppByFullTokenID failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_PERMISSION_SYS;
     }
 
     if (!CheckUri(uri)) {
         HILOG_ERROR("parameter check error.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return EINVAL;
     }
     auto proxy = FileAccessServiceProxy::GetInstance();
     if (proxy == nullptr) {
         HILOG_ERROR("UnregisterNotify get SA failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_LOAD_SA;
     }
 
@@ -1339,7 +1233,6 @@ int FileAccessHelper::UnregisterNotify(Uri uri)
     int ret = proxy->UnregisterNotify(uri, observer);
     if (ret != ERR_OK) {
         HILOG_ERROR("UnregisterNotify error ret = %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
@@ -1348,7 +1241,6 @@ int FileAccessHelper::UnregisterNotify(Uri uri)
     if (ret != ERR_OK) {
         HILOG_ERROR("StopWatcher error ret = %{public}d", ret);
     }
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
 
