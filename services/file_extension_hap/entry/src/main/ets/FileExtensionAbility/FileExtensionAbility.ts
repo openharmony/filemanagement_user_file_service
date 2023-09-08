@@ -52,6 +52,7 @@ const MOVED_FROM = 3;
 const MOVED_SELF = 4;
 const TRASH_PATH = '/storage/.Trash/Users/100/';
 const TRASH_SUB_FODER = '/oh_trash_content';
+const EXTERNAL_PATH = '/storage/External';
 let observerMap = new Map();
 let watcherCountMap = new Map();
 let eventMap = new Map([
@@ -356,7 +357,23 @@ export default class FileExtAbility extends Extension {
     let path = getPath(selectFileUri);
 
     hilog.info(DOMAIN_CODE, TAG, 'Delete: path = ' + path);
-    return this.deleteToTrash(path);
+    if (!path.startsWith(EXTERNAL_PATH)) {
+      return this.deleteToTrash(path);
+    }
+
+    let code = ERR_OK;
+    try {
+      let stat = fs.statSync(path);
+      if (stat.isDirectory()) {
+        fs.rmdirSync(path);
+      } else {
+        fs.unlinkSync(path);
+      }
+    } catch (e) {
+      hilog.error(DOMAIN_CODE, TAG, 'deleteFile error ' + e.message);
+      return e.code;
+    }
+    return code;
   }
 
   move(sourceFileUri, targetParentUri): {string, number} {
