@@ -101,7 +101,7 @@ void NapiObserver::OnChange(NotifyMessage &notifyMessage)
             }
 
             NVal napiNotifyMessage = NVal::CreateObject(param->napiObserver->env_);
-            napiNotifyMessage.AddProp("NotifyType",
+            napiNotifyMessage.AddProp("type",
                 NVal::CreateInt32(param->napiObserver->env_, int((param->iNotifyMessage).notifyType_)).val_);
             SetValueArray(param->napiObserver->env_, "uris", param->iNotifyMessage.uris_, napiNotifyMessage.val_);
 
