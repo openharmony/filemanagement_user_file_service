@@ -408,7 +408,7 @@ export default class FileExtAbility extends Extension {
         uri: newFileUri,
         code: ERR_OK,
       };
-    } else if (newPath.match(new RegExp('^' + oldPath + '(/|$)'))) {
+    } else if (newPath.indexOf(oldPath) === 0 && newPath.charAt(oldPath.length) === '/') {
       // move to a subdirectory of the source directory
       return {
         uri: '',
@@ -591,7 +591,7 @@ export default class FileExtAbility extends Extension {
     } catch (err) {
       hilog.error(DOMAIN_CODE, TAG,
         'copyFileSync failed with error message: ' + err.message + ', error code: ' + err.code);
-      return this.getCopyReturnValue(this.relativePath2uri(sourceFilePath), '', err.code, err.message, COPY_EXCEPTION);
+      return this.getCopyReturnValue(this.encode(this.relativePath2uri(sourceFilePath)), '', err.code, err.message, COPY_EXCEPTION);
     }
     return copyRet;
   }
@@ -609,7 +609,8 @@ export default class FileExtAbility extends Extension {
           hilog.error(DOMAIN_CODE, TAG,
             'copy directory failed with conflicting files: ' + err.data[i].srcFile + ' ' + err.data[i].destFile);
           let ret = this.getCopyReturnValue(
-            this.relativePath2uri(err.data[i].srcFile), this.relativePath2uri(err.data[i].destFile),
+            this.encode(this.relativePath2uri(err.data[i].srcFile)),
+            this.encode(this.relativePath2uri(err.data[i].destFile)),
             err.code, err.message, COPY_NOEXCEPTION);
           this.processCopyReturnValue(ret, copyRet);
         }
@@ -625,6 +626,8 @@ export default class FileExtAbility extends Extension {
   }
 
   copy(sourceFileUri, targetParentUri, force): {[], number} {
+    sourceFileUri = this.decode(sourceFileUri);
+    targetParentUri = this.decode(targetParentUri);
     let checkRet = this.checkCopyArguments(sourceFileUri, targetParentUri);
     if (checkRet.code !== ERR_OK) {
       return checkRet;
@@ -640,7 +643,7 @@ export default class FileExtAbility extends Extension {
     if (stat.isFile()) {
       let isExist = fs.accessSync(newFilePath);
       if (isExist && force === false) {
-        return this.getCopyReturnValue(sourceFileUri, newFileOrDirUri, E_EXIST, '', COPY_NOEXCEPTION);
+        return this.getCopyReturnValue(this.encode(sourceFileUri), this.encode(newFileOrDirUri), E_EXIST, '', COPY_NOEXCEPTION);
       }
       return this.copyFile(sourceFilePath, newFilePath);
     } else if (stat.isDirectory()) {
