@@ -239,6 +239,9 @@ int JsFileAccessExtAbility::CallJsMethod(const std::string &funcName, JsRuntime 
     work->data = reinterpret_cast<void *>(param.get());
     int ret = uv_queue_work(loop, work.get(), [](uv_work_t *work) {}, [](uv_work_t *work, int status) {
         CallJsParam *param = reinterpret_cast<CallJsParam *>(work->data);
+        napi_handle_scope scope = nullptr;
+        napi_env env = reinterpret_cast<napi_env>(&(param->jsRuntime->GetNativeEngine()));
+        napi_open_handle_scope(env, &scope);
         do {
             if (param == nullptr) {
                 HILOG_ERROR("failed to get CallJsParam.");
@@ -251,6 +254,7 @@ int JsFileAccessExtAbility::CallJsMethod(const std::string &funcName, JsRuntime 
         std::unique_lock<std::mutex> lock(param->fileOperateMutex);
         param->isReady = true;
         param->fileOperateCondition.notify_one();
+        napi_close_handle_scope(env, scope);
     });
     if (ret != 0) {
         HILOG_ERROR("failed to exec uv_queue_work.");
