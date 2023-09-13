@@ -16,7 +16,7 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
 ohos_fuzztest("ExternalFileAccessOpenFileFuzzTest") {
-  module_out_path = "filemanagement/user_file_service"
+  module_out_path = "user_file_service/user_file_service"
   fuzz_config_file = "${user_file_service_path}/test/fuzztest/externalfileaccessopenfile_fuzzer"
   include_dirs = [
     "${user_file_service_path}/utils",
