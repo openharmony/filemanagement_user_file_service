@@ -191,7 +191,7 @@ static tuple<int, struct stat> CheckRealFileExist(const string &recentFilePath)
         if (oldRecentFilePath == recentFilePath) {
             return { 0, statBuf };
         }
-    }    
+    }
     if (unlink(recentFilePath.c_str()) < 0) {
         HILOG_ERROR("Failed to unlink non-existent file, errno=%{public}d", errno);
         return { errno, statBuf };
