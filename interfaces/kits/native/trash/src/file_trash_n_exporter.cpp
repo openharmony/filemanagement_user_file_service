@@ -265,8 +265,8 @@ static bool MoveFile(const string &srcFile, const string &destFile)
             return false;
         }
         size_t suffixPos = destFile.find_first_of('.', slashPos);
-        HILOG_DEBUG("MoveFile: slashPos = %{public}u", slashPos);
-        HILOG_DEBUG("MoveFile: suffixPos = %{public}u", suffixPos);
+        HILOG_DEBUG("MoveFile: slashPos = %{public}zu", slashPos);
+        HILOG_DEBUG("MoveFile: suffixPos = %{public}zu", suffixPos);
         string newDestFile = destFile;
         int32_t distinctSuffixIndex = 1;
         if (suffixPos == string::npos) {

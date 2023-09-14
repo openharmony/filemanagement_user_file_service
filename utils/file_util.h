@@ -34,6 +34,7 @@ constexpr int DIR_DEFAULT_PERM = 0770;
 constexpr int FILTER_MATCH = 1;
 constexpr int FILTER_DISMATCH = 0;
 constexpr int MODE_FORCE_MOVE = 0;
+constexpr uint64_t TIME_CONVERT_BASE = 1000000000;
 
 struct NameListArg {
     struct dirent** namelist = { nullptr };
@@ -148,10 +149,28 @@ static bool Mkdir(const string &path)
 
 static int CopyAndDeleteFile(const string &src, const string &dest)
 {
+    // 获取源文件时间
+    StatEntity statEntity;
+    if (!GetStat(src, statEntity)) {
+        HILOG_ERROR("Failed to get file stat.");
+        return EINVAL;
+    }
+    // 拼接秒数和纳秒数
+    uint64_t acTimeLong = statEntity.stat_.st_atim.tv_sec * TIME_CONVERT_BASE + statEntity.stat_.st_atim.tv_nsec;
+    uint64_t modTimeLong = statEntity.stat_.st_mtim.tv_sec * TIME_CONVERT_BASE + statEntity.stat_.st_mtim.tv_nsec;
+    double acTime = static_cast<long double>(acTimeLong) / TIME_CONVERT_BASE;
+    double modTime = static_cast<long double>(modTimeLong) / TIME_CONVERT_BASE;
+
     int ret = 0;
     uv_fs_t copyfile_req;
     ret = uv_fs_copyfile(nullptr, &copyfile_req, src.c_str(), dest.c_str(), MODE_FORCE_MOVE, nullptr);
     uv_fs_req_cleanup(&copyfile_req);
+
+    // 设置目标文件时间
+    uv_fs_t utime_req;
+    uv_fs_utime(nullptr, &utime_req, dest.c_str(), acTime, modTime, nullptr);
+    uv_fs_req_cleanup(&utime_req);
+
     if (ret < 0) {
         HILOG_ERROR("Failed to move file using copyfile interface.");
         return ret;
@@ -181,6 +200,7 @@ static int RenameFile(const string &src, const string &dest)
     }
     int ret = uv_fs_rename(nullptr, rename_req.get(), src.c_str(), dest.c_str(), nullptr);
     if (ret < 0 && (string_view(uv_err_name(ret)) == "EXDEV")) {
+        HILOG_DEBUG("RenameFile: using CopyAndDeleteFile.");
         return CopyAndDeleteFile(src, dest);
     }
     if (ret < 0) {
