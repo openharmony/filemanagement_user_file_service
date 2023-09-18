@@ -355,7 +355,7 @@ static vector<FileInfo> GenerateFileInfoEntities(vector<string> filterDirents)
 
         FileInfo fileInfoEntity;
         fileInfoEntity.uri = URI_PATH_PREFIX + filterDirent;
-        fileInfoEntity.srcPath = URI_PATH_PREFIX + realFilePath;
+        fileInfoEntity.srcPath = realFilePath;
         fileInfoEntity.fileName = fileName;
 
         int32_t mode = SUPPORTS_READ | SUPPORTS_WRITE;
