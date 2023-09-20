@@ -39,6 +39,8 @@ bool UnwrapBigIntUint64ByPropertyName(napi_env env, napi_value param, const char
 
 napi_value WrapArrayWantToJS(napi_env env, const std::vector<OHOS::AAFwk::Want> &wantVec);
 bool UnwrapArrayWantFromJS(napi_env env, napi_value param, std::vector<OHOS::AAFwk::Want> &wantVec);
+napi_value GetUndefinedValue(napi_env env);
+napi_status GetValueString(napi_env env, napi_value value, std::string &result);
 } // namespace FileAccessFwk
 } // namespace OHOS
 #endif // NAPI_COMMON_FILE_ACCESS_H

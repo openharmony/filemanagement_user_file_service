@@ -28,8 +28,8 @@ namespace OHOS {
 namespace FileAccessFwk {
 using namespace AbilityRuntime;
 
-using InputArgsParser = std::function<bool(NativeEngine&, NativeValue* [], size_t&)>;
-using ResultValueParser = std::function<bool(NativeEngine&, NativeValue*)>;
+using InputArgsParser = std::function<bool(napi_env&, napi_value*, size_t&)>;
+using ResultValueParser = std::function<bool(napi_env&, napi_value, napi_value, size_t&, napi_value*)>;
 
 struct CallJsParam {
     std::mutex fileOperateMutex;
@@ -81,12 +81,12 @@ public:
     int StopWatcher(const Uri &uri, bool isUnregisterAll) override;
 
 private:
-    NativeValue* CallObjectMethod(const char *name, NativeValue * const *argv = nullptr, size_t argc = 0);
+    void CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0);
     int CallJsMethod(const std::string &funcName, JsRuntime &jsRuntime, NativeReference *jsObj,
         InputArgsParser argParser, ResultValueParser retParser);
     void GetSrcPath(std::string &srcPath);
     static int Notify(Uri &uri, NotifyType notifyType);
-    static NativeValue* FuncCallback(NativeEngine *engine, NativeCallbackInfo *info);
+    static napi_value FuncCallback(napi_env env, napi_callback_info info);
     JsRuntime &jsRuntime_;
     std::shared_ptr<NativeReference> jsObj_;
 };
