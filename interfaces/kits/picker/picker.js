@@ -93,7 +93,7 @@ function checkArguments(args) {
     if (option.newFileNames !== undefined && option.newFileNames.length > 0) {
       for (let i = 0; i < option.newFileNames.length; i++) {
         let value = option.newFileNames[i];
-        if (strSizeUTF8(value) > CREATE_FILE_NAME_LENGTH_LIMIT) {
+        if (strSizeUTF8(value) >= CREATE_FILE_NAME_LENGTH_LIMIT) {
           console.log('[picker] checkArguments Invalid name: ' + value);
           checkArgumentsResult = getErr(ErrCode.NAME_TOO_LONG);
         }
