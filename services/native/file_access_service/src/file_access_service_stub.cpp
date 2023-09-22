@@ -139,14 +139,13 @@ ErrCode FileAccessServiceStub::CmdUnregisterNotify(MessageParcel &data, MessageP
     if (observerNotNull) {
         sptr<IRemoteObject> obj = data.ReadRemoteObject();
         if (obj == nullptr) {
-            HILOG_INFO("get remote obj fail.");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+            HILOG_ERROR("get remote obj fail.");
             return E_IPCS;
         }
 
         sptr<IFileAccessObserver> observer = iface_cast<IFileAccessObserver>(obj);
         if (observer == nullptr) {
-            HILOG_INFO("get observer fail");
+            HILOG_ERROR("get observer fail");
             return E_IPCS;
         }
         ret = UnregisterNotify(*uri, observer);
