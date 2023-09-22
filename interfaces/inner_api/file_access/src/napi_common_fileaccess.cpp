@@ -144,7 +144,7 @@ napi_value GetUndefinedValue(napi_env env)
     return result;
 }
 
-napi_status GetValueString(napi_env env, napi_value value, std::string &result)
+napi_status GetStringValue(napi_env env, napi_value value, std::string &result)
 {
     size_t tempSize = 0;
     if (napi_get_value_string_utf8(env, value, nullptr, 0, &tempSize) != napi_ok) {

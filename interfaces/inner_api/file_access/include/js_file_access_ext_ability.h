@@ -81,12 +81,23 @@ public:
     int StopWatcher(const Uri &uri, bool isUnregisterAll) override;
 
 private:
+    template <typename T>
+    struct Value {
+        T data;
+        int code {ERR_OK};
+    };
+
     void CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0);
     int CallJsMethod(const std::string &funcName, JsRuntime &jsRuntime, NativeReference *jsObj,
         InputArgsParser argParser, ResultValueParser retParser);
     void GetSrcPath(std::string &srcPath);
     static int Notify(Uri &uri, NotifyType notifyType);
     static napi_value FuncCallback(napi_env env, napi_callback_info info);
+    static bool ParserListFileJsResult(napi_env &env, napi_value nativeValue, Value<std::vector<FileInfo>> &result);
+    static bool ParserGetRootsJsResult(napi_env &env, napi_value nativeValue, Value<std::vector<RootInfo>> &result);
+    static bool ParserQueryFileJsResult(napi_env &env, napi_value nativeValue,
+        Value<std::vector<std::string>> &results);
+    static napi_status GetFileInfoFromJs(napi_env &env, napi_value obj, FileInfo &fileInfo);
     JsRuntime &jsRuntime_;
     std::shared_ptr<NativeReference> jsObj_;
 };

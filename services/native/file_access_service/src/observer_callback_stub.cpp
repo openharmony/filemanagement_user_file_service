@@ -17,7 +17,7 @@
 
 #include <string>
 #include <memory>
-
+#include "user_access_tracer.h"
 #include "accesstoken_kit.h"
 #include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
@@ -44,32 +44,30 @@ void ObserverCallbackStub::InitStubFuncMap()
 int32_t ObserverCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,
     MessageOption& option)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OnRemoteRequest");
+    UserAccessTracer trace;
+    trace.Start("OnRemoteRequest");
     InitStubFuncMap();
     std::u16string descriptor = ObserverCallbackStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_INVALID_STATE;
     }
 
     const auto &itFunc = stubFuncMap_.find(code);
     if (itFunc != stubFuncMap_.end()) {
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return (this->*(itFunc->second))(data, reply);
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
 int32_t ObserverCallbackStub::OnChangeStub(MessageParcel &data, MessageParcel &reply)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OnChangeStub");
+    UserAccessTracer trace;
+    trace.Start("OnChangeStub");
     std::shared_ptr<NotifyMessage> notifyMessage(data.ReadParcelable<NotifyMessage>());
     if (notifyMessage == nullptr) {
         HILOG_ERROR("OnChange uri is nullptr");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_URIS;
     }
 
@@ -77,10 +75,8 @@ int32_t ObserverCallbackStub::OnChangeStub(MessageParcel &data, MessageParcel &r
     int ret = ERR_OK;
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter OnChangeStub fail to WriteInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 }

@@ -14,7 +14,7 @@
  */
 
 #include "observer_callback_proxy.h"
-
+#include "user_access_tracer.h"
 #include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
@@ -26,17 +26,16 @@ namespace OHOS {
 namespace FileAccessFwk {
 void ObserverCallbackProxy::OnChange(NotifyMessage &notifyMessage)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OnChange");
+    UserAccessTracer trace;
+    trace.Start("OnChange");
     MessageParcel data;
     if (!data.WriteInterfaceToken(ObserverCallbackProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return;
     }
 
     if (!data.WriteParcelable(&notifyMessage)) {
         HILOG_ERROR("fail to WriteParcelable notifyMessage");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return;
     }
 
@@ -45,23 +44,19 @@ void ObserverCallbackProxy::OnChange(NotifyMessage &notifyMessage)
     int err = Remote()->SendRequest(CMD_ONCHANGE, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return;
     }
 
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return;
     }
 
     if (ret != ERR_OK) {
         HILOG_ERROR("OnChange operation failed ret : %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return;
     }
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return;
 }
 } // namespace FileAccessFwk

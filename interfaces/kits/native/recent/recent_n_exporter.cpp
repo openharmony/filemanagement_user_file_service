@@ -227,7 +227,7 @@ static napi_value GetListFileResult(napi_env env, struct NameListArg* pNameList)
     auto buf = CreateUniquePtr<char[]>(BUF_SIZE);
     for (int i = 0, index = 0; i < pNameList->direntNum; ++i) {
         string recentFilePath = RECENT_PATH + string((*(pNameList->namelist[i])).d_name);
-        if (i < MAX_RECENT_SIZE) {
+        if (index < MAX_RECENT_SIZE) {
             auto [checkRealFileRes, realFileStatBuf] = CheckRealFileExist(recentFilePath);
             if (checkRealFileRes < 0) {
                 continue;

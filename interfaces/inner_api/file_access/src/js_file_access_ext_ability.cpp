@@ -37,6 +37,7 @@
 #include "napi_remote_object.h"
 #include "system_ability_definition.h"
 #include "n_error.h"
+#include "user_access_tracer.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -78,13 +79,13 @@ void JsFileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &rec
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Init");
+    UserAccessTracer trace;
+    trace.Start("Init");
     FileAccessExtAbility::Init(record, application, handler, token);
     std::string srcPath = "";
     GetSrcPath(srcPath);
     if (srcPath.empty()) {
         HILOG_ERROR("Failed to get srcPath");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return;
     }
 
@@ -96,55 +97,51 @@ void JsFileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &rec
         abilityInfo_->compileMode == AbilityRuntime::CompileMode::ES_MODULE);
     if (jsObj_ == nullptr) {
         HILOG_ERROR("Failed to get jsObj_");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return;
     }
 
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(jsObj_->Get());
     if (obj == nullptr) {
         HILOG_ERROR("Failed to get JsFileAccessExtAbility object");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
 }
 
 void JsFileAccessExtAbility::OnStart(const AAFwk::Want &want)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OnStart");
+    UserAccessTracer trace;
+    trace.Start("OnStart");
     Extension::OnStart(want);
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
     napi_value argv[] = {napiWant};
     CallObjectMethod("onCreate", argv, ARGC_ONE);
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
 }
 
 sptr<IRemoteObject> JsFileAccessExtAbility::OnConnect(const AAFwk::Want &want)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OnConnect");
+    UserAccessTracer trace;
+    trace.Start("OnConnect");
     Extension::OnConnect(want);
     sptr<FileAccessExtStubImpl> remoteObject(new (std::nothrow) FileAccessExtStubImpl(
         std::static_pointer_cast<JsFileAccessExtAbility>(shared_from_this()),
         reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine())));
     if (remoteObject == nullptr) {
         HILOG_ERROR("No memory allocated for FileExtStubImpl");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return nullptr;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return remoteObject->AsObject();
 }
 
 void JsFileAccessExtAbility::CallObjectMethod(const char* name, napi_value const* argv, size_t argc)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CallObjectMethod");
+    UserAccessTracer trace;
+    trace.Start("CallObjectMethod");
     if (!jsObj_) {
         HILOG_ERROR("JsFileAccessExtAbility::CallObjectMethod jsObj Not found FileAccessExtAbility.js");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return;
     }
 
@@ -155,7 +152,6 @@ void JsFileAccessExtAbility::CallObjectMethod(const char* name, napi_value const
     napi_value value = jsObj_->GetNapiValue();
     if (value == nullptr) {
         HILOG_ERROR("Failed to get FileAccessExtAbility value");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return;
     }
 
@@ -163,22 +159,20 @@ void JsFileAccessExtAbility::CallObjectMethod(const char* name, napi_value const
     napi_get_named_property(env, value, name, &method);
     if (method == nullptr) {
         HILOG_ERROR("Failed to get '%{public}s' from FileAccessExtAbility object", name);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return;
     }
 
     napi_value result = nullptr;
     napi_call_function(env, value, method, argc, argv, &result);
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
 }
 
 static int DoCallJsMethod(CallJsParam *param)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "DoCallJsMethod");
+    UserAccessTracer trace;
+    trace.Start("DoCallJsMethod");
     JsRuntime *jsRuntime = param->jsRuntime;
     if (jsRuntime == nullptr) {
         HILOG_ERROR("failed to get jsRuntime.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return EINVAL;
     }
     HandleEscape handleEscape(*jsRuntime);
@@ -189,7 +183,6 @@ static int DoCallJsMethod(CallJsParam *param)
     if (param->argParser != nullptr) {
         if (!param->argParser(env, argv, argc)) {
             HILOG_ERROR("failed to get params.");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return EINVAL;
         }
     }
@@ -199,50 +192,43 @@ static int DoCallJsMethod(CallJsParam *param)
     napi_get_reference_value(env, ref, &value);
     if (value == nullptr) {
         HILOG_ERROR("failed to get native value object.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return EINVAL;
     }
     napi_value method = nullptr;
     napi_get_named_property(env, value, param->funcName.c_str(), &method);
     if (method == nullptr) {
         HILOG_ERROR("failed to get %{public}s from FileExtAbility object.", param->funcName.c_str());
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return EINVAL;
     }
     if (param->retParser == nullptr) {
         HILOG_ERROR("ResultValueParser must not null.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return EINVAL;
     }
     if (!param->retParser(env, value, method, argc, argv)) {
         HILOG_INFO("Parser js result fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int JsFileAccessExtAbility::CallJsMethod(const std::string &funcName, JsRuntime &jsRuntime, NativeReference *jsObj,
     InputArgsParser argParser, ResultValueParser retParser)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CallJsMethod");
+    UserAccessTracer trace;
+    trace.Start("CallJsMethod");
     uv_loop_s *loop = nullptr;
     napi_status status = napi_get_uv_event_loop(reinterpret_cast<napi_env>(&jsRuntime.GetNativeEngine()), &loop);
     if (status != napi_ok) {
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         HILOG_ERROR("failed to get uv event loop.");
         return EINVAL;
     }
     auto param = std::make_shared<CallJsParam>(funcName, &jsRuntime, jsObj, argParser, retParser);
     if (param == nullptr) {
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         HILOG_ERROR("failed to new param.");
         return EINVAL;
     }
     auto work = std::make_shared<uv_work_t>();
     if (work == nullptr) {
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         HILOG_ERROR("failed to new uv_work_t.");
         return EINVAL;
     }
@@ -267,19 +253,18 @@ int JsFileAccessExtAbility::CallJsMethod(const std::string &funcName, JsRuntime 
         napi_close_handle_scope(env, scope);
     });
     if (ret != 0) {
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         HILOG_ERROR("failed to exec uv_queue_work.");
         return EINVAL;
     }
     std::unique_lock<std::mutex> lock(param->fileOperateMutex);
     param->fileOperateCondition.wait(lock, [param]() { return param->isReady; });
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 void JsFileAccessExtAbility::GetSrcPath(std::string &srcPath)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetSrcPath");
+    UserAccessTracer trace;
+    trace.Start("GetSrcPath");
     if (!Extension::abilityInfo_->isStageBasedModel) {
         /* temporary compatibility api8 + config.json */
         srcPath.append(Extension::abilityInfo_->package);
@@ -288,7 +273,6 @@ void JsFileAccessExtAbility::GetSrcPath(std::string &srcPath)
             srcPath.append(Extension::abilityInfo_->srcPath);
         }
         srcPath.append("/").append(Extension::abilityInfo_->name).append(".abc");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return;
     }
 
@@ -299,22 +283,15 @@ void JsFileAccessExtAbility::GetSrcPath(std::string &srcPath)
         srcPath.append(".abc");
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
 }
-
-template <typename T>
-struct Value {
-    T data;
-    int code {ERR_OK};
-};
 
 int JsFileAccessExtAbility::OpenFile(const Uri &uri, int flags, int &fd)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
+    UserAccessTracer trace;
+    trace.Start("OpenFile");
     auto value = std::make_shared<Value<int>>();
     if (value == nullptr) {
         HILOG_ERROR("OpenFile value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
 
@@ -342,16 +319,14 @@ int JsFileAccessExtAbility::OpenFile(const Uri &uri, int flags, int &fd)
 
         napi_value fd = nullptr;
         napi_get_named_property(env, result, "fd", &fd);
-        napi_status status = napi_get_value_int32(env, fd, &value->data);
-        if (status != napi_ok) {
+        if (napi_get_value_int32(env, fd, &value->data) != napi_ok) {
             HILOG_ERROR("Convert js value fail.");
             return false;
         }
 
         napi_value code = nullptr;
         napi_get_named_property(env, result, "code", &code);
-        status = napi_get_value_int32(env, code, &value->code);
-        if (status != napi_ok) {
+        if (napi_get_value_int32(env, code, &value->code) != napi_ok) {
             HILOG_ERROR("Convert js value fail.");
             return false;
         }
@@ -361,33 +336,29 @@ int JsFileAccessExtAbility::OpenFile(const Uri &uri, int flags, int &fd)
     auto errCode = CallJsMethod("openFile", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return errCode;
     }
 
     if (value->code != ERR_OK) {
         HILOG_ERROR("fileio fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return value->code;
     }
 
     fd = value->data;
     if (fd < ERR_OK) {
         HILOG_ERROR("Failed to get file descriptor fd: %{public}d", fd);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int JsFileAccessExtAbility::CreateFile(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
+    UserAccessTracer trace;
+    trace.Start("CreateFile");
     auto value = std::make_shared<Value<std::string>>();
     if (!value) {
         HILOG_ERROR("CreateFile value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
 
@@ -415,18 +386,15 @@ int JsFileAccessExtAbility::CreateFile(const Uri &parent, const std::string &dis
 
         napi_value uri = nullptr;
         napi_get_named_property(env, result, "uri", &uri);
-
-        napi_status status = GetValueString(env, uri, value->data);
-        if (status != napi_ok) {
-            HILOG_ERROR("Convert js value fail.");
+        if (GetStringValue(env, uri, value->data) != napi_ok) {
+            HILOG_ERROR("Convert uri js value fail.");
             return false;
         }
 
         napi_value code = nullptr;
         napi_get_named_property(env, result, "code", &code);
-        status = napi_get_value_int32(env, code, &value->code);
-        if (status != napi_ok) {
-            HILOG_ERROR("Convert js value fail.");
+        if (napi_get_value_int32(env, code, &value->code) != napi_ok) {
+            HILOG_ERROR("Convert code js value fail.");
             return false;
         }
         return true;
@@ -435,34 +403,30 @@ int JsFileAccessExtAbility::CreateFile(const Uri &parent, const std::string &dis
     auto errCode = CallJsMethod("createFile", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return errCode;
     }
 
     if (value->code != ERR_OK) {
         HILOG_ERROR("fileio fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return value->code;
     }
 
     if ((value->data).empty()) {
         HILOG_ERROR("call CreateFile with return empty.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
 
     newFile = Uri(value->data);
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int JsFileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Mkdir");
+    UserAccessTracer trace;
+    trace.Start("Mkdir");
     auto value = std::make_shared<Value<std::string>>();
     if (!value) {
         HILOG_ERROR("Mkdir value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
 
@@ -491,16 +455,14 @@ int JsFileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayN
 
         napi_value uri = nullptr;
         napi_get_named_property(env, result, "uri", &uri);
-        napi_status status = GetValueString(env, uri, value->data);
-        if (status != napi_ok) {
+        if (GetStringValue(env, uri, value->data) != napi_ok) {
             HILOG_ERROR("Convert js value fail.");
             return false;
         }
 
         napi_value code = nullptr;
         napi_get_named_property(env, result, "code", &code);
-        status = napi_get_value_int32(env, code, &value->code);
-        if (status != napi_ok) {
+        if (napi_get_value_int32(env, code, &value->code) != napi_ok) {
             HILOG_ERROR("Convert js value fail.");
             return false;
         }
@@ -510,33 +472,29 @@ int JsFileAccessExtAbility::Mkdir(const Uri &parent, const std::string &displayN
     auto errCode = CallJsMethod("mkdir", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return errCode;
     }
 
     if (value->code != ERR_OK) {
         HILOG_ERROR("fileio fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return value->code;
     }
 
     if ((value->data).empty()) {
         HILOG_ERROR("call Mkdir with return empty.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
     newFile = Uri(value->data);
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int JsFileAccessExtAbility::Delete(const Uri &sourceFile)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
+    UserAccessTracer trace;
+    trace.Start("Delete");
     auto ret = std::make_shared<int>();
     if (!ret) {
         HILOG_ERROR("Delete value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
 
@@ -560,8 +518,7 @@ int JsFileAccessExtAbility::Delete(const Uri &sourceFile)
             return false;
         }
 
-        napi_status status = napi_get_value_int32(env, result, ret.get());
-        if (status != napi_ok) {
+        if (napi_get_value_int32(env, result, ret.get()) != napi_ok) {
             HILOG_ERROR("Convert js value fail.");
             return false;
         }
@@ -571,27 +528,24 @@ int JsFileAccessExtAbility::Delete(const Uri &sourceFile)
     auto errCode = CallJsMethod("delete", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return errCode;
     }
 
     if (*ret != ERR_OK) {
         HILOG_ERROR("fileio fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return *ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move");
+    UserAccessTracer trace;
+    trace.Start("Move");
     auto value = std::make_shared<Value<std::string>>();
     if (value == nullptr) {
         HILOG_ERROR("Move value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
 
@@ -620,16 +574,14 @@ int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent,
 
         napi_value uri = nullptr;
         napi_get_named_property(env, result, "uri", &uri);
-        napi_status status = GetValueString(env, uri, value->data);
-        if (status != napi_ok) {
+        if (GetStringValue(env, uri, value->data) != napi_ok) {
             HILOG_ERROR("Convert js value fail.");
             return false;
         }
 
         napi_value code = nullptr;
         napi_get_named_property(env, result, "code", &code);
-        status = napi_get_value_int32(env, code, &value->code);
-        if (status != napi_ok) {
+        if (napi_get_value_int32(env, code, &value->code) != napi_ok) {
             HILOG_ERROR("Convert js value fail.");
             return false;
         }
@@ -639,23 +591,19 @@ int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent,
     auto errCode = CallJsMethod("move", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return errCode;
     }
 
     if (value->code != ERR_OK) {
         HILOG_ERROR("fileio fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return value->code;
     }
 
     if ((value->data).empty()) {
         HILOG_ERROR("call move with return empty.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
     newFile = Uri(value->data);
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
@@ -671,10 +619,10 @@ static void TranslateCopyResult(CopyResult &copyResult)
 
 static bool GetResultByJs(napi_env &env, napi_value nativeCopyResult, CopyResult &result, const int &copyRet)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetResultsByJs");
+    UserAccessTracer trace;
+    trace.Start("GetResultsByJs");
     if (nativeCopyResult == nullptr) {
         HILOG_ERROR("Convert js object fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return false;
     }
 
@@ -682,11 +630,11 @@ static bool GetResultByJs(napi_env &env, napi_value nativeCopyResult, CopyResult
     if (copyRet == COPY_NOEXCEPTION) {
         napi_value sourceUri = nullptr;
         napi_get_named_property(env, nativeCopyResult, "sourceUri", &sourceUri);
-        GetValueString(env, sourceUri, result.sourceUri);
+        GetStringValue(env, sourceUri, result.sourceUri);
 
         napi_value destUri = nullptr;
         napi_get_named_property(env, nativeCopyResult, "destUri", &destUri);
-        GetValueString(env, destUri, result.destUri);
+        GetStringValue(env, destUri, result.destUri);
     }
     if ((copyRet == COPY_NOEXCEPTION) || (copyRet == COPY_EXCEPTION)) {
         napi_value errCode = nullptr;
@@ -696,30 +644,28 @@ static bool GetResultByJs(napi_env &env, napi_value nativeCopyResult, CopyResult
     if (!ret) {
         HILOG_ERROR("Convert js value fail.");
     }
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ret;
 }
 
 static bool ParserGetJsCopyResult(napi_env &env, napi_value nativeValue,
     std::vector<CopyResult> &copyResult, int &copyRet)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ParserGetJsCopyResult");
+    HILOG_INFO("ParserGetJsCopyResult");
+    UserAccessTracer trace;
+    trace.Start("ParserGetJsCopyResult");
     if (nativeValue == nullptr) {
         HILOG_ERROR("Convert js object fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return false;
     }
 
     napi_value code = nullptr;
     napi_get_named_property(env, nativeValue, "code", &code);
-    napi_status status = napi_get_value_int32(env, code, &copyRet);
-    if (status != napi_ok) {
+    if (napi_get_value_int32(env, code, &copyRet) != napi_ok) {
         HILOG_ERROR("Convert js value fail.");
         return false;
     }
 
     if (copyRet == ERR_OK) {
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return true;
     }
 
@@ -728,7 +674,6 @@ static bool ParserGetJsCopyResult(napi_env &env, napi_value nativeValue,
     napi_get_named_property(env, nativeValue, "results", &nativeArray);
     if (nativeArray == nullptr) {
         HILOG_ERROR("nativeArray is nullptr");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return false;
     }
 
@@ -739,7 +684,6 @@ static bool ParserGetJsCopyResult(napi_env &env, napi_value nativeValue,
         napi_get_element(env, nativeArray, i, &nativeCopyResult);
         if (nativeCopyResult == nullptr) {
             HILOG_ERROR("get native FileInfo fail.");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return false;
         }
 
@@ -751,15 +695,16 @@ static bool ParserGetJsCopyResult(napi_env &env, napi_value nativeValue,
         }
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return true;
 }
 
 int JsFileAccessExtAbility::Copy(const Uri &sourceUri, const Uri &destUri, std::vector<CopyResult> &copyResult,
     bool force)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Copy");
+    UserAccessTracer trace;
+    trace.Start("Copy");
     auto argParser = [sourceUri, destUri, force](napi_env &env, napi_value *argv, size_t &argc) -> bool {
+        HILOG_ERROR("Copy argParser start");
         napi_value srcNativeUri = nullptr;
         napi_create_string_utf8(env, sourceUri.ToString().c_str(), sourceUri.ToString().length(), &srcNativeUri);
 
@@ -794,24 +739,22 @@ int JsFileAccessExtAbility::Copy(const Uri &sourceUri, const Uri &destUri, std::
     auto errCode = CallJsMethod("copy", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         CopyResult result { "", "", errCode, ""};
         TranslateCopyResult(result);
         copyResult.push_back(result);
         return COPY_EXCEPTION;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return copyRet;
 }
 
 int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Rename");
+    UserAccessTracer trace;
+    trace.Start("Rename");
     auto value = std::make_shared<Value<std::string>>();
     if (value == nullptr) {
         HILOG_ERROR("Rename value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
     auto argParser = [sourceFile, displayName](napi_env &env, napi_value *argv, size_t &argc) -> bool {
@@ -840,17 +783,15 @@ int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &dis
 
         napi_value uri = nullptr;
         napi_get_named_property(env, result, "uri", &uri);
-        napi_status status = GetValueString(env, uri, value->data);
-        if (status != napi_ok) {
-            HILOG_ERROR("Convert js value fail.");
+        if (GetStringValue(env, uri, value->data) != napi_ok) {
+            HILOG_ERROR("Convert uri js value fail.");
             return false;
         }
 
         napi_value code = nullptr;
         napi_get_named_property(env, result, "code", &code);
-        status = napi_get_value_int32(env, code, &value->code);
-        if (status != napi_ok) {
-            HILOG_ERROR("Convert js value fail.");
+        if (napi_get_value_int32(env, code, &value->code) != napi_ok) {
+            HILOG_ERROR("Convert code js value fail.");
             return false;
         }
         return true;
@@ -859,28 +800,23 @@ int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &dis
     auto errCode = CallJsMethod("rename", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return errCode;
     }
 
     if (value->code != ERR_OK) {
         HILOG_ERROR("fileio fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return value->code;
     }
 
     if ((value->data).empty()) {
         HILOG_ERROR("call Rename with return empty.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
     newFile = Uri(value->data);
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
-
-static bool ParserListFileJsResult(napi_env &env, napi_value nativeValue, Value<std::vector<FileInfo>> &result)
+bool JsFileAccessExtAbility::ParserListFileJsResult(napi_env &env, napi_value nativeValue, Value<std::vector<FileInfo>> &result)
 {
     napi_value code = nullptr;
     napi_get_named_property(env, nativeValue, "code", &code);
@@ -905,34 +841,10 @@ static bool ParserListFileJsResult(napi_env &env, napi_value nativeValue, Value<
         }
 
         FileInfo fileInfo;
-
-        napi_value uri = nullptr;
-        napi_get_named_property(env, nativeFileInfo, "uri", &uri);
-        GetValueString(env, uri, fileInfo.uri);
-
-        napi_value relativePath = nullptr;
-        napi_get_named_property(env, nativeFileInfo, "relativePath", &relativePath);
-        GetValueString(env, relativePath, fileInfo.relativePath);
-
-        napi_value fileName = nullptr;
-        napi_get_named_property(env, nativeFileInfo, "fileName", &fileName);
-        GetValueString(env, fileName, fileInfo.fileName);
-
-        napi_value mode = nullptr;
-        napi_get_named_property(env, nativeFileInfo, "mode", &mode);
-        napi_get_value_int32(env, mode, &fileInfo.mode);
-
-        napi_value size = nullptr;
-        napi_get_named_property(env, nativeFileInfo, "size", &size);
-        napi_get_value_int64(env, size, &fileInfo.size);
-
-        napi_value mtime = nullptr;
-        napi_get_named_property(env, nativeFileInfo, "mtime", &mtime);
-        napi_get_value_int64(env, mtime, &fileInfo.mtime);
-
-        napi_value mimeType = nullptr;
-        napi_get_named_property(env, nativeFileInfo, "mimeType", &mimeType);
-        GetValueString(env, mimeType, fileInfo.mimeType);
+        if (GetFileInfoFromJs(env, nativeFileInfo, fileInfo) != napi_ok) {
+            HILOG_ERROR("Convert fileInfo js value fail.");
+            return false;
+        }
 
         result.data.emplace_back(std::move(fileInfo));
     }
@@ -1030,38 +942,32 @@ static int MakeJsNativeFileFilter(napi_env &env, const FileFilter &filter, napi_
         return E_GETRESULT;
     }
 
-    napi_status ret = napi_set_named_property(env, nativeFilter, "suffix", suffixArray);
-    if (ret != napi_ok) {
+    if (napi_set_named_property(env, nativeFilter, "suffix", suffixArray) != napi_ok) {
         HILOG_ERROR("Set suffix property to Filter NativeValue fail.");
         return EINVAL;
     }
 
-    ret = napi_set_named_property(env, nativeFilter, "displayName", displayNameArray);
-    if (ret != napi_ok) {
+    if (napi_set_named_property(env, nativeFilter, "displayName", displayNameArray) != napi_ok) {
         HILOG_ERROR("Set displayName property to Filter NativeValue fail.");
         return EINVAL;
     }
 
-    ret = napi_set_named_property(env, nativeFilter, "mimeType", mimeTypeArray);
-    if (ret != napi_ok) {
+    if (napi_set_named_property(env, nativeFilter, "mimeType", mimeTypeArray) != napi_ok) {
         HILOG_ERROR("Set mimeType property to Filter NativeValue fail.");
         return EINVAL;
     }
 
-    ret = napi_set_named_property(env, nativeFilter, "fileSizeOver", nativeFileSizeOver);
-    if (ret != napi_ok) {
+    if (napi_set_named_property(env, nativeFilter, "fileSizeOver", nativeFileSizeOver) != napi_ok) {
         HILOG_ERROR("Set fileSizeOver property to Filter NativeValue fail.");
         return EINVAL;
     }
 
-    ret = napi_set_named_property(env, nativeFilter, "lastModifiedAfter", nativeLastModifiedAfter);
-    if (ret != napi_ok) {
+    if (napi_set_named_property(env, nativeFilter, "lastModifiedAfter", nativeLastModifiedAfter) != napi_ok) {
         HILOG_ERROR("Set lastModifiedAfter property to Filter NativeValue fail.");
         return EINVAL;
     }
 
-    ret = napi_set_named_property(env, nativeFilter, "excludeMedia", nativeExcludeMedia);
-    if (ret != napi_ok) {
+    if (napi_set_named_property(env, nativeFilter, "excludeMedia", nativeExcludeMedia) != napi_ok) {
         HILOG_ERROR("Set excludeMedia property to Filter NativeValue fail.");
         return EINVAL;
     }
@@ -1125,11 +1031,11 @@ static bool BuildFilterParam(napi_env &env, const FileFilter &filter, const Filt
 int JsFileAccessExtAbility::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
     const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
+    UserAccessTracer trace;
+    trace.Start("ListFile");
     auto value = std::make_shared<Value<std::vector<FileInfo>>>();
     if (value == nullptr) {
         HILOG_ERROR("ListFile value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
 
@@ -1143,7 +1049,8 @@ int JsFileAccessExtAbility::ListFile(const FileInfo &fileInfo, const int64_t off
         return BuildFilterParam(env, filter, param, argv, argc);
     };
 
-    auto retParser = [value](napi_env &env, napi_value obj, napi_value method, size_t &argc, napi_value *argv) -> bool {
+    auto retParser = [this, value](napi_env &env, napi_value obj, napi_value method, size_t &argc,
+                         napi_value *argv) -> bool {
         napi_value result = nullptr;
         napi_call_function(env, obj, method, argc, argv, &result);
         if (result == nullptr) {
@@ -1165,29 +1072,26 @@ int JsFileAccessExtAbility::ListFile(const FileInfo &fileInfo, const int64_t off
     auto errCode = CallJsMethod("listFile", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return errCode;
     }
 
     if (value->code != ERR_OK) {
         HILOG_ERROR("fileio fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return value->code;
     }
 
     fileInfoVec = std::move(value->data);
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int JsFileAccessExtAbility::ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
     const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ScanFile");
+    UserAccessTracer trace;
+    trace.Start("ScanFile");
     auto value = std::make_shared<Value<std::vector<FileInfo>>>();
     if (value == nullptr) {
         HILOG_ERROR("ScanFile value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
 
@@ -1223,22 +1127,20 @@ int JsFileAccessExtAbility::ScanFile(const FileInfo &fileInfo, const int64_t off
     auto errCode = CallJsMethod("scanFile", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return errCode;
     }
 
     if (value->code != ERR_OK) {
         HILOG_ERROR("fileio fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return value->code;
     }
 
     fileInfoVec = std::move(value->data);
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
-static bool ParserGetRootsJsResult(napi_env &env, napi_value nativeValue, Value<std::vector<RootInfo>> &result)
+bool JsFileAccessExtAbility::ParserGetRootsJsResult(napi_env &env, napi_value nativeValue,
+    Value<std::vector<RootInfo>> &result)
 {
     napi_value code = nullptr;
     napi_get_named_property(env, nativeValue, "code", &code);
@@ -1269,16 +1171,15 @@ static bool ParserGetRootsJsResult(napi_env &env, napi_value nativeValue, Value<
 
         napi_value uri = nullptr;
         napi_get_named_property(env, nativeRootInfo, "uri", &uri);
-        GetValueString(env, uri, rootInfo.uri);
-
+        GetStringValue(env, uri, rootInfo.uri);
 
         napi_value relativePath = nullptr;
         napi_get_named_property(env, nativeRootInfo, "relativePath", &relativePath);
-        GetValueString(env, relativePath, rootInfo.relativePath);
+        GetStringValue(env, relativePath, rootInfo.relativePath);
 
         napi_value displayName = nullptr;
         napi_get_named_property(env, nativeRootInfo, "displayName", &displayName);
-        GetValueString(env, displayName, rootInfo.displayName);
+        GetStringValue(env, displayName, rootInfo.displayName);
 
         napi_value deviceFlags = nullptr;
         napi_get_named_property(env, nativeRootInfo, "deviceFlags", &deviceFlags);
@@ -1286,17 +1187,16 @@ static bool ParserGetRootsJsResult(napi_env &env, napi_value nativeValue, Value<
 
         result.data.emplace_back(std::move(rootInfo));
     }
-
     return true;
 }
 
 int JsFileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
+    UserAccessTracer trace;
+    trace.Start("GetRoots");
     auto value = std::make_shared<Value<std::vector<RootInfo>>>();
     if (value == nullptr) {
         HILOG_ERROR("GetRoots value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
 
@@ -1327,28 +1227,25 @@ int JsFileAccessExtAbility::GetRoots(std::vector<RootInfo> &rootInfoVec)
     auto errCode = CallJsMethod("getRoots", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d", errCode);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return errCode;
     }
 
     if (value->code != ERR_OK) {
         HILOG_ERROR("fileio fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return value->code;
     }
 
     rootInfoVec = std::move(value->data);
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int JsFileAccessExtAbility::Access(const Uri &uri, bool &isExist)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Access");
+    UserAccessTracer trace;
+    trace.Start("Access");
     auto value = std::make_shared<Value<bool>>();
     if (value == nullptr) {
         HILOG_ERROR("Access value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
 
@@ -1370,16 +1267,14 @@ int JsFileAccessExtAbility::Access(const Uri &uri, bool &isExist)
 
         napi_value isExist = nullptr;
         napi_get_named_property(env, result, "isExist", &isExist);
-        napi_status status = napi_get_value_bool(env, isExist, &value->data);
-        if (status != napi_ok) {
+        if (napi_get_value_bool(env, isExist, &value->data) != napi_ok) {
             HILOG_ERROR("Convert js value fail.");
             return false;
         }
 
         napi_value code = nullptr;
         napi_get_named_property(env, result, "code", &code);
-        status = napi_get_value_int32(env, code, &value->code);
-        if (status != napi_ok) {
+        if (napi_get_value_int32(env, code, &value->code) != napi_ok) {
             HILOG_ERROR("Convert js value fail.");
             return false;
         }
@@ -1389,22 +1284,19 @@ int JsFileAccessExtAbility::Access(const Uri &uri, bool &isExist)
     auto errCode = CallJsMethod("access", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return errCode;
     }
 
     if (value->code != ERR_OK) {
         HILOG_ERROR("fileio fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return value->code;
     }
 
     isExist = value->data;
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
-static bool ParserQueryFileJsResult(napi_env &env, napi_value nativeValue,
+bool JsFileAccessExtAbility::ParserQueryFileJsResult(napi_env &env, napi_value nativeValue,
     Value<std::vector<std::string>> &results)
 {
     napi_value code = nullptr;
@@ -1430,8 +1322,7 @@ static bool ParserQueryFileJsResult(napi_env &env, napi_value nativeValue,
         }
 
         std::string tempValue;
-        napi_status ret = GetValueString(env, queryResult, tempValue);
-        if (ret != napi_ok) {
+        if (GetStringValue(env, queryResult, tempValue) != napi_ok) {
             HILOG_ERROR("Convert js value fail.");
             return false;
         }
@@ -1453,11 +1344,11 @@ static void ConvertColumn(std::vector<std::string> &columns)
 
 int JsFileAccessExtAbility::Query(const Uri &uri, std::vector<std::string> &columns, std::vector<std::string> &results)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Query");
+    UserAccessTracer trace;
+    trace.Start("Query");
     auto value = std::make_shared<Value<std::vector<std::string>>>();
     if (value == nullptr) {
         HILOG_ERROR("Query value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
 
@@ -1509,28 +1400,25 @@ int JsFileAccessExtAbility::Query(const Uri &uri, std::vector<std::string> &colu
     auto errCode = CallJsMethod("query", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return errCode;
     }
 
     if (value->code != ERR_OK) {
         HILOG_ERROR("fileio fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return value->code;
     }
 
     results = std::move(value->data);
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int JsFileAccessExtAbility::GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromUri");
+    UserAccessTracer trace;
+    trace.Start("GetFileInfoFromUri");
     auto value = std::make_shared<Value<FileInfo>>();
     if (value == nullptr) {
         HILOG_ERROR("GetFileInfoFromUri value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
 
@@ -1556,43 +1444,21 @@ int JsFileAccessExtAbility::GetFileInfoFromUri(const Uri &selectFile, FileInfo &
 
         napi_value code = nullptr;
         napi_get_named_property(env, result, "code", &code);
-        napi_status status = napi_get_value_int32(env, code, &value->code);
-        if (status != napi_ok) {
+        if (napi_get_value_int32(env, code, &value->code) != napi_ok) {
             HILOG_ERROR("Convert js value fail.");
             return false;
         }
 
         FileInfo fileInfo;
+        napi_value nativeFileInfo = nullptr;
+        if(napi_get_named_property(env, result, "fileInfo", &nativeFileInfo) != napi_ok) {
+            HILOG_INFO("Convert fileInfo js value failed");
+        }
 
-        napi_value uri = nullptr;
-        napi_get_named_property(env, result, "uri", &uri);
-        GetValueString(env, uri, fileInfo.uri);
-
-
-        napi_value relativePath = nullptr;
-        napi_get_named_property(env, result, "relativePath", &relativePath);
-        GetValueString(env, relativePath, fileInfo.relativePath);
-
-        napi_value fileName = nullptr;
-        napi_get_named_property(env, result, "fileName", &fileName);
-        GetValueString(env, fileName, fileInfo.fileName);
-
-        napi_value mode = nullptr;
-        napi_get_named_property(env, result, "mode", &mode);
-        napi_get_value_int32(env, mode, &fileInfo.mode);
-
-        napi_value size = nullptr;
-        napi_get_named_property(env, result, "size", &size);
-        napi_get_value_int64(env, size, &fileInfo.size);
-
-        napi_value mtime = nullptr;
-        napi_get_named_property(env, result, "mtime", &mtime);
-        napi_get_value_int64(env, mtime, &fileInfo.mtime);
-
-        napi_value mimeType = nullptr;
-        napi_get_named_property(env, result, "mimeType", &mimeType);
-        GetValueString(env, mimeType, fileInfo.mimeType);
-
+        if (GetFileInfoFromJs(env, nativeFileInfo, fileInfo) != napi_ok) {
+            HILOG_ERROR("Convert fileInfo js value fail.");
+            return false;
+        }
         value->data = std::move(fileInfo);
         return true;
     };
@@ -1600,28 +1466,25 @@ int JsFileAccessExtAbility::GetFileInfoFromUri(const Uri &selectFile, FileInfo &
     auto errCode = CallJsMethod("getFileInfoFromUri", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return errCode;
     }
 
     if (value->code != ERR_OK) {
         HILOG_ERROR("fileio fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return value->code;
     }
 
     fileInfo = std::move(value->data);
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int JsFileAccessExtAbility::GetFileInfoFromRelativePath(const std::string &selectFileRealtivePath, FileInfo &fileInfo)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromRelativePath");
+    UserAccessTracer trace;
+    trace.Start("GetFileInfoFromRelativePath");
     auto value = std::make_shared<Value<FileInfo>>();
     if (value == nullptr) {
         HILOG_ERROR("GetFileInfoFromRelativePath value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
 
@@ -1647,43 +1510,16 @@ int JsFileAccessExtAbility::GetFileInfoFromRelativePath(const std::string &selec
 
         napi_value code = nullptr;
         napi_get_named_property(env, result, "code", &code);
-        napi_status status = napi_get_value_int32(env, code, &value->code);
-        if (status != napi_ok) {
+        if (napi_get_value_int32(env, code, &value->code) != napi_ok) {
             HILOG_ERROR("Convert js value fail.");
             return false;
         }
 
         FileInfo fileInfo;
-
-        napi_value uri = nullptr;
-        napi_get_named_property(env, result, "uri", &uri);
-        GetValueString(env, uri, fileInfo.uri);
-
-
-        napi_value relativePath = nullptr;
-        napi_get_named_property(env, result, "relativePath", &relativePath);
-        GetValueString(env, relativePath, fileInfo.relativePath);
-
-        napi_value fileName = nullptr;
-        napi_get_named_property(env, result, "fileName", &fileName);
-        GetValueString(env, fileName, fileInfo.fileName);
-
-        napi_value mode = nullptr;
-        napi_get_named_property(env, result, "mode", &mode);
-        napi_get_value_int32(env, mode, &fileInfo.mode);
-
-        napi_value size = nullptr;
-        napi_get_named_property(env, result, "size", &size);
-        napi_get_value_int64(env, size, &fileInfo.size);
-
-        napi_value mtime = nullptr;
-        napi_get_named_property(env, result, "mtime", &mtime);
-        napi_get_value_int64(env, mtime, &fileInfo.mtime);
-
-        napi_value mimeType = nullptr;
-        napi_get_named_property(env, result, "mimeType", &mimeType);
-        GetValueString(env, mimeType, fileInfo.mimeType);
-
+        if (GetFileInfoFromJs(env, result, fileInfo) != napi_ok) {
+            HILOG_ERROR("Convert fileInfo js value fail.");
+            return false;
+        }
         value->data = std::move(fileInfo);
         return true;
     };
@@ -1691,33 +1527,29 @@ int JsFileAccessExtAbility::GetFileInfoFromRelativePath(const std::string &selec
     auto errCode = CallJsMethod("getFileInfoFromRelativePath", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return errCode;
     }
 
     if (value->code != ERR_OK) {
         HILOG_ERROR("fileio fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return value->code;
     }
 
     fileInfo = std::move(value->data);
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 napi_value JsFileAccessExtAbility::FuncCallback(napi_env env, napi_callback_info info)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "FuncCallback");
+    UserAccessTracer trace;
+    trace.Start("FuncCallback");
     if (env == nullptr) {
         HILOG_ERROR("NativeEngine pointer is null.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return nullptr;
     }
 
     if (info == nullptr) {
         HILOG_ERROR("invalid param.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return GetUndefinedValue(env);
     }
 
@@ -1729,12 +1561,11 @@ napi_value JsFileAccessExtAbility::FuncCallback(napi_env env, napi_callback_info
     }
     if (argc != ARGC_TWO) {
         HILOG_ERROR("invalid args.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return GetUndefinedValue(env);
     }
 
     std::string uriString;
-    GetValueString(env, argv[ARGC_ZERO], uriString);
+    GetStringValue(env, argv[ARGC_ZERO], uriString);
     int32_t event = UnwrapInt32FromJS(env, argv[ARGC_ONE]);
 
     Uri uri(uriString);
@@ -1743,17 +1574,16 @@ napi_value JsFileAccessExtAbility::FuncCallback(napi_env env, napi_callback_info
     if (ret != ERR_OK) {
         HILOG_ERROR("JsFileAccessExtAbility notify error, ret:%{public}d", ret);
     }
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return GetUndefinedValue(env);
 }
 
 int JsFileAccessExtAbility::StartWatcher(const Uri &uri)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "StartWatcher");
+    UserAccessTracer trace;
+    trace.Start("StartWatcher");
     auto ret = std::make_shared<int>();
     if (ret == nullptr) {
         HILOG_ERROR("StartWatcher value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
 
@@ -1781,8 +1611,7 @@ int JsFileAccessExtAbility::StartWatcher(const Uri &uri)
             return false;
         }
 
-        napi_status status = napi_get_value_int32(env, result, ret.get());
-        if (status != napi_ok) {
+        if (napi_get_value_int32(env, result, ret.get()) != napi_ok) {
             HILOG_ERROR("Convert js value fail.");
             return false;
         }
@@ -1792,27 +1621,24 @@ int JsFileAccessExtAbility::StartWatcher(const Uri &uri)
     auto errCode = CallJsMethod("startWatcher", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return errCode;
     }
 
     if (*ret != ERR_OK) {
         HILOG_ERROR("fileio fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return *ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int JsFileAccessExtAbility::StopWatcher(const Uri &uri, bool isUnregisterAll)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "StopWatcher");
+    UserAccessTracer trace;
+    trace.Start("StopWatcher");
     auto ret = std::make_shared<int>();
     if (ret == nullptr) {
         HILOG_ERROR("StopWatcher value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
 
@@ -1839,8 +1665,8 @@ int JsFileAccessExtAbility::StopWatcher(const Uri &uri, bool isUnregisterAll)
             HILOG_ERROR("Convert js object fail.");
             return false;
         }
-        napi_status status = napi_get_value_int32(env, result, ret.get());
-        if (status != napi_ok) {
+
+        if (napi_get_value_int32(env, result, ret.get()) != napi_ok) {
             HILOG_ERROR("Convert js value fail.");
             return false;
         }
@@ -1850,37 +1676,86 @@ int JsFileAccessExtAbility::StopWatcher(const Uri &uri, bool isUnregisterAll)
     auto errCode = CallJsMethod("stopWatcher", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return errCode;
     }
 
     if (*ret != ERR_OK) {
         HILOG_ERROR("fileio fail.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return *ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int JsFileAccessExtAbility::Notify(Uri &uri, NotifyType notifyType)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Notify");
+    UserAccessTracer trace;
+    trace.Start("Notify");
     auto proxy = FileAccessServiceProxy::GetInstance();
     if (proxy == nullptr) {
         HILOG_ERROR("Notify get SA failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_LOAD_SA;
     }
     auto ret = proxy->OnChange(uri, notifyType);
     if (ret != ERR_OK) {
         HILOG_ERROR("notify error, ret:%{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
+}
+
+napi_status JsFileAccessExtAbility::GetFileInfoFromJs(napi_env &env, napi_value obj, FileInfo &fileInfo)
+{
+    napi_value uri = nullptr;
+    napi_get_named_property(env, obj, "uri", &uri);
+    if (GetStringValue(env, uri, fileInfo.uri) != napi_ok) {
+        HILOG_ERROR("Convert uri fail");
+        return napi_generic_failure;
+    }
+
+    napi_value relativePath = nullptr;
+    napi_get_named_property(env, obj, "relativePath", &relativePath);
+    if (GetStringValue(env, relativePath, fileInfo.relativePath) != napi_ok) {
+        HILOG_ERROR("Convert relativePath fail");
+        return napi_generic_failure;
+    }
+
+    napi_value fileName = nullptr;
+    napi_get_named_property(env, obj, "fileName", &fileName);
+    if (GetStringValue(env, fileName, fileInfo.fileName) != napi_ok) {
+        HILOG_ERROR("Convert fileName fail");
+        return napi_generic_failure;
+    }
+
+    napi_value mode = nullptr;
+    napi_get_named_property(env, obj, "mode", &mode);
+    if (napi_get_value_int32(env, mode, &fileInfo.mode) != napi_ok) {
+        HILOG_ERROR("Convert mode fail");
+        return napi_generic_failure;
+    }
+
+    napi_value size = nullptr;
+    napi_get_named_property(env, obj, "size", &size);
+    if (napi_get_value_int64(env, size, &fileInfo.size) != napi_ok) {
+        HILOG_ERROR("Convert size fail");
+        return napi_generic_failure;
+    }
+
+    napi_value mtime = nullptr;
+    napi_get_named_property(env, obj, "mtime", &mtime);
+    if (napi_get_value_int64(env, size, &fileInfo.mtime) != napi_ok) {
+        HILOG_ERROR("Convert mtime fail");
+        return napi_generic_failure;
+    }
+
+    napi_value mimeType = nullptr;
+    napi_get_named_property(env, obj, "mimeType", &mimeType);
+    if (GetStringValue(env, mimeType, fileInfo.mimeType) != napi_ok) {
+        HILOG_ERROR("Convert mtime fail");
+        return napi_generic_failure;
+    }
+
+    return napi_ok;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS
