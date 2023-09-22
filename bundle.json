@@ -24,7 +24,6 @@
             "components": [
                 "ability_base",
                 "ability_runtime",
-                "app_file_service",
                 "ipc",
                 "samgr",
                 "napi",
@@ -41,9 +40,7 @@
         "build": {
             "group_type":{
                 "fwk_group": [
-                    "//foundation/filemanagement/user_file_service/interfaces/kits/picker:picker",
-                    "//foundation/filemanagement/user_file_service/interfaces/kits/native/recent:recent",
-                    "//foundation/filemanagement/user_file_service/interfaces/kits/native/trash:trash"
+                    "//foundation/filemanagement/user_file_service/interfaces/kits/picker:picker"
                 ],
                 "service_group": [
                     "//foundation/filemanagement/user_file_service/services:user_file_managers",
