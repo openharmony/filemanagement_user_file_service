@@ -25,11 +25,13 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-
+constexpr int64_t MAX_COUNTNUM = 1000;
 enum NotifyType {
     NOTIFY_ADD = 0,
     NOTIFY_DELETE,
-    NOTIFY_UPDATE
+    NOTIFY_MOVE_TO,
+    NOTIFY_MOVE_FROM,
+    NOTIFY_MOVE_SELE
 };
 
 struct NotifyMessage : public OHOS::Parcelable {
@@ -44,6 +46,10 @@ public:
     {
         notifyType_ = NotifyType(parcel.ReadInt32());
         auto count = parcel.ReadInt32();
+        if (count > MAX_COUNTNUM) {
+            HILOG_ERROR("ERROR:Count greater than 1000 .");
+            return false;
+        }
         for (int i = 0; i < count; i++) {
             uris_.push_back(parcel.ReadString());
         }

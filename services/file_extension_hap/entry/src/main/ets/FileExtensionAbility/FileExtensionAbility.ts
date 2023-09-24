@@ -24,26 +24,46 @@ import { getPath, checkUri, BUNDLE_NAME, DOMAIN_CODE, FILE_PREFIX_NAME, TAG } fr
 const deviceFlag = fileExtensionInfo.DeviceFlag;
 const documentFlag = fileExtensionInfo.DocumentFlag;
 const deviceType = fileExtensionInfo.DeviceType;
+const FILEOVERWRITE = 1;
+const THROWEXCEPTION = 0;
 
 const ERR_OK = 0;
 const ERR_ERROR = -1;
-const E_EXIST = 13900015;
-const ERR_PERM = 13900001;
+const COPY_EXCEPTION = -1;
+const COPY_NOEXCEPTION = -2;
+const E_PERM = 13900001;
 const E_NOEXIST = 13900002;
+const E_FAULT = 13900013;
+const E_EXIST = 13900015;
 const E_INVAL = 13900020;
 const E_URIS = 14300002;
 const E_GETRESULT = 14300004;
 const CREATE_EVENT_CODE = 0x00000100;
-const DELETE_EVENT_CODE = 0x00000200 | 0x00000400;
-const UPDATE_EVENT_CODE = 0x00000040 | 0x00000080 | 0x00000800;
+const IN_DELETE_EVENT_CODE = 0x00000200;
+const DELETE_SELF_EVENT_CODE = 0x00000400;
+const MOVE_TO_CODE = 0x00000080;
+const MOVED_FROM_CODE = 0x00000040;
+const MOVE_SELF_CODE = 0x00000800;
+const MOVE_MODLE_CODE = 3;
 const CREATE_EVENT = 0;
 const DELETE_EVENT = 1;
-const UPDATE_EVENT = 2;
-const CONVERT_TO_HEX = 16;
-const MOVE_MODLE_CODE = 3;
+const MOVED_TO = 2;
+const MOVED_FROM = 3;
+const MOVED_SELF = 4;
+let observerMap = new Map();
+let watcherCountMap = new Map();
+let eventMap = new Map([
+  [CREATE_EVENT_CODE, CREATE_EVENT],
+  [IN_DELETE_EVENT_CODE, DELETE_EVENT],
+  [DELETE_SELF_EVENT_CODE, DELETE_EVENT],
+  [MOVE_TO_CODE, MOVED_TO],
+  [MOVED_FROM_CODE, MOVED_FROM],
+  [MOVE_SELF_CODE, MOVED_SELF]
+]);
 const TRASH_PATH = '/storage/.Trash/Users/100/';
 const TRASH_SUB_FODER = '/oh_trash_content';
 const EXTERNAL_PATH = '/storage/External';
+
 
 // ['IN_ACCESS', 0x00000001],
 // ['IN_MODIFY', 0x00000002],
@@ -57,21 +77,6 @@ const EXTERNAL_PATH = '/storage/External';
 // ['IN_DELETE', 0x00000200],
 // ['IN_DELETE_SELF', 0x00000400],
 // ['IN_MOVE_SELF', 0x00000800]
-
-enum createEvent {
-  create = 100
-}
-
-enum deleteEvent {
-  delete = 200,
-  deleteSelf = 400
-}
-
-enum updataEvent {
-  moveSelf = 800,
-  moveFrom = 40,
-  moveTo = 80
-}
 
 export default class FileExtAbility extends Extension {
   onCreate(want): void {
@@ -345,10 +350,7 @@ export default class FileExtAbility extends Extension {
   delete(selectFileUri): number {
     selectFileUri = this.decode(selectFileUri);
     if (selectFileUri === '') {
-      return {
-        uri: '',
-        code: E_URIS
-      };
+      return E_URIS;
     }
     if (!checkUri(selectFileUri)) {
       return E_URIS;
@@ -432,30 +434,30 @@ export default class FileExtAbility extends Extension {
 
       let statOld = fs.statSync(oldPath);
       if (!statOld) {
-          return {
-              uri: '',
-              code: E_GETRESULT,
-          }
+        return {
+          uri: '',
+          code: E_GETRESULT,
+        }
       }
 
       // isDir
       if (statOld.isDirectory()) {
-          fs.moveDirSync(oldPath, getPath(targetParentUri), 3);
-          return {
-            uri: newFileUri,
-            code: ERR_OK,
-          };
+        fs.moveDirSync(oldPath, getPath(targetParentUri), MOVE_MODLE_CODE);
+        return {
+          uri: newFileUri,
+          code: ERR_OK,
+        };
       }
       // when targetFile is exist, delete it
       let isAccessNewPath = fs.accessSync(newPath);
       if (isAccessNewPath) {
-          fs.unlinkSync(newPath);
+        fs.unlinkSync(newPath);
       }
       fs.moveFileSync(oldPath, newPath, 0);
 
       return {
-          uri: newFileUri,
-          code: ERR_OK,
+        uri: newFileUri,
+        code: ERR_OK,
       };
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
@@ -504,6 +506,150 @@ export default class FileExtAbility extends Extension {
         uri: '',
         code: e.code,
       };
+    }
+  }
+
+  getCopyReturnValue(sourceUri, destUri, errCode, errMsg, ret): {[], number} {
+    let copyResult = [
+      {
+        sourceUri: sourceUri,
+        destUri: destUri,
+        errCode: errCode,
+        errMsg: errMsg,
+      },
+    ];
+    return {
+      results: copyResult,
+      code: ret,
+    };
+  }
+
+  checkCopyArguments(sourceFileUri, targetParentUri): {[], number} {
+    if (!checkUri(sourceFileUri) || !checkUri(targetParentUri)) {
+      hilog.error(DOMAIN_CODE, TAG, 'check arguments error, invalid arguments');
+      return this.getCopyReturnValue(sourceFileUri, targetParentUri, E_URIS, '', COPY_EXCEPTION);
+    }
+
+    let displayName = this.getFileName(sourceFileUri);
+    let newFileOrDirUri = this.genNewFileUri(targetParentUri, displayName);
+    let oldPath = getPath(sourceFileUri);
+    let newPath = getPath(newFileOrDirUri);
+    if (oldPath === newPath) {
+      hilog.error(DOMAIN_CODE, TAG, 'the source and target files are the same file');
+      return this.getCopyReturnValue(sourceFileUri, targetParentUri, E_INVAL, '', COPY_NOEXCEPTION);
+    } else if (newPath.indexOf(oldPath) === 0 && newPath.charAt(oldPath.length) === '/') {
+      hilog.error(DOMAIN_CODE, TAG, 'copy to a subdirectory of the source directory');
+      return this.getCopyReturnValue(sourceFileUri, targetParentUri, E_FAULT, '', COPY_EXCEPTION);
+    }
+
+    try {
+      let isExist = fs.accessSync(oldPath);
+      if (!isExist) {
+        hilog.error(DOMAIN_CODE, TAG, 'source uri is not exist, invalid arguments');
+        return this.getCopyReturnValue(sourceFileUri, '', E_INVAL, '', COPY_NOEXCEPTION);
+      }
+
+      let stat = fs.statSync(getPath(targetParentUri));
+      if (!stat || !stat.isDirectory()) {
+        hilog.error(DOMAIN_CODE, TAG, 'target is not directory, invalid arguments');
+        return this.getCopyReturnValue('', targetParentUri, E_INVAL, '', COPY_NOEXCEPTION);
+      }
+    } catch (e) {
+      hilog.error(DOMAIN_CODE, TAG, 'copy error ' + e.message);
+      return this.getCopyReturnValue(sourceFileUri, targetParentUri, e.code, '', COPY_EXCEPTION);
+    }
+    return {
+      results: [],
+      code: ERR_OK,
+    };
+  }
+
+  processCopyReturnValue(ret, copyRet): void {
+    if (ret.code === COPY_EXCEPTION) {
+      copyRet = ret;
+    }
+    if (ret.code === COPY_NOEXCEPTION) {
+      for (let index in ret.results) {
+        copyRet.results.push(ret.results[index]);
+      }
+      copyRet.code = ret.code;
+    }
+  }
+
+  copyFile(sourceFilePath, newFilePath): {[], number} {
+    let copyRet = {
+      results: [],
+      code: ERR_OK,
+    };
+
+    try {
+      let isExist = fs.accessSync(newFilePath);
+      if (isExist) {
+        fs.unlinkSync(newFilePath);
+      }
+      fs.copyFileSync(sourceFilePath, newFilePath);
+    } catch (err) {
+      hilog.error(DOMAIN_CODE, TAG,
+        'copyFileSync failed with error message: ' + err.message + ', error code: ' + err.code);
+      return this.getCopyReturnValue(this.relativePath2uri(sourceFilePath), '', err.code, err.message, COPY_EXCEPTION);
+    }
+    return copyRet;
+  }
+
+  copyDirectory(sourceFilePath, targetFilePath, mode): {[], number} {
+    let copyRet = {
+      results: [],
+      code: ERR_OK,
+    };
+    try {
+      fs.copyDirSync(sourceFilePath, targetFilePath, mode);
+    } catch (err) {
+      if (err.code === E_EXIST) {
+        for (let i = 0; i < err.data.length; i++) {
+          hilog.error(DOMAIN_CODE, TAG,
+            'copy directory failed with conflicting files: ' + err.data[i].srcFile + ' ' + err.data[i].destFile);
+          let ret = this.getCopyReturnValue(
+            this.relativePath2uri(err.data[i].srcFile), this.relativePath2uri(err.data[i].destFile),
+            err.code, err.message, COPY_NOEXCEPTION);
+          this.processCopyReturnValue(ret, copyRet);
+        }
+        return copyRet;
+      }
+      hilog.error(DOMAIN_CODE, TAG,
+        'copy directory failed with error message: ' + err.message + ', error code: ' + err.code);
+      return this.getCopyReturnValue(
+        this.relativePath2uri(sourceFilePath), this.relativePath2uri(targetFilePath),
+        err.code, err.message, COPY_EXCEPTION);
+    }
+    return copyRet;
+  }
+
+  copy(sourceFileUri, targetParentUri, force): {[], number} {
+    let checkRet = this.checkCopyArguments(sourceFileUri, targetParentUri);
+    if (checkRet.code !== ERR_OK) {
+      return checkRet;
+    }
+
+    let sourceFilePath = getPath(sourceFileUri);
+    let targetFilePath = getPath(targetParentUri);
+    let displayName = this.getFileName(sourceFileUri);
+    let newFileOrDirUri = this.genNewFileUri(targetParentUri, displayName);
+    let newFilePath = getPath(newFileOrDirUri);
+
+    let stat = fs.statSync(sourceFilePath);
+    if (stat.isFile()) {
+      let isExist = fs.accessSync(newFilePath);
+      if (isExist && force === false) {
+        return this.getCopyReturnValue(sourceFileUri, newFileOrDirUri, E_EXIST, '', COPY_NOEXCEPTION);
+      }
+      return this.copyFile(sourceFilePath, newFilePath);
+    } else if (stat.isDirectory()) {
+      let mode = force ? FILEOVERWRITE : THROWEXCEPTION;
+      let copyRet = this.copyDirectory(sourceFilePath, targetFilePath, mode);
+      return copyRet;
+    } else {
+      hilog.error(DOMAIN_CODE, TAG, 'the copy operation is not permitted');
+      return this.getCopyReturnValue(sourceFileUri, targetParentUri, E_PERM, '', COPY_EXCEPTION);
     }
   }
 
@@ -652,7 +798,7 @@ export default class FileExtAbility extends Extension {
   /*
    * selectFileRelativePath formate： /storage/Users/currentUser/filename
    */
-  getFileInfoFromRelativePath(selectFileRelativePath) {
+  getFileInfoFromRelativePath(selectFileRelativePath): {fileInfo:object, code:number} {
     let fileInfo = {};
     if (!this.checkRelativePath(selectFileRelativePath)) {
       return {
@@ -836,29 +982,34 @@ export default class FileExtAbility extends Extension {
     }
     let watchPath = getPath(uri);
     try {
-      let watcher = fs.createWatcher(watchPath, CREATE_EVENT_CODE | DELETE_EVENT_CODE | UPDATE_EVENT_CODE, (data) => {
-        try {
-          let notifyEvent = (data.event).toString(CONVERT_TO_HEX);
-          if (notifyEvent in createEvent) {
-            notifyEvent = CREATE_EVENT;
+      if (!observerMap.has(uri)) {
+        let watcher = fs.createWatcher(watchPath, CREATE_EVENT_CODE | IN_DELETE_EVENT_CODE | DELETE_SELF_EVENT_CODE |
+          MOVE_TO_CODE | MOVED_FROM_CODE | MOVE_SELF_CODE, (data) => {
+          try {
+            let eventCode = -1;
+            eventMap.forEach((value, key) => {
+              if (data.event & key) {
+                eventCode = value;
+              }
+            });
+            let targetUri = FILE_PREFIX_NAME + BUNDLE_NAME + data.fileName;
+            targetUri = this.encode(targetUri);
+            if (eventCode >= 0) {
+              callback(targetUri, eventCode);
+            } else {
+              hilog.info(DOMAIN_CODE, TAG, 'eventCode =' + data.event);
+            }
+          } catch (error) {
+            hilog.error(DOMAIN_CODE, TAG, 'onchange error ' + error.message);
           }
-
-          if (notifyEvent in deleteEvent) {
-            notifyEvent = DELETE_EVENT;
-          }
-
-          if (notifyEvent in updataEvent) {
-            notifyEvent = UPDATE_EVENT;
-          }
-          let watchUri = FILE_PREFIX_NAME + BUNDLE_NAME + watchPath;
-          watchUri = this.encode(watchUri);
-          callback(watchUri, notifyEvent);
-        } catch (error) {
-          hilog.error(DOMAIN_CODE, TAG, 'onchange error ' + error.message);
-        }
-      });
-      observerMap.set(uri, watcher);
-      watcher.start();
+        });
+        watcher.start();
+        observerMap.set(uri, watcher);
+        watcherCountMap.set(uri, 1);
+      } else {
+        let temp = watcherCountMap.get(uri) + 1;
+        watcherCountMap.set(uri, temp);
+      }
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'startWatcher error ' + e.message);
       return E_GETRESULT;
@@ -866,7 +1017,7 @@ export default class FileExtAbility extends Extension {
     return ERR_OK;
   }
 
-  stopWatcher(uri): number {
+  stopWatcher(uri, isUnregisterAll): number {
     uri = this.decode(uri);
     if (uri === '') {
       return {
@@ -878,9 +1029,23 @@ export default class FileExtAbility extends Extension {
       return E_URIS;
     }
     try {
-      let watcher = observerMap.get(uri);
-      watcher.stop();
-      observerMap.delete(uri);
+      if (!watcherCountMap.has(uri)) {
+        return E_GETRESULT;
+      }
+      if (isUnregisterAll) {
+        watcherCountMap.set(uri, 0);
+      } else {
+        let temp = watcherCountMap.get(uri) - 1;
+        watcherCountMap.set(uri, temp);
+      }
+      if (watcherCountMap.get(uri) === 0) {
+        watcherCountMap.delete(uri);
+        let watcher = observerMap.get(uri);
+        if (typeof watcher !== undefined) {
+          watcher.stop();
+          observerMap.delete(uri);
+        }
+      }
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'stopWatcher error ' + e.message);
       return E_GETRESULT;

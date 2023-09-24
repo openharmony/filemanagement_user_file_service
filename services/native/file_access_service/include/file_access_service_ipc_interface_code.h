@@ -13,26 +13,16 @@
  * limitations under the License.
  */
 
-#ifndef I_FILE_ACCESS_SERVICE_BASE_H
-#define I_FILE_ACCESS_SERVICE_BASE_H
-
-#include "iremote_broker.h"
-#include "iremote_object.h"
-#include "iobserver_callback.h"
-#include "uri.h"
+#ifndef FILE_ACCESS_SERVICE_IPC_INTERFACE_CODE_H
+#define FILE_ACCESS_SERVICE_IPC_INTERFACE_CODE_H
 
 namespace OHOS {
 namespace FileAccessFwk {
-using Uri = OHOS::Uri;
-class IFileAccessServiceBase : public IRemoteBroker {
-public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.FileAccessFwk.IFileAccessServiceBase");
-
-public:
-    virtual int32_t OnChange(Uri uri, NotifyType notifyType) = 0;
-    virtual int32_t RegisterNotify(Uri uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer) = 0;
-    virtual int32_t UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer) = 0;
-};
+    enum class FileAccessServiceInterfaceCode {
+        CMD_REGISTER_NOTIFY = 0,
+        CMD_UNREGISTER_NOTIFY,
+        CMD_ONCHANGE
+    };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // I_FILE_ACCESS_SERVICE_BASE_H
+#endif // FILE_ACCESS_SERVICE_IPC_INTERFACE_CODE_H

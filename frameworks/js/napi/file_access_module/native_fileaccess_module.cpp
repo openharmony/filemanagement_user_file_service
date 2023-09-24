@@ -44,6 +44,7 @@ static napi_value Init(napi_env env, napi_value exports)
     InitOpenFlags(env, exports);
     InitQueryFlags(env, exports);
     InitCopyResult(env, exports);
+    InitNotifyType(env, exports);
 
     std::vector<std::unique_ptr<NExporter>> products;
     products.emplace_back(std::make_unique<NapiRootIteratorExporter>(env, exports));

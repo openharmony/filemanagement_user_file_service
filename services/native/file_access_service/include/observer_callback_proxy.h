@@ -27,7 +27,7 @@ class ObserverCallbackProxy : public IRemoteProxy<IFileAccessObserver> {
 public:
     explicit ObserverCallbackProxy(const sptr<IRemoteObject>& remote) : IRemoteProxy<IFileAccessObserver>(remote) {}
     ~ObserverCallbackProxy() = default;
-    void OnChange(NotifyMessage &notifyMessage) {} override;
+    void OnChange(NotifyMessage &notifyMessage) override;
 
 private:
     static inline BrokerDelegator<ObserverCallbackProxy> delegator_;

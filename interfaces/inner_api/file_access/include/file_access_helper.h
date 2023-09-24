@@ -86,11 +86,12 @@ public:
     int GetFileInfoFromUri(Uri &selectFile, FileInfo &fileInfo);
     int GetFileInfoFromRelativePath(std::string &selectFile, FileInfo &fileInfo);
     int GetRoots(std::vector<RootInfo> &rootInfoVec);
-    int RegisterNotify(Uri uri, sptr<IFileAccessObserver> &observer, bool notifyForDescendants);
+    int RegisterNotify(Uri uri, bool notifyForDescendants, sptr<IFileAccessObserver> &observer);
     int UnregisterNotify(Uri uri, sptr<IFileAccessObserver> &observer);
+    int UnregisterNotify(Uri uri);
 private:
     int StartWatcher(Uri &uri);
-    int StopWatcher(Uri &uri);
+    int StopWatcher(Uri &uri, bool isUnregisterAll);
     sptr<IFileAccessExtBase> GetProxyByUri(Uri &uri);
     sptr<IFileAccessExtBase> GetProxyByBundleName(const std::string &bundleName);
     bool GetProxy();
@@ -105,7 +106,8 @@ private:
 
     std::shared_ptr<ConnectInfo> GetConnectInfo(const std::string &bundleName);
 
-    int CopyInsideService(Uri &sourceUri, Uri &destUri, std::vector<CopyResult> &copyResult, bool force = false);
+    int CopyOperation(Uri &sourceUri, Uri &destUri, std::vector<CopyResult> &copyResult, bool force = false);
+    int IsDirectory(Uri &uri, bool &isDir);
 
     sptr<IRemoteObject> token_ = nullptr;
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap_;

@@ -46,6 +46,8 @@ namespace {
     static napi_ref g_constructorRef = nullptr;
     constexpr uint32_t INITIAL_REFCOUNT = 1;
     constexpr int COPY_EXCEPTION = -1;
+    using CallbackExec = std::function<NError()>;
+    using CallbackComplete = std::function<NVal(napi_env, NError)>;
 }
 
 std::list<std::shared_ptr<FileAccessHelper>> g_fileAccessHelperList = {};
@@ -240,8 +242,8 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getFileInfoFromUri", NAPI_GetFileInfoFromUri),
         DECLARE_NAPI_FUNCTION("getFileInfoFromRelativePath", NAPI_GetFileInfoFromRelativePath),
         DECLARE_NAPI_FUNCTION("getThumbnail", NAPI_GetThumbnail),
-        DECLARE_NAPI_FUNCTION("on", NAPI_RegisterObserver),
-        DECLARE_NAPI_FUNCTION("off", NAPI_UnregisterObserver)
+        DECLARE_NAPI_FUNCTION("registerObserver", NAPI_RegisterObserver),
+        DECLARE_NAPI_FUNCTION("unregisterObserver", NAPI_UnregisterObserver)
     };
     napi_value cons = nullptr;
     NAPI_CALL(env,
@@ -679,7 +681,7 @@ static napi_value CreateObjectArray(napi_env env, std::vector<CopyResult> result
     return copyResultArray;
 }
 
-std::tuple<bool, std::string, std::string, bool> GetCopyArguments(napi_env env, NFuncArg &funcArg)
+static std::tuple<bool, std::string, std::string, bool> GetCopyArguments(napi_env env, NFuncArg &funcArg)
 {
     bool retStatus = false;
     std::unique_ptr<char[]> srcPath;
@@ -718,6 +720,35 @@ std::tuple<bool, std::string, std::string, bool> GetCopyArguments(napi_env env, 
     return std::make_tuple(true, srcPathStr, destPathStr, force);
 }
 
+static napi_value AddCopyNAsyncWork(napi_env env, NFuncArg &funcArg, CallbackExec cbExec, CallbackComplete cbComplete)
+{
+    const std::string procedureName = "copy";
+    NVal thisVar(env, funcArg.GetThisVar());
+
+    if (funcArg.GetArgc() == NARG_CNT::TWO) {
+        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
+    }
+
+    if (funcArg.GetArgc() == NARG_CNT::THREE) {
+        NVal thirdArg(env, funcArg[NARG_POS::THIRD]);
+        if (thirdArg.TypeIs(napi_boolean)) {
+            return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
+        }
+        if (thirdArg.TypeIs(napi_function)) {
+            return NAsyncWorkCallback(env, thisVar, thirdArg).Schedule(procedureName, cbExec, cbComplete).val_;
+        }
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    NVal cb(env, funcArg[NARG_POS::FOURTH]);
+    if (!cb.TypeIs(napi_function)) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
+}
+
 napi_value NAPI_Copy(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
@@ -746,7 +777,6 @@ napi_value NAPI_Copy(napi_env env, napi_callback_info info)
         NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
     }
-
     int ret = ERR_OK;
     auto cbExec = [srcPathStr, destPathStr, force, result, &ret, fileAccessHelper]() -> NError {
         OHOS::Uri srcUri(srcPathStr);
@@ -764,31 +794,7 @@ napi_value NAPI_Copy(napi_env env, napi_callback_info info)
         return { env, CreateObjectArray(env, *result) };
     };
 
-    const std::string procedureName = "copy";
-    NVal thisVar(env, funcArg.GetThisVar());
-
-    if (funcArg.GetArgc() == NARG_CNT::TWO) {
-        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-    }
-
-    if (funcArg.GetArgc() == NARG_CNT::THREE) {
-        NVal thirdArg(env, funcArg[NARG_POS::THIRD]);
-        if (thirdArg.TypeIs(napi_boolean) || thirdArg.TypeIs(napi_undefined)) {
-            return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-        }
-        if (thirdArg.TypeIs(napi_function)) {
-            return NAsyncWorkCallback(env, thisVar, thirdArg).Schedule(procedureName, cbExec, cbComplete).val_;
-        }
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
-    }
-
-    NVal cb(env, funcArg[NARG_POS::FOURTH]);
-    if (!cb.TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
-    }
-    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
+    return AddCopyNAsyncWork(env, funcArg, cbExec, cbComplete);
 }
 
 napi_value NAPI_Rename(napi_env env, napi_callback_info info)
@@ -1217,6 +1223,8 @@ static bool parseRegisterObserverArgs(napi_env env, NFuncArg &funcArg, std::stri
         NError(EINVAL).ThrowErr(env);
         return false;
     }
+
+    uri = uriPtr.get();
     std::tie(succ, notifyForDescendants) = NVal(env, funcArg[NARG_POS::SECOND]).ToBool();
     if (!succ) {
         NError(EINVAL).ThrowErr(env);
@@ -1231,6 +1239,30 @@ static bool parseRegisterObserverArgs(napi_env env, NFuncArg &funcArg, std::stri
     return succ;
 }
 
+static bool RegisterObserver(napi_env env,  NFuncArg &funcArg, sptr<IFileAccessObserver> &observer)
+{
+    std::string uriString;
+    bool notifyForDescendants = false;
+    if (!parseRegisterObserverArgs(env, funcArg, uriString, notifyForDescendants)) {
+        NError(EINVAL).ThrowErr(env);
+        HILOG_ERROR("parse Args error");
+        return false;
+    }
+
+    OHOS::Uri uri(uriString);
+    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    if (fileAccessHelper == nullptr) {
+        return false;
+    }
+
+    auto retCode = fileAccessHelper->RegisterNotify(uri, notifyForDescendants, observer);
+    if (retCode != ERR_OK) {
+        NError(retCode).ThrowErr(env);
+        return false;
+    }
+    return true;
+}
+
 napi_value NAPI_RegisterObserver(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
@@ -1239,44 +1271,41 @@ napi_value NAPI_RegisterObserver(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    std::string uriString;
-    bool notifyForDescendants = false;
-    if (!parseRegisterObserverArgs(env, funcArg, uriString, notifyForDescendants)) {
-        NError(EINVAL).ThrowErr(env);
-        HILOG_ERROR("parse Args error");
-        return nullptr;
-    }
-
-    sptr<IFileAccessObserver> callback;
-    if (callback == nullptr) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
-    }
-
-    auto finalize = [](napi_env env, void *data, void *hint) {
-        FileObserverCallbackWrapper *observerWrapper = static_cast<FileObserverCallbackWrapper *>(data);
-        if (observerWrapper != nullptr) {
-            delete observerWrapper;
-        }
-    };
-    std::unique_ptr<FileObserverCallbackWrapper> observerWrapper = std::make_unique<FileObserverCallbackWrapper>();
-    observerWrapper->callback = callback;
     napi_value napiCallback = funcArg[NARG_POS::THIRD];
-    if (napi_wrap(env, napiCallback, observerWrapper.get(), finalize, nullptr, nullptr) != napi_ok) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
-    }
-    observerWrapper.release();
+    FileObserverCallbackWrapper* wrapper = nullptr;
+    if (napi_unwrap(env, napiCallback, (void **)&wrapper) != napi_ok || wrapper == nullptr) {
+        std::shared_ptr<NapiObserver> observer = std::make_shared<NapiObserver>(env, napiCallback);
+        sptr<IFileAccessObserver> callback(new (std::nothrow) NapiObserverCallback(observer));
+        if (callback == nullptr) {
+            NError(EINVAL).ThrowErr(env);
+            return nullptr;
+        }
+        if (!RegisterObserver(env, funcArg, callback)) {
+            HILOG_ERROR("RegisterObserver failed");
+            NError(EINVAL).ThrowErr(env);
+            return nullptr;
+        }
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
-    if (fileAccessHelper == nullptr) {
-        return nullptr;
-    }
-    OHOS::Uri uri(uriString);
-    auto retCode = fileAccessHelper->RegisterNotify(uri, callback, notifyForDescendants);
-    if (retCode != ERR_OK) {
-        NError(retCode).ThrowErr(env);
-        return nullptr;
+        auto finalize = [](napi_env env, void *data, void *hint) {
+            FileObserverCallbackWrapper *observerWrapper = static_cast<FileObserverCallbackWrapper *>(data);
+            if (observerWrapper != nullptr) {
+                delete observerWrapper;
+            }
+        };
+        std::unique_ptr<FileObserverCallbackWrapper> observerWrapper = std::make_unique<FileObserverCallbackWrapper>();
+        observerWrapper->callback = callback;
+        if (napi_wrap(env, napiCallback, observerWrapper.get(), finalize, nullptr, nullptr) != napi_ok) {
+            NError(EINVAL).ThrowErr(env);
+            HILOG_ERROR("napi_wrap error");
+            return nullptr;
+        }
+        observerWrapper.release();
+    } else {
+        if (!RegisterObserver(env, funcArg, wrapper->callback)) {
+            HILOG_ERROR("RegisterObserver failed");
+            NError(EINVAL).ThrowErr(env);
+            return nullptr;
+        }
     }
     return NVal::CreateUndefined(env).val_;
 }
@@ -1284,7 +1313,7 @@ napi_value NAPI_RegisterObserver(napi_env env, napi_callback_info info)
 napi_value NAPI_UnregisterObserver(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
-    if (!funcArg.InitArgs(NARG_CNT::TWO)) {
+    if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
         NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
@@ -1298,23 +1327,6 @@ napi_value NAPI_UnregisterObserver(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    napi_value napiCallback = funcArg[NARG_POS::SECOND];
-    if (!NVal(env, napiCallback).TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
-    }
-
-    std::unique_ptr<FileObserverCallbackWrapper> observerWrapper;
-    if (napi_unwrap(env, napiCallback, (void **)&(observerWrapper)) != napi_ok) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
-    }
-    if (observerWrapper == nullptr) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
-    }
-    auto wrapper = observerWrapper.release();
-
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
@@ -1322,7 +1334,26 @@ napi_value NAPI_UnregisterObserver(napi_env env, napi_callback_info info)
 
     std::string uriString(uriPtr.get());
     OHOS::Uri uri(uriString);
-    auto retCode = fileAccessHelper->UnregisterNotify(uri, wrapper->callback);
+    int retCode = EINVAL;
+    if (funcArg.GetArgc() == NARG_CNT::ONE) {
+        retCode = fileAccessHelper->UnregisterNotify(uri);
+    } else {
+        napi_value napiCallback = funcArg[NARG_POS::SECOND];
+        if (!NVal(env, napiCallback).TypeIs(napi_function)) {
+            NError(EINVAL).ThrowErr(env);
+            return nullptr;
+        }
+
+        std::unique_ptr<FileObserverCallbackWrapper> observerWrapper;
+        if (napi_unwrap(env, napiCallback, (void **)&(observerWrapper)) != napi_ok || observerWrapper == nullptr) {
+            NError(EINVAL).ThrowErr(env);
+            return nullptr;
+        }
+
+        auto wrapper = observerWrapper.release();
+        retCode = fileAccessHelper->UnregisterNotify(uri, wrapper->callback);
+    }
+
     if (retCode != ERR_OK) {
         NError(retCode).ThrowErr(env);
         return nullptr;

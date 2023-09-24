@@ -27,6 +27,7 @@
                 "app_file_service",
                 "ipc",
                 "samgr",
+                "safwk",
                 "napi",
                 "file_api",
                 "bundle_framework",
@@ -35,7 +36,8 @@
                 "access_token",
                 "c_utils",
                 "image_framework",
-                "common_event_service"
+                "common_event_service",
+                "ability_tools"
             ]
         },
         "build": {

@@ -22,6 +22,7 @@
 #include "ipc_types.h"
 #include "message_option.h"
 #include "message_parcel.h"
+#include "user_access_tracer.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -31,24 +32,22 @@ namespace {
 };
 int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags, int &fd)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OpenFile");
+    UserAccessTracer trace;
+    trace.Start("OpenFile");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     std::string insideInputUri = uri.ToString();
     if (!data.WriteString(insideInputUri)) {
         HILOG_ERROR("fail to WriteParcelable uri");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteInt32(flags)) {
         HILOG_ERROR("fail to WriteInt32 flags");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
@@ -57,54 +56,47 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags, int &fd)
     int err = Remote()->SendRequest(CMD_OPEN_FILE, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (ret != ERR_OK) {
         HILOG_ERROR("OpenFile operation failed ret : %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
     fd = reply.ReadFileDescriptor();
     if (fd < ERR_OK) {
         HILOG_ERROR("fail to ReadFileDescriptor fd: %{public}d", fd);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "CreateFile");
+    UserAccessTracer trace;
+    trace.Start("CreateFile");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     std::string insideInputUri = parent.ToString();
     if (!data.WriteString(insideInputUri)) {
         HILOG_ERROR("fail to WriteParcelable parent");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteString(displayName)) {
         HILOG_ERROR("fail to WriteString displayName");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
@@ -113,61 +105,53 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
     int err = Remote()->SendRequest(CMD_CREATE_FILE, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (ret != ERR_OK) {
         HILOG_ERROR("CreateFile operation failed ret : %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
     std::string tempUri;
     if (!reply.ReadString(tempUri)) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (tempUri.empty()) {
         HILOG_ERROR("get uri is empty.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
     newFile = Uri(tempUri);
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Mkdir");
+    UserAccessTracer trace;
+    trace.Start("Mkdir");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     std::string insideInputUri = parent.ToString();
     if (!data.WriteString(insideInputUri)) {
         HILOG_ERROR("fail to WriteParcelable parent");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteString(displayName)) {
         HILOG_ERROR("fail to WriteString displayName");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
@@ -176,55 +160,48 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
     int err = Remote()->SendRequest(CMD_MKDIR, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (ret != ERR_OK) {
         HILOG_ERROR("Mkdir operation failed ret : %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
     std::string tempUri;
     if (!reply.ReadString(tempUri)) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (tempUri.empty()) {
         HILOG_ERROR("get uri is empty.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
     newFile = Uri(tempUri);
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessExtProxy::Delete(const Uri &sourceFile)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Delete");
+    UserAccessTracer trace;
+    trace.Start("Delete");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     std::string insideInputUri = sourceFile.ToString();
     if (!data.WriteString(insideInputUri)) {
         HILOG_ERROR("fail to WriteParcelable sourceFile");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
@@ -233,48 +210,42 @@ int FileAccessExtProxy::Delete(const Uri &sourceFile)
     int err = Remote()->SendRequest(CMD_DELETE, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (ret != ERR_OK) {
         HILOG_ERROR("Delete operation failed ret : %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Move");
+    UserAccessTracer trace;
+    trace.Start("Move");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     std::string insideInputSourceUri = sourceFile.ToString();
     if (!data.WriteString(insideInputSourceUri)) {
         HILOG_ERROR("fail to WriteParcelable sourceFile");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     std::string insideInputTargetUri = targetParent.ToString();
     if (!data.WriteString(insideInputTargetUri)) {
         HILOG_ERROR("fail to WriteParcelable targetParent");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
@@ -283,102 +254,79 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
     int err = Remote()->SendRequest(CMD_MOVE, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (ret != ERR_OK) {
         HILOG_ERROR("Move operation failed ret : %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
     std::string tempUri;
     if (!reply.ReadString(tempUri)) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     };
 
     if (tempUri.empty()) {
         HILOG_ERROR("get uri is empty.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
     newFile = Uri(tempUri);
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
-int FileAccessExtProxy::Copy(const Uri &sourceUri, const Uri &destUri, std::vector<CopyResult> &copyResult,
-    bool force)
+static int WriteCopyFuncArguments(OHOS::MessageParcel &data, const Uri &sourceUri, const Uri &destUri, bool force)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Copy");
-    MessageParcel data;
-    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
-        HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return E_IPCS;
-    }
-
+    UserAccessTracer trace;
+    trace.Start("WriteCopyFuncArguments");
     std::string insideInputSourceUri = sourceUri.ToString();
     if (!data.WriteString(insideInputSourceUri)) {
         HILOG_ERROR("fail to WriteParcelable insideInputSourceUri");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     std::string insideInputTargetUri = destUri.ToString();
     if (!data.WriteString(insideInputTargetUri)) {
         HILOG_ERROR("fail to WriteParcelable insideInputTargetUri");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteBool(force)) {
         HILOG_ERROR("fail to WriteBool force");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
+    return ERR_OK;
+}
 
-    MessageParcel reply;
-    MessageOption option;
-    int err = Remote()->SendRequest(CMD_COPY, data, reply, option);
-    if (err != ERR_OK) {
-        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return err;
-    }
-
+static int ReadCopyFuncResults(OHOS::MessageParcel &reply, std::vector<CopyResult> &copyResult)
+{
+    UserAccessTracer trace;
+    trace.Start("ReadCopyFuncResults");
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
     if (ret == ERR_OK) {
         HILOG_ERROR("Copy operation success");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
-        return ERR_OK;
+        return ret;
     }
 
     uint32_t count = 0;
     if (!reply.ReadUint32(count)) {
         HILOG_ERROR("Copy operation failed to Read count");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
     if (count > MAX_COPY_ERROR_COUNT) {
         HILOG_ERROR("Copy operation failed, count value greater than max count");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         CopyResult result { "", "", E_COUNT, "Count value greater than max count"};
         copyResult.clear();
         copyResult.push_back(result);
@@ -392,31 +340,61 @@ int FileAccessExtProxy::Copy(const Uri &sourceUri, const Uri &destUri, std::vect
             copyResult.push_back(*copyResultPtr);
         }
     }
+    return ret;
+}
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+int FileAccessExtProxy::Copy(const Uri &sourceUri, const Uri &destUri, std::vector<CopyResult> &copyResult,
+    bool force)
+{
+    UserAccessTracer trace;
+    trace.Start("Copy");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return E_IPCS;
+    }
+
+    int ret = WriteCopyFuncArguments(data, sourceUri, destUri, force);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Write copy function arguments error, code: %{public}d", ret);
+        return ret;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int err = Remote()->SendRequest(CMD_COPY, data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest, err: %{public}d", err);
+        return err;
+    }
+
+    ret = ReadCopyFuncResults(reply, copyResult);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Read copy function result error, code: %{public}d", ret);
+        return ret;
+    }
+
     return ret;
 }
 
 int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Rename");
+    UserAccessTracer trace;
+    trace.Start("Rename");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     std::string insideInputSourceUri = sourceFile.ToString();
     if (!data.WriteString(insideInputSourceUri)) {
         HILOG_ERROR("fail to WriteParcelable sourceFile");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteString(displayName)) {
         HILOG_ERROR("fail to WriteString displayName");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
@@ -425,38 +403,32 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
     int err = Remote()->SendRequest(CMD_RENAME, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (ret != ERR_OK) {
         HILOG_ERROR("Rename operation failed ret : %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
     std::string tempUri;
     if (!reply.ReadString(tempUri)) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (tempUri.empty()) {
         HILOG_ERROR("get uri is empty.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_GETRESULT;
     }
     newFile = Uri(tempUri);
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
@@ -492,35 +464,31 @@ static int GetListFileResult(MessageParcel &reply, std::vector<FileInfo> &fileIn
 int FileAccessExtProxy::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
     const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ListFile");
+    UserAccessTracer trace;
+    trace.Start("ListFile");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteParcelable(&fileInfo)) {
         HILOG_ERROR("fail to WriteParcelable fileInfo");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteInt64(offset)) {
         HILOG_ERROR("fail to WriteInt64 offset");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteInt64(maxCount)) {
         HILOG_ERROR("fail to WriteInt64 maxCount");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteParcelable(&filter)) {
         HILOG_ERROR("fail to WriteParcelable filter");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
@@ -529,53 +497,46 @@ int FileAccessExtProxy::ListFile(const FileInfo &fileInfo, const int64_t offset,
     int err = Remote()->SendRequest(CMD_LIST_FILE, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
     err = GetListFileResult(reply, fileInfoVec);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to GetListFileResult. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessExtProxy::ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
     const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "ScanFile");
+    UserAccessTracer trace;
+    trace.Start("ScanFile");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteParcelable(&fileInfo)) {
         HILOG_ERROR("fail to WriteParcelable fileInfo");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteInt64(offset)) {
         HILOG_ERROR("fail to WriteInt64 offset");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteInt64(maxCount)) {
         HILOG_ERROR("fail to WriteInt64 maxCount");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteParcelable(&filter)) {
         HILOG_ERROR("fail to WriteParcelable filter");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
@@ -584,18 +545,15 @@ int FileAccessExtProxy::ScanFile(const FileInfo &fileInfo, const int64_t offset,
     int err = Remote()->SendRequest(CMD_SCAN_FILE, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
     err = GetListFileResult(reply, fileInfoVec);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to GetListFileResult. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
@@ -627,36 +585,32 @@ static int GetQueryResult(MessageParcel &reply, std::vector<std::string> &result
 
 int FileAccessExtProxy::Query(const Uri &uri, std::vector<std::string> &columns, std::vector<std::string> &results)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Query");
+    UserAccessTracer trace;
+    trace.Start("Query");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     std::string insideInputUri = uri.ToString();
     if (!data.WriteString(insideInputUri)) {
         HILOG_ERROR("fail to WriteParcelable sourceFile");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
     int64_t count = columns.size();
     if (!data.WriteInt64(count)) {
         HILOG_ERROR("Parameter Query fail to WriteInt64 count");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
     if (count > FILE_RESULT_TYPE.size()) {
         HILOG_ERROR(" The number of query operations exceeds %{public}zu ", FILE_RESULT_TYPE.size());
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return EINVAL;
     }
 
     for (const auto &column : columns) {
         if (!data.WriteString(column)) {
             HILOG_ERROR("parameter Query fail to WriteParcelable column");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return E_IPCS;
         }
     }
@@ -666,27 +620,24 @@ int FileAccessExtProxy::Query(const Uri &uri, std::vector<std::string> &columns,
     int err = Remote()->SendRequest(CMD_QUERY, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
     err = GetQueryResult(reply, results);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to GetQueryResult. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetRoots");
+    UserAccessTracer trace;
+    trace.Start("GetRoots");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
@@ -695,27 +646,23 @@ int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfoVec)
     int err = Remote()->SendRequest(CMD_GET_ROOTS, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (ret != ERR_OK) {
         HILOG_ERROR("GetRoots operation failed ret : %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
     uint64_t count = 0;
     if (!reply.ReadUint64(count)) {
         HILOG_ERROR("GetRoots operation failed to Read count");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
@@ -727,7 +674,6 @@ int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfoVec)
         }
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
@@ -753,12 +699,12 @@ static int WriteThumbnailArgs(MessageParcel &data, const Uri &uri, const Thumbna
 int FileAccessExtProxy::GetThumbnail(const Uri &uri, const ThumbnailSize &thumbnailSize,
     std::shared_ptr<PixelMap> &pixelMap)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetThumbnail");
+    UserAccessTracer trace;
+    trace.Start("GetThumbnail");
     MessageParcel data;
     int err = WriteThumbnailArgs(data, uri, thumbnailSize);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to WriteThumbnailArgs. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
@@ -767,49 +713,43 @@ int FileAccessExtProxy::GetThumbnail(const Uri &uri, const ThumbnailSize &thumbn
     err = Remote()->SendRequest(CMD_GET_THUMBNAIL, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("Parameter GetThumbnail fail to WriteInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (ret != ERR_OK) {
         HILOG_ERROR("GetThumbnail operation failed ret : %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
     std::shared_ptr<PixelMap> tempPixelMap(reply.ReadParcelable<PixelMap>());
     if (tempPixelMap == nullptr) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
     pixelMap = tempPixelMap;
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessExtProxy::GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromUri");
+    UserAccessTracer trace;
+    trace.Start("GetFileInfoFromUri");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     std::string insideInputUri = selectFile.ToString();
     if (!data.WriteString(insideInputUri)) {
         HILOG_ERROR("fail to WriteParcelable selectFile");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
@@ -818,48 +758,42 @@ int FileAccessExtProxy::GetFileInfoFromUri(const Uri &selectFile, FileInfo &file
     int err = Remote()->SendRequest(CMD_GET_FILEINFO_FROM_URI, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (ret != ERR_OK) {
         HILOG_ERROR("GetFileInfoFromUri operation failed ret : %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
     std::unique_ptr<FileInfo> fileInfoTemp(reply.ReadParcelable<FileInfo>());
     if (fileInfoTemp == nullptr) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     fileInfo = *fileInfoTemp;
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessExtProxy::GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "GetFileInfoFromRelativePath");
+    UserAccessTracer trace;
+    trace.Start("GetFileInfoFromRelativePath");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteString(selectFile)) {
         HILOG_ERROR("fail to WriteParcelable selectFile");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
@@ -868,49 +802,43 @@ int FileAccessExtProxy::GetFileInfoFromRelativePath(const std::string &selectFil
     int err = Remote()->SendRequest(CMD_GET_FILEINFO_FROM_RELATIVE_PATH, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (ret != ERR_OK) {
         HILOG_ERROR("GetFileInfoFromRelativePath operation failed ret : %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
     std::unique_ptr<FileInfo> fileInfoTemp(reply.ReadParcelable<FileInfo>());
     if (fileInfoTemp == nullptr) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     fileInfo = *fileInfoTemp;
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessExtProxy::Access(const Uri &uri, bool &isExist)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "Access");
+    UserAccessTracer trace;
+    trace.Start("Access");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     std::string insideInputUri = uri.ToString();
     if (!data.WriteString(insideInputUri)) {
         HILOG_ERROR("fail to WriteParcelable uri");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
@@ -919,47 +847,41 @@ int FileAccessExtProxy::Access(const Uri &uri, bool &isExist)
     int err = Remote()->SendRequest(CMD_ACCESS, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (ret != ERR_OK) {
         HILOG_ERROR("Access operation failed ret : %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
     if (!reply.ReadBool(isExist)) {
         HILOG_ERROR("fail to ReadInt32 isExist");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int FileAccessExtProxy::StartWatcher(const Uri &uri)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "StartWatcher");
+    UserAccessTracer trace;
+    trace.Start("StartWatcher");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     std::string uriString = uri.ToString();
     if (!data.WriteString(uriString)) {
         HILOG_ERROR("fail to WriteParcelable uri");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
@@ -968,41 +890,41 @@ int FileAccessExtProxy::StartWatcher(const Uri &uri)
     int err = Remote()->SendRequest(CMD_START_WATCHER, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (ret != ERR_OK) {
         HILOG_ERROR("StartWatcher operation failed ret : %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
-int FileAccessExtProxy::StopWatcher(const Uri &uri)
+int FileAccessExtProxy::StopWatcher(const Uri &uri, bool isUnregisterAll)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "StopWatcher");
+    UserAccessTracer trace;
+    trace.Start("StopWatcher");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     std::string uriString = uri.ToString();
     if (!data.WriteString(uriString)) {
         HILOG_ERROR("fail to WriteParcelable uri");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        return E_IPCS;
+    }
+
+    if (!data.WriteBool(isUnregisterAll)) {
+        HILOG_ERROR("fail to WriteBool isUnregisterAll");
         return E_IPCS;
     }
 
@@ -1011,24 +933,20 @@ int FileAccessExtProxy::StopWatcher(const Uri &uri)
     int err = Remote()->SendRequest(CMD_STOP_WATCHER, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret)) {
         HILOG_ERROR("fail to ReadInt32 ret");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (ret != ERR_OK) {
         HILOG_ERROR("StopWatcher operation failed ret : %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 } // namespace FileAccessFwk

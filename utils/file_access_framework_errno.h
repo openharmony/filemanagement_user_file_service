@@ -36,12 +36,14 @@ enum {
     E_INIT_NOTIFY_AGENT,                    // Fail to init notification agent
     E_NOTIFY,                               // Fail to notify agent
     E_CONNECT,                              // Fail to connect file access extension ability
+    E_COUNT,                                // Too many records
     E_CALLBACK_AND_URI_HAS_NOT_RELATIONS,   // Uri and callback do not has relations, can not unregister
     E_CALLBACK_IS_NOT_REGISTER,             // CallBack is not registered, can not unregister
     E_CAN_NOT_FIND_URI,                     // Can not find registered uri
+    E_DO_NOT_HAVE_PARENT,                   // Do not have parent uri in observerNode
+    E_LOAD_SA,                              // load SA failed
     E_PERMISSION = 201,                     // Permission verification failed
-    E_PERMISSION_SYS,                       // is not system app
-    E_COUNT
+    E_PERMISSION_SYS                        // is not system app
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
