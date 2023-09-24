@@ -154,7 +154,7 @@ napi_status GetStringValue(napi_env env, napi_value value, std::string &result)
     result.resize(tempSize);
     if (napi_get_value_string_utf8(env, value, result.data(), tempSize + 1, &tempSize) != napi_ok) {
         return napi_generic_failure;
-   }
+    }
     return napi_ok;
 }
 } // namespace FileAccessFwk
