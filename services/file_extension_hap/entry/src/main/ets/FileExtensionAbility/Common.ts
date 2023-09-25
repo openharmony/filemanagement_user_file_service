@@ -97,42 +97,42 @@ function uriReturnObject(uri: string, code: number) {
   };
 }
 
-function infosReturnObject(infos: any[], code: number) {
+function infosReturnObject(infos: Fileinfo[], code: number): {infos: Fileinfo[], code: number} {
   return {
     infos: infos,
     code: code
   };
 }
 
-function fdReturnObject(fd: number, code: number) {
+function fdReturnObject(fd: number, code: number): {fd: number, code: number} {
   return {
     fd: fd,
     code: code
   };
 }
 
-function boolReturnObject(isExist: boolean, code: number) {
+function boolReturnObject(isExist: boolean, code: number): {isExist: boolean, code: number} {
   return {
     isExist: isExist,
     code: code
   };
 }
 
-function fileinfoReturnObject(fileInfo: object, code: number) {
+function fileinfoReturnObject(fileInfo: object, code: number): {fileInfo: object, code: number} {
   return {
     fileInfo: fileInfo,
     code: code
   };
 }
 
-function resultsResultObject(results: any, code: number) {
+function resultsResultObject(results: object, code: number): {results: object, code: number} {
   return {
     results: results,
     code: code
   };
 }
 
-function rootsReturnObject(roots: any, code: number) {
+function rootsReturnObject(roots: object, code: number): {roots: object, code: number} {
   return {
     roots: roots,
     code: code
