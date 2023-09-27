@@ -100,12 +100,10 @@ void JsFileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &rec
         return;
     }
 
-    NativeObject* obj = ConvertNativeValueTo<NativeObject>(jsObj_->Get());
-    if (obj == nullptr) {
-        HILOG_ERROR("Failed to get JsFileAccessExtAbility object");
+    if (jsObj_->GetNapiValue() == nullptr) {
+        HILOG_ERROR("Failed to get JsFileAccessExtAbility value");
         return;
     }
-
 }
 
 void JsFileAccessExtAbility::OnStart(const AAFwk::Want &want)
