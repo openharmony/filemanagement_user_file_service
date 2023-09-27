@@ -143,13 +143,11 @@ int32_t FileAccessService::RegisterNotify(Uri uri, bool notifyForDescendants, co
             obsManager_.get(code)->UnRef();
             if (obsNode->needChildNote_ == notifyForDescendants) {
                 HILOG_DEBUG("Register same uri and same callback and same notifyForDescendants");
-                FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
                 return ERR_OK;
             }
             // need modify obsNode notifyForDescendants
             obsNode->needChildNote_ = notifyForDescendants;
             HILOG_DEBUG("Register same uri and same callback but need modify notifyForDescendants");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return ERR_OK;
         }
         obsNode->obsCodeList_.push_back(code);
@@ -293,22 +291,18 @@ int32_t FileAccessService::OnChange(Uri uri, NotifyType notifyType)
         size_t slashIndex = uriStr.rfind("/");
         if (slashIndex == string::npos) {
             HILOG_ERROR("Do not have parent");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return E_DO_NOT_HAVE_PARENT;
         }
         string parentUri = uriStr.substr(0, slashIndex);
         if (FindUri(parentUri, node) != ERR_OK) {
             HILOG_DEBUG("Can not find onChange parent uri");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return ERR_OK;
         }
         if (!node->needChildNote_) {
             HILOG_DEBUG("Do not need send onChange message");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return ERR_OK;
         }
         SendListNotify(node->obsCodeList_, notifyMessage);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ERR_OK;
     }
     SendListNotify(node->obsCodeList_, notifyMessage);

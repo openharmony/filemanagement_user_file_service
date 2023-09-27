@@ -211,7 +211,6 @@ int32_t FileAccessServiceProxy::UnregisterNotify(Uri uri, const sptr<IFileAccess
         observerNotNull = false;
         if (!data.WriteBool(observerNotNull)) {
             HILOG_ERROR("fail to WriteBool observerNotNull");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return E_IPCS;
         }
     }

@@ -678,7 +678,6 @@ int FileAccessHelper::CopyOperation(Uri &sourceUri, Uri &destUri, std::vector<Co
     if (ret != ERR_OK) {
         if ((ret == COPY_EXCEPTION) || (ret == COPY_NOEXCEPTION)) {
             HILOG_ERROR("Copy exception, code:%{public}d", ret);
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return ret;
         }
         HILOG_ERROR("Copy error, code:%{public}d", ret);
@@ -815,7 +814,6 @@ static int GetQueryColumns(std::string &uri, std::string &metaJson, std::vector<
 {
     if (!json::accept(metaJson)) {
         HILOG_ERROR("metaJson format check error.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return EINVAL;
     }
 
@@ -824,7 +822,6 @@ static int GetQueryColumns(std::string &uri, std::string &metaJson, std::vector<
         auto iterator = FILE_RESULT_TYPE.find(it.key());
         if (iterator == FILE_RESULT_TYPE.end()) {
             HILOG_ERROR("columns format check error.");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return EINVAL;
         }
         columns.push_back(it.key());
@@ -832,7 +829,6 @@ static int GetQueryColumns(std::string &uri, std::string &metaJson, std::vector<
 
     if (columns.empty()) {
         HILOG_ERROR("columns is empty.");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return EINVAL;
     }
     return ERR_OK;
