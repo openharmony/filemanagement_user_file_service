@@ -650,7 +650,6 @@ static bool GetResultByJs(napi_env &env, napi_value nativeCopyResult, CopyResult
 static bool ParserGetJsCopyResult(napi_env &env, napi_value nativeValue,
     std::vector<CopyResult> &copyResult, int &copyRet)
 {
-    HILOG_INFO("ParserGetJsCopyResult");
     UserAccessTracer trace;
     trace.Start("ParserGetJsCopyResult");
     if (nativeValue == nullptr) {
@@ -1453,6 +1452,7 @@ int JsFileAccessExtAbility::GetFileInfoFromUri(const Uri &selectFile, FileInfo &
         napi_value nativeFileInfo = nullptr;
         if(napi_get_named_property(env, result, "fileInfo", &nativeFileInfo) != napi_ok) {
             HILOG_INFO("Convert fileInfo js value failed");
+            return false;
         }
 
         if (GetFileInfoFromJs(env, nativeFileInfo, fileInfo) != napi_ok) {
@@ -1516,7 +1516,13 @@ int JsFileAccessExtAbility::GetFileInfoFromRelativePath(const std::string &selec
         }
 
         FileInfo fileInfo;
-        if (GetFileInfoFromJs(env, result, fileInfo) != napi_ok) {
+        napi_value nativeFileInfo = nullptr;
+        if (napi_get_named_property(env, result, "fileInfo", &nativeFileInfo) != napi_ok) {
+            HILOG_INFO("Convert fileInfo js value failed");
+            return false;
+        }
+
+        if (GetFileInfoFromJs(env, nativeFileInfo, fileInfo) != napi_ok) {
             HILOG_ERROR("Convert fileInfo js value fail.");
             return false;
         }
@@ -1743,7 +1749,7 @@ napi_status JsFileAccessExtAbility::GetFileInfoFromJs(napi_env &env, napi_value 
 
     napi_value mtime = nullptr;
     napi_get_named_property(env, obj, "mtime", &mtime);
-    if (napi_get_value_int64(env, size, &fileInfo.mtime) != napi_ok) {
+    if (napi_get_value_int64(env, mtime, &fileInfo.mtime) != napi_ok) {
         HILOG_ERROR("Convert mtime fail");
         return napi_generic_failure;
     }
