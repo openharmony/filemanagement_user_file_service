@@ -25,6 +25,8 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
+//Indicates the external root uri.
+const std::string EXTERNAL_ROOT = "file://docs/storage/External";
 //Properties of the Common file
 const std::string DISPLAY_NAME = "display_name";
 const std::string RELATIVE_PATH = "relative_path";
