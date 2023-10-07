@@ -269,7 +269,7 @@ int FileAccessExtStubImpl::StartWatcher(const Uri &uri)
     return ret;
 }
 
-int FileAccessExtStubImpl::StopWatcher(const Uri &uri, bool isUnregisterAll)
+int FileAccessExtStubImpl::StopWatcher(const Uri &uri)
 {
     UserAccessTracer trace;
     trace.Start("StopWatcher");
@@ -278,7 +278,7 @@ int FileAccessExtStubImpl::StopWatcher(const Uri &uri, bool isUnregisterAll)
         return E_IPCS;
     }
 
-    int ret = extension_->StopWatcher(uri, isUnregisterAll);
+    int ret = extension_->StopWatcher(uri);
     return ret;
 }
 

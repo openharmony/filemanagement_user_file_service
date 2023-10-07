@@ -60,7 +60,7 @@ public:
     virtual int Access(const Uri &uri, bool &isExist);
     static void SetCreator(const CreatorFunc& creator);
     virtual int StartWatcher(const Uri &uri);
-    virtual int StopWatcher(const Uri &uri, bool isUnregisterAll);
+    virtual int StopWatcher(const Uri &uri);
     virtual int MoveItem(const Uri &sourceFile, const Uri &targetParent, std::vector<Result> &moveResult,
                          bool force = false);
     virtual int MoveFile(const Uri &sourceFile, const Uri &targetParent, std::string &fileName, Uri &newFile);

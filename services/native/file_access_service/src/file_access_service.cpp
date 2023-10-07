@@ -20,9 +20,11 @@
 #include "file_access_framework_errno.h"
 #include "file_access_ext_connection.h"
 #include "file_access_extension_info.h"
+#include "file_access_ext_connection.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "system_ability_definition.h"
+#include "iservice_registry.h"
 
 using namespace std;
 namespace OHOS {
@@ -123,6 +125,65 @@ static bool IsChildUri(const string &comparedUriStr, string &srcUriStr)
     return false;
 }
 
+// static sptr<IFileAccessExtBase> getExtensionProxy() {
+//     auto samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+//     if (samgr == nullptr) {
+//         HILOG_ERROR("cjw Samgr is nullptr");
+//         return nullptr;
+//     }
+
+//     auto remote = samgr->GetSystemAbility(5003);
+//     if (remote == nullptr) {
+//         HILOG_ERROR("cjw get remote failed");
+//         return nullptr;
+//     }
+
+//     AAFwk::Want want;
+//     want.SetElementName("com.ohos.UserFile.ExternalFileManager", "FileExtensionAbility");
+//     sptr<FileAccessExtConnection> fileAccessExtConnection(new(std::nothrow) FileAccessExtConnection());
+//     if (fileAccessExtConnection == nullptr) {
+//         HILOG_ERROR("cjw new fileAccessExtConnection fail");
+//         return nullptr;
+//     }
+
+//     if (!fileAccessExtConnection->IsExtAbilityConnected()) {
+//         fileAccessExtConnection->ConnectFileExtAbility(want, remote);
+//     }
+//     return fileAccessExtConnection->GetFileExtProxy();
+// }
+
+int32_t FileAccessService::ConnectExtension()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (extensionProxy_ != nullptr) {
+        return ERR_OK;
+    }
+    auto samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgr == nullptr) {
+        HILOG_ERROR("cjw Samgr is nullptr");
+        return E_CONNECT;
+    }
+
+    auto remote = samgr->GetSystemAbility(5003);
+    if (remote == nullptr) {
+        HILOG_ERROR("cjw get remote failed");
+        return E_CONNECT;
+    }
+
+    AAFwk::Want want;
+    want.SetElementName("com.ohos.UserFile.ExternalFileManager", "FileExtensionAbility");
+    sptr<FileAccessExtConnection> fileAccessExtConnection(new(std::nothrow) FileAccessExtConnection());
+    if (fileAccessExtConnection == nullptr) {
+        HILOG_ERROR("cjw new fileAccessExtConnection fail");
+        return E_CONNECT;
+    }
+    if (!fileAccessExtConnection->IsExtAbilityConnected()) {
+        fileAccessExtConnection->ConnectFileExtAbility(want, remote);
+    }
+    extensionProxy_ = fileAccessExtConnection->GetFileExtProxy();
+    return ERR_OK;
+}
+
 int32_t FileAccessService::RegisterNotify(Uri uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer)
 {
     UserAccessTracer trace;
@@ -162,6 +223,18 @@ int32_t FileAccessService::RegisterNotify(Uri uri, bool notifyForDescendants, co
         }
         obsNode->obsCodeList_.push_back(code);
         return ERR_OK;
+    } else {
+        if (ConnectExtension() != ERR_OK) {
+            HILOG_ERROR("cjw Creator get invalid fileExtProxy");
+            return E_CONNECT;
+        }
+        extensionProxy_->StartWatcher(uri);
+        // auto fileExtProxy = getExtensionProxy();
+        // if (fileExtProxy == nullptr) {
+        //     HILOG_ERROR("cjw Creator get invalid fileExtProxy");
+        //     return E_CONNECT;
+        // }
+        // fileExtProxy->StartWatcher(uri);
     }
     obsNode = make_shared<ObserverNode>(notifyForDescendants);
     // add new node relations.
@@ -226,6 +299,17 @@ int32_t FileAccessService::CleanAllNotify(Uri uri)
             obsManager_.release(code);
         }
     }
+    if (ConnectExtension() != ERR_OK) {
+        HILOG_ERROR("cjw Creator get invalid fileExtProxy");
+        return E_CONNECT;
+    }
+    extensionProxy_->StopWatcher(uri);
+    // auto fileExtProxy = getExtensionProxy();
+    // if (fileExtProxy == nullptr) {
+    //     HILOG_ERROR("cjw Creator get invalid fileExtProxy");
+    //     return E_CONNECT;
+    // }
+    // fileExtProxy->StopWatcher(uri);
     RemoveRelations(uriStr, obsNode);
     return ERR_OK;
 }
@@ -271,6 +355,17 @@ int32_t FileAccessService::UnregisterNotify(Uri uri, const sptr<IFileAccessObser
     if (!obsManager_.get(code)->IsValid()) {
         obsManager_.release(code);
     }
+    if (ConnectExtension() != ERR_OK) {
+        HILOG_ERROR("cjw Creator get invalid fileExtProxy");
+        return E_CONNECT;
+    }
+    extensionProxy_->StopWatcher(uri);
+    // auto fileExtProxy = getExtensionProxy();
+    // if (fileExtProxy == nullptr) {
+    //     HILOG_ERROR("cjw Creator get invalid fileExtProxy");
+    //     return E_CONNECT;
+    // }
+    // fileExtProxy->StopWatcher(uri);
     RemoveRelations(uriStr, obsNode);
     return ERR_OK;
 }

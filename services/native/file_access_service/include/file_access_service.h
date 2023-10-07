@@ -28,6 +28,7 @@
 #include "file_access_service_stub.h"
 #include "ifile_access_ext_base.h"
 #include "holder_manager.h"
+#include "ifile_access_ext_base.h"
 #include "iremote_object.h"
 #include "timer.h"
 #include "uri.h"
@@ -163,10 +164,12 @@ private:
     void SendListNotify(std::string uri, NotifyType notifyType, const std::vector<uint32_t> &list);
     void RemoveRelations(std::string &uriStr, std::shared_ptr<ObserverNode> obsNode);
     int FindUri(const std::string &uriStr, std::shared_ptr<ObserverNode> &outObsNode);
+    int32_t ConnectExtension();
     FileAccessService();
     bool IsServiceReady() const;
     void InitTimer();
     std::shared_ptr<OnDemandTimer> onDemandTimer_ = nullptr;
+    sptr<IFileAccessExtBase> extensionProxy_{nullptr};
     static sptr<FileAccessService> instance_;
     bool ready_ = false;
     static std::mutex mutex_;

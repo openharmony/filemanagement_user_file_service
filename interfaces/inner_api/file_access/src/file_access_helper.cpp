@@ -1048,44 +1048,6 @@ int FileAccessHelper::GetFileInfoFromRelativePath(std::string &selectFile, FileI
     return ERR_OK;
 }
 
-int FileAccessHelper::StartWatcher(Uri &uri)
-{
-    UserAccessTracer trace;
-    trace.Start("StartWatcher");
-    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
-    if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        return E_IPCS;
-    }
-
-    int ret = fileExtProxy->StartWatcher(uri);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("Delete get result error, code:%{public}d", ret);
-        return ret;
-    }
-
-    return ERR_OK;
-}
-
-int FileAccessHelper::StopWatcher(Uri &uri, bool isUnregisterAll)
-{
-    UserAccessTracer trace;
-    trace.Start("StopWatcher");
-    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
-    if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        return E_IPCS;
-    }
-
-    int ret = fileExtProxy->StopWatcher(uri, isUnregisterAll);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("StopWatcher get result error, code:%{public}d", ret);
-        return ret;
-    }
-
-    return ERR_OK;
-}
-
 static void convertUris(Uri uri, std::vector<Uri> &uris) {
     std::string uriString = uri.ToString();
     if (uriString == DEVICES_URI) {
@@ -1124,12 +1086,6 @@ int FileAccessHelper::RegisterNotify(Uri uri, bool notifyForDescendants, sptr<IF
             return ret;
         }
 
-        ret = StartWatcher(eachUri);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("StartWatcher error ret = %{public}d", ret);
-            return ret;
-        }
-    }
     return ERR_OK;
 }
 
@@ -1161,15 +1117,7 @@ int FileAccessHelper::UnregisterNotify(Uri uri, sptr<IFileAccessObserver> &obser
             HILOG_ERROR("UnregisterNotify error ret = %{public}d", ret);
             return ret;
         }
-
-        bool isUnregisterAll = false;
-        ret = StopWatcher(eachUri, isUnregisterAll);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("StopWatcher error ret = %{public}d", ret);
-            return ret;
-        }
     }
-
     return ERR_OK;
 }
 
@@ -1200,13 +1148,6 @@ int FileAccessHelper::UnregisterNotify(Uri uri)
         int ret = proxy->UnregisterNotify(eachUri, observer);
         if (ret != ERR_OK) {
             HILOG_ERROR("UnregisterNotify error ret = %{public}d", ret);
-            return ret;
-        }
-
-        bool isUnregisterAll = true;
-        ret = StopWatcher(eachUri, isUnregisterAll);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("StopWatcher error ret = %{public}d", ret);
             return ret;
         }
     }

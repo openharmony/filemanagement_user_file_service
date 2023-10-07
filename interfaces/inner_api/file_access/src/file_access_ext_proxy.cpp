@@ -959,7 +959,7 @@ int FileAccessExtProxy::StartWatcher(const Uri &uri)
     return ERR_OK;
 }
 
-int FileAccessExtProxy::StopWatcher(const Uri &uri, bool isUnregisterAll)
+int FileAccessExtProxy::StopWatcher(const Uri &uri)
 {
     UserAccessTracer trace;
     trace.Start("StopWatcher");
@@ -972,11 +972,6 @@ int FileAccessExtProxy::StopWatcher(const Uri &uri, bool isUnregisterAll)
     std::string uriString = uri.ToString();
     if (!data.WriteString(uriString)) {
         HILOG_ERROR("fail to WriteParcelable uri");
-        return E_IPCS;
-    }
-
-    if (!data.WriteBool(isUnregisterAll)) {
-        HILOG_ERROR("fail to WriteBool isUnregisterAll");
         return E_IPCS;
     }
 

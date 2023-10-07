@@ -14,17 +14,21 @@
  */
 
 #include "file_access_service_proxy.h"
+
+#include "bundle_constants.h"
 #include "user_access_tracer.h"
 #include "file_access_framework_errno.h"
 #include "file_access_service_ipc_interface_code.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
 constexpr int LOAD_SA_TIMEOUT_MS = 5000;
+const std::string UID_TAG = "uid:";
 sptr<IFileAccessServiceBase> FileAccessServiceProxy::GetInstance()
 {
     HILOG_INFO("Getinstance");
@@ -81,6 +85,13 @@ void FileAccessServiceProxy::ServiceProxyLoadCallback::OnLoadSystemAbilityFail(i
     proxyConVar_.notify_one();
 }
 
+static int GetUserId()
+{
+    int uid = IPCSkeleton::GetCallingUid();
+    int userId = uid / OHOS::AppExecFwk::Constants::BASE_USER_RANGE;
+    return userId;
+}
+
 int32_t FileAccessServiceProxy::OnChange(Uri uri, NotifyType notifyType)
 {
     UserAccessTracer trace;
@@ -91,7 +102,8 @@ int32_t FileAccessServiceProxy::OnChange(Uri uri, NotifyType notifyType)
         return E_IPCS;
     }
 
-    if (!data.WriteParcelable(&uri)) {
+    Uri tempUri(UID_TAG + std::to_string(GetUserId()) + uri.ToString());
+    if (!data.WriteParcelable(&tempUri)) {
         HILOG_ERROR("fail to WriteParcelable uri");
         return E_IPCS;
     }
@@ -130,7 +142,8 @@ int32_t FileAccessServiceProxy::RegisterNotify(Uri uri, bool notifyForDescendant
         return E_IPCS;
     }
 
-    if (!data.WriteParcelable(&uri)) {
+    Uri tempUri(UID_TAG + std::to_string(GetUserId()) + uri.ToString());
+    if (!data.WriteParcelable(&tempUri)) {
         HILOG_ERROR("fail to WriteParcelable uri");
         return E_IPCS;
     }
@@ -193,7 +206,8 @@ int32_t FileAccessServiceProxy::UnregisterNotify(Uri uri, const sptr<IFileAccess
         return E_IPCS;
     }
 
-    if (!data.WriteParcelable(&uri)) {
+    Uri tempUri(UID_TAG + std::to_string(GetUserId()) + uri.ToString());
+    if (!data.WriteParcelable(&tempUri)) {
         HILOG_ERROR("fail to WriteParcelable uri");
         return E_IPCS;
     }

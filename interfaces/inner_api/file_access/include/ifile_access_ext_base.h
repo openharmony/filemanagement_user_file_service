@@ -76,7 +76,7 @@ public:
     virtual int GetRoots(std::vector<RootInfo> &rootInfoVec) = 0;
     virtual int Access(const Uri &uri, bool &isExist) = 0;
     virtual int StartWatcher(const Uri &uri) = 0;
-    virtual int StopWatcher(const Uri &uri, bool isUnregisterAll) = 0;
+    virtual int StopWatcher(const Uri &uri) = 0;
     virtual int MoveItem(const Uri &sourceFile, const Uri &targetParent, std::vector<Result> &moveResult,
                          bool force = false) = 0;
     virtual int MoveFile(const Uri &sourceFile, const Uri &targetParent, std::string &fileName, Uri &newFile) = 0;

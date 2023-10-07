@@ -90,8 +90,6 @@ public:
     int MoveItem(Uri &sourceFile, Uri &targetParent, std::vector<Result> &moveResult, bool force);
     int MoveFile(Uri &sourceFile, Uri &targetParent, std::string &fileName, Uri &newFile);
 private:
-    int StartWatcher(Uri &uri);
-    int StopWatcher(Uri &uri, bool isUnregisterAll);
     sptr<IFileAccessExtBase> GetProxyByUri(Uri &uri);
     sptr<IFileAccessExtBase> GetProxyByBundleName(const std::string &bundleName);
     bool GetProxy();
