@@ -161,16 +161,34 @@ public:
                              sptr<IFileAccessExtBase> &extensionProxy) override;
 
 private:
+    class ExtensionDeathRecipient : public IRemoteObject::DeathRecipient {
+    public:
+        ExtensionDeathRecipient() = default;
+        virtual void OnRemoteDied(const wptr<IRemoteObject>& remote);
+        virtual ~ExtensionDeathRecipient() = default;
+    };
+
+    class ObserverDeathRecipient : public IRemoteObject::DeathRecipient {
+    public:
+        ObserverDeathRecipient() = default;
+        virtual void OnRemoteDied(const wptr<IRemoteObject>& remote);
+        virtual ~ObserverDeathRecipient() = default;
+    };
+
+    void CleanRelativeObserver(const sptr<IFileAccessObserver> &observer);
     void SendListNotify(std::string uri, NotifyType notifyType, const std::vector<uint32_t> &list);
     void RemoveRelations(std::string &uriStr, std::shared_ptr<ObserverNode> obsNode);
     int FindUri(const std::string &uriStr, std::shared_ptr<ObserverNode> &outObsNode);
     int32_t ConnectExtension();
+    void ResetProxy();
     FileAccessService();
     bool IsServiceReady() const;
     void InitTimer();
     std::shared_ptr<OnDemandTimer> onDemandTimer_ = nullptr;
     sptr<IFileAccessExtBase> extensionProxy_{nullptr};
     static sptr<FileAccessService> instance_;
+    sptr<IRemoteObject::DeathRecipient> extensionDeathRecipient_;
+    sptr<IRemoteObject::DeathRecipient> observerDeathRecipient_;
     bool ready_ = false;
     static std::mutex mutex_;
     std::mutex nodeMutex_;

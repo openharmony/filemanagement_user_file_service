@@ -60,6 +60,12 @@ sptr<FileAccessService> FileAccessService::GetInstance()
 FileAccessService::FileAccessService() : SystemAbility(FILE_ACCESS_SERVICE_ID, false)
 {
     InitTimer();
+    if (extensionDeathRecipient_ == nullptr) {
+        extensionDeathRecipient_ = new ExtensionDeathRecipient();
+    }
+    if (observerDeathRecipient_  == nullptr) {
+        observerDeathRecipient_ = new ObserverDeathRecipient();
+    }
 }
 
 void FileAccessService::OnStart()
@@ -125,48 +131,22 @@ static bool IsChildUri(const string &comparedUriStr, string &srcUriStr)
     return false;
 }
 
-// static sptr<IFileAccessExtBase> getExtensionProxy() {
-//     auto samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-//     if (samgr == nullptr) {
-//         HILOG_ERROR("cjw Samgr is nullptr");
-//         return nullptr;
-//     }
-
-//     auto remote = samgr->GetSystemAbility(5003);
-//     if (remote == nullptr) {
-//         HILOG_ERROR("cjw get remote failed");
-//         return nullptr;
-//     }
-
-//     AAFwk::Want want;
-//     want.SetElementName("com.ohos.UserFile.ExternalFileManager", "FileExtensionAbility");
-//     sptr<FileAccessExtConnection> fileAccessExtConnection(new(std::nothrow) FileAccessExtConnection());
-//     if (fileAccessExtConnection == nullptr) {
-//         HILOG_ERROR("cjw new fileAccessExtConnection fail");
-//         return nullptr;
-//     }
-
-//     if (!fileAccessExtConnection->IsExtAbilityConnected()) {
-//         fileAccessExtConnection->ConnectFileExtAbility(want, remote);
-//     }
-//     return fileAccessExtConnection->GetFileExtProxy();
-// }
-
 int32_t FileAccessService::ConnectExtension()
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    HILOG_ERROR("cjw enter ConnectExtension");
+    lock_guard<mutex> lock(mutex_);
     if (extensionProxy_ != nullptr) {
         return ERR_OK;
     }
     auto samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgr == nullptr) {
-        HILOG_ERROR("cjw Samgr is nullptr");
+        HILOG_ERROR("Samgr is nullptr");
         return E_CONNECT;
     }
 
-    auto remote = samgr->GetSystemAbility(5003);
+    auto remote = samgr->GetSystemAbility(STORAGE_MANAGER_MANAGER_ID);
     if (remote == nullptr) {
-        HILOG_ERROR("cjw get remote failed");
+        HILOG_ERROR("get remote failed");
         return E_CONNECT;
     }
 
@@ -174,14 +154,60 @@ int32_t FileAccessService::ConnectExtension()
     want.SetElementName("com.ohos.UserFile.ExternalFileManager", "FileExtensionAbility");
     sptr<FileAccessExtConnection> fileAccessExtConnection(new(std::nothrow) FileAccessExtConnection());
     if (fileAccessExtConnection == nullptr) {
-        HILOG_ERROR("cjw new fileAccessExtConnection fail");
+        HILOG_ERROR("new fileAccessExtConnection fail");
         return E_CONNECT;
     }
+
     if (!fileAccessExtConnection->IsExtAbilityConnected()) {
         fileAccessExtConnection->ConnectFileExtAbility(want, remote);
     }
     extensionProxy_ = fileAccessExtConnection->GetFileExtProxy();
+    auto object = extensionProxy_->AsObject();
+    object->AddDeathRecipient(extensionDeathRecipient_);
     return ERR_OK;
+}
+
+void FileAccessService::ResetProxy()
+{
+    if (extensionProxy_ != nullptr && extensionDeathRecipient_ != nullptr) {
+        extensionProxy_->AsObject()->RemoveDeathRecipient(extensionDeathRecipient_);
+    }
+    if (ConnectExtension() != ERR_OK) {
+        HILOG_ERROR("ResetProxy failed");
+    }
+}
+
+void FileAccessService::ExtensionDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    HILOG_ERROR("FileAccessService::ExtensionDeathRecipient::OnRemoteDied, remote obj died.");
+    FileAccessService::GetInstance()->ResetProxy();
+}
+
+void FileAccessService::ObserverDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    HILOG_ERROR("FileAccessService::ObserverDeathRecipient::OnRemoteDied, remote obj died.");
+    if (remote == nullptr || remote.promote() == nullptr) {
+        return;
+    }
+    sptr<IFileAccessObserver> observer = iface_cast<IFileAccessObserver>(remote.promote());
+    FileAccessService::GetInstance()->CleanRelativeObserver(observer);
+}
+
+void FileAccessService::CleanRelativeObserver(const sptr<IFileAccessObserver> &observer)
+{
+    shared_ptr<ObserverContext> obsContext = make_shared<ObserverContext>(observer);
+    uint32_t code = obsManager_.getId([obsContext](const shared_ptr<ObserverContext>  &afterContext) {
+        return obsContext->EqualTo(afterContext);
+    });
+    for (auto pair : relationshipMap_) {
+        auto codeList = pair.second->obsCodeList_;
+        auto haveCodeIter = find_if(codeList.begin(), codeList.end(),
+            [code](const uint32_t &listCode) { return code == listCode; });
+        if (haveCodeIter != codeList.end()) {
+            Uri uri(pair.first);
+            UnregisterNotify(uri, observer);
+        }
+    }
 }
 
 int32_t FileAccessService::RegisterNotify(Uri uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer)
@@ -197,6 +223,8 @@ int32_t FileAccessService::RegisterNotify(Uri uri, bool notifyForDescendants, co
         // this is new callback, save this context
         obsContext->Ref();
         code = obsManager_.save(obsContext);
+        auto object = obsContext->obs_->AsObject();
+        object->AddDeathRecipient(observerDeathRecipient_);
     } else {
         // this callback is already in manager, add ref.
         obsManager_.get(code)->Ref();
@@ -228,13 +256,15 @@ int32_t FileAccessService::RegisterNotify(Uri uri, bool notifyForDescendants, co
             HILOG_ERROR("cjw Creator get invalid fileExtProxy");
             return E_CONNECT;
         }
-        extensionProxy_->StartWatcher(uri);
-        // auto fileExtProxy = getExtensionProxy();
-        // if (fileExtProxy == nullptr) {
-        //     HILOG_ERROR("cjw Creator get invalid fileExtProxy");
-        //     return E_CONNECT;
-        // }
-        // fileExtProxy->StartWatcher(uri);
+
+        size_t uriIndex = uriStr.find("file://");
+        Uri tempUri(uriStr.substr(uriIndex));
+        HILOG_ERROR("startWatcher tempUri = %{public}s", tempUri.ToString().c_str());
+        if(extensionProxy_ == nullptr) {
+            HILOG_ERROR("Creator get invalid fileExtProxy");
+            return E_CONNECT;
+        }
+        extensionProxy_->StartWatcher(tempUri);
     }
     obsNode = make_shared<ObserverNode>(notifyForDescendants);
     // add new node relations.
@@ -303,13 +333,15 @@ int32_t FileAccessService::CleanAllNotify(Uri uri)
         HILOG_ERROR("cjw Creator get invalid fileExtProxy");
         return E_CONNECT;
     }
-    extensionProxy_->StopWatcher(uri);
-    // auto fileExtProxy = getExtensionProxy();
-    // if (fileExtProxy == nullptr) {
-    //     HILOG_ERROR("cjw Creator get invalid fileExtProxy");
-    //     return E_CONNECT;
-    // }
-    // fileExtProxy->StopWatcher(uri);
+
+    size_t uriIndex = uriStr.find("file://");
+    Uri tempUri(uriStr.substr(uriIndex));
+    HILOG_ERROR("StopWatcher tempUri = %{public}s", tempUri.ToString().c_str());
+    if(extensionProxy_ == nullptr) {
+        HILOG_ERROR("Creator get invalid fileExtProxy");
+        return E_CONNECT;
+    }
+    extensionProxy_->StopWatcher(tempUri);
     RemoveRelations(uriStr, obsNode);
     return ERR_OK;
 }
@@ -359,13 +391,15 @@ int32_t FileAccessService::UnregisterNotify(Uri uri, const sptr<IFileAccessObser
         HILOG_ERROR("cjw Creator get invalid fileExtProxy");
         return E_CONNECT;
     }
-    extensionProxy_->StopWatcher(uri);
-    // auto fileExtProxy = getExtensionProxy();
-    // if (fileExtProxy == nullptr) {
-    //     HILOG_ERROR("cjw Creator get invalid fileExtProxy");
-    //     return E_CONNECT;
-    // }
-    // fileExtProxy->StopWatcher(uri);
+
+    size_t uriIndex = uriStr.find("file://");
+    Uri tempUri(uriStr.substr(uriIndex));
+    HILOG_ERROR("StopWatcher tempUri = %{public}s", tempUri.ToString().c_str());
+    if(extensionProxy_ == nullptr) {
+        HILOG_ERROR("Creator get invalid fileExtProxy");
+        return E_CONNECT;
+    }
+    extensionProxy_->StopWatcher(tempUri);
     RemoveRelations(uriStr, obsNode);
     return ERR_OK;
 }
@@ -408,6 +442,7 @@ void FileAccessService::SendListNotify(string uriStr, NotifyType notifyType, con
 
 int32_t FileAccessService::OnChange(Uri uri, NotifyType notifyType)
 {
+    HILOG_ERROR("enter onchange uri = %{public}s", uri.ToString().c_str());
     UserAccessTracer trace;
     trace.Start("OnChange");
     string uriStr = uri.ToString();

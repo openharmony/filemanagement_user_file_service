@@ -94,6 +94,7 @@ static int GetUserId()
 
 int32_t FileAccessServiceProxy::OnChange(Uri uri, NotifyType notifyType)
 {
+    HILOG_ERROR("cjw enter onchange uri = %{public}s", uri.ToString().c_str());
     UserAccessTracer trace;
     trace.Start("OnChange");
     MessageParcel data;
@@ -134,6 +135,7 @@ int32_t FileAccessServiceProxy::OnChange(Uri uri, NotifyType notifyType)
 int32_t FileAccessServiceProxy::RegisterNotify(Uri uri, bool notifyForDescendants,
     const sptr<IFileAccessObserver> &observer)
 {
+    HILOG_ERROR("cjw enter RegisterNotify uri = %{public}s", uri.ToString().c_str());
     UserAccessTracer trace;
     trace.Start("RegisterNotify");
     MessageParcel data;
@@ -198,6 +200,7 @@ int32_t FileAccessServiceProxy::UnregisterNotifyInternal(MessageParcel &data)
 
 int32_t FileAccessServiceProxy::UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer)
 {
+    HILOG_ERROR("cjw enter UnregisterNotifyInternal uri = %{public}s", uri.ToString().c_str());
     UserAccessTracer trace;
     trace.Start("UnregisterNotify");
     MessageParcel data;
