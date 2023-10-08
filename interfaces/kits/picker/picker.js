@@ -177,7 +177,7 @@ async function photoPickerSelect(...args) {
     if (context === undefined) {
       throw getErr(ErrCode.CONTEXT_NO_EXIST);
     }
-    let result = await context.startAbilityForResult(config, {windowMode: 1});
+    let result = await context.startAbilityForResult(config, {windowMode: 0});
     console.log('[picker] result: ' + JSON.stringify(result));
     const selectResult = getPhotoPickerSelectResult(result);
     console.log('[picker] selectResult: ' + JSON.stringify(selectResult));
