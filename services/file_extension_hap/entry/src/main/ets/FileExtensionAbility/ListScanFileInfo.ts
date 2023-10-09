@@ -17,7 +17,7 @@ import fs from '@ohos.file.fs';
 import type { Filter } from '@ohos.file.fs';
 import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
 import type { Fileinfo } from './Common';
-import { getPath, DOMAIN_CODE, TAG } from './Common';
+import { getPath, uriReturnObject, DOMAIN_CODE, TAG, infosReturnObject } from './Common';
 
 const documentFlag = fileExtensionInfo.DocumentFlag;
 const ERR_OK = 0;
@@ -136,10 +136,7 @@ function getFileInfos(sourceFileUri: string, offset: number, count: number, filt
   try {
     let statPath = fs.statSync(path);
     if (!statPath.isDirectory()) {
-      return {
-        infos: [],
-        code: E_GETRESULT,
-      };
+      return infosReturnObject([], E_GETRESULT);
     }
     let options;
     let listNum = offset + count;
@@ -178,14 +175,8 @@ function getFileInfos(sourceFileUri: string, offset: number, count: number, filt
     }
   } catch (e) {
     hilog.error(DOMAIN_CODE, TAG, `getFileInfos error: ${e.message},code: ${e.code}`);
-    return {
-      infos: [],
-      code: E_GETRESULT,
-    };
+    return infosReturnObject([], E_GETRESULT);
   }
-  return {
-    infos: infos,
-    code: ERR_OK,
-  };
+  return infosReturnObject(infos, ERR_OK);
 }
 export { getFileInfos };

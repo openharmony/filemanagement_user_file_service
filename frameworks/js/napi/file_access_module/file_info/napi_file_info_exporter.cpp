@@ -79,51 +79,43 @@ napi_value NapiFileInfoExporter::Constructor(napi_env env, napi_callback_info in
     return funcArg.GetThisVar();
 }
 
+napi_value NapiFileInfoExporter::ThrowError(napi_env env, int code) {
+    NError(code).ThrowErr(env);
+    return nullptr;
+}
+
 napi_value NapiFileInfoExporter::ListFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return ThrowError(env, EINVAL);
     }
-
     FileFilter filter({}, {}, {}, FileFilter::INVALID_SIZE, FileFilter::INVALID_MODIFY_AFTER, false, false);
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         auto ret = GetFileFilterParam(NVal(env, funcArg.GetArg(NARG_POS::FIRST)), filter);
         if (ret != ERR_OK) {
-            NError(ret).ThrowErr(env);
-            return nullptr;
+            return ThrowError(env, ret);
         }
     }
-
     auto fileInfoEntity = NClass::GetEntityOf<FileInfoEntity>(env, funcArg.GetThisVar());
     if (fileInfoEntity == nullptr) {
-        NError(E_GETRESULT).ThrowErr(env);
-        return nullptr;
+        return ThrowError(env, E_GETRESULT);
     }
-
     if (IsDirectory(fileInfoEntity->fileInfo.mode) != ERR_OK) {
         HILOG_ERROR("current FileInfo's mode error");
         return NVal::CreateUndefined(env).val_;
     }
-
     if (fileInfoEntity->fileAccessHelper == nullptr) {
-        NError(E_GETRESULT).ThrowErr(env);
-        return nullptr;
+        return ThrowError(env, E_GETRESULT);
     }
-
     auto objFileIteratorExporter = NClass::InstantiateClass(env, NapiFileIteratorExporter::className_, {});
     if (objFileIteratorExporter == nullptr) {
-        NError(E_GETRESULT).ThrowErr(env);
-        return nullptr;
+        return ThrowError(env, E_GETRESULT);
     }
-
     auto fileIteratorEntity = NClass::GetEntityOf<FileIteratorEntity>(env, objFileIteratorExporter);
     if (fileIteratorEntity == nullptr) {
-        NError(E_GETRESULT).ThrowErr(env);
-        return nullptr;
+        return ThrowError(env, E_GETRESULT);
     }
-
     {
         std::lock_guard<std::mutex> lock(fileIteratorEntity->entityOperateMutex);
         fileIteratorEntity->fileAccessHelper = fileInfoEntity->fileAccessHelper;
@@ -136,11 +128,9 @@ napi_value NapiFileInfoExporter::ListFile(napi_env env, napi_callback_info info)
         auto ret = fileInfoEntity->fileAccessHelper->ListFile(fileInfoEntity->fileInfo, fileIteratorEntity->offset,
             MAX_COUNT, fileIteratorEntity->filter, fileIteratorEntity->fileInfoVec);
         if (ret != ERR_OK) {
-            NError(ret).ThrowErr(env);
-            return nullptr;
+            return ThrowError(env, ret);
         }
     }
-
     return NVal(env, objFileIteratorExporter).val_;
 }
 
@@ -148,47 +138,34 @@ napi_value NapiFileInfoExporter::ScanFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return ThrowError(env, EINVAL);
     }
-
     FileFilter filter({}, {}, {}, FileFilter::INVALID_SIZE, FileFilter::INVALID_MODIFY_AFTER, false, false);
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         auto ret = GetFileFilterParam(NVal(env, funcArg.GetArg(NARG_POS::FIRST)), filter);
         if (ret != ERR_OK) {
-            NError(ret).ThrowErr(env);
-            return nullptr;
+            return ThrowError(env, ret);
         }
     }
-
     auto fileInfoEntity = NClass::GetEntityOf<FileInfoEntity>(env, funcArg.GetThisVar());
     if (fileInfoEntity == nullptr) {
-        NError(E_GETRESULT).ThrowErr(env);
-        return nullptr;
+        return ThrowError(env, E_GETRESULT);
     }
-
     if (IsDirectory(fileInfoEntity->fileInfo.mode) != ERR_OK) {
         HILOG_ERROR("current FileInfo's mode error");
         return NVal::CreateUndefined(env).val_;
     }
-
     if (fileInfoEntity->fileAccessHelper == nullptr) {
-        NError(E_GETRESULT).ThrowErr(env);
-        return nullptr;
+        return ThrowError(env, E_GETRESULT);
     }
-
     auto objFileIteratorExporter = NClass::InstantiateClass(env, NapiFileIteratorExporter::className_, {});
     if (objFileIteratorExporter == nullptr) {
-        NError(E_GETRESULT).ThrowErr(env);
-        return nullptr;
+        return ThrowError(env, E_GETRESULT);
     }
-
     auto fileIteratorEntity = NClass::GetEntityOf<FileIteratorEntity>(env, objFileIteratorExporter);
     if (fileIteratorEntity == nullptr) {
-        NError(E_GETRESULT).ThrowErr(env);
-        return nullptr;
+        return ThrowError(env, E_GETRESULT);
     }
-
     {
         std::lock_guard<std::mutex> lock(fileIteratorEntity->entityOperateMutex);
         fileIteratorEntity->fileAccessHelper = fileInfoEntity->fileAccessHelper;
@@ -201,11 +178,9 @@ napi_value NapiFileInfoExporter::ScanFile(napi_env env, napi_callback_info info)
         auto ret = fileInfoEntity->fileAccessHelper->ScanFile(fileInfoEntity->fileInfo, fileIteratorEntity->offset,
             MAX_COUNT, fileIteratorEntity->filter, fileIteratorEntity->fileInfoVec);
         if (ret != ERR_OK) {
-            NError(ret).ThrowErr(env);
-            return nullptr;
+            return ThrowError(env, ret);
         }
     }
-
     return NVal(env, objFileIteratorExporter).val_;
 }
 
