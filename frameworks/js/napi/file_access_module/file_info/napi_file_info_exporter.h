@@ -43,6 +43,7 @@ public:
     static napi_value GetSize(napi_env env, napi_callback_info info);
     static napi_value GetMtime(napi_env env, napi_callback_info info);
     static napi_value GetMimeType(napi_env env, napi_callback_info info);
+    static napi_value ThrowError(napi_env env, int code);
 
     bool Export() override;
     std::string GetClassName() override;

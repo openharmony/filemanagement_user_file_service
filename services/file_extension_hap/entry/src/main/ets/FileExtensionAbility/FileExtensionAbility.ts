@@ -20,7 +20,11 @@ import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
 import hilog from '@ohos.hilog';
 import { getFileInfos } from './ListScanFileInfo';
 import type { Fileinfo } from './Common';
-import { getPath, checkUri, BUNDLE_NAME, DOMAIN_CODE, FILE_PREFIX_NAME, TAG } from './Common';
+import { getPath, checkUri, uriReturnObject, BUNDLE_NAME, DOMAIN_CODE, fileinfoReturnObject } from './Common';
+import { FILE_PREFIX_NAME, TAG, fdReturnObject, boolReturnObject, rootsReturnObject } from './Common';
+import { infosReturnObject, resultsResultObject } from './Common';
+
+
 const deviceFlag = fileExtensionInfo.DeviceFlag;
 const documentFlag = fileExtensionInfo.DocumentFlag;
 const deviceType = fileExtensionInfo.DeviceType;
@@ -178,103 +182,56 @@ export default class FileExtAbility extends Extension {
 
   openFile(sourceFileUri, flags): {number, number} {
     sourceFileUri = this.decode(sourceFileUri);
-    if (sourceFileUri === '') {
-      return {
-        fd: ERR_ERROR,
-        code: E_URIS,
-      };
-    }
     if (!checkUri(sourceFileUri)) {
-      return {
-        fd: ERR_ERROR,
-        code: E_URIS,
-      };
+      return fdReturnObject(ERR_ERROR, E_URIS);
     }
     try {
       let path = getPath(sourceFileUri);
       let file = fs.openSync(path, flags);
-      return {
-        fd: file.fd,
-        code: ERR_OK,
-      };
+      return fdReturnObject(file.fd, ERR_OK);
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'openFile error ' + e.message);
-      return {
-        fd: ERR_ERROR,
-        code: e.code,
-      };
+      return fdReturnObject(ERR_ERROR, e.code);
     }
   }
 
   createFile(parentUri, displayName): {string, number} {
     parentUri = this.decode(parentUri);
-    if (parentUri === '') {
-      return {
-        uri: '',
-        code: E_URIS
-      };
-    }
     if (!checkUri(parentUri)) {
-      return {
-        uri: '',
-        code: E_URIS,
-      };
+      return uriReturnObject('', E_URIS);
     }
     try {
       hilog.info(DOMAIN_CODE, TAG, 'createFile, uri is ' + parentUri);
       let newFileUri = this.genNewFileUri(parentUri, displayName);
       if (this.access(newFileUri).isExist) {
-        return {
-          uri: '',
-          code: E_EXIST,
-        };
+        return uriReturnObject('', E_EXIST);
+
       }
       let path = getPath(newFileUri);
       let file = fs.openSync(path, fs.OpenMode.CREATE);
       fs.closeSync(file);
       newFileUri = encodeURI(newFileUri);
-      return {
-        uri: newFileUri,
-        code: ERR_OK,
-      };
+      return uriReturnObject(newFileUri, ERR_OK);
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'createFile error ' + e.message);
-      return {
-        uri: '',
-        code: e.code,
-      };
+      return uriReturnObject('', e.code);
     }
   }
 
   mkdir(parentUri, displayName): {string, number} {
     parentUri = this.decode(parentUri);
-    if (parentUri === '') {
-      return {
-        uri: '',
-        code: E_URIS
-      };
-    }
     if (!checkUri(parentUri)) {
-      return {
-        uri: '',
-        code: E_URIS,
-      };
+      return uriReturnObject('', E_URIS);
     }
     try {
       let newFileUri = this.genNewFileUri(parentUri, displayName);
       let path = getPath(newFileUri);
       fs.mkdirSync(path);
       newFileUri = encodeURI(newFileUri);
-      return {
-        uri: newFileUri,
-        code: ERR_OK,
-      };
+      return uriReturnObject(newFileUri, ERR_OK);
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'mkdir error ' + e.message);
-      return {
-        uri: '',
-        code: e.code,
-      };
+      return uriReturnObject('', e.code);
     }
   }
 
@@ -348,9 +305,6 @@ export default class FileExtAbility extends Extension {
 
   delete(selectFileUri): number {
     selectFileUri = this.decode(selectFileUri);
-    if (selectFileUri === '') {
-      return E_URIS;
-    }
     if (!checkUri(selectFileUri)) {
       return E_URIS;
     }
@@ -379,17 +333,8 @@ export default class FileExtAbility extends Extension {
   move(sourceFileUri, targetParentUri): {string, number} {
     sourceFileUri = this.decode(sourceFileUri);
     targetParentUri = this.decode(targetParentUri);
-    if (sourceFileUri === '' || targetParentUri === '') {
-      return {
-        uri: '',
-        code: E_URIS,
-      };
-    }
     if (!checkUri(sourceFileUri) || !checkUri(targetParentUri)) {
-      return {
-        uri: '',
-        code: E_URIS,
-      };
+      return uriReturnObject('', E_URIS);
     }
     let displayName = this.getFileName(sourceFileUri);
     let newFileUri = this.genNewFileUri(targetParentUri, displayName);
@@ -397,10 +342,7 @@ export default class FileExtAbility extends Extension {
     let newPath = getPath(newFileUri);
     newFileUri = this.encode(newFileUri);
     if (newFileUri === '') {
-      return {
-        uri: '',
-        code: E_URIS,
-      };
+      return uriReturnObject('', E_URIS);
     }
     if (oldPath === newPath) {
       // move to the same directory
@@ -410,43 +352,20 @@ export default class FileExtAbility extends Extension {
       };
     } else if (newPath.indexOf(oldPath) === 0 && newPath.charAt(oldPath.length) === '/') {
       // move to a subdirectory of the source directory
-      return {
-        uri: '',
-        code: E_GETRESULT,
-      };
+      return uriReturnObject('', E_GETRESULT);
     }
     try {
       // The source file does not exist or the destination is not a directory
       let isAccess = fs.accessSync(oldPath);
-      if (!isAccess) {
-        return {
-          uri: '',
-          code: E_GETRESULT,
-        };
-      }
       let stat = fs.statSync(getPath(targetParentUri));
-      if (!stat || !stat.isDirectory()) {
-        return {
-          uri: '',
-          code: E_GETRESULT,
-        };
-      }
-
       let statOld = fs.statSync(oldPath);
-      if (!statOld) {
-        return {
-          uri: '',
-          code: E_GETRESULT,
-        }
+      if (!isAccess || !stat || !stat.isDirectory() || !statOld) {
+        return uriReturnObject('', E_GETRESULT);
       }
-
       // isDir
       if (statOld.isDirectory()) {
         fs.moveDirSync(oldPath, getPath(targetParentUri), MOVE_MODLE_CODE);
-        return {
-          uri: newFileUri,
-          code: ERR_OK,
-        };
+        return uriReturnObject(newFileUri, ERR_OK);
       }
       // when targetFile is exist, delete it
       let isAccessNewPath = fs.accessSync(newPath);
@@ -454,34 +373,17 @@ export default class FileExtAbility extends Extension {
         fs.unlinkSync(newPath);
       }
       fs.moveFileSync(oldPath, newPath, 0);
-
-      return {
-        uri: newFileUri,
-        code: ERR_OK,
-      };
+      return uriReturnObject(newFileUri, ERR_OK);
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
-      return {
-        uri: '',
-        code: e.code,
-      };
+      return uriReturnObject('', e.code);
     }
   }
 
   rename(sourceFileUri, displayName): {string, number} {
     sourceFileUri = this.decode(sourceFileUri);
-    if (sourceFileUri === '') {
-      return {
-        uri: '',
-        code: E_URIS,
-      };
-    }
-
     if (!checkUri(sourceFileUri)) {
-      return {
-        uri: '',
-        code: E_URIS,
-      };
+      return uriReturnObject('', E_URIS);
     }
     try {
       let newFileUri = this.renameUri(sourceFileUri, displayName);
@@ -489,23 +391,14 @@ export default class FileExtAbility extends Extension {
       let newPath = getPath(newFileUri);
       let isAccess = fs.accessSync(newPath);
       if (isAccess) {
-        return {
-          uri: '',
-          code: E_EXIST,
-        };
+        return uriReturnObject('', E_EXIST);
       }
       fs.renameSync(oldPath, newPath);
       newFileUri = encodeURI(newFileUri);
-      return {
-        uri: newFileUri,
-        code: ERR_OK,
-      };
+      return uriReturnObject(newFileUri, ERR_OK);
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'rename error ' + e.message);
-      return {
-        uri: '',
-        code: e.code,
-      };
+      return uriReturnObject('', e.code);
     }
   }
 
@@ -518,10 +411,7 @@ export default class FileExtAbility extends Extension {
         errMsg: errMsg,
       },
     ];
-    return {
-      results: copyResult,
-      code: ret,
-    };
+    return resultsResultObject(copyResult, ret);
   }
 
   checkCopyArguments(sourceFileUri, targetParentUri): {[], number} {
@@ -558,10 +448,7 @@ export default class FileExtAbility extends Extension {
       hilog.error(DOMAIN_CODE, TAG, 'copy error ' + e.message);
       return this.getCopyReturnValue(sourceFileUri, targetParentUri, e.code, '', COPY_EXCEPTION);
     }
-    return {
-      results: [],
-      code: ERR_OK,
-    };
+    return resultsResultObject([], ERR_OK);
   }
 
   processCopyReturnValue(ret, copyRet): void {
@@ -659,56 +546,32 @@ export default class FileExtAbility extends Extension {
   access(sourceFileUri): {boolean, number} {
     sourceFileUri = this.decode(sourceFileUri);
     if (sourceFileUri === '') {
-      return {
-        uri: '',
-        code: E_URIS,
-      };
+      return uriReturnObject('', E_URIS);
     }
     if (!checkUri(sourceFileUri)) {
       hilog.error(DOMAIN_CODE, TAG, 'access checkUri fail');
-      return {
-        isExist: false,
-        code: E_URIS,
-      };
+      return boolReturnObject(false, E_URIS);
     }
     let isAccess = false;
     try {
       let path = getPath(sourceFileUri);
       isAccess = fs.accessSync(path);
       if (!isAccess) {
-        return {
-          isExist: false,
-          code: ERR_OK,
-        };
+        return boolReturnObject(false, ERR_OK);
       }
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'access error ' + e.message);
-      return {
-        isExist: false,
-        code: e.code,
-      };
+      return boolReturnObject(false, e.code);
     }
-    return {
-      isExist: true,
-      code: ERR_OK,
-    };
+    return boolReturnObject(true, ERR_OK);
   }
 
   listFile(sourceFileUri: string, offset: number, count: number, filter: Filter) :
   {infos: Fileinfo[], code: number} {
     let infos : Fileinfo[] = [];
     sourceFileUri = this.decode(sourceFileUri);
-    if (sourceFileUri === '') {
-      return {
-        infos: [],
-        code: E_URIS,
-      };
-    }
     if (!checkUri(sourceFileUri)) {
-      return {
-        infos: [],
-        code: E_URIS,
-      };
+      return infosReturnObject([], E_URIS);
     }
     return getFileInfos(sourceFileUri, offset, count, filter, false);
   }
@@ -717,17 +580,8 @@ export default class FileExtAbility extends Extension {
   {infos: Fileinfo[], code: number} {
     let infos : Fileinfo[] = [];
     sourceFileUri = this.decode(sourceFileUri);
-    if (sourceFileUri === '') {
-      return {
-        infos: [],
-        code: E_URIS,
-      };
-    }
     if (!checkUri(sourceFileUri)) {
-      return {
-        infos: [],
-        code: E_URIS,
-      };
+      return infosReturnObject([], E_URIS);
     }
 
     return getFileInfos(sourceFileUri, offset, count, filter, true);
@@ -736,17 +590,11 @@ export default class FileExtAbility extends Extension {
   getFileInfoFromUri(selectFileUri) {
     selectFileUri = this.decode(selectFileUri);
     if (selectFileUri === '') {
-      return {
-        uri: '',
-        code: E_URIS,
-      };
+      return uriReturnObject('', E_URIS);
     }
 
     if (!checkUri(selectFileUri)) {
-      return {
-        fileInfo: {},
-        code: E_URIS,
-      };
+      return fileinfoReturnObject({}, E_URIS);
     }
     let fileInfo = {};
     try {
@@ -771,15 +619,9 @@ export default class FileExtAbility extends Extension {
       };
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'getFileInfoFromUri error ' + e.message);
-      return {
-        fileInfo: {},
-        code: e.code,
-      };
+      return fileinfoReturnObject({}, e.code);
     }
-    return {
-      fileInfo: fileInfo,
-      code: ERR_OK,
-    };
+    return fileinfoReturnObject(fileInfo, ERR_OK);
   }
 
   checkRelativePath(selectFileRelativePath): boolean {
@@ -804,10 +646,7 @@ export default class FileExtAbility extends Extension {
   getFileInfoFromRelativePath(selectFileRelativePath): {fileInfo:object, code:number} {
     let fileInfo = {};
     if (!this.checkRelativePath(selectFileRelativePath)) {
-      return {
-        fileInfo: {},
-        code: E_INVAL,
-      };
+      return fileinfoReturnObject({}, E_INVAL);
     }
     try {
       // Processing format: Delete the last '/'
@@ -834,15 +673,9 @@ export default class FileExtAbility extends Extension {
       };
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'getFileInfoFromRelativePath error ' + e.message);
-      return {
-        fileInfo: {},
-        code: e.code,
-      };
+      return fileinfoReturnObject({}, e.code);
     }
-    return {
-      fileInfo: fileInfo,
-      code: ERR_OK,
-    };
+    return fileinfoReturnObject(fileInfo, ERR_OK);
   }
 
   relativePath2uri(path): string {
@@ -885,16 +718,10 @@ export default class FileExtAbility extends Extension {
         volumeInfoList.push(volumeInfo);
       }
       roots = roots.concat(volumeInfoList);
-      return {
-        roots: roots,
-        code: ERR_OK,
-      };
+      return rootsReturnObject(roots, ERR_OK);
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'getRoots errorcode: ' + e.code, ' message: ' + e.message);
-      return {
-        roots: [],
-        code: e.code,
-      };
+      return rootsReturnObject([], e.code);
     }
   }
 
@@ -928,24 +755,15 @@ export default class FileExtAbility extends Extension {
   query(uri, columns): {[], number} {
     uri = this.decode(uri);
     if (uri === '') {
-      return {
-        uri: '',
-        code: E_URIS,
-      };
+      return uriReturnObject('', E_URIS);
     }
 
     if (!checkUri(uri)) {
-      return {
-        results: [],
-        code: E_URIS,
-      };
+      return resultsResultObject([], E_URIS);
     }
 
     if (!this.access(uri).isExist) {
-      return {
-        results: [],
-        code: E_NOEXIST,
-      };
+      return resultsResultObject([], E_NOEXIST);
     }
 
     let queryResults = [];
@@ -962,24 +780,13 @@ export default class FileExtAbility extends Extension {
       }
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'query error ' + e.message);
-      return {
-        results: [],
-        code: E_GETRESULT,
-      };
+      return resultsResultObject([], E_GETRESULT);
     }
-    return {
-      results: queryResults,
-      code: ERR_OK,
-    };
+    return resultsResultObject(queryResults, ERR_OK);
   }
 
   startWatcher(uri, callback): number {
     uri = this.decode(uri);
-    if (uri === '') {
-      return {
-        code: E_URIS,
-      };
-    }
     if (!checkUri(uri)) {
       return E_URIS;
     }
@@ -1022,12 +829,6 @@ export default class FileExtAbility extends Extension {
 
   stopWatcher(uri, isUnregisterAll): number {
     uri = this.decode(uri);
-    if (uri === '') {
-      return {
-        code: E_URIS,
-      };
-    }
-
     if (!checkUri(uri)) {
       return E_URIS;
     }

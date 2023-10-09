@@ -179,12 +179,10 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         HILOG_ERROR("FileAccessHelper::Creator failed, context == nullptr");
         return {nullptr, EINVAL};
     }
-
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::Creator check IsSystemAppByFullTokenID failed");
         return {nullptr, E_PERMISSION_SYS};
     }
-
     sptr<AppExecFwk::IBundleMgr> bm = FileAccessHelper::GetBundleMgrProxy();
     FileAccessHelper::wants_.clear();
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap;
@@ -195,7 +193,6 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         HILOG_ERROR("FileAccessHelper::Creator QueryExtensionAbilityInfos failed");
         return {nullptr, E_GETINFO};
     }
-
     for (size_t i = 0; i < extensionInfos.size(); i++) {
         AAFwk::Want wantTem;
         wantTem.SetElementName(extensionInfos[i].bundleName, extensionInfos[i].name);
@@ -204,24 +201,20 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
             HILOG_ERROR("new fileAccessExtConnection fail");
             return {nullptr, E_GETRESULT};
         }
-
         if (!fileAccessExtConnection->IsExtAbilityConnected()) {
             fileAccessExtConnection->ConnectFileExtAbility(wantTem, context->GetToken());
         }
-
         sptr<IFileAccessExtBase> fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
         if (fileExtProxy == nullptr) {
             HILOG_ERROR("Creator get invalid fileExtProxy");
             return {nullptr, E_CONNECT};
         }
-
         std::shared_ptr<ConnectInfo> connectInfo = std::make_shared<ConnectInfo>();
         if (!connectInfo) {
             HILOG_ERROR("Creator, connectInfo == nullptr");
             return {nullptr, E_GETRESULT};
         }
         FileAccessHelper::wants_.push_back(wantTem);
-
         connectInfo->want = wantTem;
         connectInfo->fileAccessExtConnection = fileAccessExtConnection;
         cMap.emplace(extensionInfos[i].bundleName, connectInfo);
@@ -231,7 +224,6 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         HILOG_ERROR("FileAccessHelper::Creator failed, create FileAccessHelper failed");
         return {nullptr, E_GETRESULT};
     }
-
     return {std::shared_ptr<FileAccessHelper>(ptrFileAccessHelper), ERR_OK};
 }
 
