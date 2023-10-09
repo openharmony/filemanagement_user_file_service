@@ -43,4 +43,5 @@ ohos_shared_library("trash") {
   relative_install_dir = "module/file"
   subsystem_name = "filemanagement"
   part_name = "user_file_service"
+  use_exceptions = true
 }
