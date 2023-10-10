@@ -157,8 +157,10 @@ static int CopyAndDeleteFile(const string &src, const string &dest)
         return EINVAL;
     }
     // 拼接秒数和纳秒数
-    uint64_t acTimeLong = statEntity.stat_.st_atim.tv_sec * TIME_CONVERT_BASE + statEntity.stat_.st_atim.tv_nsec;
-    uint64_t modTimeLong = statEntity.stat_.st_mtim.tv_sec * TIME_CONVERT_BASE + statEntity.stat_.st_mtim.tv_nsec;
+    uint64_t acTimeLong =  static_cast<uint64_t>(statEntity.stat_.st_atim.tv_sec * TIME_CONVERT_BASE +
+        statEntity.stat_.st_atim.tv_nsec);
+    uint64_t modTimeLong = static_cast<uint64_t>(statEntity.stat_.st_mtim.tv_sec * TIME_CONVERT_BASE +
+        statEntity.stat_.st_mtim.tv_nsec);
     double acTime = static_cast<long double>(acTimeLong) / TIME_CONVERT_BASE;
     double modTime = static_cast<long double>(modTimeLong) / TIME_CONVERT_BASE;
 

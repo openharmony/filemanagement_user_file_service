@@ -58,7 +58,7 @@ static bool GetRealPath(string &path)
 
 static string GetTimeSlotFromPath(const string &path)
 {
-    int slashSize = 1;
+    size_t slashSize = 1;
     // 获取时间戳
     size_t trashPathPrefixPos = path.find(TRASH_PATH);
     size_t expectTimeSlotStartPos = trashPathPrefixPos + TRASH_PATH.length() + slashSize;
@@ -351,22 +351,23 @@ static bool GenerateFileInfoEntity(FileInfo& fileInfoEntity, string filterDirent
     }
     string fileName = filterDirent.substr(lastSlashPos + 1);
 
-    fileInfoEntity.uri = URI_PATH_PREFIX + filterDirent;
+    string encodedString = AppFileService::SandboxHelper::Encode(URI_PATH_PREFIX + filterDirent);
+    fileInfoEntity.uri = encodedString;
     fileInfoEntity.srcPath = realFilePath;
     fileInfoEntity.fileName = fileName;
 
-    int32_t mode = SUPPORTS_READ | SUPPORTS_WRITE;
+    size_t uMode = SUPPORTS_READ | SUPPORTS_WRITE;
     StatEntity statEntity;
     if (GetStat(filterDirent, statEntity)) {
         bool check = (statEntity.stat_.st_mode & S_IFMT) == S_IFDIR;
         if (check) {
-            mode |= REPRESENTS_DIR;
+            uMode |= REPRESENTS_DIR;
         } else {
-            mode |= REPRESENTS_FILE;
+            uMode |= REPRESENTS_FILE;
         }
-        HILOG_DEBUG("ListFile: After filter mode  = %{public}d", mode);
+        HILOG_DEBUG("ListFile: After filter mode  = %{public}zu", uMode);
 
-        fileInfoEntity.mode = mode;
+        fileInfoEntity.mode = static_cast<int32_t>(uMode);
         fileInfoEntity.size = static_cast<int64_t>(statEntity.stat_.st_size);
         fileInfoEntity.mtime = static_cast<int64_t>(statEntity.stat_.st_mtim.tv_sec);
 
