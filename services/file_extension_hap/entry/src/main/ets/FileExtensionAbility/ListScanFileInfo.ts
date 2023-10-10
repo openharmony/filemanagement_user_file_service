@@ -17,7 +17,7 @@ import fs from '@ohos.file.fs';
 import type { Filter } from '@ohos.file.fs';
 import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
 import type { Fileinfo } from './Common';
-import { getPath, uriReturnObject, DOMAIN_CODE, TAG, infosReturnObject } from './Common';
+import { getPath, uriReturnObject, encodePathOfUri, DOMAIN_CODE, TAG, infosReturnObject } from './Common';
 
 const documentFlag = fileExtensionInfo.DocumentFlag;
 const ERR_OK = 0;
@@ -162,7 +162,7 @@ function getFileInfos(sourceFileUri: string, offset: number, count: number, filt
         mode |= documentFlag.REPRESENTS_FILE;
       }
       let newFileUri = getNewPathOrUri(sourceFileUri, fileNameList[i]);
-      newFileUri = encodeURI(newFileUri);
+      newFileUri = encodePathOfUri(newFileUri);
       infos.push({
         uri: newFileUri,
         relativePath: filePath,
