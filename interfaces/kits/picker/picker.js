@@ -62,16 +62,19 @@ const ARGS_TWO = 2;
 function strSizeUTF8(str) {
   let strLen = str.length;
   let bytesLen = 0;
+  let greeceLen = 2;
+  let chineseLen = 3;
+  let othersLen = 4;
   for (let i = 0; i < strLen; i++) {
     let charCode = str.charCodeAt(i);
     if (charCode <= 0x007f) {
       bytesLen++;
     } else if (charCode <= 0x07ff) {
-      bytesLen += 2;
+      bytesLen += greeceLen;
     } else if (charCode <= 0xffff) {
-      bytesLen += 3;
+      bytesLen += chineseLen;
     } else {
-      bytesLen += 4;
+      bytesLen += othersLen;
     }
   }
   return bytesLen;
