@@ -19,9 +19,9 @@ const DOMAIN_CODE = 0x0001;
 const TAG = 'ExternalFileManager';
 const FILE_PREFIX_NAME = 'file://';
 
-function checkUri(uri): boolean {
+function checkUri(uri: string): boolean {
   try {
-    if (uri.indexOf(FILE_PREFIX_NAME) === 0) {
+    if (uri?.indexOf(FILE_PREFIX_NAME) === 0) {
       hilog.info(DOMAIN_CODE, TAG, 'uri is ' + uri);
       return true;
     } else {
@@ -67,5 +67,58 @@ interface Fileinfo {
   mimeType: string
 }
 
-export { getPath, checkUri, BUNDLE_NAME, DOMAIN_CODE, FILE_PREFIX_NAME, TAG };
+function uriReturnObject(uri: string, code: number) {
+  return {
+    uri: uri,
+    code: code
+  };
+}
+
+function infosReturnObject(infos: any[], code: number) {
+  return {
+    infos: infos,
+    code: code
+  };
+}
+
+function fdReturnObject(fd: number, code: number) {
+  return {
+    fd: fd,
+    code: code
+  };
+}
+
+function boolReturnObject(isExist: boolean, code: number) {
+  return {
+    isExist: isExist,
+    code: code
+  };
+}
+
+function fileinfoReturnObject(fileInfo: object, code: number) {
+  return {
+    fileInfo: fileInfo,
+    code: code
+  };
+}
+
+function resultsResultObject(results: any, code: number) {
+  return {
+    results: results,
+    code: code
+  };
+}
+
+function rootsReturnObject(roots: any, code: number) {
+  return {
+    roots: roots,
+    code: code
+  };
+}
+
+export { 
+  getPath, checkUri, uriReturnObject, infosReturnObject, fdReturnObject, boolReturnObject, resultsResultObject,
+  fileinfoReturnObject, rootsReturnObject, BUNDLE_NAME, DOMAIN_CODE, FILE_PREFIX_NAME, TAG 
+};
+
 export type { Fileinfo };

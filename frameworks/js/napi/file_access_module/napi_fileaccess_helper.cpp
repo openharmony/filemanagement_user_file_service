@@ -56,27 +56,21 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
-
     napi_value thisVar = funcArg.GetThisVar();
     std::pair<std::shared_ptr<FileAccessHelper>, int> createResult{nullptr, ERR_OK};
     bool isStageMode = false;
     napi_status status = AbilityRuntime::IsStageContext(env, funcArg.GetArg(PARAM0), isStageMode);
     if (status != napi_ok || !isStageMode) {
         HILOG_INFO("No support FA Model");
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
-
     auto context = OHOS::AbilityRuntime::GetStageModeContext(env, funcArg.GetArg(PARAM0));
     if (context == nullptr) {
         HILOG_ERROR("FileAccessHelperConstructor: failed to get native context");
-        NError(E_GETRESULT).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, E_GETRESULT);
     }
-
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         createResult = FileAccessHelper::Creator(context);
     } else if (funcArg.GetArgc() == NARG_CNT::TWO) {
@@ -84,19 +78,16 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
         bool suss = UnwrapArrayWantFromJS(env, funcArg.GetArg(PARAM1), wants);
         if (!suss) {
             HILOG_ERROR("UnwrapArrayWantFromJS failed to get native wants");
-            NError(E_GETRESULT).ThrowErr(env);
-            return nullptr;
+            return NapiFileInfoExporter::ThrowError(env, E_GETRESULT);
         }
         createResult = FileAccessHelper::Creator(context, wants);
     }
     if (createResult.first == nullptr || createResult.second != ERR_OK) {
         HILOG_ERROR("FileAccessHelperConstructor: Creator failed ret=%{public}d", createResult.second);
-        NError(createResult.second).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, createResult.second);
     }
     g_fileAccessHelperList.emplace_back(createResult.first);
     HILOG_INFO("g_fileAccessHelperList size %{public}zu", g_fileAccessHelperList.size());
-
     auto finalize = [](napi_env env, void *data, void *hint) {
         FileAccessHelper *objectInfo = static_cast<FileAccessHelper *>(data);
         if (objectInfo != nullptr) {
@@ -109,8 +100,7 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
     };
     if (napi_wrap(env, thisVar, createResult.first.get(), finalize, nullptr, nullptr) != napi_ok) {
         finalize(env, createResult.first.get(), nullptr);
-        NError(E_GETRESULT).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, E_GETRESULT);
     }
     return thisVar;
 }
@@ -122,7 +112,6 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
         NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
-
     napi_value result = nullptr;
     napi_value cons = nullptr;
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
@@ -132,12 +121,10 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
         if (napi_get_cb_info(env, info, &argc, args, nullptr, nullptr) != napi_ok) {
             return nullptr;
         }
-
         if (argc > requireArgc || napi_get_reference_value(env, g_constructorRef, &cons) != napi_ok) {
             HILOG_ERROR("Wrong argument count%{public}zu. or g_constructorRef reference is fail", argc);
             return nullptr;
         }
-
         if (napi_new_instance(env, cons, ARGS_ONE, args, &result) != napi_ok) {
             return nullptr;
         }
@@ -148,33 +135,27 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
         if (napi_get_cb_info(env, info, &argc, args, nullptr, nullptr) != napi_ok) {
             return nullptr;
         }
-
         if (argc > requireArgc || napi_get_reference_value(env, g_constructorRef, &cons) != napi_ok) {
             HILOG_ERROR("Wrong argument count%{public}zu. or g_constructorRef reference is fail", argc);
             return nullptr;
         }
-
         if (napi_new_instance(env, cons, ARGS_TWO, args, &result) != napi_ok) {
             return nullptr;
         }
     }
-
     if (!IsTypeForNapiValue(env, result, napi_object)) {
         HILOG_ERROR("IsTypeForNapiValue isn`t object");
         return nullptr;
     }
-
     FileAccessHelper *fileAccessHelper = nullptr;
     if (napi_unwrap(env, result, (void **)&fileAccessHelper) != napi_ok) {
         HILOG_ERROR("Faild to get fileAccessHelper");
         return nullptr;
     }
-
     if (fileAccessHelper == nullptr) {
         HILOG_ERROR("fileAccessHelper is nullptr");
         return nullptr;
     }
-
     HILOG_INFO("g_fileAccessHelperList size %{public}zu", g_fileAccessHelperList.size());
     return result;
 }
@@ -313,36 +294,27 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
-
     bool succ = false;
     std::unique_ptr<char[]> uri;
     std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
-
     int flags;
     std::tie(succ, flags) = NVal(env, funcArg[NARG_POS::SECOND]).ToInt32();
     if (!succ) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
-
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
-
     auto result = std::make_shared<int>();
     if (!result) {
-        NError(E_GETRESULT).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, E_GETRESULT);
     }
-
     string uriString(uri.get());
     auto cbExec = [uriString, flags, result, fileAccessHelper]() -> NError {
         OHOS::Uri uri(uriString);
@@ -355,17 +327,14 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
         }
         return { NVal::CreateInt32(env, *result) };
     };
-
     const std::string procedureName = "openFile";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     }
-
     NVal cb(env, funcArg[NARG_POS::THIRD]);
     if (!cb.TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
@@ -542,10 +511,8 @@ napi_value NAPI_Move(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::THREE)) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
-
     bool succ = false;
     std::unique_ptr<char[]> sourceFile;
     std::unique_ptr<char[]> targetParent;
@@ -553,18 +520,14 @@ napi_value NAPI_Move(napi_env env, napi_callback_info info)
     if (!succ) {
         return nullptr;
     }
-
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
-
     auto result = std::make_shared<string>();
     if (!result) {
-        NError(E_GETRESULT).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, E_GETRESULT);
     }
-
     string sourceFileString(sourceFile.get());
     string targetParentString(targetParent.get());
     auto cbExec = [sourceFileString, targetParentString, result, fileAccessHelper]() -> NError {
@@ -587,11 +550,9 @@ napi_value NAPI_Move(napi_env env, napi_callback_info info)
     if (funcArg.GetArgc() == NARG_CNT::TWO) {
         return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     }
-
     NVal cb(env, funcArg[NARG_POS::THIRD]);
     if (!cb.TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
@@ -753,29 +714,23 @@ napi_value NAPI_Copy(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::FOUR)) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
-
     bool retStatus = false;
     std::string srcPathStr;
     std::string destPathStr;
     bool force = false;
     std::tie(retStatus, srcPathStr, destPathStr, force) = GetCopyArguments(env, funcArg);
     if (!retStatus) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
-
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
-
     auto result = std::make_shared<std::vector<CopyResult>>();
     if (!result) {
-        NError(E_GETRESULT).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, E_GETRESULT);
     }
     int ret = ERR_OK;
     auto cbExec = [srcPathStr, destPathStr, force, result, &ret, fileAccessHelper]() -> NError {
@@ -793,7 +748,6 @@ napi_value NAPI_Copy(napi_env env, napi_callback_info info)
         }
         return { env, CreateObjectArray(env, *result) };
     };
-
     return AddCopyNAsyncWork(env, funcArg, cbExec, cbComplete);
 }
 
@@ -1005,29 +959,22 @@ napi_value NAPI_GetFileInfoFromUri(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
-
     bool succ = false;
     std::unique_ptr<char[]> uri;
     std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
-
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
-
     auto result = std::make_shared<FileInfo>();
     if (!result) {
-        NError(E_GETRESULT).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, E_GETRESULT);
     }
-
     string uriString(uri.get());
     auto cbExec = [uriString, result, fileAccessHelper]() -> NError {
         OHOS::Uri uri(uriString);
@@ -1038,7 +985,6 @@ napi_value NAPI_GetFileInfoFromUri(napi_env env, napi_callback_info info)
         if (err) {
             return { env, err.GetNapiErr(env) };
         }
-
         NVal nVal;
         int ret = MakeFileInfoResult(env, fileAccessHelper, *result, nVal);
         if (ret != ERR_OK) {
@@ -1046,10 +992,8 @@ napi_value NAPI_GetFileInfoFromUri(napi_env env, napi_callback_info info)
                 return { ret, "Make FileInfo Result fail" };
             }).GetNapiErr(env) };
         }
-
         return nVal;
     };
-
     const std::string procedureName = "getFileInfoFromUri";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
@@ -1057,8 +1001,7 @@ napi_value NAPI_GetFileInfoFromUri(napi_env env, napi_callback_info info)
     }
     NVal cb(env, funcArg[NARG_POS::SECOND]);
     if (!cb.TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
@@ -1067,29 +1010,22 @@ napi_value NAPI_GetFileInfoFromRelativePath(napi_env env, napi_callback_info inf
 {
     NFuncArg funcArg(env, info);
     if (!funcArg.InitArgs(NARG_CNT::ONE, NARG_CNT::TWO)) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
-
     bool succ = false;
     std::unique_ptr<char[]> uri;
     std::tie(succ, uri, std::ignore) = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     if (!succ) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
-
     FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
-
     auto result = std::make_shared<FileInfo>();
     if (!result) {
-        NError(E_GETRESULT).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, E_GETRESULT);
     }
-
     string uriString(uri.get());
     auto cbExec = [uriString, result, fileAccessHelper]() -> NError {
         string relativePath(uriString);
@@ -1100,7 +1036,6 @@ napi_value NAPI_GetFileInfoFromRelativePath(napi_env env, napi_callback_info inf
         if (err) {
             return { env, err.GetNapiErr(env) };
         }
-
         NVal nVal;
         int ret = MakeFileInfoResult(env, fileAccessHelper, *result, nVal);
         if (ret != ERR_OK) {
@@ -1108,10 +1043,8 @@ napi_value NAPI_GetFileInfoFromRelativePath(napi_env env, napi_callback_info inf
                 return { ret, "Make FileInfo Result fail" };
             }).GetNapiErr(env) };
         }
-
         return nVal;
     };
-
     const std::string procedureName = "getFileInfoFromRelativePath";
     NVal thisVar(env, funcArg.GetThisVar());
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
@@ -1119,8 +1052,7 @@ napi_value NAPI_GetFileInfoFromRelativePath(napi_env env, napi_callback_info inf
     }
     NVal cb(env, funcArg[NARG_POS::SECOND]);
     if (!cb.TypeIs(napi_function)) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
@@ -1281,6 +1213,8 @@ napi_value NAPI_RegisterObserver(napi_env env, napi_callback_info info)
             return nullptr;
         }
         if (!RegisterObserver(env, funcArg, callback)) {
+            HILOG_ERROR("RegisterObserver failed");
+            NError(EINVAL).ThrowErr(env);
             return nullptr;
         }
 
@@ -1300,6 +1234,8 @@ napi_value NAPI_RegisterObserver(napi_env env, napi_callback_info info)
         observerWrapper.release();
     } else {
         if (!RegisterObserver(env, funcArg, wrapper->callback)) {
+            HILOG_ERROR("RegisterObserver failed");
+            NError(EINVAL).ThrowErr(env);
             return nullptr;
         }
     }

@@ -34,10 +34,10 @@ const std::string TRASH_SUB_DIR = "oh_trash_content";
 /**
  * Indicates the supported capabilities of the file or directory.
  */
-const int32_t REPRESENTS_FILE = 1;
-const int32_t REPRESENTS_DIR = 1 << 1;
-const int32_t SUPPORTS_READ = 1 << 2;
-const int32_t SUPPORTS_WRITE = 1 << 3;
+const size_t REPRESENTS_FILE = 1;
+const size_t REPRESENTS_DIR = 1 << 1;
+const size_t SUPPORTS_READ = 1 << 2;
+const size_t SUPPORTS_WRITE = 1 << 3;
 
 class FileTrashNExporter final : public NExporter {
 public:

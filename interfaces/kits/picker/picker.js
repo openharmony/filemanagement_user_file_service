@@ -24,12 +24,14 @@ const ErrCode = {
   INVALID_ARGS: 13900020,
   RESULT_ERROR: 13900042,
   NAME_TOO_LONG: 13900030,
+  CONTEXT_NO_EXIST: 16000011,
 }
 
 const ERRCODE_MAP = new Map([
   [ErrCode.INVALID_ARGS, 'Invalid argument'],
   [ErrCode.RESULT_ERROR, 'Unknown error'],
   [ErrCode.NAME_TOO_LONG, 'File name too long'],
+  [ErrCode.CONTEXT_NO_EXIST, 'Current ability failed to obtain context'],
 ]);
 
 const PHOTO_VIEW_MIME_TYPE_MAP = new Map([
@@ -60,16 +62,19 @@ const ARGS_TWO = 2;
 function strSizeUTF8(str) {
   let strLen = str.length;
   let bytesLen = 0;
+  let greeceLen = 2;
+  let chineseLen = 3;
+  let othersLen = 4;
   for (let i = 0; i < strLen; i++) {
     let charCode = str.charCodeAt(i);
     if (charCode <= 0x007f) {
       bytesLen++;
     } else if (charCode <= 0x07ff) {
-      bytesLen += 2;
+      bytesLen += greeceLen;
     } else if (charCode <= 0xffff) {
-      bytesLen += 3;
+      bytesLen += chineseLen;
     } else {
-      bytesLen += 4;
+      bytesLen += othersLen;
     }
   }
   return bytesLen;
@@ -93,7 +98,7 @@ function checkArguments(args) {
     if (option.newFileNames !== undefined && option.newFileNames.length > 0) {
       for (let i = 0; i < option.newFileNames.length; i++) {
         let value = option.newFileNames[i];
-        if (strSizeUTF8(value) > CREATE_FILE_NAME_LENGTH_LIMIT) {
+        if (strSizeUTF8(value) >= CREATE_FILE_NAME_LENGTH_LIMIT) {
           console.log('[picker] checkArguments Invalid name: ' + value);
           checkArgumentsResult = getErr(ErrCode.NAME_TOO_LONG);
         }
@@ -164,9 +169,18 @@ async function photoPickerSelect(...args) {
   const config = parsePhotoPickerSelectOption(args);
   console.log('[picker] config: ' + JSON.stringify(config));
 
+  let context = undefined;
   try {
-    let context = getContext(this);
-    let result = await context.startAbilityForResult(config, {windowMode: 1});
+    context = getContext(this);
+  } catch (getContextError) {
+    console.error('[picker] getContext error: ' + getContextError);
+    throw getErr(ErrCode.CONTEXT_NO_EXIST);
+  }
+  try {
+    if (context === undefined) {
+      throw getErr(ErrCode.CONTEXT_NO_EXIST);
+    }
+    let result = await context.startAbilityForResult(config, {windowMode: 0});
     console.log('[picker] result: ' + JSON.stringify(result));
     const selectResult = getPhotoPickerSelectResult(result);
     console.log('[picker] selectResult: ' + JSON.stringify(selectResult));
@@ -183,7 +197,7 @@ async function photoPickerSelect(...args) {
       }
     })
   } catch (error) {
-    console.log('[picker] error: ' + error);
+    console.error('[picker] error: ' + error);
   }
   return undefined;
 }
@@ -252,19 +266,22 @@ async function documentPickerSelect(...args) {
   try {
     context = getContext(this);
   } catch (getContextError) {
-    console.log('[picker] getContext error: ' + getContextError);
-    return undefined;
+    console.error('[picker] getContext error: ' + getContextError);
+    throw getErr(ErrCode.CONTEXT_NO_EXIST);
   }
   try {
+    if (context === undefined) {
+      throw getErr(ErrCode.CONTEXT_NO_EXIST);
+    }
     config = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION_MODAL);
     result = await context.requestDialogService(config);
   } catch (paramError) {
-    console.log('[picker] Select paramError: ' + JSON.stringify(paramError));
+    console.error('[picker] Select paramError: ' + JSON.stringify(paramError));
     try {
       config = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION);
       result = await context.startAbilityForResult(config, {windowMode: 0});
     } catch (error) {
-      console.log('[picker] Select error: ' + error);
+      console.error('[picker] Select error: ' + error);
       return undefined;
     }
   }
@@ -284,7 +301,7 @@ async function documentPickerSelect(...args) {
       }
     })
   } catch (resultError) {
-    console.log('[picker] Result error: ' + resultError);
+    console.error('[picker] Result error: ' + resultError);
   }
   return undefined;
 }
@@ -355,19 +372,22 @@ async function documentPickerSave(...args) {
   try {
     context = getContext(this);
   } catch (getContextError) {
-    console.log('[picker] getContext error: ' + getContextError);
-    return undefined;
+    console.error('[picker] getContext error: ' + getContextError);
+    throw getErr(ErrCode.CONTEXT_NO_EXIST);
   }
   try {
+    if (context === undefined) {
+      throw getErr(ErrCode.CONTEXT_NO_EXIST);
+    }
     config = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION_MODAL);
     result = await context.requestDialogService(config);
   } catch (paramError) {
-    console.log('[picker] paramError: ' + JSON.stringify(paramError));
+    console.error('[picker] paramError: ' + JSON.stringify(paramError));
     try {
       config = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION);
       result = await context.startAbilityForResult(config, {windowMode: 0});
     } catch (error) {
-      console.log('[picker] error: ' + error);
+      console.error('[picker] error: ' + error);
       return undefined;
     }
   }
@@ -387,7 +407,7 @@ async function documentPickerSave(...args) {
       }
     })
   } catch (resultError) {
-    console.log('[picker] Result error: ' + resultError);
+    console.error('[picker] Result error: ' + resultError);
   }
   return undefined;
 }
@@ -402,8 +422,17 @@ async function audioPickerSelect(...args) {
   const config = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION);
   console.log('[picker] config: ' + JSON.stringify(config));
 
+  let context = undefined;
   try {
-    let context = getContext(this);
+    context = getContext(this);
+  } catch (getContextError) {
+    console.error('[picker] getContext error: ' + getContextError);
+    throw getErr(ErrCode.CONTEXT_NO_EXIST);
+  }
+  try {
+    if (context === undefined) {
+      throw getErr(ErrCode.CONTEXT_NO_EXIST);
+    }
     let result = await context.startAbilityForResult(config, {windowMode: 0});
     console.log('[picker] result: ' + JSON.stringify(result));
     const selectResult = getDocumentPickerSelectResult(result);
@@ -421,7 +450,7 @@ async function audioPickerSelect(...args) {
       }
     })
   } catch (error) {
-    console.log('[picker] error: ' + error);
+    console.error('[picker] error: ' + error);
   }
   return undefined;
 }

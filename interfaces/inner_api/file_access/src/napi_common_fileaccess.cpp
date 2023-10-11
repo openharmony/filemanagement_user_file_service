@@ -136,5 +136,26 @@ bool UnwrapArrayWantFromJS(napi_env env, napi_value param, std::vector<OHOS::AAF
     }
     return true;
 }
+
+napi_value GetUndefinedValue(napi_env env)
+{
+    napi_value result{};
+    napi_get_undefined(env, &result);
+    return result;
+}
+
+napi_status GetStringValue(napi_env env, napi_value value, std::string &result)
+{
+    size_t tempSize = 0;
+    if (napi_get_value_string_utf8(env, value, nullptr, 0, &tempSize) != napi_ok) {
+        return napi_generic_failure;
+    }
+    result.reserve(tempSize);
+    result.resize(tempSize);
+    if (napi_get_value_string_utf8(env, value, result.data(), tempSize + 1, &tempSize) != napi_ok) {
+        return napi_generic_failure;
+   }
+    return napi_ok;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

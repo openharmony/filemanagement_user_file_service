@@ -14,7 +14,7 @@
  */
 
 #include "file_access_service_proxy.h"
-
+#include "user_access_tracer.h"
 #include "file_access_framework_errno.h"
 #include "file_access_service_ipc_interface_code.h"
 #include "hilog_wrapper.h"
@@ -83,23 +83,21 @@ void FileAccessServiceProxy::ServiceProxyLoadCallback::OnLoadSystemAbilityFail(i
 
 int32_t FileAccessServiceProxy::OnChange(Uri uri, NotifyType notifyType)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "OnChange");
+    UserAccessTracer trace;
+    trace.Start("OnChange");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessServiceProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteParcelable(&uri)) {
         HILOG_ERROR("fail to WriteParcelable uri");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteInt32(static_cast<int32_t>(notifyType))) {
         HILOG_ERROR("fail to WriteParcelable notifyType");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
@@ -109,47 +107,41 @@ int32_t FileAccessServiceProxy::OnChange(Uri uri, NotifyType notifyType)
         option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret) || ret != ERR_OK) {
         HILOG_ERROR("OnChange operation failed ret : %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
 int32_t FileAccessServiceProxy::RegisterNotify(Uri uri, bool notifyForDescendants,
     const sptr<IFileAccessObserver> &observer)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "RegisterNotify");
+    UserAccessTracer trace;
+    trace.Start("RegisterNotify");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessServiceProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteParcelable(&uri)) {
         HILOG_ERROR("fail to WriteParcelable uri");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteRemoteObject(observer->AsObject())) {
         HILOG_ERROR("fail to WriteRemoteObject observer");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteBool(notifyForDescendants)) {
         HILOG_ERROR("fail to WriteBool notifyForDescendants");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
@@ -159,18 +151,15 @@ int32_t FileAccessServiceProxy::RegisterNotify(Uri uri, bool notifyForDescendant
         reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return err;
     }
 
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret) || ret != ERR_OK) {
         HILOG_ERROR("RegisterNotify operation failed ret : %{public}d", ret);
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return ret;
     }
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return ERR_OK;
 }
 
@@ -196,36 +185,32 @@ int32_t FileAccessServiceProxy::UnregisterNotifyInternal(MessageParcel &data)
 
 int32_t FileAccessServiceProxy::UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer)
 {
-    StartTrace(HITRACE_TAG_FILEMANAGEMENT, "UnregisterNotify");
+    UserAccessTracer trace;
+    trace.Start("UnregisterNotify");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessServiceProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
 
     if (!data.WriteParcelable(&uri)) {
         HILOG_ERROR("fail to WriteParcelable uri");
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         return E_IPCS;
     }
     bool observerNotNull = true;
     if (observer != nullptr) {
         if (!data.WriteBool(observerNotNull)) {
             HILOG_ERROR("fail to WriteBool observerNotNull");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return E_IPCS;
         }
         if (!data.WriteRemoteObject(observer->AsObject())) {
             HILOG_ERROR("fail to WriteRemoteObject observer");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return E_IPCS;
         }
     } else {
         observerNotNull = false;
         if (!data.WriteBool(observerNotNull)) {
             HILOG_ERROR("fail to WriteBool observerNotNull");
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
             return E_IPCS;
         }
     }
@@ -233,7 +218,6 @@ int32_t FileAccessServiceProxy::UnregisterNotify(Uri uri, const sptr<IFileAccess
     // Split the code into two functions for better readability
     int32_t result = UnregisterNotifyInternal(data);
 
-    FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
     return result;
 }
 } // namespace FileAccessFwk
