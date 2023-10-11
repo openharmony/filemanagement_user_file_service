@@ -139,7 +139,7 @@ public:
     void OnChange(NotifyMessage &notifyMessage) override;
 };
 
-void TestObserver::OnChange (NotifyMessage &notifyMessage)
+void TestObserver::OnChange(NotifyMessage &notifyMessage)
 {
     g_notifyFlag = static_cast<int>(notifyMessage.notifyType_);
     std::string notifyUri = notifyMessage.uris_[0];
