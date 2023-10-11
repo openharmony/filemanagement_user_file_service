@@ -762,9 +762,18 @@ export default class FileExtAbility extends Extension {
       return resultsResultObject([], E_URIS);
     }
 
-    if (!this.access(uri).isExist) {
-      return resultsResultObject([], E_NOEXIST);
-    }
+    fs.access(uri, (err, res) => {
+      if (err) {
+        return {
+          results: [],
+          code: E_NOEXIST,
+        };
+      } else {
+        if (res) {
+          console.info("file exists");
+        }
+      }
+    });
 
     let queryResults = [];
     try {
