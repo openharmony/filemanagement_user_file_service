@@ -16,6 +16,7 @@
 import hilog from '@ohos.hilog';
 const BUNDLE_NAME = 'docs';
 const DOMAIN_CODE = 0x0001;
+const SLICE_PREFIX_URI = 12;
 const TAG = 'ExternalFileManager';
 const FILE_PREFIX_NAME = 'file://';
 
@@ -55,6 +56,28 @@ function getPath(uri): string {
   }
   hilog.info(DOMAIN_CODE, TAG, 'getPath after ' + path);
   return path;
+}
+
+function encodePathOfUri(uri): string {  
+  try {
+    let suffixUri = uri.slice(SLICE_PREFIX_URI, uri.length);
+    let prefixUri = uri.slice(0, SLICE_PREFIX_URI); 
+    uri = prefixUri.concat(encodeURIComponent(suffixUri).replace(/%2F/g, '/'));
+  } catch (e) {
+    hilog.error(DOMAIN_CODE, TAG, 'The reason of encodeURIComponent: ' + e.message + ' code: ' + e.code);
+    uri = '';
+  }
+  return uri;
+}
+
+function decodeUri(uri): string {
+  try {
+    uri = decodeURIComponent(uri);
+  } catch (e) {
+    hilog.error(DOMAIN_CODE, TAG, 'The reason of decodeURIComponent: ' + e.message + ' code: ' + e.code);
+    uri = '';
+  }
+  return uri;
 }
 
 interface Fileinfo {
@@ -117,7 +140,7 @@ function rootsReturnObject(roots: any, code: number) {
 }
 
 export { 
-  getPath, checkUri, uriReturnObject, infosReturnObject, fdReturnObject, boolReturnObject, resultsResultObject,
+  getPath, checkUri, encodePathOfUri, decodeUri, uriReturnObject, infosReturnObject, fdReturnObject, boolReturnObject, resultsResultObject,
   fileinfoReturnObject, rootsReturnObject, BUNDLE_NAME, DOMAIN_CODE, FILE_PREFIX_NAME, TAG 
 };
 
