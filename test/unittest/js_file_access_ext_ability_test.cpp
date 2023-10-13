@@ -472,7 +472,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_StopWatcher_0000
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin js_file_access_ext_ability_StopWatcher_0000";
     try {
         Uri uri("someUriString");
-        int result = g_ability->StopWatcher(uri, true);
+        int result = g_ability->StopWatcher(uri);
         EXPECT_NE(result, ERR_OK);
     } catch(...) {
         GTEST_LOG_(ERROR) << "js_file_access_ext_ability_StopWatcher_0000 occurs an exception.";

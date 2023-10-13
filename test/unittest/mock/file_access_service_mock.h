@@ -24,13 +24,14 @@ using Uri = OHOS::Uri;
 class FileAccessServiceMock : public FileAccessServiceStub {
 public:
     MOCK_METHOD2(OnChange, int32_t(Uri uri, NotifyType notifyType));
-    MOCK_METHOD3(RegisterNotify, int32_t(Uri uri, bool notifyForDescendants,
-        const sptr<IFileAccessObserver> &observer));
-    MOCK_METHOD2(UnregisterNotify, int32_t(Uri uri, const sptr<IFileAccessObserver> &observer));
+    MOCK_METHOD4(RegisterNotify, int32_t(Uri uri, bool notifyForDescendants,
+        const sptr<IFileAccessObserver> &observer, const std::shared_ptr<ConnectExtensionInfo> &info));
+    MOCK_METHOD3(UnregisterNotify, int32_t(Uri uri, const sptr<IFileAccessObserver> &observer,
+        const std::shared_ptr<ConnectExtensionInfo> &info));
     MOCK_METHOD2(GetExensionProxy, int32_t(const std::shared_ptr<ConnectExtensionInfo> &info,
         sptr<IFileAccessExtBase> &extensionProxy));
     MOCK_METHOD0(AsObject, sptr<IRemoteObject>());
-    MOCK_METHOD1(CleanAllNotify, int32_t(Uri uri));
+    MOCK_METHOD2(CleanAllNotify, int32_t(Uri uri, const std::shared_ptr<ConnectExtensionInfo> &info));
     MOCK_METHOD4(OnRemoteRequest, int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply,
         MessageOption &option));
     MOCK_METHOD4(SendRequest, int(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));

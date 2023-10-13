@@ -26,10 +26,13 @@ class FileAccessServiceProxy : public IRemoteProxy<IFileAccessServiceBase> {
 public:
     explicit FileAccessServiceProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IFileAccessServiceBase>(impl) {}
     ~FileAccessServiceProxy() = default;
-    static sptr<IFileAccessServiceBase> GetInstance();
+    static sptr<FileAccessServiceProxy> GetInstance();
+    static void InvaildInstance();
     int32_t OnChange(Uri uri, NotifyType notifyType) override;
-    int32_t RegisterNotify(Uri uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer) override;
-    int32_t UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer) override;
+    int32_t RegisterNotify(Uri uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer,
+        const std::shared_ptr<ConnectExtensionInfo> &info) override;
+    int32_t UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer,
+        const std::shared_ptr<ConnectExtensionInfo> &info) override;
     int32_t GetExensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
                              sptr<IFileAccessExtBase> &extensionProxy) override;
 
@@ -42,9 +45,22 @@ public:
     };
 
 private:
+    class ProxyDeathRecipient : public IRemoteObject::DeathRecipient {
+    public:
+        explicit ProxyDeathRecipient(std::function<void(const wptr<IRemoteObject> &)> functor) : functor_(functor) {};
+        virtual ~ProxyDeathRecipient() = default;
+    public:
+        void OnRemoteDied(const wptr<IRemoteObject> &object) override
+        {
+            object->RemoveDeathRecipient(this);
+            functor_(object);
+        };
+    private:
+        std::function<void(const wptr<IRemoteObject> &)> functor_;
+    };
     int32_t UnregisterNotifyInternal(MessageParcel &data);
     static inline std::mutex proxyMutex_;
-    static inline sptr<IFileAccessServiceBase> serviceProxy_;
+    static inline sptr<FileAccessServiceProxy> serviceProxy_;
     static inline BrokerDelegator<FileAccessServiceProxy> delegator_;
 };
 } // namespace FileAccessFwk

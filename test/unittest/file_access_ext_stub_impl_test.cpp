@@ -917,9 +917,8 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_StopWatcher_0000, 
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_StopWatcher_0000";
     try {
         Uri uri("");
-        bool isUnregisterAll = false;
         FileAccessExtStubImpl impl(nullptr, nullptr);
-        int result = impl.StopWatcher(uri, isUnregisterAll);
+        int result = impl.StopWatcher(uri);
         EXPECT_EQ(result, E_IPCS);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
@@ -940,12 +939,11 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_StopWatcher_0001, 
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_StopWatcher_0001";
     try {
-        EXPECT_CALL(*ability, StopWatcher(_, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+        EXPECT_CALL(*ability, StopWatcher(_)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
 
         Uri uri("");
-        bool isUnregisterAll = false;
         FileAccessExtStubImpl impl(ability, nullptr);
-        int result = impl.StopWatcher(uri, isUnregisterAll);
+        int result = impl.StopWatcher(uri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";

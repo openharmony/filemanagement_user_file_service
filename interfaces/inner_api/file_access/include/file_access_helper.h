@@ -107,6 +107,7 @@ private:
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
 
     std::shared_ptr<ConnectInfo> GetConnectInfo(const std::string &bundleName);
+    std::shared_ptr<ConnectExtensionInfo> GetConnectExtensionInfo(Uri &uri);
 
     int CopyOperation(Uri &sourceUri, Uri &destUri, std::vector<Result> &copyResult, bool force = false);
     int CopyFileOperation(Uri &sourceUri, Uri &destUri, const std::string &fileName, Uri &newFileUri);

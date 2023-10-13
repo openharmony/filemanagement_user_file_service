@@ -910,8 +910,6 @@ export default class FileExtAbility extends Extension {
             targetUri = encodePathOfUri(targetUri);
             if (eventCode >= 0) {
               callback(targetUri, eventCode);
-            } else {
-              hilog.info(DOMAIN_CODE, TAG, 'eventCode =' + data.event);
             }
           } catch (error) {
             hilog.error(DOMAIN_CODE, TAG, 'onchange error ' + error.message);
@@ -920,7 +918,7 @@ export default class FileExtAbility extends Extension {
         watcher.start();
         observerMap.set(uri, watcher);
       } else {
-        console.log('uri already exists');
+        hilog.warn(DOMAIN_CODE, TAG, 'uri already exists');
       }
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'startWatcher error ' + e.message);
@@ -931,12 +929,6 @@ export default class FileExtAbility extends Extension {
 
   stopWatcher(uri): number {
     uri = decodeUri(uri);
-    if (uri === '') {
-      return {
-        code: E_URIS,
-      };
-    }
-
     if (!checkUri(uri)) {
       return E_URIS;
     }

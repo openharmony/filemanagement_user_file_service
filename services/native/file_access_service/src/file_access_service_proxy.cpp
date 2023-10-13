@@ -29,7 +29,7 @@ namespace OHOS {
 namespace FileAccessFwk {
 constexpr int LOAD_SA_TIMEOUT_MS = 5000;
 const std::string UID_TAG = "uid:";
-sptr<IFileAccessServiceBase> FileAccessServiceProxy::GetInstance()
+sptr<FileAccessServiceProxy> FileAccessServiceProxy::GetInstance()
 {
     HILOG_INFO("Getinstance");
     std::unique_lock<std::mutex> lock(proxyMutex_);
@@ -70,8 +70,28 @@ void FileAccessServiceProxy::ServiceProxyLoadCallback::OnLoadSystemAbilitySucces
 {
     HILOG_INFO("Load FileAccessService SA success,systemAbilityId:%{public}d, remoteObj result:%{private}s",
         systemAbilityId, (remoteObject == nullptr ? "false" : "true"));
+    if (systemAbilityId != FILE_ACCESS_SERVICE_ID || remoteObject == nullptr) {
+        isLoadSuccess_.store(false);
+        proxyConVar_.notify_one();
+        return;
+    }
     std::unique_lock<std::mutex> lock(proxyMutex_);
-    serviceProxy_ = iface_cast<IFileAccessServiceBase>(remoteObject);
+    serviceProxy_ = iface_cast<FileAccessServiceProxy>(remoteObject);
+    auto remoteObj = serviceProxy_->AsObject();
+    if (!remoteObj) {
+        HILOG_ERROR("Failed to get remote object");
+        serviceProxy_ = nullptr;
+        isLoadSuccess_.store(false);
+        proxyConVar_.notify_one();
+        return;
+    }
+
+    auto callback = [](const wptr<IRemoteObject> &obj) {
+        FileAccessServiceProxy::InvaildInstance();
+        HILOG_ERROR("service died");
+    };
+    sptr<ProxyDeathRecipient> deathRecipient = sptr(new ProxyDeathRecipient(callback));
+    remoteObj->AddDeathRecipient(deathRecipient);
     isLoadSuccess_.store(true);
     proxyConVar_.notify_one();
 }
@@ -85,16 +105,15 @@ void FileAccessServiceProxy::ServiceProxyLoadCallback::OnLoadSystemAbilityFail(i
     proxyConVar_.notify_one();
 }
 
-static int GetUserId()
+void FileAccessServiceProxy::InvaildInstance()
 {
-    int uid = IPCSkeleton::GetCallingUid();
-    int userId = uid / OHOS::AppExecFwk::Constants::BASE_USER_RANGE;
-    return userId;
+    HILOG_INFO("invalid instance");
+    std::unique_lock<std::mutex> lock(proxyMutex_);
+    serviceProxy_ = nullptr;
 }
 
 int32_t FileAccessServiceProxy::OnChange(Uri uri, NotifyType notifyType)
 {
-    HILOG_ERROR("cjw enter onchange uri = %{public}s", uri.ToString().c_str());
     UserAccessTracer trace;
     trace.Start("OnChange");
     MessageParcel data;
@@ -103,8 +122,7 @@ int32_t FileAccessServiceProxy::OnChange(Uri uri, NotifyType notifyType)
         return E_IPCS;
     }
 
-    Uri tempUri(UID_TAG + std::to_string(GetUserId()) + uri.ToString());
-    if (!data.WriteParcelable(&tempUri)) {
+    if (!data.WriteParcelable(&uri)) {
         HILOG_ERROR("fail to WriteParcelable uri");
         return E_IPCS;
     }
@@ -133,9 +151,8 @@ int32_t FileAccessServiceProxy::OnChange(Uri uri, NotifyType notifyType)
 }
 
 int32_t FileAccessServiceProxy::RegisterNotify(Uri uri, bool notifyForDescendants,
-    const sptr<IFileAccessObserver> &observer)
+    const sptr<IFileAccessObserver> &observer, const std::shared_ptr<ConnectExtensionInfo> &info)
 {
-    HILOG_ERROR("cjw enter RegisterNotify uri = %{public}s", uri.ToString().c_str());
     UserAccessTracer trace;
     trace.Start("RegisterNotify");
     MessageParcel data;
@@ -144,8 +161,7 @@ int32_t FileAccessServiceProxy::RegisterNotify(Uri uri, bool notifyForDescendant
         return E_IPCS;
     }
 
-    Uri tempUri(UID_TAG + std::to_string(GetUserId()) + uri.ToString());
-    if (!data.WriteParcelable(&tempUri)) {
+    if (!data.WriteParcelable(&uri)) {
         HILOG_ERROR("fail to WriteParcelable uri");
         return E_IPCS;
     }
@@ -157,6 +173,16 @@ int32_t FileAccessServiceProxy::RegisterNotify(Uri uri, bool notifyForDescendant
 
     if (!data.WriteBool(notifyForDescendants)) {
         HILOG_ERROR("fail to WriteBool notifyForDescendants");
+        return E_IPCS;
+    }
+
+    if (info == nullptr) {
+        HILOG_ERROR("ExtensionInfo is nullptr");
+        return E_GETINFO;
+    }
+
+    if (!info->WriteToParcel(data)) {
+        HILOG_ERROR("fail to WriteParcelable Info");
         return E_IPCS;
     }
 
@@ -198,9 +224,9 @@ int32_t FileAccessServiceProxy::UnregisterNotifyInternal(MessageParcel &data)
     return ERR_OK;
 }
 
-int32_t FileAccessServiceProxy::UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer)
+int32_t FileAccessServiceProxy::UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer,
+    const std::shared_ptr<ConnectExtensionInfo> &info)
 {
-    HILOG_ERROR("cjw enter UnregisterNotifyInternal uri = %{public}s", uri.ToString().c_str());
     UserAccessTracer trace;
     trace.Start("UnregisterNotify");
     MessageParcel data;
@@ -209,8 +235,7 @@ int32_t FileAccessServiceProxy::UnregisterNotify(Uri uri, const sptr<IFileAccess
         return E_IPCS;
     }
 
-    Uri tempUri(UID_TAG + std::to_string(GetUserId()) + uri.ToString());
-    if (!data.WriteParcelable(&tempUri)) {
+    if (!data.WriteParcelable(&uri)) {
         HILOG_ERROR("fail to WriteParcelable uri");
         return E_IPCS;
     }
@@ -230,6 +255,16 @@ int32_t FileAccessServiceProxy::UnregisterNotify(Uri uri, const sptr<IFileAccess
             HILOG_ERROR("fail to WriteBool observerNotNull");
             return E_IPCS;
         }
+    }
+
+    if (info == nullptr) {
+        HILOG_ERROR("ExtensionInfo is nullptr");
+        return E_GETINFO;
+    }
+
+    if (!info->WriteToParcel(data)) {
+        HILOG_ERROR("fail to WriteParcelable Info");
+        return E_IPCS;
     }
 
     // Split the code into two functions for better readability

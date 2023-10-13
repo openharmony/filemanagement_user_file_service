@@ -86,9 +86,9 @@ HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_GetInstance_0000,
     GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-begin file_access_service_proxy_GetInstance_0000";
     try {
         shared_ptr<FileAccessServiceProxy> proxy = make_shared<FileAccessServiceProxy>(impl);
-        proxy->serviceProxy_ = impl;
+        proxy->serviceProxy_ = sptr<FileAccessServiceProxy>(new FileAccessServiceProxy(impl));
         auto result = proxy->GetInstance();
-        EXPECT_TRUE(result.GetRefPtr() == impl.GetRefPtr());
+        EXPECT_FALSE(static_cast<IFileAccessServiceBase*>(result.GetRefPtr()) == impl.GetRefPtr());
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessServiceProxyTest occurs an exception.";
     }
@@ -239,41 +239,43 @@ HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_RegisterNotify_00
 
         Uri uri("");
         bool notifyForDescendants = false;
+        shared_ptr<ConnectExtensionInfo> info = nullptr;
         sptr<IFileAccessObserverMock> observer = sptr<IFileAccessObserverMock>(new IFileAccessObserverMock());
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(false));
-        auto result = proxy->RegisterNotify(uri, notifyForDescendants, observer);
+        auto result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info);
         EXPECT_EQ(result, E_IPCS);
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(false));
-        result = proxy->RegisterNotify(uri, notifyForDescendants, observer);
+        result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info);
         EXPECT_EQ(result, E_IPCS);
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(false));
         EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
-        result = proxy->RegisterNotify(uri, notifyForDescendants, observer);
+        result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info);
         EXPECT_EQ(result, E_IPCS);
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
             .WillOnce(Return(false));
         EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
-        result = proxy->RegisterNotify(uri, notifyForDescendants, observer);
+        result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info);
         EXPECT_EQ(result, E_IPCS);
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
-            .WillOnce(Return(true));
+            .WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true));
         EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
         EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(E_URIS));
-        result = proxy->RegisterNotify(uri, notifyForDescendants, observer);
+        shared_ptr<ConnectExtensionInfo> info2 = make_shared<ConnectExtensionInfo>();
+        result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info2);
         EXPECT_EQ(result, E_URIS);
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
-            .WillOnce(Return(true)).WillOnce(Return(false));
+            .WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true));
         EXPECT_CALL(*insMoc, Int()).WillOnce(Return(ERR_OK));
         EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
         EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
-        result = proxy->RegisterNotify(uri, notifyForDescendants, observer);
+        result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info2);
         EXPECT_EQ(result, ERR_OK);
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
-            .WillOnce(Return(true)).WillOnce(Return(true));
+            .WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true));
         EXPECT_CALL(*insMoc, Int()).WillOnce(Return(E_IPCS));
         EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
         EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
-        result = proxy->RegisterNotify(uri, notifyForDescendants, observer);
+        result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info2);
         EXPECT_EQ(result, E_IPCS);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessServiceProxyTest occurs an exception.";
@@ -334,29 +336,29 @@ HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_UnregisterNotify_
         shared_ptr<FileAccessServiceProxy> proxy = make_shared<FileAccessServiceProxy>(impl);
         Uri uri("");
         sptr<IFileAccessObserverMock> observer = nullptr;
-
+        shared_ptr<ConnectExtensionInfo> info = nullptr;
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(false));
-        auto result = proxy->UnregisterNotify(uri, observer);
+        auto result = proxy->UnregisterNotify(uri, observer, info);
         EXPECT_EQ(result, E_IPCS);
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(false));
-        result = proxy->UnregisterNotify(uri, observer);
+        result = proxy->UnregisterNotify(uri, observer, info);
         EXPECT_EQ(result, E_IPCS);
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(false));
-        result = proxy->UnregisterNotify(uri, observer);
+        result = proxy->UnregisterNotify(uri, observer, info);
         EXPECT_EQ(result, E_IPCS);
         observer = sptr<IFileAccessObserverMock>(new IFileAccessObserverMock());
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(false));
-        result = proxy->UnregisterNotify(uri, observer);
+        result = proxy->UnregisterNotify(uri, observer, info);
         EXPECT_EQ(result, E_IPCS);
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
             .WillOnce(Return(false));
         EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
-        result = proxy->UnregisterNotify(uri, observer);
+        result = proxy->UnregisterNotify(uri, observer, info);
         EXPECT_EQ(result, E_IPCS);
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
             .WillOnce(Return(false));
         EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
-        result = proxy->UnregisterNotify(uri, observer);
+        result = proxy->UnregisterNotify(uri, observer, info);
         EXPECT_EQ(result, E_IPCS);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessServiceProxyTest occurs an exception.";

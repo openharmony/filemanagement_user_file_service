@@ -58,7 +58,6 @@ public:
     int MoveItem(const Uri &sourceFile, const Uri &targetParent, std::vector<Result> &moveResult,
                  bool force = false) override;
     int MoveFile(const Uri &sourceFile, const Uri &targetParent, std::string &fileName, Uri &newFile) override;
-
 private:
     std::shared_ptr<FileAccessExtAbility> GetOwner();
     std::shared_ptr<FileAccessExtAbility> extension_;

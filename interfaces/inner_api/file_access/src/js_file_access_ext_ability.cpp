@@ -1686,7 +1686,6 @@ int JsFileAccessExtAbility::StopWatcher(const Uri &uri)
 
 int JsFileAccessExtAbility::Notify(Uri &uri, NotifyType notifyType)
 {
-    HILOG_ERROR("enter Notify, uri:%{public}s", uri.ToString().c_str());
     UserAccessTracer trace;
     trace.Start("Notify");
     auto proxy = FileAccessServiceProxy::GetInstance();
