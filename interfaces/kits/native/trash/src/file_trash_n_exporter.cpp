@@ -341,42 +341,44 @@ static string GetToDeletePath(const string &toDeletePath, napi_env env)
     return RecurCheckIfOnlyContentInDir(toDeletePath, realTimeDirPos, trashWithTimePath);
 }
 
-static vector<FileInfo> GenerateFileInfoEntities(vector<string> filterDirents)
+static bool GenerateFileInfoEntity(FileInfo& fileInfoEntity, string filterDirent, string timeSlot)
 {
-    vector<FileInfo> fileInfoList;
-    for (size_t k = 0; k < filterDirents.size(); k++) {
-        string filterDirent = filterDirents[k];
-        HILOG_INFO("ListFile: After filter dirent  = %{public}s", filterDirent.c_str());
-
-        string realFilePath = FindSourceFilePath(filterDirent);
-        HILOG_INFO("ListFile: After filter realFilePath  = %{public}s", realFilePath.c_str());
-        size_t lastSlashPos = filterDirent.find_last_of("/");
-        string fileName = filterDirent.substr(lastSlashPos + 1);
-
-        FileInfo fileInfoEntity;
-        fileInfoEntity.uri = URI_PATH_PREFIX + filterDirent;
-        fileInfoEntity.srcPath = realFilePath;
-        fileInfoEntity.fileName = fileName;
-
-        size_t uMode = SUPPORTS_READ | SUPPORTS_WRITE;
-        StatEntity statEntity;
-        if (GetStat(filterDirent, statEntity)) {
-            bool check = (statEntity.stat_.st_mode & S_IFMT) == S_IFDIR;
-            if (check) {
-                uMode |= REPRESENTS_DIR;
-            } else {
-                uMode |= REPRESENTS_FILE;
-            }
-            HILOG_DEBUG("ListFile: After filter mode  = %{public}zu", uMode);
-
-            fileInfoEntity.mode = static_cast<int32_t>(uMode);
-            fileInfoEntity.size = static_cast<int64_t>(statEntity.stat_.st_size);
-            fileInfoEntity.mtime = static_cast<int64_t>(statEntity.stat_.st_mtim.tv_sec);
-            fileInfoEntity.ctime = static_cast<int64_t>(statEntity.stat_.st_ctim.tv_sec);
-        }
-        fileInfoList.emplace_back(fileInfoEntity);
+    string realFilePath = FindSourceFilePath(filterDirent);
+    size_t lastSlashPos = filterDirent.find_last_of("/");
+    if (lastSlashPos == string::npos) {
+        HILOG_ERROR("GenerateFileInfoEntity: invalid path");
+        return false;
     }
-    return fileInfoList;
+    string fileName = filterDirent.substr(lastSlashPos + 1);
+
+    string encodedString = AppFileService::SandboxHelper::Encode(URI_PATH_PREFIX + filterDirent);
+    fileInfoEntity.uri = encodedString;
+    fileInfoEntity.srcPath = realFilePath;
+    fileInfoEntity.fileName = fileName;
+
+    size_t uMode = SUPPORTS_READ | SUPPORTS_WRITE;
+    StatEntity statEntity;
+    if (GetStat(filterDirent, statEntity)) {
+        bool check = (statEntity.stat_.st_mode & S_IFMT) == S_IFDIR;
+        if (check) {
+            uMode |= REPRESENTS_DIR;
+        } else {
+            uMode |= REPRESENTS_FILE;
+        }
+        HILOG_DEBUG("ListFile: After filter mode  = %{public}zu", uMode);
+
+        fileInfoEntity.mode = static_cast<int32_t>(uMode);
+        fileInfoEntity.size = static_cast<int64_t>(statEntity.stat_.st_size);
+        fileInfoEntity.mtime = static_cast<int64_t>(statEntity.stat_.st_mtim.tv_sec);
+
+        try {
+            fileInfoEntity.ctime = static_cast<int64_t>(atoll(timeSlot.c_str()) / SECOND_TO_MILLISECOND);
+        } catch (...) {
+            HILOG_ERROR("GenerateFileInfoEntity: invalid timeSlot = %{public}s", timeSlot.c_str());
+            return false;
+        }
+    }
+    return true;
 }
 
 napi_value FileTrashNExporter::ListFile(napi_env env, napi_callback_info info)
@@ -407,12 +409,10 @@ napi_value FileTrashNExporter::ListFile(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    vector<string> filterDirents;
+    vector<FileInfo> fileInfoList;
     size_t slashSize = 1;
     for (size_t j = 0; j < dirents.size(); j++) {
         string dirent = dirents[j];
-        HILOG_DEBUG("ListFile: After RecursiveFunc dirent = %{public}s", dirent.c_str());
-
         string timeSlot = GetTimeSlotFromPath(dirent);
         if (timeSlot.empty()) {
             continue;
@@ -421,12 +421,13 @@ napi_value FileTrashNExporter::ListFile(napi_env env, napi_callback_info info)
         size_t pos = dirent.find(TRASH_SUB_DIR + timeSlot + "/");
         if (pos != string::npos) {
             string trashSubDir = TRASH_SUB_DIR + timeSlot;
-            if (dirent.find("/", pos + trashSubDir.length() + slashSize) == string::npos) {
-                filterDirents.emplace_back(dirent);
+            FileInfo info;
+            if ((dirent.find("/", pos + trashSubDir.length() + slashSize) == string::npos) &&
+                GenerateFileInfoEntity(info, dirent, timeSlot)) {
+                fileInfoList.emplace_back(info);
             }
         }
     }
-    vector<FileInfo> fileInfoList = GenerateFileInfoEntities(filterDirents);
     return CreateObjectArray(env, fileInfoList);
 }
 

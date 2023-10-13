@@ -35,6 +35,7 @@ constexpr int FILTER_MATCH = 1;
 constexpr int FILTER_DISMATCH = 0;
 constexpr int MODE_FORCE_MOVE = 0;
 constexpr uint64_t TIME_CONVERT_BASE = 1000000000;
+constexpr int SECOND_TO_MILLISECOND = 1000;
 
 struct NameListArg {
     struct dirent** namelist = { nullptr };

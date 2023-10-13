@@ -21,6 +21,7 @@
 #include "filemgmt_libn.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
+#include "sandbox_helper.h"
 
 namespace OHOS {
 namespace Trash {
