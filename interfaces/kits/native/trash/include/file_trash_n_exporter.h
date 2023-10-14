@@ -21,7 +21,6 @@
 #include "filemgmt_libn.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
-#include "sandbox_helper.h"
 
 namespace OHOS {
 namespace Trash {
@@ -29,7 +28,6 @@ using namespace FileManagement::LibN;
 using namespace std;
 // 暂时默认用户100
 const std::string TRASH_PATH = "/storage/.Trash/Users/100";
-const std::string URI_PATH_PREFIX = "file://docs";
 const std::string TRASH_SUB_DIR = "oh_trash_content";
 
 /**
