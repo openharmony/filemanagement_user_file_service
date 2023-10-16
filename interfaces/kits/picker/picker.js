@@ -240,7 +240,11 @@ function getDocumentPickerSelectResult(args) {
   // Result is the return code of the modality.
   if ((args.resultCode !== undefined && args.resultCode === 0) || (args.result !== undefined && args.result === 0)) {
     if (args.want && args.want.parameters) {
-      selectResult.data = args.want.parameters.select_item_list;
+      if (args.want.parameters.select_item_list) {
+        selectResult.data = args.want.parameters.select_item_list;
+      } else {
+        selectResult.data = args.want.parameters['ability.params.stream'];
+      }
     }
   } else if ((args.resultCode !== undefined && args.resultCode === -1) || (args.result !== undefined && args.result === 1)) {
     selectResult.data = [];
@@ -346,7 +350,11 @@ function getDocumentPickerSaveResult(args) {
   // Result is the return code of the modality.
   if ((args.resultCode !== undefined && args.resultCode === 0) || (args.result !== undefined && args.result === 0)) {
     if (args.want && args.want.parameters) {
-      saveResult.data = args.want.parameters.pick_path_return;
+      if (args.want.parameters.pick_path_return) {
+        saveResult.data = args.want.parameters.pick_path_return;
+      } else {
+        saveResult.data = args.want.parameters['ability.params.stream'];
+      }
     }
   } else if ((args.resultCode !== undefined && args.resultCode === -1) || (args.result !== undefined && args.result === 1)) {
     saveResult.data = [];
