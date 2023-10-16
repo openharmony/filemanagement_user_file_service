@@ -351,8 +351,8 @@ static bool GenerateFileInfoEntity(FileInfo& fileInfoEntity, string filterDirent
     }
     string fileName = filterDirent.substr(lastSlashPos + 1);
 
-    string encodedString = AppFileService::SandboxHelper::Encode(URI_PATH_PREFIX + filterDirent);
-    fileInfoEntity.uri = encodedString;
+    AppFileService::ModuleFileUri::FileUri fileUri(filterDirent);
+    fileInfoEntity.uri = fileUri.ToString();
     fileInfoEntity.srcPath = realFilePath;
     fileInfoEntity.fileName = fileName;
 
