@@ -29,7 +29,7 @@ namespace FileAccessFwk {
 using namespace AbilityRuntime;
 
 using InputArgsParser = std::function<bool(napi_env&, napi_value*, size_t&)>;
-using ResultValueParser = std::function<bool(napi_env&, napi_value, napi_value, size_t&, napi_value*)>;
+using ResultValueParser = std::function<bool(napi_env&, napi_value)>;
 
 struct CallJsParam {
     std::mutex fileOperateMutex;
@@ -45,6 +45,12 @@ struct CallJsParam {
         InputArgsParser &argParserIn, ResultValueParser &retParserIn)
         : funcName(funcNameIn), jsRuntime(jsRuntimeIn), jsObj(jsObjIn), argParser(argParserIn), retParser(retParserIn)
     {}
+};
+
+struct FilterParam {
+    FileInfo fileInfo;
+    int64_t offset;
+    int64_t maxCount;
 };
 
 class JsFileAccessExtAbility : public FileAccessExtAbility {
@@ -87,7 +93,7 @@ private:
         int code {ERR_OK};
     };
 
-    void CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0);
+    napi_value CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0);
     int CallJsMethod(const std::string &funcName, JsRuntime &jsRuntime, NativeReference *jsObj,
         InputArgsParser argParser, ResultValueParser retParser);
     void GetSrcPath(std::string &srcPath);
@@ -97,7 +103,17 @@ private:
     static bool ParserGetRootsJsResult(napi_env &env, napi_value nativeValue, Value<std::vector<RootInfo>> &result);
     static bool ParserQueryFileJsResult(napi_env &env, napi_value nativeValue,
         Value<std::vector<std::string>> &results);
+    static int MakeStringNativeArray(napi_env &env, std::vector<std::string> &inputArray, napi_value resultArray);
+    static int MakeJsNativeFileFilter(napi_env &env, const FileFilter &filter, napi_value nativeFilter);
+    static bool BuildFilterParam(napi_env &env, const FileFilter &filter, const FilterParam &param, napi_value *argv,
+        size_t &argc);
     static napi_status GetFileInfoFromJs(napi_env &env, napi_value obj, FileInfo &fileInfo);
+    static napi_status GetUriAndCodeFromJs(napi_env &env, napi_value result,
+        const std::shared_ptr<Value<std::string>> &value);
+    static napi_status GetFdAndCodeFromJs(napi_env &env, napi_value result, const std::shared_ptr<Value<int>> &value);
+    static napi_status ConstructQueryArg(napi_env &env, napi_value *argv, size_t &argc, const Uri &uri,
+        std::vector<std::string> &columns);
+    static napi_status GetRootInfo(napi_env env, napi_value nativeRootInfo, RootInfo &rootInfo);
     JsRuntime &jsRuntime_;
     std::shared_ptr<NativeReference> jsObj_;
 };
