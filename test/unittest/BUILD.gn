@@ -60,7 +60,10 @@ ohos_unittest("medialibrary_file_access_test") {
 ohos_unittest("external_file_access_test") {
   module_out_path = "user_file_service/tests"
 
-  sources = [ "external_file_access_test.cpp" ]
+  sources = [
+    "external_file_access_test.cpp",
+    "external_notify_test.cpp",
+  ]
 
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
