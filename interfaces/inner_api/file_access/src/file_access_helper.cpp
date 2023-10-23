@@ -607,7 +607,9 @@ int FileAccessHelper::IsDirectory(Uri &uri, bool &isDir)
         HILOG_ERROR("get FileInfo from uri error, code:%{public}d", ret);
         return ret;
     }
-    isDir = (fileInfo.mode & DOCUMENT_FLAG_REPRESENTS_DIR) != 0;
+    
+    isDir = fileInfo.mode >= 0 && (static_cast<uint32_t>(fileInfo.mode) & DOCUMENT_FLAG_REPRESENTS_DIR) != 0;
+
     return ret;
 }
 

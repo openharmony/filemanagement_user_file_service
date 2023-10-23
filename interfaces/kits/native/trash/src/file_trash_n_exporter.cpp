@@ -230,7 +230,7 @@ static string GenerateNewFileNameWithSuffix(const string &destFile, int32_t dist
         distinctSuffixIndex += 1;
         string newDestFile = newPrefix + to_string(distinctSuffixIndex) + newSuffix;
         return GenerateNewFileNameWithSuffix(newDestFile, distinctSuffixIndex, newPrefix, newSuffix);
-    } else if (!isExist && (ret == ERRNO_NOERR)) {
+    } else if (ret == ERRNO_NOERR) {
         HILOG_DEBUG("GenerateNewFileNameWithSuffix: destFile = %{public}s", destFile.c_str());
         return destFile;
     }
@@ -245,7 +245,7 @@ static string GenerateNewFileNameNoSuffix(const string &destFile, int32_t distin
         distinctSuffixIndex += 1;
         string newDestFile = newPrefix + to_string(distinctSuffixIndex);
         return GenerateNewFileNameNoSuffix(newDestFile, distinctSuffixIndex, newPrefix);
-    } else if (!isExist && (ret == ERRNO_NOERR)) {
+    } else if (ret == ERRNO_NOERR) {
         HILOG_DEBUG("GenerateNewFileNameNoSuffix: destFile = %{public}s", destFile.c_str());
         return destFile;
     }
@@ -284,7 +284,7 @@ static bool MoveFile(const string &srcFile, const string &destFile)
         }
         HILOG_INFO("MoveFile: newDestFile = %{public}s", newDestFile.c_str());
         return RenameFile(srcFile, newDestFile);
-    } else if (!isExist && (ret == ERRNO_NOERR)) {
+    } else if (ret == ERRNO_NOERR) {
         return RenameFile(srcFile, destFile);
     }
     HILOG_ERROR("MoveFile: : Invalid Path");
