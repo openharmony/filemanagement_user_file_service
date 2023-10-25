@@ -173,5 +173,28 @@ bool FileAccessServiceStub::CheckCallingPermission(const std::string &permission
 
     return true;
 }
+
+ErrCode FileAccessServiceStub::CmdGetExensionProxy(MessageParcel &data, MessageParcel &reply)
+{
+    UserAccessTracer trace;
+    trace.Start("CmdGetExensionProxy");
+    std::shared_ptr<ConnectExtensionInfo> connectExtensionInfo = std::make_shared<ConnectExtensionInfo>();
+    if (!connectExtensionInfo->ReadFromParcel(data)) {
+        HILOG_ERROR("fail to read info");
+        return E_IPCS;
+    }
+
+    sptr<IFileAccessExtBase> extensionProxy;
+    int ret = GetExensionProxy(connectExtensionInfo, extensionProxy);
+    if (!reply.WriteInt32(ret) || extensionProxy == nullptr) {
+        HILOG_ERROR("fail to GetExensionProxy");
+        return E_IPCS;
+    }
+    if (!reply.WriteRemoteObject(extensionProxy->AsObject())) {
+        HILOG_ERROR("fail to WriteRemoteObject observer");
+        return E_IPCS;
+    }
+    return ERR_OK;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

@@ -24,7 +24,9 @@
 #include <unordered_map>
 #include <vector>
 
+#include "bundle_mgr_interface.h"
 #include "file_access_service_stub.h"
+#include "ifile_access_ext_base.h"
 #include "holder_manager.h"
 #include "iremote_object.h"
 #include "timer.h"
@@ -154,6 +156,8 @@ public:
     int32_t UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer) override;
     int32_t CleanAllNotify(Uri uri) override;
     int32_t OnChange(Uri uri, NotifyType notifyType) override;
+    int32_t GetExensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
+                             sptr<IFileAccessExtBase> &extensionProxy) override;
 
 private:
     void SendListNotify(std::string uri, NotifyType notifyType, const std::vector<uint32_t> &list);

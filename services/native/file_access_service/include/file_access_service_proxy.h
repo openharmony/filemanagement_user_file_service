@@ -30,6 +30,8 @@ public:
     int32_t OnChange(Uri uri, NotifyType notifyType) override;
     int32_t RegisterNotify(Uri uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer) override;
     int32_t UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer) override;
+    int32_t GetExensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
+                             sptr<IFileAccessExtBase> &extensionProxy) override;
 
     class ServiceProxyLoadCallback : public SystemAbilityLoadCallbackStub {
     public:

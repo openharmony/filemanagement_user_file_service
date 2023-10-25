@@ -21,6 +21,7 @@
       *OHOS::FileAccessFwk::FileAccessNotifyManager*;
       *OHOS::FileAccessFwk::FileAccessExtStub*;
       *OHOS::FileAccessFwk::FileAccessExtStubImpl*;
+      *OHOS::FileAccessFwk::FileAccessExtConnection*;
     };
   local:
     *;

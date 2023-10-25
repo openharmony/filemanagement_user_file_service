@@ -35,6 +35,7 @@ private:
     ErrCode CmdOnChange(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdRegisterNotify(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdUnregisterNotify(MessageParcel &data, MessageParcel &reply);
+    ErrCode CmdGetExensionProxy(MessageParcel &data, MessageParcel &reply);
     bool CheckCallingPermission(const std::string &permission);
     using RequestFuncType = int (FileAccessServiceStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, RequestFuncType> stubFuncMap_;
