@@ -20,6 +20,12 @@ const PhotoViewMIMETypes = {
   INVALID_TYPE: ''
 }
 
+const DocumentSelectModes = {
+  FILE: 0,
+  FOLDER: 1,
+  MIXED: 2,
+};
+
 const ErrCode = {
   INVALID_ARGS: 13900020,
   RESULT_ERROR: 13900042,
@@ -212,6 +218,8 @@ function parseDocumentPickerSelectOption(args, action) {
 
   if (args.length > ARGS_ZERO && typeof args[ARGS_ZERO] === 'object') {
     let option = args[ARGS_ZERO];
+    config.parameters.key_select_mode = option.selectMode;
+    console.log('parseDocumentPickerSelectOption: ' + option.selectMode);
 
     if ((option.maxSelectNumber !== undefined) && option.maxSelectNumber > 0) {
       config.parameters.key_pick_num = option.maxSelectNumber;
@@ -324,7 +332,7 @@ function parseDocumentPickerSaveOption(args, action) {
       config.parameters.key_pick_file_name = option.newFileNames;
       config.parameters.saveFile = option.newFileNames[0];
     }
-    
+
     if (option.defaultFilePathUri !== undefined) {
       config.parameters.key_pick_dir_path = option.defaultFilePathUri;
     }
@@ -481,6 +489,7 @@ function DocumentSelectOptions() {
   this.defaultFilePathUri = undefined;
   this.fileSuffixFilters = undefined;
   this.maxSelectNumber = undefined;
+  this.selectMode = DocumentSelectModes.FILE;
 }
 
 function DocumentSaveOptions() {
@@ -515,6 +524,7 @@ export default {
   PhotoSelectOptions : PhotoSelectOptions,
   PhotoSelectResult : PhotoSelectResult,
   PhotoSaveOptions : PhotoSaveOptions,
+  DocumentSelectModes : DocumentSelectModes,
   DocumentSelectOptions : DocumentSelectOptions,
   DocumentSaveOptions : DocumentSaveOptions,
   AudioSelectOptions : AudioSelectOptions,
