@@ -15,6 +15,13 @@ import("//build/ohos.gni")
 import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
 
 ohos_shared_library("recent") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   include_dirs = [
     ".",
     "${user_file_service_path}/utils",

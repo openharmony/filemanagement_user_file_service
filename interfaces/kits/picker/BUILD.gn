@@ -52,6 +52,7 @@ gen_js_obj("picker_abc") {
 }
 
 ohos_shared_library("picker") {
+  branch_protector_ret = "pac_ret"
   ldflags = [ "-Wl" ]
   sources = [ "native_module_ohos_picker.cpp" ]
 

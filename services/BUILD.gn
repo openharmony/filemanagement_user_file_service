@@ -94,6 +94,13 @@ ohos_resources("external_file_manager_resources") {
 }
 
 ohos_shared_library("file_access_service") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   include_dirs = [
     "${user_file_service_path}/services/native/file_access_service/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
