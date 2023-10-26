@@ -79,7 +79,8 @@ napi_value NapiFileInfoExporter::Constructor(napi_env env, napi_callback_info in
     return funcArg.GetThisVar();
 }
 
-napi_value NapiFileInfoExporter::ThrowError(napi_env env, int code) {
+napi_value NapiFileInfoExporter::ThrowError(napi_env env, int code)
+{
     NError(code).ThrowErr(env);
     return nullptr;
 }
