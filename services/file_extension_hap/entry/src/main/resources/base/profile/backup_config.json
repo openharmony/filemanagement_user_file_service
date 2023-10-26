@@ -1,7 +1,6 @@
 {
     "allowToBackupRestore": true,
     "includes": [
-        "/storage/Users/currentUser/",
-        "/storage/Share/"
+        "/storage/Users/currentUser/"
     ]
 }
