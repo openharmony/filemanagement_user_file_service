@@ -15,6 +15,13 @@ import("//build/ohos.gni")
 import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
 
 ohos_shared_library("fileextensioninfo") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   subsystem_name = "filemanagement"
   part_name = "user_file_service"
   relative_install_dir = "module/file"

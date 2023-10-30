@@ -48,6 +48,13 @@ config("ability_public_config") {
 }
 
 ohos_shared_library("file_access_extension_ability_kit") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${file_api_path}/utils/filemgmt_libn/include",
@@ -100,6 +107,13 @@ ohos_shared_library("file_access_extension_ability_kit") {
 }
 
 ohos_shared_library("file_access_extension_ability_module") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   sources = [ "src/file_access_ext_ability_module_loader.cpp" ]
 
   configs = [ ":ability_config" ]
