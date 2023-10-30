@@ -252,7 +252,7 @@ static string GenerateNewFileNameNoSuffix(const string &destFile, int32_t distin
     return "";
 }
 
-static bool MoveFile(const string &srcFile, const string &destFile)
+static int MoveFile(const string &srcFile, const string &destFile)
 {
     // 判断目的文件是否存在
     auto [isExist, ret] = Access(destFile);
@@ -262,11 +262,14 @@ static bool MoveFile(const string &srcFile, const string &destFile)
         size_t slashPos = destFile.find_last_of("/");
         if (slashPos == string::npos) {
             HILOG_ERROR("MoveFile: : Invalid Path");
-            return false;
+            return EINVAL;
         }
-        size_t suffixPos = destFile.find_first_of('.', slashPos);
-        HILOG_DEBUG("MoveFile: slashPos = %{public}zu", slashPos);
-        HILOG_DEBUG("MoveFile: suffixPos = %{public}zu", suffixPos);
+        // 识别文件后缀分隔符，找最后一个
+        size_t suffixPos = destFile.find_last_of('.');
+        if (suffixPos < slashPos) {
+            // 识别的文件后缀分隔符必须在文件部分
+            suffixPos = string::npos;
+        }
         string newDestFile = destFile;
         int32_t distinctSuffixIndex = 1;
         if (suffixPos == string::npos) {
@@ -288,7 +291,7 @@ static bool MoveFile(const string &srcFile, const string &destFile)
         return RenameFile(srcFile, destFile);
     }
     HILOG_ERROR("MoveFile: : Invalid Path");
-    return false;
+    return EINVAL;
 }
 
 static string RecurCheckIfOnlyContentInDir(const string &path, size_t trashWithTimePos, const string &trashWithTimePath)
@@ -436,8 +439,17 @@ static napi_value RecoverFile(napi_env env, const string &filePath)
     string sourceFilePath = FindSourceFilePath(filePath);
     HILOG_INFO("RecoverFile: sourceFilePath = %{public}s", sourceFilePath.c_str());
     string newDestPath = sourceFilePath;
-    if (newDestPath.length() != 0 && Mkdirs(sourceFilePath, false, newDestPath)) {
-        MoveFile(filePath, newDestPath);
+    if (newDestPath.length() == 0 || !Mkdirs(sourceFilePath, false, newDestPath)) {
+        HILOG_ERROR("RecoverFile: Mkdirs failed");
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    int moveRet = MoveFile(filePath, newDestPath);
+    if (moveRet != ERRNO_NOERR) {
+        HILOG_ERROR("RecoverFile: MoveFile failed");
+        NError(moveRet).ThrowErr(env);
+        return nullptr;
     }
 
     // 文件已被移动，则如果前一层目录包含其他内容，则直接返回；
@@ -455,7 +467,7 @@ static napi_value RecoverFile(napi_env env, const string &filePath)
     return NVal::CreateUndefined(env).val_;
 }
 
-static void RecoverFilePart(vector<string> filePathList, map<string, string> dirPath2UpdatedNameMap)
+static int RecoverFilePart(vector<string> filePathList, map<string, string> dirPath2UpdatedNameMap)
 {
     // 处理文件
     for (size_t j = 0; j < filePathList.size(); j++) {
@@ -471,29 +483,12 @@ static void RecoverFilePart(vector<string> filePathList, map<string, string> dir
         if (iter != dirPath2UpdatedNameMap.end()) {
             sourceFilePath = iter->second + "/" + fileName;
         }
-        MoveFile(filePath, sourceFilePath);
-    }
-}
-
-static vector<string> FilterDirsNoContains(vector<string> dirPathList)
-{
-    //先处理目录，仅保留不互相包含的目录（取子目录较深的)
-    vector<string> filterDirPathList;
-    for (size_t j = 0; j < dirPathList.size(); j++) {
-        string dirPath = dirPathList[j];
-        bool isIncluded = false;
-        for (size_t k = 0; k < filterDirPathList.size(); k++) {
-            string filterDirPath = filterDirPathList[k];
-            if (StartsWith(filterDirPath, dirPath)) {
-                isIncluded = true;
-                break;
-            }
-        }
-        if (!isIncluded) {
-            filterDirPathList.emplace_back(dirPath);
+        int moveRet = MoveFile(filePath, sourceFilePath);
+        if (moveRet != ERRNO_NOERR) {
+            return moveRet;
         }
     }
-    return filterDirPathList;
+    return ERRNO_NOERR;
 }
 
 static map<string, string> MakeAndFindUpdateNameDir(vector<string> filterDirPathList)
@@ -540,23 +535,17 @@ static napi_value RecoverDir(napi_env env, const string &dirPath)
             filePathList.emplace_back(dirent);
         }
     }
-    // 目录从长到短排序
-    sort(dirPathList.begin(), dirPathList.end(), [&](const string &a, const string &b) {
-        return a.length() > b.length();
-    });
-
-    // 先处理目录，仅保留不互相包含的目录（取子目录较深的)
-    vector<string> filterDirPathList = FilterDirsNoContains(dirPathList);
-    if (filterDirPathList.size() == 0) {
-        HILOG_ERROR("RecoverDir: NO valid dirs found");
-        return nullptr;
-    }
 
     // 新建目录并获取因为存在同名目录修改过名称的目录
-    map<string, string> dirPath2UpdatedNameMap = MakeAndFindUpdateNameDir(filterDirPathList);
+    map<string, string> dirPath2UpdatedNameMap = MakeAndFindUpdateNameDir(dirPathList);
 
     // 处理文件部分
-    RecoverFilePart(filePathList, dirPath2UpdatedNameMap);
+    auto retRecoveFilePart = RecoverFilePart(filePathList, dirPath2UpdatedNameMap);
+    if (retRecoveFilePart != ERRNO_NOERR) {
+        NError(retRecoveFilePart).ThrowErr(env);
+        HILOG_ERROR("RecoverFilePart: Failed to Recover File in Dir.");
+        return nullptr;
+    }
     
     // 删除目录
     auto err = RmDirent(GetToDeletePath(dirPath, env));
