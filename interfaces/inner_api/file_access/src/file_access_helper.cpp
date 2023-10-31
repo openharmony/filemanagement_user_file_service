@@ -45,6 +45,8 @@ std::vector<AAFwk::Want> FileAccessHelper::wants_;
 sptr<IFileAccessExtBase> g_sourceExtProxy;
 sptr<IFileAccessExtBase> g_destExtProxy;
 
+std::vector<Uri> deviceUris(DEVICE_ROOTS.begin(), DEVICE_ROOTS.end());
+
 static int GetUserId()
 {
     int uid = IPCSkeleton::GetCallingUid();
@@ -1133,6 +1135,15 @@ int FileAccessHelper::StopWatcher(Uri &uri, bool isUnregisterAll)
     return ERR_OK;
 }
 
+static void convertUris(Uri uri, std::vector<Uri> &uris) {
+    std::string uriString = uri.ToString();
+    if (uriString == DEVICE_URI) {
+        uris = deviceUris;
+    } else {
+        uris.push_back(uri);
+    }
+}
+
 int FileAccessHelper::RegisterNotify(Uri uri, bool notifyForDescendants, sptr<IFileAccessObserver> &observer)
 {
     UserAccessTracer trace;
@@ -1153,17 +1164,22 @@ int FileAccessHelper::RegisterNotify(Uri uri, bool notifyForDescendants, sptr<IF
         return E_LOAD_SA;
     }
 
-    int ret = proxy->RegisterNotify(uri, notifyForDescendants, observer);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("RegisterNotify error ret = %{public}d", ret);
-        return ret;
-    }
+    std::vector<Uri> uris;
+    convertUris(uri, uris);
+    for (auto eachUri : uris) {
+        int ret = proxy->RegisterNotify(eachUri, notifyForDescendants, observer);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("RegisterNotify error ret = %{public}d", ret);
+            return ret;
+        }
 
-    ret = StartWatcher(uri);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("StartWatcher error ret = %{public}d", ret);
+        ret = StartWatcher(eachUri);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("StartWatcher error ret = %{public}d", ret);
+            return ret;
+        }
     }
-    return ret;
+    return ERR_OK;
 }
 
 int FileAccessHelper::UnregisterNotify(Uri uri, sptr<IFileAccessObserver> &observer)
@@ -1186,18 +1202,24 @@ int FileAccessHelper::UnregisterNotify(Uri uri, sptr<IFileAccessObserver> &obser
         return E_LOAD_SA;
     }
 
-    int ret = proxy->UnregisterNotify(uri, observer);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("UnregisterNotify error ret = %{public}d", ret);
-        return ret;
+    std::vector<Uri> uris;
+    convertUris(uri, uris);
+    for (auto eachUri : uris) {
+        int ret = proxy->UnregisterNotify(eachUri, observer);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("UnregisterNotify error ret = %{public}d", ret);
+            return ret;
+        }
+
+        bool isUnregisterAll = false;
+        ret = StopWatcher(eachUri, isUnregisterAll);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("StopWatcher error ret = %{public}d", ret);
+            return ret;
+        }
     }
 
-    bool isUnregisterAll = false;
-    ret = StopWatcher(uri, isUnregisterAll);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("StopWatcher error ret = %{public}d", ret);
-    }
-    return ret;
+    return ERR_OK;
 }
 
 int FileAccessHelper::UnregisterNotify(Uri uri)
@@ -1220,18 +1242,24 @@ int FileAccessHelper::UnregisterNotify(Uri uri)
     }
 
     sptr<IFileAccessObserver> observer = nullptr;
-    int ret = proxy->UnregisterNotify(uri, observer);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("UnregisterNotify error ret = %{public}d", ret);
-        return ret;
-    }
 
-    bool isUnregisterAll = true;
-    ret = StopWatcher(uri, isUnregisterAll);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("StopWatcher error ret = %{public}d", ret);
+    std::vector<Uri> uris;
+    convertUris(uri, uris);
+    for (auto eachUri : uris) {
+        int ret = proxy->UnregisterNotify(eachUri, observer);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("UnregisterNotify error ret = %{public}d", ret);
+            return ret;
+        }
+
+        bool isUnregisterAll = true;
+        ret = StopWatcher(eachUri, isUnregisterAll);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("StopWatcher error ret = %{public}d", ret);
+            return ret;
+        }
     }
-    return ret;
+    return ERR_OK;
 }
 
 void FileAccessDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)

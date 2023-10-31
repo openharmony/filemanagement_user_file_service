@@ -29,6 +29,8 @@ void InitOpenFlags(napi_env env, napi_value exports);
 void InitQueryFlags(napi_env env, napi_value exports);
 void InitCopyResult(napi_env env, napi_value exports);
 void InitNotifyType(napi_env env, napi_value exports);
+void InitDeviceUri(napi_env env, napi_value exports);
+void InitDeviceRoots(napi_env env, napi_value exports);
 } // namespace FileAccessFwk
 } // namespace OHOS
 #endif // FILE_EXTENSION_INFO_NAPI_H

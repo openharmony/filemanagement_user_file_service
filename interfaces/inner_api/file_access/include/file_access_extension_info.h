@@ -79,6 +79,18 @@ constexpr int32_t DELETE_EVENT = 1;
 constexpr int32_t MOVED_TO = 2;
 constexpr int32_t MOVED_FROM = 3;
 constexpr int32_t MOVED_SELF = 4;
+constexpr int32_t DEVICE_ONLINE = 5;
+constexpr int32_t DEVICE_OFFLINE = 6;
+
+//Indicates the device root uris
+const std::string DEVICE_URI = "file://docs";
+
+//Indicates the root uri of the External device.
+const std::string EXTERNAL_ROOT_URI = "file://docs/storage/External";
+/**
+ * Indicates the root uri for all device.
+ */
+static const std::vector<std::string> DEVICE_ROOTS = {EXTERNAL_ROOT_URI};
 
 struct FileInfo : public virtual OHOS::Parcelable {
 public:

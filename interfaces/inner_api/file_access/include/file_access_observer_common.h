@@ -31,7 +31,9 @@ enum NotifyType {
     NOTIFY_DELETE,
     NOTIFY_MOVE_TO,
     NOTIFY_MOVE_FROM,
-    NOTIFY_MOVE_SELE
+    NOTIFY_MOVE_SELE,
+    NOTIFY_DEVICE_ONLINE,
+    NOTIFY_DEVICE_OFFLINE
 };
 
 struct NotifyMessage : public OHOS::Parcelable {
