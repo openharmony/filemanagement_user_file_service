@@ -46,11 +46,6 @@ struct StatEntity {
     uv_stat_t stat_;
 };
 
-static bool StartsWith(const string& str, const string prefix)
-{
-    return (str.rfind(prefix, 0) == 0);
-}
-
 static void Deleter(struct NameListArg *arg)
 {
     for (int i = 0; i < arg->direntNum; i++) {
