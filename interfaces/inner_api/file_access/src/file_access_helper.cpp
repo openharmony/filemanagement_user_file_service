@@ -77,8 +77,8 @@ static bool GetBundleNameFromPath(const std::string &path, std::string &bundleNa
         bundleName = EXTERNAL_BNUDLE_NAME;
         return true;
     }
-    HILOG_ERROR("Uri-authority error.");
-    return false;
+    HILOG_INFO("Uri-authority true.");
+    return true;
 }
 
 static bool CheckUri(Uri &uri)
