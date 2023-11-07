@@ -239,7 +239,7 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_Copy_000
     try {
         Uri sourceUri("");
         Uri destUri("");
-        vector<CopyResult> copyResult;
+        vector<Result> copyResult;
         bool force = false;
         int result = g_fah->Copy(sourceUri, destUri, copyResult, force);
         EXPECT_EQ(result, COPY_EXCEPTION);

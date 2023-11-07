@@ -93,7 +93,7 @@ int FileAccessExtStubImpl::Move(const Uri &sourceFile, const Uri &targetParent, 
     return ret;
 }
 
-int FileAccessExtStubImpl::Copy(const Uri &sourceUri, const Uri &destUri, std::vector<CopyResult> &copyResult,
+int FileAccessExtStubImpl::Copy(const Uri &sourceUri, const Uri &destUri, std::vector<Result> &copyResult,
     bool force)
 {
     UserAccessTracer trace;
@@ -256,6 +256,31 @@ int FileAccessExtStubImpl::StopWatcher(const Uri &uri, bool isUnregisterAll)
 
     int ret = extension_->StopWatcher(uri, isUnregisterAll);
     return ret;
+}
+
+int FileAccessExtStubImpl::MoveItem(const Uri &sourceFile, const Uri &targetParent, std::vector<Result> &moveResult,
+                                    bool force)
+{
+    UserAccessTracer trace;
+    trace.Start("MoveItem");
+    if (extension_ == nullptr) {
+        HILOG_ERROR("Move get extension failed.");
+        return E_IPCS;
+    }
+
+    return extension_->MoveItem(sourceFile, targetParent, moveResult, force);
+}
+
+int FileAccessExtStubImpl::MoveFile(const Uri &sourceFile, const Uri &targetParent, std::string &fileName, Uri &newFile)
+{
+    UserAccessTracer trace;
+    trace.Start("MoveFile");
+    if (extension_ == nullptr) {
+        HILOG_ERROR("Move get extension failed.");
+        return E_IPCS;
+    }
+
+    return extension_->MoveFile(sourceFile, targetParent, fileName, newFile);
 }
 } // namespace FileAccessFwk
 } // namespace OHOS

@@ -75,7 +75,7 @@ public:
     int Mkdir(Uri &parent, const std::string &displayName, Uri &newDir);
     int Delete(Uri &selectFile);
     int Move(Uri &sourceFile, Uri &targetParent, Uri &newFile);
-    int Copy(Uri &sourceUri, Uri &destUri, std::vector<CopyResult> &copyResult, bool force = false);
+    int Copy(Uri &sourceUri, Uri &destUri, std::vector<Result> &copyResult, bool force = false);
     int Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile);
     int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount, const FileFilter &filter,
         std::vector<FileInfo> &fileInfoVec);
@@ -89,6 +89,8 @@ public:
     int RegisterNotify(Uri uri, bool notifyForDescendants, sptr<IFileAccessObserver> &observer);
     int UnregisterNotify(Uri uri, sptr<IFileAccessObserver> &observer);
     int UnregisterNotify(Uri uri);
+    int MoveItem(Uri &sourceFile, Uri &targetParent, std::vector<Result> &moveResult, bool force);
+    int MoveFile(Uri &sourceFile, Uri &targetParent, std::string &fileName, Uri &newFile);
 private:
     int StartWatcher(Uri &uri);
     int StopWatcher(Uri &uri, bool isUnregisterAll);
@@ -106,7 +108,7 @@ private:
 
     std::shared_ptr<ConnectInfo> GetConnectInfo(const std::string &bundleName);
 
-    int CopyOperation(Uri &sourceUri, Uri &destUri, std::vector<CopyResult> &copyResult, bool force = false);
+    int CopyOperation(Uri &sourceUri, Uri &destUri, std::vector<Result> &copyResult, bool force = false);
     int IsDirectory(Uri &uri, bool &isDir);
 
     sptr<IRemoteObject> token_ = nullptr;

@@ -48,7 +48,7 @@ public:
     virtual int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile);
     virtual int Delete(const Uri &sourceFile);
     virtual int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile);
-    virtual int Copy(const Uri &sourceUri, const Uri &destUri, std::vector<CopyResult> &copyResult, bool force = false);
+    virtual int Copy(const Uri &sourceUri, const Uri &destUri, std::vector<Result> &copyResult, bool force = false);
     virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile);
     virtual int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec);
@@ -63,6 +63,9 @@ public:
     static void SetCreator(const CreatorFunc& creator);
     virtual int StartWatcher(const Uri &uri);
     virtual int StopWatcher(const Uri &uri, bool isUnregisterAll);
+    virtual int MoveItem(const Uri &sourceFile, const Uri &targetParent, std::vector<Result> &moveResult,
+                         bool force = false);
+    virtual int MoveFile(const Uri &sourceFile, const Uri &targetParent, std::string &fileName, Uri &newFile);
 private:
     static CreatorFunc creator_;
 };

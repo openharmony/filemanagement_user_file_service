@@ -29,17 +29,20 @@ import { infosReturnObject, resultsResultObject } from './Common';
 const deviceFlag = fileExtensionInfo.DeviceFlag;
 const documentFlag = fileExtensionInfo.DocumentFlag;
 const deviceType = fileExtensionInfo.DeviceType;
+const MOVEFILEOVERWRITE = 2;
 const FILEOVERWRITE = 1;
 const THROWEXCEPTION = 0;
 
 const ERR_OK = 0;
 const ERR_ERROR = -1;
-const COPY_EXCEPTION = -1;
-const COPY_NOEXCEPTION = -2;
+const EXCEPTION = -1;
+const NOEXCEPTION = -2;
 const E_PERM = 13900001;
 const E_NOEXIST = 13900002;
 const E_FAULT = 13900013;
 const E_EXIST = 13900015;
+const E_NOT_DIR = 13900018;
+const E_IS_DIR = 13900019;
 const E_INVAL = 13900020;
 const E_URIS = 14300002;
 const E_GETRESULT = 14300004;
@@ -390,7 +393,7 @@ export default class FileExtAbility extends Extension {
     }
   }
 
-  getCopyReturnValue(sourceUri, destUri, errCode, errMsg, ret): {[], number} {
+  getReturnValue(sourceUri, destUri, errCode, errMsg, ret): {[], number} {
     let copyResult = [
       {
         sourceUri: sourceUri,
@@ -405,7 +408,7 @@ export default class FileExtAbility extends Extension {
   checkCopyArguments(sourceFileUri, targetParentUri): {[], number} {
     if (!checkUri(sourceFileUri) || !checkUri(targetParentUri)) {
       hilog.error(DOMAIN_CODE, TAG, 'check arguments error, invalid arguments');
-      return this.getCopyReturnValue(sourceFileUri, targetParentUri, E_URIS, '', COPY_EXCEPTION);
+      return this.getReturnValue(sourceFileUri, targetParentUri, E_URIS, '', EXCEPTION);
     }
 
     let displayName = this.getFileName(sourceFileUri);
@@ -414,36 +417,36 @@ export default class FileExtAbility extends Extension {
     let newPath = getPath(newFileOrDirUri);
     if (oldPath === newPath) {
       hilog.error(DOMAIN_CODE, TAG, 'the source and target files are the same file');
-      return this.getCopyReturnValue(sourceFileUri, targetParentUri, E_INVAL, '', COPY_NOEXCEPTION);
+      return this.getReturnValue(sourceFileUri, targetParentUri, E_INVAL, '', NOEXCEPTION);
     } else if (newPath.indexOf(oldPath) === 0 && newPath.charAt(oldPath.length) === '/') {
       hilog.error(DOMAIN_CODE, TAG, 'copy to a subdirectory of the source directory');
-      return this.getCopyReturnValue(sourceFileUri, targetParentUri, E_FAULT, '', COPY_EXCEPTION);
+      return this.getReturnValue(sourceFileUri, targetParentUri, E_FAULT, '', EXCEPTION);
     }
 
     try {
       let isExist = fs.accessSync(oldPath);
       if (!isExist) {
         hilog.error(DOMAIN_CODE, TAG, 'source uri is not exist, invalid arguments');
-        return this.getCopyReturnValue(sourceFileUri, '', E_INVAL, '', COPY_NOEXCEPTION);
+        return this.getReturnValue(sourceFileUri, '', E_INVAL, '', NOEXCEPTION);
       }
 
       let stat = fs.statSync(getPath(targetParentUri));
       if (!stat || !stat.isDirectory()) {
         hilog.error(DOMAIN_CODE, TAG, 'target is not directory, invalid arguments');
-        return this.getCopyReturnValue('', targetParentUri, E_INVAL, '', COPY_NOEXCEPTION);
+        return this.getReturnValue('', targetParentUri, E_INVAL, '', NOEXCEPTION);
       }
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'copy error ' + e.message);
-      return this.getCopyReturnValue(sourceFileUri, targetParentUri, e.code, '', COPY_EXCEPTION);
+      return this.getReturnValue(sourceFileUri, targetParentUri, e.code, '', EXCEPTION);
     }
     return resultsResultObject([], ERR_OK);
   }
 
-  processCopyReturnValue(ret, copyRet): void {
-    if (ret.code === COPY_EXCEPTION) {
+  processReturnValue(ret, copyRet): void {
+    if (ret.code === EXCEPTION) {
       copyRet = ret;
     }
-    if (ret.code === COPY_NOEXCEPTION) {
+    if (ret.code === NOEXCEPTION) {
       for (let index in ret.results) {
         copyRet.results.push(ret.results[index]);
       }
@@ -466,7 +469,7 @@ export default class FileExtAbility extends Extension {
     } catch (err) {
       hilog.error(DOMAIN_CODE, TAG,
         'copyFileSync failed with error message: ' + err.message + ', error code: ' + err.code);
-      return this.getCopyReturnValue(encodePathOfUri(this.relativePath2uri(sourceFilePath)), '', err.code, err.message, COPY_EXCEPTION);
+      return this.getReturnValue(encodePathOfUri(this.relativePath2uri(sourceFilePath)), '', err.code, err.message, EXCEPTION);
     }
     return copyRet;
   }
@@ -483,19 +486,19 @@ export default class FileExtAbility extends Extension {
         for (let i = 0; i < err.data.length; i++) {
           hilog.error(DOMAIN_CODE, TAG,
             'copy directory failed with conflicting files: ' + err.data[i].srcFile + ' ' + err.data[i].destFile);
-          let ret = this.getCopyReturnValue(
+          let ret = this.getReturnValue(
             encodePathOfUri(this.relativePath2uri(err.data[i].srcFile)),
             encodePathOfUri(this.relativePath2uri(err.data[i].destFile)),
-            err.code, err.message, COPY_NOEXCEPTION);
-          this.processCopyReturnValue(ret, copyRet);
+            err.code, err.message, NOEXCEPTION);
+          this.processReturnValue(ret, copyRet);
         }
         return copyRet;
       }
       hilog.error(DOMAIN_CODE, TAG,
         'copy directory failed with error message: ' + err.message + ', error code: ' + err.code);
-      return this.getCopyReturnValue(
+      return this.getReturnValue(
         this.relativePath2uri(sourceFilePath), this.relativePath2uri(targetFilePath),
-        err.code, err.message, COPY_EXCEPTION);
+        err.code, err.message, EXCEPTION);
     }
     return copyRet;
   }
@@ -518,7 +521,7 @@ export default class FileExtAbility extends Extension {
     if (stat.isFile()) {
       let isExist = fs.accessSync(newFilePath);
       if (isExist && force === false) {
-        return this.getCopyReturnValue(encodePathOfUri(sourceFileUri), encodePathOfUri(newFileOrDirUri), E_EXIST, '', COPY_NOEXCEPTION);
+        return this.getReturnValue(encodePathOfUri(sourceFileUri), encodePathOfUri(newFileOrDirUri), E_EXIST, '', NOEXCEPTION);
       }
       return this.copyFile(sourceFilePath, newFilePath);
     } else if (stat.isDirectory()) {
@@ -527,7 +530,7 @@ export default class FileExtAbility extends Extension {
       return copyRet;
     } else {
       hilog.error(DOMAIN_CODE, TAG, 'the copy operation is not permitted');
-      return this.getCopyReturnValue(sourceFileUri, targetParentUri, E_PERM, '', COPY_EXCEPTION);
+      return this.getReturnValue(sourceFileUri, targetParentUri, E_PERM, '', EXCEPTION);
     }
   }
 
@@ -865,5 +868,179 @@ export default class FileExtAbility extends Extension {
       return E_GETRESULT;
     }
     return ERR_OK;
+  }
+
+  moveForFile(sourceFilePath, newFilePath): { [], number } {
+    let copyRet = {
+      results: [],
+      code: ERR_OK,
+    };
+
+    try {
+      let isExist = fs.accessSync(newFilePath);
+      if (isExist) {
+        fs.unlinkSync(newFilePath);
+      }
+      fs.moveFileSync(sourceFilePath, newFilePath, 1);
+    } catch (err) {
+      hilog.error(DOMAIN_CODE, TAG, 'moveFileSync failed with error message: ' + err.message + ', error code: ' + err.code);
+      return this.getReturnValue(encodePathOfUri(this.relativePath2uri(sourceFilePath)), '', err.code, err.message, NOEXCEPTION);
+    }
+    return copyRet;
+  }
+
+  moveDirectory(sourceFilePath, targetFilePath, mode): { [], number } {
+    let copyRet = {
+      results: [],
+      code: ERR_OK,
+    };
+    try {
+      fs.moveDirSync(sourceFilePath, targetFilePath, mode);
+    } catch (err) {
+      if (err.code === E_EXIST) {
+        for (let i = 0; i < err.data.length; i++) {
+          hilog.error(DOMAIN_CODE, TAG,
+            'move directory failed with conflicting files: ' + err.data[i].srcFile + ' ' + err.data[i].destFile);
+          let srcStat = fs.statSync(err.data[i].srcFile);
+          let dstStat = fs.statSync(err.data[i].destFile);
+          let errCode = undefined;
+          if (srcStat.isDirectory() && dstStat.isFile()) {
+            errCode = E_NOT_DIR;
+          } else if (srcStat.isFile() && dstStat.isDirectory()) {
+            errCode = E_IS_DIR;
+          } else {
+            errCode = err.code;
+          }
+          let ret = this.getReturnValue(
+            encodePathOfUri(this.relativePath2uri(err.data[i].srcFile)),
+            encodePathOfUri(this.relativePath2uri(err.data[i].destFile)),
+            errCode, err.message, NOEXCEPTION);
+          this.processReturnValue(ret, copyRet);
+        }
+        return copyRet;
+      }
+      return this.getReturnValue(
+        this.relativePath2uri(sourceFilePath), this.relativePath2uri(targetFilePath),
+        err.code, err.message, EXCEPTION);
+    }
+    return copyRet;
+  }
+
+  moveItem(sourceFileUri, targetParentUri, force): { [], number } {
+    sourceFileUri = decodeUri(sourceFileUri);
+    targetParentUri = decodeUri(targetParentUri);
+    if (!checkUri(sourceFileUri) || !checkUri(targetParentUri)) {
+      hilog.error(DOMAIN_CODE, TAG, 'check arguments error, invalid arguments');
+      return this.getReturnValue(sourceFileUri, targetParentUri, E_URIS, EXCEPTION);
+    }
+
+    let displayName = this.getFileName(sourceFileUri);
+    let newFileUri = this.genNewFileUri(targetParentUri, displayName);
+    let newPathDir = getPath(targetParentUri);
+    let oldPath = getPath(sourceFileUri);
+    let newPath = getPath(newFileUri);
+    newFileUri = encodePathOfUri(newFileUri);
+    if (newFileUri === '') {
+      return this.getReturnValue(sourceFileUri, targetParentUri, E_URIS, EXCEPTION);
+    }
+    if (oldPath === newPath) {
+      // move to the same directory
+      return this.getReturnValue(sourceFileUri, newFileOrDirUri, ERR_OK, '', EXCEPTION);
+    } else if (newPath.indexOf(oldPath) === 0 && newPath.charAt(oldPath.length) === '/') {
+      // move to a subdirectory of the source directory
+      return this.getReturnValue(sourceFileUri, targetParentUri, E_GETRESULT, '', NOEXCEPTION);
+    }
+
+    try {
+      // The source file does not exist or the destination is not a directory
+      let isAccess = fs.accessSync(oldPath);
+      let stat = fs.statSync(getPath(targetParentUri));
+      let statOld = fs.statSync(oldPath);
+      if (!isAccess || !stat || !stat.isDirectory() || !statOld) {
+        hilog.error(DOMAIN_CODE, TAG, 'operate illegal');
+        return this.getReturnValue(sourceFileUri, targetParentUri, E_GETRESULT, '', EXCEPTION);
+      }
+
+      // isFile
+      if (statOld.isFile()) {
+        hilog.info(DOMAIN_CODE, TAG, 'sourceUri is file');
+        let isExist = fs.accessSync(newPath);
+        if (isExist && fs.statSync(newPath).isDirectory()) {
+          hilog.info(DOMAIN_CODE, TAG, 'dst is dir');
+          return this.getReturnValue(sourceFileUri, newFileUri, E_IS_DIR, '', NOEXCEPTION);
+        }
+        if (isExist && force === false) {
+          return this.getReturnValue(sourceFileUri, newFileUri, E_EXIST, '', NOEXCEPTION);
+        } else {
+          return this.moveForFile(oldPath, newPath);
+        }
+      } else if (statOld.isDirectory()) {
+        hilog.info(DOMAIN_CODE, TAG, 'sourceUri is dir');
+        let mode = force ? MOVEFILEOVERWRITE : FILEOVERWRITE;
+        return this.moveDirectory(oldPath, newPathDir, mode);
+      } else {
+        hilog.error(DOMAIN_CODE, TAG, 'the move operation is not permitted');
+        return this.getReturnValue(sourceFileUri, targetParentUri, E_PERM, '', EXCEPTION);
+      }
+    } catch (err) {
+      hilog.error(DOMAIN_CODE, TAG, 'error message: ' + err.message + ', error code: ' + err.code);
+      return this.getReturnValue(sourceFileUri, targetParentUri, err.code, err.message, EXCEPTION);
+    }
+  }
+
+  moveFile(sourceFileUri, targetParentUri, fileName): { string, number } {
+    sourceFileUri = decodeUri(sourceFileUri);
+    targetParentUri = decodeUri(targetParentUri);
+    if (!checkUri(sourceFileUri) || !checkUri(targetParentUri)) {
+      return uriReturnObject('', E_URIS);
+    }
+    let displayName = this.getFileName(sourceFileUri);
+    let newFileUri = this.genNewFileUri(targetParentUri, displayName);
+    let fixedUri = this.genNewFileUri(targetParentUri, fileName);
+    let oldPath = getPath(sourceFileUri);
+    let newPath = getPath(newFileUri);
+    let fixedPath = getPath(fixedUri);
+    newFileUri = encodePathOfUri(newFileUri);
+    if (newFileUri === '') {
+      return uriReturnObject('', E_URIS);
+    }
+    if (oldPath === newPath) {
+      // move to the same directory
+      return {
+        uri: newFileUri,
+        code: ERR_OK,
+      };
+    } else if (newPath.indexOf(oldPath) === 0 && newPath.charAt(oldPath.length) === '/') {
+      // move to a subdirectory of the source directory
+      return uriReturnObject('', E_GETRESULT);
+    }
+    try {
+      // The source file does not exist or the destination is not a directory
+      let isAccess = fs.accessSync(oldPath);
+      let stat = fs.statSync(getPath(targetParentUri));
+      let statOld = fs.statSync(oldPath);
+      if (!isAccess || !stat || !stat.isDirectory() || !statOld) {
+        return uriReturnObject('', E_GETRESULT);
+      }
+      // isDir
+      if (statOld.isDirectory()) {
+        return uriReturnObject('', E_URIS);
+      }
+
+      let isAccessNewPath = fs.accessSync(newPath);
+      if (isAccessNewPath) {
+        if (fs.accessSync(fixedPath)) {
+          hilog.error(DOMAIN_CODE, TAG, 'fileName is exist');
+          return uriReturnObject('', E_EXIST);
+        }
+        fs.moveFileSync(oldPath, fixedPath, 0);
+        return uriReturnObject(fixedUri, ERR_OK);
+      }
+      fs.moveFileSync(oldPath, newPath, 0);
+      return uriReturnObject(newFileUri, ERR_OK);
+    } catch (e) {
+      hilog.error(DOMAIN_CODE, TAG, 'move error ' + e.message);
+      return uriReturnObject('', e.code);
+    }
   }
 };

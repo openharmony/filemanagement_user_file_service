@@ -273,15 +273,15 @@ static const std::unordered_map<std::string, std::string> CONVERT_FILE_COLUMN = 
     {DATE_MODIFIED, FILE_DATA_MTIME}
 };
 
-struct CopyResult : public virtual OHOS::Parcelable {
+struct Result : public virtual OHOS::Parcelable {
 public:
     std::string sourceUri { "" };
     std::string destUri { "" };
     int32_t errCode { 0 };
     std::string errMsg { "" };
 
-    CopyResult() = default;
-    CopyResult(std::string sourceUri, std::string destUri, int32_t errCode, std::string errMsg)
+    Result() = default;
+    Result(std::string sourceUri, std::string destUri, int32_t errCode, std::string errMsg)
         : sourceUri(sourceUri), destUri(destUri), errCode(errCode),  errMsg(errMsg)
     {}
 
@@ -311,9 +311,9 @@ public:
         return true;
     }
 
-    static CopyResult *Unmarshalling(Parcel &parcel)
+    static Result *Unmarshalling(Parcel &parcel)
     {
-        CopyResult *result = new (std::nothrow)CopyResult();
+        Result *result = new (std::nothrow)Result();
         if (result == nullptr) {
             return nullptr;
         }
