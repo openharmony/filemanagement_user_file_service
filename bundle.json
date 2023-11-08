@@ -36,8 +36,7 @@
                 "access_token",
                 "c_utils",
                 "image_framework",
-                "common_event_service",
-                "ability_tools"
+                "common_event_service"
             ]
         },
         "build": {
