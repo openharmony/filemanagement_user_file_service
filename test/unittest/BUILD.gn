@@ -15,7 +15,7 @@ import("//build/test.gni")
 import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
 
 ohos_unittest("medialibrary_file_access_test") {
-  module_out_path = "filemanagement/user_file_service"
+  module_out_path = "user_file_service/tests"
 
   sources = [ "medialibrary_file_access_test.cpp" ]
 
@@ -58,7 +58,7 @@ ohos_unittest("medialibrary_file_access_test") {
 }
 
 ohos_unittest("external_file_access_test") {
-  module_out_path = "filemanagement/user_file_service"
+  module_out_path = "user_file_service/tests"
 
   sources = [ "external_file_access_test.cpp" ]
 
@@ -100,7 +100,7 @@ ohos_unittest("external_file_access_test") {
 }
 
 ohos_unittest("abnormal_file_access_test") {
-  module_out_path = "filemanagement/user_file_service"
+  module_out_path = "user_file_service/tests"
 
   sources = [ "abnormal_file_access_test.cpp" ]
 
