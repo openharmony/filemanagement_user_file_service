@@ -240,18 +240,19 @@ int JsFileAccessExtAbility::CallJsMethod(const std::string &funcName, JsRuntime 
         loop, work.get(), [](uv_work_t *work) {},
         [](uv_work_t *work, int status) {
             CallJsParam *param = reinterpret_cast<CallJsParam *>(work->data);
+            if (param == nullptr) {
+                HILOG_ERROR("failed to get CallJsParam.");
+                return; 
+            }
+
             napi_handle_scope scope = nullptr;
             napi_env env = reinterpret_cast<napi_env>(&(param->jsRuntime->GetNativeEngine()));
             napi_open_handle_scope(env, &scope);
-            do {
-                if (param == nullptr) {
-                    HILOG_ERROR("failed to get CallJsParam.");
-                    break;
-                }
-                if (DoCallJsMethod(param) != ERR_OK) {
-                    HILOG_ERROR("failed to call DoCallJsMethod.");
-                }
-            } while (false);
+
+            if (DoCallJsMethod(param) != ERR_OK) {
+                HILOG_ERROR("failed to call DoCallJsMethod.");
+            }
+        
             std::unique_lock<std::mutex> lock(param->fileOperateMutex);
             param->isReady = true;
             param->fileOperateCondition.notify_one();
