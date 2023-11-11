@@ -43,7 +43,7 @@ public:
     virtual int Mkdir(const Uri &parent, const std::string &displayName, Uri &newFile) override;
     virtual int Delete(const Uri &sourceFile) override;
     virtual int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) override;
-    virtual int Copy(const Uri &sourceUri, const Uri &destUri, std::vector<CopyResult> &copyResult,
+    virtual int Copy(const Uri &sourceUri, const Uri &destUri, std::vector<Result> &copyResult,
         bool force = false) override;
     virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) override;
     virtual int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
@@ -59,6 +59,9 @@ public:
     virtual int Access(const Uri &uri, bool &isExist) override;
     virtual int StartWatcher(const Uri &uri) override;
     virtual int StopWatcher(const Uri &uri, bool isUnregisterAll) override;
+    virtual int MoveItem(const Uri &sourceFile, const Uri &targetParent, std::vector<Result> &moveResult,
+                         bool force = false) override;
+    virtual int MoveFile(const Uri &sourceFile, const Uri &targetParent, std::string &fileName, Uri &newFile) override;
 private:
     static inline BrokerDelegator<FileAccessExtProxy> delegator_;
 };

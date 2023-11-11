@@ -306,7 +306,7 @@ static int WriteCopyFuncArguments(OHOS::MessageParcel &data, const Uri &sourceUr
     return ERR_OK;
 }
 
-static int ReadCopyFuncResults(OHOS::MessageParcel &reply, std::vector<CopyResult> &copyResult)
+static int ReadCopyFuncResults(OHOS::MessageParcel &reply, std::vector<Result> &copyResult)
 {
     UserAccessTracer trace;
     trace.Start("ReadCopyFuncResults");
@@ -327,7 +327,7 @@ static int ReadCopyFuncResults(OHOS::MessageParcel &reply, std::vector<CopyResul
     }
     if (count > MAX_COPY_ERROR_COUNT) {
         HILOG_ERROR("Copy operation failed, count value greater than max count");
-        CopyResult result { "", "", E_COUNT, "Count value greater than max count"};
+        Result result { "", "", E_COUNT, "Count value greater than max count"};
         copyResult.clear();
         copyResult.push_back(result);
         return COPY_EXCEPTION;
@@ -335,7 +335,7 @@ static int ReadCopyFuncResults(OHOS::MessageParcel &reply, std::vector<CopyResul
 
     copyResult.clear();
     for (uint32_t i = 0; i < count; i++) {
-        std::unique_ptr<CopyResult> copyResultPtr(reply.ReadParcelable<CopyResult>());
+        std::unique_ptr<Result> copyResultPtr(reply.ReadParcelable<Result>());
         if (copyResultPtr != nullptr) {
             copyResult.push_back(*copyResultPtr);
         }
@@ -343,8 +343,7 @@ static int ReadCopyFuncResults(OHOS::MessageParcel &reply, std::vector<CopyResul
     return ret;
 }
 
-int FileAccessExtProxy::Copy(const Uri &sourceUri, const Uri &destUri, std::vector<CopyResult> &copyResult,
-    bool force)
+int FileAccessExtProxy::Copy(const Uri &sourceUri, const Uri &destUri, std::vector<Result> &copyResult, bool force)
 {
     UserAccessTracer trace;
     trace.Start("Copy");
@@ -946,6 +945,149 @@ int FileAccessExtProxy::StopWatcher(const Uri &uri, bool isUnregisterAll)
         HILOG_ERROR("StopWatcher operation failed ret : %{public}d", ret);
         return ret;
     }
+
+    return ERR_OK;
+}
+
+static int ReadMoveItemFuncResults(OHOS::MessageParcel &reply, std::vector<Result> &moveResult)
+{
+    UserAccessTracer trace;
+    trace.Start("ReadMoveItemFuncResults");
+    int ret = E_IPCS;
+    if (!reply.ReadInt32(ret)) {
+        HILOG_ERROR("fail to ReadInt32 ret");
+        return E_IPCS;
+    }
+    if (ret == ERR_OK) {
+        HILOG_ERROR("Move operation success");
+        return ret;
+    }
+
+    uint32_t count = 0;
+    if (!reply.ReadUint32(count)) {
+        HILOG_ERROR("Move operation failed to Read count");
+        return E_IPCS;
+    }
+    if (count > MAX_COPY_ERROR_COUNT) {
+        HILOG_ERROR("Move operation failed, count value greater than max count");
+        Result result { "", "", E_COUNT, "Count value greater than max count"};
+        moveResult.clear();
+        moveResult.push_back(result);
+        return COPY_EXCEPTION;
+    }
+
+    moveResult.clear();
+    for (uint32_t i = 0; i < count; i++) {
+        std::unique_ptr<Result> moveResultPtr(reply.ReadParcelable<Result>());
+        if (moveResultPtr != nullptr) {
+            moveResult.push_back(*moveResultPtr);
+        }
+    }
+    return ret;
+}
+
+int FileAccessExtProxy::MoveItem(const Uri &sourceFile, const Uri &targetParent, std::vector<Result> &moveResult,
+                                 bool force)
+{
+    UserAccessTracer trace;
+    trace.Start("MoveItem");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return E_IPCS;
+    }
+
+    std::string insideInputSourceUri = sourceFile.ToString();
+    if (!data.WriteString(insideInputSourceUri)) {
+        HILOG_ERROR("fail to WriteParcelable insideInputSourceUri");
+        return E_IPCS;
+    }
+
+    std::string insideInputTargetUri = targetParent.ToString();
+    if (!data.WriteString(insideInputTargetUri)) {
+        HILOG_ERROR("fail to WriteParcelable insideInputTargetUri");
+        return E_IPCS;
+    }
+
+    if (!data.WriteBool(force)) {
+        HILOG_ERROR("fail to WriteBool force");
+        return E_IPCS;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int err = Remote()->SendRequest(CMD_MOVE_ITEM, data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest, err: %{public}d", err);
+        return err;
+    }
+
+    auto ret = ReadMoveItemFuncResults(reply, moveResult);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Read moveItem function result error, code: %{public}d", ret);
+        return ret;
+    }
+
+    return ret;
+}
+
+int FileAccessExtProxy::MoveFile(const Uri &sourceFile, const Uri &targetParent, std::string &fileName, Uri &newFile)
+{
+    UserAccessTracer trace;
+    trace.Start("MoveFile");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return E_IPCS;
+    }
+
+    std::string insideInputSourceUri = sourceFile.ToString();
+    if (!data.WriteString(insideInputSourceUri)) {
+        HILOG_ERROR("fail to WriteParcelable sourceFile");
+        return E_IPCS;
+    }
+
+    std::string insideInputTargetUri = targetParent.ToString();
+    if (!data.WriteString(insideInputTargetUri)) {
+        HILOG_ERROR("fail to WriteParcelable targetParent");
+        return E_IPCS;
+    }
+
+    if (!data.WriteString(fileName)) {
+        HILOG_ERROR("fail to WriteParcelable fileName");
+        return E_IPCS;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int err = Remote()->SendRequest(CMD_MOVE_FILE, data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+        return err;
+    }
+
+    int ret = E_IPCS;
+    if (!reply.ReadInt32(ret)) {
+        HILOG_ERROR("fail to ReadInt32 ret");
+        return E_IPCS;
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Move file operation failed ret : %{public}d", ret);
+        return ret;
+    }
+
+    std::string tempUri;
+    if (!reply.ReadString(tempUri)) {
+        HILOG_ERROR("ReadParcelable value is nullptr.");
+        return E_IPCS;
+    };
+
+    if (tempUri.empty()) {
+        HILOG_ERROR("get uri is empty.");
+        return E_GETRESULT;
+    }
+    newFile = Uri(tempUri);
 
     return ERR_OK;
 }

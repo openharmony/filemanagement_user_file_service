@@ -60,6 +60,8 @@ FileAccessExtStub::FileAccessExtStub()
     stubFuncMap_[CMD_GET_THUMBNAIL] = &FileAccessExtStub::CmdGetThumbnail;
     stubFuncMap_[CMD_GET_FILEINFO_FROM_URI] = &FileAccessExtStub::CmdGetFileInfoFromUri;
     stubFuncMap_[CMD_GET_FILEINFO_FROM_RELATIVE_PATH] = &FileAccessExtStub::CmdGetFileInfoFromRelativePath;
+    stubFuncMap_[CMD_MOVE_ITEM] = &FileAccessExtStub::CmdMoveItem;
+    stubFuncMap_[CMD_MOVE_FILE] = &FileAccessExtStub::CmdMoveFile;
 }
 
 FileAccessExtStub::~FileAccessExtStub()
@@ -303,7 +305,7 @@ ErrCode FileAccessExtStub::CmdCopy(MessageParcel &data, MessageParcel &reply)
         return E_IPCS;
     }
 
-    std::vector<CopyResult> copyResult;
+    std::vector<Result> copyResult;
     Uri source(sourceUri);
     Uri dest(destUri);
     int ret = Copy(source, dest, copyResult, force);
@@ -715,6 +717,92 @@ bool FileAccessExtStub::CheckCallingPermission(const std::string &permission)
     }
 
     return true;
+}
+
+ErrCode FileAccessExtStub::CmdMoveItem(MessageParcel &data, MessageParcel &reply)
+{
+    UserAccessTracer trace;
+    trace.Start("CmdMoveItem");
+    std::string sourceFile;
+    if (!data.ReadString(sourceFile)) {
+        HILOG_ERROR("Parameter Move fail to ReadParcelable uri");
+        return E_IPCS;
+    }
+
+    std::string targetParent;
+    if (!data.ReadString(targetParent)) {
+        HILOG_ERROR("Parameter Move fail to ReadParcelable uri");
+        return E_IPCS;
+    }
+
+    bool force = false;
+    if (!data.ReadBool(force)) {
+        HILOG_ERROR("Parameter Copy fail to ReadBool force");
+        return E_IPCS;
+    }
+
+    std::vector<Result> moveResult;
+    Uri source(sourceFile);
+    Uri dest(targetParent);
+    int ret = MoveItem(source, dest, moveResult, force);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("Parameter Copy fail to WriteInt32 ret");
+        return E_IPCS;
+    }
+
+    if (!reply.WriteUint32(moveResult.size())) {
+        HILOG_ERROR("Parameter Copy fail to WriteInt32 size of copyResult");
+        return E_IPCS;
+    }
+
+    for (auto &result : moveResult) {
+        if (!reply.WriteParcelable(&result)) {
+            HILOG_ERROR("Parameter Copy fail to WriteParcelable copyResult");
+            return E_IPCS;
+        }
+    }
+
+    return ERR_OK;
+}
+
+ErrCode FileAccessExtStub::CmdMoveFile(MessageParcel &data, MessageParcel &reply)
+{
+    UserAccessTracer trace;
+    trace.Start("CmdMoveFile");
+    std::string sourceFile;
+    if (!data.ReadString(sourceFile)) {
+        HILOG_ERROR("Parameter Move fail to ReadParcelable sourceUri");
+        return E_IPCS;
+    }
+
+    std::string targetParent;
+    if (!data.ReadString(targetParent)) {
+        HILOG_ERROR("Parameter Move fail to ReadParcelable targetParentUri");
+        return E_IPCS;
+    }
+
+    std::string fileName;
+    if (!data.ReadString(fileName)) {
+        HILOG_ERROR("Parameter Move fail to ReadParcelable fileName");
+        return E_IPCS;
+    }
+    std::string newFile;
+    OHOS::Uri newFileUri(newFile);
+    Uri source(sourceFile);
+    Uri target(targetParent);
+    int ret = MoveFile(source, target, fileName, newFileUri);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("Parameter Move fail to WriteInt32 ret");
+        return E_IPCS;
+    }
+
+    std::string insideOutputUri = newFileUri.ToString();
+    if (!reply.WriteString(insideOutputUri)) {
+        HILOG_ERROR("Parameter Move fail to WriteParcelable newFileUri");
+        return E_IPCS;
+    }
+
+    return ERR_OK;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS

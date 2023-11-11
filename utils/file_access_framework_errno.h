@@ -24,6 +24,9 @@ namespace FileAccessFwk {
 const int ERR_EXIST = 13900015;
 const int ERR_NOMEM = 13900011;
 const int ERR_PERM = 13900001;
+const int ERR_URI = 13900002;
+const int ERR_NOT_DIR = 13900018;
+const int ERR_IS_DIR = 13900019;
 const int BASE_OFFSET = 14300001;
 enum {
     ERR_OK = 0,

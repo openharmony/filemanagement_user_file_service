@@ -48,8 +48,8 @@ namespace {
     constexpr size_t ARGC_THREE = 3;
     constexpr size_t ARGC_FOUR = 4;
     constexpr size_t MAX_ARG_COUNT = 5;
-    constexpr int COPY_EXCEPTION = -1;
-    constexpr int COPY_NOEXCEPTION = -2;
+    constexpr int EXCEPTION = -1;
+    constexpr int NOEXCEPTION = -2;
 }
 
 using namespace OHOS::AppExecFwk;
@@ -540,43 +540,43 @@ int JsFileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent,
     return ERR_OK;
 }
 
-static void TranslateCopyResult(CopyResult &copyResult)
+static void TranslateResult(Result &result)
 {
-    if (errCodeTable.find(copyResult.errCode) != errCodeTable.end()) {
-        copyResult.errCode = errCodeTable.at(copyResult.errCode).first;
-        if (copyResult.errMsg.empty()) {
-            copyResult.errMsg = errCodeTable.at(copyResult.errCode).second;
+    if (errCodeTable.find(result.errCode) != errCodeTable.end()) {
+        result.errCode = errCodeTable.at(result.errCode).first;
+        if (result.errMsg.empty()) {
+            result.errMsg = errCodeTable.at(result.errCode).second;
         }
     }
 }
 
-static bool GetResultByJs(napi_env &env, napi_value nativeCopyResult, CopyResult &result, const int &copyRet)
+static bool GetResultByJs(napi_env &env, napi_value nativeResult, Result &result, const int &ret)
 {
     UserAccessTracer trace;
     trace.Start("GetResultsByJs");
-    if (nativeCopyResult == nullptr) {
+    if (nativeResult == nullptr) {
         HILOG_ERROR("Convert js object fail.");
         return false;
     }
 
-    if (copyRet == COPY_NOEXCEPTION) {
+    if (ret == NOEXCEPTION) {
         napi_value sourceUri = nullptr;
-        napi_get_named_property(env, nativeCopyResult, "sourceUri", &sourceUri);
+        napi_get_named_property(env, nativeResult, "sourceUri", &sourceUri);
         if (GetStringValue(env, sourceUri, result.sourceUri) != napi_ok) {
             HILOG_ERROR("Convert sourceUri fail.");
             return false;
         }
 
         napi_value destUri = nullptr;
-        napi_get_named_property(env, nativeCopyResult, "destUri", &destUri);
+        napi_get_named_property(env, nativeResult, "destUri", &destUri);
         if (GetStringValue(env, destUri, result.destUri) != napi_ok) {
             HILOG_ERROR("Convert destUri fail.");
             return false;
         }
     }
-    if ((copyRet == COPY_NOEXCEPTION) || (copyRet == COPY_EXCEPTION)) {
+    if ((ret == NOEXCEPTION) || (ret == EXCEPTION)) {
         napi_value errCode = nullptr;
-        napi_get_named_property(env, nativeCopyResult, "errCode", &errCode);
+        napi_get_named_property(env, nativeResult, "errCode", &errCode);
         if (napi_get_value_int32(env, errCode, &result.errCode) != napi_ok) {
             HILOG_ERROR("Convert errCode fail.");
             return false;
@@ -585,11 +585,11 @@ static bool GetResultByJs(napi_env &env, napi_value nativeCopyResult, CopyResult
     return true;
 }
 
-static bool ParserGetJsCopyResult(napi_env &env, napi_value nativeValue, std::vector<CopyResult> &copyResult,
+static bool ParserGetJsResult(napi_env &env, napi_value nativeValue, std::vector<Result> &result,
     int &copyRet)
 {
     UserAccessTracer trace;
-    trace.Start("ParserGetJsCopyResult");
+    trace.Start("ParserGetJsResult");
     if (nativeValue == nullptr) {
         HILOG_ERROR("Convert js object fail.");
         return false;
@@ -621,25 +621,25 @@ static bool ParserGetJsCopyResult(napi_env &env, napi_value nativeValue, std::ve
     }
 
     for (uint32_t i = 0; i < length; i++) {
-        napi_value nativeCopyResult = nullptr;
-        napi_get_element(env, nativeArray, i, &nativeCopyResult);
-        if (nativeCopyResult == nullptr) {
+        napi_value nativeResult = nullptr;
+        napi_get_element(env, nativeArray, i, &nativeResult);
+        if (nativeResult == nullptr) {
             HILOG_ERROR("get native FileInfo fail.");
             return false;
         }
 
-        CopyResult result;
-        bool ret = GetResultByJs(env, nativeCopyResult, result, copyRet);
+        Result res;
+        bool ret = GetResultByJs(env, nativeResult, res, copyRet);
         if (ret) {
-            TranslateCopyResult(result);
-            copyResult.push_back(result);
+            TranslateResult(res);
+            result.push_back(res);
         }
     }
 
     return true;
 }
 
-int JsFileAccessExtAbility::Copy(const Uri &sourceUri, const Uri &destUri, std::vector<CopyResult> &copyResult,
+int JsFileAccessExtAbility::Copy(const Uri &sourceUri, const Uri &destUri, std::vector<Result> &copyResult,
     bool force)
 {
     UserAccessTracer trace;
@@ -664,18 +664,18 @@ int JsFileAccessExtAbility::Copy(const Uri &sourceUri, const Uri &destUri, std::
         return true;
     };
 
-    int copyRet = COPY_EXCEPTION;
+    int copyRet = EXCEPTION;
     auto retParser = [&copyResult, &copyRet](napi_env &env, napi_value result) -> bool {
-        return ParserGetJsCopyResult(env, result, copyResult, copyRet);
+        return ParserGetJsResult(env, result, copyResult, copyRet);
     };
 
     auto errCode = CallJsMethod("copy", jsRuntime_, jsObj_.get(), argParser, retParser);
     if (errCode != ERR_OK) {
         HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        CopyResult result{ "", "", errCode, "" };
-        TranslateCopyResult(result);
+        Result result{ "", "", errCode, "" };
+        TranslateResult(result);
         copyResult.push_back(result);
-        return COPY_EXCEPTION;
+        return EXCEPTION;
     }
 
     return copyRet;
@@ -1719,6 +1719,105 @@ napi_status JsFileAccessExtAbility::GetRootInfo(napi_env env, napi_value nativeR
     }
 
     return napi_ok;
+}
+
+int JsFileAccessExtAbility::MoveItem(const Uri &sourceFile, const Uri &targetParent,
+                                     std::vector<Result> &moveResult, bool force)
+{
+    UserAccessTracer trace;
+    trace.Start("MoveItem");
+    auto argParser = [sourceFile, targetParent, force](napi_env &env, napi_value *argv, size_t &argc) -> bool {
+        HILOG_ERROR("MoveItem argParser start");
+        napi_value srcNativeUri = nullptr;
+        napi_create_string_utf8(env, sourceFile.ToString().c_str(), sourceFile.ToString().length(), &srcNativeUri);
+
+        napi_value dstNativeUri = nullptr;
+        napi_create_string_utf8(env, targetParent.ToString().c_str(), targetParent.ToString().length(), &dstNativeUri);
+
+        napi_value forceMove = nullptr;
+        napi_get_boolean(env, force, &forceMove);
+        if (srcNativeUri == nullptr || dstNativeUri == nullptr || forceMove == nullptr) {
+            HILOG_ERROR("create arguments native js value fail.");
+            return false;
+        }
+        argv[ARGC_ZERO] = srcNativeUri;
+        argv[ARGC_ONE] = dstNativeUri;
+        argv[ARGC_TWO] = forceMove;
+        argc = ARGC_THREE;
+        return true;
+    };
+
+    int ret = EXCEPTION;
+    auto retParser = [&moveResult, &ret](napi_env &env, napi_value result) -> bool {
+        return ParserGetJsResult(env, result, moveResult, ret);
+    };
+
+    auto errCode = CallJsMethod("moveItem", jsRuntime_, jsObj_.get(), argParser, retParser);
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
+        Result result { "", "", errCode, ""};
+        TranslateResult(result);
+        moveResult.push_back(result);
+        return EXCEPTION;
+    }
+
+    return ret;
+}
+
+int JsFileAccessExtAbility::MoveFile(const Uri &sourceFile, const Uri &targetParent, std::string &fileName,
+                                     Uri &newFile)
+{
+    UserAccessTracer trace;
+    trace.Start("MoveFile");
+    auto value = std::make_shared<Value<std::string>>();
+    if (value == nullptr) {
+        HILOG_ERROR("MoveFile value is nullptr.");
+        return E_GETRESULT;
+    }
+
+    auto argParser = [sourceFile, targetParent, fileName](napi_env &env, napi_value *argv, size_t &argc) -> bool {
+        napi_value srcUri = nullptr;
+        napi_create_string_utf8(env, sourceFile.ToString().c_str(), sourceFile.ToString().length(), &srcUri);
+        napi_value dstUri = nullptr;
+        napi_create_string_utf8(env, targetParent.ToString().c_str(), targetParent.ToString().length(), &dstUri);
+        napi_value name = nullptr;
+        napi_create_string_utf8(env, fileName.c_str(), fileName.length(), &name);
+        if (srcUri == nullptr || dstUri == nullptr || name ==nullptr) {
+            HILOG_ERROR("create sourceFile uri native js value fail.");
+            return false;
+        }
+        argv[ARGC_ZERO] = srcUri;
+        argv[ARGC_ONE] = dstUri;
+        argv[ARGC_TWO] = name;
+        argc = ARGC_THREE;
+        return true;
+    };
+
+    auto retParser = [value](napi_env &env, napi_value result) -> bool {
+        if (GetUriAndCodeFromJs(env, result, value) != napi_ok) {
+            HILOG_ERROR("Convert js object fail.");
+            return false;
+        }
+        return true;
+    };
+
+    auto errCode = CallJsMethod("moveFile", jsRuntime_, jsObj_.get(), argParser, retParser);
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
+        return errCode;
+    }
+
+    if (value->code != ERR_OK) {
+        HILOG_ERROR("fileio fail.");
+        return value->code;
+    }
+
+    if ((value->data).empty()) {
+        HILOG_ERROR("call move with return empty.");
+        return E_GETRESULT;
+    }
+    newFile = Uri(value->data);
+    return ERR_OK;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS

@@ -91,8 +91,7 @@ int FileAccessExtAbility::Move(const Uri &sourceFile, const Uri &targetParent, U
     return EPERM;
 }
 
-int FileAccessExtAbility::Copy(const Uri &sourceUri, const Uri &destUri, std::vector<CopyResult> &copyResult,
-    bool force)
+int FileAccessExtAbility::Copy(const Uri &sourceUri, const Uri &destUri, std::vector<Result> &copyResult, bool force)
 {
     HILOG_ERROR("FileAccessExtAbility::Copy Undefined operation");
     return EPERM;
@@ -163,6 +162,19 @@ int FileAccessExtAbility::StartWatcher(const Uri &uri)
 int FileAccessExtAbility::StopWatcher(const Uri &uri, bool isUnregisterAll)
 {
     HILOG_ERROR("FileAccessExtAbility::StopWatcher Undefined operation");
+    return EPERM;
+}
+
+int FileAccessExtAbility::MoveItem(const Uri &sourceUri, const Uri &targetParent, std::vector<Result> &moveResult,
+                                   bool force)
+{
+    HILOG_ERROR("FileAccessExtAbility::MoveItem Undefined operation");
+    return EPERM;
+}
+
+int FileAccessExtAbility::MoveFile(const Uri &sourceUri, const Uri &targetParent, std::string &fileName, Uri &newFile)
+{
+    HILOG_ERROR("FileAccessExtAbility::MoveFile Undefined operation");
     return EPERM;
 }
 } // namespace FileAccessFwk

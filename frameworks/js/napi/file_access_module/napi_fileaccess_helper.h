@@ -39,6 +39,8 @@ namespace FileAccessFwk {
     napi_value NAPI_GetThumbnail(napi_env env, napi_callback_info info);
     napi_value NAPI_RegisterObserver(napi_env env, napi_callback_info info);
     napi_value NAPI_UnregisterObserver(napi_env env, napi_callback_info info);
+    napi_value NAPI_MoveItem(napi_env env, napi_callback_info info);
+    napi_value NAPI_MoveFile(napi_env env, napi_callback_info info);
 } // namespace FileAccessFwk
 } // namespace OHOS
 #endif // NAPI_FILEACCESS_HELPER_H

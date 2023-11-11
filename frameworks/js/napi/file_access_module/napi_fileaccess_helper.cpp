@@ -224,7 +224,9 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getFileInfoFromRelativePath", NAPI_GetFileInfoFromRelativePath),
         DECLARE_NAPI_FUNCTION("getThumbnail", NAPI_GetThumbnail),
         DECLARE_NAPI_FUNCTION("registerObserver", NAPI_RegisterObserver),
-        DECLARE_NAPI_FUNCTION("unregisterObserver", NAPI_UnregisterObserver)
+        DECLARE_NAPI_FUNCTION("unregisterObserver", NAPI_UnregisterObserver),
+        DECLARE_NAPI_FUNCTION("moveItem", NAPI_MoveItem),
+        DECLARE_NAPI_FUNCTION("moveFile", NAPI_MoveFile),
     };
     napi_value cons = nullptr;
     NAPI_CALL(env,
@@ -610,7 +612,7 @@ napi_value NAPI_Query(napi_env env, napi_callback_info info)
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
-static napi_value CreateObjectArray(napi_env env, std::vector<CopyResult> result)
+static napi_value CreateObjectArray(napi_env env, std::vector<Result> result)
 {
     uint32_t status = napi_ok;
     napi_value copyResultArray = nullptr;
@@ -621,7 +623,7 @@ static napi_value CreateObjectArray(napi_env env, std::vector<CopyResult> result
     }
 
     for (size_t i = 0; i < result.size(); i++) {
-        CopyResult &tmpResult = result.at(i);
+        Result &tmpResult = result.at(i);
         napi_value resultVal;
         status |= napi_create_object(env, &resultVal);
         napi_value tmpVal;
@@ -681,9 +683,9 @@ static std::tuple<bool, std::string, std::string, bool> GetCopyArguments(napi_en
     return std::make_tuple(true, srcPathStr, destPathStr, force);
 }
 
-static napi_value AddCopyNAsyncWork(napi_env env, NFuncArg &funcArg, CallbackExec cbExec, CallbackComplete cbComplete)
+static napi_value AddNAsyncWork(napi_env env, std::string procedureName, NFuncArg &funcArg, CallbackExec cbExec,
+    CallbackComplete cbComplete)
 {
-    const std::string procedureName = "copy";
     NVal thisVar(env, funcArg.GetThisVar());
 
     if (funcArg.GetArgc() == NARG_CNT::TWO) {
@@ -728,7 +730,7 @@ napi_value NAPI_Copy(napi_env env, napi_callback_info info)
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
-    auto result = std::make_shared<std::vector<CopyResult>>();
+    auto result = std::make_shared<std::vector<Result>>();
     if (!result) {
         return NapiFileInfoExporter::ThrowError(env, E_GETRESULT);
     }
@@ -748,7 +750,7 @@ napi_value NAPI_Copy(napi_env env, napi_callback_info info)
         }
         return { env, CreateObjectArray(env, *result) };
     };
-    return AddCopyNAsyncWork(env, funcArg, cbExec, cbComplete);
+    return AddNAsyncWork(env, "copy", funcArg, cbExec, cbComplete);
 }
 
 napi_value NAPI_Rename(napi_env env, napi_callback_info info)
@@ -1291,6 +1293,158 @@ napi_value NAPI_UnregisterObserver(napi_env env, napi_callback_info info)
         return nullptr;
     }
     return NVal::CreateUndefined(env).val_;
+}
+
+static std::tuple<bool, std::string, std::string, bool> GetMoveItemArguments(napi_env env, NFuncArg &funcArg)
+{
+    bool retStatus = false;
+    std::unique_ptr<char[]> srcPath;
+    std::unique_ptr<char[]> destPath;
+    std::tie(retStatus, srcPath, destPath) = GetReadArg(env, funcArg[NARG_POS::FIRST], funcArg[NARG_POS::SECOND]);
+    if (!retStatus) {
+        HILOG_ERROR("Get first or second argument error");
+        return std::make_tuple(false, "", "", false);
+    }
+    std::string srcPathStr (srcPath.get());
+    std::string destPathStr (destPath.get());
+
+    bool force = false;
+    if (funcArg.GetArgc() == NARG_CNT::THREE) {
+        NVal thirdArg(env, funcArg[NARG_POS::THIRD]);
+        if (thirdArg.TypeIs(napi_boolean)) {
+            std::tie(retStatus, force) = NVal(env, funcArg[NARG_POS::THIRD]).ToBool();
+            if (!retStatus) {
+                HILOG_ERROR("Get third argument error");
+                return std::make_tuple(false, "", "", false);
+            }
+        }
+    }
+
+    return std::make_tuple(true, srcPathStr, destPathStr, force);
+}
+
+napi_value NAPI_MoveItem(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::FOUR)) {
+        HILOG_ERROR("init args failed");
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
+    }
+    bool retStatus = false;
+    std::string srcPathStr;
+    std::string destPathStr;
+    bool force = false;
+    std::tie(retStatus, srcPathStr, destPathStr, force) = GetMoveItemArguments(env, funcArg);
+    if (!retStatus) {
+        HILOG_ERROR("parse args failed");
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
+    }
+    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    if (fileAccessHelper == nullptr) {
+        HILOG_ERROR("get fillAccessHelper failed");
+        return nullptr;
+    }
+    auto result = std::make_shared<std::vector<Result>>();
+    if (result == nullptr) {
+        return NapiFileInfoExporter::ThrowError(env, E_GETRESULT);
+    }
+    int ret = ERR_OK;
+    auto cbExec = [srcPathStr, destPathStr, force, result, &ret, fileAccessHelper]() -> NError {
+        OHOS::Uri srcUri(srcPathStr);
+        OHOS::Uri destUri(destPathStr);
+        ret = fileAccessHelper->MoveItem(srcUri, destUri, *result, force);
+        if ((ret == COPY_EXCEPTION) && !result->empty()) {
+            return NError(result->at(0).errCode);
+        }
+        return NError();
+    };
+    auto cbComplete = [&ret, result](napi_env env, NError err) -> NVal {
+        if (ret == COPY_EXCEPTION) {
+            return { env, err.GetNapiErr(env) };
+        }
+        return { env, CreateObjectArray(env, *result) };
+    };
+    return AddNAsyncWork(env, "moveItem", funcArg, cbExec, cbComplete);
+}
+
+static std::tuple<bool, std::unique_ptr<char[]>, std::unique_ptr<char[]>, std::unique_ptr<char[]>> GetMoveFileArg(
+    napi_env env, napi_value sourceFile, napi_value targetParent, napi_value fileName)
+{
+    bool ret = false;
+    std::unique_ptr<char[]> sourceFileUri = nullptr;
+    std::unique_ptr<char[]> targetParentUri = nullptr;
+    std::unique_ptr<char[]> name = nullptr;
+    std::tie(ret, sourceFileUri, std::ignore) = NVal(env, sourceFile).ToUTF8String();
+    if (!ret) {
+        NError(EINVAL).ThrowErr(env);
+        return { false, std::move(sourceFileUri), std::move(targetParentUri), std::move(name) };
+    }
+
+    std::tie(ret, targetParentUri, std::ignore) = NVal(env, targetParent).ToUTF8String();
+    if (!ret) {
+        NError(EINVAL).ThrowErr(env);
+        return { false, std::move(sourceFileUri), std::move(targetParentUri), std::move(name) };
+    }
+
+    std::tie(ret, name, std::ignore) = NVal(env, fileName).ToUTF8String();
+    if (!ret) {
+        NError(EINVAL).ThrowErr(env);
+        return { false, std::move(sourceFileUri), std::move(targetParentUri), std::move(name) };
+    }
+
+    return { true, std::move(sourceFileUri), std::move(targetParentUri), std::move(name) };
+}
+
+napi_value NAPI_MoveFile(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::TWO, NARG_CNT::FOUR)) {
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
+    }
+    bool succ = false;
+    std::unique_ptr<char[]> sourceFile;
+    std::unique_ptr<char[]> targetParent;
+    std::unique_ptr<char[]> fileName;
+    std::tie(succ, sourceFile, targetParent, fileName) =
+        GetMoveFileArg(env, funcArg[NARG_POS::FIRST], funcArg[NARG_POS::SECOND], funcArg[NARG_POS::THIRD]);
+    if (!succ) {
+        return nullptr;
+    }
+    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    if (fileAccessHelper == nullptr) {
+        return nullptr;
+    }
+    auto result = std::make_shared<string>();
+    if (!result) {
+        return NapiFileInfoExporter::ThrowError(env, E_GETRESULT);
+    }
+    string sourceFileString(sourceFile.get());
+    string targetParentString(targetParent.get());
+    string fileNameString(fileName.get());
+    auto cbExec = [sourceFileString, targetParentString, &fileNameString, result, fileAccessHelper]() -> NError {
+        OHOS::Uri sourceUri(sourceFileString);
+        OHOS::Uri targetParentUri(targetParentString);
+        std::string newFile;
+        OHOS::Uri newFileUri(newFile);
+        int ret = fileAccessHelper->MoveFile(sourceUri, targetParentUri, fileNameString, newFileUri);
+        *result = newFileUri.ToString();
+        return NError(ret);
+    };
+    auto cbComplete = [result](napi_env env, NError err) -> NVal {
+        if (err) {
+            return { env, err.GetNapiErr(env) };
+        }
+        return { NVal::CreateUTF8String(env, *result) };
+    };
+    NVal thisVar(env, funcArg.GetThisVar());
+    if (funcArg.GetArgc() == NARG_CNT::TWO) {
+        return NAsyncWorkPromise(env, thisVar).Schedule("moveFile", cbExec, cbComplete).val_;
+    }
+    NVal cb(env, funcArg[NARG_POS::THIRD]);
+    if (!cb.TypeIs(napi_function)) {
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
+    }
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule("moveFile", cbExec, cbComplete).val_;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS
