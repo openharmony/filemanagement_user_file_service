@@ -43,7 +43,7 @@ namespace OHOS {
 namespace FileAccessFwk {
 namespace {
     const std::string FILEACCESS_CLASS_NAME = "FileAccessHelper";
-    static napi_ref g_constructorRef = nullptr;
+    thread_local napi_ref g_constructorRef = nullptr;
     constexpr uint32_t INITIAL_REFCOUNT = 1;
     constexpr int COPY_EXCEPTION = -1;
     using CallbackExec = std::function<NError()>;
