@@ -5763,8 +5763,8 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0012, testing::
 
         result = g_fah->MoveItem(newDirUriTest1, newDirUriTest2, moveResult, false);
         EXPECT_EQ(result, -2);
-        EXPECT_EQ(moveResult[0].errCode, OHOS::FileAccessFwk::ERR_EXIST);
-        EXPECT_EQ(moveResult[1].errCode, OHOS::FileAccessFwk::ERR_IS_DIR);
+        EXPECT_EQ(moveResult[0].errCode, OHOS::FileAccessFwk::ERR_IS_DIR);
+        EXPECT_EQ(moveResult[1].errCode, OHOS::FileAccessFwk::ERR_EXIST);
         result = g_fah->Delete(newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Delete(newDirUriTest2);
