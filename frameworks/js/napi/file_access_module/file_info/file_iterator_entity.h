@@ -22,21 +22,29 @@
 #include "file_access_helper.h"
 #include "hilog_wrapper.h"
 #include "file_filter.h"
+#include "file_info_shared_memory.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
 
 constexpr int64_t MAX_COUNT = 200;     // ListFile get file's max count
+constexpr int CALL_LISTFILE = 0;
+constexpr int CALL_SCANFILE = 1;
 
 struct FileIteratorEntity {
+    ~FileIteratorEntity() {
+        SharedMemoryOperation::DestroySharedMemory(memInfo);
+    }
     FileAccessHelper *fileAccessHelper { nullptr };
     std::mutex entityOperateMutex;
     FileInfo fileInfo;
     std::vector<FileInfo> fileInfoVec;
+    SharedMemoryInfo memInfo;
     int64_t offset { 0 };
     uint64_t pos { 0 };
+    uint32_t currentDataCounts { 0 };
     FileFilter filter { {}, {}, {}, FileFilter::INVALID_SIZE, FileFilter::INVALID_MODIFY_AFTER, false, false };
-    int flag { 0 };
+    int flag { CALL_LISTFILE };
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

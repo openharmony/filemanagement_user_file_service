@@ -24,6 +24,7 @@
 #include "file_access_extension_info.h"
 #include "file_access_framework_errno.h"
 #include "file_filter.h"
+#include "file_info_shared_memory.h"
 #include "image_source.h"
 #include "uri.h"
 
@@ -65,8 +66,8 @@ public:
     virtual int Copy(const Uri &sourceUri, const Uri &destUri, std::vector<Result> &copyResult,
         bool force = false) = 0;
     virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) = 0;
-    virtual int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
-        const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) = 0;
+    virtual int ListFile(const FileInfo &fileInfo, const int64_t offset,
+        const FileFilter &filter, SharedMemoryInfo &memInfo) = 0;
     virtual int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) = 0;
     virtual int GetThumbnail(const Uri &uri, const ThumbnailSize &thumbnailSize,

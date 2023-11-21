@@ -460,18 +460,16 @@ static int GetListFileResult(MessageParcel &reply, std::vector<FileInfo> &fileIn
     return ERR_OK;
 }
 
-int FileAccessExtProxy::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
-    const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
+static int WriteFileFilterFuncArguments(MessageParcel &data,
+    std::tuple<const FileInfo *, int64_t, const FileFilter *, SharedMemoryInfo *> args)
 {
-    UserAccessTracer trace;
-    trace.Start("ListFile");
-    MessageParcel data;
-    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
-        HILOG_ERROR("WriteInterfaceToken failed");
-        return E_IPCS;
-    }
+    const FileInfo *fileInfo;
+    int64_t offset;
+    const FileFilter *filter;
+    SharedMemoryInfo *memInfo;
+    std::tie(fileInfo, offset, filter, memInfo) = args;
 
-    if (!data.WriteParcelable(&fileInfo)) {
+    if (!data.WriteParcelable(fileInfo)) {
         HILOG_ERROR("fail to WriteParcelable fileInfo");
         return E_IPCS;
     }
@@ -481,14 +479,57 @@ int FileAccessExtProxy::ListFile(const FileInfo &fileInfo, const int64_t offset,
         return E_IPCS;
     }
 
-    if (!data.WriteInt64(maxCount)) {
-        HILOG_ERROR("fail to WriteInt64 maxCount");
+    if (!data.WriteParcelable(filter)) {
+        HILOG_ERROR("fail to WriteParcelable filter");
         return E_IPCS;
     }
 
-    if (!data.WriteParcelable(&filter)) {
-        HILOG_ERROR("fail to WriteParcelable filter");
+    if (!data.WriteParcelable(memInfo)) {
+        HILOG_ERROR("fail to WriteParcelable memInfo");
         return E_IPCS;
+    }
+    return ERR_OK;
+}
+
+static int ReadFileFilterResults(MessageParcel &reply, SharedMemoryInfo &memInfo)
+{
+    if (!reply.ReadUint32(memInfo.dataCounts)) {
+        HILOG_ERROR("fail to ReadUnt64 dataCounts");
+        return E_IPCS;
+    }
+    memInfo.totalDataCounts = memInfo.dataCounts;
+
+    if (!reply.ReadUint64(memInfo.dataSize)) {
+        HILOG_ERROR("fail to ReadUnt64 dataSize");
+        return E_IPCS;
+    }
+
+    if (!reply.ReadUint32(memInfo.leftDataCounts)) {
+        HILOG_ERROR("fail to ReadUnt64 leftDataCounts");
+        return E_IPCS;
+    }
+
+    if (!reply.ReadBool(memInfo.isOver)) {
+        HILOG_ERROR("fail to ReadBool isOver");
+        return E_IPCS;
+    }
+    return ERR_OK;
+}
+
+int FileAccessExtProxy::ListFile(const FileInfo &fileInfo, const int64_t offset, const FileFilter &filter,
+        SharedMemoryInfo &memInfo)
+{
+    UserAccessTracer trace;
+    trace.Start("ListFile");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return E_IPCS;
+    }
+
+    int ret = WriteFileFilterFuncArguments(data, std::make_tuple(&fileInfo, offset, &filter, &memInfo));
+    if (ret != ERR_OK) {
+        return ret;
     }
 
     MessageParcel reply;
@@ -498,13 +539,20 @@ int FileAccessExtProxy::ListFile(const FileInfo &fileInfo, const int64_t offset,
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         return err;
     }
-
-    err = GetListFileResult(reply, fileInfoVec);
-    if (err != ERR_OK) {
-        HILOG_ERROR("fail to GetListFileResult. err: %{public}d", err);
-        return err;
+    if (!reply.ReadInt32(ret)) {
+        HILOG_ERROR("fail to ReadInt32 ret");
+        return E_IPCS;
+    }
+    if (ret != ERR_OK) {
+        HILOG_ERROR("ListFile operation failed ret : %{public}d", ret);
+        return ret;
     }
 
+    ret = ReadFileFilterResults(reply, memInfo);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("fail to read server return results. ret: %{public}d", ret);
+        return ret;
+    }
     return ERR_OK;
 }
 

@@ -78,8 +78,7 @@ public:
     int Move(Uri &sourceFile, Uri &targetParent, Uri &newFile);
     int Copy(Uri &sourceUri, Uri &destUri, std::vector<Result> &copyResult, bool force = false);
     int Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile);
-    int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount, const FileFilter &filter,
-        std::vector<FileInfo> &fileInfoVec);
+    int ListFile(const FileInfo &fileInfo, const int64_t offset, const FileFilter &filter, SharedMemoryInfo &memInfo);
     int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount, const FileFilter &filter,
         std::vector<FileInfo> &fileInfoVec);
     int GetThumbnail(Uri &uri, ThumbnailSize &thumbnailSize, std::shared_ptr<PixelMap> &pixelMap);

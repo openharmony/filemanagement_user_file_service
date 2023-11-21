@@ -119,18 +119,25 @@ napi_value NapiFileInfoExporter::ListFile(napi_env env, napi_callback_info info)
     }
     {
         std::lock_guard<std::mutex> lock(fileIteratorEntity->entityOperateMutex);
+        int ret = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfoList", DEFAULT_CAPACITY_200KB,
+            fileIteratorEntity->memInfo);
+        if (ret != ERR_OK) {
+            NError(ret).ThrowErr(env);
+            return nullptr;
+        }
+
         fileIteratorEntity->fileAccessHelper = fileInfoEntity->fileAccessHelper;
         fileIteratorEntity->fileInfo = fileInfoEntity->fileInfo;
-        fileIteratorEntity->fileInfoVec.clear();
         fileIteratorEntity->offset = 0;
-        fileIteratorEntity->pos = 0;
         fileIteratorEntity->filter = std::move(filter);
-        fileIteratorEntity->flag = 0;
-        auto ret = fileInfoEntity->fileAccessHelper->ListFile(fileInfoEntity->fileInfo, fileIteratorEntity->offset,
-            MAX_COUNT, fileIteratorEntity->filter, fileIteratorEntity->fileInfoVec);
+        fileIteratorEntity->flag = CALL_LISTFILE;
+        ret = fileInfoEntity->fileAccessHelper->ListFile(fileInfoEntity->fileInfo, fileIteratorEntity->offset,
+            fileIteratorEntity->filter, fileIteratorEntity->memInfo);
         if (ret != ERR_OK) {
+            FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(fileIteratorEntity->memInfo);
             return ThrowError(env, ret);
         }
+        fileIteratorEntity->currentDataCounts = fileIteratorEntity->memInfo.totalDataCounts;
     }
     return NVal(env, objFileIteratorExporter).val_;
 }
@@ -173,9 +180,8 @@ napi_value NapiFileInfoExporter::ScanFile(napi_env env, napi_callback_info info)
         fileIteratorEntity->fileInfo = fileInfoEntity->fileInfo;
         fileIteratorEntity->fileInfoVec.clear();
         fileIteratorEntity->offset = 0;
-        fileIteratorEntity->pos = 0;
         fileIteratorEntity->filter = std::move(filter);
-        fileIteratorEntity->flag = 1;
+        fileIteratorEntity->flag = CALL_SCANFILE;
         auto ret = fileInfoEntity->fileAccessHelper->ScanFile(fileInfoEntity->fileInfo, fileIteratorEntity->offset,
             MAX_COUNT, fileIteratorEntity->filter, fileIteratorEntity->fileInfoVec);
         if (ret != ERR_OK) {

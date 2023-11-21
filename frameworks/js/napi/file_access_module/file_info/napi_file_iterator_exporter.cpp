@@ -74,7 +74,44 @@ napi_value NapiFileIteratorExporter::Constructor(napi_env env, napi_callback_inf
     return funcArg.GetThisVar();
 }
 
-static int MakeResult(napi_value &objFileInfoExporter, FileIteratorEntity *fileIteratorEntity,
+static int MakeListFileResult(napi_value &objFileInfoExporter, FileIteratorEntity *fileIteratorEntity,
+    FileInfoEntity *fileInfoEntity, napi_env env, NVal &nVal, bool &isDone)
+{
+    SharedMemoryInfo &memInfo = fileIteratorEntity->memInfo;
+    std::lock_guard<std::mutex> lock(fileIteratorEntity->entityOperateMutex);
+    if (memInfo.Empty() && !memInfo.isOver) {
+        int ret = SharedMemoryOperation::ExpandSharedMemory(memInfo);
+        if (ret != ERR_OK) {
+            return ret;
+        }
+
+        fileIteratorEntity->offset += fileIteratorEntity->currentDataCounts;
+        ret = fileIteratorEntity->fileAccessHelper->ListFile(fileIteratorEntity->fileInfo,
+            fileIteratorEntity->offset, fileIteratorEntity->filter, memInfo);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("exec ListFile fail, code:%{public}d", ret);
+            return ret;
+        }
+        fileIteratorEntity->currentDataCounts = fileIteratorEntity->memInfo.totalDataCounts;
+    }
+
+    fileInfoEntity->fileAccessHelper = fileIteratorEntity->fileAccessHelper;
+    auto ret = SharedMemoryOperation::ReadFileInfo(fileInfoEntity->fileInfo, memInfo);
+    if (!ret) {
+        fileInfoEntity = nullptr;
+        objFileInfoExporter = NVal::CreateUndefined(env).val_;
+        nVal.AddProp("value", objFileInfoExporter);
+        nVal.AddProp("done", NVal::CreateBool(env, true).val_);
+        isDone = true;
+        return ERR_OK;
+    }
+    nVal.AddProp("value", objFileInfoExporter);
+    nVal.AddProp("done", NVal::CreateBool(env, false).val_);
+    isDone = false;
+    return ERR_OK;
+}
+
+static int MakeScanFileResult(napi_value &objFileInfoExporter, FileIteratorEntity *fileIteratorEntity,
     FileInfoEntity *fileInfoEntity, napi_env env, NVal &nVal, bool &isDone)
 {
     std::lock_guard<std::mutex> lock(fileIteratorEntity->entityOperateMutex);
@@ -93,20 +130,11 @@ static int MakeResult(napi_value &objFileInfoExporter, FileIteratorEntity *fileI
         fileIteratorEntity->fileInfoVec.clear();
         fileIteratorEntity->offset += MAX_COUNT;
         fileIteratorEntity->pos = 0;
-        if (fileIteratorEntity->flag == 0) {
-            int ret = fileIteratorEntity->fileAccessHelper->ListFile(fileIteratorEntity->fileInfo,
-                fileIteratorEntity->offset, MAX_COUNT, fileIteratorEntity->filter, fileIteratorEntity->fileInfoVec);
-            if (ret != ERR_OK) {
-                HILOG_ERROR("exec ListFile fail, code:%{public}d", ret);
-                return ret;
-            }
-        } else if (fileIteratorEntity->flag == 1) {
-            int ret = fileIteratorEntity->fileAccessHelper->ScanFile(fileIteratorEntity->fileInfo,
+        int ret = fileIteratorEntity->fileAccessHelper->ScanFile(fileIteratorEntity->fileInfo,
             fileIteratorEntity->offset, MAX_COUNT, fileIteratorEntity->filter, fileIteratorEntity->fileInfoVec);
-            if (ret != ERR_OK) {
-                HILOG_ERROR("exec ScanFile fail, code:%{public}d", ret);
-                return ret;
-            }
+        if (ret != ERR_OK) {
+            HILOG_ERROR("exec ScanFile fail, code:%{public}d", ret);
+            return ret;
         }
     }
     if (fileIteratorEntity->pos == fileIteratorEntity->fileInfoVec.size()) {
@@ -174,20 +202,28 @@ napi_value NapiFileIteratorExporter::Next(napi_env env, napi_callback_info info)
     }
 
     auto retNVal = NVal::CreateObject(env);
+    int ret = E_GETRESULT;
     bool isDone = false;
-    int ret = MakeResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal, isDone);
+    if (fileIteratorEntity->flag == CALL_LISTFILE) {
+        ret = MakeListFileResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal, isDone);
+    } else if (fileIteratorEntity->flag == CALL_SCANFILE) {
+        ret = MakeScanFileResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal, isDone);
+    }
     while (!isDone && FilterTrashAndRecentDir(fileInfoEntity->fileInfo.uri)) {
         fileInfoEntity = NClass::GetEntityOf<FileInfoEntity>(env, objFileInfoExporter);
         retNVal = NVal::CreateObject(env);
         HILOG_DEBUG("TRASH_DIR or RECENT_DIR: %{public}s", fileInfoEntity->fileInfo.uri.c_str());
-        ret = MakeResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal, isDone);
+        if (fileIteratorEntity->flag == CALL_LISTFILE) {
+            ret = MakeListFileResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal, isDone);
+        } else if (fileIteratorEntity->flag == CALL_SCANFILE) {
+            ret = MakeScanFileResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal, isDone);
+        }
     }
 
     if (ret != ERR_OK) {
         NError(ret).ThrowErr(env);
         return nullptr;
     }
-
     return retNVal.val_;
 }
 

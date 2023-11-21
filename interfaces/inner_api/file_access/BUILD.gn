@@ -60,6 +60,7 @@ ohos_shared_library("file_access_extension_ability_kit") {
 
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
+    "${commonlibrary_path}/c_utils/base/include",
     "${file_api_path}/utils/filemgmt_libn/include",
     "${user_file_service_path}/services/native/file_access_service/include",
   ]

@@ -23,6 +23,7 @@
 #include "accesstoken_kit.h"
 #include "context_impl.h"
 #include "file_access_framework_errno.h"
+#include "file_info_shared_memory.h"
 #include "iservice_registry.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
@@ -3046,14 +3047,16 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0000, testing::e
             FileInfo fileInfo;
             fileInfo.uri = newDirUriTest.ToString();
             int64_t offset = 0;
-            int64_t maxCount = 1000;
-            std::vector<FileInfo> fileInfoVec;
             FileFilter filter;
-            result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+            SharedMemoryInfo memInfo;
+            result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+                memInfo);
+            result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            EXPECT_GT(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_GT(memInfo.Size(), OHOS::FileAccessFwk::ERR_OK);
             result = g_fah->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
         }
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_ListFile_0000 occurs an exception.";
@@ -3078,12 +3081,14 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0001, testing::e
         FileInfo fileInfo;
         fileInfo.uri = sourceFileUri.ToString();
         int64_t offset = 0;
-        int64_t maxCount = 1000;
-        std::vector<FileInfo> fileInfoVec;
         FileFilter filter;
-        int result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        SharedMemoryInfo memInfo;
+        int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+                memInfo);
+        result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
-        EXPECT_EQ(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(memInfo.Size(), OHOS::FileAccessFwk::ERR_OK);
+        FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_ListFile_0001 occurs an exception.";
     }
@@ -3119,14 +3124,16 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0002, testing::e
             fileInfo.uri = sourceFileUri.ToString();
             Uri sourceFile(fileInfo.uri);
             int64_t offset = 0;
-            int64_t maxCount = 1000;
-            std::vector<FileInfo> fileInfoVec;
             FileFilter filter;
-            result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+            SharedMemoryInfo memInfo;
+            int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+                memInfo);
+            result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
             EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
-            EXPECT_EQ(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(memInfo.Size(), OHOS::FileAccessFwk::ERR_OK);
             result = g_fah->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
         }
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_ListFile_0002 occurs an exception.";
@@ -3152,23 +3159,25 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0003, testing::e
         fileInfo.uri = sourceFileUri.ToString();
         Uri sourceFile(fileInfo.uri);
         int64_t offset = 0;
-        int64_t maxCount = 1000;
-        std::vector<FileInfo> fileInfoVec;
         FileFilter filter;
-        int result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        SharedMemoryInfo memInfo;
+        int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+            memInfo);
+        result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
-        EXPECT_EQ(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
+        EXPECT_EQ(memInfo.Size(), OHOS::FileAccessFwk::ERR_OK);
+        FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_ListFile_0003 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0003";
 }
 
-static void ListFileTdd(FileInfo fileInfo, int offset, int maxCount, FileFilter filter,
-    std::vector<FileInfo> fileInfoVec)
+static void ListFileTdd(FileInfo fileInfo, int offset, FileFilter filter,
+    SharedMemoryInfo &memInfo)
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFileTdd";
-    int ret = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    int ret = g_fah->ListFile(fileInfo, offset, filter, memInfo);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(ERROR) << "ListFile get result error, code:" << ret;
         return;
@@ -3205,17 +3214,19 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0004, testing::e
             FileInfo fileInfo;
             fileInfo.uri = newDirUriTest.ToString();
             int offset = 0;
-            int maxCount = 1000;
-            std::vector<FileInfo> fileInfoVec;
             FileFilter filter;
             g_num = 0;
+            SharedMemoryInfo memInfo;
+            result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+                memInfo);
             for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
-                std::thread execthread(ListFileTdd, fileInfo, offset, maxCount, filter, fileInfoVec);
+                std::thread execthread(ListFileTdd, fileInfo, offset, filter, std::ref(memInfo));
                 execthread.join();
             }
             EXPECT_EQ(g_num, INIT_THREADS_NUMBER);
             result = g_fah->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
         }
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_ListFile_0004 occurs an exception.";
@@ -3256,13 +3267,15 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0005, testing::e
             FileInfo fileInfo;
             fileInfo.uri = str;
             int64_t offset = 0;
-            int64_t maxCount = 1000;
-            std::vector<FileInfo> fileInfoVec;
             FileFilter filter;
-            result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+            SharedMemoryInfo memInfo;
+            int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+                memInfo);
+            result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
             EXPECT_EQ(result, OHOS::FileAccessFwk::E_IPCS);
             result = g_fah->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
         }
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_ListFile_0005 occurs an exception.";
@@ -3299,21 +3312,22 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0006, testing::e
             FileInfo fileInfo;
             fileInfo.uri = newDirUriTest.ToString();
             int64_t offset = 0;
-            int64_t maxCount = 1000;
-            std::vector<FileInfo> fileInfoVec;
             FileFilter filter;
-            result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+            SharedMemoryInfo memInfo;
+            int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+                memInfo);
+            result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            EXPECT_GT(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_GT(memInfo.Size(), OHOS::FileAccessFwk::ERR_OK);
             result = g_fah->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
         }
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_ListFile_0006 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0006";
 }
-
 
 static void WriteData(Uri &uri)
 {
@@ -3365,12 +3379,14 @@ static void ListFileFilter7(Uri newDirUriTest)
     FileInfo fileInfo;
     fileInfo.uri = newDirUriTest.ToString();
     int64_t offset = 4;
-    int64_t maxCount = 1;
-    std::vector<FileInfo> fileInfoVec;
+    SharedMemoryInfo memInfo;
     FileFilter filter({".txt", ".docx"}, {}, {}, -1, -1, false, true);
-    int result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+        memInfo);
+    result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_1);
+    EXPECT_EQ(memInfo.Size(), FILE_COUNT_1);
+    FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
 }
 
 /**
@@ -3417,9 +3433,11 @@ static double InitListFileFolder(Uri newDirUriTest, const std::string &caseNumbe
     return time;
 }
 
-static void ShowInfo(const std::vector<FileInfo> &fileInfoVec, const std::string &caseNumber)
+static void ShowInfo(SharedMemoryInfo &memInfo, const std::string &caseNumber)
 {
-    for (auto fileInfo : fileInfoVec) {
+    FileAccessFwk::FileInfo fileInfo;
+    for (size_t i = 0; i < memInfo.Size(); i++) {
+        FileAccessFwk::SharedMemoryOperation::ReadFileInfo(fileInfo, memInfo);
         GTEST_LOG_(INFO) << caseNumber << ", uri:" << fileInfo.uri << endl;
     }
 }
@@ -3429,13 +3447,15 @@ static void ListFileFilter8(Uri newDirUriTest)
     FileInfo fileInfo;
     fileInfo.uri = newDirUriTest.ToString();
     int64_t offset = 0;
-    int64_t maxCount = 1000;
-    std::vector<FileInfo> fileInfoVec;
+    SharedMemoryInfo memInfo;
     FileFilter filter({}, {}, {}, -1, 0, false, true);
-    int result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+        memInfo);
+    result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_6);
-    ShowInfo(fileInfoVec, "external_file_access_ListFile_0008");
+    EXPECT_EQ(memInfo.Size(), FILE_COUNT_6);
+    ShowInfo(memInfo, "external_file_access_ListFile_0008");
+    FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
 }
 
 /**
@@ -3475,12 +3495,14 @@ static void ListFileFilter9(Uri newDirUriTest)
     FileInfo fileInfo;
     fileInfo.uri = newDirUriTest.ToString();
     int64_t offset = 0;
-    int64_t maxCount = 1000;
-    std::vector<FileInfo> fileInfoVec;
+    SharedMemoryInfo memInfo;
     FileFilter filter;
-    int result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+        memInfo);
+    result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_6);
+    EXPECT_EQ(memInfo.Size(), FILE_COUNT_6);
+    FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
 }
 
 /**
@@ -3520,33 +3542,35 @@ static void ListFileFilter10(Uri newDirUriTest, const double &time)
     FileInfo fileInfo;
     fileInfo.uri = newDirUriTest.ToString();
     int64_t offset = 0;
-    int64_t maxCount = 1000;
-    std::vector<FileInfo> fileInfoVec;
+    SharedMemoryInfo memInfo;
     FileFilter filter({".txt", ".docx"}, {}, {}, -1, -1, false, true);
-    int result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+        memInfo);
+    result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_5);
+    EXPECT_EQ(memInfo.Size(), FILE_COUNT_5);
 
     FileFilter filter1({".txt", ".docx"}, {"0010.txt", "0010.docx"}, {}, -1, -1, false, true);
-    result = g_fah->ListFile(fileInfo, offset, maxCount, filter1, fileInfoVec);
+    result = g_fah->ListFile(fileInfo, offset, filter1, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_4);
+    EXPECT_EQ(memInfo.Size(), FILE_COUNT_4);
 
     FileFilter filter2({".txt", ".docx"}, {"0010.txt", "0010.docx"}, {}, 0, 0, false, true);
-    result = g_fah->ListFile(fileInfo, offset, maxCount, filter2, fileInfoVec);
+    result = g_fah->ListFile(fileInfo, offset, filter2, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_1);
+    EXPECT_EQ(memInfo.Size(), FILE_COUNT_1);
 
     FileFilter filter3({".txt", ".docx"}, {"0010.txt", "0010.docx"}, {}, -1, time, false, true);
-    result = g_fah->ListFile(fileInfo, offset, maxCount, filter3, fileInfoVec);
+    result = g_fah->ListFile(fileInfo, offset, filter3, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_2);
+    EXPECT_EQ(memInfo.Size(), FILE_COUNT_2);
 
     double nowTime = GetTime();
     FileFilter filter4({".txt", ".docx"}, {"0010.txt", "0010.docx"}, {}, -1, nowTime, false, true);
-    result = g_fah->ListFile(fileInfo, offset, maxCount, filter4, fileInfoVec);
+    result = g_fah->ListFile(fileInfo, offset, filter4, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-    EXPECT_EQ(fileInfoVec.size(), 0);
+    EXPECT_EQ(memInfo.Size(), 0);
+    FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
 }
 
 /**
@@ -3586,33 +3610,35 @@ static void ListFileFilter11(Uri newDirUriTest, const double &time)
     FileInfo fileInfo;
     fileInfo.uri = newDirUriTest.ToString();
     int64_t offset = 0;
-    int64_t maxCount = 1000;
-    std::vector<FileInfo> fileInfoVec;
+    SharedMemoryInfo memInfo;
+    int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+        memInfo);
     FileFilter filter({".txt", ".docx"}, {}, {}, -1, -1, false, true);
-    int result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_6);
+    EXPECT_EQ(memInfo.Size(), FILE_COUNT_6);
 
     FileFilter filter1({".txt", ".docx"}, {"测试.txt", "测试.docx"}, {}, -1, -1, false, true);
-    result = g_fah->ListFile(fileInfo, offset, maxCount, filter1, fileInfoVec);
+    result = g_fah->ListFile(fileInfo, offset, filter1, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_4);
+    EXPECT_EQ(memInfo.Size(), FILE_COUNT_4);
 
     FileFilter filter2({".txt", ".docx"}, {"测试.txt", "测试.docx"}, {}, 0, 0, false, true);
-    result = g_fah->ListFile(fileInfo, offset, maxCount, filter2, fileInfoVec);
+    result = g_fah->ListFile(fileInfo, offset, filter2, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_1);
+    EXPECT_EQ(memInfo.Size(), FILE_COUNT_1);
 
     FileFilter filter3({".txt", ".docx"}, {"测试.txt", "测试.docx"}, {}, -1, time, false, true);
-    result = g_fah->ListFile(fileInfo, offset, maxCount, filter3, fileInfoVec);
+    result = g_fah->ListFile(fileInfo, offset, filter3, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-    EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_2);
+    EXPECT_EQ(memInfo.Size(), FILE_COUNT_2);
 
     double nowTime = GetTime();
     FileFilter filter4({".txt", ".docx"}, {"测试.txt", "测试.docx"}, {}, -1, nowTime, false, true);
-    result = g_fah->ListFile(fileInfo, offset, maxCount, filter4, fileInfoVec);
+    result = g_fah->ListFile(fileInfo, offset, filter4, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-    EXPECT_EQ(fileInfoVec.size(), 0);
+    EXPECT_EQ(memInfo.Size(), 0);
+    FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
 }
 
 /**
@@ -4140,6 +4166,9 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0000, 
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        SharedMemoryInfo memInfo;
+        result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+            memInfo);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             FileInfo fileinfo;
@@ -4147,13 +4176,12 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0000, 
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int64_t offset = 0;
-            int64_t maxCount = 1000;
             FileFilter filter;
-            std::vector<FileInfo> fileInfoVecTemp;
-            result = g_fah->ListFile(fileinfo, offset, maxCount, filter, fileInfoVecTemp);
+            result = g_fah->ListFile(fileinfo, offset, filter, memInfo);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            EXPECT_GE(fileInfoVecTemp.size(), OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_GE(memInfo.Size(), OHOS::FileAccessFwk::ERR_OK);
         }
+        FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_GetFileInfoFromUri_0000 occurs an exception.";
     }
@@ -4177,6 +4205,9 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0001, 
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        SharedMemoryInfo memInfo;
+        result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+            memInfo);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
@@ -4188,16 +4219,15 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0001, 
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int64_t offset = 0;
-            int64_t maxCount = 1000;
             FileFilter filter;
-            std::vector<FileInfo> fileInfoVec;
-            result = g_fah->ListFile(dirInfo, offset, maxCount, filter, fileInfoVec);
+            result = g_fah->ListFile(dirInfo, offset, filter, memInfo);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            EXPECT_GE(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_GE(memInfo.Size(), OHOS::FileAccessFwk::ERR_OK);
 
             result = g_fah->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
+        FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_GetFileInfoFromUri_0001 occurs an exception.";
     }
@@ -4221,6 +4251,9 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0002, 
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        SharedMemoryInfo memInfo;
+        result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+            memInfo);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
@@ -4235,16 +4268,15 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0002, 
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int64_t offset = 0;
-            int64_t maxCount = 1000;
             FileFilter filter;
-            std::vector<FileInfo> fileInfoVecTemp;
-            result = g_fah->ListFile(fileinfo, offset, maxCount, filter, fileInfoVecTemp);
+            result = g_fah->ListFile(fileinfo, offset, filter, memInfo);
             EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
-            EXPECT_EQ(fileInfoVecTemp.size(), OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(memInfo.Size(), OHOS::FileAccessFwk::ERR_OK);
 
             result = g_fah->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
+        FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_GetFileInfoFromUri_0002 occurs an exception.";
     }
@@ -4363,6 +4395,9 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0006, 
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        SharedMemoryInfo memInfo;
+        result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+            memInfo);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
@@ -4375,16 +4410,15 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0006, 
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int64_t offset = 0;
-            int64_t maxCount = 1000;
             FileFilter filter;
-            std::vector<FileInfo> fileInfoVec;
-            result = g_fah->ListFile(dirInfo, offset, maxCount, filter, fileInfoVec);
+            result = g_fah->ListFile(dirInfo, offset, filter, memInfo);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            EXPECT_GE(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_GE(memInfo.Size(), OHOS::FileAccessFwk::ERR_OK);
 
             result = g_fah->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
+        FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_GetFileInfoFromUri_0006 occurs an exception.";
     }
@@ -4408,6 +4442,9 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0007, 
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        SharedMemoryInfo memInfo;
+        result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+            memInfo);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
@@ -4424,16 +4461,16 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0007, 
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             int64_t offset = 0;
-            int64_t maxCount = 1000;
             FileFilter filter;
             std::vector<FileInfo> fileInfoVecTemp;
-            result = g_fah->ListFile(fileinfo, offset, maxCount, filter, fileInfoVecTemp);
+            result = g_fah->ListFile(fileinfo, offset, filter, memInfo);
             EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
-            EXPECT_EQ(fileInfoVecTemp.size(), OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(memInfo.Size(), OHOS::FileAccessFwk::ERR_OK);
 
             result = g_fah->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
+        FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_GetFileInfoFromUri_0007 occurs an exception.";
     }

@@ -23,6 +23,8 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
+const int64_t FILEFILTER_DEFAULT_COUNTS = 2000;
+const int64_t FILEFILTER_MAX_COUNTS = 20000;
 std::shared_ptr<FileAccessExtAbility> FileAccessExtStubImpl::GetOwner()
 {
     return extension_;
@@ -119,8 +121,8 @@ int FileAccessExtStubImpl::Rename(const Uri &sourceFile, const std::string &disp
     return ret;
 }
 
-int FileAccessExtStubImpl::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
-    const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
+int FileAccessExtStubImpl::ListFile(const FileInfo &fileInfo, const int64_t offset, const FileFilter &filter,
+        SharedMemoryInfo &memInfo)
 {
     UserAccessTracer trace;
     trace.Start("ListFile");
@@ -129,7 +131,36 @@ int FileAccessExtStubImpl::ListFile(const FileInfo &fileInfo, const int64_t offs
         return E_IPCS;
     }
 
-    int ret = extension_->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    std::vector<FileInfo> fileInfoVec;
+    int ret = ERR_OK;
+    memInfo.isOver = false;
+    int64_t currentOffset = offset;
+    while (true) {
+        int64_t maxCounts =
+            memInfo.memSize > DEFAULT_CAPACITY_200KB ? FILEFILTER_MAX_COUNTS : FILEFILTER_DEFAULT_COUNTS;
+        fileInfoVec.clear();
+        ret = extension_->ListFile(fileInfo, currentOffset, maxCounts, filter, fileInfoVec);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("Extension ability ListFile error, code:%{public}d", ret);
+            break;
+        }
+
+        uint32_t currentWriteCounts = SharedMemoryOperation::WriteFileInfos(fileInfoVec, memInfo);
+        if (currentWriteCounts < fileInfoVec.size()) {
+            if (memInfo.memSize == DEFAULT_CAPACITY_200KB) {
+                uint32_t counts = 0;
+                extension_->GetFileInfoNum(fileInfo.uri, filter, false, counts);
+                memInfo.leftDataCounts = counts - memInfo.dataCounts;
+            }
+            break;
+        }
+        if (fileInfoVec.empty() ||(maxCounts > fileInfoVec.size() && currentWriteCounts == fileInfoVec.size())) {
+            memInfo.isOver = true;
+            break;
+        }
+        currentOffset += currentWriteCounts;
+    }
+
     return ret;
 }
 

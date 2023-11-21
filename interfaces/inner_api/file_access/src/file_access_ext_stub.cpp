@@ -368,55 +368,90 @@ ErrCode FileAccessExtStub::CmdRename(MessageParcel &data, MessageParcel &reply)
     return ERR_OK;
 }
 
-ErrCode FileAccessExtStub::CmdListFile(MessageParcel &data, MessageParcel &reply)
+std::tuple<int, std::shared_ptr<FileInfo>, int64_t, std::shared_ptr<FileFilter>, std::shared_ptr<SharedMemoryInfo>>
+    ReadFileFilterFuncArguments(MessageParcel &data)
 {
-    UserAccessTracer trace;
-    trace.Start("CmdListFile");
     std::shared_ptr<FileInfo> fileInfo(data.ReadParcelable<FileInfo>());
     if (fileInfo == nullptr) {
         HILOG_ERROR("Parameter ListFile fail to ReadParcelable fileInfo");
-        return E_IPCS;
+        return std::make_tuple(E_IPCS, nullptr, 0, nullptr, nullptr);
     }
 
     int64_t offset = 0;
     if (!data.ReadInt64(offset)) {
         HILOG_ERROR("parameter ListFile offset is invalid");
-        return E_IPCS;
-    }
-
-    int64_t maxCount = 0;
-    if (!data.ReadInt64(maxCount)) {
-        HILOG_ERROR("parameter ListFile maxCount is invalid");
-        return E_IPCS;
+        return std::make_tuple(E_IPCS, nullptr, 0, nullptr, nullptr);
     }
 
     std::shared_ptr<FileFilter> filter(data.ReadParcelable<FileFilter>());
     if (filter == nullptr) {
         HILOG_ERROR("parameter ListFile FileFilter is invalid");
+        return std::make_tuple(E_IPCS, nullptr, 0, nullptr, nullptr);
+    }
+
+    std::shared_ptr<SharedMemoryInfo> memInfo(data.ReadParcelable<SharedMemoryInfo>());
+    if (memInfo == nullptr) {
+        HILOG_ERROR("parameter ListFile SharedMemoryInfo is invalid");
+        return std::make_tuple(E_IPCS, nullptr, 0, nullptr, nullptr);
+    }
+
+    return std::make_tuple(ERR_OK, fileInfo, offset, filter, memInfo);
+}
+
+int WriteFileFilterResults(MessageParcel &reply, SharedMemoryInfo &memInfo)
+{
+    if (!reply.WriteUint32(memInfo.dataCounts)) {
+        HILOG_ERROR("fail to WriteUint32 dataCounts");
         return E_IPCS;
     }
 
-    std::vector<FileInfo> fileInfoVec;
-    int ret = ListFile(*fileInfo, offset, maxCount, *filter, fileInfoVec);
-    if (!reply.WriteInt32(ret)) {
-        HILOG_ERROR("Parameter ListFile fail to WriteInt32 ret");
+    if (!reply.WriteUint64(memInfo.dataSize)) {
+        HILOG_ERROR("fail to WriteUint32 dataSize");
         return E_IPCS;
     }
 
-    int64_t count {fileInfoVec.size()};
-    if (!reply.WriteInt64(count)) {
-        HILOG_ERROR("Parameter ListFile fail to WriteInt64 count");
+    if (!reply.WriteUint32(memInfo.leftDataCounts)) {
+        HILOG_ERROR("fail to WriteUint32 leftDataCounts");
         return E_IPCS;
     }
 
-    for (const auto &fileInfo : fileInfoVec) {
-        if (!reply.WriteParcelable(&fileInfo)) {
-            HILOG_ERROR("parameter ListFile fail to WriteParcelable fileInfoVec");
-            return E_IPCS;
-        }
+    if (!reply.WriteBool(memInfo.isOver)) {
+        HILOG_ERROR("fail to WriteBool isOver");
+        return E_IPCS;
     }
 
     return ERR_OK;
+}
+
+ErrCode FileAccessExtStub::CmdListFile(MessageParcel &data, MessageParcel &reply)
+{
+    UserAccessTracer trace;
+    trace.Start("CmdListFile");
+    int ret = E_IPCS;
+    std::shared_ptr<FileInfo> fileInfo = nullptr;
+    int64_t offset = 0;
+    std::shared_ptr<FileFilter> filter = nullptr;
+    std::shared_ptr<SharedMemoryInfo> memInfo = nullptr;
+
+    std::tie(ret, fileInfo, offset, filter, memInfo) = ReadFileFilterFuncArguments(data);
+    if (ret != ERR_OK) {
+        return ret;
+    }
+    ret = SharedMemoryOperation::MapSharedMemory(*memInfo);
+    if (ret != ERR_OK) {
+        return ret;
+    }
+
+    ret = ListFile(*fileInfo, offset, *filter, *memInfo);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("ListFile fail to WriteInt32 ret");
+        SharedMemoryOperation::DestroySharedMemory(*memInfo);
+        return E_IPCS;
+    }
+ 
+    ret = WriteFileFilterResults(reply, *memInfo);
+    SharedMemoryOperation::DestroySharedMemory(*memInfo);
+    return ret;
 }
 
 ErrCode FileAccessExtStub::CmdScanFile(MessageParcel &data, MessageParcel &reply)
