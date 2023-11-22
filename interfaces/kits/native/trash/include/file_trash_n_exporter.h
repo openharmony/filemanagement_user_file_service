@@ -27,7 +27,7 @@ namespace Trash {
 using namespace FileManagement::LibN;
 using namespace std;
 // 暂时默认用户100
-const std::string TRASH_PATH = "/storage/.Trash/Users/100";
+const std::string TRASH_PATH = "/storage/Users/.Trash";
 const std::string TRASH_SUB_DIR = "oh_trash_content";
 
 /**
