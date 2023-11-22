@@ -17,10 +17,11 @@
 #define FILE_ACCESS_HELPER_H
 
 #include <functional>
-#include <unordered_map>
+#include <mutex>
 #include <string>
-#include <vector>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "bundle_mgr_interface.h"
 #include "context.h"
@@ -113,7 +114,7 @@ private:
 
     sptr<IRemoteObject> token_ = nullptr;
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap_;
-
+    std::mutex deathRecipientMutex_;
     static std::vector<AAFwk::Want> wants_;
     static std::string GetKeyOfWants(const AAFwk::Want &want);
 
