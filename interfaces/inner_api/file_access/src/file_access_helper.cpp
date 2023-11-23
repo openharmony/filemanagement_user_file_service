@@ -125,6 +125,7 @@ FileAccessHelper::FileAccessHelper(const sptr<IRemoteObject> &token,
 
 void FileAccessHelper::AddFileAccessDeathRecipient(const sptr<IRemoteObject> &token)
 {
+    std::lock_guard<std::mutex> lock(deathRecipientMutex_);
     if (token != nullptr && callerDeathRecipient_ != nullptr) {
         token->RemoveDeathRecipient(callerDeathRecipient_);
     }
