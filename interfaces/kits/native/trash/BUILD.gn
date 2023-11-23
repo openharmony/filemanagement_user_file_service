@@ -27,6 +27,7 @@ ohos_shared_library("trash") {
 
   include_dirs = [
     "include",
+    "${file_api_path}/interfaces/kits/rust/include",
     "${file_api_path}/utils/filemgmt_libn/include",
     "${user_file_service_path}/utils",
   ]
@@ -44,6 +45,7 @@ ohos_shared_library("trash") {
     "app_file_service:fileuri_native",
     "file_api:filemgmt_libhilog",
     "file_api:filemgmt_libn",
+    "file_api:rust_file",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "init:libbegetutil",

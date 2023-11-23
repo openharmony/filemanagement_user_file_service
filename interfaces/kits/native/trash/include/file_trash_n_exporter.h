@@ -29,6 +29,7 @@ using namespace std;
 
 const std::string TRASH_SUB_DIR = "oh_trash_content";
 const int PARAM_CONST_VALUE_LEN_MAX = 10;
+const int SLICE_LENGTH = 10;
 /**
  * Indicates the supported capabilities of the file or directory.
  */
