@@ -50,6 +50,9 @@ config("ability_public_config") {
 ohos_shared_library("file_access_extension_ability_kit") {
   branch_protector_ret = "pac_ret"
   sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
     cfi = true
     cfi_cross_dso = true
     debug = false
@@ -109,6 +112,9 @@ ohos_shared_library("file_access_extension_ability_kit") {
 ohos_shared_library("file_access_extension_ability_module") {
   branch_protector_ret = "pac_ret"
   sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
     cfi = true
     cfi_cross_dso = true
     debug = false
