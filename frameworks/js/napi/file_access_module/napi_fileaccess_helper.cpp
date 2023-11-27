@@ -694,14 +694,10 @@ static napi_value AddNAsyncWork(napi_env env, std::string procedureName, NFuncAr
 
     if (funcArg.GetArgc() == NARG_CNT::THREE) {
         NVal thirdArg(env, funcArg[NARG_POS::THIRD]);
-        if (thirdArg.TypeIs(napi_boolean)) {
-            return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
-        }
         if (thirdArg.TypeIs(napi_function)) {
             return NAsyncWorkCallback(env, thisVar, thirdArg).Schedule(procedureName, cbExec, cbComplete).val_;
         }
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
     }
 
     NVal cb(env, funcArg[NARG_POS::FOURTH]);
@@ -1421,12 +1417,12 @@ napi_value NAPI_MoveFile(napi_env env, napi_callback_info info)
     string sourceFileString(sourceFile.get());
     string targetParentString(targetParent.get());
     string fileNameString(fileName.get());
-    auto cbExec = [sourceFileString, targetParentString, &fileNameString, result, fileAccessHelper]() -> NError {
+    auto cbExec = [sourceFileString, targetParentString, fileNameString, result, fileAccessHelper]() -> NError {
         OHOS::Uri sourceUri(sourceFileString);
         OHOS::Uri targetParentUri(targetParentString);
-        std::string newFile;
-        OHOS::Uri newFileUri(newFile);
-        int ret = fileAccessHelper->MoveFile(sourceUri, targetParentUri, fileNameString, newFileUri);
+        OHOS::Uri newFileUri("");
+        std::string fileName(fileNameString);
+        int ret = fileAccessHelper->MoveFile(sourceUri, targetParentUri, fileName, newFileUri);
         *result = newFileUri.ToString();
         return NError(ret);
     };
@@ -1437,10 +1433,10 @@ napi_value NAPI_MoveFile(napi_env env, napi_callback_info info)
         return { NVal::CreateUTF8String(env, *result) };
     };
     NVal thisVar(env, funcArg.GetThisVar());
-    if (funcArg.GetArgc() == NARG_CNT::TWO) {
+    if (funcArg.GetArgc() == NARG_CNT::THREE) {
         return NAsyncWorkPromise(env, thisVar).Schedule("moveFile", cbExec, cbComplete).val_;
     }
-    NVal cb(env, funcArg[NARG_POS::THIRD]);
+    NVal cb(env, funcArg[NARG_POS::FOURTH]);
     if (!cb.TypeIs(napi_function)) {
         return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }

@@ -889,11 +889,12 @@ export default class FileExtAbility extends Extension {
     return copyRet;
   }
 
-  moveDirectory(sourceFilePath, targetFilePath, mode): { [], number } {
+  moveDirectory(sourceFilePath, targetFilePath, force): { [], number } {
     let copyRet = {
       results: [],
       code: ERR_OK,
     };
+    let mode = force ? MOVEFILEOVERWRITE : FILEOVERWRITE;
     try {
       fs.moveDirSync(sourceFilePath, targetFilePath, mode);
     } catch (err) {
@@ -953,15 +954,13 @@ export default class FileExtAbility extends Extension {
 
     try {
       // The source file does not exist or the destination is not a directory
-      let isAccess = fs.accessSync(oldPath);
       let stat = fs.statSync(getPath(targetParentUri));
       let statOld = fs.statSync(oldPath);
-      if (!isAccess || !stat || !stat.isDirectory() || !statOld) {
+      if (!fs.accessSync(oldPath) || !stat || !stat.isDirectory() || !statOld) {
         hilog.error(DOMAIN_CODE, TAG, 'operate illegal');
         return this.getReturnValue(sourceFileUri, targetParentUri, E_GETRESULT, '', EXCEPTION);
       }
 
-      // isFile
       if (statOld.isFile()) {
         hilog.info(DOMAIN_CODE, TAG, 'sourceUri is file');
         let isExist = fs.accessSync(newPath);
@@ -976,8 +975,7 @@ export default class FileExtAbility extends Extension {
         }
       } else if (statOld.isDirectory()) {
         hilog.info(DOMAIN_CODE, TAG, 'sourceUri is dir');
-        let mode = force ? MOVEFILEOVERWRITE : FILEOVERWRITE;
-        return this.moveDirectory(oldPath, newPathDir, mode);
+        return this.moveDirectory(oldPath, newPathDir, force);
       } else {
         hilog.error(DOMAIN_CODE, TAG, 'the move operation is not permitted');
         return this.getReturnValue(sourceFileUri, targetParentUri, E_PERM, '', EXCEPTION);
@@ -1000,6 +998,7 @@ export default class FileExtAbility extends Extension {
     let oldPath = getPath(sourceFileUri);
     let newPath = getPath(newFileUri);
     let fixedPath = getPath(fixedUri);
+    fixedUri = encodePathOfUri(fixedUri);
     newFileUri = encodePathOfUri(newFileUri);
     if (newFileUri === '') {
       return uriReturnObject('', E_URIS);
