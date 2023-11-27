@@ -60,7 +60,9 @@ const MOVED_FROM = 3;
 const MOVED_SELF = 4;
 const DEVICE_ONLINE = 5;
 const DEVICE_OFFLINE = 6;
-const TRASH_PATH = '/storage/Users/.Trash/';
+const CURRENT_USER_PATH_LEN = 4;
+const CURRENT_USER_PATH = '/storage/Users/currentUser';
+const USER_PATH = '/storage/Users/';
 const TRASH_SUB_FODER = '/oh_trash_content';
 const EXTERNAL_PATH = '/storage/External';
 let observerMap = new Map();
@@ -247,6 +249,23 @@ export default class FileExtAbility extends Extension {
     }
   }
 
+  getUserPath(path): string {
+    let i;
+    let num = 0;
+    if (path.indexOf(USER_PATH) !== 0) {
+      return CURRENT_USER_PATH;
+    }
+    for (i = 0;i < path.length; i++) {
+      if (path[i] === '/') {
+        num ++;
+        if (num === CURRENT_USER_PATH_LEN) {
+          return path.substring(0, i);
+        }
+      }
+    }  
+    return path;
+  }
+
   deleteToTrash(path): number {
     hilog.info(DOMAIN_CODE, TAG, 'deleteToTrash: path:' + path);
     let code = ERR_OK;
@@ -264,12 +283,13 @@ export default class FileExtAbility extends Extension {
     let selectPathOnly = path.substring(0, posLastSlash);
     // 获取时间戳
     let curTime = new Date().getTime();
-    // 拼接新路径
-    let currentTrashParentPath = TRASH_PATH + curTime + selectPathOnly + TRASH_SUB_FODER + curTime;
-    hilog.info(DOMAIN_CODE, TAG, 'deleteToTrash: currentTrashParentPath:' + currentTrashParentPath);
-    // 创建回收站目录
-    this.mkdirs(currentTrashParentPath);
     try {
+      // 拼接新路径
+      hilog.info(DOMAIN_CODE, TAG, 'deleteToTrash: path:' + path);
+      let currentTrashParentPath = this.getUserPath(path) + '/.Trash/' + curTime + selectPathOnly + TRASH_SUB_FODER + curTime;
+      hilog.info(DOMAIN_CODE, TAG, 'deleteToTrash: currentTrashParentPath:' + currentTrashParentPath);
+      // 创建回收站目录
+      this.mkdirs(currentTrashParentPath);
       let stat = fs.statSync(path);
       if (!stat.isDirectory()) {
         let selectFileOnly = path.substring(posLastSlash);

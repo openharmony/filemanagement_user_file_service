@@ -25,6 +25,8 @@
 #include "file_utils.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
+#include "os_account_manager.h"
+#include "parameter.h"
 
 namespace OHOS {
 namespace FileManagement {
@@ -76,7 +78,7 @@ napi_value RecentNExporter::AddRecentFile(napi_env env, napi_callback_info cbinf
         NError(errno).ThrowErr(env);
         return nullptr;
     }
-    string recentFilePath = RECENT_PATH + to_string(statBuf.st_dev) + "_" + to_string(statBuf.st_ino);
+    string recentFilePath = RecentNExporter::recentPath_ + to_string(statBuf.st_dev) + "_" + to_string(statBuf.st_ino);
     auto lstatRet = lstat(recentFilePath.c_str(), &statBuf);
     if (lstatRet == 0) {
         auto accessRet = access(recentFilePath.c_str(), F_OK);
@@ -124,7 +126,7 @@ napi_value RecentNExporter::RemoveRecentFile(napi_env env, napi_callback_info cb
         NError(errno).ThrowErr(env);
         return nullptr;
     }
-    string recentFilePath = RECENT_PATH + to_string(statBuf.st_dev) + "_" + to_string(statBuf.st_ino);
+    string recentFilePath = RecentNExporter::recentPath_ + to_string(statBuf.st_dev) + "_" + to_string(statBuf.st_ino);
     if (unlink(recentFilePath.c_str()) < 0) {
         HILOG_ERROR("Failed to unlink uri, errno=%{public}d", errno);
         NError(errno).ThrowErr(env);
@@ -143,7 +145,7 @@ static void Deleter(struct NameListArg *arg)
 
 static int64_t GetFileMtime(const string &fileName)
 {
-    string filePath = RECENT_PATH + fileName;
+    string filePath = RecentNExporter::recentPath_ + fileName;
     struct stat statBuf;
     if (lstat(filePath.c_str(), &statBuf) < 0) {
         HILOG_ERROR("Failed to lstat uri, errno=%{public}d, fileName=%{public}s", errno, fileName.c_str());
@@ -187,7 +189,7 @@ static tuple<int, struct stat> CheckRealFileExist(const string &recentFilePath)
             HILOG_ERROR("Failed to stat file, errno=%{public}d", errno);
             return { errno, statBuf };
         }
-        string oldRecentFilePath = RECENT_PATH + to_string(statBuf.st_dev) + "_" + to_string(statBuf.st_ino);
+        string oldRecentFilePath = RecentNExporter::recentPath_ + to_string(statBuf.st_dev) + "_" + to_string(statBuf.st_ino);
         if (oldRecentFilePath == recentFilePath) {
             return { 0, statBuf };
         }
@@ -226,7 +228,7 @@ static napi_value GetListFileResult(napi_env env, struct NameListArg* pNameList)
     }
     auto buf = CreateUniquePtr<char[]>(BUF_SIZE);
     for (int i = 0, index = 0; i < pNameList->direntNum; ++i) {
-        string recentFilePath = RECENT_PATH + string((*(pNameList->namelist[i])).d_name);
+        string recentFilePath = RecentNExporter::recentPath_ + string((*(pNameList->namelist[i])).d_name);
         if (index < MAX_RECENT_SIZE) {
             auto [checkRealFileRes, realFileStatBuf] = CheckRealFileExist(recentFilePath);
             if (checkRealFileRes < 0) {
@@ -273,7 +275,7 @@ static napi_value ListFileCore(napi_env env)
         NError(ENOMEM).ThrowErr(env);
         return nullptr;
     }
-    pNameList->direntNum = scandir(RECENT_PATH.c_str(), &(pNameList->namelist), FilterFunc, SortReceneFile);
+    pNameList->direntNum = scandir(RecentNExporter::recentPath_.c_str(), &(pNameList->namelist), FilterFunc, SortReceneFile);
     if (pNameList->direntNum < 0) {
         HILOG_ERROR("Failed to scan dir, errno=%{public}d", errno);
         NError(errno).ThrowErr(env);

@@ -43,8 +43,10 @@ ohos_shared_library("trash") {
     "file_api:filemgmt_libn",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "os_account:os_account_innerkits",
   ]
 
   relative_install_dir = "module/file"
