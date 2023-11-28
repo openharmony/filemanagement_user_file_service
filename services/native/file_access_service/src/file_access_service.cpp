@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include "user_access_tracer.h"
 #include "file_access_framework_errno.h"
+#include "file_access_extension_info.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "system_ability_definition.h"
@@ -31,6 +32,11 @@ namespace {
 }
 sptr<FileAccessService> FileAccessService::instance_;
 mutex FileAccessService::mutex_;
+
+constexpr int32_t NOTIFY_MAX_NUM = 32;
+constexpr int32_t NOTIFY_TIME_INTERVAL = 500;
+constexpr int32_t MAX_WAIT_TIME = 20;
+
 sptr<FileAccessService> FileAccessService::GetInstance()
 {
     if (instance_ != nullptr) {
@@ -48,7 +54,10 @@ sptr<FileAccessService> FileAccessService::GetInstance()
     return instance_;
 }
 
-FileAccessService::FileAccessService() : SystemAbility(FILE_ACCESS_SERVICE_ID, false) {}
+FileAccessService::FileAccessService() : SystemAbility(FILE_ACCESS_SERVICE_ID, false)
+{
+    InitTimer();
+}
 
 void FileAccessService::OnStart()
 {
@@ -265,13 +274,38 @@ int32_t FileAccessService::UnregisterNotify(Uri uri, const sptr<IFileAccessObser
     return ERR_OK;
 }
 
-void FileAccessService::SendListNotify(const vector<uint32_t> list, NotifyMessage &notifyMessage)
+void FileAccessService::SendListNotify(string uriStr, NotifyType notifyType, const std::vector<uint32_t> &list)
 {
+    if (onDemandTimer_ == nullptr) {
+        HILOG_ERROR("onDemandTimer_ is nullptr");
+        return;
+    }
+    onDemandTimer_->start();
     for (uint32_t code : list) {
         if (obsManager_.get(code) == nullptr) {
             HILOG_ERROR("Failed to get obs code = %{private}ud", code);
+            continue;
+        }
+        auto context = obsManager_.get(code);
+        if (uriStr == EXTERNAL_ROOT) {
+            vector<string> uris = {uriStr};
+            NotifyMessage notifyMessage{notifyType, uris};
+            context->obs_->OnChange(notifyMessage);
+            continue;
+        }
+        lock_guard<mutex> lock(context->mapMutex_);
+        if (context->notifyMap_.find(notifyType) != context->notifyMap_.end()) {
+            context->notifyMap_[notifyType].push_back(uriStr);
         } else {
-            obsManager_.get(code)->obs_->OnChange(notifyMessage);
+            vector<string> uris{uriStr};
+            context->notifyMap_.emplace(notifyType, uris);
+        }
+        if (context->notifyMap_[notifyType].size() >= NOTIFY_MAX_NUM) {
+            NotifyMessage notifyMessage;
+            notifyMessage.notifyType_ = notifyType;
+            notifyMessage.uris_ = context->notifyMap_[notifyType];
+            context->obs_->OnChange(notifyMessage);
+            context->notifyMap_.erase(notifyType);
         }
     }
 }
@@ -302,16 +336,40 @@ int32_t FileAccessService::OnChange(Uri uri, NotifyType notifyType)
             HILOG_DEBUG("Do not need send onChange message");
             return ERR_OK;
         }
-        SendListNotify(node->obsCodeList_, notifyMessage);
+        SendListNotify(uriStr, notifyType, node->obsCodeList_);
         return ERR_OK;
     }
-    SendListNotify(node->obsCodeList_, notifyMessage);
+    SendListNotify(uriStr, notifyType, node->obsCodeList_);
     if ((node->parent_ == nullptr) || (!node->parent_->needChildNote_)) {
         HILOG_DEBUG("Do not need notify parent");
         return ERR_OK;
     }
-    SendListNotify(node->parent_->obsCodeList_, notifyMessage);
+    SendListNotify(uriStr, notifyType, node->parent_->obsCodeList_);
     return ERR_OK;
+}
+
+void FileAccessService::InitTimer()
+{
+    onDemandTimer_ = std::make_shared<OnDemandTimer>([this] {
+        lock_guard<mutex> lock(mutex_);
+        vector<shared_ptr<ObserverContext>> contexts;
+        FileAccessService::GetInstance()->obsManager_.getAll(contexts);
+        bool isMessage = false;
+        for (auto context : contexts) {
+            if (!context->notifyMap_.size()) {
+                continue;
+            }
+            for (auto message : context->notifyMap_) {
+                NotifyMessage notifyMessage;
+                notifyMessage.notifyType_ = message.first;
+                notifyMessage.uris_ = message.second;
+                context->obs_->OnChange(notifyMessage);
+            }
+            context->notifyMap_.clear();
+            isMessage = true;
+        }
+        return isMessage;
+            }, NOTIFY_TIME_INTERVAL, MAX_WAIT_TIME);
 }
 } // namespace FileAccessFwk
 } // namespace OHOS

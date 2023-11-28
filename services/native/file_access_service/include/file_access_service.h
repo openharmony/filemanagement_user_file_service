@@ -19,6 +19,7 @@
 #include <atomic>
 #include <memory>
 #include <mutex>
+#include <string>
 #include <system_ability.h>
 #include <unordered_map>
 #include <vector>
@@ -26,6 +27,7 @@
 #include "file_access_service_stub.h"
 #include "holder_manager.h"
 #include "iremote_object.h"
+#include "timer.h"
 #include "uri.h"
 
 namespace OHOS {
@@ -64,6 +66,8 @@ class ObserverContext {
             return obs_->AsObject() == observerContext->obs_->AsObject();
         }
 
+    std::unordered_map<NotifyType, std::vector<std::string>> notifyMap_;
+    std::mutex mapMutex_;
     private:
         std::atomic<int32_t> ref_;
 };
@@ -76,6 +80,62 @@ class ObserverNode {
         std::vector<std::shared_ptr<ObserverNode>> children_;
         std::vector<uint32_t> obsCodeList_;
         bool needChildNote_;
+};
+
+class OnDemandTimer {
+public:
+    using TimerCallback = std::function<bool()>;
+    OnDemandTimer(const TimerCallback &callback, int32_t intervalTime, int32_t maxCount) : timerCallback_(callback),
+        intervalTime_(intervalTime), maxCount_(maxCount) {
+            if (timerCallback_ == nullptr) {
+                HILOG_ERROR("timerCallback_ is required not to be nullptr");
+            }
+            timer_.Setup();
+        }
+    virtual ~OnDemandTimer()
+    {
+        timer_.Shutdown();
+    }
+    void start()
+    {
+        if (isTimerStart_) {
+            return;
+        }
+        std::lock_guard<std::mutex> lock(timerMutex_);
+        if (isTimerStart_) {
+            return;
+        }
+        timerId_ = timer_.Register([this] {
+            if (timerCallback_ == nullptr) {
+                HILOG_ERROR("timerCallback_ is nullptr");
+                return;
+            }
+            if (!timerCallback_()) {
+                if (++count_ >= maxCount_) {
+                    stop();
+                    count_ = 0;
+                }
+            } else {
+                count_ = 0;
+            }
+        }, intervalTime_);
+        isTimerStart_ = true;
+    }
+
+    void stop()
+    {
+        timer_.Unregister(timerId_);
+        isTimerStart_ = false;
+    }
+private:
+    Utils::Timer timer_{"OnDemandTimer"};
+    TimerCallback timerCallback_ = nullptr;
+    bool isTimerStart_ = false;
+    uint32_t intervalTime_ = 0;
+    uint32_t timerId_ = 0;
+    uint32_t maxCount_ = 0;
+    uint32_t count_ = 0;
+    std::mutex timerMutex_;
 };
 
 class FileAccessService final : public SystemAbility, public FileAccessServiceStub {
@@ -96,11 +156,13 @@ public:
     int32_t OnChange(Uri uri, NotifyType notifyType) override;
 
 private:
-    void SendListNotify(const std::vector<uint32_t> list, NotifyMessage &notifyMessage);
+    void SendListNotify(std::string uri, NotifyType notifyType, const std::vector<uint32_t> &list);
     void RemoveRelations(std::string &uriStr, std::shared_ptr<ObserverNode> obsNode);
     int FindUri(const std::string &uriStr, std::shared_ptr<ObserverNode> &outObsNode);
     FileAccessService();
     bool IsServiceReady() const;
+    void InitTimer();
+    std::shared_ptr<OnDemandTimer> onDemandTimer_ = nullptr;
     static sptr<FileAccessService> instance_;
     bool ready_ = false;
     static std::mutex mutex_;

@@ -98,6 +98,14 @@ public:
         return haveIter->first;
     }
 
+    void getAll(std::vector<Type> &contexts)
+    {
+        std::lock_guard<std::mutex> guard(holderMutex_);
+        for (auto &iter : holder_) {
+            contexts.push_back(iter.second);
+        }
+    }
+
 private:
     // key is automatic growth number
     std::map<uint32_t, Type> holder_;
