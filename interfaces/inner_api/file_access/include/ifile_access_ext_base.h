@@ -53,6 +53,7 @@ public:
         CMD_GET_THUMBNAIL,
         CMD_GET_FILEINFO_FROM_URI,
         CMD_GET_FILEINFO_FROM_RELATIVE_PATH,
+        CMD_COPY_FILE,
         CMD_MOVE_ITEM,
         CMD_MOVE_FILE
     };
@@ -64,6 +65,8 @@ public:
     virtual int Move(const Uri &sourceFile, const Uri &targetParent, Uri &newFile) = 0;
     virtual int Copy(const Uri &sourceUri, const Uri &destUri, std::vector<Result> &copyResult,
         bool force = false) = 0;
+    virtual int CopyFile(const Uri &sourceUri, const Uri &destUri, const std::string &fileName,
+        Uri &newFileUri) = 0;
     virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) = 0;
     virtual int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) = 0;

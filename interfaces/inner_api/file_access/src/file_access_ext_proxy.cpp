@@ -306,6 +306,26 @@ static int WriteCopyFuncArguments(OHOS::MessageParcel &data, const Uri &sourceUr
     return ERR_OK;
 }
 
+static int WriteCopyFileFuncArguments(OHOS::MessageParcel &data, const Uri &sourceUri, const Uri &destUri,
+    const std::string &fileName)
+{
+    UserAccessTracer trace;
+    trace.Start("WriteCopyFuncArguments");
+    if (!data.WriteString(sourceUri.ToString())) {
+        HILOG_ERROR("fail to WriteParcelable sourceUri");
+        return E_IPCS;
+    }
+    if (!data.WriteString(destUri.ToString())) {
+        HILOG_ERROR("fail to WriteParcelable destUri");
+        return E_IPCS;
+    }
+    if (!data.WriteString(fileName)) {
+        HILOG_ERROR("fail to WriteString fileName");
+        return E_IPCS;
+    }
+    return ERR_OK;
+}
+
 static int ReadCopyFuncResults(OHOS::MessageParcel &reply, std::vector<Result> &copyResult)
 {
     UserAccessTracer trace;
@@ -374,6 +394,51 @@ int FileAccessExtProxy::Copy(const Uri &sourceUri, const Uri &destUri, std::vect
     }
 
     return ret;
+}
+
+int FileAccessExtProxy::CopyFile(const Uri &sourceUri, const Uri &destUri, const std::string &fileName, Uri &newFileUri)
+{
+    UserAccessTracer trace;
+    trace.Start("CopyFile");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return E_IPCS;
+    }
+
+    int ret = WriteCopyFileFuncArguments(data, sourceUri, destUri, fileName);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Write copy file function arguments error, code: %{public}d", ret);
+        return ret;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int err = Remote()->SendRequest(CMD_COPY_FILE, data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest, err: %{public}d", err);
+        return err;
+    }
+
+    if (!reply.ReadInt32(ret)) {
+        HILOG_ERROR("fail to ReadInt32 ret");
+        return E_IPCS;
+    }
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Copy file error, code:%{public}d", ret);
+        return ret;
+    }
+    std::string tempUri = "";
+    if (!reply.ReadString(tempUri)) {
+        HILOG_ERROR("fail to ReadString copyResult");
+        return E_IPCS;
+    }
+    if (tempUri.empty()) {
+        HILOG_ERROR("get uri is empty");
+        return E_GETRESULT;
+    }
+    newFileUri = Uri(tempUri);
+    return ERR_OK;
 }
 
 int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)

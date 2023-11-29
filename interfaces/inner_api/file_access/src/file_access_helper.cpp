@@ -687,6 +687,24 @@ int FileAccessHelper::CopyOperation(Uri &sourceUri, Uri &destUri, std::vector<Re
     return ret;
 }
 
+int FileAccessHelper::CopyFileOperation(Uri &sourceUri, Uri &destUri, const std::string &fileName, Uri &newFileUri)
+{
+    UserAccessTracer trace;
+    trace.Start("CopyFileOperation");
+    sptr<IFileAccessExtBase> proxy = GetProxyByUri(sourceUri);
+    if (proxy == nullptr) {
+        HILOG_ERROR("Failed with invalid fileAccessExtProxy");
+        return E_IPCS;
+    }
+
+    int ret = proxy->CopyFile(sourceUri, destUri, fileName, newFileUri);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Copy file error, code:%{public}d", ret);
+        return ret;
+    }
+    return ret;
+}
+
 int FileAccessHelper::Copy(Uri &sourceUri, Uri &destUri, std::vector<Result> &copyResult, bool force)
 {
     UserAccessTracer trace;
@@ -714,6 +732,34 @@ int FileAccessHelper::Copy(Uri &sourceUri, Uri &destUri, std::vector<Result> &co
     }
 
     ret = CopyOperation(sourceUri, destUri, copyResult, force);
+    return ret;
+}
+
+int FileAccessHelper::CopyFile(Uri &sourceUri, Uri &destUri, const std::string &fileName, Uri &newFileUri)
+{
+    UserAccessTracer trace;
+    trace.Start("CopyFile");
+    if (!IsSystemApp()) {
+        HILOG_ERROR("Copy check IsSystemAppByFullTokenID failed");
+        return E_PERMISSION_SYS;
+    }
+
+    if (!CheckUri(sourceUri) || !CheckUri(destUri)) {
+        HILOG_ERROR("Uri format check error");
+        return E_URIS;
+    }
+
+    bool isDir = false;
+    int ret = IsDirectory(destUri, isDir);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Get uri type error");
+        return E_GETRESULT;
+    }
+    if (!isDir) {
+        HILOG_ERROR("Destination uri is not directory");
+        return E_URIS;
+    }
+    ret = CopyFileOperation(sourceUri, destUri, fileName, newFileUri);
     return ret;
 }
 

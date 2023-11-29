@@ -217,6 +217,7 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("move", NAPI_Move),
         DECLARE_NAPI_FUNCTION("query", NAPI_Query),
         DECLARE_NAPI_FUNCTION("copy", NAPI_Copy),
+        DECLARE_NAPI_FUNCTION("copyFile", NAPI_CopyFile),
         DECLARE_NAPI_FUNCTION("rename", NAPI_Rename),
         DECLARE_NAPI_FUNCTION("getRoots", NAPI_GetRoots),
         DECLARE_NAPI_FUNCTION("access", NAPI_Access),
@@ -683,6 +684,32 @@ static std::tuple<bool, std::string, std::string, bool> GetCopyArguments(napi_en
     return std::make_tuple(true, srcPathStr, destPathStr, force);
 }
 
+static std::tuple<bool, std::string, std::string, std::string> GetCopyFileArguments(napi_env env,
+    NFuncArg &funcArg)
+{
+    bool retStatus = false;
+    std::unique_ptr<char[]> srcPath = nullptr;
+    std::unique_ptr<char[]> destPath = nullptr;
+    std::tie(retStatus, srcPath, destPath) = GetReadArg(env, funcArg[NARG_POS::FIRST], funcArg[NARG_POS::SECOND]);
+    if (!retStatus) {
+        HILOG_ERROR("Get first or second argument error");
+        return std::make_tuple(false, "", "", "");
+    }
+    std::string srcPathStr(srcPath.get());
+    std::string destPathStr(destPath.get());
+
+    bool succFileName = false;
+    std::unique_ptr<char[]> fileName = nullptr;
+    std::tie(succFileName, fileName, std::ignore) = NVal(env, funcArg[NARG_POS::THIRD]).ToUTF8String();
+    if (!succFileName) {
+        HILOG_ERROR("Get third argument error");
+        NError(EINVAL).ThrowErr(env);
+        return {false, std::move(srcPathStr), std::move(destPathStr), ""};
+    }
+    std::string fileNameStr(fileName.get());
+    return std::make_tuple(true, srcPathStr, destPathStr, fileNameStr);
+}
+
 static napi_value AddNAsyncWork(napi_env env, std::string procedureName, NFuncArg &funcArg, CallbackExec cbExec,
     CallbackComplete cbComplete)
 {
@@ -747,6 +774,61 @@ napi_value NAPI_Copy(napi_env env, napi_callback_info info)
         return { env, CreateObjectArray(env, *result) };
     };
     return AddNAsyncWork(env, "copy", funcArg, cbExec, cbComplete);
+}
+
+static napi_value AddCopyFileNAsyncWork(napi_env env, NFuncArg &funcArg, CallbackExec cbExec,
+    CallbackComplete cbComplete)
+{
+    const std::string procedureName = "copyFile";
+    NVal thisVar(env, funcArg.GetThisVar());
+
+    if (funcArg.GetArgc() == NARG_CNT::THREE) {
+        return NAsyncWorkPromise(env, thisVar).Schedule(procedureName, cbExec, cbComplete).val_;
+    }
+
+    NVal cb(env, funcArg[NARG_POS::FOURTH]);
+    if (!cb.TypeIs(napi_function)) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+    return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
+}
+
+napi_value NAPI_CopyFile(napi_env env, napi_callback_info info)
+{
+    NFuncArg funcArg(env, info);
+    if (!funcArg.InitArgs(NARG_CNT::THREE, NARG_CNT::FOUR)) {
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
+    }
+    bool retStatus = false;
+    std::string srcFileName = "";
+    std::string destPath = "";
+    std::string fileName = "";
+    std::tie(retStatus, srcFileName, destPath, fileName) = GetCopyFileArguments(env, funcArg);
+    if (!retStatus) {
+        return NapiFileInfoExporter::ThrowError(env, EINVAL);
+    }
+
+    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    if (fileAccessHelper == nullptr) {
+        return nullptr;
+    }
+    auto result = std::make_shared<string>();
+    auto cbExec = [srcFileName, destPath, fileName, result, fileAccessHelper]() -> NError {
+        OHOS::Uri srcUri(srcFileName);
+        OHOS::Uri destUri(destPath);
+        OHOS::Uri newFileUri("");
+        int ret = fileAccessHelper->CopyFile(srcUri, destUri, fileName, newFileUri);
+        *result = newFileUri.ToString();
+        return NError(ret);
+    };
+    auto cbComplete = [result](napi_env env, NError err) -> NVal {
+        if (err) {
+            return { env, err.GetNapiErr(env) };
+        }
+        return NVal::CreateUTF8String(env, *result);
+    };
+    return AddCopyFileNAsyncWork(env, funcArg, cbExec, cbComplete);
 }
 
 napi_value NAPI_Rename(napi_env env, napi_callback_info info)
