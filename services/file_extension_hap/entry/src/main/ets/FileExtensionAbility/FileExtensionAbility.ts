@@ -194,11 +194,10 @@ export default class FileExtAbility extends Extension {
     try {
       hilog.info(DOMAIN_CODE, TAG, 'createFile, uri is ' + parentUri);
       let newFileUri = this.genNewFileUri(parentUri, displayName);
-      if (this.access(newFileUri).isExist) {
-        return uriReturnObject('', E_EXIST);
-
-      }
       let path = getPath(newFileUri);
+      if(fs.accessSync(path)) {
+        return uriReturnObject('', E_EXIST);
+    }
       let file = fs.openSync(path, fs.OpenMode.CREATE);
       fs.closeSync(file);
       newFileUri = encodePathOfUri(newFileUri);
