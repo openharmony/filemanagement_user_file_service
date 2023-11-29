@@ -60,12 +60,12 @@ static string GetTimeSlotFromPath(const string &path)
 {
     size_t slashSize = 1;
     // 获取时间戳
-    size_t trashPathPrefixPos = path.find(TRASH_PATH);
-    size_t expectTimeSlotStartPos = trashPathPrefixPos + TRASH_PATH.length() + slashSize;
+    size_t trashPathPrefixPos = path.find(FileTrashNExporter::trashPath_);
+    size_t expectTimeSlotStartPos = trashPathPrefixPos + FileTrashNExporter::trashPath_.length() + slashSize;
     if (expectTimeSlotStartPos >= path.length()) {
         return "";
     }
-    string realFilePathWithTime = path.substr(trashPathPrefixPos + TRASH_PATH.length() + slashSize);
+    string realFilePathWithTime = path.substr(trashPathPrefixPos + FileTrashNExporter::trashPath_.length() + slashSize);
     // 获取时间戳目录位置
     size_t trashPathWithTimePrefixPos = realFilePathWithTime.find_first_of("/");
     if (trashPathWithTimePrefixPos == string::npos) {
@@ -161,12 +161,12 @@ static string FindSourceFilePath(const string &path)
     HILOG_INFO("FindSourceFilePath: curFilePath = %{public}s", path.c_str());
     size_t slashSize = 1;
     // 获取/trash目录位置
-    size_t trashPathPrefixPos = path.find(TRASH_PATH);
+    size_t trashPathPrefixPos = path.find(FileTrashNExporter::trashPath_);
     if (trashPathPrefixPos == string::npos) {
         HILOG_ERROR("FindSourceFilePath: Invalid Path No Trash Path");
         return "";
     }
-    size_t timeSLotStartPos = trashPathPrefixPos + TRASH_PATH.length() + slashSize;
+    size_t timeSLotStartPos = trashPathPrefixPos + FileTrashNExporter::trashPath_.length() + slashSize;
     string realFilePathWithTime = path.substr(timeSLotStartPos);
     // 获取时间戳目录位置
     size_t trashPathWithTimePrefixPos = realFilePathWithTime.find_first_of("/");
@@ -325,16 +325,16 @@ static string GetToDeletePath(const string &toDeletePath, napi_env env)
     // 判断是否为有效回收站路径
     size_t slashSize = 1;
     // 获取/Trash目录位置
-    size_t trashPathPrefixPos = toDeletePath.find(TRASH_PATH);
+    size_t trashPathPrefixPos = toDeletePath.find(FileTrashNExporter::trashPath_);
     if (trashPathPrefixPos == string::npos ||
-        trashPathPrefixPos + TRASH_PATH.length() + slashSize >= toDeletePath.length()) {
+        trashPathPrefixPos + FileTrashNExporter::trashPath_.length() + slashSize >= toDeletePath.length()) {
         NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
-    string realFilePathWithTime = toDeletePath.substr(trashPathPrefixPos + TRASH_PATH.length() + slashSize);
+    string realFilePathWithTime = toDeletePath.substr(trashPathPrefixPos + FileTrashNExporter::trashPath_.length() + slashSize);
     // 获取时间戳目录位置
     size_t trashPathWithTimePrefixPos = realFilePathWithTime.find_first_of("/");
-    size_t realTimeDirPos = trashPathPrefixPos + TRASH_PATH.length() +
+    size_t realTimeDirPos = trashPathPrefixPos + FileTrashNExporter::trashPath_.length() +
         slashSize + trashPathWithTimePrefixPos;
     // 回收站下一级的时间戳目录
     string trashWithTimePath = toDeletePath.substr(0, realTimeDirPos);
@@ -405,7 +405,7 @@ napi_value FileTrashNExporter::ListFile(napi_env env, napi_callback_info info)
         HILOG_ERROR("Failed to request heap memory.");
         return nullptr;
     }
-    int ret = RecursiveFunc(TRASH_PATH, dirents);
+    int ret = RecursiveFunc(FileTrashNExporter::trashPath_, dirents);
     if (ret != ERRNO_NOERR) {
         NError(ENOMEM).ThrowErr(env);
         HILOG_ERROR("ListFile: Failed to recursive all Trash items path");
@@ -593,7 +593,7 @@ napi_value FileTrashNExporter::Recover(napi_env env, napi_callback_info info)
     HILOG_DEBUG("Recover: path  = %{public}s", path.c_str());
 
     // 判断是否是回收站路径
-    if (path.find(TRASH_PATH) == string::npos) {
+    if (path.find(FileTrashNExporter::trashPath_) == string::npos) {
         NError(EINVAL).ThrowErr(env);
         HILOG_ERROR("Recover: path  = %{public}s is not Trash path", path.c_str());
         return nullptr;
@@ -651,7 +651,7 @@ napi_value FileTrashNExporter::CompletelyDelete(napi_env env, napi_callback_info
     HILOG_DEBUG("Recover: path  = %{public}s", path.c_str());
 
     // 判断是否是回收站路径
-    if (path.find(TRASH_PATH) == string::npos) {
+    if (path.find(FileTrashNExporter::trashPath_) == string::npos) {
         NError(EINVAL).ThrowErr(env);
         HILOG_ERROR("Recover: path  = %{public}s is not Trash path", path.c_str());
         return nullptr;

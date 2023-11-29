@@ -36,6 +36,8 @@
 #include "napi_common_util.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
+#include "os_account_manager.h"
+#include "parameter.h"
 #include "system_ability_definition.h"
 #include "user_access_tracer.h"
 
@@ -1046,6 +1048,44 @@ int JsFileAccessExtAbility::ScanFile(const FileInfo &fileInfo, const int64_t off
     return ERR_OK;
 }
 
+bool GetDeviceType(std::string &deviceType)
+{
+    char deviceTypeChar[PARAM_CONST_VALUE_LEN_MAX];
+    int32_t ret = GetParameter("const.product.devicetype", "0", deviceTypeChar, PARAM_CONST_VALUE_LEN_MAX);
+    if (ret < 0) {
+        HILOG_ERROR("Get deviceType fail. %{public}d", ret);
+        return false;
+    }
+    deviceType = deviceTypeChar;
+    return true;
+}
+
+bool GetUserName(std::string &userName)
+{
+    ErrCode errCode = OHOS::AccountSA::OsAccountManager::GetOsAccountShortName(userName);
+    if (errCode != ERR_OK) {
+        return false;
+    }
+    return true;
+}
+
+void ChangeCurrentDir(RootInfo &rootInfo)
+{
+    // 获取用户名
+    std::string userName;
+    if (!GetUserName(userName)) {
+        HILOG_WARN("get userName fail");
+        return;
+    }
+    HILOG_DEBUG("GetuserName: %{public}s", userName.c_str());
+    if (rootInfo.uri.rfind("file://docs/storage/Users/currentUser") == 0) {
+        rootInfo.uri = "file://docs/storage/Users/" + userName;
+    }
+    if (rootInfo.relativePath.rfind("/storage/Users/currentUser") == 0) {
+        rootInfo.relativePath = "/storage/Users/" + userName;
+    }
+}
+
 bool JsFileAccessExtAbility::ParserGetRootsJsResult(napi_env &env, napi_value nativeValue,
     Value<std::vector<RootInfo>> &result)
 {
@@ -1070,6 +1110,9 @@ bool JsFileAccessExtAbility::ParserGetRootsJsResult(napi_env &env, napi_value na
         return false;
     }
 
+    std::string deviceType;
+    bool deviceResult = GetDeviceType(deviceType);
+    HILOG_INFO("deviceType: %{public}s", deviceType.c_str());
     for (uint32_t i = 0; i < length; i++) {
         napi_value nativeRootInfo = nullptr;
         napi_get_element(env, nativeArray, i, &nativeRootInfo);
@@ -1084,6 +1127,9 @@ bool JsFileAccessExtAbility::ParserGetRootsJsResult(napi_env &env, napi_value na
             return false;
         }
 
+        if (deviceResult && deviceType == "2in1") {
+            ChangeCurrentDir(rootInfo);
+        }
         result.data.emplace_back(std::move(rootInfo));
     }
     return true;

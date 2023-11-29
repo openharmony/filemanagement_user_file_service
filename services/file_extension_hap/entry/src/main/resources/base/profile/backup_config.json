@@ -2,5 +2,9 @@
     "allowToBackupRestore": true,
     "includes": [
         "/storage/Users/currentUser/"
+    ],
+    "excludes": [
+        "/storage/Users/currentUser/.Trash/",
+        "/storage/Users/currentUser/.Recent/"
     ]
 }

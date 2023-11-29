@@ -44,8 +44,10 @@ ohos_shared_library("recent") {
     "file_api:filemgmt_libhilog",
     "file_api:filemgmt_libn",
     "hilog:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "os_account:os_account_innerkits",
   ]
 
   use_exceptions = true

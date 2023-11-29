@@ -30,6 +30,7 @@ struct NameListArg {
 class RecentNExporter final : public LibN::NExporter {
 public:
     inline static const std::string className = "Recent";
+    inline static std::string recentPath_ {};
 
     bool Export() override;
     std::string GetClassName() override;
@@ -42,7 +43,7 @@ public:
     ~RecentNExporter() override;
 };
 
-const std::string RECENT_PATH = "/storage/Users/.Recent/";
+// const std::string RECENT_PATH = "/storage/Users/.Recent/";
 const std::string FILE_ACCESS_PERMISSION = "ohos.permission.FILE_ACCESS_MANAGER";
 constexpr int BUF_SIZE = 1024;
 constexpr int MAX_RECENT_SIZE = 100;

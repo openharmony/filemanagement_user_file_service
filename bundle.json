@@ -26,6 +26,7 @@
                 "ability_runtime",
                 "app_file_service",
                 "ipc",
+                "init",
                 "samgr",
                 "safwk",
                 "napi",
@@ -34,6 +35,7 @@
                 "hilog",
                 "hitrace",
                 "access_token",
+                "os_account",
                 "c_utils",
                 "image_framework",
                 "common_event_service"

@@ -26,10 +26,9 @@ namespace OHOS {
 namespace Trash {
 using namespace FileManagement::LibN;
 using namespace std;
-// 暂时默认用户100
-const std::string TRASH_PATH = "/storage/Users/.Trash";
-const std::string TRASH_SUB_DIR = "oh_trash_content";
 
+const std::string TRASH_SUB_DIR = "oh_trash_content";
+const int PARAM_CONST_VALUE_LEN_MAX = 10;
 /**
  * Indicates the supported capabilities of the file or directory.
  */
@@ -41,7 +40,7 @@ const size_t SUPPORTS_WRITE = 1 << 3;
 class FileTrashNExporter final : public NExporter {
 public:
     inline static const std::string className_ = "trash";
-    
+    inline static std::string trashPath_ {};
     static napi_value ListFile(napi_env env, napi_callback_info info);
     static napi_value Recover(napi_env env, napi_callback_info info);
     static napi_value CompletelyDelete(napi_env env, napi_callback_info info);

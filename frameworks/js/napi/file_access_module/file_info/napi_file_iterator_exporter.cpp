@@ -16,6 +16,7 @@
 #include "napi_file_iterator_exporter.h"
 
 #include <cinttypes>
+#include <regex>
 
 #include "file_info_entity.h"
 #include "file_iterator_entity.h"
@@ -25,6 +26,7 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
+static const std::regex TRASH_RECENT_DIR_REGEX("^file://docs/storage/Users(/.+/)?\\.(Trash|Recent)(/.*)*");
 bool NapiFileIteratorExporter::Export()
 {
     std::vector<napi_property_descriptor> props = {
@@ -73,7 +75,7 @@ napi_value NapiFileIteratorExporter::Constructor(napi_env env, napi_callback_inf
 }
 
 static int MakeResult(napi_value &objFileInfoExporter, FileIteratorEntity *fileIteratorEntity,
-    FileInfoEntity *fileInfoEntity, napi_env env, NVal &nVal)
+    FileInfoEntity *fileInfoEntity, napi_env env, NVal &nVal, bool &isDone)
 {
     std::lock_guard<std::mutex> lock(fileIteratorEntity->entityOperateMutex);
     if (fileIteratorEntity->fileInfoVec.size() == 0) {
@@ -84,9 +86,9 @@ static int MakeResult(napi_value &objFileInfoExporter, FileIteratorEntity *fileI
         objFileInfoExporter = NVal::CreateUndefined(env).val_;
         nVal.AddProp("value", objFileInfoExporter);
         nVal.AddProp("done", NVal::CreateBool(env, true).val_);
+        isDone = true;
         return ERR_OK;
     }
-
     if (fileIteratorEntity->pos == MAX_COUNT) {
         fileIteratorEntity->fileInfoVec.clear();
         fileIteratorEntity->offset += MAX_COUNT;
@@ -107,7 +109,6 @@ static int MakeResult(napi_value &objFileInfoExporter, FileIteratorEntity *fileI
             }
         }
     }
-
     if (fileIteratorEntity->pos == fileIteratorEntity->fileInfoVec.size()) {
         fileIteratorEntity->fileInfoVec.clear();
         fileIteratorEntity->offset = 0;
@@ -116,6 +117,7 @@ static int MakeResult(napi_value &objFileInfoExporter, FileIteratorEntity *fileI
         objFileInfoExporter = NVal::CreateUndefined(env).val_;
         nVal.AddProp("value", objFileInfoExporter);
         nVal.AddProp("done", NVal::CreateBool(env, true).val_);
+        isDone = true;
         return ERR_OK;
     }
 
@@ -124,7 +126,15 @@ static int MakeResult(napi_value &objFileInfoExporter, FileIteratorEntity *fileI
     fileIteratorEntity->pos++;
     nVal.AddProp("value", objFileInfoExporter);
     nVal.AddProp("done", NVal::CreateBool(env, false).val_);
+    isDone = false;
     return ERR_OK;
+}
+
+static bool FilterTrashAndRecentDir(const std::string &uri)
+{
+    HILOG_INFO("FilterTrashAndRecentDir uri: %{public}s", uri.c_str());
+    std::smatch matchResult;
+    return std::regex_match(uri, matchResult, TRASH_RECENT_DIR_REGEX) && matchResult.length() > 0;
 }
 
 napi_value NapiFileIteratorExporter::Next(napi_env env, napi_callback_info info)
@@ -164,7 +174,15 @@ napi_value NapiFileIteratorExporter::Next(napi_env env, napi_callback_info info)
     }
 
     auto retNVal = NVal::CreateObject(env);
-    int ret = MakeResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal);
+    bool isDone = false;
+    int ret = MakeResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal, isDone);
+    while (!isDone && FilterTrashAndRecentDir(fileInfoEntity->fileInfo.uri)) {
+        fileInfoEntity = NClass::GetEntityOf<FileInfoEntity>(env, objFileInfoExporter);
+        retNVal = NVal::CreateObject(env);
+        HILOG_DEBUG("TRASH_DIR or RECENT_DIR: %{public}s", fileInfoEntity->fileInfo.uri.c_str());
+        ret = MakeResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal, isDone);
+    }
+
     if (ret != ERR_OK) {
         NError(ret).ThrowErr(env);
         return nullptr;

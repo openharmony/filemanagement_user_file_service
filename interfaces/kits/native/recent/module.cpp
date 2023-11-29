@@ -19,10 +19,48 @@
 #include "filemgmt_libn.h"
 #include "hilog_wrapper.h"
 #include "recent_n_exporter.h"
+#include "os_account_manager.h"
+#include "parameter.h"
 
 namespace OHOS::FileManagement::Recent {
 using namespace std;
 using namespace LibN;
+
+static bool GetDeviceType(std::string &deviceType)
+{
+    char deviceTypeChar[PARAM_CONST_VALUE_LEN_MAX];
+    int32_t ret = GetParameter("const.product.devicetype", "0", deviceTypeChar, PARAM_CONST_VALUE_LEN_MAX);
+    if (ret < 0) {
+        HILOG_ERROR("Get deviceType fail. %{public}d", ret);
+        return false;
+    }
+    deviceType = deviceTypeChar;
+    return true;
+}
+
+static bool GetUserName(std::string &userName)
+{
+    ErrCode errCode = OHOS::AccountSA::OsAccountManager::GetOsAccountShortName(userName);
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("GetOsAccountShortName fail.");
+        return false;
+    }
+    return true;
+}
+
+static std::string GetRecentDir()
+{
+    std::string result = "/storage/Users/currentUser/.Recent";
+    std::string deviceType;
+    if (GetDeviceType(deviceType) && deviceType == "2in1") {
+        std::string userName;
+        if (GetUserName(userName)) {
+            result = "/storage/Users/" + userName + "/.Recent";
+        }
+    }
+    HILOG_INFO("GetRecentDir %{public}s", result.c_str());
+    return result;
+}
 
 static napi_value Export(napi_env env, napi_value exports)
 {
@@ -37,6 +75,8 @@ static napi_value Export(napi_env env, napi_value exports)
             HILOG_INFO("Class %{public}s for module fileio has been exported", product->GetClassName().c_str());
         }
     }
+
+    RecentNExporter::recentPath_ = GetRecentDir();
     return exports;
 }
 
