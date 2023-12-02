@@ -1062,10 +1062,7 @@ bool GetDeviceType(std::string &deviceType)
 
 bool GetUserName(std::string &userName)
 {
-    ErrCode errCode = OHOS::AccountSA::OsAccountManager::GetOsAccountShortName(userName);
-    if (errCode != ERR_OK) {
-        return false;
-    }
+    userName = "default";
     return true;
 }
 
@@ -1073,7 +1070,7 @@ void ChangeCurrentDir(RootInfo &rootInfo)
 {
     // 获取用户名
     std::string userName;
-    if (!GetUserName(userName)) {
+    if (!GetUserName(userName) || userName == "") {
         HILOG_WARN("get userName fail");
         return;
     }

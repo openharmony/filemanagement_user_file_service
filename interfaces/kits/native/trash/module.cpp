@@ -40,11 +40,7 @@ static bool GetDeviceType(std::string &deviceType)
 
 static bool GetUserName(std::string &userName)
 {
-    ErrCode errCode = OHOS::AccountSA::OsAccountManager::GetOsAccountShortName(userName);
-    if (errCode != ERR_OK) {
-        HILOG_ERROR("GetOsAccountShortName fail.");
-        return false;
-    }
+    userName = "default";
     return true;
 }
 
@@ -54,7 +50,7 @@ static std::string GetTrashDir()
     std::string deviceType;
     if (GetDeviceType(deviceType) && deviceType == "2in1") {
         std::string userName;
-        if (GetUserName(userName)) {
+        if (GetUserName(userName) && userName != "") {
             result = "/storage/Users/" + userName + "/.Trash";
         }
     }

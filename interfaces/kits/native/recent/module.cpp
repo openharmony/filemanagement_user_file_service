@@ -40,22 +40,18 @@ static bool GetDeviceType(std::string &deviceType)
 
 static bool GetUserName(std::string &userName)
 {
-    ErrCode errCode = OHOS::AccountSA::OsAccountManager::GetOsAccountShortName(userName);
-    if (errCode != ERR_OK) {
-        HILOG_ERROR("GetOsAccountShortName fail.");
-        return false;
-    }
+    userName = "default";
     return true;
 }
 
 static std::string GetRecentDir()
 {
-    std::string result = "/storage/Users/currentUser/.Recent";
+    std::string result = "/storage/Users/currentUser/.Recent/";
     std::string deviceType;
     if (GetDeviceType(deviceType) && deviceType == "2in1") {
         std::string userName;
-        if (GetUserName(userName)) {
-            result = "/storage/Users/" + userName + "/.Recent";
+        if (GetUserName(userName) && userName != "") {
+            result = "/storage/Users/" + userName + "/.Recent/";
         }
     }
     HILOG_INFO("GetRecentDir %{public}s", result.c_str());
