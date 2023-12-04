@@ -66,6 +66,8 @@ public:
     virtual int MoveItem(const Uri &sourceFile, const Uri &targetParent, std::vector<Result> &moveResult,
                          bool force = false);
     virtual int MoveFile(const Uri &sourceFile, const Uri &targetParent, std::string &fileName, Uri &newFile);
+    virtual int GetFileInfoNum(const std::string &sourceFileUri, const FileFilter &filter, bool recursion,
+        uint32_t &counts);
 private:
     static CreatorFunc creator_;
 };

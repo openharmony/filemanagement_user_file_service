@@ -53,6 +53,12 @@ struct FilterParam {
     int64_t maxCount;
 };
 
+struct FileInfoNumParam {
+    const std::string &sourceFileUri;
+    const FileFilter &filter;
+    bool recursion;
+};
+
 class JsFileAccessExtAbility : public FileAccessExtAbility {
 public:
     JsFileAccessExtAbility(JsRuntime &jsRuntime);
@@ -87,6 +93,9 @@ public:
     int MoveItem(const Uri &sourceFile, const Uri &targetParent, std::vector<Result> &moveResult,
                  bool force = false) override;
     int MoveFile(const Uri &sourceFile, const Uri &targetParent, std::string &fileName, Uri &newFile) override;
+    int GetFileInfoNum(const std::string &sourceFileUri, const FileFilter &filter, bool recursion,
+        uint32_t &counts) override;
+
 private:
     template <typename T>
     struct Value {
@@ -104,10 +113,12 @@ private:
     static bool ParserGetRootsJsResult(napi_env &env, napi_value nativeValue, Value<std::vector<RootInfo>> &result);
     static bool ParserQueryFileJsResult(napi_env &env, napi_value nativeValue,
         Value<std::vector<std::string>> &results);
+    static bool ParserFileInfoNumJsResult(napi_env &env, napi_value &nativeValue, bool &success, uint32_t &counts);
     static int MakeStringNativeArray(napi_env &env, std::vector<std::string> &inputArray, napi_value resultArray);
     static int MakeJsNativeFileFilter(napi_env &env, const FileFilter &filter, napi_value nativeFilter);
     static bool BuildFilterParam(napi_env &env, const FileFilter &filter, const FilterParam &param, napi_value *argv,
         size_t &argc);
+    static bool BuildFileInfoNumParam(napi_env &env, FileInfoNumParam &param, napi_value *argv, size_t &argc);
     static napi_status GetFileInfoFromJs(napi_env &env, napi_value obj, FileInfo &fileInfo);
     static napi_status GetUriAndCodeFromJs(napi_env &env, napi_value result,
         const std::shared_ptr<Value<std::string>> &value);

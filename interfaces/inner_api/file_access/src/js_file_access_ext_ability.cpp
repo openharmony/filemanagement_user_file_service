@@ -900,6 +900,96 @@ int JsFileAccessExtAbility::MakeJsNativeFileFilter(napi_env &env, const FileFilt
     return ERR_OK;
 }
 
+bool JsFileAccessExtAbility::BuildFileInfoNumParam(napi_env &env, FileInfoNumParam &param,
+    napi_value *argv, size_t &argc)
+{
+    napi_value nativeSrcUri = nullptr;
+    napi_create_string_utf8(env, param.sourceFileUri.c_str(), param.sourceFileUri.length(), &nativeSrcUri);
+
+    napi_value nativeFilter = nullptr;
+    if (param.filter.GetHasFilter()) {
+        napi_create_object(env, &nativeFilter);
+        if (nativeFilter == nullptr) {
+            HILOG_ERROR("Create js NativeValue object fail.");
+            return false;
+        }
+        int ret = MakeJsNativeFileFilter(env, param.filter, nativeFilter);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("Make js nativeFilter fail.");
+            return false;
+        }
+    } else {
+        nativeFilter = nullptr;
+        napi_get_null(env, &nativeFilter);
+        if (nativeFilter == nullptr) {
+            HILOG_ERROR("Create js NativeValue null fail.");
+            return false;
+        }
+    }
+
+    napi_value nativeRecursion = nullptr;
+    napi_get_boolean(env, param.recursion, &nativeRecursion);
+    if (nativeSrcUri == nullptr || nativeFilter == nullptr || nativeRecursion == nullptr) {
+        HILOG_ERROR("create arguments native js value fail.");
+        return false;
+    }
+    argv[ARGC_ZERO] = nativeSrcUri;
+    argv[ARGC_ONE] = nativeFilter;
+    argv[ARGC_TWO] = nativeRecursion;
+    argc = ARGC_THREE;
+    return true;
+}
+
+bool JsFileAccessExtAbility::ParserFileInfoNumJsResult(napi_env &env, napi_value &nativeValue, bool &success,
+    uint32_t &counts)
+{
+    napi_value nativeSuccess = nullptr;
+    napi_get_named_property(env, nativeValue, "success", &nativeSuccess);
+    if (napi_get_value_bool(env, nativeSuccess, &success) != napi_ok) {
+        HILOG_ERROR("Convert js value fail.");
+        return false;
+    }
+    if (!success) {
+        return false;
+    }
+
+    napi_value nativeCounts = nullptr;
+    napi_get_named_property(env, nativeValue, "counts", &nativeCounts);
+    if (napi_get_value_uint32(env, nativeCounts, &counts) != napi_ok) {
+        HILOG_ERROR("Convert js value fail.");
+        return false;
+    }
+    HILOG_ERROR("left data is counts: %{public}u in storage media", counts);
+    return true;
+}
+
+int JsFileAccessExtAbility::GetFileInfoNum(const std::string &sourceFileUri, const FileFilter &filter, bool recursion,
+    uint32_t &counts)
+{
+    UserAccessTracer trace;
+    trace.Start("GetFileInfoNum");
+    auto argParser = [sourceFileUri, filter, recursion](napi_env &env, napi_value *argv, size_t &argc) -> bool {
+        struct FileInfoNumParam param = {
+            sourceFileUri,
+            filter,
+            recursion,
+        };
+        return BuildFileInfoNumParam(env, param, argv, argc);
+    };
+
+    bool success = false;
+    auto retParser = [&success, &counts](napi_env &env, napi_value result) -> bool {
+        return ParserFileInfoNumJsResult(env, result, success, counts);
+    };
+
+    auto errCode = CallJsMethod("getFileInfoNum", jsRuntime_, jsObj_.get(), argParser, retParser);
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
+        return errCode;
+    }
+    return ERR_OK;
+}
+
 bool JsFileAccessExtAbility::BuildFilterParam(napi_env &env, const FileFilter &filter, const FilterParam &param,
     napi_value *argv, size_t &argc)
 {

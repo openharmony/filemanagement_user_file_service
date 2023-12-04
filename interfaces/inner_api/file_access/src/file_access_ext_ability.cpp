@@ -177,5 +177,12 @@ int FileAccessExtAbility::MoveFile(const Uri &sourceUri, const Uri &targetParent
     HILOG_ERROR("FileAccessExtAbility::MoveFile Undefined operation");
     return EPERM;
 }
+
+int FileAccessExtAbility::GetFileInfoNum(const std::string &sourceFileUri, const FileFilter &filter, bool recursion,
+    uint32_t &counts)
+{
+    HILOG_ERROR("FileAccessExtAbility::GetFileInfoNum Undefined operation");
+    return EPERM;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS
