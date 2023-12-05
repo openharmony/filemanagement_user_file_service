@@ -19,7 +19,7 @@ import type { Filter } from '@ohos.file.fs';
 import fileAccess from '@ohos.file.fileAccess';
 import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
 import hilog from '@ohos.hilog';
-import { getFileInfos } from './ListScanFileInfo';
+import { getFileInfos, buildFilterOptions, buildNoFilterOptions, hasFilter } from './ListScanFileInfo';
 import type { Fileinfo } from './Common';
 import { getPath, checkUri, encodePathOfUri, decodeUri, uriReturnObject, BUNDLE_NAME, DOMAIN_CODE, fileinfoReturnObject } from './Common';
 import { FILE_PREFIX_NAME, TAG, fdReturnObject, boolReturnObject, rootsReturnObject } from './Common';
@@ -574,6 +574,27 @@ export default class FileExtAbility extends Extension {
       return boolReturnObject(false, e.code);
     }
     return boolReturnObject(true, ERR_OK);
+  }
+
+  getFileInfoNum(sourceFileUri: string, filter: Filter, recursion: boolean) : {boolean, number} {
+    let path = getPath(sourceFileUri);
+    try {
+      let statPath = fs.statSync(path);
+      if (!statPath.isDirectory()) {
+        return {success: false, counts: 0};
+      }
+      let options;
+      if (hasFilter(filter)) {
+        options = buildFilterOptions(filter, 0, recursion);
+      } else {
+        options = buildNoFilterOptions(0, recursion);
+      }
+      let fileNameList = fs.listFileSync(path, options);
+      return {success: true, counts: fileNameList.length};
+    } catch (e) {
+      hilog.error(DOMAIN_CODE, TAG, `getFileInfoNum error: ${e.message},code: ${e.code}`);
+      return {success: false, counts: 0};
+    }
   }
 
   listFile(sourceFileUri: string, offset: number, count: number, filter: Filter) :

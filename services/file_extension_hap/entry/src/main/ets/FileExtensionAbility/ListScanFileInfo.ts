@@ -146,10 +146,7 @@ function getFileInfos(sourceFileUri: string, offset: number, count: number, filt
       options = buildNoFilterOptions(listNum, recursion);
     }
     let fileNameList = fs.listFileSync(path, options);
-    for (let i = 0; i < fileNameList.length; i++) {
-      if (offset > i) {
-        continue;
-      }
+    for (let i = offset; i < fileNameList.length; i++) {
       if (i === listNum) {
         break;
       }
@@ -179,4 +176,4 @@ function getFileInfos(sourceFileUri: string, offset: number, count: number, filt
   }
   return infosReturnObject(infos, ERR_OK);
 }
-export { getFileInfos };
+export { getFileInfos, buildFilterOptions, buildNoFilterOptions, hasFilter };
