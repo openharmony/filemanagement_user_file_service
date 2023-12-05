@@ -46,8 +46,8 @@ public:
     int CopyFile(const Uri &sourceUri, const Uri &destUri, const std::string &fileName,
         Uri &newFileUri) override;
     int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) override;
-    int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
-        const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;
+    int ListFile(const FileInfo &fileInfo, const int64_t offset, const FileFilter &filter,
+        SharedMemoryInfo &memInfo) override;
     int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;
     int GetThumbnail(const Uri &uri, const ThumbnailSize &thumbnailSize, std::shared_ptr<PixelMap> &pixelMap) override;

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FILE_INFO_SHARED_MEMORY_H
-#define FILE_INFO_SHARED_MEMORY_H
+#ifndef _FILE_INFO_SHARED_MEMORY_H_
+#define _FILE_INFO_SHARED_MEMORY_H_
 
 #include <inttypes.h>
 #include <stdint.h>
@@ -398,4 +398,4 @@ private:
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FILE_INFO_SHARED_MEMORY_H
+#endif // _FILE_INFO_SHARED_MEMORY_H_

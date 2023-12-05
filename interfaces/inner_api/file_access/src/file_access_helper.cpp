@@ -792,8 +792,8 @@ int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Ur
     return ERR_OK;
 }
 
-int FileAccessHelper::ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
-    const FileFilter &filter, std::vector<FileInfo> &fileInfoVec)
+int FileAccessHelper::ListFile(const FileInfo &fileInfo, const int64_t offset, const FileFilter &filter,
+    SharedMemoryInfo &memInfo)
 {
     UserAccessTracer trace;
     trace.Start("ListFile");
@@ -814,12 +814,12 @@ int FileAccessHelper::ListFile(const FileInfo &fileInfo, const int64_t offset, c
         return E_IPCS;
     }
 
-    int ret = fileExtProxy->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    memInfo.Clear();
+    int ret = fileExtProxy->ListFile(fileInfo, offset, filter, memInfo);
     if (ret != ERR_OK) {
         HILOG_ERROR("ListFile get result error, code:%{public}d", ret);
         return ret;
     }
-
     return ERR_OK;
 }
 

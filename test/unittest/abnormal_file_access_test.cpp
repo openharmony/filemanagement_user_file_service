@@ -288,11 +288,13 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_ListFile
     try {
         FileInfo fileInfo;
         int64_t offset = 0;
-        int64_t maxCount = 0;
         FileFilter filter;
-        vector<FileInfo> fileInfoVec;
-        int result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        SharedMemoryInfo memInfo;
+        int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+            memInfo);
+        result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
         EXPECT_EQ(result, E_PERMISSION_SYS);
+        SharedMemoryOperation::DestroySharedMemory(memInfo);
     } catch (...) {
         GTEST_LOG_(ERROR) << "abnormal_external_file_access_ListFile_0000 occurs an exception.";
     }

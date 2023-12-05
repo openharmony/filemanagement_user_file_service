@@ -24,6 +24,7 @@
 #include "nativetoken_kit.h"
 #include "file_access_framework_errno.h"
 #include "file_access_helper.h"
+#include "file_info_shared_memory.h"
 #include "iservice_registry.h"
 #include "hilog_wrapper.h"
 
@@ -370,10 +371,12 @@ bool ListFileFuzzTest(const uint8_t* data, size_t size)
     FileInfo fileInfo;
     fileInfo.uri = std::string(reinterpret_cast<const char*>(data), size);
     int64_t offset = 0;
-    int64_t maxCount = 1000;
-    std::vector<FileInfo> fileInfoVec;
+    SharedMemoryInfo memInfo;
+    int result = SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+        memInfo);
     FileFilter filter;
-    int result = helper->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    result = helper->ListFile(fileInfo, offset, filter, memInfo);
+    SharedMemoryOperation::DestroySharedMemory(memInfo);
     if (result != OHOS::FileAccessFwk::ERR_OK) {
         HILOG_ERROR("ListFile failed. ret : %{public}d", result);
         return false;

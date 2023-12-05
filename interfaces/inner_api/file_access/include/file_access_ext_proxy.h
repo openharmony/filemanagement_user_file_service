@@ -48,8 +48,8 @@ public:
     virtual int CopyFile(const Uri &sourceUri, const Uri &destUri, const std::string &fileName,
         Uri &newFileUri) override;
     virtual int Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile) override;
-    virtual int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
-        const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;
+    virtual int ListFile(const FileInfo &fileInfo, const int64_t offset, const FileFilter &filter,
+        SharedMemoryInfo &memInfo) override;
     virtual int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec) override;
     virtual int GetThumbnail(const Uri &uri, const ThumbnailSize &thumbnailSize,

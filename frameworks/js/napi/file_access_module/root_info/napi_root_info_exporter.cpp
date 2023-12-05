@@ -115,16 +115,21 @@ napi_value NapiRootInfoExporter::ListFile(napi_env env, napi_callback_info info)
     fileInfo.mode = DOCUMENT_FLAG_REPRESENTS_DIR | DOCUMENT_FLAG_SUPPORTS_READ | DOCUMENT_FLAG_SUPPORTS_WRITE;
     {
         std::lock_guard<std::mutex> lock(fileIteratorEntity->entityOperateMutex);
+        int ret = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("RootInfoList", DEFAULT_CAPACITY_200KB,
+            fileIteratorEntity->memInfo);
+        if (ret != ERR_OK) {
+            NError(ret).ThrowErr(env);
+            return nullptr;
+        }
         fileIteratorEntity->fileAccessHelper = rootEntity->fileAccessHelper;
         fileIteratorEntity->fileInfo = fileInfo;
-        fileIteratorEntity->fileInfoVec.clear();
         fileIteratorEntity->offset = 0;
-        fileIteratorEntity->pos = 0;
         fileIteratorEntity->filter = std::move(filter);
-        fileIteratorEntity->flag = 0;
-        auto ret = rootEntity->fileAccessHelper->ListFile(fileInfo, fileIteratorEntity->offset,
-            MAX_COUNT, filter, fileIteratorEntity->fileInfoVec);
+        fileIteratorEntity->flag = CALL_LISTFILE;
+        ret = rootEntity->fileAccessHelper->ListFile(fileInfo, fileIteratorEntity->offset, filter,
+            fileIteratorEntity->memInfo);
         if (ret != ERR_OK) {
+            FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(fileIteratorEntity->memInfo);
             return NapiFileInfoExporter::ThrowError(env, ret);
         }
     }
@@ -170,7 +175,7 @@ napi_value NapiRootInfoExporter::ScanFile(napi_env env, napi_callback_info info)
         fileIteratorEntity->offset = 0;
         fileIteratorEntity->pos = 0;
         fileIteratorEntity->filter = std::move(filter);
-        fileIteratorEntity->flag = 1;
+        fileIteratorEntity->flag = CALL_SCANFILE;
         auto ret = rootEntity->fileAccessHelper->ScanFile(fileInfo, fileIteratorEntity->offset,
             MAX_COUNT, filter, fileIteratorEntity->fileInfoVec);
         if (ret != ERR_OK) {
