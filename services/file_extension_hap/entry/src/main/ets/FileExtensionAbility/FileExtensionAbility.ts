@@ -553,6 +553,58 @@ export default class FileExtAbility extends Extension {
     }
   }
 
+  copyFileByFileName(sourceFileUri, targetParentUri, fileName): {string, number } {
+    sourceFileUri = decodeUri(sourceFileUri);
+    targetParentUri = decodeUri(targetParentUri);
+    if (!checkUri(sourceFileUri) || !checkUri(targetParentUri)) {
+      return uriReturnObject('', E_URIS);
+    }
+
+    let displayName = this.getFileName(sourceFileUri);
+    let newFileUri = this.genNewFileUri(targetParentUri, displayName);
+    let newFilePath = getPath(newFileUri);
+    newFileUri = encodePathOfUri(newFileUri);
+
+    if (newFileUri === '') {
+      return uriReturnObject('', E_URIS);
+    }
+
+    try {
+      let sourceFilePath = getPath(sourceFileUri);
+      let isAccess = fs.accessSync(sourceFilePath);
+      if (!isAccess) {
+        hilog.error(DOMAIN_CODE, TAG, 'sourceFilePath is not exist');
+        return uriReturnObject('', E_GETRESULT);
+      }
+      let stat = fs.statSync(sourceFilePath);
+      if (!stat || stat.isDirectory()) {
+        hilog.error(DOMAIN_CODE, TAG, 'sourceFilePath is not file');
+        return uriReturnObject('', E_URIS);
+      }
+      let statNew = fs.statSync(getPath(targetParentUri));
+      if (!statNew || !statNew.isDirectory()) {
+        hilog.error(DOMAIN_CODE, TAG, 'targetParentUri is not directory');
+        return uriReturnObject('', E_GETRESULT);
+      }
+
+      let isAccessNewFilePath = fs.accessSync(newFilePath);
+      if (isAccessNewFilePath) {
+        newFileUri = this.genNewFileUri(targetParentUri, fileName);
+        newFilePath = getPath(newFileUri);
+        if (fs.accessSync(newFilePath)) {
+          hilog.error(DOMAIN_CODE, TAG, 'fileName is exist');
+          return uriReturnObject('', E_EXIST);
+        }
+      }
+      newFileUri = encodePathOfUri(newFileUri);
+      fs.copyFileSync(sourceFilePath, newFilePath);
+      return uriReturnObject(newFileUri, ERR_OK);
+    } catch (e) {
+      hilog.error(DOMAIN_CODE, TAG, 'copyFile error :' + e.message);
+      return uriReturnObject('', e.code);
+    }
+  }
+
   access(sourceFileUri): {boolean, number} {
     sourceFileUri = decodeUri(sourceFileUri);
     if (sourceFileUri === '') {

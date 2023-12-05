@@ -41,6 +41,7 @@ private:
     ErrCode CmdDelete(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdMove(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdCopy(MessageParcel &data, MessageParcel &reply);
+    ErrCode CmdCopyFile(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdRename(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdListFile(MessageParcel &data, MessageParcel &reply);
     ErrCode CmdScanFile(MessageParcel &data, MessageParcel &reply);

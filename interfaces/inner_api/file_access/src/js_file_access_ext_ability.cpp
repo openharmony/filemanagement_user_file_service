@@ -684,6 +684,65 @@ int JsFileAccessExtAbility::Copy(const Uri &sourceUri, const Uri &destUri, std::
     return copyRet;
 }
 
+int JsFileAccessExtAbility::CopyFile(const Uri &sourceUri, const Uri &destUri, const std::string &fileName,
+    Uri &newFileUri)
+{
+    UserAccessTracer trace;
+    trace.Start("CopyFile");
+    auto value = std::make_shared<Value<std::string>>();
+    if (value == nullptr) {
+        HILOG_ERROR("Move value is nullptr.");
+        return E_GETRESULT;
+    }
+
+    auto argParser = [sourceUri, destUri, fileName](napi_env &env, napi_value *argv, size_t &argc) -> bool {
+        napi_value srcNativeUri = nullptr;
+        napi_create_string_utf8(env, sourceUri.ToString().c_str(), sourceUri.ToString().length(), &srcNativeUri);
+
+        napi_value dstNativeUri = nullptr;
+        napi_create_string_utf8(env, destUri.ToString().c_str(), destUri.ToString().length(), &dstNativeUri);
+
+        napi_value fileNativeName = nullptr;
+        napi_create_string_utf8(env, fileName.c_str(), fileName.length(), &fileNativeName);
+        if (srcNativeUri == nullptr || dstNativeUri == nullptr || fileNativeName == nullptr) {
+            HILOG_ERROR("create arguments native js value fail.");
+            return false;
+        }
+        argv[ARGC_ZERO] = srcNativeUri;
+        argv[ARGC_ONE] = dstNativeUri;
+        argv[ARGC_TWO] = fileNativeName;
+        argc = ARGC_THREE;
+        return true;
+    };
+
+    auto retParser = [value](napi_env &env, napi_value result) -> bool {
+        if (GetUriAndCodeFromJs(env, result, value) != napi_ok) {
+            HILOG_ERROR("Convert js object fail.");
+            return false;
+        }
+        return true;
+    };
+
+    auto errCode = CallJsMethod("copyFileByFileName", jsRuntime_, jsObj_.get(), argParser, retParser);
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
+        return errCode;
+    }
+
+    if (value->code != ERR_OK) {
+        HILOG_ERROR("fileio fail.");
+        return value->code;
+    }
+
+    if ((value->data).empty()) {
+        HILOG_ERROR("call copyFileByFileName with return empty.");
+        return E_GETRESULT;
+    }
+    newFileUri = Uri(value->data);
+
+    return ERR_OK;
+}
+
 int JsFileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
     UserAccessTracer trace;

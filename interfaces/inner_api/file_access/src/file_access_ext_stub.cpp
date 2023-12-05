@@ -60,6 +60,7 @@ FileAccessExtStub::FileAccessExtStub()
     stubFuncMap_[CMD_GET_THUMBNAIL] = &FileAccessExtStub::CmdGetThumbnail;
     stubFuncMap_[CMD_GET_FILEINFO_FROM_URI] = &FileAccessExtStub::CmdGetFileInfoFromUri;
     stubFuncMap_[CMD_GET_FILEINFO_FROM_RELATIVE_PATH] = &FileAccessExtStub::CmdGetFileInfoFromRelativePath;
+    stubFuncMap_[CMD_COPY_FILE] = &FileAccessExtStub::CmdCopyFile;
     stubFuncMap_[CMD_MOVE_ITEM] = &FileAccessExtStub::CmdMoveItem;
     stubFuncMap_[CMD_MOVE_FILE] = &FileAccessExtStub::CmdMoveFile;
 }
@@ -324,6 +325,44 @@ ErrCode FileAccessExtStub::CmdCopy(MessageParcel &data, MessageParcel &reply)
             HILOG_ERROR("Parameter Copy fail to WriteParcelable copyResult");
             return E_IPCS;
         }
+    }
+
+    return ERR_OK;
+}
+
+ErrCode FileAccessExtStub::CmdCopyFile(MessageParcel &data, MessageParcel &reply)
+{
+    UserAccessTracer trace;
+    trace.Start("CmdCopyFile");
+    std::string sourceUri = "";
+    if (!data.ReadString(sourceUri)) {
+        HILOG_ERROR("Parameter Copy file fail to ReadParcelable sourceUri");
+        return E_IPCS;
+    }
+
+    std::string destUri = "";
+    if (!data.ReadString(destUri)) {
+        HILOG_ERROR("Parameter Copy file fail to ReadParcelable destUri");
+        return E_IPCS;
+    }
+
+    std::string fileName = "";
+    if (!data.ReadString(fileName)) {
+        HILOG_ERROR("Parameter Copy file fail to ReadString fileName");
+        return E_IPCS;
+    }
+
+    OHOS::Uri newFileUri("");
+    Uri source(sourceUri);
+    Uri dest(destUri);
+    int ret = CopyFile(source, dest, fileName, newFileUri);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("Parameter Copy file fail to WriteInt32 ret");
+        return E_IPCS;
+    }
+    if (!reply.WriteString(newFileUri.ToString())) {
+        HILOG_ERROR("Parameter Copy file fail to WriteString newFileUri");
+        return E_IPCS;
     }
 
     return ERR_OK;

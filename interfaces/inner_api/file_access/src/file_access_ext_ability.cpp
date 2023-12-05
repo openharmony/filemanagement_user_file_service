@@ -97,6 +97,13 @@ int FileAccessExtAbility::Copy(const Uri &sourceUri, const Uri &destUri, std::ve
     return EPERM;
 }
 
+int FileAccessExtAbility::CopyFile(const Uri &sourceUri, const Uri &destUri, const std::string &fileName,
+    Uri &newFileUri)
+{
+    HILOG_ERROR("FileAccessExtAbility::Copy file Undefined operation");
+    return EPERM;
+}
+
 int FileAccessExtAbility::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
     HILOG_ERROR("FileAccessExtAbility::Rename Undefined operation");

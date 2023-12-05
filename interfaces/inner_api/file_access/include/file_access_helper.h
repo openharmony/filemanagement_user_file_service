@@ -77,6 +77,7 @@ public:
     int Delete(Uri &selectFile);
     int Move(Uri &sourceFile, Uri &targetParent, Uri &newFile);
     int Copy(Uri &sourceUri, Uri &destUri, std::vector<Result> &copyResult, bool force = false);
+    int CopyFile(Uri &sourceUri, Uri &destUri, const std::string &fileName, Uri &newFileUri);
     int Rename(Uri &sourceFile, const std::string &displayName, Uri &newFile);
     int ListFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount, const FileFilter &filter,
         std::vector<FileInfo> &fileInfoVec);
@@ -110,6 +111,7 @@ private:
     std::shared_ptr<ConnectInfo> GetConnectInfo(const std::string &bundleName);
 
     int CopyOperation(Uri &sourceUri, Uri &destUri, std::vector<Result> &copyResult, bool force = false);
+    int CopyFileOperation(Uri &sourceUri, Uri &destUri, const std::string &fileName, Uri &newFileUri);
     int IsDirectory(Uri &uri, bool &isDir);
 
     sptr<IRemoteObject> token_ = nullptr;

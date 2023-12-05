@@ -106,6 +106,19 @@ int FileAccessExtStubImpl::Copy(const Uri &sourceUri, const Uri &destUri, std::v
     return ret;
 }
 
+int FileAccessExtStubImpl::CopyFile(const Uri &sourceUri, const Uri &destUri, const std::string &fileName,
+    Uri &newFileUri)
+{
+    UserAccessTracer trace;
+    trace.Start("CopyFile");
+    if (extension_ == nullptr) {
+        HILOG_ERROR("Copy file get extension failed.");
+        return E_IPCS;
+    }
+    int ret = extension_->CopyFile(sourceUri, destUri, fileName, newFileUri);
+    return ret;
+}
+
 int FileAccessExtStubImpl::Rename(const Uri &sourceFile, const std::string &displayName, Uri &newFile)
 {
     UserAccessTracer trace;
