@@ -24,6 +24,7 @@
 #include "file_uri.h"
 #include "file_util.h"
 #include "ipc_skeleton.h"
+#include "rust_file.h"
 
 namespace OHOS {
 namespace Trash {
@@ -221,35 +222,32 @@ static bool Mkdirs(const string &path, bool isDir, string &newRecoveredPath)
     return true;
 }
 
-static string GenerateNewFileNameWithSuffix(const string &destFile, int32_t distinctSuffixIndex,
-    const string &newPrefix, const string &newSuffix)
+static int GenerateNewFileName(string &destFile, const string &filePathName, int32_t index, const string &fileSuffix)
 {
-    // 处理存在后缀名的文件
     auto [isExist, ret] = Access(destFile);
     if (isExist) {
-        distinctSuffixIndex += 1;
-        string newDestFile = newPrefix + to_string(distinctSuffixIndex) + newSuffix;
-        return GenerateNewFileNameWithSuffix(newDestFile, distinctSuffixIndex, newPrefix, newSuffix);
-    } else if (ret == ERRNO_NOERR) {
-        HILOG_DEBUG("GenerateNewFileNameWithSuffix: destFile = %{public}s", destFile.c_str());
-        return destFile;
+        destFile = filePathName + to_string(index++) + fileSuffix;
+        return GenerateNewFileName(destFile, filePathName, index, fileSuffix);
     }
-    return "";
+    return ret;
 }
 
-static string GenerateNewFileNameNoSuffix(const string &destFile, int32_t distinctSuffixIndex, const string &newPrefix)
+static int TruncFileName(string &newDestFile, string &filePathName, int32_t slashPos, const string &fileSuffix)
 {
-    // 处理不存在后缀名的文件
-    auto [isExist, ret] = Access(destFile);
-    if (isExist) {
-        distinctSuffixIndex += 1;
-        string newDestFile = newPrefix + to_string(distinctSuffixIndex);
-        return GenerateNewFileNameNoSuffix(newDestFile, distinctSuffixIndex, newPrefix);
-    } else if (ret == ERRNO_NOERR) {
-        HILOG_DEBUG("GenerateNewFileNameNoSuffix: destFile = %{public}s", destFile.c_str());
-        return destFile;
+    int distinctSuffixIndex = 1;
+    string fileName = filePathName.substr(slashPos + 1);
+    fileName = fileName.substr(0, fileName.length() - 1);
+    Str *str = CutFileName(fileName.c_str(), SLICE_LENGTH);
+    if (str != nullptr && str->len > 0) {
+        size_t cutSum = fileName.length() - str->len;
+        filePathName = filePathName.substr(0, filePathName.length() - cutSum - 1) + " ";
+        newDestFile = filePathName + to_string(distinctSuffixIndex) + fileSuffix;
+    } else {
+        HILOG_ERROR("TruncFileName: : Failed to cut file name by rust interface");
+        return EINVAL;
     }
-    return "";
+    StrFree(str);
+    return GenerateNewFileName(newDestFile, filePathName, distinctSuffixIndex, fileSuffix);
 }
 
 static int MoveFile(const string &srcFile, const string &destFile)
@@ -266,32 +264,30 @@ static int MoveFile(const string &srcFile, const string &destFile)
         }
         // 识别文件后缀分隔符，找最后一个
         size_t suffixPos = destFile.find_last_of('.');
+        string filePathName = " ";
+        string fileSuffix = "";
         if (suffixPos < slashPos) {
             // 识别的文件后缀分隔符必须在文件部分
-            suffixPos = string::npos;
-        }
-        string newDestFile = destFile;
-        int32_t distinctSuffixIndex = 1;
-        if (suffixPos == string::npos) {
-            string newPrefix = newDestFile + " ";
-            newDestFile = newPrefix + to_string(distinctSuffixIndex);
-            newDestFile = GenerateNewFileNameNoSuffix(newDestFile, distinctSuffixIndex, newPrefix);
+            filePathName = destFile + filePathName;
         } else {
-            string newPrefix = destFile.substr(0, suffixPos) + " ";
-            string newSuffix =  destFile.substr(suffixPos);
-            HILOG_DEBUG("MoveFile: newPrefix = %{public}s", newPrefix.c_str());
-            HILOG_DEBUG("MoveFile: newSuffix = %{public}s", newSuffix.c_str());
-            // 查看加上数字后缀后文件是否已经存在，若存在，需要重新获取
-            newDestFile = GenerateNewFileNameWithSuffix(newPrefix + to_string(distinctSuffixIndex) + newSuffix,
-                distinctSuffixIndex, newPrefix, newSuffix);
+            filePathName = destFile.substr(0, suffixPos) + filePathName;
+            fileSuffix = destFile.substr(suffixPos);
         }
-        HILOG_INFO("MoveFile: newDestFile = %{public}s", newDestFile.c_str());
+        int32_t distinctSuffixIndex = 1;
+        string newDestFile = filePathName + to_string(distinctSuffixIndex) + fileSuffix;
+        ret = GenerateNewFileName(newDestFile, filePathName, distinctSuffixIndex, fileSuffix);
+        if (ret == -ENAMETOOLONG) {
+            ret = TruncFileName(newDestFile, filePathName, slashPos, fileSuffix);
+            if (ret) {
+                return ret;
+            }
+        }
         return RenameFile(srcFile, newDestFile);
     } else if (ret == ERRNO_NOERR) {
         return RenameFile(srcFile, destFile);
     }
     HILOG_ERROR("MoveFile: : Invalid Path");
-    return EINVAL;
+    return ret;
 }
 
 static string RecurCheckIfOnlyContentInDir(const string &path, size_t trashWithTimePos, const string &trashWithTimePath)
