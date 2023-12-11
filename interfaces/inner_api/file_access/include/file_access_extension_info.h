@@ -85,7 +85,7 @@ constexpr int32_t DEVICE_ONLINE = 5;
 constexpr int32_t DEVICE_OFFLINE = 6;
 
 //Indicates the device root uris
-const std::string DEVICE_URI = "file://docs";
+const std::string DEVICES_URI = "file://docs";
 
 //Indicates the root uri of the External device.
 const std::string EXTERNAL_ROOT_URI = "file://docs/storage/External";
