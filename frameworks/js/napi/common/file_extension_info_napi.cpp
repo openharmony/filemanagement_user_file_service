@@ -225,9 +225,9 @@ void InitNotifyType(napi_env env, napi_value exports)
 
 void InitDeviceUri(napi_env env, napi_value exports)
 {
-    napi_value deviceUri = nullptr;
-    napi_create_string_utf8(env, DEVICE_URI.c_str(), DEVICE_URI.length(), &deviceUri);
-    napi_set_named_property(env, exports, "DEVICE_URI", deviceUri);
+    napi_value devicesUri = nullptr;
+    napi_create_string_utf8(env, DEVICES_URI.c_str(), DEVICES_URI.length(), &devicesUri);
+    napi_set_named_property(env, exports, "DEVICES_URI", devicesUri);
 }
 
 void InitDeviceRoots(napi_env env, napi_value exports)

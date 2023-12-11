@@ -1185,7 +1185,7 @@ int FileAccessHelper::StopWatcher(Uri &uri, bool isUnregisterAll)
 
 static void convertUris(Uri uri, std::vector<Uri> &uris) {
     std::string uriString = uri.ToString();
-    if (uriString == DEVICE_URI) {
+    if (uriString == DEVICES_URI) {
         uris = deviceUris;
     } else {
         uris.push_back(uri);
