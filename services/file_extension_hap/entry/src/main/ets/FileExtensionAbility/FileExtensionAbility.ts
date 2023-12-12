@@ -199,7 +199,7 @@ export default class FileExtAbility extends Extension {
       let path = getPath(newFileUri);
       if(fs.accessSync(path)) {
         return uriReturnObject('', E_EXIST);
-    }
+      }
       let file = fs.openSync(path, fs.OpenMode.CREATE);
       fs.closeSync(file);
       newFileUri = encodePathOfUri(newFileUri);
