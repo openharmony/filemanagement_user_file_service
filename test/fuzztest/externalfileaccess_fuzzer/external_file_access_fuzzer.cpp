@@ -60,7 +60,7 @@ void SetNativeToken()
     tokenId |= systemAppMask;
     SetSelfTokenID(tokenId);
     OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
-    delete perms;
+    delete[] perms;
 }
 
 shared_ptr<FileAccessHelper> GetFileAccessHelper()
