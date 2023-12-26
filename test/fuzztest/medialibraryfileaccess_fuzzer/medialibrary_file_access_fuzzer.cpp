@@ -41,11 +41,12 @@ const int UID_DEFAULT = 0;
 void SetNativeToken()
 {
     uint64_t tokenId;
-    const char **perms = new const char *;
-    *perms = "ohos.permission.FILE_ACCESS_MANAGER";
+    const char **perms = new const char *[2];
+    perms[0] = "ohos.permission.FILE_ACCESS_MANAGER";
+    perms[1] = "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED";
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
-        .permsNum = 1,
+        .permsNum = 2,
         .aclsNum = 0,
         .dcaps = nullptr,
         .perms = perms,
@@ -59,7 +60,7 @@ void SetNativeToken()
     tokenId |= systemAppMask;
     SetSelfTokenID(tokenId);
     OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
-    delete perms;
+    delete[] perms;
 }
 
 shared_ptr<FileAccessHelper> GetFileAccessHelper()

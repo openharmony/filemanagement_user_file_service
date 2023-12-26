@@ -53,11 +53,12 @@ shared_ptr<OHOS::AbilityRuntime::Context> g_context = nullptr;
 void SetNativeToken()
 {
     uint64_t tokenId;
-    const char **perms = new const char *[1];
+    const char **perms = new const char *[2];
     perms[0] = "ohos.permission.FILE_ACCESS_MANAGER";
+    perms[1] = "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED";
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
-        .permsNum = 1,
+        .permsNum = 2,
         .aclsNum = 0,
         .dcaps = nullptr,
         .perms = perms,
