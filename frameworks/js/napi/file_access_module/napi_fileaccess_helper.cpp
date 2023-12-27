@@ -34,6 +34,7 @@
 #include "root_iterator_entity.h"
 #include "securec.h"
 #include "uri.h"
+#include "file_access_check_util.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
@@ -67,25 +68,20 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
         return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
     auto context = OHOS::AbilityRuntime::GetStageModeContext(env, funcArg.GetArg(PARAM0));
-    if (context == nullptr) {
-        HILOG_ERROR("FileAccessHelperConstructor: failed to get native context");
-        return NapiFileInfoExporter::ThrowError(env, E_GETRESULT);
-    }
+    CHECK_STATUS_RETURN(context != nullptr, NapiFileInfoExporter::ThrowError(env, E_GETRESULT),
+        "FileAccessHelperConstructor: failed to get native context");
     if (funcArg.GetArgc() == NARG_CNT::ONE) {
         createResult = FileAccessHelper::Creator(context);
     } else if (funcArg.GetArgc() == NARG_CNT::TWO) {
         std::vector<AAFwk::Want> wants;
         bool suss = UnwrapArrayWantFromJS(env, funcArg.GetArg(PARAM1), wants);
-        if (!suss) {
-            HILOG_ERROR("UnwrapArrayWantFromJS failed to get native wants");
-            return NapiFileInfoExporter::ThrowError(env, E_GETRESULT);
-        }
+        CHECK_STATUS_RETURN(suss, NapiFileInfoExporter::ThrowError(env, E_GETRESULT),
+            "UnwrapArrayWantFromJS failed to get native wants");
         createResult = FileAccessHelper::Creator(context, wants);
     }
-    if (createResult.first == nullptr || createResult.second != ERR_OK) {
-        HILOG_ERROR("FileAccessHelperConstructor: Creator failed ret=%{public}d", createResult.second);
-        return NapiFileInfoExporter::ThrowError(env, createResult.second);
-    }
+    CHECK_STATUS_RETURN(!(createResult.first == nullptr || createResult.second != ERR_OK),
+        NapiFileInfoExporter::ThrowError(env, createResult.second),
+        "FileAccessHelperConstructor: Creator failed ret=%{public}d", createResult.second);
     g_fileAccessHelperList.emplace_back(createResult.first);
     HILOG_INFO("g_fileAccessHelperList size %{public}zu", g_fileAccessHelperList.size());
     auto finalize = [](napi_env env, void *data, void *hint) {
@@ -121,10 +117,8 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
         if (napi_get_cb_info(env, info, &argc, args, nullptr, nullptr) != napi_ok) {
             return nullptr;
         }
-        if (argc > requireArgc || napi_get_reference_value(env, g_constructorRef, &cons) != napi_ok) {
-            HILOG_ERROR("Wrong argument count%{public}zu. or g_constructorRef reference is fail", argc);
-            return nullptr;
-        }
+        CHECK_STATUS_RETURN(!(argc > requireArgc || napi_get_reference_value(env, g_constructorRef, &cons) != napi_ok),
+            nullptr, "Wrong argument count%{public}zu. or g_constructorRef reference is fail", argc);
         if (napi_new_instance(env, cons, ARGS_ONE, args, &result) != napi_ok) {
             return nullptr;
         }
@@ -135,27 +129,18 @@ napi_value AcquireFileAccessHelperWrap(napi_env env, napi_callback_info info)
         if (napi_get_cb_info(env, info, &argc, args, nullptr, nullptr) != napi_ok) {
             return nullptr;
         }
-        if (argc > requireArgc || napi_get_reference_value(env, g_constructorRef, &cons) != napi_ok) {
-            HILOG_ERROR("Wrong argument count%{public}zu. or g_constructorRef reference is fail", argc);
-            return nullptr;
-        }
+        CHECK_STATUS_RETURN(!(argc > requireArgc || napi_get_reference_value(env, g_constructorRef, &cons) != napi_ok),
+            nullptr, "Wrong argument count%{public}zu. or g_constructorRef reference is fail", argc);
         if (napi_new_instance(env, cons, ARGS_TWO, args, &result) != napi_ok) {
             return nullptr;
         }
     }
-    if (!IsTypeForNapiValue(env, result, napi_object)) {
-        HILOG_ERROR("IsTypeForNapiValue isn`t object");
-        return nullptr;
-    }
+    CHECK_STATUS_RETURN(IsTypeForNapiValue(env, result, napi_object), nullptr,
+        "IsTypeForNapiValue isn't object");
     FileAccessHelper *fileAccessHelper = nullptr;
-    if (napi_unwrap(env, result, (void **)&fileAccessHelper) != napi_ok) {
-        HILOG_ERROR("Faild to get fileAccessHelper");
-        return nullptr;
-    }
-    if (fileAccessHelper == nullptr) {
-        HILOG_ERROR("fileAccessHelper is nullptr");
-        return nullptr;
-    }
+    CHECK_STATUS_RETURN(napi_unwrap(env, result, (void **)&fileAccessHelper) == napi_ok, nullptr,
+        "Faild to get fileAccessHelper");
+    CHECK_STATUS_RETURN(fileAccessHelper != nullptr, nullptr, "fileAccessHelper is nullptr");
     HILOG_INFO("g_fileAccessHelperList size %{public}zu", g_fileAccessHelperList.size());
     return result;
 }

@@ -59,13 +59,8 @@ bool CheckSuffix(std::vector<std::string> suffixs)
     return true;
 }
 
-int GetFileFilterParam(const NVal &argv, FileFilter &filter)
+int GetSuffixDisplayNameMimeType(const NVal &argv, FileFilter &filter, bool ret)
 {
-    bool ret = false;
-    filter.SetHasFilter(false);
-    if (argv.TypeIs(napi_undefined)) {
-        return ERR_OK;
-    }
     if (argv.HasProp("suffix")) {
         std::vector<std::string> suffixs;
         std::tie(ret, suffixs, std::ignore) = argv.GetProp("suffix").ToStringArray();
@@ -104,6 +99,11 @@ int GetFileFilterParam(const NVal &argv, FileFilter &filter)
         filter.SetHasFilter(true);
     }
 
+    return ERR_OK;
+}
+
+int GetFileSizeLastModified(const NVal &argv, FileFilter &filter, bool ret)
+{
     if (argv.HasProp("fileSizeOver")) {
         int64_t fileSizeOver;
         std::tie(ret, fileSizeOver) = argv.GetProp("fileSizeOver").ToInt64();
@@ -144,6 +144,26 @@ int GetFileFilterParam(const NVal &argv, FileFilter &filter)
 
         filter.SetExcludeMedia(excludeMedia);
         filter.SetHasFilter(true);
+    }
+
+    return ERR_OK;
+}
+
+int GetFileFilterParam(const NVal &argv, FileFilter &filter)
+{
+    bool ret = false;
+    filter.SetHasFilter(false);
+    if (argv.TypeIs(napi_undefined)) {
+        return ERR_OK;
+    }
+
+    int ret1 = GetSuffixDisplayNameMimeType(argv, filter, ret);
+    if (ret1 != ERR_OK) {
+        return ret1;
+    }
+    int ret2 = GetFileSizeLastModified(argv, filter, ret);
+    if (ret2 != ERR_OK) {
+        return ret1;
     }
 
     if (!filter.GetHasFilter()) {

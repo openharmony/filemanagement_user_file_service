@@ -71,6 +71,42 @@ static napi_status SetValueArray(const napi_env& env,
     return status;
 }
 
+void NapiObserver::NapiWorkScope(uv_work_t *work, int status)
+{
+    std::unique_ptr<CallbackParam> param(reinterpret_cast<CallbackParam *>(work->data));
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(param->napiObserver->env_, &scope);
+    if (scope == nullptr) {
+        HILOG_ERROR("napi_open_handle_scope failed");
+        return;
+    }
+
+    NVal napiNotifyMessage = NVal::CreateObject(param->napiObserver->env_);
+    napiNotifyMessage.AddProp("type",
+        NVal::CreateInt32(param->napiObserver->env_, int((param->iNotifyMessage).notifyType_)).val_);
+    SetValueArray(param->napiObserver->env_, "uris", param->iNotifyMessage.uris_, napiNotifyMessage.val_);
+
+    napi_value callback = nullptr;
+    napi_value args[ARGS_ONE] = {napiNotifyMessage.val_};
+    napi_status ret = napi_get_reference_value(param->napiObserver->env_, param->napiObserver->cbOnRef_,
+        &callback);
+    if (ret != napi_ok) {
+        HILOG_ERROR("Notify get reference failed, status:%{public}d.", status);
+        napi_close_handle_scope(param->napiObserver->env_, scope);
+        return;
+    }
+    napi_value global = nullptr;
+    napi_get_global(param->napiObserver->env_, &global);
+    napi_value result = nullptr;
+    ret = napi_call_function(param->napiObserver->env_, global, callback, ARGS_ONE, args, &result);
+    if (ret != napi_ok) {
+        HILOG_ERROR("Notify failed, status:%{public}d.", ret);
+        napi_close_handle_scope(param->napiObserver->env_, scope);
+        return;
+    }
+    napi_close_handle_scope(param->napiObserver->env_, scope);
+}
+
 void NapiObserver::OnChange(NotifyMessage &notifyMessage)
 {
     uv_loop_s *loop = nullptr;
@@ -92,38 +128,8 @@ void NapiObserver::OnChange(NotifyMessage &notifyMessage)
     int ret = uv_queue_work(loop, work_.get(),
         [](uv_work_t *work) {},
         [](uv_work_t *work, int status) {
-            std::unique_ptr<CallbackParam> param(reinterpret_cast<CallbackParam *>(work->data));
-            napi_handle_scope scope = nullptr;
-            napi_open_handle_scope(param->napiObserver->env_, &scope);
-            if (scope == nullptr) {
-                HILOG_ERROR("napi_open_handle_scope failed");
-                return;
-            }
-
-            NVal napiNotifyMessage = NVal::CreateObject(param->napiObserver->env_);
-            napiNotifyMessage.AddProp("type",
-                NVal::CreateInt32(param->napiObserver->env_, int((param->iNotifyMessage).notifyType_)).val_);
-            SetValueArray(param->napiObserver->env_, "uris", param->iNotifyMessage.uris_, napiNotifyMessage.val_);
-
-            napi_value callback = nullptr;
-            napi_value args[ARGS_ONE] = {napiNotifyMessage.val_};
-            napi_status ret = napi_get_reference_value(param->napiObserver->env_, param->napiObserver->cbOnRef_,
-                &callback);
-            if (ret != napi_ok) {
-                HILOG_ERROR("Notify get reference failed, status:%{public}d.", status);
-                napi_close_handle_scope(param->napiObserver->env_, scope);
-                return;
-            }
-            napi_value global = nullptr;
-            napi_get_global(param->napiObserver->env_, &global);
-            napi_value result = nullptr;
-            ret = napi_call_function(param->napiObserver->env_, global, callback, ARGS_ONE, args, &result);
-            if (ret != napi_ok) {
-                HILOG_ERROR("Notify failed, status:%{public}d.", ret);
-                napi_close_handle_scope(param->napiObserver->env_, scope);
-                return;
-            }
-            napi_close_handle_scope(param->napiObserver->env_, scope);
+            NapiWorkScope(work, status);
+            return;
         });
     if (ret == 0) {
         callbackParam.release();

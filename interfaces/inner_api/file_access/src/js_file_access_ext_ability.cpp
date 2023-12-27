@@ -40,6 +40,7 @@
 #include "parameter.h"
 #include "system_ability_definition.h"
 #include "user_access_tracer.h"
+#include "file_access_check_util.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -862,97 +863,86 @@ int JsFileAccessExtAbility::MakeStringNativeArray(napi_env &env, std::vector<std
     return ERR_OK;
 }
 
-int JsFileAccessExtAbility::MakeJsNativeFileFilter(napi_env &env, const FileFilter &filter, napi_value nativeFilter)
+int JsFileAccessExtAbility::CreateNativeValue(napi_env &env, const FileFilter &filter,
+    struct FileFilterValue &fileFilter)
 {
-    napi_value suffixArray = nullptr;
-    napi_create_array_with_length(env, filter.GetSuffix().size(), &suffixArray);
-    if (suffixArray == nullptr) {
-        HILOG_ERROR("Create Suffix native array value fail.");
-        return E_GETRESULT;
-    }
+    napi_create_array_with_length(env, filter.GetSuffix().size(), &fileFilter.suffixArray);
+    CHECK_STATUS_RETURN(fileFilter.suffixArray != nullptr, E_GETRESULT,
+        "Create Suffix native array value fail.");
 
     std::vector<std::string> suffixVec = filter.GetSuffix();
-    int errorCode = MakeStringNativeArray(env, suffixVec, suffixArray);
-    if (errorCode != ERR_OK) {
-        HILOG_ERROR("Create Suffix native array value fail, code:%{public}d.", errorCode);
-        return errorCode;
-    }
-
-    napi_value displayNameArray = nullptr;
-    napi_create_array_with_length(env, filter.GetDisplayName().size(), &displayNameArray);
-    if (displayNameArray == nullptr) {
-        HILOG_ERROR("Create DisplayName native array value fail.");
-        return E_GETRESULT;
-    }
+    int errorCode = MakeStringNativeArray(env, suffixVec, fileFilter.suffixArray);
+    CHECK_STATUS_RETURN(errorCode == ERR_OK, errorCode,
+        "Create Suffix native array value fail, code:%{public}d.", errorCode);
+    
+    napi_create_array_with_length(env, filter.GetDisplayName().size(), &fileFilter.displayNameArray);
+    CHECK_STATUS_RETURN(fileFilter.displayNameArray != nullptr, E_GETRESULT,
+        "Create DisplayName native array value fail.");
 
     std::vector<std::string> displayNameVec = filter.GetDisplayName();
-    errorCode = MakeStringNativeArray(env, displayNameVec, displayNameArray);
-    if (errorCode != ERR_OK) {
-        HILOG_ERROR("Create DisplayName native array value fail, code:%{public}d.", errorCode);
-        return errorCode;
-    }
+    errorCode = MakeStringNativeArray(env, displayNameVec, fileFilter.displayNameArray);
+    CHECK_STATUS_RETURN(errorCode == ERR_OK, errorCode,
+        "Create DisplayName native array value fail, code:%{public}d.", errorCode);
 
-    napi_value mimeTypeArray = nullptr;
-    napi_create_array_with_length(env, filter.GetMimeType().size(), &mimeTypeArray);
-    if (mimeTypeArray == nullptr) {
-        HILOG_ERROR("Create MimeType native array value fail.");
-        return E_GETRESULT;
-    }
+    napi_create_array_with_length(env, filter.GetMimeType().size(), &fileFilter.mimeTypeArray);
+    CHECK_STATUS_RETURN(fileFilter.mimeTypeArray != nullptr, E_GETRESULT,
+        "Create MimeType native array value fail.");
 
     std::vector<std::string> mimeTypeVec = filter.GetMimeType();
-    errorCode = MakeStringNativeArray(env, mimeTypeVec, mimeTypeArray);
-    if (errorCode != ERR_OK) {
-        HILOG_ERROR("Create MimeType native array value fail, code:%{public}d.", errorCode);
-        return errorCode;
+    errorCode = MakeStringNativeArray(env, mimeTypeVec, fileFilter.mimeTypeArray);
+    CHECK_STATUS_RETURN(errorCode == ERR_OK, errorCode,
+        "Create MimeType native array value fail, code:%{public}d.", errorCode);
+
+    napi_create_int64(env, filter.GetFileSizeOver(), &fileFilter.nativeFileSizeOver);
+    CHECK_STATUS_RETURN(fileFilter.nativeFileSizeOver != nullptr, E_GETRESULT,
+        "Create NativeFileSizeOver native js value fail.");
+
+    napi_create_double(env, filter.GetLastModifiedAfter(), &fileFilter.nativeLastModifiedAfter);
+    CHECK_STATUS_RETURN(fileFilter.nativeLastModifiedAfter != nullptr, E_GETRESULT,
+        "Create NativeLastModifiedAfter native js value fail.");
+
+    napi_get_boolean(env, filter.GetExcludeMedia(), &fileFilter.nativeExcludeMedia);
+    CHECK_STATUS_RETURN(fileFilter.nativeExcludeMedia != nullptr, E_GETRESULT,
+        "Create NativeExcludeMedia native js value fail.");
+
+    return ERR_OK;
+}
+
+int JsFileAccessExtAbility::MakeJsNativeFileFilter(napi_env &env, const FileFilter &filter, napi_value nativeFilter)
+{
+    struct FileFilterValue fileFilter;
+    int ret = CreateNativeValue(env, filter, fileFilter);
+    if (ret != ERR_OK) {
+        return ret;
     }
 
-    napi_value nativeFileSizeOver = nullptr;
-    napi_create_int64(env, filter.GetFileSizeOver(), &nativeFileSizeOver);
-    if (nativeFileSizeOver == nullptr) {
-        HILOG_ERROR("Create NativeFileSizeOver native js value fail.");
-        return E_GETRESULT;
-    }
-
-    napi_value nativeLastModifiedAfter = nullptr;
-    napi_create_double(env, filter.GetLastModifiedAfter(), &nativeLastModifiedAfter);
-    if (nativeLastModifiedAfter == nullptr) {
-        HILOG_ERROR("Create NativeLastModifiedAfter native js value fail.");
-        return E_GETRESULT;
-    }
-
-    napi_value nativeExcludeMedia = nullptr;
-    napi_get_boolean(env, filter.GetExcludeMedia(), &nativeExcludeMedia);
-    if (nativeExcludeMedia == nullptr) {
-        HILOG_ERROR("Create NativeExcludeMedia native js value fail.");
-        return E_GETRESULT;
-    }
-
-    if (napi_set_named_property(env, nativeFilter, "suffix", suffixArray) != napi_ok) {
+    if (napi_set_named_property(env, nativeFilter, "suffix", fileFilter.suffixArray) != napi_ok) {
         HILOG_ERROR("Set suffix property to Filter NativeValue fail.");
         return EINVAL;
     }
 
-    if (napi_set_named_property(env, nativeFilter, "displayName", displayNameArray) != napi_ok) {
+    if (napi_set_named_property(env, nativeFilter, "displayName", fileFilter.displayNameArray) != napi_ok) {
         HILOG_ERROR("Set displayName property to Filter NativeValue fail.");
         return EINVAL;
     }
 
-    if (napi_set_named_property(env, nativeFilter, "mimeType", mimeTypeArray) != napi_ok) {
+    if (napi_set_named_property(env, nativeFilter, "mimeType", fileFilter.mimeTypeArray) != napi_ok) {
         HILOG_ERROR("Set mimeType property to Filter NativeValue fail.");
         return EINVAL;
     }
 
-    if (napi_set_named_property(env, nativeFilter, "fileSizeOver", nativeFileSizeOver) != napi_ok) {
+    if (napi_set_named_property(env, nativeFilter, "fileSizeOver", fileFilter.nativeFileSizeOver) != napi_ok) {
         HILOG_ERROR("Set fileSizeOver property to Filter NativeValue fail.");
         return EINVAL;
     }
 
-    if (napi_set_named_property(env, nativeFilter, "lastModifiedAfter", nativeLastModifiedAfter) != napi_ok) {
+    if (napi_set_named_property(env, nativeFilter, "lastModifiedAfter",
+        fileFilter.nativeLastModifiedAfter) != napi_ok) {
         HILOG_ERROR("Set lastModifiedAfter property to Filter NativeValue fail.");
         return EINVAL;
     }
 
-    if (napi_set_named_property(env, nativeFilter, "excludeMedia", nativeExcludeMedia) != napi_ok) {
+    if (napi_set_named_property(env, nativeFilter, "excludeMedia", fileFilter.nativeExcludeMedia) != napi_ok) {
         HILOG_ERROR("Set excludeMedia property to Filter NativeValue fail.");
         return EINVAL;
     }
@@ -1476,10 +1466,7 @@ int JsFileAccessExtAbility::GetFileInfoFromUri(const Uri &selectFile, FileInfo &
     UserAccessTracer trace;
     trace.Start("GetFileInfoFromUri");
     auto value = std::make_shared<Value<FileInfo>>();
-    if (value == nullptr) {
-        HILOG_ERROR("GetFileInfoFromUri value is nullptr.");
-        return E_GETRESULT;
-    }
+    CHECK_STATUS_RETURN(value != nullptr, E_GETRESULT, "GetFileInfoFromUri value is nullptr.");
 
     auto argParser = [selectFile](napi_env &env, napi_value *argv, size_t &argc) -> bool {
         napi_value nativeUri = nullptr;
@@ -1517,15 +1504,9 @@ int JsFileAccessExtAbility::GetFileInfoFromUri(const Uri &selectFile, FileInfo &
     };
 
     auto errCode = CallJsMethod("getFileInfoFromUri", jsRuntime_, jsObj_.get(), argParser, retParser);
-    if (errCode != ERR_OK) {
-        HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        return errCode;
-    }
+    CHECK_STATUS_RETURN(errCode == ERR_OK, errCode, "CallJsMethod error, code:%{public}d.", errCode);
 
-    if (value->code != ERR_OK) {
-        HILOG_ERROR("fileio fail.");
-        return value->code;
-    }
+    CHECK_STATUS_RETURN(value->code == ERR_OK, value->code, "fileio fail.");
 
     fileInfo = std::move(value->data);
     return ERR_OK;
@@ -1536,10 +1517,7 @@ int JsFileAccessExtAbility::GetFileInfoFromRelativePath(const std::string &selec
     UserAccessTracer trace;
     trace.Start("GetFileInfoFromRelativePath");
     auto value = std::make_shared<Value<FileInfo>>();
-    if (value == nullptr) {
-        HILOG_ERROR("GetFileInfoFromRelativePath value is nullptr.");
-        return E_GETRESULT;
-    }
+    CHECK_STATUS_RETURN((value != nullptr), E_GETRESULT, "GetFileInfoFromRelativePath value is nullptr.");
 
     auto argParser = [selectFileRealtivePath](napi_env &env, napi_value *argv, size_t &argc) -> bool {
         napi_value nativePath = nullptr;
@@ -1577,15 +1555,9 @@ int JsFileAccessExtAbility::GetFileInfoFromRelativePath(const std::string &selec
     };
 
     auto errCode = CallJsMethod("getFileInfoFromRelativePath", jsRuntime_, jsObj_.get(), argParser, retParser);
-    if (errCode != ERR_OK) {
-        HILOG_ERROR("CallJsMethod error, code:%{public}d.", errCode);
-        return errCode;
-    }
+    CHECK_STATUS_RETURN((errCode == ERR_OK), errCode, "CallJsMethod error, code:%{public}d.", errCode);
 
-    if (value->code != ERR_OK) {
-        HILOG_ERROR("fileio fail.");
-        return value->code;
-    }
+    CHECK_STATUS_RETURN((value->code == ERR_OK), value->code, "fileio fail.");
 
     fileInfo = std::move(value->data);
     return ERR_OK;

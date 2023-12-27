@@ -59,6 +59,15 @@ struct FileInfoNumParam {
     bool recursion;
 };
 
+struct FileFilterValue {
+    napi_value suffixArray = nullptr;
+    napi_value displayNameArray = nullptr;
+    napi_value mimeTypeArray = nullptr;
+    napi_value nativeFileSizeOver = nullptr;
+    napi_value nativeLastModifiedAfter = nullptr;
+    napi_value nativeExcludeMedia = nullptr;
+};
+
 class JsFileAccessExtAbility : public FileAccessExtAbility {
 public:
     JsFileAccessExtAbility(JsRuntime &jsRuntime);
@@ -117,6 +126,7 @@ private:
         Value<std::vector<std::string>> &results);
     static bool ParserFileInfoNumJsResult(napi_env &env, napi_value &nativeValue, bool &success, uint32_t &counts);
     static int MakeStringNativeArray(napi_env &env, std::vector<std::string> &inputArray, napi_value resultArray);
+    static int CreateNativeValue(napi_env &env, const FileFilter &filter, struct FileFilterValue &fileFilter);
     static int MakeJsNativeFileFilter(napi_env &env, const FileFilter &filter, napi_value nativeFilter);
     static bool BuildFilterParam(napi_env &env, const FileFilter &filter, const FilterParam &param, napi_value *argv,
         size_t &argc);
