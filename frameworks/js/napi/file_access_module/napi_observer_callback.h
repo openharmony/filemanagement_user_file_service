@@ -42,6 +42,7 @@ private:
     };
     napi_env env_;
     std::unique_ptr<uv_work_t> work_ = nullptr;
+    static void NapiWorkScope(uv_work_t *work, int status);
 };
 
 class NapiObserverCallback : public ObserverCallbackStub {

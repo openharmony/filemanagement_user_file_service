@@ -1101,9 +1101,6 @@ export default class FileExtAbility extends Extension {
         uri: newFileUri,
         code: ERR_OK,
       };
-    } else if (newPath.indexOf(oldPath) === 0 && newPath.charAt(oldPath.length) === '/') {
-      // move to a subdirectory of the source directory
-      return uriReturnObject('', E_GETRESULT);
     }
     try {
       // The source file does not exist or the destination is not a directory
