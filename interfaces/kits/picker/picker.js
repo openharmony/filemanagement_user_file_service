@@ -20,7 +20,7 @@ const PhotoViewMIMETypes = {
   INVALID_TYPE: ''
 }
 
-const DocumentSelectModes = {
+const DocumentSelectMode = {
   FILE: 0,
   FOLDER: 1,
   MIXED: 2,
@@ -156,7 +156,7 @@ function getPhotoPickerSelectResult(args) {
       let isOrigin = args.want.parameters.isOriginal;
       selectResult.data = new PhotoSelectResult(uris, isOrigin);
     }
-  } else if (result.resultCode === -1) {
+  } else if (args.resultCode === -1) {
     selectResult.data = new PhotoSelectResult([], undefined);
   } else {
     selectResult.error = getErr(ErrCode.RESULT_ERROR);
@@ -166,44 +166,44 @@ function getPhotoPickerSelectResult(args) {
 }
 
 async function photoPickerSelect(...args) {
-  let checkArgsResult = checkArguments(args);
-  if (checkArgsResult !== undefined) {
-    console.log('[picker] Invalid argument');
-    throw checkArgsResult;
+  let checkPhotoArgsResult = checkArguments(args);
+  if (checkPhotoArgsResult !== undefined) {
+    console.log('[picker] Photo Invalid argument');
+    throw checkPhotoArgsResult;
   }
 
   const config = parsePhotoPickerSelectOption(args);
-  console.log('[picker] config: ' + JSON.stringify(config));
+  console.log('[picker] Photo config: ' + JSON.stringify(config));
 
-  let context = undefined;
+  let photoSelectContext = undefined;
   try {
-    context = getContext(this);
+    photoSelectContext = getContext(this);
   } catch (getContextError) {
     console.error('[picker] getContext error: ' + getContextError);
     throw getErr(ErrCode.CONTEXT_NO_EXIST);
   }
   try {
-    if (context === undefined) {
+    if (photoSelectContext === undefined) {
       throw getErr(ErrCode.CONTEXT_NO_EXIST);
     }
-    let result = await context.startAbilityForResult(config, {windowMode: 0});
-    console.log('[picker] result: ' + JSON.stringify(result));
-    const selectResult = getPhotoPickerSelectResult(result);
-    console.log('[picker] selectResult: ' + JSON.stringify(selectResult));
+    let result = await photoSelectContext.startAbilityForResult(config, {windowMode: 0});
+    console.log('[picker] photo select result: ' + JSON.stringify(result));
+    const photoSelectResult = getPhotoPickerSelectResult(result);
+    console.log('[picker] photoSelectResult: ' + JSON.stringify(photoSelectResult));
     if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
-      return args[ARGS_ONE](selectResult.error, selectResult.data);
+      return args[ARGS_ONE](photoSelectResult.error, photoSelectResult.data);
     } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
-      return args[ARGS_ZERO](selectResult.error, selectResult.data);
+      return args[ARGS_ZERO](photoSelectResult.error, photoSelectResult.data);
     }
     return new Promise((resolve, reject) => {
-      if (selectResult.data !== undefined) {
-        resolve(selectResult.data);
+      if (photoSelectResult.data !== undefined) {
+        resolve(photoSelectResult.data);
       } else {
-        reject(selectResult.error);
+        reject(photoSelectResult.error);
       }
     })
   } catch (error) {
-    console.error('[picker] error: ' + error);
+    console.error('[picker] photo select error: ' + error);
   }
   return undefined;
 }
@@ -232,7 +232,7 @@ function parseDocumentPickerSelectOption(args, action) {
     }
   }
 
-  console.log('[picker] Select config: ' + JSON.stringify(config));
+  console.log('[picker] document select config: ' + JSON.stringify(config));
   return config;
 }
 
@@ -254,52 +254,53 @@ function getDocumentPickerSelectResult(args) {
         selectResult.data = args.want.parameters['ability.params.stream'];
       }
     }
-  } else if ((args.resultCode !== undefined && args.resultCode === -1) || (args.result !== undefined && args.result === 1)) {
+  } else if ((args.resultCode !== undefined && args.resultCode === -1) ||
+      (args.result !== undefined && args.result === 1)) {
     selectResult.data = [];
   } else {
     selectResult.error = getErr(ErrCode.RESULT_ERROR);
   }
 
-  console.log('[picker] Select selectResult: ' + JSON.stringify(selectResult));
+  console.log('[picker] document select selectResult: ' + JSON.stringify(selectResult));
   return selectResult;
 }
 
 async function documentPickerSelect(...args) {
-  let checkArgsResult = checkArguments(args);
-  if (checkArgsResult !== undefined) {
-    console.log('[picker] Select Invalid argument');
-    throw checkArgsResult;
+  let checkDocumentSelectArgsResult = checkArguments(args);
+  if (checkDocumentSelectArgsResult !== undefined) {
+    console.log('[picker] Document Select Invalid argument');
+    throw checkDocumentSelectArgsResult;
   }
 
-  let context = undefined;
-  let config = undefined;
-  let result = undefined;
+  let documentSelectContext = undefined;
+  let documentSelectConfig = undefined;
+  let documentSelectResult = undefined;
 
   try {
-    context = getContext(this);
+    documentSelectContext = getContext(this);
   } catch (getContextError) {
     console.error('[picker] getContext error: ' + getContextError);
     throw getErr(ErrCode.CONTEXT_NO_EXIST);
   }
   try {
-    if (context === undefined) {
+    if (documentSelectContext === undefined) {
       throw getErr(ErrCode.CONTEXT_NO_EXIST);
     }
-    config = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION_MODAL);
-    result = await context.requestDialogService(config);
+    documentSelectConfig = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION_MODAL);
+    documentSelectResult = await documentSelectContext.requestDialogService(documentSelectConfig);
   } catch (paramError) {
-    console.error('[picker] Select paramError: ' + JSON.stringify(paramError));
+    console.error('[picker] DocumentSelect paramError: ' + JSON.stringify(paramError));
     try {
-      config = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION);
-      result = await context.startAbilityForResult(config, {windowMode: 0});
+      documentSelectConfig = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION);
+      documentSelectResult = await documentSelectContext.startAbilityForResult(documentSelectConfig, {windowMode: 0});
     } catch (error) {
-      console.error('[picker] Select error: ' + error);
+      console.error('[picker] DocumentSelect error: ' + error);
       return undefined;
     }
   }
-  console.log('[picker] Select result: ' + JSON.stringify(result));
+  console.log('[picker] DocumentSelect result: ' + JSON.stringify(documentSelectResult));
   try {
-    const selectResult = getDocumentPickerSelectResult(result);
+    const selectResult = getDocumentPickerSelectResult(documentSelectResult);
     if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
       return args[ARGS_ONE](selectResult.error, selectResult.data);
     } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
@@ -341,7 +342,7 @@ function parseDocumentPickerSaveOption(args, action) {
     }
   }
 
-  console.log('[picker] Save config: ' + JSON.stringify(config));
+  console.log('[picker] document save config: ' + JSON.stringify(config));
   return config;
 }
 
@@ -364,52 +365,53 @@ function getDocumentPickerSaveResult(args) {
         saveResult.data = args.want.parameters['ability.params.stream'];
       }
     }
-  } else if ((args.resultCode !== undefined && args.resultCode === -1) || (args.result !== undefined && args.result === 1)) {
+  } else if ((args.resultCode !== undefined && args.resultCode === -1) ||
+      (args.result !== undefined && args.result === 1) ) {
     saveResult.data = [];
   } else {
     saveResult.error = getErr(ErrCode.RESULT_ERROR);
   }
 
-  console.log('[picker] Save saveResult: ' + JSON.stringify(saveResult));
+  console.log('[picker] document saveResult: ' + JSON.stringify(saveResult));
   return saveResult;
 }
 
 async function documentPickerSave(...args) {
-  let checkArgsResult = checkArguments(args);
-  if (checkArgsResult !== undefined) {
-    console.log('[picker] Invalid argument');
-    throw checkArgsResult;
+  let checkDocumentSaveArgsResult = checkArguments(args);
+  if (checkDocumentSaveArgsResult !== undefined) {
+    console.log('[picker] Document Save Invalid argument');
+    throw checkDocumentSaveArgsResult;
   }
 
-  let context = undefined;
-  let config = undefined;
-  let result = undefined;
+  let documentSaveContext = undefined;
+  let documentSaveConfig = undefined;
+  let documentSaveResult = undefined;
 
   try {
-    context = getContext(this);
+    documentSaveContext = getContext(this);
   } catch (getContextError) {
     console.error('[picker] getContext error: ' + getContextError);
     throw getErr(ErrCode.CONTEXT_NO_EXIST);
   }
   try {
-    if (context === undefined) {
+    if (documentSaveContext === undefined) {
       throw getErr(ErrCode.CONTEXT_NO_EXIST);
     }
-    config = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION_MODAL);
-    result = await context.requestDialogService(config);
+    documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION_MODAL);
+    documentSaveResult = await documentSaveContext.requestDialogService(documentSaveConfig);
   } catch (paramError) {
     console.error('[picker] paramError: ' + JSON.stringify(paramError));
     try {
-      config = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION);
-      result = await context.startAbilityForResult(config, {windowMode: 0});
+      documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION);
+      documentSaveResult = await documentSaveContext.startAbilityForResult(documentSaveConfig, {windowMode: 0});
     } catch (error) {
-      console.error('[picker] error: ' + error);
+      console.error('[picker] document save error: ' + error);
       return undefined;
     }
   }
-  console.log('[picker] Save result: ' + JSON.stringify(result));
+  console.log('[picker] document save result: ' + JSON.stringify(documentSaveResult));
   try {
-    const saveResult = getDocumentPickerSaveResult(result);
+    const saveResult = getDocumentPickerSaveResult(documentSaveResult);
     if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
       return args[ARGS_ONE](saveResult.error, saveResult.data);
     } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
@@ -429,44 +431,44 @@ async function documentPickerSave(...args) {
 }
 
 async function audioPickerSelect(...args) {
-  let checkArgsResult = checkArguments(args);
-  if (checkArgsResult !== undefined) {
-    console.log('[picker] Invalid argument');
-    throw checkArgsResult;
+  let checkAudioArgsResult = checkArguments(args);
+  if (checkAudioArgsResult !== undefined) {
+    console.log('[picker] Audio Invalid argument');
+    throw checkAudioArgsResult;
   }
 
-  const config = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION);
-  console.log('[picker] config: ' + JSON.stringify(config));
+  const audioSelectConfig = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION);
+  console.log('[picker] audio select config: ' + JSON.stringify(audioSelectConfig));
 
-  let context = undefined;
+  let audioSelectContext = undefined;
   try {
-    context = getContext(this);
+    audioSelectContext = getContext(this);
   } catch (getContextError) {
     console.error('[picker] getContext error: ' + getContextError);
     throw getErr(ErrCode.CONTEXT_NO_EXIST);
   }
   try {
-    if (context === undefined) {
+    if (audioSelectContext === undefined) {
       throw getErr(ErrCode.CONTEXT_NO_EXIST);
     }
-    let result = await context.startAbilityForResult(config, {windowMode: 0});
-    console.log('[picker] result: ' + JSON.stringify(result));
-    const selectResult = getDocumentPickerSelectResult(result);
-    console.log('[picker] selectResult: ' + JSON.stringify(selectResult));
-    if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
-      return args[ARGS_ONE](selectResult.error, selectResult.data);
+    let result = await audioSelectContext.startAbilityForResult(audioSelectConfig, {windowMode: 0});
+    console.log('[picker] audio select result: ' + JSON.stringify(result));
+    const audioSelectResult = getDocumentPickerSelectResult(result);
+    console.log('[picker] documentSelectResult: ' + JSON.stringify(audioSelectResult));
+    if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') { 
+      return args[ARGS_ONE](audioSelectResult.error, audioSelectResult.data);
     } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
-      return args[ARGS_ZERO](selectResult.error, selectResult.data);
+      return args[ARGS_ZERO](audioSelectResult.error, audioSelectResult.data);
     }
     return new Promise((resolve, reject) => {
-      if (selectResult.data !== undefined) {
-        resolve(selectResult.data);
+      if (audioSelectResult.data !== undefined) {
+        resolve(audioSelectResult.data);
       } else {
-        reject(selectResult.error);
+        reject(audioSelectResult.error);
       }
     })
   } catch (error) {
-    console.error('[picker] error: ' + error);
+    console.error('[picker] audio select error: ' + error);
   }
   return undefined;
 }
@@ -489,7 +491,7 @@ function DocumentSelectOptions() {
   this.defaultFilePathUri = undefined;
   this.fileSuffixFilters = undefined;
   this.maxSelectNumber = undefined;
-  this.selectMode = DocumentSelectModes.FILE;
+  this.selectMode = DocumentSelectMode.FILE;
 }
 
 function DocumentSaveOptions() {
@@ -524,7 +526,7 @@ export default {
   PhotoSelectOptions : PhotoSelectOptions,
   PhotoSelectResult : PhotoSelectResult,
   PhotoSaveOptions : PhotoSaveOptions,
-  DocumentSelectModes : DocumentSelectModes,
+  DocumentSelectMode : DocumentSelectMode,
   DocumentSelectOptions : DocumentSelectOptions,
   DocumentSaveOptions : DocumentSaveOptions,
   AudioSelectOptions : AudioSelectOptions,
