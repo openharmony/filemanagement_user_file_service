@@ -129,7 +129,6 @@ void NapiObserver::OnChange(NotifyMessage &notifyMessage)
         [](uv_work_t *work) {},
         [](uv_work_t *work, int status) {
             NapiWorkScope(work, status);
-            return;
         });
     if (ret == 0) {
         callbackParam.release();

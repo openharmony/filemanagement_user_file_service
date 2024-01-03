@@ -234,13 +234,7 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         return {nullptr, E_GETINFO};
     }
 
-    std::pair<std::shared_ptr<FileAccessHelper>, int>
-        ptrFileAccessHelper = DoCreatorHelper(context->GetToken(), FileAccessHelper::wants_);
-    if (ptrFileAccessHelper.second != ERR_OK) {
-        return ptrFileAccessHelper;
-    }
-    
-    return {ptrFileAccessHelper.first, ERR_OK};
+    return DoCreatorHelper(context->GetToken(), FileAccessHelper::wants_);
 }
 
 std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
@@ -265,12 +259,7 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         return {nullptr, E_GETINFO};
     }
 
-    std::pair<std::shared_ptr<FileAccessHelper>, int> ptrFileAccessHelper = DoCreatorHelper(context->GetToken(), wants);
-    if (ptrFileAccessHelper.second != ERR_OK) {
-        return ptrFileAccessHelper;
-    }
-
-    return {ptrFileAccessHelper.first, ERR_OK};
+    return DoCreatorHelper(context->GetToken(), wants);
 }
 
 std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteObject> &token,
