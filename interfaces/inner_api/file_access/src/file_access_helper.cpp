@@ -995,41 +995,6 @@ int FileAccessHelper::Access(Uri &uri, bool &isExist)
     return ERR_OK;
 }
 
-int FileAccessHelper::GetThumbnail(Uri &uri, ThumbnailSize &thumbnailSize, std::shared_ptr<PixelMap> &pixelMap)
-{
-    UserAccessTracer trace;
-    trace.Start("GetThumbnail");
-    if (!IsSystemApp()) {
-        HILOG_ERROR("FileAccessHelper::GetThumbnail check IsSystemAppByFullTokenID failed");
-        return E_PERMISSION_SYS;
-    }
-
-    if (!CheckUri(uri)) {
-        HILOG_ERROR("Uri format check error.");
-        return E_URIS;
-    }
-
-    string uriStr = uri.ToString();
-    if (thumbnailSize.width <= 0 || thumbnailSize.height <= 0) {
-        HILOG_ERROR("Size format check error.");
-        return E_GETRESULT;
-    }
-
-    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
-    if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        return E_IPCS;
-    }
-
-    int ret = fileExtProxy->GetThumbnail(uri, thumbnailSize, pixelMap);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("GetThumbnail get result error, code:%{public}d", ret);
-        return ret;
-    }
-
-    return ERR_OK;
-}
-
 int FileAccessHelper::GetFileInfoFromUri(Uri &selectFile, FileInfo &fileInfo)
 {
     UserAccessTracer trace;

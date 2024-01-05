@@ -217,26 +217,6 @@ int FileAccessExtStubImpl::GetRoots(std::vector<RootInfo> &rootInfoVec)
     return ret;
 }
 
-int FileAccessExtStubImpl::GetThumbnail(const Uri &uri, const ThumbnailSize &thumbnailSize,
-    std::shared_ptr<PixelMap> &pixelMap)
-{
-    UserAccessTracer trace;
-    trace.Start("GetThumbnail");
-    if (extension_ == nullptr) {
-        HILOG_ERROR("GetThumbnail get extension failed.");
-        return E_IPCS;
-    }
-    std::unique_ptr<PixelMap> tempPtr;
-    Size size{ thumbnailSize.width, thumbnailSize.height };
-    int ret = extension_->GetThumbnail(uri, size, tempPtr);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("GetThumbnail failed.");
-        return ret;
-    }
-    pixelMap = std::move(tempPtr);
-    return ret;
-}
-
 int FileAccessExtStubImpl::GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo)
 {
     UserAccessTracer trace;

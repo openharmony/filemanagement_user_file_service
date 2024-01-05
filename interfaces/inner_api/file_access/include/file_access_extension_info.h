@@ -215,44 +215,6 @@ public:
     }
 };
 
-struct ThumbnailSize : public virtual OHOS::Parcelable {
-public:
-    int32_t width { 0 };
-    int32_t height { 0 };
-
-    bool ReadFromParcel(Parcel &parcel)
-    {
-        width = parcel.ReadInt32();
-        height = parcel.ReadInt32();
-        return true;
-    }
-
-    virtual bool Marshalling(Parcel &parcel) const override
-    {
-        if (!parcel.WriteInt32(width)) {
-            return false;
-        }
-        if (!parcel.WriteInt32(height)) {
-            return false;
-        }
-        return true;
-    }
-
-    static ThumbnailSize *Unmarshalling(Parcel &parcel)
-    {
-        ThumbnailSize *size = new (std::nothrow) ThumbnailSize();
-        if (size == nullptr) {
-            return nullptr;
-        }
-
-        if (!size->ReadFromParcel(parcel)) {
-            delete size;
-            size = nullptr;
-        }
-        return size;
-    }
-};
-
 enum ResultType {
     STRING_TYPE = 1,
     INT32_TYPE,
