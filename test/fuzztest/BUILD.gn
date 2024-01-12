@@ -22,7 +22,6 @@ group("user_file_service_fuzz_test") {
     "externalfileaccessgetfileinfofromrelativepath_fuzzer:ExternalFileAccessGetFileInfoFromRelativePathFuzzTest",
     "externalfileaccessgetfileinfofromuri_fuzzer:ExternalFileAccessGetFileInfoFromUriFuzzTest",
     "externalfileaccessgetroots_fuzzer:ExternalFileAccessGetRootsFuzzTest",
-    "externalfileaccessgetthumbnail_fuzzer:ExternalFileAccessGetThumbnailFuzzTest",
     "externalfileaccesslistfile_fuzzer:ExternalFileAccessListFileFuzzTest",
     "externalfileaccessmkdir_fuzzer:ExternalFileAccessMkdirFuzzTest",
     "externalfileaccessmove_fuzzer:ExternalFileAccessMoveFuzzTest",

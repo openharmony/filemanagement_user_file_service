@@ -55,7 +55,6 @@ public:
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec);
     virtual int ScanFile(const FileInfo &fileInfo, const int64_t offset, const int64_t maxCount,
         const FileFilter &filter, std::vector<FileInfo> &fileInfoVec);
-    virtual int GetThumbnail(const Uri &uri, const Size &size, std::unique_ptr<PixelMap> &pixelMap);
     virtual int Query(const Uri &uri, std::vector<std::string> &columns, std::vector<std::string> &results);
     virtual int GetFileInfoFromUri(const Uri &selectFile, FileInfo &fileInfo);
     virtual int GetFileInfoFromRelativePath(const std::string &selectFile, FileInfo &fileInfo);

@@ -57,7 +57,6 @@ FileAccessExtStub::FileAccessExtStub()
     stubFuncMap_[CMD_QUERY] = &FileAccessExtStub::CmdQuery;
     stubFuncMap_[CMD_GET_ROOTS] = &FileAccessExtStub::CmdGetRoots;
     stubFuncMap_[CMD_ACCESS] = &FileAccessExtStub::CmdAccess;
-    stubFuncMap_[CMD_GET_THUMBNAIL] = &FileAccessExtStub::CmdGetThumbnail;
     stubFuncMap_[CMD_GET_FILEINFO_FROM_URI] = &FileAccessExtStub::CmdGetFileInfoFromUri;
     stubFuncMap_[CMD_GET_FILEINFO_FROM_RELATIVE_PATH] = &FileAccessExtStub::CmdGetFileInfoFromRelativePath;
     stubFuncMap_[CMD_COPY_FILE] = &FileAccessExtStub::CmdCopyFile;
@@ -614,38 +613,6 @@ ErrCode FileAccessExtStub::CmdQuery(MessageParcel &data, MessageParcel &reply)
             HILOG_ERROR("parameter Query fail to WriteParcelable column");
             return E_IPCS;
         }
-    }
-
-    return ERR_OK;
-}
-
-ErrCode FileAccessExtStub::CmdGetThumbnail(MessageParcel &data, MessageParcel &reply)
-{
-    UserAccessTracer trace;
-    trace.Start("CmdGetThumbnail");
-    std::string uri;
-    if (!data.ReadString(uri)) {
-        HILOG_ERROR("Parameter GetThumbnail fail to ReadParcelable uri");
-        return E_IPCS;
-    }
-
-    std::shared_ptr<ThumbnailSize> thumbnailSize(data.ReadParcelable<ThumbnailSize>());
-    if (thumbnailSize == nullptr) {
-        HILOG_ERROR("Parameter GetThumbnail fail to ReadParcelable thumbnailSize");
-        return E_URIS;
-    }
-
-    std::shared_ptr<PixelMap> pixelMap;
-    Uri sourceUri(uri);
-    int ret = GetThumbnail(sourceUri, *thumbnailSize, pixelMap);
-    if (!reply.WriteInt32(ret)) {
-        HILOG_ERROR("Parameter CmdGetThumbnail fail to WriteInt32 ret");
-        return E_IPCS;
-    }
-
-    if (!reply.WriteParcelable(pixelMap.get())) {
-        HILOG_ERROR("Parameter CmdGetThumbnail fail to WriteParcelable pixelMap");
-        return E_IPCS;
     }
 
     return ERR_OK;
