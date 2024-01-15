@@ -59,8 +59,9 @@ bool CheckSuffix(std::vector<std::string> suffixs)
     return true;
 }
 
-int GetSuffixDisplayNameMimeType(const NVal &argv, FileFilter &filter, bool ret)
+static int GetSuffix(const NVal &argv, FileFilter &filter)
 {
+    bool ret = false;
     if (argv.HasProp("suffix")) {
         std::vector<std::string> suffixs;
         std::tie(ret, suffixs, std::ignore) = argv.GetProp("suffix").ToStringArray();
@@ -75,6 +76,12 @@ int GetSuffixDisplayNameMimeType(const NVal &argv, FileFilter &filter, bool ret)
         filter.SetHasFilter(true);
     }
 
+    return ERR_OK;
+}
+
+static int GetDisplayName(const NVal &argv, FileFilter &filter)
+{
+    bool ret = false;
     if (argv.HasProp("displayName")) {
         std::vector<std::string> displayNames;
         std::tie(ret, displayNames, std::ignore) = argv.GetProp("displayName").ToStringArray();
@@ -87,6 +94,12 @@ int GetSuffixDisplayNameMimeType(const NVal &argv, FileFilter &filter, bool ret)
         filter.SetHasFilter(true);
     }
 
+    return ERR_OK;
+}
+
+static int GetMimeType(const NVal &argv, FileFilter &filter)
+{
+    bool ret = false;
     if (argv.HasProp("mimeType")) {
         std::vector<std::string> mimeTypes;
         std::tie(ret, mimeTypes, std::ignore) = argv.GetProp("mimeType").ToStringArray();
@@ -102,8 +115,9 @@ int GetSuffixDisplayNameMimeType(const NVal &argv, FileFilter &filter, bool ret)
     return ERR_OK;
 }
 
-int GetFileSizeLastModified(const NVal &argv, FileFilter &filter, bool ret)
+static int GetFileSize(const NVal &argv, FileFilter &filter)
 {
+    bool ret = false;
     if (argv.HasProp("fileSizeOver")) {
         int64_t fileSizeOver;
         std::tie(ret, fileSizeOver) = argv.GetProp("fileSizeOver").ToInt64();
@@ -119,6 +133,12 @@ int GetFileSizeLastModified(const NVal &argv, FileFilter &filter, bool ret)
         filter.SetHasFilter(true);
     }
 
+    return ERR_OK;
+}
+
+static int GetLastMod(const NVal &argv, FileFilter &filter)
+{
+    bool ret = false;
     if (argv.HasProp("lastModifiedAfter")) {
         double lastModifiedAfter;
         std::tie(ret, lastModifiedAfter) = argv.GetProp("lastModifiedAfter").ToDouble();
@@ -134,6 +154,12 @@ int GetFileSizeLastModified(const NVal &argv, FileFilter &filter, bool ret)
         filter.SetHasFilter(true);
     }
 
+    return ERR_OK;
+}
+
+static int GetexcludeMedia(const NVal &argv, FileFilter &filter)
+{
+    bool ret = false;
     if (argv.HasProp("excludeMedia")) {
         bool excludeMedia;
         std::tie(ret, excludeMedia) = argv.GetProp("excludeMedia").ToBool();
@@ -151,19 +177,34 @@ int GetFileSizeLastModified(const NVal &argv, FileFilter &filter, bool ret)
 
 int GetFileFilterParam(const NVal &argv, FileFilter &filter)
 {
-    bool ret = false;
     filter.SetHasFilter(false);
     if (argv.TypeIs(napi_undefined)) {
         return ERR_OK;
     }
 
-    int ret1 = GetSuffixDisplayNameMimeType(argv, filter, ret);
-    if (ret1 != ERR_OK) {
-        return ret1;
+    int ret = GetSuffix(argv, filter);
+    if (ret != ERR_OK) {
+        return ret;
     }
-    int ret2 = GetFileSizeLastModified(argv, filter, ret);
-    if (ret2 != ERR_OK) {
-        return ret1;
+    ret = GetDisplayName(argv, filter);
+    if (ret != ERR_OK) {
+        return ret;
+    }
+    ret = GetMimeType(argv, filter);
+    if (ret != ERR_OK) {
+        return ret;
+    }
+    ret = GetFileSize(argv, filter);
+    if (ret != ERR_OK) {
+        return ret;
+    }
+    ret = GetLastMod(argv, filter);
+    if (ret != ERR_OK) {
+        return ret;
+    }
+    ret = GetexcludeMedia(argv, filter);
+    if (ret != ERR_OK) {
+        return ret;
     }
 
     if (!filter.GetHasFilter()) {
