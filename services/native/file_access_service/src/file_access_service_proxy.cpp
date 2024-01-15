@@ -220,5 +220,57 @@ int32_t FileAccessServiceProxy::UnregisterNotify(Uri uri, const sptr<IFileAccess
 
     return result;
 }
+
+
+int32_t FileAccessServiceProxy::GetExensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
+    sptr<IFileAccessExtBase> &extensionProxy)
+{
+    UserAccessTracer trace;
+    trace.Start("GetExensionProxy");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessServiceProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return E_IPCS;
+    }
+
+    if (info == nullptr) {
+        HILOG_ERROR("ExtensionInfo is nullptr");
+        return E_GETINFO;
+    }
+
+    if (!info->WriteToParcel(data)) {
+        HILOG_ERROR("fail to WriteParcelable Info");
+        return E_IPCS;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int err = Remote()->SendRequest(static_cast<uint32_t>(FileAccessServiceInterfaceCode::CMD_GET_EXTENSION_PROXY),
+        data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+        return err;
+    }
+
+    int ret = E_IPCS;
+    if (!reply.ReadInt32(ret) || ret != ERR_OK) {
+        HILOG_ERROR("GetExensionProxy operation failed ret : %{public}d", ret);
+        return ret;
+    }
+
+    sptr<IRemoteObject> obj = reply.ReadRemoteObject();
+    if (obj == nullptr) {
+        HILOG_INFO("get remote obj fail.");
+        return E_IPCS;
+    }
+
+    extensionProxy = iface_cast<IFileAccessExtBase>(obj);
+    if (extensionProxy == nullptr) {
+        HILOG_INFO("get observer fail");
+        return E_IPCS;
+    }
+
+    return ERR_OK;
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

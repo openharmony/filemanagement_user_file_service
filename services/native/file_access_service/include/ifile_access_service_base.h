@@ -16,6 +16,7 @@
 #ifndef I_FILE_ACCESS_SERVICE_BASE_H
 #define I_FILE_ACCESS_SERVICE_BASE_H
 
+#include "file_access_helper.h"
 #include "iremote_broker.h"
 #include "iremote_object.h"
 #include "iobserver_callback.h"
@@ -32,6 +33,10 @@ public:
     virtual int32_t OnChange(Uri uri, NotifyType notifyType) = 0;
     virtual int32_t RegisterNotify(Uri uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer) = 0;
     virtual int32_t UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer) = 0;
+
+    //Get exension proxy by SA
+    virtual int32_t GetExensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
+        sptr<IFileAccessExtBase> &extensionProxy) = 0;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

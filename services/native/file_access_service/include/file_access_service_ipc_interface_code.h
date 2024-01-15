@@ -21,7 +21,8 @@ namespace FileAccessFwk {
     enum class FileAccessServiceInterfaceCode {
         CMD_REGISTER_NOTIFY = 0,
         CMD_UNREGISTER_NOTIFY,
-        CMD_ONCHANGE
+        CMD_ONCHANGE,
+        CMD_GET_EXTENSION_PROXY
     };
 } // namespace FileAccessFwk
 } // namespace OHOS

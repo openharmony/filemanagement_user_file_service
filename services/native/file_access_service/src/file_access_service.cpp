@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include "user_access_tracer.h"
 #include "file_access_framework_errno.h"
+#include "file_access_ext_connection.h"
 #include "file_access_extension_info.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
@@ -370,6 +371,27 @@ void FileAccessService::InitTimer()
         }
         return isMessage;
             }, NOTIFY_TIME_INTERVAL, MAX_WAIT_TIME);
+}
+
+int32_t FileAccessService::GetExensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
+    sptr<IFileAccessExtBase> &extensionProxy)
+{
+    sptr<FileAccessExtConnection> fileAccessExtConnection(new(std::nothrow) FileAccessExtConnection());
+    if (fileAccessExtConnection == nullptr) {
+        HILOG_ERROR("new fileAccessExtConnection fail");
+        return E_CONNECT;
+    }
+    if (info == nullptr || info->token == nullptr) {
+        HILOG_ERROR("ConnectExtensionInfo is invalid");
+        return E_CONNECT;
+    }
+    fileAccessExtConnection->ConnectFileExtAbility(info->want, info->token);
+    extensionProxy = fileAccessExtConnection->GetFileExtProxy();
+    if (extensionProxy == nullptr) {
+        HILOG_ERROR("extensionProxy is nullptr");
+        return E_CONNECT;
+    }
+    return ERR_OK;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS

@@ -20,8 +20,10 @@
 #include <string>
 #include <unordered_map>
 
+#include "iremote_object.h"
 #include "parcel.h"
 #include "uri.h"
+#include "want.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -287,6 +289,45 @@ public:
             result = nullptr;
         }
         return result;
+    }
+};
+
+class MessageParcelable {
+public:
+    MessageParcelable() = default;
+    virtual ~MessageParcelable() = default;
+    virtual bool WriteToParcel(MessageParcel& parcel) const = 0;
+    virtual bool ReadFromParcel(MessageParcel& parcel) = 0;
+};
+
+struct ConnectExtensionInfo : public MessageParcelable {
+public:
+    AAFwk::Want want = {};
+    sptr<IRemoteObject> token = nullptr;
+
+    ConnectExtensionInfo() = default;
+    ConnectExtensionInfo(AAFwk::Want want, sptr<IRemoteObject> token) : want(want), token(token) {}
+
+    bool WriteToParcel(MessageParcel &parcel) const override
+    {
+        if (!parcel.WriteParcelable(&want)) {
+            return false;
+        }
+        if (!parcel.WriteRemoteObject(token)) {
+            return false;
+        }
+        return true;
+    }
+
+    bool ReadFromParcel(MessageParcel &parcel) override
+    {
+        std::shared_ptr<AAFwk::Want> wantPtr(parcel.ReadParcelable<AAFwk::Want>());
+        token = parcel.ReadRemoteObject();
+        if (wantPtr == nullptr || token == nullptr) {
+            return false;
+        }
+        want = AAFwk::Want(*wantPtr);
+        return true;
     }
 };
 } // namespace FileAccessFwk
