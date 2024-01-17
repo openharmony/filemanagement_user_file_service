@@ -167,7 +167,8 @@ int FileAccessExtStubImpl::ListFile(const FileInfo &fileInfo, const int64_t offs
             }
             break;
         }
-        if (fileInfoVec.empty() ||(maxCounts > fileInfoVec.size() && currentWriteCounts == fileInfoVec.size())) {
+        if (fileInfoVec.empty() ||(maxCounts > static_cast<int64_t>(fileInfoVec.size())
+            && currentWriteCounts == fileInfoVec.size())) {
             memInfo.isOver = true;
             break;
         }
