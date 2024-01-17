@@ -194,12 +194,50 @@ ohos_unittest("js_file_access_ext_ability_test") {
   ]
 }
 
+ohos_unittest("file_access_ext_stub_impl_test") {
+  module_out_path = "user_file_service/tests"
+
+  include_dirs = [
+    "${ability_runtime_napi_path}/inner/napi_common",
+    "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
+    "${user_file_service_path}/interfaces/inner_api/file_access/include",
+    "${user_file_service_path}/interfaces/kits/js/src/common",
+    "${user_file_service_path}/utils",
+    "//third_party/googletest/googlemock/include/gmock",
+    "mock",
+  ]
+
+  sources = [
+    "${user_file_service_path}/interfaces/inner_api/file_access/src/file_access_ext_stub_impl.cpp",
+    "file_access_ext_stub_impl_test.cpp",
+  ]
+
+  deps = [ "//third_party/googletest:gmock_main" ]
+
+  external_deps = [
+    "ability_base:zuri",
+    "ability_runtime:app_context",
+    "ability_runtime:extensionkit_native",
+    "ability_runtime:napi_common",
+    "ability_runtime:runtime",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+
+  use_exceptions = true
+}
+
 group("user_file_service_unit_test") {
   testonly = true
 
   deps = [
     ":abnormal_file_access_test",
     ":external_file_access_test",
+    ":file_access_ext_stub_impl_test",
     ":js_file_access_ext_ability_test",
   ]
 }
