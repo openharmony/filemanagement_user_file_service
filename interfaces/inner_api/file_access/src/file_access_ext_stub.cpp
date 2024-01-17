@@ -26,7 +26,6 @@
 #include "accesstoken_kit.h"
 #include "file_access_extension_info.h"
 #include "file_access_framework_errno.h"
-#include "image_source.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ipc_object_stub.h"
@@ -37,7 +36,6 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-using namespace Media;
 namespace {
     const std::string FILE_ACCESS_PERMISSION = "ohos.permission.FILE_ACCESS_MANAGER";
 }

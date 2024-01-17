@@ -22,7 +22,6 @@
 
 #include "file_access_extension_info.h"
 #include "ifile_access_ext_base.h"
-#include "image_source.h"
 #include "iremote_broker.h"
 #include "iremote_object.h"
 #include "iremote_proxy.h"
@@ -31,7 +30,6 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-using namespace Media;
 class FileAccessExtProxy : public IRemoteProxy<IFileAccessExtBase> {
 public:
     explicit FileAccessExtProxy(const sptr<IRemoteObject> &remote) : IRemoteProxy<IFileAccessExtBase>(remote) {}

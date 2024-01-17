@@ -68,7 +68,6 @@ ohos_shared_library("fileaccess") {
     "file_api:filemgmt_libhilog",
     "file_api:filemgmt_libn",
     "hilog:libhilog",
-    "image_framework:image",
     "ipc:ipc_core",
     "napi:ace_napi",
   ]

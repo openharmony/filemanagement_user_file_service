@@ -29,14 +29,12 @@
 #include "ifile_access_ext_base.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
-#include "image_source.h"
 #include "system_ability_definition.h"
 #include "tokenid_kit.h"
 #include "n_error.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
-using namespace Media;
 using json = nlohmann::json;
 namespace {
     constexpr int COPY_EXCEPTION = -1;

@@ -20,14 +20,12 @@
 #include "file_access_extension_info.h"
 #include "file_access_observer_common.h"
 #include "file_filter.h"
-#include "image_source.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 class Runtime;
 }
 namespace FileAccessFwk {
-using namespace Media;
 using namespace AbilityRuntime;
 class FileAccessExtAbility;
 using CreatorFunc = std::function<FileAccessExtAbility* (const std::unique_ptr<Runtime>& runtime)>;
