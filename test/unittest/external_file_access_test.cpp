@@ -4735,29 +4735,6 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetConnectInfo_0000, test
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_GetConnectInfo_0000";
 }
 
-/**
- * @tc.number: user_file_service_external_file_access_GetKeyOfWants_0000
- * @tc.name: external_file_access_GetKeyOfWants_0000
- * @tc.desc: Test function of GetKeyOfWants interface.
- * @tc.desc: helper invoke GetKeyOfWants for FAILED.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 1
- * @tc.require: SR000H0386
- */
-HWTEST_F(FileExtensionHelperTest, external_file_access_GetKeyOfWants_0000, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetKeyOfWants_0000";
-    try {
-        AAFwk::Want want;
-        want.SetElementName("NotExistBundleName", "NotExistAbilityName");
-        std::string key = g_fah->GetKeyOfWants(want);
-        ASSERT_TRUE(key.empty());
-    } catch (...) {
-        GTEST_LOG_(ERROR) << "external_file_access_GetKeyOfWants_0000 occurs an exception.";
-    }
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_GetKeyOfWants_0000";
-}
 
 /**
  * @tc.number: user_file_service_external_file_access_GetProxyByUri_0000

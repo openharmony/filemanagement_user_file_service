@@ -68,8 +68,6 @@ public:
         Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::vector<AAFwk::Want> &wants);
     static std::shared_ptr<FileAccessHelper> Creator(const sptr<IRemoteObject> &token,
         const std::vector<AAFwk::Want> &wants);
-    static std::pair<std::shared_ptr<FileAccessHelper>, int> DoCreatorHelper(const sptr<IRemoteObject> &token,
-        const std::vector<AAFwk::Want> &wants);
 
     bool Release();
     int Access(Uri &uri, bool &isExist);
@@ -100,6 +98,10 @@ private:
     sptr<IFileAccessExtBase> GetProxyByBundleName(const std::string &bundleName);
     bool GetProxy();
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
+    static std::pair<std::shared_ptr<FileAccessHelper>, int> DoCreatorHelper(const sptr<IRemoteObject> &token,
+        const std::vector<AAFwk::Want> &wants);
+    static bool IsEffectiveWants(const std::vector<AAFwk::Want> &wants);
+    static bool CompareWant(const AAFwk::Want& lhs, const AAFwk::Want& rhs);
     FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
         const std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> &cMap);
     FileAccessHelper(const sptr<IRemoteObject> &token,
@@ -117,8 +119,6 @@ private:
     sptr<IRemoteObject> token_ = nullptr;
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap_;
     std::mutex deathRecipientMutex_;
-    static std::vector<AAFwk::Want> wants_;
-    static std::string GetKeyOfWants(const AAFwk::Want &want);
 
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
 };
