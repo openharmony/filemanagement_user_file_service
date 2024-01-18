@@ -25,12 +25,10 @@
 #include "file_access_framework_errno.h"
 #include "file_filter.h"
 #include "file_info_shared_memory.h"
-#include "image_source.h"
 #include "uri.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
-using namespace Media;
 
 class IFileAccessExtBase : public IRemoteBroker {
 public:
@@ -51,7 +49,6 @@ public:
         CMD_QUERY,
         CMD_GET_ROOTS,
         CMD_ACCESS,
-        CMD_GET_THUMBNAIL,
         CMD_GET_FILEINFO_FROM_URI,
         CMD_GET_FILEINFO_FROM_RELATIVE_PATH,
         CMD_COPY_FILE,

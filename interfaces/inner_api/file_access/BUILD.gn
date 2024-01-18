@@ -99,7 +99,6 @@ ohos_shared_library("file_access_extension_ability_kit") {
     "c_utils:utils",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
-    "image_framework:image_native",
     "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",

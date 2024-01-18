@@ -28,7 +28,6 @@
 #include "file_access_ext_connection.h"
 #include "file_access_extension_info.h"
 #include "ifile_access_ext_base.h"
-#include "image_source.h"
 #include "iobserver_callback.h"
 #include "iremote_object.h"
 #include "refbase.h"
@@ -39,7 +38,6 @@ using Uri = OHOS::Uri;
 
 namespace OHOS {
 namespace FileAccessFwk {
-using namespace Media;
 using string = std::string;
 
 namespace {

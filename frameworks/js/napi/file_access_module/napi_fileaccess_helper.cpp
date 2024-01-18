@@ -19,7 +19,6 @@
 #include <utility>
 #include <vector>
 
-#include "file_access_extension_info.h"
 #include "file_access_framework_errno.h"
 #include "file_access_helper.h"
 #include "file_info_entity.h"
@@ -30,7 +29,6 @@
 #include "napi_file_info_exporter.h"
 #include "napi_observer_callback.h"
 #include "napi_root_iterator_exporter.h"
-#include "pixel_map_napi.h"
 #include "root_iterator_entity.h"
 #include "securec.h"
 #include "uri.h"
@@ -1120,10 +1118,6 @@ napi_value NAPI_GetFileInfoFromRelativePath(napi_env env, napi_callback_info inf
     }
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
-
-struct PixelMapWrapper {
-    std::shared_ptr<PixelMap> pixelMap = nullptr;
-};
 
 struct FileObserverCallbackWrapper {
     sptr<IFileAccessObserver> callback;

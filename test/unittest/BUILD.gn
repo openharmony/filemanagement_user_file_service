@@ -53,7 +53,6 @@ ohos_unittest("medialibrary_file_access_test") {
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
     "c_utils:utils",
-    "image_framework:image_native",
     "ipc:ipc_core",
     "ipc:ipc_js",
     "samgr:samgr_proxy",
