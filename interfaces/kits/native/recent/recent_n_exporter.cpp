@@ -25,8 +25,7 @@
 #include "file_utils.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
-#include "os_account_manager.h"
-#include "parameter.h"
+#include "user_access_common_utils.h"
 
 namespace OHOS {
 namespace FileManagement {
@@ -35,6 +34,8 @@ using namespace std;
 using namespace LibN;
 using namespace AppFileService::ModuleFileUri;
 
+using namespace FileAccessFwk;
+static std::mutex recentPathMutex;
 static bool CheckPermission(const std::string &permission)
 {
     Security::AccessToken::AccessTokenID tokenCaller = IPCSkeleton::GetCallingTokenID();
@@ -314,7 +315,29 @@ string RecentNExporter::GetClassName()
     return RecentNExporter::className;
 }
 
-RecentNExporter::RecentNExporter(napi_env env, napi_value exports) : NExporter(env, exports) {}
+void RecentNExporter::InitRecentPath()
+{
+    if (RecentNExporter::recentPath_.empty()) {
+        std::unique_lock<std::mutex> lock(recentPathMutex);
+        if (!RecentNExporter::recentPath_.empty()) {
+            return ;
+        }
+        RecentNExporter::recentPath_ = "/storage/Users/currentUser/.Recent/";
+        std::string deviceType;
+        if (GetDeviceType(deviceType) && deviceType == "2in1") {
+            std::string userName;
+            if (GetUserName(userName) && userName != "") {
+                RecentNExporter::recentPath_ = "/storage/Users/" + userName + "/.Recent/";
+            }
+        }
+        HILOG_INFO("GetRecentDir %{public}s", RecentNExporter::recentPath_.c_str());
+    }
+}
+
+RecentNExporter::RecentNExporter(napi_env env, napi_value exports) : NExporter(env, exports)
+{
+    InitRecentPath();
+}
 
 RecentNExporter::~RecentNExporter() {}
 } // namespace Recent

@@ -18,6 +18,7 @@
 #include "ability_info.h"
 #include "accesstoken_kit.h"
 #include "extension_context.h"
+#include "file_access_check_util.h"
 #include "file_access_ext_stub_impl.h"
 #include "file_access_extension_info.h"
 #include "file_access_framework_errno.h"
@@ -36,11 +37,9 @@
 #include "napi_common_util.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
-#include "os_account_manager.h"
-#include "parameter.h"
 #include "system_ability_definition.h"
+#include "user_access_common_utils.h"
 #include "user_access_tracer.h"
-#include "file_access_check_util.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -1185,24 +1184,6 @@ int JsFileAccessExtAbility::ScanFile(const FileInfo &fileInfo, const int64_t off
 
     fileInfoVec = std::move(value->data);
     return ERR_OK;
-}
-
-bool GetDeviceType(std::string &deviceType)
-{
-    char deviceTypeChar[PARAM_CONST_VALUE_LEN_MAX];
-    int32_t ret = GetParameter("const.product.devicetype", "0", deviceTypeChar, PARAM_CONST_VALUE_LEN_MAX);
-    if (ret < 0) {
-        HILOG_ERROR("Get deviceType fail. %{public}d", ret);
-        return false;
-    }
-    deviceType = deviceTypeChar;
-    return true;
-}
-
-bool GetUserName(std::string &userName)
-{
-    userName = "default";
-    return true;
 }
 
 void ChangeCurrentDir(RootInfo &rootInfo)

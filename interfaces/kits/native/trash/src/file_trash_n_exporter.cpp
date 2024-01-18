@@ -16,15 +16,16 @@
 #include "file_trash_n_exporter.h"
 
 #include <ctime>
+#include <mutex>
 
 #include "access_token.h"
 #include "accesstoken_kit.h"
-#include "file_access_framework_errno.h"
 #include "file_info.h"
 #include "file_uri.h"
 #include "file_util.h"
 #include "ipc_skeleton.h"
 #include "rust_file.h"
+#include "user_access_common_utils.h"
 
 namespace OHOS {
 namespace Trash {
@@ -35,6 +36,9 @@ namespace {
 using namespace FileManagement::LibN;
 using namespace FileManagement;
 using namespace std;
+using namespace FileAccessFwk;
+
+static std::mutex trashPathMutex;
 
 static bool CheckCallingPermission(const std::string &permission)
 {
@@ -684,7 +688,29 @@ string FileTrashNExporter::GetClassName()
     return FileTrashNExporter::className_;
 }
 
-FileTrashNExporter::FileTrashNExporter(napi_env env, napi_value exports) : NExporter(env, exports) {}
+void FileTrashNExporter::InitTrashPath()
+{
+    if (FileTrashNExporter::trashPath_.empty()) {
+        std::unique_lock<std::mutex> lock(trashPathMutex);
+        if (!FileTrashNExporter::trashPath_.empty()) {
+            return ;
+        }
+        FileTrashNExporter::trashPath_ = "/storage/Users/currentUser/.Trash";
+        std::string deviceType;
+        if (GetDeviceType(deviceType) && deviceType == "2in1") {
+            std::string userName;
+            if (GetUserName(userName) && userName != "") {
+                FileTrashNExporter::trashPath_ = "/storage/Users/" + userName + "/.Trash";
+            }
+        }
+        HILOG_INFO("GetRecentDir %{public}s", FileTrashNExporter::trashPath_.c_str());
+    }
+}
+
+FileTrashNExporter::FileTrashNExporter(napi_env env, napi_value exports) : NExporter(env, exports)
+{
+    InitTrashPath();
+}
 
 FileTrashNExporter::~FileTrashNExporter() {}
 } // namespace Trash

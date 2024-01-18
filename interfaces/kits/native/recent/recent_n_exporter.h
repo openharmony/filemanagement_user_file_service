@@ -31,6 +31,7 @@ class RecentNExporter final : public LibN::NExporter {
 public:
     inline static const std::string className = "Recent";
     inline static std::string recentPath_ {};
+    static void InitRecentPath();
 
     bool Export() override;
     std::string GetClassName() override;
