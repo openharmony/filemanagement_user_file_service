@@ -678,4 +678,384 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_GetFileInfoFromUri
     }
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_GetFileInfoFromUri_0000";
 }
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_GetFileInfoFromUri_0001
+ * @tc.name: file_access_ext_stub_impl_GetFileInfoFromUri_0001
+ * @tc.desc: Test function of GetFileInfoFromUri interface for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_GetFileInfoFromUri_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_GetFileInfoFromUri_0001";
+    try {
+        EXPECT_CALL(*ability, GetFileInfoFromUri(_, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+
+        Uri selectFile("");
+        FileInfo fileInfo;
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.GetFileInfoFromUri(selectFile, fileInfo);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_GetFileInfoFromUri_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_GetFileInfoFromRelativePath_0000
+ * @tc.name: file_access_ext_stub_impl_GetFileInfoFromRelativePath_0000
+ * @tc.desc: Test function of GetFileInfoFromRelativePath interface for ERROR because of extension is nullptr.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_GetFileInfoFromRelativePath_0000,
+    testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_GetFileInfoFromRelativePath_0000";
+    try {
+        string selectFile;
+        FileInfo fileInfo;
+        FileAccessExtStubImpl impl(nullptr, nullptr);
+        int result = impl.GetFileInfoFromRelativePath(selectFile, fileInfo);
+        EXPECT_EQ(result, E_IPCS);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_GetFileInfoFromRelativePath_0000";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_GetFileInfoFromRelativePath_0001
+ * @tc.name: file_access_ext_stub_impl_GetFileInfoFromRelativePath_0001
+ * @tc.desc: Test function of GetFileInfoFromRelativePath interface for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_GetFileInfoFromRelativePath_0001,
+    testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_GetFileInfoFromRelativePath_0001";
+    try {
+        EXPECT_CALL(*ability, GetFileInfoFromRelativePath(_, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+
+        string selectFile;
+        FileInfo fileInfo;
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.GetFileInfoFromRelativePath(selectFile, fileInfo);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_GetFileInfoFromRelativePath_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_GetRoots_0000
+ * @tc.name: file_access_ext_stub_impl_GetRoots_0000
+ * @tc.desc: Test function of GetRoots interface for ERROR because of extension is nullptr.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_GetRoots_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_GetRoots_0000";
+    try {
+        vector<RootInfo> rootInfoVec;
+        FileAccessExtStubImpl impl(nullptr, nullptr);
+        int result = impl.GetRoots(rootInfoVec);
+        EXPECT_EQ(result, E_IPCS);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_GetRoots_0000";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_GetRoots_0001
+ * @tc.name: file_access_ext_stub_impl_GetRoots_0001
+ * @tc.desc: Test function of GetRoots interface for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_GetRoots_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_GetRoots_0001";
+    try {
+        EXPECT_CALL(*ability, GetRoots(_)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+
+        vector<RootInfo> rootInfoVec;
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.GetRoots(rootInfoVec);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_GetRoots_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_Access_0000
+ * @tc.name: file_access_ext_stub_impl_Access_0000
+ * @tc.desc: Test function of Access interface for ERROR because of extension is nullptr.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Access_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Access_0000";
+    try {
+        Uri uri("");
+        bool isExist;
+        FileAccessExtStubImpl impl(nullptr, nullptr);
+        int result = impl.Access(uri, isExist);
+        EXPECT_EQ(result, E_IPCS);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_Access_0000";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_Access_0001
+ * @tc.name: file_access_ext_stub_impl_Access_0001
+ * @tc.desc: Test function of Access interface for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Access_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Access_0001";
+    try {
+        EXPECT_CALL(*ability, Access(_, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+
+        Uri uri("");
+        bool isExist;
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.Access(uri, isExist);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_Access_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_StartWatcher_0000
+ * @tc.name: file_access_ext_stub_impl_StartWatcher_0000
+ * @tc.desc: Test function of StartWatcher interface for ERROR because of extension is nullptr.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_StartWatcher_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_StartWatcher_0000";
+    try {
+        Uri uri("");
+        FileAccessExtStubImpl impl(nullptr, nullptr);
+        int result = impl.StartWatcher(uri);
+        EXPECT_EQ(result, E_IPCS);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_StartWatcher_0000";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_StartWatcher_0001
+ * @tc.name: file_access_ext_stub_impl_StartWatcher_0001
+ * @tc.desc: Test function of StartWatcher interface for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_StartWatcher_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_StartWatcher_0001";
+    try {
+        EXPECT_CALL(*ability, StartWatcher(_)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+
+        Uri uri("");
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.StartWatcher(uri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_StartWatcher_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_StopWatcher_0000
+ * @tc.name: file_access_ext_stub_impl_StopWatcher_0000
+ * @tc.desc: Test function of StopWatcher interface for ERROR because of extension is nullptr.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_StopWatcher_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_StopWatcher_0000";
+    try {
+        Uri uri("");
+        bool isUnregisterAll = false;
+        FileAccessExtStubImpl impl(nullptr, nullptr);
+        int result = impl.StopWatcher(uri, isUnregisterAll);
+        EXPECT_EQ(result, E_IPCS);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_StopWatcher_0000";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_StopWatcher_0001
+ * @tc.name: file_access_ext_stub_impl_StopWatcher_0001
+ * @tc.desc: Test function of StopWatcher interface for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_StopWatcher_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_StopWatcher_0001";
+    try {
+        EXPECT_CALL(*ability, StopWatcher(_, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+
+        Uri uri("");
+        bool isUnregisterAll = false;
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.StopWatcher(uri, isUnregisterAll);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_StopWatcher_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_MoveItem_0000
+ * @tc.name: file_access_ext_stub_impl_MoveItem_0000
+ * @tc.desc: Test function of MoveItem interface for ERROR because of extension is nullptr.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveItem_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_MoveItem_0000";
+    try {
+        Uri sourceFile("");
+        Uri targetParent("");
+        vector<Result> moveResult;
+        FileAccessExtStubImpl impl(nullptr, nullptr);
+        int result = impl.MoveItem(sourceFile, targetParent, moveResult);
+        EXPECT_EQ(result, E_IPCS);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_MoveItem_0000";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_MoveItem_0001
+ * @tc.name: file_access_ext_stub_impl_MoveItem_0001
+ * @tc.desc: Test function of MoveItem interface for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveItem_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_MoveItem_0001";
+    try {
+        EXPECT_CALL(*ability, MoveItem(_, _, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+
+        Uri sourceFile("");
+        Uri targetParent("");
+        vector<Result> moveResult;
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.MoveItem(sourceFile, targetParent, moveResult);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_MoveItem_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_MoveFile_0000
+ * @tc.name: file_access_ext_stub_impl_MoveFile_0000
+ * @tc.desc: Test function of MoveFile interface for ERROR because of extension is nullptr.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveFile_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_MoveFile_0000";
+    try {
+        Uri sourceFile("");
+        Uri targetParent("");
+        string fileName;
+        Uri newFile("");
+        FileAccessExtStubImpl impl(nullptr, nullptr);
+        int result = impl.MoveFile(sourceFile, targetParent, fileName, newFile);
+        EXPECT_EQ(result, E_IPCS);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_MoveFile_0000";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_MoveFile_0001
+ * @tc.name: file_access_ext_stub_impl_MoveFile_0001
+ * @tc.desc: Test function of MoveFile interface for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveFile_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_MoveFile_0001";
+    try {
+        EXPECT_CALL(*ability, MoveFile(_, _, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+
+        Uri sourceFile("");
+        Uri targetParent("");
+        string fileName;
+        Uri newFile("");
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.MoveFile(sourceFile, targetParent, fileName, newFile);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_MoveFile_0001";
+}
 }
