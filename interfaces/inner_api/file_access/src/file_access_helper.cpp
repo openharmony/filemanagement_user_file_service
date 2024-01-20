@@ -40,7 +40,7 @@ namespace {
     constexpr int COPY_EXCEPTION = -1;
     constexpr int COPY_NOEXCEPTION = -2;
 }
-std::vector<AAFwk::Want> FileAccessHelper::wants_;
+
 sptr<IFileAccessExtBase> g_sourceExtProxy;
 sptr<IFileAccessExtBase> g_destExtProxy;
 
@@ -152,24 +152,35 @@ std::shared_ptr<ConnectInfo> FileAccessHelper::GetConnectInfo(const std::string 
     return nullptr;
 }
 
-std::string FileAccessHelper::GetKeyOfWants(const AAFwk::Want &want)
-{
-    auto elementTmp = want.GetElement();
-    for (auto iter = FileAccessHelper::wants_.begin(); iter != FileAccessHelper::wants_.end(); ++iter) {
-        auto element = iter->GetElement();
-        if (element.GetBundleName() == elementTmp.GetBundleName() &&
-            element.GetAbilityName() == elementTmp.GetAbilityName()) {
-            return element.GetBundleName();
-        }
-    }
-    HILOG_ERROR("GetKeyOfWants did not find a want message to match");
-    return "";
-}
-
 static bool IsSystemApp()
 {
     uint64_t accessTokenIDEx = OHOS::IPCSkeleton::GetCallingFullTokenID();
     return OHOS::Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(accessTokenIDEx);
+}
+
+bool FileAccessHelper::CompareWant(const AAFwk::Want& lhs, const AAFwk::Want& rhs)
+{
+    auto lhsElement = lhs.GetElement();
+    auto rhsElement = rhs.GetElement();
+    return lhsElement.GetBundleName() < rhsElement.GetBundleName()
+        && lhsElement.GetAbilityName() < rhsElement.GetAbilityName();
+}
+
+bool FileAccessHelper::IsEffectiveWants(const std::vector<AAFwk::Want> &wants)
+{
+    std::vector<AAFwk::Want> allWants;
+    if (GetRegisteredFileAccessExtAbilityInfo(allWants) != ERR_OK) {
+        HILOG_ERROR("GetRegisteredFileAccessExtAbilityInfo failed");
+        return false;
+    }
+    std::set<AAFwk::Want, bool(*)(const AAFwk::Want&, const AAFwk::Want&)> allWantSet(FileAccessHelper::CompareWant);
+    allWantSet.insert(allWants.begin(), allWants.end());
+    for (auto iter = wants.begin(); iter != wants.end(); ++iter) {
+        if (allWantSet.count(*iter) == 0) {
+            return false;
+        }
+    }
+    return true;
 }
 
 std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::DoCreatorHelper(
@@ -197,11 +208,7 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::DoCreatorHel
         }
         connectInfo->want = wants[i];
         connectInfo->fileAccessExtConnection = fileAccessExtConnection;
-        string bundleName = FileAccessHelper::GetKeyOfWants(wants[i]);
-        if (bundleName.length() == 0) {
-            HILOG_ERROR("Creator GetKeyOfWants bundleName not found");
-            return {nullptr, E_GETRESULT};
-        }
+        std::string bundleName = wants[i].GetElement().GetBundleName();
         cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(bundleName, connectInfo));
     }
 
@@ -219,6 +226,7 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
 {
     UserAccessTracer trace;
     trace.Start("Creator");
+    std::vector<AAFwk::Want> allWants;
     if (context == nullptr) {
         HILOG_ERROR("FileAccessHelper::Creator failed, context == nullptr");
         return {nullptr, EINVAL};
@@ -227,12 +235,12 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         HILOG_ERROR("FileAccessHelper::Creator check IsSystemAppByFullTokenID failed");
         return {nullptr, E_PERMISSION_SYS};
     }
-    if (GetRegisteredFileAccessExtAbilityInfo(FileAccessHelper::wants_) != ERR_OK) {
+    if (GetRegisteredFileAccessExtAbilityInfo(allWants) != ERR_OK) {
         HILOG_ERROR("GetRegisteredFileAccessExtAbilityInfo failed");
         return {nullptr, E_GETINFO};
     }
 
-    return DoCreatorHelper(context->GetToken(), FileAccessHelper::wants_);
+    return DoCreatorHelper(context->GetToken(), allWants);
 }
 
 std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
@@ -252,9 +260,10 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::Creator(
         HILOG_ERROR("FileAccessHelper::Creator check IsSystemAppByFullTokenID failed");
         return {nullptr, E_PERMISSION_SYS};
     }
-    if (GetRegisteredFileAccessExtAbilityInfo(FileAccessHelper::wants_) != ERR_OK) {
-        HILOG_ERROR("GetRegisteredFileAccessExtAbilityInfo failed");
-        return {nullptr, E_GETINFO};
+    // 传入的wants信息是否有效
+    if (!IsEffectiveWants(wants)) {
+        HILOG_ERROR("FileAccessHelper::Creator effectiveWants is empty");
+        return {nullptr, EINVAL};
     }
 
     return DoCreatorHelper(context->GetToken(), wants);
@@ -277,8 +286,9 @@ std::shared_ptr<FileAccessHelper> FileAccessHelper::Creator(const sptr<IRemoteOb
         HILOG_ERROR("FileAccessHelper::Creator check IsSystemAppByFullTokenID failed");
         return nullptr;
     }
-    if (GetRegisteredFileAccessExtAbilityInfo(FileAccessHelper::wants_) != ERR_OK) {
-        HILOG_ERROR("GetRegisteredFileAccessExtAbilityInfo failed");
+    // 传入的wants信息是否有效
+    if (!IsEffectiveWants(wants)) {
+        HILOG_ERROR("FileAccessHelper::Creator wants is not effective");
         return nullptr;
     }
 
@@ -299,7 +309,6 @@ bool FileAccessHelper::Release()
     }
     cMap_.clear();
     token_ = nullptr;
-    FileAccessHelper::wants_.clear();
     return true;
 }
 
@@ -945,6 +954,10 @@ int FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::W
 
     wantVec.clear();
     for (size_t i = 0; i < extensionInfos.size(); i++) {
+        if (extensionInfos[i].bundleName.empty()) {
+            HILOG_ERROR("GetRegisteredFileAccessExtAbilityInfo extensionInfos.bundleName empty");
+            return E_GETINFO;
+        }
         AAFwk::Want want;
         want.SetElementName(extensionInfos[i].bundleName, extensionInfos[i].name);
         wantVec.push_back(want);
