@@ -42,6 +42,9 @@ class FileTrashNExporter final : public NExporter {
 public:
     inline static const std::string className_ = "trash";
     inline static std::string trashPath_ {};
+    // 初始化回收站路径
+    static void InitTrashPath();
+
     static napi_value ListFile(napi_env env, napi_callback_info info);
     static napi_value Recover(napi_env env, napi_callback_info info);
     static napi_value CompletelyDelete(napi_env env, napi_callback_info info);
