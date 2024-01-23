@@ -230,6 +230,48 @@ ohos_unittest("file_access_ext_stub_impl_test") {
   use_exceptions = true
 }
 
+ohos_unittest("file_access_service_proxy_test") {
+  module_out_path = "user_file_service/tests"
+
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
+    "${user_file_service_path}/interfaces/inner_api/file_access/include",
+    "${user_file_service_path}/services/native/file_access_service/include",
+    "${user_file_service_path}/interfaces/kits/js/src/common",
+    "${user_file_service_path}/utils",
+    "//third_party/googletest/googlemock/include/gmock",
+    "mock",
+  ]
+
+  sources = [
+    "${user_file_service_path}/services/native/file_access_service/src/file_access_service_proxy.cpp",
+    "file_access_service_proxy_test.cpp",
+    "mock/message_parcel_mock.cpp",
+    "mock/service_registry_mock.cpp",
+  ]
+
+  deps = [
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_manager",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "image_framework:image",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+  ]
+
+  defines = [ "private=public" ]
+
+  use_exceptions = true
+}
+
 group("user_file_service_unit_test") {
   testonly = true
 
@@ -237,6 +279,7 @@ group("user_file_service_unit_test") {
     ":abnormal_file_access_test",
     ":external_file_access_test",
     ":file_access_ext_stub_impl_test",
+    ":file_access_service_proxy_test",
     ":js_file_access_ext_ability_test",
   ]
 }

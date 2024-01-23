@@ -45,7 +45,7 @@ sptr<IFileAccessServiceBase> FileAccessServiceProxy::GetInstance()
     }
     int32_t ret = samgr->LoadSystemAbility(FILE_ACCESS_SERVICE_ID, loadCallback);
     if (ret != ERR_OK) {
-        HILOG_ERROR("Failed to Load systemAbility, systemAbilityId:%{pulbic}d, ret code:%{pulbic}d",
+        HILOG_ERROR("Failed to Load systemAbility, systemAbilityId:%{public}d, ret code:%{public}d",
             FILE_ACCESS_SERVICE_ID, ret);
         return nullptr;
     }
