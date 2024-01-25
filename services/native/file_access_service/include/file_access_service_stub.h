@@ -28,8 +28,10 @@ class FileAccessServiceStub : public IRemoteStub<IFileAccessServiceBase> {
 public:
     FileAccessServiceStub();
     virtual ~FileAccessServiceStub();
-    virtual int32_t CleanAllNotify (Uri uri) = 0;
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+
+protected:
+virtual int32_t CleanAllNotify (Uri uri, const std::shared_ptr<ConnectExtensionInfo> &info) = 0;
 
 private:
     ErrCode CmdOnChange(MessageParcel &data, MessageParcel &reply);

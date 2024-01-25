@@ -729,14 +729,8 @@ ErrCode FileAccessExtStub::CmdStopWatcher(MessageParcel &data, MessageParcel &re
         return EINVAL;
     }
 
-    bool isUnregisterAll = false;
-    if (!data.ReadBool(isUnregisterAll)) {
-        HILOG_ERROR("Parameter Copy fail to ReadBool isUnregisterAll");
-        return E_IPCS;
-    }
-
     Uri uri(uriString);
-    int ret = StopWatcher(uri, isUnregisterAll);
+    int ret = StopWatcher(uri);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter StopWatcher fail to WriteInt32 ret");
         return E_IPCS;

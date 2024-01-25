@@ -152,6 +152,26 @@ std::shared_ptr<ConnectInfo> FileAccessHelper::GetConnectInfo(const std::string 
     return nullptr;
 }
 
+std::shared_ptr<ConnectExtensionInfo> FileAccessHelper::GetConnectExtensionInfo(Uri &uri)
+{
+    std::string scheme = uri.GetScheme();
+    std::string bundleName;
+    if (scheme == FILE_SCHEME_NAME) {
+        std::string path = "/" + uri.GetAuthority() + uri.GetPath();
+        if (!GetBundleNameFromPath(path, bundleName)) {
+            HILOG_ERROR("Get BundleName failed.");
+        }
+    }
+    auto connectInfo = GetConnectInfo(bundleName);
+    if (connectInfo == nullptr) {
+        HILOG_ERROR("Get connectInfo failed.");
+        return nullptr;
+    }
+    std::shared_ptr<ConnectExtensionInfo> connectExtensionInfo =
+        std::make_shared<ConnectExtensionInfo>(connectInfo->want, token_);
+    return connectExtensionInfo;
+}
+
 static bool IsSystemApp()
 {
     uint64_t accessTokenIDEx = OHOS::IPCSkeleton::GetCallingFullTokenID();
@@ -1048,53 +1068,6 @@ int FileAccessHelper::GetFileInfoFromRelativePath(std::string &selectFile, FileI
     return ERR_OK;
 }
 
-int FileAccessHelper::StartWatcher(Uri &uri)
-{
-    UserAccessTracer trace;
-    trace.Start("StartWatcher");
-    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
-    if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        return E_IPCS;
-    }
-
-    int ret = fileExtProxy->StartWatcher(uri);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("Delete get result error, code:%{public}d", ret);
-        return ret;
-    }
-
-    return ERR_OK;
-}
-
-int FileAccessHelper::StopWatcher(Uri &uri, bool isUnregisterAll)
-{
-    UserAccessTracer trace;
-    trace.Start("StopWatcher");
-    sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
-    if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
-        return E_IPCS;
-    }
-
-    int ret = fileExtProxy->StopWatcher(uri, isUnregisterAll);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("StopWatcher get result error, code:%{public}d", ret);
-        return ret;
-    }
-
-    return ERR_OK;
-}
-
-static void convertUris(Uri uri, std::vector<Uri> &uris) {
-    std::string uriString = uri.ToString();
-    if (uriString == DEVICES_URI) {
-        uris = deviceUris;
-    } else {
-        uris.push_back(uri);
-    }
-}
-
 int FileAccessHelper::RegisterNotify(Uri uri, bool notifyForDescendants, sptr<IFileAccessObserver> &observer)
 {
     UserAccessTracer trace;
@@ -1115,22 +1088,8 @@ int FileAccessHelper::RegisterNotify(Uri uri, bool notifyForDescendants, sptr<IF
         return E_LOAD_SA;
     }
 
-    std::vector<Uri> uris;
-    convertUris(uri, uris);
-    for (auto eachUri : uris) {
-        int ret = proxy->RegisterNotify(eachUri, notifyForDescendants, observer);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("RegisterNotify error ret = %{public}d", ret);
-            return ret;
-        }
-
-        ret = StartWatcher(eachUri);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("StartWatcher error ret = %{public}d", ret);
-            return ret;
-        }
-    }
-    return ERR_OK;
+    int ret = proxy->RegisterNotify(uri, notifyForDescendants, observer, GetConnectExtensionInfo(uri));
+    return ret;
 }
 
 int FileAccessHelper::UnregisterNotify(Uri uri, sptr<IFileAccessObserver> &observer)
@@ -1153,24 +1112,8 @@ int FileAccessHelper::UnregisterNotify(Uri uri, sptr<IFileAccessObserver> &obser
         return E_LOAD_SA;
     }
 
-    std::vector<Uri> uris;
-    convertUris(uri, uris);
-    for (auto eachUri : uris) {
-        int ret = proxy->UnregisterNotify(eachUri, observer);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("UnregisterNotify error ret = %{public}d", ret);
-            return ret;
-        }
-
-        bool isUnregisterAll = false;
-        ret = StopWatcher(eachUri, isUnregisterAll);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("StopWatcher error ret = %{public}d", ret);
-            return ret;
-        }
-    }
-
-    return ERR_OK;
+    int ret = proxy->UnregisterNotify(uri, observer, GetConnectExtensionInfo(uri));
+    return ret;
 }
 
 int FileAccessHelper::UnregisterNotify(Uri uri)
@@ -1193,24 +1136,8 @@ int FileAccessHelper::UnregisterNotify(Uri uri)
     }
 
     sptr<IFileAccessObserver> observer = nullptr;
-
-    std::vector<Uri> uris;
-    convertUris(uri, uris);
-    for (auto eachUri : uris) {
-        int ret = proxy->UnregisterNotify(eachUri, observer);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("UnregisterNotify error ret = %{public}d", ret);
-            return ret;
-        }
-
-        bool isUnregisterAll = true;
-        ret = StopWatcher(eachUri, isUnregisterAll);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("StopWatcher error ret = %{public}d", ret);
-            return ret;
-        }
-    }
-    return ERR_OK;
+    int ret = proxy->UnregisterNotify(uri, observer, GetConnectExtensionInfo(uri));
+    return ret;
 }
 
 int FileAccessHelper::MoveItem(Uri &sourceFile, Uri &targetParent, std::vector<Result> &moveResult, bool force)

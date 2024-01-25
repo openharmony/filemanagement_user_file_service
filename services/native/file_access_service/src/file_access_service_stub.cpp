@@ -116,7 +116,12 @@ ErrCode FileAccessServiceStub::CmdRegisterNotify(MessageParcel &data, MessagePar
     }
 
     bool notifyForDescendants = data.ReadBool();
-    int ret = RegisterNotify(*uri, notifyForDescendants, observer);
+    auto connectExtensionInfo = std::make_shared<ConnectExtensionInfo>();
+    if (!connectExtensionInfo->ReadFromParcel(data)) {
+        HILOG_ERROR("fail to read info");
+        return E_IPCS;
+    }
+    int ret = RegisterNotify(*uri, notifyForDescendants, observer, connectExtensionInfo);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Parameter RegisterNotify fail to WriteInt32 ret");
         return E_IPCS;
@@ -148,9 +153,20 @@ ErrCode FileAccessServiceStub::CmdUnregisterNotify(MessageParcel &data, MessageP
             HILOG_ERROR("get observer fail");
             return E_IPCS;
         }
-        ret = UnregisterNotify(*uri, observer);
+
+        auto connectExtensionInfo = std::make_shared<ConnectExtensionInfo>();
+        if (!connectExtensionInfo->ReadFromParcel(data)) {
+            HILOG_ERROR("fail to read info");
+            return E_IPCS;
+        }
+        ret = UnregisterNotify(*uri, observer, connectExtensionInfo);
     } else {
-        ret = CleanAllNotify(*uri);
+        auto connectExtensionInfo = std::make_shared<ConnectExtensionInfo>();
+        if (!connectExtensionInfo->ReadFromParcel(data)) {
+            HILOG_ERROR("fail to read info");
+            return E_IPCS;
+        }
+        ret = CleanAllNotify(*uri, connectExtensionInfo);
     }
 
     if (!reply.WriteInt32(ret)) {

@@ -48,7 +48,7 @@ public:
     MOCK_METHOD1(GetRoots, int(std::vector<RootInfo> &rootInfoVec));
     MOCK_METHOD2(Access, int(const Uri &uri, bool &isExist));
     MOCK_METHOD1(StartWatcher, int(const Uri &uri));
-    MOCK_METHOD2(StopWatcher, int(const Uri &uri, bool isUnregisterAll));
+    MOCK_METHOD1(StopWatcher, int(const Uri &uri));
     MOCK_METHOD4(MoveItem, int(const Uri &sourceFile, const Uri &targetParent, std::vector<Result> &moveResult,
         bool force));
     MOCK_METHOD4(MoveFile, int(const Uri &sourceFile, const Uri &targetParent, std::string &fileName, Uri &newFile));

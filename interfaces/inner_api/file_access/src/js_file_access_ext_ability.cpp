@@ -1639,7 +1639,7 @@ int JsFileAccessExtAbility::StartWatcher(const Uri &uri)
     return ERR_OK;
 }
 
-int JsFileAccessExtAbility::StopWatcher(const Uri &uri, bool isUnregisterAll)
+int JsFileAccessExtAbility::StopWatcher(const Uri &uri)
 {
     UserAccessTracer trace;
     trace.Start("StopWatcher");
@@ -1649,7 +1649,7 @@ int JsFileAccessExtAbility::StopWatcher(const Uri &uri, bool isUnregisterAll)
         return E_GETRESULT;
     }
 
-    auto argParser = [uri, isUnregisterAll](napi_env &env, napi_value *argv, size_t &argc) -> bool {
+    auto argParser = [uri](napi_env &env, napi_value *argv, size_t &argc) -> bool {
         napi_value nativeUri = nullptr;
         napi_create_string_utf8(env, uri.ToString().c_str(), uri.ToString().length(), &nativeUri);
         if (nativeUri == nullptr) {
@@ -1657,14 +1657,8 @@ int JsFileAccessExtAbility::StopWatcher(const Uri &uri, bool isUnregisterAll)
             return false;
         }
 
-        napi_value isCleanAll = nullptr;
-        if (napi_get_boolean(env, isUnregisterAll, &isCleanAll) != napi_ok) {
-            HILOG_ERROR("Get isCleanAll fail.");
-            return false;
-        }
         argv[ARGC_ZERO] = nativeUri;
-        argv[ARGC_ONE] = isCleanAll;
-        argc = ARGC_TWO;
+        argc = ARGC_ONE;
         return true;
     };
 

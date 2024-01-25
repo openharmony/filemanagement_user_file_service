@@ -16,13 +16,17 @@
 #include "file_access_service.h"
 
 #include <unistd.h>
+
 #include "user_access_tracer.h"
 #include "file_access_framework_errno.h"
 #include "file_access_ext_connection.h"
 #include "file_access_extension_info.h"
+#include "file_access_ext_connection.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "ipc_skeleton.h"
 #include "system_ability_definition.h"
+#include "iservice_registry.h"
 
 using namespace std;
 namespace OHOS {
@@ -30,6 +34,7 @@ namespace FileAccessFwk {
 namespace {
     auto pms = FileAccessService::GetInstance();
     const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(pms.GetRefPtr());
+    const std::string FILE_SCHEME = "file://";
 }
 sptr<FileAccessService> FileAccessService::instance_;
 mutex FileAccessService::mutex_;
@@ -37,6 +42,9 @@ mutex FileAccessService::mutex_;
 constexpr int32_t NOTIFY_MAX_NUM = 32;
 constexpr int32_t NOTIFY_TIME_INTERVAL = 500;
 constexpr int32_t MAX_WAIT_TIME = 20;
+constexpr int32_t ONE_SECOND = 1 * 1000;
+constexpr int32_t UNLOAD_SA_WAIT_TIME = 30;
+std::vector<Uri> deviceUris(DEVICE_ROOTS.begin(), DEVICE_ROOTS.end());
 
 sptr<FileAccessService> FileAccessService::GetInstance()
 {
@@ -57,7 +65,7 @@ sptr<FileAccessService> FileAccessService::GetInstance()
 
 FileAccessService::FileAccessService() : SystemAbility(FILE_ACCESS_SERVICE_ID, false)
 {
-    InitTimer();
+    Init();
 }
 
 void FileAccessService::OnStart()
@@ -123,23 +131,156 @@ static bool IsChildUri(const string &comparedUriStr, string &srcUriStr)
     return false;
 }
 
-int32_t FileAccessService::RegisterNotify(Uri uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer)
+void FileAccessService::Init()
 {
-    UserAccessTracer trace;
-    trace.Start("RegisterNotify");
+    InitTimer();
+    if (extensionDeathRecipient_ == nullptr) {
+        extensionDeathRecipient_ = new ExtensionDeathRecipient();
+    }
+    if (observerDeathRecipient_  == nullptr) {
+        observerDeathRecipient_ = new ObserverDeathRecipient();
+    }
+}
+
+static bool GetBundleNameFromUri(Uri &uri, string &bundleName)
+{
+    string scheme = uri.GetScheme();
+    if (scheme != FILE_SCHEME_NAME) {
+        return false;
+    }
+    string path = "/" + uri.GetAuthority() + uri.GetPath();
+    if (path.size() == 0) {
+        HILOG_ERROR("Uri path error.");
+        return false;
+    }
+
+    if (path.front() != '/') {
+        HILOG_ERROR("Uri path format error.");
+        return false;
+    }
+
+    auto tmpPath = path.substr(1);
+    auto index = tmpPath.find_first_of("/");
+    bundleName = tmpPath.substr(0, index);
+    if (bundleName.compare(MEDIA_BNUDLE_NAME_ALIAS) == 0) {
+        bundleName = MEDIA_BNUDLE_NAME;
+        return true;
+    }
+    if (bundleName.compare(EXTERNAL_BNUDLE_NAME_ALIAS) == 0) {
+        bundleName = EXTERNAL_BNUDLE_NAME;
+        return true;
+    }
+    HILOG_ERROR("Uri-authority error.");
+    return false;
+}
+
+sptr<IFileAccessExtBase> FileAccessService::ConnectExtension(Uri &uri, const shared_ptr<ConnectExtensionInfo> &info)
+{
+    string bundleName;
+    GetBundleNameFromUri(uri, bundleName);
+    lock_guard<mutex> lock(mutex_);
+    auto iterator = cMap_.find(bundleName);
+    if (iterator != cMap_.end()) {
+        return iterator->second;
+    }
+    sptr<IFileAccessExtBase> extensionProxy;
+    int32_t ret = GetExensionProxy(info, extensionProxy);
+    if (ret != ERR_OK || extensionProxy == nullptr) {
+        return nullptr;
+    }
+    auto object = extensionProxy->AsObject();
+    object->AddDeathRecipient(extensionDeathRecipient_);
+    cMap_.emplace(bundleName, extensionProxy);
+    return extensionProxy;
+}
+
+void FileAccessService::ResetProxy(const wptr<IRemoteObject> &remote)
+{
+    if (remote != nullptr && extensionDeathRecipient_ != nullptr) {
+        for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
+            auto proxyRemote = iter->second->AsObject();
+            if (proxyRemote != nullptr && proxyRemote== remote.promote()) {
+                proxyRemote->RemoveDeathRecipient(extensionDeathRecipient_);
+                cMap_.erase(iter->first);
+            }
+        }
+    } else {
+        HILOG_ERROR("FileAccessService::ResetProxy, proxy is null or extensionDeathRecipient_ is null.");
+    }
+}
+
+void FileAccessService::ExtensionDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    HILOG_ERROR("FileAccessService::ExtensionDeathRecipient::OnRemoteDied, remote obj died.");
+    if (remote == nullptr) {
+        HILOG_ERROR("remote is nullptr");
+        return;
+    }
+    FileAccessService::GetInstance()->ResetProxy(remote);
+}
+
+void FileAccessService::ObserverDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    HILOG_ERROR("FileAccessService::ObserverDeathRecipient::OnRemoteDied, remote obj died.");
+    if (remote == nullptr || remote.promote() == nullptr) {
+        return;
+    }
+    sptr<IFileAccessObserver> observer = iface_cast<IFileAccessObserver>(remote.promote());
+    if (observer == nullptr) {
+        HILOG_ERROR("convert promote failed");
+        return;
+    }
+    FileAccessService::GetInstance()->CleanRelativeObserver(observer);
+}
+
+void FileAccessService::CleanRelativeObserver(const sptr<IFileAccessObserver> &observer)
+{
     shared_ptr<ObserverContext> obsContext = make_shared<ObserverContext>(observer);
-    // find if obsManager_ has this callback.
-    uint32_t code = obsManager_.getId([obsContext](const shared_ptr<ObserverContext> &afterContext) {
+    uint32_t code = obsManager_.getId([obsContext](const shared_ptr<ObserverContext>  &afterContext) {
         return obsContext->EqualTo(afterContext);
     });
-    if (code == HolderManager<shared_ptr<ObserverContext>>::CODE_CAN_NOT_FIND) {
-        // this is new callback, save this context
-        obsContext->Ref();
-        code = obsManager_.save(obsContext);
-    } else {
-        // this callback is already in manager, add ref.
-        obsManager_.get(code)->Ref();
+    for (auto pair : relationshipMap_) {
+        auto codeList = pair.second->obsCodeList_;
+        auto haveCodeIter = find_if(codeList.begin(), codeList.end(),
+            [code](const uint32_t &listCode) { return code == listCode; });
+        if (haveCodeIter != codeList.end()) {
+            Uri uri(pair.first);
+            UnregisterNotify(uri, observer);
+        }
     }
+}
+
+static void convertUris(Uri uri, std::vector<Uri> &uris)
+{
+    std::string uriString = uri.ToString();
+    if (uriString == DEVICES_URI) {
+        auto uid = uriString.substr(0, uriString.find("file://"));
+        for (auto uirStr : DEVICE_ROOTS) {
+            uris.push_back(Uri(uid + uirStr));
+        }
+    } else {
+        uris.push_back(uri);
+    }
+}
+
+int32_t FileAccessService::RegisterNotify(Uri uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer,
+    const std::shared_ptr<ConnectExtensionInfo> &info)
+{
+    std::vector<Uri> uris;
+    convertUris(uri, uris);
+    for (auto eachUri : uris) {
+        int ret = RegisterNotifyImpl(eachUri, notifyForDescendants, observer, info);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("RegisterNotify error ret = %{public}d", ret);
+            return ret;
+        }
+    }
+    return ERR_OK;
+}
+
+int32_t FileAccessService::OperateObsNode(Uri &uri, bool notifyForDescendants, uint32_t code,
+    const std::shared_ptr<ConnectExtensionInfo> &info)
+{
     string uriStr = uri.ToString();
     lock_guard<mutex> lock(nodeMutex_);
     auto iter = relationshipMap_.find(uriStr);
@@ -163,6 +304,13 @@ int32_t FileAccessService::RegisterNotify(Uri uri, bool notifyForDescendants, co
         obsNode->obsCodeList_.push_back(code);
         return ERR_OK;
     }
+
+    auto extensionProxy = ConnectExtension(uri, info);
+    if (extensionProxy == nullptr) {
+        HILOG_ERROR("Creator get invalid fileExtProxy");
+        return E_CONNECT;
+    }
+    extensionProxy->StartWatcher(uri);
     obsNode = make_shared<ObserverNode>(notifyForDescendants);
     // add new node relations.
     for (auto &[comUri, node] : relationshipMap_) {
@@ -179,6 +327,30 @@ int32_t FileAccessService::RegisterNotify(Uri uri, bool notifyForDescendants, co
     obsNode->obsCodeList_.push_back(code);
     relationshipMap_.insert(make_pair(uriStr, obsNode));
     return ERR_OK;
+}
+
+int32_t FileAccessService::RegisterNotifyImpl(Uri uri, bool notifyForDescendants,
+    const sptr<IFileAccessObserver> &observer, const std::shared_ptr<ConnectExtensionInfo> &info)
+{
+    UserAccessTracer trace;
+    trace.Start("RegisterNotifyImpl");
+    std::string token = IPCSkeleton::ResetCallingIdentity();
+    shared_ptr<ObserverContext> obsContext = make_shared<ObserverContext>(observer);
+    // find if obsManager_ has this callback.
+    uint32_t code = obsManager_.getId([obsContext](const shared_ptr<ObserverContext> &afterContext) {
+        return obsContext->EqualTo(afterContext);
+    });
+    if (code == HolderManager<shared_ptr<ObserverContext>>::CODE_CAN_NOT_FIND) {
+        // this is new callback, save this context
+        obsContext->Ref();
+        code = obsManager_.save(obsContext);
+        auto object = obsContext->obs_->AsObject();
+        object->AddDeathRecipient(observerDeathRecipient_);
+    } else {
+        // this callback is already in manager, add ref.
+        obsManager_.get(code)->Ref();
+    }
+    return OperateObsNode(uri, notifyForDescendants, code, info);
 }
 
 void FileAccessService::RemoveRelations(string &uriStr, shared_ptr<ObserverNode> obsNode)
@@ -209,10 +381,24 @@ int FileAccessService::FindUri(const string &uriStr, shared_ptr<ObserverNode> &o
     return ERR_OK;
 }
 
-int32_t FileAccessService::CleanAllNotify(Uri uri)
+int32_t FileAccessService::CleanAllNotify(Uri uri, const std::shared_ptr<ConnectExtensionInfo> &info)
+{
+    std::vector<Uri> uris;
+    convertUris(uri, uris);
+    for (auto eachUri : uris) {
+        int ret = CleanAllNotifyImpl(eachUri, info);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("CleanAllNotify error ret = %{public}d", ret);
+            return ret;
+        }
+    }
+    return ERR_OK;
+}
+
+int32_t FileAccessService::CleanAllNotifyImpl(Uri uri, const std::shared_ptr<ConnectExtensionInfo> &info)
 {
     UserAccessTracer trace;
-    trace.Start("CleanAllNotify");
+    trace.Start("CleanAllNotifyImpl");
     string uriStr = uri.ToString();
     shared_ptr<ObserverNode> obsNode;
     if (FindUri(uriStr, obsNode) != ERR_OK) {
@@ -226,14 +412,45 @@ int32_t FileAccessService::CleanAllNotify(Uri uri)
             obsManager_.release(code);
         }
     }
+
+    size_t uriIndex = uriStr.find("file://");
+    Uri originalUri(uriStr.substr(uriIndex));
+    auto extensionProxy = ConnectExtension(originalUri, info);
+    if (extensionProxy == nullptr) {
+        HILOG_ERROR("Creator get invalid fileExtProxy");
+        return E_CONNECT;
+    }
+    extensionProxy->StopWatcher(originalUri);
     RemoveRelations(uriStr, obsNode);
+    if (IsUnused()) {
+        unLoadTimer_->reset();
+    }
     return ERR_OK;
 }
 
-int32_t FileAccessService::UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer)
+int32_t FileAccessService::UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer,
+    const std::shared_ptr<ConnectExtensionInfo> &info)
+{
+    std::vector<Uri> uris;
+    convertUris(uri, uris);
+    for (auto eachUri : uris) {
+        int ret = UnregisterNotifyImpl(eachUri, observer, info);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("UnregisterNotify error ret = %{public}d", ret);
+            return ret;
+        }
+    }
+    if (IsUnused()) {
+        unLoadTimer_->reset();
+    }
+    return ERR_OK;
+}
+
+int32_t FileAccessService::UnregisterNotifyImpl(Uri uri, const sptr<IFileAccessObserver> &observer,
+    const std::shared_ptr<ConnectExtensionInfo> &info)
 {
     UserAccessTracer trace;
-    trace.Start("UnregisterNotify");
+    trace.Start("UnregisterNotifyImpl");
     if (observer->AsObject() == nullptr) {
         HILOG_ERROR("UnregisterNotify failed with invalid observer");
         return E_IPCS;
@@ -271,6 +488,15 @@ int32_t FileAccessService::UnregisterNotify(Uri uri, const sptr<IFileAccessObser
     if (!obsManager_.get(code)->IsValid()) {
         obsManager_.release(code);
     }
+
+    size_t uriIndex = uriStr.find("file://");
+    Uri originalUri(uriStr.substr(uriIndex));
+    auto extensionProxy = ConnectExtension(originalUri, info);
+    if (extensionProxy == nullptr) {
+        HILOG_ERROR("Creator get invalid fileExtProxy");
+        return E_CONNECT;
+    }
+    extensionProxy->StopWatcher(originalUri);
     RemoveRelations(uriStr, obsNode);
     return ERR_OK;
 }
@@ -288,7 +514,8 @@ void FileAccessService::SendListNotify(string uriStr, NotifyType notifyType, con
             continue;
         }
         auto context = obsManager_.get(code);
-        if (uriStr == EXTERNAL_ROOT) {
+        auto it = std::find(DEVICE_ROOTS.begin(), DEVICE_ROOTS.end(), uriStr);
+        if (it != DEVICE_ROOTS.end()) {
             vector<string> uris = {uriStr};
             NotifyMessage notifyMessage{notifyType, uris};
             context->obs_->OnChange(notifyMessage);
@@ -317,10 +544,8 @@ int32_t FileAccessService::OnChange(Uri uri, NotifyType notifyType)
     trace.Start("OnChange");
     string uriStr = uri.ToString();
     shared_ptr<ObserverNode> node;
-    NotifyMessage notifyMessage;
-    notifyMessage.notifyType_ = notifyType;
-    vector<string> uris {uriStr};
-    notifyMessage.uris_ = uris;
+    size_t uriIndex = uriStr.find(FILE_SCHEME);
+    string uris = uriStr.substr(uriIndex);
     //When the path is not found, search for its parent path
     if (FindUri(uriStr, node) != ERR_OK) {
         size_t slashIndex = uriStr.rfind("/");
@@ -337,16 +562,21 @@ int32_t FileAccessService::OnChange(Uri uri, NotifyType notifyType)
             HILOG_DEBUG("Do not need send onChange message");
             return ERR_OK;
         }
-        SendListNotify(uriStr, notifyType, node->obsCodeList_);
+        SendListNotify(uris, notifyType, node->obsCodeList_);
         return ERR_OK;
     }
-    SendListNotify(uriStr, notifyType, node->obsCodeList_);
+    SendListNotify(uris, notifyType, node->obsCodeList_);
     if ((node->parent_ == nullptr) || (!node->parent_->needChildNote_)) {
         HILOG_DEBUG("Do not need notify parent");
         return ERR_OK;
     }
-    SendListNotify(uriStr, notifyType, node->parent_->obsCodeList_);
+    SendListNotify(uris, notifyType, node->parent_->obsCodeList_);
     return ERR_OK;
+}
+
+bool FileAccessService::IsUnused()
+{
+    return obsManager_.isEmpty();
 }
 
 void FileAccessService::InitTimer()
@@ -371,6 +601,24 @@ void FileAccessService::InitTimer()
         }
         return isMessage;
             }, NOTIFY_TIME_INTERVAL, MAX_WAIT_TIME);
+
+    unLoadTimer_ = std::make_shared<UnloadTimer>([this] {
+        if (!IsUnused()) {
+            return;
+        }
+        sptr<ISystemAbilityManager> saManager =
+        OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (saManager == nullptr) {
+            HILOG_ERROR("UnloadSA, GetSystemAbilityManager is null.");
+            return;
+        }
+        int32_t result = saManager->UnloadSystemAbility(FILE_ACCESS_SERVICE_ID);
+        if (result != ERR_OK) {
+            HILOG_ERROR("UnloadSA, UnloadSystemAbility result: %{public}d", result);
+            return;
+        }
+    }, ONE_SECOND, UNLOAD_SA_WAIT_TIME);
+    unLoadTimer_->start();
 }
 
 int32_t FileAccessService::GetExensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,

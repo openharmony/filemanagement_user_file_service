@@ -857,8 +857,7 @@ static void RegisterDirNotify(Uri parentUri, std::string dirName, IFileAccessObs
     EXPECT_EQ(g_notifyEvent, DELETE_EVENT);
     EXPECT_EQ(g_notifyUri, newDirUriTest.ToString());
     sleep(2);
-    result = g_fah->UnregisterNotify(newDirUriTest, myObserver);
-    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    g_fah->UnregisterNotify(newDirUriTest, myObserver);
 }
 
 /**

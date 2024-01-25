@@ -160,7 +160,7 @@ int FileAccessExtAbility::StartWatcher(const Uri &uri)
     return EPERM;
 }
 
-int FileAccessExtAbility::StopWatcher(const Uri &uri, bool isUnregisterAll)
+int FileAccessExtAbility::StopWatcher(const Uri &uri)
 {
     HILOG_ERROR("FileAccessExtAbility::StopWatcher Undefined operation");
     return EPERM;

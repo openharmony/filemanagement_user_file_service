@@ -90,8 +90,6 @@ public:
     int MoveItem(Uri &sourceFile, Uri &targetParent, std::vector<Result> &moveResult, bool force);
     int MoveFile(Uri &sourceFile, Uri &targetParent, std::string &fileName, Uri &newFile);
 private:
-    int StartWatcher(Uri &uri);
-    int StopWatcher(Uri &uri, bool isUnregisterAll);
     sptr<IFileAccessExtBase> GetProxyByUri(Uri &uri);
     sptr<IFileAccessExtBase> GetProxyByBundleName(const std::string &bundleName);
     bool GetProxy();
@@ -109,6 +107,7 @@ private:
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
 
     std::shared_ptr<ConnectInfo> GetConnectInfo(const std::string &bundleName);
+    std::shared_ptr<ConnectExtensionInfo> GetConnectExtensionInfo(Uri &uri);
 
     int CopyOperation(Uri &sourceUri, Uri &destUri, std::vector<Result> &copyResult, bool force = false);
     int CopyFileOperation(Uri &sourceUri, Uri &destUri, const std::string &fileName, Uri &newFileUri);

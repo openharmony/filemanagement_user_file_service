@@ -106,6 +106,12 @@ public:
         }
     }
 
+    bool isEmpty()
+    {
+        std::lock_guard<std::mutex> guard(holderMutex_);
+        return holder_.empty();
+    }
+
 private:
     // key is automatic growth number
     std::map<uint32_t, Type> holder_;

@@ -66,7 +66,6 @@ const USER_PATH = '/storage/Users/';
 const TRASH_SUB_FODER = '/oh_trash_content';
 const EXTERNAL_PATH = '/storage/External';
 let observerMap = new Map();
-let watcherCountMap = new Map();
 let eventMap = new Map([
   [CREATE_EVENT_CODE, CREATE_EVENT],
   [IN_DELETE_EVENT_CODE, DELETE_EVENT],
@@ -911,8 +910,6 @@ export default class FileExtAbility extends Extension {
             targetUri = encodePathOfUri(targetUri);
             if (eventCode >= 0) {
               callback(targetUri, eventCode);
-            } else {
-              hilog.info(DOMAIN_CODE, TAG, 'eventCode =' + data.event);
             }
           } catch (error) {
             hilog.error(DOMAIN_CODE, TAG, 'onchange error ' + error.message);
@@ -920,10 +917,8 @@ export default class FileExtAbility extends Extension {
         });
         watcher.start();
         observerMap.set(uri, watcher);
-        watcherCountMap.set(uri, 1);
       } else {
-        let temp = watcherCountMap.get(uri) + 1;
-        watcherCountMap.set(uri, temp);
+        hilog.warn(DOMAIN_CODE, TAG, 'uri already exists');
       }
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'startWatcher error ' + e.message);
@@ -932,29 +927,20 @@ export default class FileExtAbility extends Extension {
     return ERR_OK;
   }
 
-  stopWatcher(uri, isUnregisterAll): number {
+  stopWatcher(uri): number {
     uri = decodeUri(uri);
     if (!checkUri(uri)) {
       return E_URIS;
     }
     try {
-      if (!watcherCountMap.has(uri)) {
+      if (!observerMap.has(uri)) {
         return E_GETRESULT;
       }
-      if (isUnregisterAll) {
-        watcherCountMap.set(uri, 0);
-      } else {
-        let temp = watcherCountMap.get(uri) - 1;
-        watcherCountMap.set(uri, temp);
-      }
-      if (watcherCountMap.get(uri) === 0) {
-        watcherCountMap.delete(uri);
         let watcher = observerMap.get(uri);
         if (typeof watcher !== undefined) {
           watcher.stop();
           observerMap.delete(uri);
         }
-      }
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'stopWatcher error ' + e.message);
       return E_GETRESULT;

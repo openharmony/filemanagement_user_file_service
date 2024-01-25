@@ -14,18 +14,22 @@
  */
 
 #include "file_access_service_proxy.h"
+
+#include "bundle_constants.h"
 #include "user_access_tracer.h"
 #include "file_access_framework_errno.h"
 #include "file_access_service_ipc_interface_code.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
 constexpr int LOAD_SA_TIMEOUT_MS = 5000;
-sptr<IFileAccessServiceBase> FileAccessServiceProxy::GetInstance()
+const std::string UID_TAG = "uid:";
+sptr<FileAccessServiceProxy> FileAccessServiceProxy::GetInstance()
 {
     HILOG_INFO("Getinstance");
     std::unique_lock<std::mutex> lock(proxyMutex_);
@@ -66,8 +70,28 @@ void FileAccessServiceProxy::ServiceProxyLoadCallback::OnLoadSystemAbilitySucces
 {
     HILOG_INFO("Load FileAccessService SA success,systemAbilityId:%{public}d, remoteObj result:%{private}s",
         systemAbilityId, (remoteObject == nullptr ? "false" : "true"));
+    if (systemAbilityId != FILE_ACCESS_SERVICE_ID || remoteObject == nullptr) {
+        isLoadSuccess_.store(false);
+        proxyConVar_.notify_one();
+        return;
+    }
     std::unique_lock<std::mutex> lock(proxyMutex_);
-    serviceProxy_ = iface_cast<IFileAccessServiceBase>(remoteObject);
+    serviceProxy_ = iface_cast<FileAccessServiceProxy>(remoteObject);
+    auto remoteObj = serviceProxy_->AsObject();
+    if (!remoteObj) {
+        HILOG_ERROR("Failed to get remote object");
+        serviceProxy_ = nullptr;
+        isLoadSuccess_.store(false);
+        proxyConVar_.notify_one();
+        return;
+    }
+
+    auto callback = [](const wptr<IRemoteObject> &obj) {
+        FileAccessServiceProxy::InvaildInstance();
+        HILOG_ERROR("service died");
+    };
+    sptr<ProxyDeathRecipient> deathRecipient = sptr(new ProxyDeathRecipient(callback));
+    remoteObj->AddDeathRecipient(deathRecipient);
     isLoadSuccess_.store(true);
     proxyConVar_.notify_one();
 }
@@ -79,6 +103,13 @@ void FileAccessServiceProxy::ServiceProxyLoadCallback::OnLoadSystemAbilityFail(i
     serviceProxy_ = nullptr;
     isLoadSuccess_.store(false);
     proxyConVar_.notify_one();
+}
+
+void FileAccessServiceProxy::InvaildInstance()
+{
+    HILOG_INFO("invalid instance");
+    std::unique_lock<std::mutex> lock(proxyMutex_);
+    serviceProxy_ = nullptr;
 }
 
 int32_t FileAccessServiceProxy::OnChange(Uri uri, NotifyType notifyType)
@@ -120,7 +151,7 @@ int32_t FileAccessServiceProxy::OnChange(Uri uri, NotifyType notifyType)
 }
 
 int32_t FileAccessServiceProxy::RegisterNotify(Uri uri, bool notifyForDescendants,
-    const sptr<IFileAccessObserver> &observer)
+    const sptr<IFileAccessObserver> &observer, const std::shared_ptr<ConnectExtensionInfo> &info)
 {
     UserAccessTracer trace;
     trace.Start("RegisterNotify");
@@ -142,6 +173,16 @@ int32_t FileAccessServiceProxy::RegisterNotify(Uri uri, bool notifyForDescendant
 
     if (!data.WriteBool(notifyForDescendants)) {
         HILOG_ERROR("fail to WriteBool notifyForDescendants");
+        return E_IPCS;
+    }
+
+    if (info == nullptr) {
+        HILOG_ERROR("ExtensionInfo is nullptr");
+        return E_GETINFO;
+    }
+
+    if (!info->WriteToParcel(data)) {
+        HILOG_ERROR("fail to WriteParcelable Info");
         return E_IPCS;
     }
 
@@ -183,7 +224,8 @@ int32_t FileAccessServiceProxy::UnregisterNotifyInternal(MessageParcel &data)
     return ERR_OK;
 }
 
-int32_t FileAccessServiceProxy::UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer)
+int32_t FileAccessServiceProxy::UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer,
+    const std::shared_ptr<ConnectExtensionInfo> &info)
 {
     UserAccessTracer trace;
     trace.Start("UnregisterNotify");
@@ -213,6 +255,16 @@ int32_t FileAccessServiceProxy::UnregisterNotify(Uri uri, const sptr<IFileAccess
             HILOG_ERROR("fail to WriteBool observerNotNull");
             return E_IPCS;
         }
+    }
+
+    if (info == nullptr) {
+        HILOG_ERROR("ExtensionInfo is nullptr");
+        return E_GETINFO;
+    }
+
+    if (!info->WriteToParcel(data)) {
+        HILOG_ERROR("fail to WriteParcelable Info");
+        return E_IPCS;
     }
 
     // Split the code into two functions for better readability
