@@ -37,8 +37,6 @@ using namespace std;
 using namespace testing;
 using namespace testing::ext;
 
-std::shared_ptr<Assistant> Assistant::ins_ = nullptr;
-
 FileAccessServiceStub::FileAccessServiceStub() {}
 
 FileAccessServiceStub::~FileAccessServiceStub() {}
@@ -57,19 +55,25 @@ public:
 
 class FileAccessServiceProxyTest : public testing::Test {
 public:
-    static void SetUpTestCase(void) {}
-    static void TearDownTestCase() {}
-    void SetUp()
+    static void SetUpTestCase(void)
     {
         Assistant::ins_ = insMoc;
         SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = sptr<ISystemAbilityManager>(samgr);
     }
+    static void TearDownTestCase()
+    {
+        insMoc = nullptr;
+        samgr = nullptr;
+        impl = nullptr;
+        Assistant::ins_ = nullptr;
+        SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = nullptr;
+    }
+    void SetUp() {}
     void TearDown() {}
 public:
-    shared_ptr<AssistantMock> insMoc = make_shared<AssistantMock>();
-    sptr<FileAccessServiceMock> impl = sptr<FileAccessServiceMock>(new FileAccessServiceMock());
-public:
-    ISystemAbilityManagerMock* samgr = new ISystemAbilityManagerMock();
+    static inline shared_ptr<AssistantMock> insMoc = make_shared<AssistantMock>();
+    static inline sptr<FileAccessServiceMock> impl = sptr<FileAccessServiceMock>(new FileAccessServiceMock());
+    static inline ISystemAbilityManagerMock* samgr = new ISystemAbilityManagerMock();
 };
 
 /**
@@ -86,9 +90,10 @@ HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_GetInstance_0000,
     GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-begin file_access_service_proxy_GetInstance_0000";
     try {
         shared_ptr<FileAccessServiceProxy> proxy = make_shared<FileAccessServiceProxy>(impl);
-        proxy->serviceProxy_ = sptr<FileAccessServiceProxy>(new FileAccessServiceProxy(impl));
+        proxy->serviceProxy_ = iface_cast<FileAccessServiceProxy>(impl);
+
         auto result = proxy->GetInstance();
-        EXPECT_FALSE(static_cast<IFileAccessServiceBase*>(result.GetRefPtr()) == impl.GetRefPtr());
+        EXPECT_TRUE(static_cast<IFileAccessServiceBase*>(result.GetRefPtr()) == impl.GetRefPtr());
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessServiceProxyTest occurs an exception.";
     }
