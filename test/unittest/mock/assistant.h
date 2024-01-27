@@ -18,6 +18,14 @@
 
 #include <gmock/gmock.h>
 
+#ifdef FILE_SUBSYSTEM_DEBUG_LOCAL
+#include <node_api.h>
+#else
+#include "napi/native_api.h"
+#include "napi/native_node_api.h"
+#endif
+#include "uv.h"
+
 namespace OHOS {
 namespace FileAccessFwk {
 class Assistant {
@@ -26,15 +34,47 @@ public:
     virtual bool Bool() = 0;
     virtual int Int() = 0;
 public:
-    static std::shared_ptr<Assistant> ins_;
+    virtual napi_status napi_get_uv_event_loop(napi_env, struct uv_loop_s**) = 0;
+    virtual napi_status napi_call_function(napi_env, napi_value, napi_value, size_t, const napi_value*, napi_value*)
+        = 0;
+    virtual napi_status napi_get_reference_value(napi_env, napi_ref, napi_value*) = 0;
+    virtual napi_status napi_get_named_property(napi_env, napi_value, const char*, napi_value*) = 0;
+    virtual int uv_queue_work(uv_loop_t*, uv_work_t*, uv_work_cb, uv_after_work_cb) = 0;
+    virtual napi_status napi_get_value_int32(napi_env, napi_value, int32_t*) = 0;
+    virtual napi_status napi_create_string_utf8(napi_env, const char*, size_t, napi_value*) = 0;
+    virtual napi_status napi_create_int32(napi_env, int32_t, napi_value*) = 0;
+    virtual napi_status napi_get_value_string_utf8(napi_env, napi_value, char*, size_t, size_t*) = 0;
+    virtual napi_status napi_get_boolean(napi_env, bool, napi_value*) = 0;
+    virtual napi_status napi_create_array(napi_env, napi_value*) = 0;
+    virtual napi_status napi_get_array_length(napi_env, napi_value, uint32_t*) = 0;
+    virtual napi_status napi_get_element(napi_env, napi_value, uint32_t, napi_value*) = 0;
+    virtual napi_status napi_escape_handle(napi_env, napi_escapable_handle_scope, napi_value, napi_value*) = 0;
+public:
+    static inline std::shared_ptr<Assistant> ins_ = nullptr;
 };
 
 class AssistantMock : public Assistant {
 public:
     MOCK_METHOD0(Bool, bool());
     MOCK_METHOD0(Int, int());
+public:
+    MOCK_METHOD2(napi_get_uv_event_loop, napi_status(napi_env, struct uv_loop_s**));
+    MOCK_METHOD6(napi_call_function, napi_status(napi_env, napi_value, napi_value, size_t, const napi_value*,
+        napi_value*));
+    MOCK_METHOD3(napi_get_reference_value, napi_status(napi_env, napi_ref, napi_value*));
+    MOCK_METHOD4(napi_get_named_property, napi_status(napi_env, napi_value, const char*, napi_value*));
+    MOCK_METHOD4(uv_queue_work, int(uv_loop_t*, uv_work_t*, uv_work_cb, uv_after_work_cb));
+    MOCK_METHOD3(napi_get_value_int32, napi_status(napi_env, napi_value, int32_t*));
+    MOCK_METHOD4(napi_create_string_utf8, napi_status(napi_env, const char*, size_t, napi_value*));
+    MOCK_METHOD3(napi_create_int32, napi_status(napi_env, int32_t, napi_value*));
+    MOCK_METHOD5(napi_get_value_string_utf8, napi_status(napi_env, napi_value, char*, size_t, size_t*));
+    MOCK_METHOD3(napi_get_boolean, napi_status(napi_env, bool, napi_value*));
+    MOCK_METHOD2(napi_create_array, napi_status(napi_env, napi_value*));
+    MOCK_METHOD3(napi_get_array_length, napi_status(napi_env, napi_value, uint32_t*));
+    MOCK_METHOD4(napi_get_element, napi_status(napi_env, napi_value, uint32_t, napi_value*));
+    MOCK_METHOD4(napi_escape_handle, napi_status(napi_env, napi_escapable_handle_scope, napi_value, napi_value*));
 };
 
-} // End of namespace NativePreferences
+} // End of namespace FileAccessFwk
 } // End of namespace OHOS
 #endif // TEST_UNITTEST_MOCK_FILE_ASSISTANT_H
