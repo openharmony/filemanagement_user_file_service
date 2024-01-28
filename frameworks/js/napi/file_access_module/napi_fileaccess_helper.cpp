@@ -18,6 +18,7 @@
 #include <cstring>
 #include <utility>
 #include <vector>
+#include <mutex>
 
 #include "file_access_framework_errno.h"
 #include "file_access_helper.h"
@@ -49,7 +50,24 @@ namespace {
     using CallbackComplete = std::function<NVal(napi_env, NError)>;
 }
 
-std::list<std::shared_ptr<FileAccessHelper>> g_fileAccessHelperList = {};
+static std::mutex g_fileAccessHelperMutex;
+static std::list<std::shared_ptr<FileAccessHelper>> g_fileAccessHelperList = {};
+
+static void AddFileAccessHelperList(std::pair<std::shared_ptr<FileAccessHelper>, int> &createResult)
+{
+    std::lock_guard<std::mutex> lock(g_fileAccessHelperMutex);
+    g_fileAccessHelperList.emplace_back(createResult.first);
+    HILOG_INFO("g_fileAccessHelperList size %{public}zu", g_fileAccessHelperList.size());
+}
+
+static void RemoveFileAccessHelperList(FileAccessHelper *objectInfo)
+{
+    std::lock_guard<std::mutex> lock(g_fileAccessHelperMutex);
+    g_fileAccessHelperList.remove_if([objectInfo](const std::shared_ptr<FileAccessHelper> &fileAccessHelper) {
+        return objectInfo == fileAccessHelper.get();
+    });
+    HILOG_INFO("g_fileAccessHelperList size %{public}zu", g_fileAccessHelperList.size());
+}
 
 static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info info)
 {
@@ -80,15 +98,12 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
     CHECK_STATUS_RETURN(!(createResult.first == nullptr || createResult.second != ERR_OK),
         NapiFileInfoExporter::ThrowError(env, createResult.second),
         "FileAccessHelperConstructor: Creator failed ret=%{public}d", createResult.second);
-    g_fileAccessHelperList.emplace_back(createResult.first);
-    HILOG_INFO("g_fileAccessHelperList size %{public}zu", g_fileAccessHelperList.size());
+    AddFileAccessHelperList(createResult);
     auto finalize = [](napi_env env, void *data, void *hint) {
         FileAccessHelper *objectInfo = static_cast<FileAccessHelper *>(data);
         if (objectInfo != nullptr) {
             objectInfo->Release();
-            g_fileAccessHelperList.remove_if([objectInfo](const std::shared_ptr<FileAccessHelper> &fileAccessHelper) {
-                    return objectInfo == fileAccessHelper.get();
-                });
+            RemoveFileAccessHelperList(objectInfo);
             objectInfo = nullptr;
         }
     };
