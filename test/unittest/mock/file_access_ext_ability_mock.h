@@ -55,6 +55,6 @@ public:
     MOCK_METHOD4(GetFileInfoNum, int(const std::string &sourceFileUri, const FileFilter &filter, bool recursion,
         uint32_t &counts));
 };
-} // End of namespace NativePreferences
+} // End of namespace FileAccessFwk
 } // End of namespace OHOS
 #endif // TEST_UNITTEST_MOCK_FILE_ACCESS_EXT_ABILITY_MOCK_H
