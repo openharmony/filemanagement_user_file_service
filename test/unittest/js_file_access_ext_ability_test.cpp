@@ -25,6 +25,8 @@
 #include "js_native_api_types.h"
 #include "native_reference_mock.h"
 
+constexpr int EXCEPTION = -1;
+
 namespace OHOS::FileAccessFwk {
 using namespace std;
 using namespace testing;
@@ -1120,5 +1122,548 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Move_0003, testi
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Move_0003";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_Copy_0000
+ * @tc.name: js_file_access_ext_ability_Copy_0000
+ * @tc.desc: Test function of Copy interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0000";
+    try {
+        Uri sourceUri("");
+        Uri destUri("");
+        vector<Result> copyResult;
+        bool force = false;
+
+        // 模拟调用CallJsMethod失败
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_invalid_arg));
+        auto result = ability->Copy(sourceUri, destUri, copyResult, force);
+        EXPECT_EQ(result, EXCEPTION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Copy_0000";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_Copy_0001
+ * @tc.name: js_file_access_ext_ability_Copy_0001
+ * @tc.desc: Test function of Copy interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0001";
+    try {
+        napi_value rslt;
+        Uri sourceUri("");
+        Uri destUri("");
+        vector<Result> copyResult;
+        bool force = false;
+        ability->jsObj_ = make_shared<NativeReferenceMock>();
+
+        // 模拟获取srcNativeUri为空
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _)).WillOnce(Return(napi_ok));
+        auto result = ability->Copy(sourceUri, destUri, copyResult, force);
+        EXPECT_EQ(result, EXCEPTION);
+
+        // 模拟获取dstNativeUri为空
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _)).WillOnce(Return(napi_ok));
+        result = ability->Copy(sourceUri, destUri, copyResult, force);
+        EXPECT_EQ(result, EXCEPTION);
+
+        // 模拟获取forceCopy为空
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _)).WillOnce(Return(napi_ok));
+        result = ability->Copy(sourceUri, destUri, copyResult, force);
+        EXPECT_EQ(result, EXCEPTION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Copy_0001";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_Copy_0002
+ * @tc.name: js_file_access_ext_ability_Copy_0002
+ * @tc.desc: Test function of Copy interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0002";
+    try {
+        napi_value rslt;
+        Uri sourceUri("");
+        Uri destUri("");
+        vector<Result> copyResult;
+        bool force = false;
+        ability->jsObj_ = make_shared<NativeReferenceMock>();
+
+        // 模拟获取nativeValue失败
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _)).WillOnce(Return(napi_ok));
+        auto result = ability->Copy(sourceUri, destUri, copyResult, force);
+        EXPECT_EQ(result, EXCEPTION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Copy_0002";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_Copy_0003
+ * @tc.name: js_file_access_ext_ability_Copy_0003
+ * @tc.desc: Test function of Copy interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0003, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0003";
+    try {
+        napi_value rslt;
+        Uri sourceUri("");
+        Uri destUri("");
+        vector<Result> copyResult;
+        bool force = false;
+        ability->jsObj_ = make_shared<NativeReferenceMock>();
+
+        // 模拟获取copyRet失败
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_invalid_arg));
+        auto result = ability->Copy(sourceUri, destUri, copyResult, force);
+        EXPECT_EQ(result, EXCEPTION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Copy_0003";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_Copy_0004
+ * @tc.name: js_file_access_ext_ability_Copy_0004
+ * @tc.desc: Test function of Copy interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0004, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0004";
+    try {
+        napi_value rslt;
+        Uri sourceUri("");
+        Uri destUri("");
+        vector<Result> copyResult;
+        bool force = false;
+        ability->jsObj_ = make_shared<NativeReferenceMock>();
+
+        // 模拟获取copyRet等于ERR_OK
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(DoAll(SetArgPointee<2>(ERR_OK), Return(napi_ok)));
+        auto result = ability->Copy(sourceUri, destUri, copyResult, force);
+        EXPECT_EQ(result, ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Copy_0004";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_Copy_0005
+ * @tc.name: js_file_access_ext_ability_Copy_0005
+ * @tc.desc: Test function of Copy interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0005, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0005";
+    try {
+        napi_value rslt;
+        Uri sourceUri("");
+        Uri destUri("");
+        vector<Result> copyResult;
+        bool force = false;
+        ability->jsObj_ = make_shared<NativeReferenceMock>();
+
+        // 模拟获取nativeArray为空
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(DoAll(SetArgPointee<2>(E_IPCS), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_create_array(_, _)).WillOnce(Return(napi_ok));
+        auto result = ability->Copy(sourceUri, destUri, copyResult, force);
+        EXPECT_EQ(result, E_IPCS);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Copy_0005";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_Copy_0006
+ * @tc.name: js_file_access_ext_ability_Copy_0006
+ * @tc.desc: Test function of Copy interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0006, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0006";
+    try {
+        napi_value rslt;
+        Uri sourceUri("");
+        Uri destUri("");
+        vector<Result> copyResult;
+        bool force = false;
+        ability->jsObj_ = make_shared<NativeReferenceMock>();
+
+        // 模拟获取length失败
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(Return(napi_ok))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(DoAll(SetArgPointee<2>(E_IPCS), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_create_array(_, _))
+            .WillRepeatedly(DoAll(SetArgPointee<1>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_array_length(_, _, _)).WillOnce(Return(napi_invalid_arg));
+        auto result = ability->Copy(sourceUri, destUri, copyResult, force);
+        EXPECT_EQ(result, E_IPCS);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Copy_0006";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_Copy_0007
+ * @tc.name: js_file_access_ext_ability_Copy_0007
+ * @tc.desc: Test function of Copy interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0007, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0007";
+    try {
+        napi_value rslt;
+        Uri sourceUri("");
+        Uri destUri("");
+        vector<Result> copyResult;
+        bool force = false;
+        ability->jsObj_ = make_shared<NativeReferenceMock>();
+
+        // 模拟获取nativeResult失败
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(Return(napi_ok))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(DoAll(SetArgPointee<2>(E_IPCS), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_create_array(_, _))
+            .WillRepeatedly(DoAll(SetArgPointee<1>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_array_length(_, _, _)).WillOnce(DoAll(SetArgPointee<2>(1), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_element(_, _, _, _)).WillOnce(Return(napi_ok));
+        auto result = ability->Copy(sourceUri, destUri, copyResult, force);
+        EXPECT_EQ(result, E_IPCS);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Copy_0007";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_Rename_0000
+ * @tc.name: js_file_access_ext_ability_Rename_0000
+ * @tc.desc: Test function of Rename interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Rename_0000";
+    try {
+        Uri sourceFile("");
+        string displayName("");
+        Uri newFile("");
+
+        // 模拟调用CallJsMethod失败
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_invalid_arg));
+        auto result = ability->Rename(sourceFile, displayName, newFile);
+        EXPECT_EQ(result, EINVAL);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Rename_0000";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_Rename_0001
+ * @tc.name: js_file_access_ext_ability_Rename_0001
+ * @tc.desc: Test function of Rename interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Rename_0001";
+    try {
+        napi_value rslt;
+        Uri sourceFile("");
+        string displayName("");
+        Uri newFile("");
+        ability->jsObj_ = make_shared<NativeReferenceMock>();
+
+        // 模拟获取nativeSourceFile为空
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
+        auto result = ability->Rename(sourceFile, displayName, newFile);
+        EXPECT_EQ(result, E_GETRESULT);
+
+        // 模拟获取nativeDisplayName为空
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(Return(napi_ok));
+        result = ability->Rename(sourceFile, displayName, newFile);
+        EXPECT_EQ(result, E_GETRESULT);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Rename_0001";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_Rename_0002
+ * @tc.name: js_file_access_ext_ability_Rename_0002
+ * @tc.desc: Test function of Rename interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Rename_0002";
+    try {
+        napi_value rslt;
+        Uri sourceFile("");
+        string displayName("");
+        Uri newFile("");
+        ability->jsObj_ = make_shared<NativeReferenceMock>();
+
+        // 模拟获取value->code失败
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillRepeatedly(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _))
+            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(DoAll(SetArgPointee<2>(E_IPCS), Return(napi_ok)));
+        auto result = ability->Rename(sourceFile, displayName, newFile);
+        EXPECT_EQ(result, E_IPCS);
+
+        // 模拟获取value->data为-1
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillRepeatedly(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _))
+            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
+        result = ability->Rename(sourceFile, displayName, newFile);
+        EXPECT_EQ(result, E_GETRESULT);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Rename_0002";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_Rename_0003
+ * @tc.name: js_file_access_ext_ability_Rename_0003
+ * @tc.desc: Test function of Rename interface for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0003, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Rename_0003";
+    try {
+        napi_value rslt;
+        string path = "test";
+        Uri sourceFile("");
+        string displayName("");
+        Uri newFile("");
+        ability->jsObj_ = make_shared<NativeReferenceMock>();
+
+        // 模拟Rename调用成功
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(Return(napi_ok))
+            .WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<4>(path.length()), Return(napi_ok)))
+            .WillOnce(DoAll(SetArrayArgument<2>(path.begin(), path.end()), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
+        auto result = ability->Rename(sourceFile, displayName, newFile);
+        EXPECT_EQ(result, ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Rename_0003";
 }
 }
