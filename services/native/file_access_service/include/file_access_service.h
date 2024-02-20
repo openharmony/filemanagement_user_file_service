@@ -240,7 +240,6 @@ private:
     bool IsServiceReady() const;
     void InitTimer();
     bool IsUnused();
-    bool IsFindUriSuccess(std::string srcUri, std::string targetUri, size_t uriIndex);
     std::shared_ptr<UnloadTimer> unLoadTimer_ = nullptr;
     std::shared_ptr<OnDemandTimer> onDemandTimer_ = nullptr;
     static sptr<FileAccessService> instance_;

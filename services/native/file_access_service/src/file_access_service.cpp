@@ -490,8 +490,8 @@ int32_t FileAccessService::UnregisterNotifyImpl(Uri uri, const sptr<IFileAccessO
         obsManager_.release(code);
     }
 
-    size_t uriIndex;
-    if (!IsFindUriSuccess(uriStr, FILE_SCHEME, uriIndex)) {
+    size_t uriIndex = uriStr.find(FILE_SCHEME);
+    if (uriIndex == string::npos) {
         HILOG_ERROR("current srcUri can not find targetUri");
         return E_CAN_NOT_FIND_URI;
     }
@@ -549,8 +549,8 @@ int32_t FileAccessService::OnChange(Uri uri, NotifyType notifyType)
     trace.Start("OnChange");
     string uriStr = uri.ToString();
     shared_ptr<ObserverNode> node;
-    size_t uriIndex;
-    if (!IsFindUriSuccess(uriStr, FILE_SCHEME, uriIndex)) {
+    size_t uriIndex = uriStr.find(FILE_SCHEME);
+    if (uriIndex == string::npos) {
         HILOG_ERROR("current srcUri can not find targetUri");
         return E_CAN_NOT_FIND_URI;
     }
@@ -649,16 +649,6 @@ int32_t FileAccessService::GetExensionProxy(const std::shared_ptr<ConnectExtensi
         return E_CONNECT;
     }
     return ERR_OK;
-}
-
-bool FileAccessService::IsFindUriSuccess(std::string srcUri, std::string targetUri, size_t uriIndex)
-{
-  size_t res = srcUri.find(targetUri);
-  if (res == string::npos) {
-    return false;
-  }
-  uriIndex = res;
-  return true;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS
