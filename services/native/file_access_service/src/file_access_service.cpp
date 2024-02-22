@@ -65,14 +65,15 @@ sptr<FileAccessService> FileAccessService::GetInstance()
 
 FileAccessService::FileAccessService() : SystemAbility(FILE_ACCESS_SERVICE_ID, false)
 {
-    Init();
 }
 
 void FileAccessService::OnStart()
 {
     UserAccessTracer trace;
     trace.Start("OnStart");
-    if (!Publish(FileAccessService::GetInstance())) {
+    sptr<FileAccessService> service = FileAccessService::GetInstance();
+    service->Init();
+    if (!Publish(service)) {
         HILOG_ERROR("OnStart register to system ability manager failed");
         return;
     }
