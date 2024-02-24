@@ -471,15 +471,11 @@ int32_t FileAccessService::UnregisterNotifyImpl(Uri uri, const sptr<IFileAccessO
         HILOG_ERROR("Can not find observer");
         return E_CALLBACK_IS_NOT_REGISTER;
     }
-    // find if this node has this callback.
-    auto haveCodeIter = find_if(obsNode->obsCodeList_.begin(), obsNode->obsCodeList_.end(),
-        [code](const uint32_t &listCode) { return code == listCode; });
-    if (haveCodeIter == obsNode->obsCodeList_.end()) {
-        HILOG_ERROR("Uri node observer list don not has this observer");
-        return E_CALLBACK_AND_URI_HAS_NOT_RELATIONS;
+    int32_t ret = OperateObsCodeList(obsNode, code);
+    if (ret != ERR_OK) {
+         HILOG_ERROR("operate obs code list error");
+        return ret;
     }
-    obsNode->obsCodeList_.erase(haveCodeIter);
-    obsManager_.get(code)->UnRef();
     // node has other observers, do not need remove.
     if (obsNode->obsCodeList_.size() != 0) {
         HILOG_DEBUG("Has code do not stopWatcher");
@@ -489,21 +485,7 @@ int32_t FileAccessService::UnregisterNotifyImpl(Uri uri, const sptr<IFileAccessO
     if (!obsManager_.get(code)->IsValid()) {
         obsManager_.release(code);
     }
-
-    size_t uriIndex = uriStr.find(FILE_SCHEME);
-    if (uriIndex == string::npos) {
-        HILOG_ERROR("current srcUri can not find targetUri");
-        return E_CAN_NOT_FIND_URI;
-    }
-    Uri originalUri(uriStr.substr(uriIndex));
-    auto extensionProxy = ConnectExtension(originalUri, info);
-    if (extensionProxy == nullptr) {
-        HILOG_ERROR("Creator get invalid fileExtProxy");
-        return E_CONNECT;
-    }
-    extensionProxy->StopWatcher(originalUri);
-    RemoveRelations(uriStr, obsNode);
-    return ERR_OK;
+    return DealConnectExtension(uriStr, obsNode, info);
 }
 
 void FileAccessService::SendListNotify(string uriStr, NotifyType notifyType, const std::vector<uint32_t> &list)
@@ -650,5 +632,39 @@ int32_t FileAccessService::GetExensionProxy(const std::shared_ptr<ConnectExtensi
     }
     return ERR_OK;
 }
+
+int32_t FileAccessService::OperateObsCodeList(shared_ptr<ObserverNode> obsNode, uint32_t code)
+{
+    // find if this node has this callback.
+    auto haveCodeIter = find_if(obsNode->obsCodeList_.begin(), obsNode->obsCodeList_.end(),
+        [code](const uint32_t &listCode) { return code == listCode; });
+    if (haveCodeIter == obsNode->obsCodeList_.end()) {
+        HILOG_ERROR("Uri node observer list don not has this observer");
+        return E_CALLBACK_AND_URI_HAS_NOT_RELATIONS;
+    }
+    obsNode->obsCodeList_.erase(haveCodeIter);
+    obsManager_.get(code)->UnRef();
+    return ERR_OK;
+}
+
+int32_t FileAccessService::DealConnectExtension(std::string uriStr, shared_ptr<ObserverNode> obsNode,
+    const std::shared_ptr<ConnectExtensionInfo> &info)
+{
+    size_t uriIndex = uriStr.find(FILE_SCHEME);
+    if (uriIndex == string::npos) {
+        HILOG_ERROR("current srcUri can not find targetUri");
+        return E_CAN_NOT_FIND_URI;
+    }
+    Uri originalUri(uriStr.substr(uriIndex));
+    auto extensionProxy = ConnectExtension(originalUri, info);
+    if (extensionProxy == nullptr) {
+        HILOG_ERROR("Creator get invalid fileExtProxy");
+        return E_CONNECT;
+    }
+    extensionProxy->StopWatcher(originalUri);
+    RemoveRelations(uriStr, obsNode);
+    return ERR_OK;
+}
+
 } // namespace FileAccessFwk
 } // namespace OHOS
