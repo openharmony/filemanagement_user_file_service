@@ -633,7 +633,7 @@ int32_t FileAccessService::GetExensionProxy(const std::shared_ptr<ConnectExtensi
     return ERR_OK;
 }
 
-int32_t FileAccessService::OperateObsCodeList(shared_ptr<ObserverNode> obsNode, uint32_t code)
+int32_t FileAccessService::OperateObsCodeList(std::shared_ptr<ObserverNode> obsNode, uint32_t code)
 {
     // find if this node has this callback.
     auto haveCodeIter = find_if(obsNode->obsCodeList_.begin(), obsNode->obsCodeList_.end(),
@@ -647,7 +647,7 @@ int32_t FileAccessService::OperateObsCodeList(shared_ptr<ObserverNode> obsNode, 
     return ERR_OK;
 }
 
-int32_t FileAccessService::DealConnectExtension(std::string uriStr, shared_ptr<ObserverNode> obsNode,
+int32_t FileAccessService::DealConnectExtension(std::string uriStr, std::shared_ptr<ObserverNode> obsNode,
     const std::shared_ptr<ConnectExtensionInfo> &info)
 {
     size_t uriIndex = uriStr.find(FILE_SCHEME);

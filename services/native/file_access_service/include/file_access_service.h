@@ -240,8 +240,8 @@ private:
     bool IsServiceReady() const;
     void InitTimer();
     bool IsUnused();
-    int32_t OperateObsCodeList(shared_ptr<ObserverNode> obsNode, uint32_t code);
-    int32_t DealConnectExtension(std::string uriStr, shared_ptr<ObserverNode> obsNode,
+    int32_t OperateObsCodeList(std::shared_ptr<ObserverNode> obsNode, uint32_t code);
+    int32_t DealConnectExtension(std::string uriStr, std::shared_ptr<ObserverNode> obsNode,
         const std::shared_ptr<ConnectExtensionInfo> &info);
     std::shared_ptr<UnloadTimer> unLoadTimer_ = nullptr;
     std::shared_ptr<OnDemandTimer> onDemandTimer_ = nullptr;
