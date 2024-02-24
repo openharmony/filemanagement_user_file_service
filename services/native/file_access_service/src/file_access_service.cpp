@@ -473,7 +473,7 @@ int32_t FileAccessService::UnregisterNotifyImpl(Uri uri, const sptr<IFileAccessO
     }
     int32_t ret = OperateObsCodeList(obsNode, code);
     if (ret != ERR_OK) {
-         HILOG_ERROR("operate obs code list error");
+        HILOG_ERROR("operate obs code list error");
         return ret;
     }
     // node has other observers, do not need remove.

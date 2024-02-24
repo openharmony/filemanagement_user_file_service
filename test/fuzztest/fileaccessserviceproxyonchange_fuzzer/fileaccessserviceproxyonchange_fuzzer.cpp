@@ -26,7 +26,7 @@
 #include "js_runtime.h"
 
 namespace OHOS {
-namespace FileAccessFwk{
+namespace FileAccessFwk {
 using namespace std;
 using namespace OHOS;
 using namespace FileAccessFwk;
