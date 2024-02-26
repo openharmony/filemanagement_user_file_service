@@ -50,6 +50,7 @@ const int FILE_COUNT_3 = 3;
 const int FILE_COUNT_4 = 4;
 const int FILE_COUNT_5 = 5;
 const int FILE_COUNT_6 = 6;
+const int SLEEP_TIME = 2;
 
 void SetNativeToken()
 {
@@ -3346,7 +3347,7 @@ static double InitListFile(Uri newDirUriTest, const std::string &caseNumber, con
     Uri testUri3("");
     double time = GetTime();
     if (needSleep) {
-      sleep(2);
+        sleep(SLEEP_TIME);
     }
     result = g_fah->CreateFile(newDirUriTest, "external_file_access_ListFile_01_" + caseNumber + ".txt", testUri3);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -3661,7 +3662,7 @@ static double InitScanFile(Uri newDirUriTest, const std::string &caseNumber, con
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     double time = GetTime();
     if (needSleep) {
-      sleep(2);
+        sleep(SLEEP_TIME);
     }
     Uri testUri3("");
     result = g_fah->CreateFile(forlderUriTest, "external_file_access_ScanFile_01_" + caseNumber + ".txt", testUri3);

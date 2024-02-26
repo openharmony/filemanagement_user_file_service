@@ -25,7 +25,7 @@ public:
 
     virtual ~UserAccessTracer()
     {
-        for (int32_t i = 0; i < count_; i++ ) {
+        for (int32_t i = 0; i < count_; i++) {
             FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
         }
         count_ = 0;
@@ -44,7 +44,6 @@ public:
     }
 private:
     int32_t count_ = 0;
-
 };
 
 #endif // OHOS_USER_ACCESS_TRACER
