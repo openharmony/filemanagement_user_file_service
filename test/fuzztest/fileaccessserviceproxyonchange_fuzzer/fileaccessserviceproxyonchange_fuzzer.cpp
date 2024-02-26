@@ -61,6 +61,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     if (size < OHOS::FileAccessFwk::U32_AT_SIZE || size > OHOS::FileAccessFwk::FOO_MAX_LEN) {
         return 0;
     }
-    OHOS::FileAccessFwk::FileAccessServiceProxyOnChangeFuzzTest(move(str), size);
+    OHOS::FileAccessFwk::FileAccessServiceProxyOnChangeFuzzTest(data, size);
     return 0;
 }
