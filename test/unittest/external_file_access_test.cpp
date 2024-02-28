@@ -2403,6 +2403,26 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0005, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Copy_0005";
 }
 
+static int ReadyToCopy06(Uri& parentUri, Uri& srcDir, const char* buff, int len)
+{
+    int result = g_fah->Mkdir(parentUri, "Copy_0006_src", srcDir);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri aFileUri("");
+    result = g_fah->CreateFile(srcDir, "a.txt", aFileUri);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri bFileUri("");
+    result = g_fah->CreateFile(srcDir, "b.txt", bFileUri);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    int fd = -1;
+    result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    
+    ssize_t srcFileSize = write(fd, buff, len);
+    EXPECT_EQ(srcFileSize, len);
+    close(fd);
+    return srcFileSize;
+}
+
 /**
  * @tc.number: user_file_service_external_file_access_Copy_0006
  * @tc.name: external_file_access_Copy_0006
@@ -2419,25 +2439,13 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0006, testing::ext::
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        char buff[] = "Copy test content for b.txt";
         for (size_t i = 0; i < info.size(); i++) {
-            Uri parentUri(info[i].uri);
             Uri srcDir("");
-            result = g_fah->Mkdir(parentUri, "Copy_0006_src", srcDir);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            Uri aFileUri("");
-            result = g_fah->CreateFile(srcDir, "a.txt", aFileUri);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            Uri bFileUri("");
-            result = g_fah->CreateFile(srcDir, "b.txt", bFileUri);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            int fd = -1;
-            result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            char buff[] = "Copy test content for b.txt";
-            ssize_t srcFileSize = write(fd, buff, sizeof(buff));
-            EXPECT_EQ(srcFileSize, sizeof(buff));
-            close(fd);
+            Uri parentUri(info[i].uri);
+            int srcFileSize = ReadyToCopy06(parentUri, srcDir, buff, sizeof(buff));
 
+            Uri bFileUri("");
             Uri destDir("");
             result = g_fah->Mkdir(parentUri, "Copy_0006_dest", destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -2452,6 +2460,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0006, testing::ext::
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_EQ(copyResult.size(), 0);
 
+            int fd = -1;
             result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             ssize_t destFileSize = read(fd, buff, sizeof(buff));
@@ -2585,6 +2594,26 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0008, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Copy_0008";
 }
 
+static int ReadyToCopy09(Uri& parentUri, Uri& srcDir, const char* buff, int len)
+{
+    int result = g_fah->Mkdir(parentUri, "Copy_0009_src", srcDir);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri aFileUri("");
+    result = g_fah->CreateFile(srcDir, "a.txt", aFileUri);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri bFileUri("");
+    result = g_fah->CreateFile(srcDir, "b.txt", bFileUri);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    int fd = -1;
+    result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    ssize_t srcFileSize = write(fd, buff, len);
+    EXPECT_EQ(srcFileSize, len);
+    close(fd);
+
+    return srcFileSize;
+}
+
 /**
  * @tc.number: user_file_service_external_file_access_Copy_0009
  * @tc.name: external_file_access_Copy_0009
@@ -2601,28 +2630,16 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0009, testing::ext::
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        char buff[] = "Copy test content for b.txt";
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri srcDir("");
-            result = g_fah->Mkdir(parentUri, "Copy_0009_src", srcDir);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            Uri aFileUri("");
-            result = g_fah->CreateFile(srcDir, "a.txt", aFileUri);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            Uri bFileUri("");
-            result = g_fah->CreateFile(srcDir, "b.txt", bFileUri);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            int fd = -1;
-            result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            char buff[] = "Copy test content for b.txt";
-            ssize_t srcFileSize = write(fd, buff, sizeof(buff));
-            EXPECT_EQ(srcFileSize, sizeof(buff));
-            close(fd);
+            int srcFileSize = ReadyToCopy09(parentUri, srcDir, buff, sizeof(buff));
 
             for (size_t j = i + 1; j < info.size(); j++) {
                 Uri targetUri(info[j].uri);
                 Uri destDir("");
+                Uri bFileUri("");
                 result = g_fah->Mkdir(targetUri, "Copy_0009_dest", destDir);
                 EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
                 Uri destSrcDir("");
@@ -2636,6 +2653,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0009, testing::ext::
                 EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
                 EXPECT_EQ(copyResult.size(), 0);
 
+                int fd = -1;
                 result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
                 EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
                 ssize_t destFileSize = read(fd, buff, sizeof(buff));
@@ -4782,6 +4800,32 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetProxyByUri_0001, testi
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_GetProxyByUri_0001";
 }
 
+static void CheckJson(Uri& newDirUriTest1, const std::string displayName, const std::string relativePath, int len)
+{
+    json testJson = {
+        {RELATIVE_PATH, " "},
+        {DISPLAY_NAME, " "},
+        {FILE_SIZE, " "},
+        {DATE_MODIFIED, " "},
+        {DATE_ADDED, " "},
+        {HEIGHT, " "},
+        {WIDTH, " "},
+        {DURATION, " "}
+    };
+    auto testJsonString = testJson.dump();
+    int result = g_fah->Query(newDirUriTest1, testJsonString);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    auto jsonObject = json::parse(testJsonString);
+    EXPECT_EQ(jsonObject.at(DISPLAY_NAME), displayName);
+    EXPECT_EQ(jsonObject.at(FILE_SIZE), len + len);
+    EXPECT_EQ(jsonObject.at(RELATIVE_PATH), relativePath);
+    ASSERT_TRUE(jsonObject.at(DATE_MODIFIED) > 0);
+    ASSERT_TRUE(jsonObject.at(DATE_ADDED) > 0);
+    GTEST_LOG_(INFO) << " result" << testJsonString;
+    result = g_fah->Delete(newDirUriTest1);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+}
+
 /**
  * @tc.number: user_file_service_external_file_access_Query_0000
  * @tc.name: external_file_access_Query_0000
@@ -4827,28 +4871,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0000, testing::ext:
         fileSize = write(fd, buff.c_str(), buff.size());
         close(fd);
         EXPECT_EQ(fileSize, buff.size());
-        json testJson = {
-            {RELATIVE_PATH, " "},
-            {DISPLAY_NAME, " "},
-            {FILE_SIZE, " "},
-            {DATE_MODIFIED, " "},
-            {DATE_ADDED, " "},
-            {HEIGHT, " "},
-            {WIDTH, " "},
-            {DURATION, " "}
-        };
-        auto testJsonString = testJson.dump();
-        result = g_fah->Query(newDirUriTest1, testJsonString);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        auto jsonObject = json::parse(testJsonString);
-        EXPECT_EQ(jsonObject.at(DISPLAY_NAME), displayName);
-        EXPECT_EQ(jsonObject.at(FILE_SIZE), buff.size() * 2);
-        EXPECT_EQ(jsonObject.at(RELATIVE_PATH), relativePath);
-        ASSERT_TRUE(jsonObject.at(DATE_MODIFIED) > 0);
-        ASSERT_TRUE(jsonObject.at(DATE_ADDED) > 0);
-        GTEST_LOG_(INFO) << " result" << testJsonString;
-        result = g_fah->Delete(newDirUriTest1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        CheckJson(newDirUriTest1, displayName, relativePath, buff.size());
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_Query_0000 occurs an exception.";
     }
@@ -5164,28 +5187,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0007, testing::ext:
         fileSize = write(fd, buff.c_str(), buff.size());
         close(fd);
         EXPECT_EQ(fileSize, buff.size());
-        json testJson = {
-            {RELATIVE_PATH, " "},
-            {DISPLAY_NAME, " "},
-            {FILE_SIZE, " "},
-            {DATE_MODIFIED, " "},
-            {DATE_ADDED, " "},
-            {HEIGHT, " "},
-            {WIDTH, " "},
-            {DURATION, " "}
-        };
-        auto testJsonString = testJson.dump();
-        result = g_fah->Query(newDirUriTest1, testJsonString);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        auto jsonObject = json::parse(testJsonString);
-        EXPECT_EQ(jsonObject.at(DISPLAY_NAME), displayName);
-        EXPECT_EQ(jsonObject.at(FILE_SIZE), buff.size() * 2);
-        EXPECT_EQ(jsonObject.at(RELATIVE_PATH), relativePath);
-        ASSERT_TRUE(jsonObject.at(DATE_MODIFIED) > 0);
-        ASSERT_TRUE(jsonObject.at(DATE_ADDED) > 0);
-        GTEST_LOG_(INFO) << " result" << testJsonString;
-        result = g_fah->Delete(newDirUriTest1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        CheckJson(newDirUriTest1, displayName, relativePath, buff.size());
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_Query_0007 occurs an exception.";
     }

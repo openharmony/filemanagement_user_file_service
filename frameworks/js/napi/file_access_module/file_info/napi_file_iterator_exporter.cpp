@@ -165,6 +165,29 @@ static bool FilterTrashAndRecentDir(const std::string &uri)
     return std::regex_match(uri, matchResult, TRASH_RECENT_DIR_REGEX) && matchResult.length() > 0;
 }
 
+static int GetNextIterator(napi_value &objFileInfoExporter, FileIteratorEntity *fileIteratorEntity,
+    FileInfoEntity *fileInfoEntity, napi_env env, NVal& retNVal)
+{
+    int ret = E_GETRESULT;
+    bool isDone = false;
+    if (fileIteratorEntity->flag == CALL_LISTFILE) {
+        ret = MakeListFileResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal, isDone);
+    } else if (fileIteratorEntity->flag == CALL_SCANFILE) {
+        ret = MakeScanFileResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal, isDone);
+    }
+    while (!isDone && FilterTrashAndRecentDir(fileInfoEntity->fileInfo.uri)) {
+        fileInfoEntity = NClass::GetEntityOf<FileInfoEntity>(env, objFileInfoExporter);
+        retNVal = NVal::CreateObject(env);
+        HILOG_DEBUG("TRASH_DIR or RECENT_DIR: %{public}s", fileInfoEntity->fileInfo.uri.c_str());
+        if (fileIteratorEntity->flag == CALL_LISTFILE) {
+            ret = MakeListFileResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal, isDone);
+        } else if (fileIteratorEntity->flag == CALL_SCANFILE) {
+            ret = MakeScanFileResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal, isDone);
+        }
+    }
+    return ret;
+}
+
 napi_value NapiFileIteratorExporter::Next(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
@@ -202,24 +225,8 @@ napi_value NapiFileIteratorExporter::Next(napi_env env, napi_callback_info info)
     }
 
     auto retNVal = NVal::CreateObject(env);
-    int ret = E_GETRESULT;
-    bool isDone = false;
-    if (fileIteratorEntity->flag == CALL_LISTFILE) {
-        ret = MakeListFileResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal, isDone);
-    } else if (fileIteratorEntity->flag == CALL_SCANFILE) {
-        ret = MakeScanFileResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal, isDone);
-    }
-    while (!isDone && FilterTrashAndRecentDir(fileInfoEntity->fileInfo.uri)) {
-        fileInfoEntity = NClass::GetEntityOf<FileInfoEntity>(env, objFileInfoExporter);
-        retNVal = NVal::CreateObject(env);
-        HILOG_DEBUG("TRASH_DIR or RECENT_DIR: %{public}s", fileInfoEntity->fileInfo.uri.c_str());
-        if (fileIteratorEntity->flag == CALL_LISTFILE) {
-            ret = MakeListFileResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal, isDone);
-        } else if (fileIteratorEntity->flag == CALL_SCANFILE) {
-            ret = MakeScanFileResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal, isDone);
-        }
-    }
-
+    
+    int ret = GetNextIterator(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal);
     if (ret != ERR_OK) {
         NError(ret).ThrowErr(env);
         return nullptr;
