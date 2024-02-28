@@ -105,7 +105,6 @@ void JsFileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &rec
         HILOG_ERROR("Failed to get JsFileAccessExtAbility object");
         return;
     }
-
 }
 
 void JsFileAccessExtAbility::OnStart(const AAFwk::Want &want)
@@ -286,7 +285,6 @@ void JsFileAccessExtAbility::GetSrcPath(std::string &srcPath)
         srcPath.erase(srcPath.rfind('.'));
         srcPath.append(".abc");
     }
-
 }
 
 template <typename T>
