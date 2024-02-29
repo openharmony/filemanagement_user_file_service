@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -414,7 +414,11 @@ int32_t FileAccessService::CleanAllNotifyImpl(Uri uri, const std::shared_ptr<Con
         }
     }
 
-    size_t uriIndex = uriStr.find("file://");
+    size_t uriIndex = uriStr.find(FILE_SCHEME);
+    if (uriIndex == string::npos) {
+        HILOG_ERROR("Current uriStr can not find targetUri");
+        return E_CAN_NOT_FIND_URI;
+    }
     Uri originalUri(uriStr.substr(uriIndex));
     auto extensionProxy = ConnectExtension(originalUri, info);
     if (extensionProxy == nullptr) {
@@ -473,7 +477,7 @@ int32_t FileAccessService::UnregisterNotifyImpl(Uri uri, const sptr<IFileAccessO
     }
     int32_t ret = OperateObsCodeList(obsNode, code);
     if (ret != ERR_OK) {
-        HILOG_ERROR("operate obs code list error");
+        HILOG_ERROR("Operate obs code list error");
         return ret;
     }
     // node has other observers, do not need remove.
@@ -533,7 +537,7 @@ int32_t FileAccessService::OnChange(Uri uri, NotifyType notifyType)
     shared_ptr<ObserverNode> node;
     size_t uriIndex = uriStr.find(FILE_SCHEME);
     if (uriIndex == string::npos) {
-        HILOG_ERROR("current srcUri can not find targetUri");
+        HILOG_ERROR("Current srcUri can not find targetUri");
         return E_CAN_NOT_FIND_URI;
     }
     string uris = uriStr.substr(uriIndex);
@@ -652,7 +656,7 @@ int32_t FileAccessService::DealConnectExtension(std::string uriStr, std::shared_
 {
     size_t uriIndex = uriStr.find(FILE_SCHEME);
     if (uriIndex == string::npos) {
-        HILOG_ERROR("current srcUri can not find targetUri");
+        HILOG_ERROR("Current uriStr can not find targetUri");
         return E_CAN_NOT_FIND_URI;
     }
     Uri originalUri(uriStr.substr(uriIndex));
