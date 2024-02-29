@@ -537,7 +537,7 @@ int32_t FileAccessService::OnChange(Uri uri, NotifyType notifyType)
     shared_ptr<ObserverNode> node;
     size_t uriIndex = uriStr.find(FILE_SCHEME);
     if (uriIndex == string::npos) {
-        HILOG_ERROR("Current srcUri can not find targetUri");
+        HILOG_ERROR("Current uriStr can not find targetUri");
         return E_CAN_NOT_FIND_URI;
     }
     string uris = uriStr.substr(uriIndex);
@@ -669,6 +669,5 @@ int32_t FileAccessService::DealConnectExtension(std::string uriStr, std::shared_
     RemoveRelations(uriStr, obsNode);
     return ERR_OK;
 }
-
 } // namespace FileAccessFwk
 } // namespace OHOS
