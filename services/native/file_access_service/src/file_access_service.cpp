@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -417,7 +417,7 @@ int32_t FileAccessService::CleanAllNotifyImpl(Uri uri, const std::shared_ptr<Con
     size_t uriIndex = uriStr.find(FILE_SCHEME);
     if (uriIndex == string::npos) {
         HILOG_ERROR("Current uriStr can not find targetUri");
-        return E_CAN_NOT_FIND_URI;
+        return ERR_URI;
     }
     Uri originalUri(uriStr.substr(uriIndex));
     auto extensionProxy = ConnectExtension(originalUri, info);
@@ -538,7 +538,7 @@ int32_t FileAccessService::OnChange(Uri uri, NotifyType notifyType)
     size_t uriIndex = uriStr.find(FILE_SCHEME);
     if (uriIndex == string::npos) {
         HILOG_ERROR("Current uriStr can not find targetUri");
-        return E_CAN_NOT_FIND_URI;
+        return ERR_URI;
     }
     string uris = uriStr.substr(uriIndex);
     //When the path is not found, search for its parent path
@@ -637,7 +637,7 @@ int32_t FileAccessService::GetExensionProxy(const std::shared_ptr<ConnectExtensi
     return ERR_OK;
 }
 
-int32_t FileAccessService::OperateObsCodeList(std::shared_ptr<ObserverNode> obsNode, uint32_t code)
+int32_t FileAccessService::OperateObsCodeList(std::shared_ptr<ObserverNode> &obsNode, uint32_t code)
 {
     // find if this node has this callback.
     auto haveCodeIter = find_if(obsNode->obsCodeList_.begin(), obsNode->obsCodeList_.end(),
@@ -651,13 +651,13 @@ int32_t FileAccessService::OperateObsCodeList(std::shared_ptr<ObserverNode> obsN
     return ERR_OK;
 }
 
-int32_t FileAccessService::DealConnectExtension(std::string uriStr, std::shared_ptr<ObserverNode> obsNode,
+int32_t FileAccessService::DealConnectExtension(std::string uriStr, std::shared_ptr<ObserverNode> &obsNode,
     const std::shared_ptr<ConnectExtensionInfo> &info)
 {
     size_t uriIndex = uriStr.find(FILE_SCHEME);
     if (uriIndex == string::npos) {
         HILOG_ERROR("Current uriStr can not find targetUri");
-        return E_CAN_NOT_FIND_URI;
+        return ERR_URI;
     }
     Uri originalUri(uriStr.substr(uriIndex));
     auto extensionProxy = ConnectExtension(originalUri, info);

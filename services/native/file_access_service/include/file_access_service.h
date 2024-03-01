@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -240,8 +240,8 @@ private:
     bool IsServiceReady() const;
     void InitTimer();
     bool IsUnused();
-    int32_t OperateObsCodeList(std::shared_ptr<ObserverNode> obsNode, uint32_t code);
-    int32_t DealConnectExtension(std::string uriStr, std::shared_ptr<ObserverNode> obsNode,
+    int32_t OperateObsCodeList(std::shared_ptr<ObserverNode> &obsNode, uint32_t code);
+    int32_t DealConnectExtension(std::string uriStr, std::shared_ptr<ObserverNode> &obsNode,
         const std::shared_ptr<ConnectExtensionInfo> &info);
     std::shared_ptr<UnloadTimer> unLoadTimer_ = nullptr;
     std::shared_ptr<OnDemandTimer> onDemandTimer_ = nullptr;
