@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+const deviceInfo = requireInternal('deviceInfo');
+
 const PhotoViewMIMETypes = {
   IMAGE_TYPE: 'image/*',
   VIDEO_TYPE: 'video/*',
@@ -282,14 +284,24 @@ async function documentPickerSelect(...args) {
     console.error('[picker] getContext error: ' + getContextError);
     throw getErr(ErrCode.CONTEXT_NO_EXIST);
   }
-  try {
-    if (documentSelectContext === undefined) {
-      throw getErr(ErrCode.CONTEXT_NO_EXIST);
+  if (documentSelectContext === undefined) {
+    throw getErr(ErrCode.CONTEXT_NO_EXIST);
+  }
+  if (deviceInfo.deviceType === '2in1') {
+    try {
+      documentSelectConfig = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION_MODAL);
+      documentSelectResult = await documentSelectContext.requestDialogService(documentSelectConfig);
+    } catch (paramError) {
+      console.error('[picker] DocumentSelect paramError: ' + JSON.stringify(paramError));
+      try {
+        documentSelectConfig = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION);
+        documentSelectResult = await documentSelectContext.startAbilityForResult(documentSelectConfig, {windowMode: 0});
+      } catch (error) {
+        console.error('[picker] DocumentSelect error: ' + error);
+        return undefined;
+      }
     }
-    documentSelectConfig = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION_MODAL);
-    documentSelectResult = await documentSelectContext.requestDialogService(documentSelectConfig);
-  } catch (paramError) {
-    console.error('[picker] DocumentSelect paramError: ' + JSON.stringify(paramError));
+  } else {
     try {
       documentSelectConfig = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION);
       documentSelectResult = await documentSelectContext.startAbilityForResult(documentSelectConfig, {windowMode: 0});
@@ -298,6 +310,7 @@ async function documentPickerSelect(...args) {
       return undefined;
     }
   }
+
   console.log('[picker] DocumentSelect result: ' + JSON.stringify(documentSelectResult));
   try {
     const selectResult = getDocumentPickerSelectResult(documentSelectResult);
@@ -393,14 +406,26 @@ async function documentPickerSave(...args) {
     console.error('[picker] getContext error: ' + getContextError);
     throw getErr(ErrCode.CONTEXT_NO_EXIST);
   }
-  try {
-    if (documentSaveContext === undefined) {
-      throw getErr(ErrCode.CONTEXT_NO_EXIST);
+
+  if (documentSaveContext === undefined) {
+    throw getErr(ErrCode.CONTEXT_NO_EXIST);
+  }
+
+  if (deviceInfo.deviceType === '2in1') {
+    try {
+      documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION_MODAL);
+      documentSaveResult = await documentSaveContext.requestDialogService(documentSaveConfig);
+    } catch (paramError) {
+      console.error('[picker] paramError: ' + JSON.stringify(paramError));
+      try {
+        documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION);
+        documentSaveResult = await documentSaveContext.startAbilityForResult(documentSaveConfig, {windowMode: 0});
+      } catch (error) {
+        console.error('[picker] document save error: ' + error);
+        return undefined;
+      }
     }
-    documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION_MODAL);
-    documentSaveResult = await documentSaveContext.requestDialogService(documentSaveConfig);
-  } catch (paramError) {
-    console.error('[picker] paramError: ' + JSON.stringify(paramError));
+  } else {
     try {
       documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION);
       documentSaveResult = await documentSaveContext.startAbilityForResult(documentSaveConfig, {windowMode: 0});
@@ -409,6 +434,7 @@ async function documentPickerSave(...args) {
       return undefined;
     }
   }
+
   console.log('[picker] document save result: ' + JSON.stringify(documentSaveResult));
   try {
     const saveResult = getDocumentPickerSaveResult(documentSaveResult);
