@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -110,6 +110,7 @@ sptr<AppExecFwk::IBundleMgr> FileAccessHelper::GetBundleMgrProxy()
 FileAccessHelper::FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
     const std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> &cMap)
 {
+    HILOG_INFO("Create FileAccessHelper by context");
     token_ = context->GetToken();
     cMap_ = cMap;
 }
@@ -117,8 +118,14 @@ FileAccessHelper::FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::C
 FileAccessHelper::FileAccessHelper(const sptr<IRemoteObject> &token,
     const std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> &cMap)
 {
+    HILOG_INFO("Create FileAccessHelper by token");
     token_ = token;
     cMap_ = cMap;
+}
+
+FileAccessHelper::~FileAccessHelper()
+{
+    Release();
 }
 
 void FileAccessHelper::AddFileAccessDeathRecipient(const sptr<IRemoteObject> &token)
