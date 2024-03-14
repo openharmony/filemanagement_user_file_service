@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -48,27 +48,21 @@
 #define FAF_LOG_TAG "FileAccessFwk"
 #endif
 
-#ifdef LOG_LABEL
-#undef LOG_LABEL
-#endif
-
-static constexpr OHOS::HiviewDFX::HiLogLabel LOG_LABEL = {LOG_CORE, FAF_LOG_DOMAIN, FAF_LOG_TAG};
-
 #define HILOG_FATAL(fmt, ...)            \
-    (void)OHOS::HiviewDFX::HiLog::Fatal( \
-        LOG_LABEL, "[(%{public}s:%{public}d)]" fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+    ((void)HILOG_IMPL(LOG_CORE, LOG_FATAL, FAF_LOG_DOMAIN, FAF_LOG_TAG, \
+    "[(%{public}s:%{public}d)]" fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__))
 #define HILOG_ERROR(fmt, ...)            \
-    (void)OHOS::HiviewDFX::HiLog::Error( \
-        LOG_LABEL, "[(%{public}s:%{public}d)]" fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+    ((void)HILOG_IMPL(LOG_CORE, LOG_ERROR, FAF_LOG_DOMAIN, FAF_LOG_TAG, \
+    "[(%{public}s:%{public}d)]" fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__))
 #define HILOG_WARN(fmt, ...)            \
-    (void)OHOS::HiviewDFX::HiLog::Warn( \
-        LOG_LABEL, "[(%{public}s:%{public}d)]" fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+    ((void)HILOG_IMPL(LOG_CORE, LOG_WARN, FAF_LOG_DOMAIN, FAF_LOG_TAG, \
+    "[(%{public}s:%{public}d)]" fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__))
 #define HILOG_INFO(fmt, ...)            \
-    (void)OHOS::HiviewDFX::HiLog::Info( \
-        LOG_LABEL, "[(%{public}s:%{public}d)]" fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+    ((void)HILOG_IMPL(LOG_CORE, LOG_INFO, FAF_LOG_DOMAIN, FAF_LOG_TAG, \
+    "[(%{public}s:%{public}d)]" fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__))
 #define HILOG_DEBUG(fmt, ...)            \
-    (void)OHOS::HiviewDFX::HiLog::Debug( \
-        LOG_LABEL, "[(%{public}s:%{public}d)]" fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+    ((void)HILOG_IMPL(LOG_CORE, LOG_DEBUG, FAF_LOG_DOMAIN, FAF_LOG_TAG, \
+    "[(%{public}s:%{public}d)]" fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__))
 #else
 
 #define HILOG_FATAL(...)
