@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -53,6 +53,45 @@ namespace {
 static std::mutex g_fileAccessHelperMutex;
 static std::list<std::shared_ptr<FileAccessHelper>> g_fileAccessHelperList = {};
 
+static FileAccessHelper *GetFileAccessHelper(napi_env env, napi_value thisVar)
+{
+    if (thisVar == nullptr) {
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
+
+    FileAccessHelper *fileAccessHelper = nullptr;
+    if (napi_unwrap(env, thisVar, (void **)&fileAccessHelper) != napi_ok) {
+        NError(E_GETRESULT).ThrowErr(env);
+        return nullptr;
+    }
+
+    if (fileAccessHelper == nullptr) {
+        NError(E_GETRESULT).ThrowErr(env);
+        return nullptr;
+    }
+    return fileAccessHelper;
+}
+
+static std::shared_ptr<FileAccessHelper> GetGlobalFileAccessHelper(napi_env env, napi_value thisVar)
+{
+    FileAccessHelper *helper = GetFileAccessHelper(env, thisVar);
+    if (helper == nullptr) {
+        HILOG_ERROR("Input helper is nullptr");
+        return nullptr;
+    }
+    std::lock_guard<std::mutex> lock(g_fileAccessHelperMutex);
+    auto helperIter = std::find_if(g_fileAccessHelperList.begin(), g_fileAccessHelperList.end(),
+        [&helper](const std::shared_ptr<FileAccessHelper> &element) {
+            return element.get() == helper;
+    });
+    if (helperIter == g_fileAccessHelperList.end()) {
+        HILOG_ERROR("Cannot find helper in global");
+        return nullptr;
+    }
+    return *helperIter;
+}
+
 static void AddFileAccessHelperList(std::pair<std::shared_ptr<FileAccessHelper>, int> &createResult)
 {
     std::lock_guard<std::mutex> lock(g_fileAccessHelperMutex);
@@ -102,7 +141,6 @@ static napi_value FileAccessHelperConstructor(napi_env env, napi_callback_info i
     auto finalize = [](napi_env env, void *data, void *hint) {
         FileAccessHelper *objectInfo = static_cast<FileAccessHelper *>(data);
         if (objectInfo != nullptr) {
-            objectInfo->Release();
             RemoveFileAccessHelperList(objectInfo);
             objectInfo = nullptr;
         }
@@ -246,26 +284,6 @@ napi_value FileAccessHelperInit(napi_env env, napi_value exports)
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(export_properties) / sizeof(export_properties[0]),
         export_properties));
     return exports;
-}
-
-static FileAccessHelper *GetFileAccessHelper(napi_env env, napi_value thisVar)
-{
-    if (thisVar == nullptr) {
-        NError(EINVAL).ThrowErr(env);
-        return nullptr;
-    }
-
-    FileAccessHelper *fileAccessHelper = nullptr;
-    if (napi_unwrap(env, thisVar, (void **)&fileAccessHelper) != napi_ok) {
-        NError(E_GETRESULT).ThrowErr(env);
-        return nullptr;
-    }
-
-    if (fileAccessHelper == nullptr) {
-        NError(E_GETRESULT).ThrowErr(env);
-        return nullptr;
-    }
-    return fileAccessHelper;
 }
 
 static std::tuple<bool, std::unique_ptr<char[]>, std::unique_ptr<char[]>> GetReadArg(napi_env env,
@@ -885,7 +903,10 @@ napi_value NAPI_Rename(napi_env env, napi_callback_info info)
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
-static int MakeGetRootsResult(napi_env &env, FileAccessHelper *helper, std::vector<RootInfo> &rootInfoVec, NVal &nVal)
+static int MakeGetRootsResult(napi_env &env,
+                              std::shared_ptr<FileAccessHelper> helper,
+                              std::vector<RootInfo> &rootInfoVec,
+                              NVal &nVal)
 {
     auto objRootIterator = NClass::InstantiateClass(env, NapiRootIteratorExporter::className_, {});
     if (objRootIterator == nullptr) {
@@ -916,7 +937,7 @@ napi_value NAPI_GetRoots(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    std::shared_ptr<FileAccessHelper> fileAccessHelper = GetGlobalFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         NError(E_GETRESULT).ThrowErr(env);
         return nullptr;
@@ -1012,7 +1033,10 @@ napi_value NAPI_Access(napi_env env, napi_callback_info info)
     return NAsyncWorkCallback(env, thisVar, cb).Schedule(procedureName, cbExec, cbComplete).val_;
 }
 
-static int MakeFileInfoResult(napi_env &env, FileAccessHelper *helper, FileInfo &fileinfo, NVal &nVal)
+static int MakeFileInfoResult(napi_env &env,
+                              std::shared_ptr<FileAccessHelper> helper,
+                              FileInfo &fileinfo,
+                              NVal &nVal)
 {
     auto objFileInfo = NClass::InstantiateClass(env, NapiFileInfoExporter::className_, {});
     if (objFileInfo == nullptr) {
@@ -1044,7 +1068,7 @@ napi_value NAPI_GetFileInfoFromUri(napi_env env, napi_callback_info info)
     if (!succ) {
         return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    std::shared_ptr<FileAccessHelper> fileAccessHelper = GetGlobalFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
         return nullptr;
     }
@@ -1095,8 +1119,9 @@ napi_value NAPI_GetFileInfoFromRelativePath(napi_env env, napi_callback_info inf
     if (!succ) {
         return NapiFileInfoExporter::ThrowError(env, EINVAL);
     }
-    FileAccessHelper *fileAccessHelper = GetFileAccessHelper(env, funcArg.GetThisVar());
+    std::shared_ptr<FileAccessHelper> fileAccessHelper = GetGlobalFileAccessHelper(env, funcArg.GetThisVar());
     if (fileAccessHelper == nullptr) {
+        HILOG_ERROR("Global FileAcHelper does not exist");
         return nullptr;
     }
     auto result = std::make_shared<FileInfo>();

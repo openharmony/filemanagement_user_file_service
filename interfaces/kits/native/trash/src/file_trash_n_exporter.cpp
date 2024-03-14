@@ -270,7 +270,7 @@ static int MoveFile(const string &srcFile, const string &destFile)
         size_t suffixPos = destFile.find_last_of('.');
         string filePathName = " ";
         string fileSuffix = "";
-        if (suffixPos < slashPos) {
+        if (suffixPos == std::string::npos || suffixPos < slashPos) {
             // 识别的文件后缀分隔符必须在文件部分
             filePathName = destFile + filePathName;
         } else {
