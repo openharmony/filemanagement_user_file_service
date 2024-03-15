@@ -475,21 +475,30 @@ int32_t FileAccessService::UnregisterNotifyImpl(Uri uri, const sptr<IFileAccessO
         HILOG_ERROR("Can not find observer");
         return E_CALLBACK_IS_NOT_REGISTER;
     }
-    int32_t ret = OperateObsCodeList(obsNode, code);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("Operate obs code list error");
-        return ret;
+    {
+        lock_guard<mutex> lock(opNodeListMutex_);
+        auto haveCodeIter = find_if(obsNode->obsCodeList_.begin(), obsNode->obsCodeList_.end(),
+        [code](const uint32_t &listCode) { return code == listCode; });
+        if (haveCodeIter == obsNode->obsCodeList_.end()) {
+            HILOG_ERROR("Uri node observer list don not has this observer");
+            return E_CALLBACK_AND_URI_HAS_NOT_RELATIONS;
+        }
+        obsNode->obsCodeList_.erase(haveCodeIter);
     }
+    obsManager_.get(code)->UnRef();
     // node has other observers, do not need remove.
-    if (obsNode->obsCodeList_.size() != 0) {
-        HILOG_DEBUG("Has code do not stopWatcher");
-        return ERR_OK;
+    {
+        lock_guard<mutex> lock(opNodeListMutex_);
+        if (obsNode->obsCodeList_.size() != 0) {
+            HILOG_DEBUG("Has code do not stopWatcher");
+            return ERR_OK;
+        }
     }
     // if data refcount is invalid, release this code.
     if (!obsManager_.get(code)->IsValid()) {
         obsManager_.release(code);
     }
-    return DealConnectExtension(uriStr, obsNode, info);
+    return RmUriObsNodeRelations(uriStr, obsNode, info);
 }
 
 void FileAccessService::SendListNotify(string uriStr, NotifyType notifyType, const std::vector<uint32_t> &list)
@@ -637,21 +646,7 @@ int32_t FileAccessService::GetExensionProxy(const std::shared_ptr<ConnectExtensi
     return ERR_OK;
 }
 
-int32_t FileAccessService::OperateObsCodeList(std::shared_ptr<ObserverNode> &obsNode, uint32_t code)
-{
-    // find if this node has this callback.
-    auto haveCodeIter = find_if(obsNode->obsCodeList_.begin(), obsNode->obsCodeList_.end(),
-        [code](const uint32_t &listCode) { return code == listCode; });
-    if (haveCodeIter == obsNode->obsCodeList_.end()) {
-        HILOG_ERROR("Uri node observer list don not has this observer");
-        return E_CALLBACK_AND_URI_HAS_NOT_RELATIONS;
-    }
-    obsNode->obsCodeList_.erase(haveCodeIter);
-    obsManager_.get(code)->UnRef();
-    return ERR_OK;
-}
-
-int32_t FileAccessService::DealConnectExtension(std::string uriStr, std::shared_ptr<ObserverNode> &obsNode,
+int32_t FileAccessService::RmUriObsNodeRelations(std::string &uriStr, std::shared_ptr<ObserverNode> &obsNode,
     const std::shared_ptr<ConnectExtensionInfo> &info)
 {
     size_t uriIndex = uriStr.find(FILE_SCHEME);
