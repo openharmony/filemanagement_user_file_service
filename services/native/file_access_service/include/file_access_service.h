@@ -86,7 +86,7 @@ class ObserverNode {
         std::vector<uint32_t> obsCodeList_;
         bool needChildNote_;
     public:
-       int32_t FindAndRmObsNodeByCode(uint32_t code)
+       int32_t FindAndRmObsCodeByCode(uint32_t code)
        {
             std::lock_guard<std::mutex> lock(obsCodeMutex_);
             auto haveCodeIter = find_if(obsCodeList_.begin(), obsCodeList_.end(),
