@@ -97,18 +97,17 @@ class ObserverNode {
             }
             obsCodeList_.erase(haveCodeIter);
             return ERR_OK;
-       }
+        }
 
-       bool CheckObsCodeListNotEmpty()
-       {
+        bool CheckObsCodeListNotEmpty()
+        {
             std::lock_guard<std::mutex> lock(obsCodeMutex_);
             if (obsCodeList_.size() != 0) {
                 HILOG_DEBUG("Has code do not stopWatcher");
                 return true;
             }
             return false;
-       }
-
+        }
 };
 
 class OnDemandTimer {

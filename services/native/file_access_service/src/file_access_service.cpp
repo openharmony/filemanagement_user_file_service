@@ -476,7 +476,7 @@ int32_t FileAccessService::UnregisterNotifyImpl(Uri uri, const sptr<IFileAccessO
         return E_CALLBACK_IS_NOT_REGISTER;
     }
     int32_t ret = obsNode->FindAndRmObsNodeByCode(code);
-    if(ret != ERR_OK) {
+    if (ret != ERR_OK) {
         HILOG_ERROR("Can not find obsNode by code");
         return ret;
     }
