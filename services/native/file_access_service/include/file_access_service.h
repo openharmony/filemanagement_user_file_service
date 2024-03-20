@@ -82,8 +82,33 @@ class ObserverNode {
         virtual ~ObserverNode() = default;
         std::shared_ptr<ObserverNode> parent_;
         std::vector<std::shared_ptr<ObserverNode>> children_;
+        std::mutex obsCodeMutex_;
         std::vector<uint32_t> obsCodeList_;
         bool needChildNote_;
+    public:
+       int32_t FindAndRmObsNodeByCode(uint32_t code)
+       {
+            std::lock_guard<std::mutex> lock(obsCodeMutex_);
+            auto haveCodeIter = find_if(obsCodeList_.begin(), obsCodeList_.end(),
+            [code](const uint32_t &listCode) { return code == listCode; });
+            if (haveCodeIter == obsCodeList_.end()) {
+                HILOG_ERROR("Uri node observer list don not has this observer");
+                return E_CALLBACK_AND_URI_HAS_NOT_RELATIONS;
+            }
+            obsCodeList_.erase(haveCodeIter);
+            return ERR_OK;
+       }
+
+       bool CheckObsCodeListNotEmpty()
+       {
+            std::lock_guard<std::mutex> lock(obsCodeMutex_);
+            if (obsCodeList_.size() != 0) {
+                HILOG_DEBUG("Has code do not stopWatcher");
+                return true;
+            }
+            return false;
+       }
+
 };
 
 class OnDemandTimer {
@@ -251,7 +276,6 @@ private:
     bool ready_ = false;
     static std::mutex mutex_;
     std::mutex nodeMutex_;
-    std::mutex opNodeListMutex_;
     std::unordered_map<std::string, std::shared_ptr<ObserverNode>> relationshipMap_;
     HolderManager<std::shared_ptr<ObserverContext>> obsManager_;
     std::unordered_map<std::string, sptr<IFileAccessExtBase>> cMap_;

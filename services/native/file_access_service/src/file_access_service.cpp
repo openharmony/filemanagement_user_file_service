@@ -475,24 +475,16 @@ int32_t FileAccessService::UnregisterNotifyImpl(Uri uri, const sptr<IFileAccessO
         HILOG_ERROR("Can not find observer");
         return E_CALLBACK_IS_NOT_REGISTER;
     }
-    {
-        lock_guard<mutex> lock(opNodeListMutex_);
-        auto haveCodeIter = find_if(obsNode->obsCodeList_.begin(), obsNode->obsCodeList_.end(),
-        [code](const uint32_t &listCode) { return code == listCode; });
-        if (haveCodeIter == obsNode->obsCodeList_.end()) {
-            HILOG_ERROR("Uri node observer list don not has this observer");
-            return E_CALLBACK_AND_URI_HAS_NOT_RELATIONS;
-        }
-        obsNode->obsCodeList_.erase(haveCodeIter);
+    int32_t ret = obsNode->FindAndRmObsNodeByCode(code);
+    if(ret != ERR_OK) {
+        HILOG_ERROR("Can not find obsNode by code");
+        return ret;
     }
     obsManager_.get(code)->UnRef();
     // node has other observers, do not need remove.
-    {
-        lock_guard<mutex> lock(opNodeListMutex_);
-        if (obsNode->obsCodeList_.size() != 0) {
-            HILOG_DEBUG("Has code do not stopWatcher");
-            return ERR_OK;
-        }
+    if (obsNode->CheckObsCodeListNotEmpty()) {
+        HILOG_DEBUG("Has code do not stopWatcher");
+        return ERR_OK;
     }
     // if data refcount is invalid, release this code.
     if (!obsManager_.get(code)->IsValid()) {
