@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -229,6 +229,9 @@ function parseDocumentPickerSelectOption(args, action) {
     }
     if ((option.fileSuffixFilters !== undefined) && option.fileSuffixFilters.length > 0) {
       config.parameters.key_file_suffix_filter = option.fileSuffixFilters;
+    }
+    if (option.authMode !== undefined) {
+      config.parameters.key_auth_mode = option.authMode;
     }
   }
 

@@ -150,6 +150,74 @@ void TestObserver::OnChange(NotifyMessage &notifyMessage)
     GTEST_LOG_(INFO) << "enter TestObserver uri =" + notifyUri + "type =" + std::to_string(g_notifyFlag);
 }
 
+static tuple<Uri, Uri, Uri, Uri> ReadyRegisterNotify00(Uri& parentUri,
+                                                       sptr<IFileAccessObserver>& myObserver1,
+                                                       sptr<IFileAccessObserver>& myObserver2,
+                                                       sptr<IFileAccessObserver>& myObserver3,
+                                                       sptr<IFileAccessObserver>& myObserver4)
+{
+    bool notifyForDescendants = false;
+    Uri newDirUriTest1("");
+    int result = g_fah->Mkdir(parentUri, "uri_dir1", newDirUriTest1);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri newDirUriTest2("");
+    result = g_fah->Mkdir(parentUri, "uri_dir2", newDirUriTest2);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri newFileUri1("");
+    result = g_fah->CreateFile(parentUri, "uri_file1", newFileUri1);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    GTEST_LOG_(INFO) <<  newFileUri1.ToString();
+    Uri newFileUri2("");
+    result = g_fah->CreateFile(parentUri, "uri_file2", newFileUri2);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+    result = g_fah->RegisterNotify(newDirUriTest1, true, myObserver1);
+    EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+    result = g_fah->RegisterNotify(newDirUriTest2, notifyForDescendants, myObserver2);
+    EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+    result = g_fah->RegisterNotify(newFileUri1, notifyForDescendants, myObserver3);
+    EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+    result = g_fah->RegisterNotify(newFileUri2, notifyForDescendants, myObserver4);
+    EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+
+    return {newDirUriTest1, newDirUriTest2, newFileUri1, newFileUri2};
+}
+
+static tuple<Uri, Uri> TriggerNotify00(Uri& newDirUriTest1, Uri& newDirUriTest2, Uri& newFileUri1, Uri& newFileUri2)
+{
+    Uri testUri("");
+    int result = g_fah->CreateFile(newDirUriTest1, "testUri", testUri);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    usleep(SLEEP_TIME);
+    EXPECT_EQ(g_notifyEvent, ADD_EVENT);
+    EXPECT_EQ(g_notifyUri, testUri.ToString());
+    Uri renameDirUri1("");
+    result = g_fah->Rename(newDirUriTest1, "testDir", renameDirUri1);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    usleep(SLEEP_TIME);
+    EXPECT_EQ(g_notifyEvent, MOVED_SELF);
+    EXPECT_EQ(g_notifyUri, newDirUriTest1.ToString());
+    result = g_fah->Delete(newDirUriTest2);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    usleep(SLEEP_TIME);
+    EXPECT_EQ(g_notifyEvent, DELETE_EVENT);
+    EXPECT_EQ(g_notifyUri, newDirUriTest2.ToString());
+
+    Uri renameUri1("");
+    result = g_fah->Rename(newFileUri1, "renameUri1", renameUri1);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    usleep(SLEEP_TIME);
+    EXPECT_EQ(g_notifyEvent, MOVED_SELF);
+    EXPECT_EQ(g_notifyUri, newFileUri1.ToString());
+    result = g_fah->Delete(newFileUri2);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    usleep(SLEEP_TIME);
+    EXPECT_EQ(g_notifyEvent, DELETE_EVENT);
+    EXPECT_EQ(g_notifyUri, newFileUri2.ToString());
+
+    return {renameDirUri1, renameUri1};
+}
+
 /**
  * @tc.number: user_file_service_external_file_access_notify_0000
  * @tc.name: external_file_access_notify_0000
@@ -166,64 +234,15 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0000, testing::ext
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        bool notifyForDescendants = false;
         sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
         sptr<IFileAccessObserver> myObserver2 = new (std::nothrow) MyObserver();
         sptr<IFileAccessObserver> myObserver3 = new (std::nothrow) MyObserver();
         sptr<IFileAccessObserver> myObserver4 = new (std::nothrow) MyObserver();
         Uri parentUri(info[1].uri);
-        Uri newDirUriTest1("");
-        result = g_fah->Mkdir(parentUri, "uri_dir1", newDirUriTest1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri newDirUriTest2("");
-        result = g_fah->Mkdir(parentUri, "uri_dir2", newDirUriTest2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri newFileUri1("");
-        result = g_fah->CreateFile(parentUri, "uri_file1", newFileUri1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        GTEST_LOG_(INFO) <<  newFileUri1.ToString();
-        Uri newFileUri2("");
-        result = g_fah->CreateFile(parentUri, "uri_file2", newFileUri2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        auto [newDirUriTest1, newDirUriTest2, newFileUri1, newFileUri2] =
+            ReadyRegisterNotify00(parentUri, myObserver1, myObserver2, myObserver3, myObserver4);
 
-        result = g_fah->RegisterNotify(newDirUriTest1, true, myObserver1);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(newDirUriTest2, notifyForDescendants, myObserver2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(newFileUri1, notifyForDescendants, myObserver3);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(newFileUri2, notifyForDescendants, myObserver4);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-
-        Uri testUri("");
-        result = g_fah->CreateFile(newDirUriTest1, "testUri", testUri);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        usleep(SLEEP_TIME);
-        EXPECT_EQ(g_notifyEvent, ADD_EVENT);
-        EXPECT_EQ(g_notifyUri, testUri.ToString());
-        Uri renameDirUri1("");
-        result = g_fah->Rename(newDirUriTest1, "testDir", renameDirUri1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        usleep(SLEEP_TIME);
-        EXPECT_EQ(g_notifyEvent, MOVED_SELF);
-        EXPECT_EQ(g_notifyUri, newDirUriTest1.ToString());
-        result = g_fah->Delete(newDirUriTest2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        usleep(SLEEP_TIME);
-        EXPECT_EQ(g_notifyEvent, DELETE_EVENT);
-        EXPECT_EQ(g_notifyUri, newDirUriTest2.ToString());
-
-        Uri renameUri1("");
-        result = g_fah->Rename(newFileUri1, "renameUri1", renameUri1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        usleep(SLEEP_TIME);
-        EXPECT_EQ(g_notifyEvent, MOVED_SELF);
-        EXPECT_EQ(g_notifyUri, newFileUri1.ToString());
-        result = g_fah->Delete(newFileUri2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        usleep(SLEEP_TIME);
-        EXPECT_EQ(g_notifyEvent, DELETE_EVENT);
-        EXPECT_EQ(g_notifyUri, newFileUri2.ToString());
+        auto [renameDirUri1, renameUri1] = TriggerNotify00(newDirUriTest1, newDirUriTest2, newFileUri1, newFileUri2);
 
         sleep(1);
         result = g_fah->UnregisterNotify(newDirUriTest1, myObserver1);
@@ -244,6 +263,30 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0000, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-end external_file_access_notify_0000";
 }
 
+static tuple<Uri, Uri, Uri> ReadyRegisterNotify01(Uri& parentUri, sptr<IFileAccessObserver> myObserver1,
+    sptr<IFileAccessObserver> myObserver2, sptr<IFileAccessObserver> myObserver3)
+{
+    bool notifyForDescendants1 = true;
+    bool notifyForDescendants2 = false;
+    Uri newFileUri1("");
+    int result = g_fah->CreateFile(parentUri, "uri_file1", newFileUri1);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri newFileUri2("");
+    result = g_fah->CreateFile(parentUri, "uri_file2", newFileUri2);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri newFileUri3("");
+    result = g_fah->CreateFile(parentUri, "uri_file3", newFileUri3);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+    result = g_fah->RegisterNotify(newFileUri1, notifyForDescendants1, myObserver1);
+    EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+    result = g_fah->RegisterNotify(newFileUri2, notifyForDescendants1, myObserver2);
+    EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+    result = g_fah->RegisterNotify(newFileUri3, notifyForDescendants2, myObserver3);
+    EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+    return {newFileUri1, newFileUri2, newFileUri3};
+}
+
 /**
  * @tc.number: user_file_service_external_file_access_notify_0001
  * @tc.name: external_file_access_notify_0001
@@ -260,28 +303,13 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0001, testing::ext
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        bool notifyForDescendants1 = true;
-        bool notifyForDescendants2 = false;
+
         sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
         sptr<IFileAccessObserver> myObserver2 = new (std::nothrow) MyObserver();
         sptr<IFileAccessObserver> myObserver3 = new (std::nothrow) MyObserver();
         Uri parentUri(info[1].uri);
-        Uri newFileUri1("");
-        result = g_fah->CreateFile(parentUri, "uri_file1", newFileUri1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri newFileUri2("");
-        result = g_fah->CreateFile(parentUri, "uri_file2", newFileUri2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri newFileUri3("");
-        result = g_fah->CreateFile(parentUri, "uri_file3", newFileUri3);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
-        result = g_fah->RegisterNotify(newFileUri1, notifyForDescendants1, myObserver1);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(newFileUri2, notifyForDescendants1, myObserver2);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(newFileUri3, notifyForDescendants2, myObserver3);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        auto [newFileUri1, newFileUri2, newFileUri3] =
+            ReadyRegisterNotify01(parentUri, myObserver1, myObserver2, myObserver3);
 
         Uri renameFileUri1("");
         result = g_fah->Rename(newFileUri1, "renamefile", renameFileUri1);
@@ -289,7 +317,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0001, testing::ext
         usleep(SLEEP_TIME);
         EXPECT_EQ(g_notifyEvent, MOVED_SELF);
         EXPECT_EQ(g_notifyUri, newFileUri1.ToString());
-
+        
         result = g_fah->Delete(newFileUri2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         usleep(SLEEP_TIME);
@@ -316,6 +344,56 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0001, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-end external_file_access_notify_0001";
 }
 
+static tuple<Uri, Uri, Uri, Uri> ReadyRegisterNotify02(Uri& parentUri)
+{
+    Uri newDirUriTest1("");
+    int result = g_fah->Mkdir(parentUri, "uri_dir1", newDirUriTest1);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri newDirUriTest2("");
+    result = g_fah->Mkdir(parentUri, "uri_dir2", newDirUriTest2);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri newFileUri1("");
+    result = g_fah->CreateFile(parentUri, "uri_file1", newFileUri1);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri newFileUri2("");
+    result = g_fah->CreateFile(parentUri, "uri_file2", newFileUri2);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+    return {newDirUriTest1, newDirUriTest2, newFileUri1, newFileUri2};
+}
+
+static tuple<Uri, Uri> TriggerNotify02(Uri& newDirUriTest1, Uri& newDirUriTest2, Uri& newFileUri1, Uri& newFileUri2)
+{
+    const int tm = 2;
+    Uri testFile("");
+    int result = g_fah->CreateFile(newDirUriTest1, "test_file", testFile);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    usleep(SLEEP_TIME);
+    Uri renameDirUri1("");
+    result = g_fah->Rename(newDirUriTest1, "renameDir", renameDirUri1);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    usleep(SLEEP_TIME);
+    EXPECT_EQ(g_notifyEvent, MOVED_SELF);
+    EXPECT_EQ(g_notifyUri, newDirUriTest1.ToString());
+    result = g_fah->Delete(newDirUriTest2);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    usleep(SLEEP_TIME);
+    EXPECT_EQ(g_notifyEvent, DELETE_EVENT);
+    EXPECT_EQ(g_notifyUri, newDirUriTest2.ToString());
+    Uri renameFileUri1("");
+    result = g_fah->Rename(newFileUri1, "renamefile", renameFileUri1);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    usleep(SLEEP_TIME);
+    EXPECT_EQ(g_notifyEvent, MOVED_SELF);
+    EXPECT_EQ(g_notifyUri, newFileUri1.ToString());
+    result = g_fah->Delete(newFileUri2);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    usleep(SLEEP_TIME);
+    EXPECT_EQ(g_notifyEvent, DELETE_EVENT);
+    EXPECT_EQ(g_notifyUri, newFileUri2.ToString());
+    sleep(tm);
+    return {renameDirUri1, renameFileUri1};
+}
 /**
  * @tc.number: user_file_service_external_file_access_notify_0002
  * @tc.name: external_file_access_notify_0002
@@ -333,112 +411,39 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0002, testing::ext
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants = true;
-        sptr<IFileAccessObserver> myObserverDir11 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserverDir12 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserverDir13 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserverDir21 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserverDir22 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserverDir23 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserverFile11 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserverFile12 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserverFile13 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserverFile21 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserverFile22 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserverFile23 = new (std::nothrow) MyObserver();
+        vector<sptr<IFileAccessObserver>> observers;
+        const int len = 12;
+        const int group = 3;
+        for (int i = 0; i < len; i++) {
+            observers.emplace_back(new (std::nothrow) MyObserver());
+        }
         Uri parentUri(info[1].uri);
-        Uri newDirUriTest1("");
-        result = g_fah->Mkdir(parentUri, "uri_dir1", newDirUriTest1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri newDirUriTest2("");
-        result = g_fah->Mkdir(parentUri, "uri_dir2", newDirUriTest2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri newFileUri1("");
-        result = g_fah->CreateFile(parentUri, "uri_file1", newFileUri1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri newFileUri2("");
-        result = g_fah->CreateFile(parentUri, "uri_file2", newFileUri2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        auto [newDirUriTest1, newDirUriTest2, newFileUri1, newFileUri2] = ReadyRegisterNotify02(parentUri);
 
-        result = g_fah->RegisterNotify(newDirUriTest1, notifyForDescendants, myObserverDir11);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(newDirUriTest1, notifyForDescendants, myObserverDir12);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(newDirUriTest1, notifyForDescendants, myObserverDir13);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        for (int i = 0; i < group; i++) {
+            result = g_fah->RegisterNotify(newDirUriTest1, notifyForDescendants, observers[i]);
+            EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+            result = g_fah->RegisterNotify(newDirUriTest2, notifyForDescendants, observers[3 + i]);
+            EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+            result = g_fah->RegisterNotify(newFileUri1, notifyForDescendants, observers[6 + i]);
+            EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+            result = g_fah->RegisterNotify(newFileUri2, notifyForDescendants, observers[9 + i]);
+            EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        }
 
-        result = g_fah->RegisterNotify(newDirUriTest2, notifyForDescendants, myObserverDir21);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(newDirUriTest2, notifyForDescendants, myObserverDir22);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(newDirUriTest2, notifyForDescendants, myObserverDir23);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        
-        result = g_fah->RegisterNotify(newFileUri1, notifyForDescendants, myObserverFile11);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(newFileUri1, notifyForDescendants, myObserverFile12);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(newFileUri1, notifyForDescendants, myObserverFile13);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        auto [renameDirUri1, renameFileUri1] =
+            TriggerNotify02(newDirUriTest1, newDirUriTest2, newFileUri1, newFileUri2);
 
-        result = g_fah->RegisterNotify(newFileUri2, notifyForDescendants, myObserverFile21);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(newFileUri2, notifyForDescendants, myObserverFile22);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(newFileUri2, notifyForDescendants, myObserverFile23);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-
-        Uri testFile("");
-        result = g_fah->CreateFile(newDirUriTest1, "test_file", testFile);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        usleep(SLEEP_TIME);
-        Uri renameDirUri1("");
-        result = g_fah->Rename(newDirUriTest1, "renameDir", renameDirUri1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        usleep(SLEEP_TIME);
-        EXPECT_EQ(g_notifyEvent, MOVED_SELF);
-        EXPECT_EQ(g_notifyUri, newDirUriTest1.ToString());
-        result = g_fah->Delete(newDirUriTest2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        usleep(SLEEP_TIME);
-        EXPECT_EQ(g_notifyEvent, DELETE_EVENT);
-        EXPECT_EQ(g_notifyUri, newDirUriTest2.ToString());
-        Uri renameFileUri1("");
-        result = g_fah->Rename(newFileUri1, "renamefile", renameFileUri1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        usleep(SLEEP_TIME);
-        EXPECT_EQ(g_notifyEvent, MOVED_SELF);
-        EXPECT_EQ(g_notifyUri, newFileUri1.ToString());
-        result = g_fah->Delete(newFileUri2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        usleep(SLEEP_TIME);
-        EXPECT_EQ(g_notifyEvent, DELETE_EVENT);
-        EXPECT_EQ(g_notifyUri, newFileUri2.ToString());
-        sleep(2);
-        result = g_fah->UnregisterNotify(newDirUriTest1, myObserverDir11);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->UnregisterNotify(newDirUriTest1, myObserverDir12);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->UnregisterNotify(newDirUriTest1, myObserverDir13);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->UnregisterNotify(newDirUriTest2, myObserverDir21);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->UnregisterNotify(newDirUriTest2, myObserverDir22);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->UnregisterNotify(newDirUriTest2, myObserverDir23);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->UnregisterNotify(newFileUri1, myObserverFile11);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->UnregisterNotify(newFileUri1, myObserverFile12);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->UnregisterNotify(newFileUri1, myObserverFile13);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->UnregisterNotify(newFileUri2, myObserverFile21);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->UnregisterNotify(newFileUri2, myObserverFile22);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->UnregisterNotify(newFileUri2, myObserverFile23);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-
+        for (int i = 0; i < group; i++) {
+            result = g_fah->UnregisterNotify(newDirUriTest1, observers[i]);
+            EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+            result = g_fah->UnregisterNotify(newDirUriTest2, observers[3 + i]);
+            EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+            result = g_fah->UnregisterNotify(newFileUri1, observers[6 + i]);
+            EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+            result = g_fah->UnregisterNotify(newFileUri2, observers[9 + i]);
+            EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+        }
         result = g_fah->Delete(renameDirUri1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Delete(renameFileUri1);
@@ -498,6 +503,34 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0003, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-end external_file_access_notify_0003";
 }
 
+static tuple<Uri, Uri, Uri, Uri> ReadyRegisterNotify05(Uri& parentUri, sptr<IFileAccessObserver>& myObserver1)
+{
+    bool notifyForDescendants = true;
+    Uri uri_dir("");
+    int result = g_fah->Mkdir(parentUri, "uri_dir123", uri_dir);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri uri_dirSub1("");
+    result = g_fah->Mkdir(uri_dir, "uri_dirSub1", uri_dirSub1);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    result = g_fah->RegisterNotify(uri_dir, notifyForDescendants, myObserver1);
+    EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+    result = g_fah->RegisterNotify(uri_dirSub1, notifyForDescendants, myObserver1);
+    EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri uri_dirSub2("");
+    result = g_fah->Mkdir(uri_dir, "uri_dirSub2", uri_dirSub2);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    usleep(SLEEP_TIME);
+    EXPECT_EQ(g_notifyEvent, ADD_EVENT);
+    EXPECT_EQ(g_notifyUri, uri_dirSub2.ToString());
+    result = g_fah->RegisterNotify(uri_dirSub2, notifyForDescendants, myObserver1);
+    EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri renameDirUri1("");
+    result = g_fah->Rename(uri_dirSub2, "renameDir1", renameDirUri1);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    usleep(SLEEP_TIME);
+    return {uri_dir, uri_dirSub1, uri_dirSub2, renameDirUri1};
+}
+
 /**
  * @tc.number: user_file_service_external_file_access_notify_0005
  * @tc.name: external_file_access_notify_0005
@@ -514,31 +547,9 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0005, testing::ext
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        bool notifyForDescendants = true;
         sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
         Uri parentUri(info[1].uri);
-        Uri uri_dir("");
-        result = g_fah->Mkdir(parentUri, "uri_dir123", uri_dir);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri uri_dirSub1("");
-        result = g_fah->Mkdir(uri_dir, "uri_dirSub1", uri_dirSub1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(uri_dir, notifyForDescendants, myObserver1);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(uri_dirSub1, notifyForDescendants, myObserver1);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri uri_dirSub2("");
-        result = g_fah->Mkdir(uri_dir, "uri_dirSub2", uri_dirSub2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        usleep(SLEEP_TIME);
-        EXPECT_EQ(g_notifyEvent, ADD_EVENT);
-        EXPECT_EQ(g_notifyUri, uri_dirSub2.ToString());
-        result = g_fah->RegisterNotify(uri_dirSub2, notifyForDescendants, myObserver1);
-        EXPECT_GE(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri renameDirUri1("");
-        result = g_fah->Rename(uri_dirSub2, "renameDir1", renameDirUri1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        usleep(SLEEP_TIME);
+        auto [uri_dir, uri_dirSub1, uri_dirSub2, renameDirUri1] = ReadyRegisterNotify05(parentUri, myObserver1);
         if (g_notifyEvent != MOVED_TO) {
             if (g_notifyEvent != MOVED_SELF) {
                 EXPECT_EQ(g_notifyEvent, MOVED_FROM);
@@ -675,24 +686,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0008, testing::ext
 }
 
 /**
- * @tc.number: user_file_service_external_file_access_notify_0009        Uri parentUri(info[1].uri);
-        Uri newFileDir1("");
-        result = g_fah->Mkdir(parentUri, "uri_dir0016", newFileDir1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(newFileDir1, notifyForDescendants, myObserver1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(newFileDir1, notifyForDescendants, myObserver2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(newFileDir1, notifyForDescendants, myObserver3);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-
-        result = g_fah->UnregisterNotify(newFileDir1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->UnregisterNotify(newFileDir1, myObserver1);
-        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
-
-        result = g_fah->Delete(newFileDir1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+ * @tc.number: user_file_service_external_file_access_notify_0009
  * @tc.name: external_file_access_notify_0009
  * @tc.desc: Test function of RegisterNotify and UnregisterNotify interface for SUCCESS when the file is Chinese name.
  * @tc.size: MEDIUM
@@ -776,6 +770,29 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0010, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-end external_file_access_notify_0010";
 }
 
+static tuple<Uri, Uri> ReadyRegisterNotify11(Uri& parentUri, Uri &newFileDir1, sptr<IFileAccessObserver>& myObserver1,
+    sptr<IFileAccessObserver>& myObserver2)
+{
+    const int tm = SLEEP_TIME * 2;
+    bool notifyForDescendants1 = true;
+    int result = g_fah->Mkdir(parentUri, "uri_dir11", newFileDir1);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri newFileUri1("");
+    result = g_fah->CreateFile(newFileDir1, "uri_file11", newFileUri1);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    sleep(1);
+    result = g_fah->RegisterNotify(newFileDir1, notifyForDescendants1, myObserver1);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    result = g_fah->RegisterNotify(newFileUri1, notifyForDescendants1, myObserver2);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    Uri renameFileUri1("");
+    result = g_fah->Rename(newFileUri1, "renamefile1", renameFileUri1);
+    EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    usleep(tm);
+
+    return {newFileUri1, renameFileUri1};
+}
+
 /**
  * @tc.number: user_file_service_external_file_access_notify_0011
  * @tc.name: external_file_access_notify_0011
@@ -793,25 +810,13 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0011, testing::ext
         vector<RootInfo> info;
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        bool notifyForDescendants1 = true;
         bool notifyForDescendants2 = false;
         sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) TestObserver();
         sptr<IFileAccessObserver> myObserver2 = new (std::nothrow) MyObserver();
         Uri parentUri(info[1].uri);
         Uri newFileDir1("");
-        result = g_fah->Mkdir(parentUri, "uri_dir11", newFileDir1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri newFileUri1("");
-        result = g_fah->CreateFile(newFileDir1, "uri_file11", newFileUri1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        sleep(1);
-        result = g_fah->RegisterNotify(newFileDir1, notifyForDescendants1, myObserver1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->RegisterNotify(newFileUri1, notifyForDescendants1, myObserver2);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        Uri renameFileUri1("");
-        result = g_fah->Rename(newFileUri1, "renamefile1", renameFileUri1);
-        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        auto [newFileUri1, renameFileUri1] =
+            ReadyRegisterNotify11(parentUri, newFileDir1, myObserver1, myObserver2);
         usleep(SLEEP_TIME * 2);
         if (g_notifyEvent != MOVED_TO) {
             if (g_notifyEvent != MOVED_SELF) {

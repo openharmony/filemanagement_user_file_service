@@ -281,14 +281,10 @@ bool MoveFuzzTest(const uint8_t* data, size_t size)
         Uri parentUri(info[i].uri);
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
-        result = helper->Mkdir(parentUri, "test1", newDirUriTest1);
-        if (result != OHOS::FileAccessFwk::ERR_OK) {
-            HILOG_ERROR("Mkdir failed. ret : %{public}d", result);
-            return false;
-        }
-        result = helper->Mkdir(parentUri, "test2", newDirUriTest2);
-        if (result != OHOS::FileAccessFwk::ERR_OK) {
-            HILOG_ERROR("Mkdir failed. ret : %{public}d", result);
+        int result1 = helper->Mkdir(parentUri, "test1", newDirUriTest1);
+        int result2 = helper->Mkdir(parentUri, "test2", newDirUriTest2);
+        if (result1 != OHOS::FileAccessFwk::ERR_OK || result2 != OHOS::FileAccessFwk::ERR_OK) {
+            HILOG_ERROR("Mkdir failed. ret : %{public}d, %{public}d", result1, result2);
             return false;
         }
         Uri testUri("");
@@ -303,14 +299,10 @@ bool MoveFuzzTest(const uint8_t* data, size_t size)
             HILOG_ERROR("Move failed. ret : %{public}d", result);
             return false;
         }
-        result = helper->Delete(newDirUriTest1);
-        if (result != OHOS::FileAccessFwk::ERR_OK) {
-            HILOG_ERROR("Delete failed. ret : %{public}d", result);
-            return false;
-        }
-        result = helper->Delete(newDirUriTest2);
-        if (result != OHOS::FileAccessFwk::ERR_OK) {
-            HILOG_ERROR("Delete failed. ret : %{public}d", result);
+        result1 = helper->Delete(newDirUriTest1);
+        result2 = helper->Delete(newDirUriTest2);
+        if (result1 != OHOS::FileAccessFwk::ERR_OK || result2 != OHOS::FileAccessFwk::ERR_OK) {
+            HILOG_ERROR("Delete failed. ret : %{public}d, %{public}d", result1, result2);
             return false;
         }
     }
@@ -375,6 +367,10 @@ bool ListFileFuzzTest(const uint8_t* data, size_t size)
     SharedMemoryInfo memInfo;
     int result = SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
         memInfo);
+    if (result != OHOS::FileAccessFwk::ERR_OK) {
+        HILOG_ERROR("CreateSharedMemory failed. ret : %{public}d", result);
+        return false;
+    }
     FileFilter filter;
     result = helper->ListFile(fileInfo, offset, filter, memInfo);
     SharedMemoryOperation::DestroySharedMemory(memInfo);

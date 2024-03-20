@@ -82,6 +82,18 @@ napi_value NapiRootInfoExporter::Constructor(napi_env env, napi_callback_info in
     return funcArg.GetThisVar();
 }
 
+static int TransferListFile(const RootInfoEntity* rootEntity, FileIteratorEntity* fileIteratorEntity,
+    FileFilter& filter, const FileInfo& fileInfo)
+{
+    fileIteratorEntity->fileAccessHelper = rootEntity->fileAccessHelper;
+    fileIteratorEntity->fileInfo = fileInfo;
+    fileIteratorEntity->offset = 0;
+    fileIteratorEntity->filter = std::move(filter);
+    fileIteratorEntity->flag = CALL_LISTFILE;
+    return rootEntity->fileAccessHelper->ListFile(fileInfo, fileIteratorEntity->offset, filter,
+        fileIteratorEntity->memInfo);
+}
+
 napi_value NapiRootInfoExporter::ListFile(napi_env env, napi_callback_info info)
 {
     NFuncArg funcArg(env, info);
@@ -121,13 +133,7 @@ napi_value NapiRootInfoExporter::ListFile(napi_env env, napi_callback_info info)
             NError(ret).ThrowErr(env);
             return nullptr;
         }
-        fileIteratorEntity->fileAccessHelper = rootEntity->fileAccessHelper;
-        fileIteratorEntity->fileInfo = fileInfo;
-        fileIteratorEntity->offset = 0;
-        fileIteratorEntity->filter = std::move(filter);
-        fileIteratorEntity->flag = CALL_LISTFILE;
-        ret = rootEntity->fileAccessHelper->ListFile(fileInfo, fileIteratorEntity->offset, filter,
-            fileIteratorEntity->memInfo);
+        ret = TransferListFile(rootEntity, fileIteratorEntity, filter, fileInfo);
         if (ret != ERR_OK) {
             FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(fileIteratorEntity->memInfo);
             return NapiFileInfoExporter::ThrowError(env, ret);
