@@ -57,6 +57,9 @@ public:
     MOCK_METHOD3(UpdateOnDemandPolicy, int32_t(int32_t systemAbilityId, OnDemandPolicyType type,
         const std::vector<SystemAbilityOnDemandEvent>& abilityOnDemandEvents));
     MOCK_METHOD1(GetOnDemandSystemAbilityIds, int32_t(std::vector<int32_t>& systemAbilityIds));
+    MOCK_METHOD2(GetExtensionSaIds, int32_t(const std::string& extension, std::vector<int32_t> &saIds));
+    MOCK_METHOD2(GetExtensionRunningSaList, int32_t(const std::string& extension,
+        std::vector<sptr<IRemoteObject>>& saList));
 };
 } // namespace OHOS
 
