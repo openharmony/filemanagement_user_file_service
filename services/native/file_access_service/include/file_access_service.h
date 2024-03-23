@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -82,8 +82,32 @@ class ObserverNode {
         virtual ~ObserverNode() = default;
         std::shared_ptr<ObserverNode> parent_;
         std::vector<std::shared_ptr<ObserverNode>> children_;
+        std::mutex obsCodeMutex_;
         std::vector<uint32_t> obsCodeList_;
         bool needChildNote_;
+    public:
+       int32_t FindAndRmObsCodeByCode(uint32_t code)
+       {
+            std::lock_guard<std::mutex> lock(obsCodeMutex_);
+            auto haveCodeIter = find_if(obsCodeList_.begin(), obsCodeList_.end(),
+            [code](const uint32_t &listCode) { return code == listCode; });
+            if (haveCodeIter == obsCodeList_.end()) {
+                HILOG_ERROR("Uri node observer list don not has this observer");
+                return E_CALLBACK_AND_URI_HAS_NOT_RELATIONS;
+            }
+            obsCodeList_.erase(haveCodeIter);
+            return ERR_OK;
+        }
+
+        bool CheckObsCodeListNotEmpty()
+        {
+            std::lock_guard<std::mutex> lock(obsCodeMutex_);
+            if (obsCodeList_.size() != 0) {
+                HILOG_DEBUG("Has code do not stopWatcher");
+                return true;
+            }
+            return false;
+        }
 };
 
 class OnDemandTimer {
@@ -240,6 +264,8 @@ private:
     bool IsServiceReady() const;
     void InitTimer();
     bool IsUnused();
+    int32_t RmUriObsNodeRelations(std::string &uriStr, std::shared_ptr<ObserverNode> &obsNode,
+        const std::shared_ptr<ConnectExtensionInfo> &info);
     std::shared_ptr<UnloadTimer> unLoadTimer_ = nullptr;
     std::shared_ptr<OnDemandTimer> onDemandTimer_ = nullptr;
     static sptr<FileAccessService> instance_;

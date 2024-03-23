@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -414,7 +414,11 @@ int32_t FileAccessService::CleanAllNotifyImpl(Uri uri, const std::shared_ptr<Con
         }
     }
 
-    size_t uriIndex = uriStr.find("file://");
+    size_t uriIndex = uriStr.find(FILE_SCHEME);
+    if (uriIndex == string::npos) {
+        HILOG_ERROR("Current uriStr can not find targetUri");
+        return ERR_URI;
+    }
     Uri originalUri(uriStr.substr(uriIndex));
     auto extensionProxy = ConnectExtension(originalUri, info);
     if (extensionProxy == nullptr) {
@@ -471,17 +475,14 @@ int32_t FileAccessService::UnregisterNotifyImpl(Uri uri, const sptr<IFileAccessO
         HILOG_ERROR("Can not find observer");
         return E_CALLBACK_IS_NOT_REGISTER;
     }
-    // find if this node has this callback.
-    auto haveCodeIter = find_if(obsNode->obsCodeList_.begin(), obsNode->obsCodeList_.end(),
-        [code](const uint32_t &listCode) { return code == listCode; });
-    if (haveCodeIter == obsNode->obsCodeList_.end()) {
-        HILOG_ERROR("Uri node observer list don not has this observer");
-        return E_CALLBACK_AND_URI_HAS_NOT_RELATIONS;
+    int32_t ret = obsNode->FindAndRmObsCodeByCode(code);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Can not find obsNode by code");
+        return ret;
     }
-    obsNode->obsCodeList_.erase(haveCodeIter);
     obsManager_.get(code)->UnRef();
     // node has other observers, do not need remove.
-    if (obsNode->obsCodeList_.size() != 0) {
+    if (obsNode->CheckObsCodeListNotEmpty()) {
         HILOG_DEBUG("Has code do not stopWatcher");
         return ERR_OK;
     }
@@ -489,17 +490,7 @@ int32_t FileAccessService::UnregisterNotifyImpl(Uri uri, const sptr<IFileAccessO
     if (!obsManager_.get(code)->IsValid()) {
         obsManager_.release(code);
     }
-
-    size_t uriIndex = uriStr.find("file://");
-    Uri originalUri(uriStr.substr(uriIndex));
-    auto extensionProxy = ConnectExtension(originalUri, info);
-    if (extensionProxy == nullptr) {
-        HILOG_ERROR("Creator get invalid fileExtProxy");
-        return E_CONNECT;
-    }
-    extensionProxy->StopWatcher(originalUri);
-    RemoveRelations(uriStr, obsNode);
-    return ERR_OK;
+    return RmUriObsNodeRelations(uriStr, obsNode, info);
 }
 
 void FileAccessService::SendListNotify(string uriStr, NotifyType notifyType, const std::vector<uint32_t> &list)
@@ -546,6 +537,10 @@ int32_t FileAccessService::OnChange(Uri uri, NotifyType notifyType)
     string uriStr = uri.ToString();
     shared_ptr<ObserverNode> node;
     size_t uriIndex = uriStr.find(FILE_SCHEME);
+    if (uriIndex == string::npos) {
+        HILOG_ERROR("Current uriStr can not find targetUri");
+        return ERR_URI;
+    }
     string uris = uriStr.substr(uriIndex);
     //When the path is not found, search for its parent path
     if (FindUri(uriStr, node) != ERR_OK) {
@@ -640,6 +635,25 @@ int32_t FileAccessService::GetExensionProxy(const std::shared_ptr<ConnectExtensi
         HILOG_ERROR("extensionProxy is nullptr");
         return E_CONNECT;
     }
+    return ERR_OK;
+}
+
+int32_t FileAccessService::RmUriObsNodeRelations(std::string &uriStr, std::shared_ptr<ObserverNode> &obsNode,
+    const std::shared_ptr<ConnectExtensionInfo> &info)
+{
+    size_t uriIndex = uriStr.find(FILE_SCHEME);
+    if (uriIndex == string::npos) {
+        HILOG_ERROR("Current uriStr can not find targetUri");
+        return ERR_URI;
+    }
+    Uri originalUri(uriStr.substr(uriIndex));
+    auto extensionProxy = ConnectExtension(originalUri, info);
+    if (extensionProxy == nullptr) {
+        HILOG_ERROR("Creator get invalid fileExtProxy");
+        return E_CONNECT;
+    }
+    extensionProxy->StopWatcher(originalUri);
+    RemoveRelations(uriStr, obsNode);
     return ERR_OK;
 }
 } // namespace FileAccessFwk
