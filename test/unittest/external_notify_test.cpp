@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -49,6 +49,8 @@ vector<string> g_notifyUris;
 const int SLEEP_TIME = 600 * 1000;
 const int UID_TRANSFORM_TMP = 20000000;
 const int UID_DEFAULT = 0;
+const uint64_t SYSTEM_APP_MASK =  (static_cast<uint64_t>(1) << 32); // 1: Base number, 32: Left shifted bit numbers
+
 shared_ptr<OHOS::AbilityRuntime::Context> g_context = nullptr;
 
 void SetNativeToken()
@@ -74,6 +76,25 @@ void SetNativeToken()
     SetSelfTokenID(tokenId);
     OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
     delete[] perms;
+}
+
+void SetNativeToken(const char* processName, const char*perms[], int32_t permsNum)
+{
+    uint64_t tokenId;
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = permsNum,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .aplStr = "system_core",
+    };
+    tokenId = GetAccessTokenId(&infoInstance);
+    const uint64_t systemAppMask = SYSTEM_APP_MASK;
+    tokenId |= systemAppMask;
+    SetSelfTokenID(tokenId);
+    OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
 class FileExtensionNotifyTest : public testing::Test {
@@ -317,7 +338,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0001, testing::ext
         usleep(SLEEP_TIME);
         EXPECT_EQ(g_notifyEvent, MOVED_SELF);
         EXPECT_EQ(g_notifyUri, newFileUri1.ToString());
-        
+
         result = g_fah->Delete(newFileUri2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         usleep(SLEEP_TIME);
@@ -1173,5 +1194,52 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0019, testing::ext
         GTEST_LOG_(ERROR) << "external_file_access_notify_0019 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-end external_file_access_notify_0019";
+}
+
+HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0020, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_0020";
+    try {
+        g_notifyEvent = -1;
+        vector<RootInfo> info;
+        const char* perms[] = {
+            "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED"
+        };
+        SetNativeToken("SetUpTestCase", perms, sizeof(perms) / sizeof(perms[0]));
+        int result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+        SetNativeToken();
+        result = g_fah->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        bool notifyForDescendants = true;
+        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
+        Uri parentUri(info[1].uri);
+        Uri newFileDir1("");
+        SetNativeToken("SetUpTestCase", perms, sizeof(perms) / sizeof(perms[0]));
+        result = g_fah->Mkdir(parentUri, "uri_dir", newFileDir1);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+        SetNativeToken();
+        result = g_fah->Mkdir(parentUri, "uri_dir", newFileDir1);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        SetNativeToken("SetUpTestCase", perms, sizeof(perms) / sizeof(perms[0]));
+        result = g_fah->RegisterNotify(newFileDir1, notifyForDescendants, myObserver1);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+
+        result = g_fah->UnregisterNotify(newFileDir1, myObserver1);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+
+        result = g_fah->Delete(newFileDir1);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+
+        SetNativeToken();
+        result = g_fah->Delete(newFileDir1);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_notify_0020 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionNotifyTest-end external_file_access_notify_0020";
 }
 } // namespace
