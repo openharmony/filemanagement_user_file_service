@@ -45,7 +45,7 @@ bool OnRemoteRequestFuzzTest(shared_ptr<FileAccessExtStub> fileAccessExtStub, co
         return true;
     }
 
-    uint32_t code = reinterpret_cast<uint32_t>(data);
+    uint32_t code = TypeCast<uint32_t>(data);
     MessageParcel msg;
     msg.WriteInterfaceToken(FileAccessExtStub::GetDescriptor());
     MessageParcel reply;
@@ -160,8 +160,8 @@ bool CmdRenameFuzzTest(shared_ptr<FileAccessExtStub> fileAccessExtStub, const ui
 
 bool CmdListFileFuzzTest(shared_ptr<FileAccessExtStub> fileAccessExtStub, const uint8_t *data, size_t size)
 {
-    size_t minSize = sizeof(int64_t) + sizeof(int32_t) + sizeof(int64_t) + sizeof(int64_t) + sizeof(int64_t)
-        + sizeof(double) + sizeof(bool) + sizeof(bool);
+    size_t minSize = sizeof(int64_t) + sizeof(int32_t) + sizeof(int64_t) + sizeof(int64_t) + sizeof(int64_t) +
+        sizeof(double) + sizeof(bool) + sizeof(bool);
     if (data == nullptr || size < minSize) {
         return true;
     }
@@ -210,8 +210,8 @@ bool CmdListFileFuzzTest(shared_ptr<FileAccessExtStub> fileAccessExtStub, const 
 
 bool CmdScanFileFuzzTest(shared_ptr<FileAccessExtStub> fileAccessExtStub, const uint8_t *data, size_t size)
 {
-    size_t minSize = sizeof(int64_t) + sizeof(int64_t) + sizeof(int32_t) + sizeof(int64_t) + sizeof(int64_t)
-        + sizeof(int64_t) + sizeof(double) + sizeof(bool) + sizeof(bool);
+    size_t minSize = sizeof(int64_t) + sizeof(int64_t) + sizeof(int32_t) + sizeof(int64_t) + sizeof(int64_t) +
+        sizeof(int64_t) + sizeof(double) + sizeof(bool) + sizeof(bool);
     if (data == nullptr || size < minSize) {
         return true;
     }
