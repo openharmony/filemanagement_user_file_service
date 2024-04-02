@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -42,6 +42,9 @@ void SetNativeToken()
 {
     uint64_t tokenId;
     const char **perms = new const char *[2];
+    if (perms == nullptr) {
+        return;
+    }
     perms[0] = "ohos.permission.FILE_ACCESS_MANAGER";
     perms[1] = "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED";
     NativeTokenInfoParams infoInstance = {

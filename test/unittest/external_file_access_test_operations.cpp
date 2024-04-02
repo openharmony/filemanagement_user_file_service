@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -47,23 +47,23 @@ static int g_num = 0;
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0000, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Copy_0000";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri srcDir("");
-            result = g_fah->Mkdir(parentUri, "Copy_0000_src", srcDir);
+            result = fileAccessHelper->Mkdir(parentUri, "Copy_0000_src", srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri srcFile("");
-            result = g_fah->CreateFile(srcDir, "a.txt", srcFile);
+            result = fileAccessHelper->CreateFile(srcDir, "a.txt", srcFile);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             int fd = -1;
-            result = g_fah->OpenFile(srcFile, WRITE_READ, fd);
+            result = fileAccessHelper->OpenFile(srcFile, WRITE_READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             char buff[] = "Copy test content for a.txt";
             ssize_t srcFileSize = write(fd, buff, sizeof(buff));
@@ -71,24 +71,24 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0000, testing::ext::
             close(fd);
 
             Uri destDir("");
-            result = g_fah->Mkdir(parentUri, "Copy_0000_dest", destDir);
+            result = fileAccessHelper->Mkdir(parentUri, "Copy_0000_dest", destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             std::vector<Result> copyResult;
-            result = g_fah->Copy(srcFile, destDir, copyResult, false);
+            result = fileAccessHelper->Copy(srcFile, destDir, copyResult, false);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_EQ(copyResult.size(), 0);
 
             Uri destFileUri(destDir.ToString() + "/" + "a.txt");
-            result = g_fah->OpenFile(destFileUri, WRITE_READ, fd);
+            result = fileAccessHelper->OpenFile(destFileUri, WRITE_READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             ssize_t destFileSize = read(fd, buff, sizeof(buff));
             EXPECT_EQ(srcFileSize, destFileSize);
             close(fd);
 
-            result = g_fah->Delete(srcDir);
+            result = fileAccessHelper->Delete(srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            result = g_fah->Delete(destDir);
+            result = fileAccessHelper->Delete(destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -108,42 +108,42 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0000, testing::ext::
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0001, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Copy_0001";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri srcDir("");
             Uri destDir("");
-            result = g_fah->Mkdir(parentUri, "Copy_0001_src", srcDir);
+            result = fileAccessHelper->Mkdir(parentUri, "Copy_0001_src", srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri aFileUri("");
-            result = g_fah->CreateFile(srcDir, "a.txt", aFileUri);
+            result = fileAccessHelper->CreateFile(srcDir, "a.txt", aFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             int fd = -1;
-            result = g_fah->OpenFile(aFileUri, WRITE_READ, fd);
+            result = fileAccessHelper->OpenFile(aFileUri, WRITE_READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             char buff[] = "Copy test content for a.txt";
             ssize_t aFileSize = write(fd, buff, sizeof(buff));
             EXPECT_EQ(aFileSize, sizeof(buff));
             close(fd);
             Uri bFileUri("");
-            result = g_fah->CreateFile(srcDir, "b.txt", bFileUri);
+            result = fileAccessHelper->CreateFile(srcDir, "b.txt", bFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            result = g_fah->Mkdir(parentUri, "Copy_0001_dest", destDir);
+            result = fileAccessHelper->Mkdir(parentUri, "Copy_0001_dest", destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             std::vector<Result> copyResult;
-            result = g_fah->Copy(srcDir, destDir, copyResult, false);
+            result = fileAccessHelper->Copy(srcDir, destDir, copyResult, false);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_EQ(copyResult.size(), 0);
 
-            result = g_fah->Delete(srcDir);
+            result = fileAccessHelper->Delete(srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            result = g_fah->Delete(destDir);
+            result = fileAccessHelper->Delete(destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -163,29 +163,29 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0001, testing::ext::
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0002, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Copy_0002";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri srcDir("");
-            result = g_fah->Mkdir(parentUri, "Copy_0002_src", srcDir);
+            result = fileAccessHelper->Mkdir(parentUri, "Copy_0002_src", srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri destDir("");
-            result = g_fah->Mkdir(parentUri, "Copy_0002_dest", destDir);
+            result = fileAccessHelper->Mkdir(parentUri, "Copy_0002_dest", destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             std::vector<Result> copyResult;
-            result = g_fah->Copy(srcDir, destDir, copyResult, false);
+            result = fileAccessHelper->Copy(srcDir, destDir, copyResult, false);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_EQ(copyResult.size(), 0);
 
-            result = g_fah->Delete(srcDir);
+            result = fileAccessHelper->Delete(srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            result = g_fah->Delete(destDir);
+            result = fileAccessHelper->Delete(destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -205,22 +205,22 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0002, testing::ext::
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0003, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Copy_0003";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri srcDir("");
-            result = g_fah->Mkdir(parentUri, "Copy_0003_src", srcDir);
+            result = fileAccessHelper->Mkdir(parentUri, "Copy_0003_src", srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri srcFile("");
-            result = g_fah->CreateFile(srcDir, "a.txt", srcFile);
+            result = fileAccessHelper->CreateFile(srcDir, "a.txt", srcFile);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             int fd = -1;
-            result = g_fah->OpenFile(srcFile, WRITE_READ, fd);
+            result = fileAccessHelper->OpenFile(srcFile, WRITE_READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             char buff[] = "Copy test content for a.txt";
             ssize_t srcFileSize = write(fd, buff, sizeof(buff));
@@ -228,26 +228,26 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0003, testing::ext::
             close(fd);
 
             Uri destDir("");
-            result = g_fah->Mkdir(parentUri, "Copy_0003_dest", destDir);
+            result = fileAccessHelper->Mkdir(parentUri, "Copy_0003_dest", destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri existFile("");
-            result = g_fah->CreateFile(destDir, "a.txt", existFile);
+            result = fileAccessHelper->CreateFile(destDir, "a.txt", existFile);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             std::vector<Result> copyResult;
-            result = g_fah->Copy(srcFile, destDir, copyResult, true);
+            result = fileAccessHelper->Copy(srcFile, destDir, copyResult, true);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_EQ(copyResult.size(), 0);
 
-            result = g_fah->OpenFile(existFile, WRITE_READ, fd);
+            result = fileAccessHelper->OpenFile(existFile, WRITE_READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             ssize_t destFileSize = read(fd, buff, sizeof(buff));
             EXPECT_EQ(srcFileSize, destFileSize);
             close(fd);
 
-            result = g_fah->Delete(srcDir);
+            result = fileAccessHelper->Delete(srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            result = g_fah->Delete(destDir);
+            result = fileAccessHelper->Delete(destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -267,22 +267,22 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0003, testing::ext::
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0004, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Copy_0004";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri srcDir("");
-            result = g_fah->Mkdir(parentUri, "Copy_0004_src", srcDir);
+            result = fileAccessHelper->Mkdir(parentUri, "Copy_0004_src", srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri srcFile("");
-            result = g_fah->CreateFile(srcDir, "a.txt", srcFile);
+            result = fileAccessHelper->CreateFile(srcDir, "a.txt", srcFile);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             int fd = -1;
-            result = g_fah->OpenFile(srcFile, WRITE_READ, fd);
+            result = fileAccessHelper->OpenFile(srcFile, WRITE_READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             char buff[] = "Copy test content for a.txt";
             ssize_t srcFileSize = write(fd, buff, sizeof(buff));
@@ -290,26 +290,26 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0004, testing::ext::
             close(fd);
 
             Uri destDir("");
-            result = g_fah->Mkdir(parentUri, "Copy_0004_dest", destDir);
+            result = fileAccessHelper->Mkdir(parentUri, "Copy_0004_dest", destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri existFile("");
-            result = g_fah->CreateFile(destDir, "a.txt", existFile);
+            result = fileAccessHelper->CreateFile(destDir, "a.txt", existFile);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             std::vector<Result> copyResult;
-            result = g_fah->Copy(srcFile, destDir, copyResult, false);
+            result = fileAccessHelper->Copy(srcFile, destDir, copyResult, false);
             EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_EQ(copyResult.size(), 1);
 
-            result = g_fah->OpenFile(existFile, WRITE_READ, fd);
+            result = fileAccessHelper->OpenFile(existFile, WRITE_READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             ssize_t destFileSize = read(fd, buff, sizeof(buff));
             EXPECT_EQ(destFileSize, 0);
             close(fd);
 
-            result = g_fah->Delete(srcDir);
+            result = fileAccessHelper->Delete(srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            result = g_fah->Delete(destDir);
+            result = fileAccessHelper->Delete(destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -329,22 +329,22 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0004, testing::ext::
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0005, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Copy_0005";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri srcDir("");
-            result = g_fah->Mkdir(parentUri, "Copy_0005_src", srcDir);
+            result = fileAccessHelper->Mkdir(parentUri, "Copy_0005_src", srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri srcFile("");
-            result = g_fah->CreateFile(srcDir, "a.txt", srcFile);
+            result = fileAccessHelper->CreateFile(srcDir, "a.txt", srcFile);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             int fd = -1;
-            result = g_fah->OpenFile(srcFile, WRITE_READ, fd);
+            result = fileAccessHelper->OpenFile(srcFile, WRITE_READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             char buff[] = "Copy test content for a.txt";
             ssize_t srcFileSize = write(fd, buff, sizeof(buff));
@@ -352,26 +352,26 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0005, testing::ext::
             close(fd);
 
             Uri destDir("");
-            result = g_fah->Mkdir(parentUri, "Copy_0005_dest", destDir);
+            result = fileAccessHelper->Mkdir(parentUri, "Copy_0005_dest", destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri existFile("");
-            result = g_fah->CreateFile(destDir, "a.txt", existFile);
+            result = fileAccessHelper->CreateFile(destDir, "a.txt", existFile);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             std::vector<Result> copyResult;
-            result = g_fah->Copy(srcFile, destDir, copyResult);
+            result = fileAccessHelper->Copy(srcFile, destDir, copyResult);
             EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_GT(copyResult.size(), 0);
 
-            result = g_fah->OpenFile(existFile, WRITE_READ, fd);
+            result = fileAccessHelper->OpenFile(existFile, WRITE_READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             ssize_t destFileSize = read(fd, buff, sizeof(buff));
             EXPECT_EQ(destFileSize, 0);
             close(fd);
 
-            result = g_fah->Delete(srcDir);
+            result = fileAccessHelper->Delete(srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            result = g_fah->Delete(destDir);
+            result = fileAccessHelper->Delete(destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -380,18 +380,19 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0005, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Copy_0005";
 }
 
-static int ReadyToCopy06(Uri& parentUri, Uri& srcDir, const char* buff, int len, shared_ptr<FileAccessHelper> g_fah)
+static int ReadyToCopy06(Uri& parentUri, Uri& srcDir, const char* buff, int len,
+    shared_ptr<FileAccessHelper> fileAccessHelper)
 {
-    int result = g_fah->Mkdir(parentUri, "Copy_0006_src", srcDir);
+    int result = fileAccessHelper->Mkdir(parentUri, "Copy_0006_src", srcDir);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri aFileUri("");
-    result = g_fah->CreateFile(srcDir, "a.txt", aFileUri);
+    result = fileAccessHelper->CreateFile(srcDir, "a.txt", aFileUri);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri bFileUri("");
-    result = g_fah->CreateFile(srcDir, "b.txt", bFileUri);
+    result = fileAccessHelper->CreateFile(srcDir, "b.txt", bFileUri);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     int fd = -1;
-    result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
+    result = fileAccessHelper->OpenFile(bFileUri, WRITE_READ, fd);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     
     ssize_t srcFileSize = write(fd, buff, len);
@@ -411,43 +412,43 @@ static int ReadyToCopy06(Uri& parentUri, Uri& srcDir, const char* buff, int len,
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0006, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Copy_0006";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         char buff[] = "Copy test content for b.txt";
         for (size_t i = 0; i < info.size(); i++) {
             Uri srcDir("");
             Uri parentUri(info[i].uri);
-            int srcFileSize = ReadyToCopy06(parentUri, srcDir, buff, sizeof(buff), g_fah);
+            int srcFileSize = ReadyToCopy06(parentUri, srcDir, buff, sizeof(buff), fileAccessHelper);
 
             Uri bFileUri("");
             Uri destDir("");
-            result = g_fah->Mkdir(parentUri, "Copy_0006_dest", destDir);
+            result = fileAccessHelper->Mkdir(parentUri, "Copy_0006_dest", destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri destSrcDir("");
-            result = g_fah->Mkdir(destDir, "Copy_0006_src", destSrcDir);
+            result = fileAccessHelper->Mkdir(destDir, "Copy_0006_src", destSrcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            result = g_fah->CreateFile(destSrcDir, "b.txt", bFileUri);
+            result = fileAccessHelper->CreateFile(destSrcDir, "b.txt", bFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             std::vector<Result> copyResult;
-            result = g_fah->Copy(srcDir, destDir, copyResult, true);
+            result = fileAccessHelper->Copy(srcDir, destDir, copyResult, true);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_EQ(copyResult.size(), 0);
 
             int fd = -1;
-            result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
+            result = fileAccessHelper->OpenFile(bFileUri, WRITE_READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             ssize_t destFileSize = read(fd, buff, sizeof(buff));
             EXPECT_EQ(destFileSize, srcFileSize);
             close(fd);
 
-            result = g_fah->Delete(srcDir);
+            result = fileAccessHelper->Delete(srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            result = g_fah->Delete(destDir);
+            result = fileAccessHelper->Delete(destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -467,25 +468,25 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0006, testing::ext::
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0007, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Copy_0007";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri srcDir("");
-            result = g_fah->Mkdir(parentUri, "Copy_0007_src", srcDir);
+            result = fileAccessHelper->Mkdir(parentUri, "Copy_0007_src", srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri aFileUri("");
-            result = g_fah->CreateFile(srcDir, "a.txt", aFileUri);
+            result = fileAccessHelper->CreateFile(srcDir, "a.txt", aFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri bFileUri("");
-            result = g_fah->CreateFile(srcDir, "b.txt", bFileUri);
+            result = fileAccessHelper->CreateFile(srcDir, "b.txt", bFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             int fd = -1;
-            result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
+            result = fileAccessHelper->OpenFile(bFileUri, WRITE_READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             char buff[] = "Copy test content for b.txt";
             ssize_t bFileSize = write(fd, buff, sizeof(buff));
@@ -493,25 +494,25 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0007, testing::ext::
             close(fd);
 
             Uri destDir("");
-            result = g_fah->Mkdir(parentUri, "Copy_0007_dest", destDir);
+            result = fileAccessHelper->Mkdir(parentUri, "Copy_0007_dest", destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri destSrcDir("");
-            result = g_fah->Mkdir(destDir, "Copy_0007_src", destSrcDir);
+            result = fileAccessHelper->Mkdir(destDir, "Copy_0007_src", destSrcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri destFileUri("");
-            result = g_fah->CreateFile(destSrcDir, "b.txt", destFileUri);
+            result = fileAccessHelper->CreateFile(destSrcDir, "b.txt", destFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             std::vector<Result> copyResult;
-            result = g_fah->Copy(srcDir, destDir, copyResult, false);
+            result = fileAccessHelper->Copy(srcDir, destDir, copyResult, false);
             EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_EQ(copyResult.size(), 1);
             EXPECT_EQ(copyResult[0].sourceUri, bFileUri.ToString());
             EXPECT_EQ(copyResult[0].destUri, destFileUri.ToString());
 
-            result = g_fah->Delete(srcDir);
+            result = fileAccessHelper->Delete(srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            result = g_fah->Delete(destDir);
+            result = fileAccessHelper->Delete(destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -531,41 +532,41 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0007, testing::ext::
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0008, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Copy_0008";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri srcDir("");
-            result = g_fah->Mkdir(parentUri, "Copy_0008_src", srcDir);
+            result = fileAccessHelper->Mkdir(parentUri, "Copy_0008_src", srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri aFileUri("");
-            result = g_fah->CreateFile(srcDir, "a.txt", aFileUri);
+            result = fileAccessHelper->CreateFile(srcDir, "a.txt", aFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri bFileUri("");
-            result = g_fah->CreateFile(srcDir, "b.txt", bFileUri);
+            result = fileAccessHelper->CreateFile(srcDir, "b.txt", bFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             Uri destDir("");
-            result = g_fah->Mkdir(parentUri, "Copy_0008_dest", destDir);
+            result = fileAccessHelper->Mkdir(parentUri, "Copy_0008_dest", destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri destSrcDir("");
-            result = g_fah->Mkdir(destDir, "Copy_0008_src", destSrcDir);
+            result = fileAccessHelper->Mkdir(destDir, "Copy_0008_src", destSrcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            result = g_fah->CreateFile(destSrcDir, "b.txt", bFileUri);
+            result = fileAccessHelper->CreateFile(destSrcDir, "b.txt", bFileUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             std::vector<Result> copyResult;
-            result = g_fah->Copy(srcDir, destDir, copyResult);
+            result = fileAccessHelper->Copy(srcDir, destDir, copyResult);
             EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_EQ(copyResult.size(), 1);
 
-            result = g_fah->Delete(srcDir);
+            result = fileAccessHelper->Delete(srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            result = g_fah->Delete(destDir);
+            result = fileAccessHelper->Delete(destDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -574,18 +575,19 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0008, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Copy_0008";
 }
 
-static int ReadyToCopy09(Uri& parentUri, Uri& srcDir, const char* buff, int len, shared_ptr<FileAccessHelper> g_fah)
+static int ReadyToCopy09(Uri& parentUri, Uri& srcDir, const char* buff, int len,
+    shared_ptr<FileAccessHelper> fileAccessHelper)
 {
-    int result = g_fah->Mkdir(parentUri, "Copy_0009_src", srcDir);
+    int result = fileAccessHelper->Mkdir(parentUri, "Copy_0009_src", srcDir);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri aFileUri("");
-    result = g_fah->CreateFile(srcDir, "c.txt", aFileUri);
+    result = fileAccessHelper->CreateFile(srcDir, "c.txt", aFileUri);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri bFileUri("");
-    result = g_fah->CreateFile(srcDir, "d.txt", bFileUri);
+    result = fileAccessHelper->CreateFile(srcDir, "d.txt", bFileUri);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     int fd = -1;
-    result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
+    result = fileAccessHelper->OpenFile(bFileUri, WRITE_READ, fd);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     ssize_t srcFileSize = write(fd, buff, len);
     EXPECT_EQ(srcFileSize, len);
@@ -605,46 +607,46 @@ static int ReadyToCopy09(Uri& parentUri, Uri& srcDir, const char* buff, int len,
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0009, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Copy_0009";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         char buff[] = "Copy test content for b.txt";
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri srcDir("");
-            int srcFileSize = ReadyToCopy09(parentUri, srcDir, buff, sizeof(buff), g_fah);
+            int srcFileSize = ReadyToCopy09(parentUri, srcDir, buff, sizeof(buff), fileAccessHelper);
 
             for (size_t j = i + 1; j < info.size(); j++) {
                 Uri targetUri(info[j].uri);
                 Uri destDir("");
                 Uri bFileUri("");
-                result = g_fah->Mkdir(targetUri, "Copy_0009_dest", destDir);
+                result = fileAccessHelper->Mkdir(targetUri, "Copy_0009_dest", destDir);
                 EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
                 Uri destSrcDir("");
-                result = g_fah->Mkdir(destDir, "Copy_0009_src", destSrcDir);
+                result = fileAccessHelper->Mkdir(destDir, "Copy_0009_src", destSrcDir);
                 EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-                result = g_fah->CreateFile(destSrcDir, "d.txt", bFileUri);
+                result = fileAccessHelper->CreateFile(destSrcDir, "d.txt", bFileUri);
                 EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
                 std::vector<Result> copyResult;
-                result = g_fah->Copy(srcDir, destDir, copyResult, true);
+                result = fileAccessHelper->Copy(srcDir, destDir, copyResult, true);
                 EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
                 EXPECT_EQ(copyResult.size(), 0);
 
                 int fd = -1;
-                result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
+                result = fileAccessHelper->OpenFile(bFileUri, WRITE_READ, fd);
                 EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
                 ssize_t destFileSize = read(fd, buff, sizeof(buff));
                 EXPECT_EQ(destFileSize, srcFileSize);
                 close(fd);
 
-                result = g_fah->Delete(destDir);
+                result = fileAccessHelper->Delete(destDir);
                 EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             }
-            result = g_fah->Delete(srcDir);
+            result = fileAccessHelper->Delete(srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -664,25 +666,25 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0009, testing::ext::
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0000, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Rename_0000";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri testUri("");
-            result = g_fah->CreateFile(newDirUriTest, "test.txt", testUri);
+            result = fileAccessHelper->CreateFile(newDirUriTest, "test.txt", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri renameUri("");
-            result = g_fah->Rename(testUri, "test2.txt", renameUri);
+            result = fileAccessHelper->Rename(testUri, "test2.txt", renameUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "Rename_0000 result:" << result;
-            result = g_fah->Delete(newDirUriTest);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -702,22 +704,22 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0000, testing::ext
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0001, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Rename_0001";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri renameUri("");
-            result = g_fah->Rename(newDirUriTest, "testRename", renameUri);
+            result = fileAccessHelper->Rename(newDirUriTest, "testRename", renameUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "Rename_0001 result:" << result;
-            result = g_fah->Delete(renameUri);
+            result = fileAccessHelper->Delete(renameUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -737,12 +739,12 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0001, testing::ext
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0002, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Rename_0002";
     try {
         Uri renameUri("");
         Uri sourceFileUri("");
-        int result = g_fah->Rename(sourceFileUri, "testRename.txt", renameUri);
+        int result = fileAccessHelper->Rename(sourceFileUri, "testRename.txt", renameUri);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Rename_0002 result:" << result;
     } catch (...) {
@@ -762,26 +764,26 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0002, testing::ext
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0003, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Rename_0003";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri testUri("");
-            result = g_fah->CreateFile(newDirUriTest, "test.txt", testUri);
+            result = fileAccessHelper->CreateFile(newDirUriTest, "test.txt", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri renameUri("");
             Uri sourceFileUri("storage/media/100/local/files/Download/test/test.txt");
-            result = g_fah->Rename(sourceFileUri, "testRename.txt", renameUri);
+            result = fileAccessHelper->Rename(sourceFileUri, "testRename.txt", renameUri);
             EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "Rename_0003 result:" << result;
-            result = g_fah->Delete(newDirUriTest);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -801,12 +803,12 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0003, testing::ext
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0004, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Rename_0004";
     try {
         Uri renameUri("");
         Uri sourceFileUri("~!@#$%^&*()_");
-        int result = g_fah->Rename(sourceFileUri, "testRename.txt", renameUri);
+        int result = fileAccessHelper->Rename(sourceFileUri, "testRename.txt", renameUri);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Rename_0004 result:" << result;
     } catch (...) {
@@ -826,25 +828,25 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0004, testing::ext
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0005, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Rename_0005";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri testUri("");
-            result = g_fah->CreateFile(newDirUriTest, "test.txt", testUri);
+            result = fileAccessHelper->CreateFile(newDirUriTest, "test.txt", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri renameUri("");
-            result = g_fah->Rename(testUri, "", renameUri);
+            result = fileAccessHelper->Rename(testUri, "", renameUri);
             EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
             GTEST_LOG_(INFO) << "Rename_0005 result:" << result;
-            result = g_fah->Delete(newDirUriTest);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -855,7 +857,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0005, testing::ext
 
 static void RenameTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, std::string displayName, Uri newFile)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_RenameTdd";
     int ret = fahs->Rename(sourceFile, displayName, newFile);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
@@ -878,30 +880,30 @@ static void RenameTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, std::st
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0006, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Rename_0006";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri testUri("");
             std::string displayName1 = "test1.txt";
             std::string displayName2 = "test2.txt";
             Uri renameUri("");
-            result = g_fah->CreateFile(newDirUriTest, displayName1, testUri);
+            result = fileAccessHelper->CreateFile(newDirUriTest, displayName1, testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             g_num = 0;
             for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
-                std::thread execthread(RenameTdd, g_fah, testUri, displayName2, renameUri);
+                std::thread execthread(RenameTdd, fileAccessHelper, testUri, displayName2, renameUri);
                 execthread.join();
             }
             EXPECT_EQ(g_num, ACTUAL_SUCCESS_THREADS_NUMBER);
-            result = g_fah->Delete(newDirUriTest);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -921,16 +923,16 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0006, testing::ext
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0007, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Rename_0007";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             std::string str = newDirUriTest.ToString();
@@ -940,10 +942,10 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0007, testing::ext
             }
             Uri testUri(str);
             Uri renameUri("");
-            result = g_fah->Rename(testUri, "test.txt", renameUri);
+            result = fileAccessHelper->Rename(testUri, "test.txt", renameUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::E_IPCS);
             GTEST_LOG_(INFO) << "Rename_0007 result:" << result;
-            result = g_fah->Delete(newDirUriTest);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -963,27 +965,27 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0007, testing::ext
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0008, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Rename_0008";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "测试目录", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "测试目录", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_EQ(newDirUriTest.ToString().find("测试目录"), std::string::npos);
             Uri testUri("");
-            result = g_fah->CreateFile(newDirUriTest, "test.txt", testUri);
+            result = fileAccessHelper->CreateFile(newDirUriTest, "test.txt", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri renameUri("");
-            result = g_fah->Rename(testUri, "测试文件.txt", renameUri);
+            result = fileAccessHelper->Rename(testUri, "测试文件.txt", renameUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_EQ(renameUri.ToString().find("测试文件.txt"), std::string::npos);
             GTEST_LOG_(INFO) << "Rename_0008 result:" << result;
-            result = g_fah->Delete(newDirUriTest);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -1003,26 +1005,26 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0008, testing::ext
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0009, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Rename_0009";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri testUri("");
-            result = g_fah->CreateFile(newDirUriTest, "test.txt", testUri);
+            result = fileAccessHelper->CreateFile(newDirUriTest, "test.txt", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri renameUri("");
-            result = g_fah->Rename(newDirUriTest, "重命名目录", renameUri);
+            result = fileAccessHelper->Rename(newDirUriTest, "重命名目录", renameUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_EQ(renameUri.ToString().find("重命名目录"), std::string::npos);
             GTEST_LOG_(INFO) << "Rename_0009 result:" << result;
-            result = g_fah->Delete(renameUri);
+            result = fileAccessHelper->Delete(renameUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -1042,19 +1044,19 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Rename_0009, testing::ext
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0000, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0000";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri testUri("");
-            result = g_fah->CreateFile(newDirUriTest, "external_file_access_ListFile_0000.txt", testUri);
+            result = fileAccessHelper->CreateFile(newDirUriTest, "external_file_access_ListFile_0000.txt", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             FileInfo fileInfo;
             fileInfo.uri = newDirUriTest.ToString();
@@ -1063,10 +1065,10 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0000, testing::e
             SharedMemoryInfo memInfo;
             result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
                 memInfo);
-            result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
+            result = fileAccessHelper->ListFile(fileInfo, offset, filter, memInfo);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_GT(memInfo.Size(), OHOS::FileAccessFwk::ERR_OK);
-            result = g_fah->Delete(newDirUriTest);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
         }
@@ -1087,7 +1089,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0000, testing::e
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0001, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0001";
     try {
         Uri sourceFileUri("");
@@ -1098,7 +1100,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0001, testing::e
         SharedMemoryInfo memInfo;
         int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
                 memInfo);
-        result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
+        result = fileAccessHelper->ListFile(fileInfo, offset, filter, memInfo);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(memInfo.Size(), OHOS::FileAccessFwk::ERR_OK);
         FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
@@ -1119,19 +1121,19 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0001, testing::e
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0002, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0002";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri testUri("");
-            result = g_fah->CreateFile(newDirUriTest, "test.txt", testUri);
+            result = fileAccessHelper->CreateFile(newDirUriTest, "test.txt", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri sourceFileUri("storage/media/100/local/files/Download/test/test.txt");
             FileInfo fileInfo;
@@ -1143,10 +1145,10 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0002, testing::e
             int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List",
                 DEFAULT_CAPACITY_200KB,
                 memInfo);
-            result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
+            result = fileAccessHelper->ListFile(fileInfo, offset, filter, memInfo);
             EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_EQ(memInfo.Size(), OHOS::FileAccessFwk::ERR_OK);
-            result = g_fah->Delete(newDirUriTest);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
         }
@@ -1167,7 +1169,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0002, testing::e
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0003, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0003";
     try {
         Uri sourceFileUri("~!@#$%^&*()_");
@@ -1179,7 +1181,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0003, testing::e
         SharedMemoryInfo memInfo;
         int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
             memInfo);
-        result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
+        result = fileAccessHelper->ListFile(fileInfo, offset, filter, memInfo);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(memInfo.Size(), OHOS::FileAccessFwk::ERR_OK);
         FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
@@ -1192,9 +1194,9 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0003, testing::e
 static void ListFileTdd(FileInfo fileInfo, int offset, FileFilter filter,
     SharedMemoryInfo &memInfo)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFileTdd";
-    int ret = g_fah->ListFile(fileInfo, offset, filter, memInfo);
+    int ret = fileAccessHelper->ListFile(fileInfo, offset, filter, memInfo);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(ERROR) << "ListFile get result error, code:" << ret;
         return;
@@ -1215,19 +1217,19 @@ static void ListFileTdd(FileInfo fileInfo, int offset, FileFilter filter,
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0004, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0004";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri testUri("");
-            result = g_fah->CreateFile(newDirUriTest, "external_file_access_ListFile_0004.txt", testUri);
+            result = fileAccessHelper->CreateFile(newDirUriTest, "external_file_access_ListFile_0004.txt", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             FileInfo fileInfo;
             fileInfo.uri = newDirUriTest.ToString();
@@ -1242,7 +1244,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0004, testing::e
                 execthread.join();
             }
             EXPECT_EQ(g_num, INIT_THREADS_NUMBER);
-            result = g_fah->Delete(newDirUriTest);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
         }
@@ -1263,19 +1265,19 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0004, testing::e
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0005, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0005";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "test", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "test", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             Uri testUri("");
-            result = g_fah->CreateFile(newDirUriTest, "test.txt", testUri);
+            result = fileAccessHelper->CreateFile(newDirUriTest, "test.txt", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
             std::string str = testUri.ToString();
@@ -1291,9 +1293,9 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0005, testing::e
             int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List",
                 DEFAULT_CAPACITY_200KB,
                 memInfo);
-            result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
+            result = fileAccessHelper->ListFile(fileInfo, offset, filter, memInfo);
             EXPECT_EQ(result, OHOS::FileAccessFwk::E_IPCS);
-            result = g_fah->Delete(newDirUriTest);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
         }
@@ -1314,20 +1316,20 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0005, testing::e
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0006, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0006";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "测试目录", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "测试目录", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_EQ(newDirUriTest.ToString().find("测试目录"), std::string::npos);
             Uri testUri("");
-            result = g_fah->CreateFile(newDirUriTest, "测试文件.txt", testUri);
+            result = fileAccessHelper->CreateFile(newDirUriTest, "测试文件.txt", testUri);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_EQ(testUri.ToString().find("测试文件.txt"), std::string::npos);
             FileInfo fileInfo;
@@ -1338,10 +1340,10 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0006, testing::e
             int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List",
                 DEFAULT_CAPACITY_200KB,
                 memInfo);
-            result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
+            result = fileAccessHelper->ListFile(fileInfo, offset, filter, memInfo);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             EXPECT_GT(memInfo.Size(), OHOS::FileAccessFwk::ERR_OK);
-            result = g_fah->Delete(newDirUriTest);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
             FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
         }
@@ -1351,11 +1353,11 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0006, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0006";
 }
 
-static void WriteData(Uri &uri, shared_ptr<FileAccessHelper> g_fah)
+static void WriteData(Uri &uri, shared_ptr<FileAccessHelper> fileAccessHelper)
 {
     int fd = -1;
     std::string buff = "extenal_file_access_test";
-    int result = g_fah->OpenFile(uri, WRITE_READ, fd);
+    int result = fileAccessHelper->OpenFile(uri, WRITE_READ, fd);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     ssize_t fileSize = write(fd, buff.c_str(), buff.size());
     close(fd);
@@ -1371,33 +1373,38 @@ static double GetTime()
     return static_cast<double>(t.tv_sec);
 }
 
-static double InitListFile(Uri newDirUriTest, const std::string &caseNumber, shared_ptr<FileAccessHelper> g_fah,
-    const bool &needSleep = false)
+static double InitListFile(Uri newDirUriTest, const std::string &caseNumber,
+    shared_ptr<FileAccessHelper> fileAccessHelper, const bool &needSleep = false)
 {
     Uri testUri1("");
-    int result = g_fah->CreateFile(newDirUriTest, "external_file_access_ListFile_" + caseNumber + ".txt", testUri1);
+    int result = fileAccessHelper->CreateFile(newDirUriTest,
+        "external_file_access_ListFile_" + caseNumber + ".txt", testUri1);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri testUri2("");
-    result = g_fah->CreateFile(newDirUriTest, "external_file_access_ListFile_" + caseNumber + ".docx", testUri2);
+    result = fileAccessHelper->CreateFile(newDirUriTest,
+        "external_file_access_ListFile_" + caseNumber + ".docx", testUri2);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri testUri3("");
     double time = GetTime();
     if (needSleep) {
         sleep(SLEEP_TIME);
     }
-    result = g_fah->CreateFile(newDirUriTest, "external_file_access_ListFile_01_" + caseNumber + ".txt", testUri3);
+    result = fileAccessHelper->CreateFile(newDirUriTest,
+        "external_file_access_ListFile_01_" + caseNumber + ".txt", testUri3);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri testUri4("");
-    result = g_fah->CreateFile(newDirUriTest, "external_file_access_ListFile_01_" + caseNumber +  ".docx", testUri4);
-    WriteData(testUri4, g_fah);
+    result = fileAccessHelper->CreateFile(newDirUriTest,
+        "external_file_access_ListFile_01_" + caseNumber +  ".docx", testUri4);
+    WriteData(testUri4, fileAccessHelper);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri testUri5("");
-    result = g_fah->CreateFile(newDirUriTest, "external_file_access_ListFile_01_" + caseNumber + "_01.docx", testUri5);
+    result = fileAccessHelper->CreateFile(newDirUriTest,
+        "external_file_access_ListFile_01_" + caseNumber + "_01.docx", testUri5);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     return time;
 }
 
-static void ListFileFilter7(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fah)
+static void ListFileFilter7(Uri newDirUriTest, shared_ptr<FileAccessHelper> fileAccessHelper)
 {
     FileInfo fileInfo;
     fileInfo.uri = newDirUriTest.ToString();
@@ -1406,7 +1413,7 @@ static void ListFileFilter7(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fa
     FileFilter filter({".txt", ".docx"}, {}, {}, -1, -1, false, true);
     int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
         memInfo);
-    result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
+    result = fileAccessHelper->ListFile(fileInfo, offset, filter, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(memInfo.Size(), FILE_COUNT_1);
     FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
@@ -1423,20 +1430,20 @@ static void ListFileFilter7(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fa
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0007, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0007";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "listfile007", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "listfile007", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            InitListFile(newDirUriTest, "0007", g_fah);
-            ListFileFilter7(newDirUriTest, g_fah);
-            result = g_fah->Delete(newDirUriTest);
+            InitListFile(newDirUriTest, "0007", fileAccessHelper);
+            ListFileFilter7(newDirUriTest, fileAccessHelper);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -1445,15 +1452,16 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0007, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0007";
 }
 
-static double InitListFileFolder(Uri newDirUriTest, const std::string &caseNumber, shared_ptr<FileAccessHelper> g_fah,
-    const bool &needSleep = false)
+static double InitListFileFolder(Uri newDirUriTest, const std::string &caseNumber,
+    shared_ptr<FileAccessHelper> fileAccessHelper, const bool &needSleep = false)
 {
-    double time = InitListFile(newDirUriTest, caseNumber, g_fah, needSleep);
+    double time = InitListFile(newDirUriTest, caseNumber, fileAccessHelper, needSleep);
     Uri folderUri("");
-    int result = g_fah->Mkdir(newDirUriTest, "test" + caseNumber, folderUri);
+    int result = fileAccessHelper->Mkdir(newDirUriTest, "test" + caseNumber, folderUri);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri testUri6("");
-    result = g_fah->CreateFile(folderUri, "external_file_access_ListFile_01_" + caseNumber + "_02.docx", testUri6);
+    result = fileAccessHelper->CreateFile(folderUri,
+        "external_file_access_ListFile_01_" + caseNumber + "_02.docx", testUri6);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     return time;
 }
@@ -1467,7 +1475,7 @@ static void ShowInfo(SharedMemoryInfo &memInfo, const std::string &caseNumber)
     }
 }
 
-static void ListFileFilter8(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fah)
+static void ListFileFilter8(Uri newDirUriTest, shared_ptr<FileAccessHelper> fileAccessHelper)
 {
     FileInfo fileInfo;
     fileInfo.uri = newDirUriTest.ToString();
@@ -1476,7 +1484,7 @@ static void ListFileFilter8(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fa
     FileFilter filter({}, {}, {}, -1, 0, false, true);
     int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
         memInfo);
-    result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
+    result = fileAccessHelper->ListFile(fileInfo, offset, filter, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(memInfo.Size(), FILE_COUNT_6);
     ShowInfo(memInfo, "external_file_access_ListFile_0008");
@@ -1494,20 +1502,20 @@ static void ListFileFilter8(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fa
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0008, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0008";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "listfile008", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "listfile008", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            InitListFileFolder(newDirUriTest, "0008", g_fah);
-            ListFileFilter8(newDirUriTest, g_fah);
-            result = g_fah->Delete(newDirUriTest);
+            InitListFileFolder(newDirUriTest, "0008", fileAccessHelper);
+            ListFileFilter8(newDirUriTest, fileAccessHelper);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -1516,7 +1524,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0008, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0008";
 }
 
-static void ListFileFilter9(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fah)
+static void ListFileFilter9(Uri newDirUriTest, shared_ptr<FileAccessHelper> fileAccessHelper)
 {
     FileInfo fileInfo;
     fileInfo.uri = newDirUriTest.ToString();
@@ -1525,7 +1533,7 @@ static void ListFileFilter9(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fa
     FileFilter filter;
     int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
         memInfo);
-    result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
+    result = fileAccessHelper->ListFile(fileInfo, offset, filter, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(memInfo.Size(), FILE_COUNT_6);
     FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
@@ -1542,20 +1550,20 @@ static void ListFileFilter9(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fa
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0009, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0008";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "listfile009", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "listfile009", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            InitListFileFolder(newDirUriTest, "0009", g_fah);
-            ListFileFilter9(newDirUriTest, g_fah);
-            result = g_fah->Delete(newDirUriTest);
+            InitListFileFolder(newDirUriTest, "0009", fileAccessHelper);
+            ListFileFilter9(newDirUriTest, fileAccessHelper);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -1564,7 +1572,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0009, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0009";
 }
 
-static void ListFileFilter10(Uri newDirUriTest, const double &time, shared_ptr<FileAccessHelper> g_fah)
+static void ListFileFilter10(Uri newDirUriTest, const double &time, shared_ptr<FileAccessHelper> fileAccessHelper)
 {
     FileInfo fileInfo;
     fileInfo.uri = newDirUriTest.ToString();
@@ -1573,28 +1581,28 @@ static void ListFileFilter10(Uri newDirUriTest, const double &time, shared_ptr<F
     FileFilter filter({".txt", ".docx"}, {}, {}, -1, -1, false, true);
     int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
         memInfo);
-    result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
+    result = fileAccessHelper->ListFile(fileInfo, offset, filter, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(memInfo.Size(), FILE_COUNT_5);
 
     FileFilter filter1({".txt", ".docx"}, {"0010.txt", "0010.docx"}, {}, -1, -1, false, true);
-    result = g_fah->ListFile(fileInfo, offset, filter1, memInfo);
+    result = fileAccessHelper->ListFile(fileInfo, offset, filter1, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(memInfo.Size(), FILE_COUNT_4);
 
     FileFilter filter2({".txt", ".docx"}, {"0010.txt", "0010.docx"}, {}, 0, 0, false, true);
-    result = g_fah->ListFile(fileInfo, offset, filter2, memInfo);
+    result = fileAccessHelper->ListFile(fileInfo, offset, filter2, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(memInfo.Size(), FILE_COUNT_1);
 
     FileFilter filter3({".txt", ".docx"}, {"0010.txt", "0010.docx"}, {}, -1, time, false, true);
-    result = g_fah->ListFile(fileInfo, offset, filter3, memInfo);
+    result = fileAccessHelper->ListFile(fileInfo, offset, filter3, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(memInfo.Size(), FILE_COUNT_2);
 
     double nowTime = GetTime();
     FileFilter filter4({".txt", ".docx"}, {"0010.txt", "0010.docx"}, {}, -1, nowTime, false, true);
-    result = g_fah->ListFile(fileInfo, offset, filter4, memInfo);
+    result = fileAccessHelper->ListFile(fileInfo, offset, filter4, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(memInfo.Size(), 0);
     FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
@@ -1611,20 +1619,20 @@ static void ListFileFilter10(Uri newDirUriTest, const double &time, shared_ptr<F
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0010, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0010";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "listfile0010", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "listfile0010", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            double time = InitListFile(newDirUriTest, "0010", g_fah, true);
-            ListFileFilter10(newDirUriTest, time, g_fah);
-            result = g_fah->Delete(newDirUriTest);
+            double time = InitListFile(newDirUriTest, "0010", fileAccessHelper, true);
+            ListFileFilter10(newDirUriTest, time, fileAccessHelper);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -1633,7 +1641,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0010, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0010";
 }
 
-static void ListFileFilter11(Uri newDirUriTest, const double &time, shared_ptr<FileAccessHelper> g_fah)
+static void ListFileFilter11(Uri newDirUriTest, const double &time, shared_ptr<FileAccessHelper> fileAccessHelper)
 {
     FileInfo fileInfo;
     fileInfo.uri = newDirUriTest.ToString();
@@ -1642,28 +1650,28 @@ static void ListFileFilter11(Uri newDirUriTest, const double &time, shared_ptr<F
     int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
         memInfo);
     FileFilter filter({".txt", ".docx"}, {}, {}, -1, -1, false, true);
-    result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
+    result = fileAccessHelper->ListFile(fileInfo, offset, filter, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(memInfo.Size(), FILE_COUNT_6);
 
     FileFilter filter1({".txt", ".docx"}, {"测试.txt", "测试.docx"}, {}, -1, -1, false, true);
-    result = g_fah->ListFile(fileInfo, offset, filter1, memInfo);
+    result = fileAccessHelper->ListFile(fileInfo, offset, filter1, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(memInfo.Size(), FILE_COUNT_4);
 
     FileFilter filter2({".txt", ".docx"}, {"测试.txt", "测试.docx"}, {}, 0, 0, false, true);
-    result = g_fah->ListFile(fileInfo, offset, filter2, memInfo);
+    result = fileAccessHelper->ListFile(fileInfo, offset, filter2, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(memInfo.Size(), FILE_COUNT_1);
 
     FileFilter filter3({".txt", ".docx"}, {"测试.txt", "测试.docx"}, {}, -1, time, false, true);
-    result = g_fah->ListFile(fileInfo, offset, filter3, memInfo);
+    result = fileAccessHelper->ListFile(fileInfo, offset, filter3, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(memInfo.Size(), FILE_COUNT_2);
 
     double nowTime = GetTime();
     FileFilter filter4({".txt", ".docx"}, {"测试.txt", "测试.docx"}, {}, -1, nowTime, false, true);
-    result = g_fah->ListFile(fileInfo, offset, filter4, memInfo);
+    result = fileAccessHelper->ListFile(fileInfo, offset, filter4, memInfo);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(memInfo.Size(), 0);
     FileAccessFwk::SharedMemoryOperation::DestroySharedMemory(memInfo);
@@ -1680,20 +1688,20 @@ static void ListFileFilter11(Uri newDirUriTest, const double &time, shared_ptr<F
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0011, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ListFile_0011";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "listfile测试", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "listfile测试", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            double time = InitListFileFolder(newDirUriTest, "测试", g_fah, true);
-            ListFileFilter11(newDirUriTest, time, g_fah);
-            result = g_fah->Delete(newDirUriTest);
+            double time = InitListFileFolder(newDirUriTest, "测试", fileAccessHelper, true);
+            ListFileFilter11(newDirUriTest, time, fileAccessHelper);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -1702,37 +1710,42 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ListFile_0011, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ListFile_0011";
 }
 
-static double InitScanFile(Uri newDirUriTest, const std::string &caseNumber, shared_ptr<FileAccessHelper> g_fah,
-    const bool &needSleep = false)
+static double InitScanFile(Uri newDirUriTest, const std::string &caseNumber,
+    shared_ptr<FileAccessHelper> fileAccessHelper, const bool &needSleep = false)
 {
     Uri forlderUriTest("");
-    int result = g_fah->Mkdir(newDirUriTest, "test" + caseNumber, forlderUriTest);
+    int result = fileAccessHelper->Mkdir(newDirUriTest, "test" + caseNumber, forlderUriTest);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
     Uri testUri1("");
-    result = g_fah->CreateFile(newDirUriTest, "external_file_access_ScanFile_" + caseNumber + ".txt", testUri1);
+    result = fileAccessHelper->CreateFile(newDirUriTest,
+        "external_file_access_ScanFile_" + caseNumber + ".txt", testUri1);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri testUri2("");
-    result = g_fah->CreateFile(newDirUriTest, "external_file_access_ScanFile_" + caseNumber + ".docx", testUri2);
+    result = fileAccessHelper->CreateFile(newDirUriTest,
+        "external_file_access_ScanFile_" + caseNumber + ".docx", testUri2);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     double time = GetTime();
     if (needSleep) {
         sleep(SLEEP_TIME);
     }
     Uri testUri3("");
-    result = g_fah->CreateFile(forlderUriTest, "external_file_access_ScanFile_01_" + caseNumber + ".txt", testUri3);
+    result = fileAccessHelper->CreateFile(forlderUriTest,
+        "external_file_access_ScanFile_01_" + caseNumber + ".txt", testUri3);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri testUri4("");
-    result = g_fah->CreateFile(forlderUriTest, "external_file_access_ScanFile_01_" + caseNumber + ".docx", testUri4);
+    result = fileAccessHelper->CreateFile(forlderUriTest,
+        "external_file_access_ScanFile_01_" + caseNumber + ".docx", testUri4);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-    WriteData(testUri4, g_fah);
+    WriteData(testUri4, fileAccessHelper);
     Uri testUri5("");
-    result = g_fah->CreateFile(forlderUriTest, "external_file_access_ScanFile_01_" + caseNumber + "_01.docx", testUri5);
+    result = fileAccessHelper->CreateFile(forlderUriTest,
+        "external_file_access_ScanFile_01_" + caseNumber + "_01.docx", testUri5);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     return time;
 }
 
-static void ScanFileFilter0(Uri newDirUriTest, const double &time, shared_ptr<FileAccessHelper> g_fah)
+static void ScanFileFilter0(Uri newDirUriTest, const double &time, shared_ptr<FileAccessHelper> fileAccessHelper)
 {
     FileInfo fileInfo;
     fileInfo.uri = newDirUriTest.ToString();
@@ -1740,28 +1753,28 @@ static void ScanFileFilter0(Uri newDirUriTest, const double &time, shared_ptr<Fi
     int64_t maxCount = 1000;
     std::vector<FileInfo> fileInfoVec;
     FileFilter filter({".txt", ".docx"}, {}, {}, -1, -1, false, true);
-    int result = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    int result = fileAccessHelper->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_5);
 
     FileFilter filter1({".txt", ".docx"}, {"0000.txt", "0000.docx"}, {}, -1, -1, false, true);
-    result = g_fah->ScanFile(fileInfo, offset, maxCount, filter1, fileInfoVec);
+    result = fileAccessHelper->ScanFile(fileInfo, offset, maxCount, filter1, fileInfoVec);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_4);
 
     FileFilter filter2({".txt", ".docx"}, {"0000.txt", "0000.docx"}, {}, 0, 0, false, true);
-    result = g_fah->ScanFile(fileInfo, offset, maxCount, filter2, fileInfoVec);
+    result = fileAccessHelper->ScanFile(fileInfo, offset, maxCount, filter2, fileInfoVec);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_1);
 
     FileFilter filter3({".txt", ".docx"}, {"0000.txt", "0000.docx"}, {}, -1, time, false, true);
-    result = g_fah->ScanFile(fileInfo, offset, maxCount, filter3, fileInfoVec);
+    result = fileAccessHelper->ScanFile(fileInfo, offset, maxCount, filter3, fileInfoVec);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_2);
 
     double nowTime = GetTime();
     FileFilter filter4({".txt", ".docx"}, {"0000.txt", "0000.docx"}, {}, -1, nowTime, false, true);
-    result = g_fah->ScanFile(fileInfo, offset, maxCount, filter4, fileInfoVec);
+    result = fileAccessHelper->ScanFile(fileInfo, offset, maxCount, filter4, fileInfoVec);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(fileInfoVec.size(), 0);
 }
@@ -1777,20 +1790,20 @@ static void ScanFileFilter0(Uri newDirUriTest, const double &time, shared_ptr<Fi
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0000, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ScanFile_0000";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "scanfile0000", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "scanfile0000", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            double time = InitScanFile(newDirUriTest, "0000", g_fah, true);
-            ScanFileFilter0(newDirUriTest, time, g_fah);
-            result = g_fah->Delete(newDirUriTest);
+            double time = InitScanFile(newDirUriTest, "0000", fileAccessHelper, true);
+            ScanFileFilter0(newDirUriTest, time, fileAccessHelper);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -1799,7 +1812,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0000, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ScanFile_0000";
 }
 
-static void ScanFileFilter1(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fah)
+static void ScanFileFilter1(Uri newDirUriTest, shared_ptr<FileAccessHelper> fileAccessHelper)
 {
     FileInfo fileInfo;
     fileInfo.uri = newDirUriTest.ToString();
@@ -1807,7 +1820,7 @@ static void ScanFileFilter1(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fa
     int64_t maxCount = 1000;
     std::vector<FileInfo> fileInfoVec;
     FileFilter filter;
-    int result = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    int result = fileAccessHelper->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_5);
 }
@@ -1823,20 +1836,20 @@ static void ScanFileFilter1(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fa
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0001, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ScanFile_0001";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "scanfile0001", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "scanfile0001", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            InitScanFile(newDirUriTest, "0001", g_fah);
-            ScanFileFilter1(newDirUriTest, g_fah);
-            result = g_fah->Delete(newDirUriTest);
+            InitScanFile(newDirUriTest, "0001", fileAccessHelper);
+            ScanFileFilter1(newDirUriTest, fileAccessHelper);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -1845,7 +1858,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0001, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ScanFile_0001";
 }
 
-static void ScanFileFilter2(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fah)
+static void ScanFileFilter2(Uri newDirUriTest, shared_ptr<FileAccessHelper> fileAccessHelper)
 {
     FileInfo fileInfo;
     fileInfo.uri = newDirUriTest.ToString();
@@ -1853,7 +1866,7 @@ static void ScanFileFilter2(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fa
     int64_t maxCount = 3;
     std::vector<FileInfo> fileInfoVec;
     FileFilter filter({".txt", ".docx"}, {}, {}, -1, -1, false, true);
-    int result = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    int result = fileAccessHelper->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_2);
 }
@@ -1869,20 +1882,20 @@ static void ScanFileFilter2(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fa
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0002, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ScanFile_0002";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "scanfile0002", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "scanfile0002", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            InitScanFile(newDirUriTest, "0002", g_fah);
-            ScanFileFilter2(newDirUriTest, g_fah);
-            result = g_fah->Delete(newDirUriTest);
+            InitScanFile(newDirUriTest, "0002", fileAccessHelper);
+            ScanFileFilter2(newDirUriTest, fileAccessHelper);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -1891,7 +1904,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0002, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ScanFile_0002";
 }
 
-static void ScanFileFilter3(Uri newDirUriTest, const double &time, shared_ptr<FileAccessHelper> g_fah)
+static void ScanFileFilter3(Uri newDirUriTest, const double &time, shared_ptr<FileAccessHelper> fileAccessHelper)
 {
     FileInfo fileInfo;
     fileInfo.uri = newDirUriTest.ToString();
@@ -1899,7 +1912,7 @@ static void ScanFileFilter3(Uri newDirUriTest, const double &time, shared_ptr<Fi
     int64_t maxCount = 1000;
     std::vector<FileInfo> fileInfoVec;
     FileFilter filter({}, {}, {}, -1, time, false, true);
-    int result = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    int result = fileAccessHelper->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_3);
 }
@@ -1915,20 +1928,20 @@ static void ScanFileFilter3(Uri newDirUriTest, const double &time, shared_ptr<Fi
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0003, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_ScanFile_0003";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "scanfile0003", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "scanfile0003", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            double time = InitScanFile(newDirUriTest, "0003", g_fah, true);
-            ScanFileFilter3(newDirUriTest, time, g_fah);
-            result = g_fah->Delete(newDirUriTest);
+            double time = InitScanFile(newDirUriTest, "0003", fileAccessHelper, true);
+            ScanFileFilter3(newDirUriTest, time, fileAccessHelper);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -1937,7 +1950,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0003, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_ScanFile_0003";
 }
 
-static void ScanFileFilter4(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fah)
+static void ScanFileFilter4(Uri newDirUriTest, shared_ptr<FileAccessHelper> fileAccessHelper)
 {
     FileInfo fileInfo;
     fileInfo.uri = newDirUriTest.ToString();
@@ -1945,7 +1958,7 @@ static void ScanFileFilter4(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fa
     int64_t maxCount = 1000;
     std::vector<FileInfo> fileInfoVec;
     FileFilter filter;
-    int result = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    int result = fileAccessHelper->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_5);
 }
@@ -1961,20 +1974,20 @@ static void ScanFileFilter4(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fa
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0004, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin user_file_service_external_file_access_ScanFile_0004";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "scanfile0004", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "scanfile0004", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            InitScanFile(newDirUriTest, "0004", g_fah);
-            ScanFileFilter4(newDirUriTest, g_fah);
-            result = g_fah->Delete(newDirUriTest);
+            InitScanFile(newDirUriTest, "0004", fileAccessHelper);
+            ScanFileFilter4(newDirUriTest, fileAccessHelper);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
@@ -1983,7 +1996,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0004, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end user_file_service_external_file_access_ScanFile_0004";
 }
 
-static void ScanFileFilter5(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fah)
+static void ScanFileFilter5(Uri newDirUriTest, shared_ptr<FileAccessHelper> fileAccessHelper)
 {
     FileInfo fileInfo;
     fileInfo.uri = newDirUriTest.ToString();
@@ -1991,7 +2004,7 @@ static void ScanFileFilter5(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fa
     int64_t maxCount = 1000;
     std::vector<FileInfo> fileInfoVec;
     FileFilter filter({".txt", ".docx"}, {"测试.txt", "测试.docx"}, {}, -1, -1, false, true);
-    int result = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+    int result = fileAccessHelper->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     EXPECT_EQ(fileInfoVec.size(), FILE_COUNT_4);
 }
@@ -2007,20 +2020,20 @@ static void ScanFileFilter5(Uri newDirUriTest, shared_ptr<FileAccessHelper> g_fa
  */
 HWTEST_F(FileExtensionHelperTest, external_file_access_ScanFile_0005, testing::ext::TestSize.Level1)
 {
-    shared_ptr<FileAccessHelper> g_fah = FileExtensionHelperTest::GetFileAccessHelper();
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin user_file_service_external_file_access_ScanFile_0005";
     try {
         vector<RootInfo> info;
-        int result = g_fah->GetRoots(info);
+        int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newDirUriTest("");
-            result = g_fah->Mkdir(parentUri, "scanfile测试", newDirUriTest);
+            result = fileAccessHelper->Mkdir(parentUri, "scanfile测试", newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-            InitScanFile(newDirUriTest, "测试", g_fah);
-            ScanFileFilter5(newDirUriTest, g_fah);
-            result = g_fah->Delete(newDirUriTest);
+            InitScanFile(newDirUriTest, "测试", fileAccessHelper);
+            ScanFileFilter5(newDirUriTest, fileAccessHelper);
+            result = fileAccessHelper->Delete(newDirUriTest);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         }
     } catch (...) {
