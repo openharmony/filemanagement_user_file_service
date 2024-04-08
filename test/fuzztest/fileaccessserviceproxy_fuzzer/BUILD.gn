@@ -49,7 +49,7 @@ ohos_fuzztest("FileAccessServiceProxyFuzzTest") {
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
 
   defines = [ "private=public" ]
