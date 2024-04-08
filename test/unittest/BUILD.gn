@@ -17,6 +17,7 @@ import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
 ohos_unittest("medialibrary_file_access_test") {
   branch_protector_ret = "pac_ret"
   sanitize = {
+    integer_overflow = true
     cfi = true
     cfi_cross_dso = true
     debug = false
@@ -68,6 +69,7 @@ ohos_unittest("medialibrary_file_access_test") {
 ohos_unittest("external_file_access_test") {
   branch_protector_ret = "pac_ret"
   sanitize = {
+    integer_overflow = true
     cfi = true
     cfi_cross_dso = true
     debug = false
@@ -122,6 +124,7 @@ ohos_unittest("external_file_access_test") {
 ohos_unittest("abnormal_file_access_test") {
   branch_protector_ret = "pac_ret"
   sanitize = {
+    integer_overflow = true
     cfi = true
     cfi_cross_dso = true
     debug = false
@@ -165,6 +168,14 @@ ohos_unittest("abnormal_file_access_test") {
 }
 
 ohos_unittest("file_access_ext_stub_impl_test") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    integer_overflow = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "${user_file_service_path}/cfi_blocklist.txt"
+  }
   module_out_path = "user_file_service/tests"
 
   include_dirs = [
@@ -202,6 +213,14 @@ ohos_unittest("file_access_ext_stub_impl_test") {
 }
 
 ohos_unittest("file_access_service_proxy_test") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    integer_overflow = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "${user_file_service_path}/cfi_blocklist.txt"
+  }
   module_out_path = "user_file_service/tests"
 
   include_dirs = [
@@ -246,6 +265,14 @@ ohos_unittest("file_access_service_proxy_test") {
 }
 
 ohos_unittest("js_file_access_ext_ability_test") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    integer_overflow = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "${user_file_service_path}/cfi_blocklist.txt"
+  }
   module_out_path = "user_file_service/tests"
 
   include_dirs = [
