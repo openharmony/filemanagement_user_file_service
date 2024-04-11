@@ -23,8 +23,8 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-const int64_t FILEFILTER_DEFAULT_COUNTS = 2000;
-const int64_t FILEFILTER_MAX_COUNTS = 20000;
+const uint64_t FILEFILTER_DEFAULT_COUNTS = 2000;
+const uint64_t FILEFILTER_MAX_COUNTS = 20000;
 std::shared_ptr<FileAccessExtAbility> FileAccessExtStubImpl::GetOwner()
 {
     return extension_;
@@ -149,7 +149,7 @@ int FileAccessExtStubImpl::ListFile(const FileInfo &fileInfo, const int64_t offs
     memInfo.isOver = false;
     int64_t currentOffset = offset;
     while (true) {
-        int64_t maxCounts =
+        uint64_t maxCounts =
             memInfo.memSize > DEFAULT_CAPACITY_200KB ? FILEFILTER_MAX_COUNTS : FILEFILTER_DEFAULT_COUNTS;
         fileInfoVec.clear();
         ret = extension_->ListFile(fileInfo, currentOffset, maxCounts, filter, fileInfoVec);
