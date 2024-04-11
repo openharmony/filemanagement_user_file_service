@@ -32,4 +32,11 @@ bool OnAbilityConnectDoneFuzzTest(shared_ptr<FileAccessExtConnection> conn)
     return true;
 }
 
+bool OnAbilityDisconnectDoneFuzzTest(shared_ptr<FileAccessExtConnection> conn)
+{
+    AppExecFwk::ElementName element;
+    conn->OnAbilityDisconnectDone(element, 0);
+    return true;
+}
+
 } // namespace OHOS
