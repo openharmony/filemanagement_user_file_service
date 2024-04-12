@@ -103,6 +103,21 @@ shared_ptr<FileAccessHelper> GetFileAccessHelper()
     return g_fah;
 }
 
+bool CheckDataAndGetDownloadUri(const uint8_t* data, size_t size, shared_ptr<FileAccessHelper>& helper,
+    Uri& downloadUri)
+{
+    if ((data == nullptr) || (size <= 0)) {
+        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
+        return false;
+    }
+    std::tie(helper, downloadUri) = GetDownloadUri();
+    if (helper == nullptr || downloadUri.ToString() == "") {
+        HILOG_ERROR("helper is nullptr or downloadUri is empty");
+        return false;
+    }
+    return true;
+}
+
 bool CreatorFuzzTest(const uint8_t* data, size_t size)
 {
     SetNativeToken();
@@ -165,13 +180,10 @@ static tuple<shared_ptr<FileAccessHelper>, Uri> GetDownloadUri()
 
 bool AccessFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    auto [helper, downloadUri] = GetDownloadUri();
-    if (helper == nullptr || downloadUri.ToString() == "") {
-        HILOG_ERROR("helper is nullptr or downloadUri is empty");
+    shared_ptr<FileAccessHelper> helper;
+    Uri downloadUri;
+
+    if (!CheckDataAndGetDownloadUri(data, size, helper, downloadUri)) {
         return false;
     }
     Uri uri(downloadUri.ToString() + "/" + std::string(reinterpret_cast<const char*>(data), size));
@@ -186,13 +198,10 @@ bool AccessFuzzTest(const uint8_t* data, size_t size)
 
 bool OpenFileFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    auto [helper, downloadUri] = GetDownloadUri();
-    if (helper == nullptr || downloadUri.ToString() == "") {
-        HILOG_ERROR("helper is nullptr or downloadUri is empty");
+    shared_ptr<FileAccessHelper> helper;
+    Uri downloadUri;
+
+    if (!CheckDataAndGetDownloadUri(data, size, helper, downloadUri)) {
         return false;
     }
     Uri uri(downloadUri.ToString() + "/" + std::string(reinterpret_cast<const char*>(data), size));
@@ -208,13 +217,10 @@ bool OpenFileFuzzTest(const uint8_t* data, size_t size)
 
 bool CreateFileFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    auto [helper, downloadUri] = GetDownloadUri();
-    if (helper == nullptr || downloadUri.ToString() == "") {
-        HILOG_ERROR("helper is nullptr or downloadUri is empty");
+    shared_ptr<FileAccessHelper> helper;
+    Uri downloadUri;
+
+    if (!CheckDataAndGetDownloadUri(data, size, helper, downloadUri)) {
         return false;
     }
     Uri newFileUri("");
@@ -233,13 +239,10 @@ bool CreateFileFuzzTest(const uint8_t* data, size_t size)
 
 bool MkdirFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    auto [helper, downloadUri] = GetDownloadUri();
-    if (helper == nullptr || downloadUri.ToString() == "") {
-        HILOG_ERROR("helper is nullptr or downloadUri is empty");
+    shared_ptr<FileAccessHelper> helper;
+    Uri downloadUri;
+
+    if (!CheckDataAndGetDownloadUri(data, size, helper, downloadUri)) {
         return false;
     }
     Uri newDirUri("");
@@ -258,13 +261,10 @@ bool MkdirFuzzTest(const uint8_t* data, size_t size)
 
 bool DeleteFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    auto [helper, downloadUri] = GetDownloadUri();
-    if (helper == nullptr || downloadUri.ToString() == "") {
-        HILOG_ERROR("helper is nullptr or downloadUri is empty");
+    shared_ptr<FileAccessHelper> helper;
+    Uri downloadUri;
+
+    if (!CheckDataAndGetDownloadUri(data, size, helper, downloadUri)) {
         return false;
     }
     Uri uri(downloadUri.ToString() + "/" + std::string(reinterpret_cast<const char*>(data), size));
@@ -278,13 +278,10 @@ bool DeleteFuzzTest(const uint8_t* data, size_t size)
 
 bool MoveFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    auto [helper, downloadUri] = GetDownloadUri();
-    if (helper == nullptr || downloadUri.ToString() == "") {
-        HILOG_ERROR("helper is nullptr or downloadUri is empty");
+    shared_ptr<FileAccessHelper> helper;
+    Uri downloadUri;
+
+    if (!CheckDataAndGetDownloadUri(data, size, helper, downloadUri)) {
         return false;
     }
     Uri newDirUriTest1("");
@@ -326,13 +323,10 @@ bool MoveFuzzTest(const uint8_t* data, size_t size)
 
 bool RenameFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    auto [helper, downloadUri] = GetDownloadUri();
-    if (helper == nullptr || downloadUri.ToString() == "") {
-        HILOG_ERROR("helper is nullptr or downloadUri is empty");
+    shared_ptr<FileAccessHelper> helper;
+    Uri downloadUri;
+
+    if (!CheckDataAndGetDownloadUri(data, size, helper, downloadUri)) {
         return false;
     }
     Uri newDirUriTest("");
@@ -357,13 +351,10 @@ bool RenameFuzzTest(const uint8_t* data, size_t size)
 
 bool ListFileFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    auto [helper, downloadUri] = GetDownloadUri();
-    if (helper == nullptr || downloadUri.ToString() == "") {
-        HILOG_ERROR("helper is nullptr or downloadUri is empty");
+    shared_ptr<FileAccessHelper> helper;
+    Uri downloadUri;
+
+    if (!CheckDataAndGetDownloadUri(data, size, helper, downloadUri)) {
         return false;
     }
     FileInfo fileInfo;
@@ -382,13 +373,9 @@ bool ListFileFuzzTest(const uint8_t* data, size_t size)
 
 bool ScanFileFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    auto [helper, downloadUri] = GetDownloadUri();
-    if (helper == nullptr || downloadUri.ToString() == "") {
-        HILOG_ERROR("helper is nullptr or downloadUri is empty");
+    shared_ptr<FileAccessHelper> helper;
+    Uri downloadUri;
+    if (!CheckDataAndGetDownloadUri(data, size, helper, downloadUri)) {
         return false;
     }
     FileInfo fileInfo;

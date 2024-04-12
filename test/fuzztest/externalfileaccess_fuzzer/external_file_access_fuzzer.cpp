@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -128,18 +128,27 @@ bool CreatorFuzzTest(const uint8_t* data, size_t size)
     return true;
 }
 
-bool AccessFuzzTest(const uint8_t* data, size_t size)
+bool CheckDataAndHelper(const uint8_t* data, size_t size, shared_ptr<FileAccessHelper>& helper)
 {
     if ((data == nullptr) || (size <= 0)) {
         HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
         return false;
     }
-    Uri uri(std::string(reinterpret_cast<const char*>(data), size));
-    shared_ptr<FileAccessHelper> helper = GetFileAccessHelper();
+    helper = GetFileAccessHelper();
     if (helper == nullptr) {
         HILOG_ERROR("GetFileAccessHelper return nullptr.");
         return false;
     }
+    return true;
+}
+
+bool AccessFuzzTest(const uint8_t* data, size_t size)
+{
+    shared_ptr<FileAccessHelper> helper;
+    if (!CheckDataAndHelper(data, size, helper)) {
+        return false;
+    }
+    Uri uri(std::string(reinterpret_cast<const char*>(data), size));
     bool isExist = false;
     int result = helper->Access(uri, isExist);
     if (isExist != true || result != OHOS::FileAccessFwk::ERR_OK) {
@@ -150,16 +159,11 @@ bool AccessFuzzTest(const uint8_t* data, size_t size)
 
 bool OpenFileFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
+    shared_ptr<FileAccessHelper> helper;
+    if (!CheckDataAndHelper(data, size, helper)) {
         return false;
     }
     Uri uri(std::string(reinterpret_cast<const char*>(data), size));
-    shared_ptr<FileAccessHelper> helper = GetFileAccessHelper();
-    if (helper == nullptr) {
-        HILOG_ERROR("GetFileAccessHelper return nullptr.");
-        return false;
-    }
     int fd = -1;
     int result = 0;
     result = helper->OpenFile(uri, WRITE_READ, fd);
@@ -173,13 +177,8 @@ bool OpenFileFuzzTest(const uint8_t* data, size_t size)
 
 bool CreateFileFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    shared_ptr<FileAccessHelper> helper = GetFileAccessHelper();
-    if (helper == nullptr) {
-        HILOG_ERROR("GetFileAccessHelper return nullptr.");
+    shared_ptr<FileAccessHelper> helper;
+    if (!CheckDataAndHelper(data, size, helper)) {
         return false;
     }
 
@@ -208,13 +207,8 @@ bool CreateFileFuzzTest(const uint8_t* data, size_t size)
 
 bool MkdirFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    shared_ptr<FileAccessHelper> helper = GetFileAccessHelper();
-    if (helper == nullptr) {
-        HILOG_ERROR("GetFileAccessHelper return nullptr.");
+    shared_ptr<FileAccessHelper> helper;
+    if (!CheckDataAndHelper(data, size, helper)) {
         return false;
     }
 
@@ -243,16 +237,11 @@ bool MkdirFuzzTest(const uint8_t* data, size_t size)
 
 bool DeleteFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
+    shared_ptr<FileAccessHelper> helper;
+    if (!CheckDataAndHelper(data, size, helper)) {
         return false;
     }
     Uri uri(std::string(reinterpret_cast<const char*>(data), size));
-    shared_ptr<FileAccessHelper> helper = GetFileAccessHelper();
-    if (helper == nullptr) {
-        HILOG_ERROR("GetFileAccessHelper return nullptr.");
-        return false;
-    }
     int result = helper->Delete(uri);
     if (result != OHOS::FileAccessFwk::ERR_OK) {
         HILOG_ERROR("Delete failed. ret : %{public}d", result);
@@ -263,13 +252,8 @@ bool DeleteFuzzTest(const uint8_t* data, size_t size)
 
 bool MoveFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    shared_ptr<FileAccessHelper> helper = GetFileAccessHelper();
-    if (helper == nullptr) {
-        HILOG_ERROR("GetFileAccessHelper return nullptr.");
+    shared_ptr<FileAccessHelper> helper;
+    if (!CheckDataAndHelper(data, size, helper)) {
         return false;
     }
     vector<RootInfo> info;
@@ -311,13 +295,8 @@ bool MoveFuzzTest(const uint8_t* data, size_t size)
 
 bool RenameFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    shared_ptr<FileAccessHelper> helper = GetFileAccessHelper();
-    if (helper == nullptr) {
-        HILOG_ERROR("GetFileAccessHelper return nullptr.");
+    shared_ptr<FileAccessHelper> helper;
+    if (!CheckDataAndHelper(data, size, helper)) {
         return false;
     }
     vector<RootInfo> info;
