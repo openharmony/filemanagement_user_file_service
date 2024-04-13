@@ -46,6 +46,7 @@ public:
     void TearDown() override;
     static bool ReplaceBundleNameFromPath(std::string &path, const std::string &newName);
     static shared_ptr<FileAccessHelper> GetFileAccessHelper();
+    static bool ReplaceBundleName(std::string& str, const std::string& newBundleName);
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

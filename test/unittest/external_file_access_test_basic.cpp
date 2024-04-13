@@ -467,6 +467,15 @@ bool FileExtensionHelperTest::ReplaceBundleNameFromPath(std::string &path, const
     return true;
 }
 
+bool FileExtensionHelperTest::ReplaceBundleName(std::string& str, const std::string& newBundleName)
+{
+    if (!ReplaceBundleNameFromPath(str, newBundleName)) {
+        GTEST_LOG_(ERROR) << "replace BundleName failed.";
+        return false;
+    }
+    return true;
+}
+
 /**
  * @tc.number: user_file_service_external_file_access_OpenFile_0009
  * @tc.name: external_file_access_OpenFile_0009
@@ -485,15 +494,15 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0009, testing::e
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             std::string str = info[i].uri;
-            if (!ReplaceBundleNameFromPath(str, "ohos.com.NotExistBundleName")) {
-                GTEST_LOG_(ERROR) << "replace BundleName failed.";
+            if (ReplaceBundleName(str, "ohos.com.NotExistBundleName")) {
+                int fd;
+                Uri newFileUri(str + "/NotExistFile.txt");
+                result = g_fah->OpenFile(newFileUri, WRITE_READ, fd);
+                EXPECT_EQ(result, OHOS::FileAccessFwk::E_IPCS);
+                GTEST_LOG_(INFO) << "OpenFile_0009 result:" << result;
+            } else {
                 EXPECT_TRUE(false);
             }
-            int fd;
-            Uri newFileUri(str + "/NotExistFile.txt");
-            result = g_fah->OpenFile(newFileUri, WRITE_READ, fd);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::E_IPCS);
-            GTEST_LOG_(INFO) << "OpenFile_0009 result:" << result;
         }
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_OpenFile_0009 occurs an exception.";
@@ -760,14 +769,14 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0006, testing::ext
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             std::string str = info[i].uri;
-            if (!ReplaceBundleNameFromPath(str, "ohos.com.NotExistBundleName")) {
-                GTEST_LOG_(ERROR) << "replace BundleName failed.";
+            if (ReplaceBundleName(str, "ohos.com.NotExistBundleName")) {
+                Uri selectFileUri(str);
+                int result = g_fah->Delete(selectFileUri);
+                EXPECT_EQ(result, OHOS::FileAccessFwk::E_IPCS);
+                GTEST_LOG_(INFO) << "Delete_0006 result:" << result;
+            } else {
                 EXPECT_TRUE(false);
             }
-            Uri selectFileUri(str);
-            int result = g_fah->Delete(selectFileUri);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::E_IPCS);
-            GTEST_LOG_(INFO) << "Delete_0006 result:" << result;
         }
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_Delete_0006 occurs an exception.";
