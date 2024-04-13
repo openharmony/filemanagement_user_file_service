@@ -39,4 +39,10 @@ bool OnAbilityDisconnectDoneFuzzTest(shared_ptr<FileAccessExtConnection> conn)
     return true;
 }
 
+bool IsExtAbilityConnectedFuzzTest(shared_ptr<FileAccessExtConnection> conn)
+{
+    conn->IsExtAbilityConnected();
+    return true;
+}
+
 } // namespace OHOS
