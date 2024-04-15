@@ -52,3 +52,19 @@ bool GetFileExtProxyFuzzTest(shared_ptr<FileAccessExtConnection> conn)
 }
 
 } // namespace OHOS
+
+/* Fuzzer entry point */
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+{
+    auto conn = std::make_shared<OHOS::FileAccessFwk::FileAccessExtConnection>();
+    if (conn == nullptr) {
+        return 0;
+    }
+
+    OHOS::OnAbilityConnectDoneFuzzTest(conn);
+    OHOS::OnAbilityDisconnectDoneFuzzTest(conn);
+    OHOS::IsExtAbilityConnectedFuzzTest(conn);
+    OHOS::GetFileExtProxyFuzzTest(conn);
+
+    return 0;
+}
