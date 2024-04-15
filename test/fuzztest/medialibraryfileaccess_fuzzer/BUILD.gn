@@ -51,7 +51,7 @@ ohos_fuzztest("MedialibraryFileAccessFuzzTest") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "ipc:ipc_js",
+    "ipc:rpc",
     "samgr:samgr_proxy",
   ]
 
