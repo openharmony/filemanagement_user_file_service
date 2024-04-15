@@ -45,4 +45,10 @@ bool IsExtAbilityConnectedFuzzTest(shared_ptr<FileAccessExtConnection> conn)
     return true;
 }
 
+bool GetFileExtProxyFuzzTest(shared_ptr<FileAccessExtConnection> conn)
+{
+    conn->GetFileExtProxy();
+    return true;
+}
+
 } // namespace OHOS
