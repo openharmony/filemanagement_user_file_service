@@ -1084,14 +1084,14 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromUri_0004,
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
             std::string str = info[i].uri;
-            if (!ReplaceBundleNameFromPath(str, "ohos.com.NotExistBundleName")) {
-                GTEST_LOG_(ERROR) << "replace BundleName failed.";
+            if (ReplaceBundleName(str, "ohos.com.NotExistBundleName")) {
+                Uri parentUri(str);
+                FileInfo fileinfo;
+                result = fileAccessHelper->GetFileInfoFromUri(parentUri, fileinfo);
+                EXPECT_EQ(result, OHOS::FileAccessFwk::E_IPCS);
+            } else {
                 EXPECT_TRUE(false);
             }
-            Uri parentUri(str);
-            FileInfo fileinfo;
-            result = fileAccessHelper->GetFileInfoFromUri(parentUri, fileinfo);
-            EXPECT_EQ(result, OHOS::FileAccessFwk::E_IPCS);
         }
     } catch (...) {
         GTEST_LOG_(ERROR) << "medialibrary_file_access_GetFileInfoFromUri_0004 occurs an exception.";
@@ -1119,13 +1119,14 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromUri_0005,
         int result = fileAccessHelper->GetFileInfoFromUri(uri, fileInfo);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
 
+        uri = Uri("");
+        result = fileAccessHelper->GetFileInfoFromUri(uri, fileInfo);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+
         uri = Uri("/");
         result = fileAccessHelper->GetFileInfoFromUri(uri, fileInfo);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
 
-        uri = Uri("");
-        result = fileAccessHelper->GetFileInfoFromUri(uri, fileInfo);
-        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
         GTEST_LOG_(ERROR) << "medialibrary_file_access_GetFileInfoFromUri_0005 occurs an exception.";
     }

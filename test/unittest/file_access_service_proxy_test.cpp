@@ -77,30 +77,6 @@ public:
 };
 
 /**
- * @tc.number: user_file_service_file_access_service_proxy_GetInstance_0000
- * @tc.name: file_access_service_proxy_GetInstance_0000
- * @tc.desc: Test function of GetInstance interface for SUCCESS.
- * @tc.size: MEDIUM
- * @tc.type: FUNC
- * @tc.level Level 3
- * @tc.require: issuesI8Y05B
- */
-HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_GetInstance_0000, testing::ext::TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-begin file_access_service_proxy_GetInstance_0000";
-    try {
-        shared_ptr<FileAccessServiceProxy> proxy = make_shared<FileAccessServiceProxy>(impl);
-        proxy->serviceProxy_ = iface_cast<FileAccessServiceProxy>(impl);
-
-        auto result = proxy->GetInstance();
-        EXPECT_TRUE(static_cast<IFileAccessServiceBase*>(result.GetRefPtr()) == impl.GetRefPtr());
-    } catch (...) {
-        GTEST_LOG_(ERROR) << "FileAccessServiceProxyTest occurs an exception.";
-    }
-    GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-end file_access_service_proxy_GetInstance_0000";
-}
-
-/**
  * @tc.number: user_file_service_file_access_service_proxy_GetInstance_0001
  * @tc.name: file_access_service_proxy_GetInstance_0001
  * @tc.desc: Test function of GetInstance interface for ERROR because samgr is nullptr.

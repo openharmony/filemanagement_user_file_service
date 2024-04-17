@@ -31,6 +31,10 @@ namespace OHOS::FileAccessFwk {
 using namespace std;
 using namespace testing;
 using namespace testing::ext;
+const int ARG_INDEX_SECOND = 2;
+const int ARG_INDEX_THIRD = 3;
+const int ARG_INDEX_FOUR = 4;
+const int ARG_INDEX_FIFTH = 5;
 
 FileAccessServiceStub::FileAccessServiceStub() {}
 
@@ -42,6 +46,12 @@ int32_t FileAccessServiceStub::OnRemoteRequest(unsigned int, OHOS::MessageParcel
     return 0;
 }
 
+int32_t FileAccessServiceProxy::RegisterNotify(Uri, bool, const sptr<IFileAccessObserver> &,
+    const std::shared_ptr<ConnectExtensionInfo> &)
+{
+    return 0;
+}
+
 int32_t FileAccessServiceProxy::OnChange(Uri uri, NotifyType notifyType)
 {
     return ERR_OK;
@@ -49,12 +59,6 @@ int32_t FileAccessServiceProxy::OnChange(Uri uri, NotifyType notifyType)
 
 int32_t FileAccessServiceProxy::GetExensionProxy(const std::shared_ptr<ConnectExtensionInfo> &,
     sptr<IFileAccessExtBase> &)
-{
-    return 0;
-}
-
-int32_t FileAccessServiceProxy::RegisterNotify(Uri, bool, const sptr<IFileAccessObserver> &,
-    const std::shared_ptr<ConnectExtensionInfo> &)
 {
     return 0;
 }
@@ -134,7 +138,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CallObjectMethod
         result = ability->CallObjectMethod(nullptr, nullptr, 0);
         EXPECT_TRUE(result == nullptr);
 
-        napi_value rslt;
+        napi_value rslt = nullptr;
         EXPECT_CALL(*ref, GetNapiValue()).WillOnce(Return(reinterpret_cast<napi_value>(&rslt)));
         EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _)).WillOnce(Return(napi_ok));
         result = ability->CallObjectMethod(nullptr, nullptr, 0);
@@ -212,7 +216,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_DoCallJsMethod_0
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_DoCallJsMethod_0000";
     try {
         string funcNameIn;
-        napi_value rslt;
+        napi_value rslt = nullptr;
         NativeReference *jsObj = nullptr;
         InputArgsParser argParser = [](napi_env &env, napi_value *argv, size_t &argc) -> bool {
             return false;
@@ -266,7 +270,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_DoCallJsMethod_0
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_DoCallJsMethod_0001";
     try {
         string funcNameIn;
-        napi_value rslt;
+        napi_value rslt = nullptr;
         NativeReference *jsObj = nullptr;
         InputArgsParser argParser = nullptr;
         ResultValueParser retParser = [](napi_env&, napi_value) -> bool {
@@ -338,7 +342,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0001, t
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_OpenFile_0001";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         const Uri uri("");
         int fd = -1;
         ability->jsObj_ = make_shared<NativeReferenceMock>();
@@ -365,6 +369,57 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0001, t
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_OpenFile_0001";
 }
 
+static void MockNapiCalls(shared_ptr<AssistantMock> insMoc, napi_value rslt)
+{
+    EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+    EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+    EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+        .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
+    EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_FIFTH>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+    EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+}
+
+static void MockNapiFunctionCalls(shared_ptr<AssistantMock> insMoc, const string& path, napi_value rslt)
+{
+    EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+    EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+    EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+        .WillOnce(Return(napi_ok))
+        .WillOnce(Return(napi_ok));
+    EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_FIFTH>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+    EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+    EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+    EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_FOUR>(path.length()), Return(napi_ok)))
+        .WillOnce(DoAll(SetArrayArgument<ARG_INDEX_SECOND>(path.begin(), path.end()), Return(napi_ok)));
+    EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
+}
+
+static void MockNapiFunctionCallsForCopy(shared_ptr<AssistantMock> insMoc, napi_value rslt)
+{
+    EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+    EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+    EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+    EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+}
+
 /**
  * @tc.number: user_file_service_js_file_access_ext_ability_OpenFile_0002
  * @tc.name: js_file_access_ext_ability_OpenFile_0002
@@ -378,23 +433,13 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0002, t
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_OpenFile_0002";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         const Uri uri("");
         int fd = -1;
         ability->jsObj_ = make_shared<NativeReferenceMock>();
 
         // 模拟获取value->code失败
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        MockNapiCalls(insMoc, rslt);
         EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
             .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_create_int32(_, _, _))
@@ -405,17 +450,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0002, t
         EXPECT_EQ(result, E_IPCS);
 
         // 模拟获取value->data为-1
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        MockNapiCalls(insMoc, rslt);
         EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
             .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_create_int32(_, _, _))
@@ -443,23 +478,13 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0003, t
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_OpenFile_0003";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         const Uri uri("");
         int fd = -1;
         ability->jsObj_ = make_shared<NativeReferenceMock>();
 
         // 模拟OpenFile调用成功
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        MockNapiCalls(insMoc, rslt);
         EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
             .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_create_int32(_, _, _))
@@ -513,7 +538,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CreateFile_0001,
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_CreateFile_0001";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         Uri parent("");
         string displayName("");
         Uri newFile("");
@@ -553,24 +578,14 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CreateFile_0002,
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_CreateFile_0002";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         Uri parent("");
         string displayName("");
         Uri newFile("");
         ability->jsObj_ = make_shared<NativeReferenceMock>();
 
         // 模拟获取value->code失败
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        MockNapiCalls(insMoc, rslt);
         EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
             .WillRepeatedly(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _))
@@ -580,17 +595,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CreateFile_0002,
         EXPECT_EQ(result, E_IPCS);
 
         // 模拟获取value->data为-1
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        MockNapiCalls(insMoc, rslt);
         EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
             .WillRepeatedly(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _))
@@ -618,7 +623,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CreateFile_0003,
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_CreateFile_0003";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         string path = "test";
         Uri parent("");
         string displayName("");
@@ -626,25 +631,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CreateFile_0003,
         ability->jsObj_ = make_shared<NativeReferenceMock>();
 
         // 模拟CreateFile调用成功
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(Return(napi_ok))
-            .WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<4>(path.length()), Return(napi_ok)))
-            .WillOnce(DoAll(SetArrayArgument<2>(path.begin(), path.end()), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
+        MockNapiFunctionCalls(insMoc, path, rslt);
         auto result = ability->CreateFile(parent, displayName, newFile);
         EXPECT_EQ(result, ERR_OK);
     } catch (...) {
@@ -693,7 +680,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Mkdir_0001, test
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Mkdir_0001";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         Uri parent("");
         string displayName("");
         Uri newFile("");
@@ -733,24 +720,14 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Mkdir_0002, test
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Mkdir_0002";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         Uri parent("");
         string displayName("");
         Uri newFile("");
         ability->jsObj_ = make_shared<NativeReferenceMock>();
 
         // 模拟获取value->code失败
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        MockNapiCalls(insMoc, rslt);
         EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
             .WillRepeatedly(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _))
@@ -760,17 +737,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Mkdir_0002, test
         EXPECT_EQ(result, E_IPCS);
 
         // 模拟获取value->data为-1
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        MockNapiCalls(insMoc, rslt);
         EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
             .WillRepeatedly(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _))
@@ -797,7 +764,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Mkdir_0003, test
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Mkdir_0003";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         string path = "test";
         Uri parent("");
         string displayName("");
@@ -805,25 +772,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Mkdir_0003, test
         ability->jsObj_ = make_shared<NativeReferenceMock>();
 
         // 模拟Mkdir调用成功
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(Return(napi_ok))
-            .WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<4>(path.length()), Return(napi_ok)))
-            .WillOnce(DoAll(SetArrayArgument<2>(path.begin(), path.end()), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
+        MockNapiFunctionCalls(insMoc, path, rslt);
         auto result = ability->Mkdir(parent, displayName, newFile);
         EXPECT_EQ(result, ERR_OK);
     } catch (...) {
@@ -870,7 +819,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Delete_0001, tes
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Delete_0001";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         Uri sourceFile("");
         ability->jsObj_ = make_shared<NativeReferenceMock>();
 
@@ -917,7 +866,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Delete_0002, tes
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Delete_0002";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         Uri sourceFile("");
         ability->jsObj_ = make_shared<NativeReferenceMock>();
 
@@ -984,7 +933,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Move_0001, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Move_0001";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         Uri sourceFile("");
         Uri targetParent("");
         Uri newFile("");
@@ -1024,24 +973,14 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Move_0002, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Move_0002";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         Uri sourceFile("");
         Uri targetParent("");
         Uri newFile("");
         ability->jsObj_ = make_shared<NativeReferenceMock>();
 
         // 模拟获取value->code失败
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        MockNapiCalls(insMoc, rslt);
         EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
             .WillRepeatedly(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _))
@@ -1051,17 +990,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Move_0002, testi
         EXPECT_EQ(result, E_IPCS);
 
         // 模拟获取value->data为-1
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        MockNapiCalls(insMoc, rslt);
         EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
             .WillRepeatedly(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _))
@@ -1089,7 +1018,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Move_0003, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Move_0003";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         string path = "test";
         Uri sourceFile("");
         Uri targetParent("");
@@ -1097,25 +1026,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Move_0003, testi
         ability->jsObj_ = make_shared<NativeReferenceMock>();
 
         // 模拟Move调用成功
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(Return(napi_ok))
-            .WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<4>(path.length()), Return(napi_ok)))
-            .WillOnce(DoAll(SetArrayArgument<2>(path.begin(), path.end()), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
+        MockNapiFunctionCalls(insMoc, path, rslt);
         auto result = ability->Move(sourceFile, targetParent, newFile);
         EXPECT_EQ(result, ERR_OK);
     } catch (...) {
@@ -1165,7 +1076,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0001, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0001";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         Uri sourceUri("");
         Uri destUri("");
         vector<Result> copyResult;
@@ -1218,7 +1129,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0002, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0002";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         Uri sourceUri("");
         Uri destUri("");
         vector<Result> copyResult;
@@ -1226,15 +1137,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0002, testi
         ability->jsObj_ = make_shared<NativeReferenceMock>();
 
         // 模拟获取nativeValue失败
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        MockNapiFunctionCallsForCopy(insMoc, rslt);
         EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
             .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
@@ -1261,7 +1164,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0003, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0003";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         Uri sourceUri("");
         Uri destUri("");
         vector<Result> copyResult;
@@ -1269,15 +1172,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0003, testi
         ability->jsObj_ = make_shared<NativeReferenceMock>();
 
         // 模拟获取copyRet失败
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        MockNapiFunctionCallsForCopy(insMoc, rslt);
         EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
             .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
             .WillOnce(Return(napi_ok));
@@ -1307,7 +1202,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0004, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0004";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         Uri sourceUri("");
         Uri destUri("");
         vector<Result> copyResult;
@@ -1315,15 +1210,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0004, testi
         ability->jsObj_ = make_shared<NativeReferenceMock>();
 
         // 模拟获取copyRet等于ERR_OK
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        MockNapiFunctionCallsForCopy(insMoc, rslt);
         EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
             .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
             .WillOnce(Return(napi_ok));
@@ -1353,7 +1240,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0005, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0005";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         Uri sourceUri("");
         Uri destUri("");
         vector<Result> copyResult;
@@ -1361,15 +1248,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0005, testi
         ability->jsObj_ = make_shared<NativeReferenceMock>();
 
         // 模拟获取nativeArray为空
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        MockNapiFunctionCallsForCopy(insMoc, rslt);
         EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
             .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
             .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
@@ -1400,7 +1279,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0006, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0006";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         Uri sourceUri("");
         Uri destUri("");
         vector<Result> copyResult;
@@ -1408,15 +1287,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0006, testi
         ability->jsObj_ = make_shared<NativeReferenceMock>();
 
         // 模拟获取length失败
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        MockNapiFunctionCallsForCopy(insMoc, rslt);
         EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
             .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
             .WillOnce(Return(napi_ok))
@@ -1450,7 +1321,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0007, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0007";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         Uri sourceUri("");
         Uri destUri("");
         vector<Result> copyResult;
@@ -1458,15 +1329,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0007, testi
         ability->jsObj_ = make_shared<NativeReferenceMock>();
 
         // 模拟获取nativeResult失败
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        MockNapiFunctionCallsForCopy(insMoc, rslt);
         EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
             .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
             .WillOnce(Return(napi_ok))
@@ -1528,7 +1391,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0001, tes
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Rename_0001";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         Uri sourceFile("");
         string displayName("");
         Uri newFile("");
@@ -1568,24 +1431,14 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0002, tes
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Rename_0002";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         Uri sourceFile("");
         string displayName("");
         Uri newFile("");
         ability->jsObj_ = make_shared<NativeReferenceMock>();
 
         // 模拟获取value->code失败
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        MockNapiCalls(insMoc, rslt);
         EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
             .WillRepeatedly(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _))
@@ -1595,17 +1448,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0002, tes
         EXPECT_EQ(result, E_IPCS);
 
         // 模拟获取value->data为-1
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        MockNapiCalls(insMoc, rslt);
         EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
             .WillRepeatedly(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _))
@@ -1632,7 +1475,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0003, tes
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Rename_0003";
     try {
-        napi_value rslt;
+        napi_value rslt = nullptr;
         string path = "test";
         Uri sourceFile("");
         string displayName("");
@@ -1640,25 +1483,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0003, tes
         ability->jsObj_ = make_shared<NativeReferenceMock>();
 
         // 模拟Rename调用成功
-        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
-        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-            .WillOnce(DoAll(SetArgPointee<2>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(Return(napi_ok))
-            .WillOnce(Return(napi_ok));
-        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<5>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
-            .WillOnce(DoAll(SetArgPointee<3>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _))
-            .WillOnce(DoAll(SetArgPointee<4>(path.length()), Return(napi_ok)))
-            .WillOnce(DoAll(SetArrayArgument<2>(path.begin(), path.end()), Return(napi_ok)));
-        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
+        MockNapiFunctionCalls(insMoc, path, rslt);
         auto result = ability->Rename(sourceFile, displayName, newFile);
         EXPECT_EQ(result, ERR_OK);
     } catch (...) {

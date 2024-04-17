@@ -704,9 +704,9 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0001, testing::ext:
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
-        int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
+        int result = g_fah->Mkdir(g_newDirUri, "test3", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
+        result = g_fah->Mkdir(g_newDirUri, "test4", newDirUriTest2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri("");
         result = g_fah->CreateFile(newDirUriTest1, "test.txt", testUri);
@@ -769,15 +769,15 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0003, testing::ext:
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
-        int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
+        int result = g_fah->Mkdir(g_newDirUri, "test5", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
+        result = g_fah->Mkdir(g_newDirUri, "test6", newDirUriTest2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri("");
         result = g_fah->CreateFile(newDirUriTest1, "test.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri2("");
-        Uri sourceFileUri("storage/media/100/local/files/Download/test1/test.txt");
+        Uri sourceFileUri("storage/media/100/local/files/Download/test5/test.txt");
         result = g_fah->Move(sourceFileUri, newDirUriTest2, testUri2);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0003 result:" << result;
@@ -867,15 +867,15 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0006, testing::ext:
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
-        int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
+        int result = g_fah->Mkdir(g_newDirUri, "test7", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
+        result = g_fah->Mkdir(g_newDirUri, "test8", newDirUriTest2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri("");
         result = g_fah->CreateFile(newDirUriTest1, "test.txt", testUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri2("");
-        Uri targetParentUri("storage/media/100/local/files/Download/test2");
+        Uri targetParentUri("storage/media/100/local/files/Download/test8");
         result = g_fah->Move(testUri, targetParentUri, testUri2);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Move_0006 result:" << result;
@@ -904,9 +904,9 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0007, testing::ext:
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
-        int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
+        int result = g_fah->Mkdir(g_newDirUri, "test9", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
+        result = g_fah->Mkdir(g_newDirUri, "test10", newDirUriTest2);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri("");
         result = g_fah->CreateFile(newDirUriTest1, "test.txt", testUri);
@@ -1155,22 +1155,22 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0001, testing::ext:
         int result = g_fah->Mkdir(g_newDirUri, "Copy_0001_src", srcUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri aFileUri("");
-        result = g_fah->CreateFile(srcUri, "a.txt", aFileUri);
+        result = g_fah->CreateFile(srcUri, "b.txt", aFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         int fd;
         result = g_fah->OpenFile(aFileUri, WRITE_READ, fd);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        std::string aFileBuff = "Copy test content for a.txt";
+        std::string aFileBuff = "Copy test content for b.txt";
         ssize_t aFileSize = write(fd, aFileBuff.c_str(), aFileBuff.size());
         close(fd);
         EXPECT_EQ(aFileSize, aFileBuff.size());
 
         Uri bFileUri("");
-        result = g_fah->CreateFile(srcUri, "b.txt", bFileUri);
+        result = g_fah->CreateFile(srcUri, "c.txt", bFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        std::string bFileBuff = "Copy test content for b.txt";
+        std::string bFileBuff = "Copy test content for c.txt";
         ssize_t bFileSize = write(fd, bFileBuff.c_str(), bFileBuff.size());
         close(fd);
         EXPECT_EQ(bFileSize, bFileBuff.size());
@@ -1259,12 +1259,12 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0003, testing::ext:
         int result = g_fah->Mkdir(g_newDirUri, "Copy_0003_src", srcUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri srcFileUri("");
-        result = g_fah->CreateFile(srcUri, "a.txt", srcFileUri);
+        result = g_fah->CreateFile(srcUri, "d.txt", srcFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         int fd;
         result = g_fah->OpenFile(srcFileUri, WRITE_READ, fd);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        std::string aFileBuff = "Copy test content for a.txt";
+        std::string aFileBuff = "Copy test content for d.txt";
         ssize_t aFileSize = write(fd, aFileBuff.c_str(), aFileBuff.size());
         close(fd);
         EXPECT_EQ(aFileSize, aFileBuff.size());
@@ -1273,7 +1273,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0003, testing::ext:
         result = g_fah->Mkdir(g_newDirUri, "Copy_0003_dest_true", destUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri destFileUri("");
-        result = g_fah->CreateFile(destUri, "a.txt", destFileUri);
+        result = g_fah->CreateFile(destUri, "d.txt", destFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         vector<CopyResult> copyResult;
@@ -1308,22 +1308,22 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0004, testing::ext:
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         Uri aFileUri("");
-        result = g_fah->CreateFile(srcUri, "a.txt", aFileUri);
+        result = g_fah->CreateFile(srcUri, "e.txt", aFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         int fd;
         result = g_fah->OpenFile(aFileUri, WRITE_READ, fd);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        std::string aFileBuff = "Copy test content for a.txt";
+        std::string aFileBuff = "Copy test content for e.txt";
         ssize_t aFileSize = write(fd, aFileBuff.c_str(), aFileBuff.size());
         close(fd);
         EXPECT_EQ(aFileSize, aFileBuff.size());
 
         Uri bFileUri("");
-        result = g_fah->CreateFile(srcUri, "b.txt", bFileUri);
+        result = g_fah->CreateFile(srcUri, "f.txt", bFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        std::string bFileBuff = "Copy test content for b.txt";
+        std::string bFileBuff = "Copy test content for f.txt";
         ssize_t bFileSize = write(fd, bFileBuff.c_str(), bFileBuff.size());
         close(fd);
         EXPECT_EQ(bFileSize, bFileBuff.size());
@@ -1335,7 +1335,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0004, testing::ext:
         result = g_fah->Mkdir(destUri, "Copy_0004_src", destSrcUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri destSrcAUri("");
-        result = g_fah->CreateFile(destSrcUri, "a.txt", destSrcAUri);
+        result = g_fah->CreateFile(destSrcUri, "e.txt", destSrcAUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         vector<CopyResult> copyResult;
@@ -1371,22 +1371,22 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0005, testing::ext:
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         Uri aFileUri("");
-        result = g_fah->CreateFile(srcUri, "a.txt", aFileUri);
+        result = g_fah->CreateFile(srcUri, "g.txt", aFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         int fd;
         result = g_fah->OpenFile(aFileUri, WRITE_READ, fd);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        std::string aFileBuff = "Copy test content for a.txt";
+        std::string aFileBuff = "Copy test content for g.txt";
         ssize_t aFileSize = write(fd, aFileBuff.c_str(), aFileBuff.size());
         close(fd);
         EXPECT_EQ(aFileSize, aFileBuff.size());
 
         Uri bFileUri("");
-        result = g_fah->CreateFile(srcUri, "b.txt", bFileUri);
+        result = g_fah->CreateFile(srcUri, "h.txt", bFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        std::string bFileBuff = "Copy test content for b.txt";
+        std::string bFileBuff = "Copy test content for h.txt";
         ssize_t bFileSize = write(fd, bFileBuff.c_str(), bFileBuff.size());
         close(fd);
         EXPECT_EQ(bFileSize, bFileBuff.size());
@@ -1398,7 +1398,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0005, testing::ext:
         result = g_fah->Mkdir(destUri, "Copy_0005_src", destSrcUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri destSrcAUri("");
-        result = g_fah->CreateFile(destSrcUri, "a.txt", destSrcAUri);
+        result = g_fah->CreateFile(destSrcUri, "g.txt", destSrcAUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         vector<CopyResult> copyResult;
@@ -1432,12 +1432,12 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0006, testing::ext:
         int result = g_fah->Mkdir(g_newDirUri, "Copy_0006_src", srcUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri srcFileUri("");
-        result = g_fah->CreateFile(srcUri, "a.txt", srcFileUri);
+        result = g_fah->CreateFile(srcUri, "i.txt", srcFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         int fd;
         result = g_fah->OpenFile(srcFileUri, WRITE_READ, fd);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        std::string aFileBuff = "Copy test content for a.txt";
+        std::string aFileBuff = "Copy test content for i.txt";
         ssize_t aFileSize = write(fd, aFileBuff.c_str(), aFileBuff.size());
         close(fd);
         EXPECT_EQ(aFileSize, aFileBuff.size());
@@ -1446,7 +1446,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0006, testing::ext:
         result = g_fah->Mkdir(g_newDirUri, "Copy_0006_dest_false", destUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri destFileUri("");
-        result = g_fah->CreateFile(destUri, "a.txt", destFileUri);
+        result = g_fah->CreateFile(destUri, "i.txt", destFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         vector<CopyResult> copyResult;
@@ -1482,22 +1482,22 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0007, testing::ext:
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         Uri aFileUri("");
-        result = g_fah->CreateFile(srcUri, "a.txt", aFileUri);
+        result = g_fah->CreateFile(srcUri, "j.txt", aFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         int fd;
         result = g_fah->OpenFile(aFileUri, WRITE_READ, fd);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        std::string aFileBuff = "Copy test content for a.txt";
+        std::string aFileBuff = "Copy test content for j.txt";
         ssize_t aFileSize = write(fd, aFileBuff.c_str(), aFileBuff.size());
         close(fd);
         EXPECT_EQ(aFileSize, aFileBuff.size());
 
         Uri bFileUri("");
-        result = g_fah->CreateFile(srcUri, "b.txt", bFileUri);
+        result = g_fah->CreateFile(srcUri, "k.txt", bFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->OpenFile(bFileUri, WRITE_READ, fd);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        std::string bFileBuff = "Copy test content for b.txt";
+        std::string bFileBuff = "Copy test content for k.txt";
         ssize_t bFileSize = write(fd, bFileBuff.c_str(), bFileBuff.size());
         close(fd);
         EXPECT_EQ(bFileSize, bFileBuff.size());
@@ -1509,7 +1509,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0007, testing::ext:
         result = g_fah->Mkdir(destUri, "Copy_0007_src", destSrcUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri destSrcAUri("");
-        result = g_fah->CreateFile(destSrcUri, "a.txt", destSrcAUri);
+        result = g_fah->CreateFile(destSrcUri, "j.txt", destSrcAUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         vector<CopyResult> copyResult;
