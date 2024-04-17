@@ -211,7 +211,7 @@ public:
 
     static bool CalculateMemSize(uint64_t &memSize, SharedMemoryInfo &memInfo)
     {
-        uint64_t allocSize = ((memInfo.leftDataCounts + memInfo.totalDataCounts - 1) / memInfo.totalDataCounts + 1)
+        int64_t allocSize = ((memInfo.leftDataCounts + memInfo.totalDataCounts - 1) / memInfo.totalDataCounts + 1)
             * DEFAULT_CAPACITY_200KB;
 
         if (allocSize >= MAX_CAPACITY_2MB && memInfo.memSize < MAX_CAPACITY_2MB) {
