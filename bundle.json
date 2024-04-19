@@ -25,6 +25,7 @@
             "components": [
                 "ability_base",
                 "ability_runtime",
+                "ace_engine",
                 "app_file_service",
                 "ipc",
                 "init",

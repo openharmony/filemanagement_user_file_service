@@ -1,0 +1,75 @@
+/*
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef INTERFACES_KITS_NATIVE_PICKER_N_EXPOTER_H
+#define INTERFACES_KITS_NATIVE_PICKER_N_EXPOTER_H
+
+#include <dirent.h>
+#include "data_ability_helper.h"
+#include "data_ability_observer_stub.h"
+#include "data_ability_predicates.h"
+#include "filemgmt_libn.h"
+#include "picker_napi_utils.h"
+#include "napi_error.h"
+#include "napi_base_context.h"
+#include "napi_common_want.h"
+#include "picker_client_errno.h"
+
+
+namespace OHOS {
+namespace Picker {
+using namespace FileManagement::LibN;
+using namespace std;
+
+struct NameListArg {
+    struct dirent** namelist = { nullptr };
+    int direntNum = 0;
+};
+
+// 对齐todo: 返回值的内容需要對齊
+struct PickerCallBack {
+    bool ready = false;
+    bool isOrigin;
+    int32_t resultCode;
+    string uri;
+};
+
+// 对齐todo：定制上下文内容
+struct PickerAsyncContext : public NapiError {
+    napi_async_work work;
+    napi_deferred deferred;
+    napi_ref callbackRef;
+    size_t argc;
+    napi_value argv[NAPI_ARGC_MAX];
+    std::shared_ptr<PickerCallBack> pickerCallBack;
+};
+
+class PickerNExporter final : public FileManagement::LibN::NExporter {
+public:
+    inline static const std::string className_ = "Picker";
+    static napi_value StartDownloadPicker(napi_env env, napi_callback_info info);
+    bool Export() override;
+    std::string GetClassName() override;
+    PickerNExporter(napi_env env, napi_value exports);
+    ~PickerNExporter() override;
+};
+
+// const std::string RECENT_PATH = "/storage/Users/.Recent/";
+const std::string FILE_ACCESS_PERMISSION = "ohos.permission.FILE_ACCESS_MANAGER";
+constexpr int BUF_SIZE = 1024;
+constexpr int MAX_RECENT_SIZE = 100;
+static thread_local napi_ref sConstructor_;
+} // namespace FileAccessFwk
+} // namespace OHOS
+#endif // INTERFACES_KITS_NATIVE_PICKER_N_EXPOTER_H

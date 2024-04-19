@@ -15,6 +15,7 @@
 
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
+#include "picker_n_exporter.h"
 
 extern const char _binary_picker_js_start[];
 extern const char _binary_picker_js_end[];
@@ -23,13 +24,27 @@ extern const char _binary_picker_abc_end[];
 
 namespace OHOS {
 namespace FileAccessFwk {
-/*
- * Function registering all props and functions of ohos.medialibrary module
- */
+using namespace Picker;
+using namespace FileManagement::LibN;
+
+EXTERN_C_START
 static napi_value Export(napi_env env, napi_value exports)
 {
+    std::vector<unique_ptr<NExporter>> products;
+    products.emplace_back(make_unique<PickerNExporter>(env, exports));
+
+    for (auto &&product : products) {
+        std::string nExporterName = product->GetClassName();
+        if (!product->Export()) {
+            HILOG_ERROR("INNER BUG. Failed to export class %{public}s for module trash", nExporterName.c_str());
+            return nullptr;
+        } else {
+            HILOG_INFO("Class %{public}s for module trash has been exported", nExporterName.c_str());
+        }
+    }
     return exports;
 }
+EXTERN_C_END
 
 extern "C" __attribute__((visibility("default"))) void NAPI_file_picker_GetJSCode(const char** buf,
     int* bufLen)

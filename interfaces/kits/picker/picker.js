@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+const pickerHelper = requireInternal('file.picker');
 
 const PhotoViewMIMETypes = {
   IMAGE_TYPE: 'image/*',
@@ -24,6 +25,11 @@ const DocumentSelectMode = {
   FILE: 0,
   FOLDER: 1,
   MIXED: 2,
+};
+
+const DocumentSaveMode = {
+  DEFAULT: 0,
+  DOWNLOAD: 1,
 };
 
 const ErrCode = {
@@ -343,10 +349,31 @@ function parseDocumentPickerSaveOption(args, action) {
     if ((option.fileSuffixChoices !== undefined) && option.fileSuffixChoices.length > 0) {
       config.parameters.key_file_suffix_choices = option.fileSuffixChoices;
     }
+    if (option.pickerMode !== undefined) {
+      config.parameters.mode = option.pickerMode; // todo: 确定对方接收pickerMode的参数名
+    }
   }
 
   console.log('[picker] document save config: ' + JSON.stringify(config));
   return config;
+}
+
+function getDownloadPickerResult(args) {
+  let saveResult = {
+    error: undefined,
+    data: undefined
+  };
+  if (args.want && args.want.parameters) {
+    console.log('lby : args.want.parameters begin');
+    if (args.want.parameters.pick_path_return) {
+      console.log('lby : pick_path_return begin');
+      saveResult.data = args.want.parameters.pick_path_return;
+    } else {
+      saveResult.data = args.want.parameters['ability.params.stream'];
+    }
+  }
+  console.log('[picker] download saveResult: ' + JSON.stringify(saveResult));
+  return saveResult;
 }
 
 function getDocumentPickerSaveResult(args) {
@@ -379,6 +406,23 @@ function getDocumentPickerSaveResult(args) {
   return saveResult;
 }
 
+function startDownloadPicker(context, config) {
+  if (context === undefined) {
+    console.log('startDownloadPicker context undefined');
+    throw Error('startDownloadPicker context undefined');
+  }
+  if (config === undefined) {
+    console.log('startDownloadPicker config undefined');
+    throw Error('startDownloadPicker config undefined');
+  }
+  gContext = context;
+  let helper = pickerHelper.startDownloadPicker(gContext, config);
+  if (helper !== undefined) {
+    console.log('startDownloadPicker helper undefined');
+  }
+  return helper;
+}
+
 async function documentPickerSave(...args) {
   let checkDocumentSaveArgsResult = checkArguments(args);
   if (checkDocumentSaveArgsResult !== undefined) {
@@ -396,6 +440,30 @@ async function documentPickerSave(...args) {
     console.error('[picker] getContext error: ' + getContextError);
     throw getErr(ErrCode.CONTEXT_NO_EXIST);
   }
+
+  // 判断是否为download场景
+  documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION_MODAL);
+  // todo: 确定对方接收ACTION的参数名
+  if (documentSaveConfig.parameters.mode == DocumentSaveMode.DOWNLOAD) {
+    // todo: 确定对方接收pickerMode的参数名
+    // todo: 确定download逻辑类名
+    documentSaveResult = await startDownloadPicker(documentSaveContext, documentSaveConfig);
+    const saveResult = getDocumentPickerSaveResult(documentSaveResult);
+    if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
+      return args[ARGS_ONE](saveResult.error, saveResult.data);
+    } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
+      return args[ARGS_ZERO](saveResult.error, saveResult.data);
+    }
+    return new Promise((resolve, reject) => {
+      if (saveResult.data !== undefined) {
+        resolve(saveResult.data);
+      } else {
+        reject(saveResult.error);
+      }
+    })
+  }
+  // 否则保持原逻辑
+
   try {
     if (documentSaveContext === undefined) {
       throw getErr(ErrCode.CONTEXT_NO_EXIST);
@@ -530,6 +598,7 @@ export default {
   PhotoSelectResult : PhotoSelectResult,
   PhotoSaveOptions : PhotoSaveOptions,
   DocumentSelectMode : DocumentSelectMode,
+  DocumentSaveMode : DocumentSaveMode,
   DocumentSelectOptions : DocumentSelectOptions,
   DocumentSaveOptions : DocumentSaveOptions,
   AudioSelectOptions : AudioSelectOptions,
