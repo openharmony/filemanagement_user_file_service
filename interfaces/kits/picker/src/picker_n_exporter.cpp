@@ -83,8 +83,8 @@ static void StartDownloadPickerAsyncCallbackComplete(napi_env env, napi_status s
         NAPI_AUTO_LENGTH, &jsUri), JS_INNER_FAIL);
     if (jsUri == nullptr) {
         HILOG_ERROR("jsUri is nullptr.");
-        break;
     }
+    napi_value result = nullptr;
     status = napi_set_named_property(env, result, "uri", jsUri);
     if (status != napi_ok) {
         HILOG_ERROR("napi_set_named_property uri failed");
