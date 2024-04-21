@@ -60,6 +60,8 @@ public:
     MOCK_METHOD2(GetExtensionSaIds, int32_t(const std::string& extension, std::vector<int32_t> &saIds));
     MOCK_METHOD2(GetExtensionRunningSaList, int32_t(const std::string& extension,
         std::vector<sptr<IRemoteObject>>& saList));
+    MOCK_METHOD2(GetRunningSaExtensionInfoList, int32_t(const std::string& extension,
+        std::vector<SaExtensionInfo>& infoList));
 };
 } // namespace OHOS
 
