@@ -135,7 +135,7 @@ int FileAccessExtStubImpl::Rename(const Uri &sourceFile, const std::string &disp
 }
 
 int FileAccessExtStubImpl::ListFile(const FileInfo &fileInfo, const int64_t offset, const FileFilter &filter,
-        SharedMemoryInfo &memInfo)
+    SharedMemoryInfo &memInfo)
 {
     UserAccessTracer trace;
     trace.Start("ListFile");
@@ -167,7 +167,7 @@ int FileAccessExtStubImpl::ListFile(const FileInfo &fileInfo, const int64_t offs
             }
             break;
         }
-        if (fileInfoVec.empty() ||(maxCounts > static_cast<int64_t>(fileInfoVec.size())
+        if (fileInfoVec.empty() ||(maxCounts > static_cast<uint64_t>(fileInfoVec.size())
             && currentWriteCounts == fileInfoVec.size())) {
             memInfo.isOver = true;
             break;
