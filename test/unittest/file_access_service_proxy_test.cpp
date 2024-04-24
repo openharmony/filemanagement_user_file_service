@@ -94,7 +94,7 @@ HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_GetInstance_0001,
         shared_ptr<FileAccessServiceProxy> proxy = make_shared<FileAccessServiceProxy>(nullptr);
         proxy->serviceProxy_ = nullptr;
         auto result = proxy->GetInstance();
-        EXPECT_TRUE(result == nullptr);
+        EXPECT_TRUE(result == nullptr) << "GetInstance Faild";
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessServiceProxyTest occurs an exception.";
     }
