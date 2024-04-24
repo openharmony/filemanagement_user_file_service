@@ -301,6 +301,7 @@ ohos_unittest("js_file_access_ext_ability_test") {
   ]
 
   external_deps = [
+    "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:app_context",
     "ability_runtime:extensionkit_native",
