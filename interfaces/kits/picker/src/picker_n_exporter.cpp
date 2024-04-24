@@ -158,12 +158,10 @@ static napi_value StartPickerExtension(napi_env env, napi_callback_info info,
     }
     callback->SetSessionId(sessionId);
     napi_value result = nullptr;
-    // todo：这里JS_INNER_FAIL未定义
     CHECK_ARGS(env, napi_get_boolean(env, true, &result), JS_INNER_FAIL);
     return result;
 }
 
-// todo：模板理解+拆解
 template <class AsyncContext>
 static napi_status AsyncContextSetStaticObjectInfo(napi_env env, napi_callback_info info,
     AsyncContext &asyncContext, const size_t minArgs, const size_t maxArgs)
@@ -184,7 +182,6 @@ static napi_status AsyncContextSetStaticObjectInfo(napi_env env, napi_callback_i
 static napi_value ParseArgsStartModalPicker(napi_env env, napi_callback_info info,
     unique_ptr<PickerAsyncContext> &context)
 {
-    // 开始解析参数
     HILOG_INFO("modal picker: ParseArgsStartModalPicker begin.");
     constexpr size_t minArgs = ARGS_TWO;
     constexpr size_t maxArgs = ARGS_THREE;

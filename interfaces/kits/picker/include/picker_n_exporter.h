@@ -63,9 +63,6 @@ public:
     PickerNExporter(napi_env env, napi_value exports);
     ~PickerNExporter() override;
 };
-
-// const std::string RECENT_PATH = "/storage/Users/.Recent/";
-const std::string FILE_ACCESS_PERMISSION = "ohos.permission.FILE_ACCESS_MANAGER";
 } // namespace FileAccessFwk
 } // namespace OHOS
 #endif // INTERFACES_KITS_NATIVE_PICKER_N_EXPOTER_H
