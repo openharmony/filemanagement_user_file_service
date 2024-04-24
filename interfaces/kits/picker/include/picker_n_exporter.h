@@ -16,6 +16,7 @@
 #define INTERFACES_KITS_NATIVE_PICKER_N_EXPOTER_H
 
 #include <dirent.h>
+#include <thread>
 #include "data_ability_helper.h"
 #include "data_ability_observer_stub.h"
 #include "data_ability_predicates.h"
@@ -37,7 +38,6 @@ struct NameListArg {
     int direntNum = 0;
 };
 
-// 对齐todo: 返回值的内容需要對齊
 struct PickerCallBack {
     bool ready = false;
     bool isOrigin;
@@ -45,7 +45,6 @@ struct PickerCallBack {
     string uri;
 };
 
-// 对齐todo：定制上下文内容
 struct PickerAsyncContext : public NapiError {
     napi_async_work work;
     napi_deferred deferred;
@@ -58,7 +57,7 @@ struct PickerAsyncContext : public NapiError {
 class PickerNExporter final : public FileManagement::LibN::NExporter {
 public:
     inline static const std::string className_ = "Picker";
-    static napi_value StartDownloadPicker(napi_env env, napi_callback_info info);
+    static napi_value StartModalPicker(napi_env env, napi_callback_info info);
     bool Export() override;
     std::string GetClassName() override;
     PickerNExporter(napi_env env, napi_value exports);
@@ -67,9 +66,6 @@ public:
 
 // const std::string RECENT_PATH = "/storage/Users/.Recent/";
 const std::string FILE_ACCESS_PERMISSION = "ohos.permission.FILE_ACCESS_MANAGER";
-constexpr int BUF_SIZE = 1024;
-constexpr int MAX_RECENT_SIZE = 100;
-static thread_local napi_ref sConstructor_;
 } // namespace FileAccessFwk
 } // namespace OHOS
 #endif // INTERFACES_KITS_NATIVE_PICKER_N_EXPOTER_H

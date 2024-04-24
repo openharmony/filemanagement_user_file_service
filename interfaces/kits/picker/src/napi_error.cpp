@@ -24,13 +24,6 @@ void NapiError::SetApiName(const std::string &Name)
     apiName = Name;
 }
 
-void NapiError::SaveError(int32_t ret)
-{
-    if (ret < 0) {
-        error = PickerNapiUtils::TransErrorCode(apiName, ret);
-    }
-}
-
 void NapiError::HandleError(napi_env env, napi_value &errorObj)
 {
     // deal with context->error

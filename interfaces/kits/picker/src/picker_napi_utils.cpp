@@ -60,41 +60,6 @@ void PickerNapiUtils::HandleError(napi_env env, int error, napi_value &errorObj,
     HILOG_ERROR("Error: %{public}s, js errcode:%{public}d ", errMsg.c_str(), originalError);
 }
 
-napi_status PickerNapiUtils::GetParamFunction(napi_env env, napi_value arg, napi_ref &callbackRef)
-{
-    napi_valuetype valueType = napi_undefined;
-    CHECK_STATUS_RET(napi_typeof(env, arg, &valueType), "Failed to get type");
-    CHECK_COND_RET(valueType == napi_function, napi_function_expected, "Type is not as expected function");
-    CHECK_STATUS_RET(napi_create_reference(env, arg, NAPI_INIT_REF_COUNT, &callbackRef), "Failed to make callbackref");
-    return napi_ok;
-}
-
-napi_status PickerNapiUtils::HasCallback(napi_env env, const size_t argc, const napi_value argv[],
-    bool &isCallback)
-{
-    isCallback = false;
-    if (argc < ARGS_ONE) {
-        return napi_ok;
-    }
-    napi_valuetype valueType = napi_undefined;
-    CHECK_STATUS_RET(napi_typeof(env, argv[argc - 1], &valueType), "Failed to get type");
-    isCallback = (valueType == napi_function);
-    return napi_ok;
-}
-
-template <class AsyncContext>
-napi_status PickerNapiUtils::GetParamCallback(napi_env env, AsyncContext &context)
-{
-    /* Parse the last argument into callbackref if any */
-    bool isCallback = false;
-    CHECK_STATUS_RET(HasCallback(env, context->argc, context->argv, isCallback), "Failed to check callback");
-    if (isCallback) {
-        CHECK_STATUS_RET(GetParamFunction(env, context->argv[context->argc - 1], context->callbackRef),
-            "Failed to get callback");
-    }
-    return napi_ok;
-}
-
 void PickerNapiUtils::InvokeJSAsyncMethod(napi_env env, napi_deferred deferred, napi_ref callbackRef,
     napi_async_work work, const JSAsyncContextOutput &asyncContext)
 {
@@ -135,21 +100,6 @@ napi_value PickerNapiUtils::NapiCreateAsyncWork(napi_env env, unique_ptr<AsyncCo
 
     return result;
 }
-
-int PickerNapiUtils::TransErrorCode(const string &Name, int error)
-{
-    HILOG_ERROR("interface: %{public}s, server errcode:%{public}d ", Name.c_str(), error);
-    // Transfer Server error to napi error code
-    // if (error <= E_COMMON_START && error >= E_COMMON_END) {
-    //     error = JS_INNER_FAIL;
-    // } else if (trans2JsError.count(error)) {
-    //     error = trans2JsError.at(error);
-    // }
-    return error;
-}
-
-template napi_status PickerNapiUtils::GetParamCallback<unique_ptr<PickerAsyncContext>>(napi_env env,
-    unique_ptr<PickerAsyncContext> &context);
 
 template napi_value PickerNapiUtils::NapiCreateAsyncWork<PickerAsyncContext>(napi_env env,
     unique_ptr<PickerAsyncContext> &asyncContext, const string &resourceName,

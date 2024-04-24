@@ -33,34 +33,36 @@ void ModalUICallback::SetSessionId(int32_t sessionId)
 
 void ModalUICallback::OnRelease(int32_t releaseCode)
 {
-    HILOG_INFO("OnRelease enter. release code is %{public}d", releaseCode);
+    HILOG_INFO("modal picker: OnRelease enter. release code is %{public}d", releaseCode);
     this->uiContent->CloseModalUIExtension(this->sessionId_);
     pickerCallBack_->ready = true;
 }
 
 void ModalUICallback::OnError(int32_t code, const std::string& name, const std::string& message)
 {
-    HILOG_ERROR("OnError enter. errorCode=%{public}d, name=%{public}s, message=%{public}s",
+    HILOG_ERROR("modal picker: OnError enter. errorCode=%{public}d, name=%{public}s, message=%{public}s",
         code, name.c_str(), message.c_str());
 }
 
 void ModalUICallback::OnResultForModal(int32_t resultCode, const OHOS::AAFwk::Want &result)
 {
-    HILOG_INFO("OnResultForModal enter. resultCode is %{public}d", resultCode);
-    pickerCallBack_->uri = result.GetStringParam("select-item-list");
-    pickerCallBack_->isOrigin = result.GetBoolParam("isOriginal", false);
+    HILOG_INFO("modal picker: OnResultForModal enter. resultCode is %{public}d", resultCode);
+    if (result.GetParams().HasParam("downloadNewUri")) {
+        HILOG_INFO("modal picker: downloadNewUri exit.");
+        pickerCallBack_->uri = result.GetStringParam("downloadNewUri");
+    }
     pickerCallBack_->resultCode = resultCode;
     pickerCallBack_->ready = true;
 }
 
 void ModalUICallback::OnReceive(const OHOS::AAFwk::WantParams &request)
 {
-    HILOG_INFO("OnReceive enter.");
+    HILOG_INFO("modal picker: OnReceive enter.");
 }
 
 void ModalUICallback::OnDestroy()
 {
-    HILOG_INFO("OnDestroy enter.");
+    HILOG_INFO("modal picker: OnDestroy enter.");
 }
 } // namespace Picker
 } // namespace OHOS

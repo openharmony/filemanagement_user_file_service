@@ -199,15 +199,6 @@ const int32_t ERR_DEFAULT = 0;
 const int32_t ERR_MEM_ALLOCATION = 2;
 const int32_t ERR_INVALID_OUTPUT = 3;
 
-const int32_t TRASH_SMART_ALBUM_ID = 1;
-const std::string TRASH_SMART_ALBUM_NAME = "TrashAlbum";
-const int32_t FAVORIT_SMART_ALBUM_ID = 2;
-const std::string FAVORIT_SMART_ALBUM_NAME = "FavoritAlbum";
-
-const std::string API_VERSION = "api_version";
-
-const std::string PENDING_STATUS = "pending";
-
 struct JSAsyncContextOutput {
     napi_value error;
     napi_value data;
@@ -224,15 +215,9 @@ struct NapiClassInfo {
 /* Util class used by napi asynchronous methods for making call to js callback function */
 class PickerNapiUtils {
 public:
-    static int TransErrorCode(const std::string &Name, int error);
     static void HandleError(napi_env env, int error, napi_value &errorObj, const std::string &Name);
     static void CreateNapiErrorObject(napi_env env, napi_value &errorObj, const int32_t errCode,
         const std::string errMsg);
-    template <class AsyncContext>
-    static napi_status GetParamCallback(napi_env env, AsyncContext &context);
-    static napi_status HasCallback(napi_env env, const size_t argc, const napi_value argv[],
-        bool &isCallback);
-    static napi_status GetParamFunction(napi_env env, napi_value arg, napi_ref &callbackRef);
     static void InvokeJSAsyncMethod(napi_env env, napi_deferred deferred, napi_ref callbackRef, napi_async_work work,
         const JSAsyncContextOutput &asyncContext);
     template <class AsyncContext>

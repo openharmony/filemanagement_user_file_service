@@ -14,6 +14,8 @@
  */
 const pickerHelper = requireInternal('file.picker');
 
+let gContext = undefined;
+
 const PhotoViewMIMETypes = {
   IMAGE_TYPE: 'image/*',
   VIDEO_TYPE: 'video/*',
@@ -30,6 +32,14 @@ const DocumentSelectMode = {
 const DocumentSaveMode = {
   DEFAULT: 0,
   DOWNLOAD: 1,
+};
+
+const ExtTypes = {
+  DOWNLOAD_TYPE: 'download',
+};
+
+const PickerDetailType = {
+  FILE_MGR_AUTH: 'downloadAuth', 
 };
 
 const ErrCode = {
@@ -57,6 +67,7 @@ const ACTION = {
   SELECT_ACTION_MODAL: 'ohos.want.action.OPEN_FILE_SERVICE',
   SAVE_ACTION: 'ohos.want.action.CREATE_FILE',
   SAVE_ACTION_MODAL: 'ohos.want.action.CREATE_FILE_SERVICE',
+  SAVE_ACTION_DOWNLOAD: 'ohos.want.action.DOWNLOAD',
 }
 
 const CREATE_FILE_NAME_LENGTH_LIMIT = 256;
@@ -333,6 +344,7 @@ function parseDocumentPickerSaveOption(args, action) {
     action: action,
     parameters: {
       startMode: 'save',
+      pickerMode: DocumentSaveMode.DEFAULT,
     }
   };
 
@@ -349,8 +361,11 @@ function parseDocumentPickerSaveOption(args, action) {
     if ((option.fileSuffixChoices !== undefined) && option.fileSuffixChoices.length > 0) {
       config.parameters.key_file_suffix_choices = option.fileSuffixChoices;
     }
-    if (option.pickerMode !== undefined) {
-      config.parameters.mode = option.pickerMode; // todo: 确定对方接收pickerMode的参数名
+    if (option.pickerMode === DocumentSaveMode.DOWNLOAD) {
+      config.parameters.pickerMode = option.pickerMode;
+      config.action = ACTION.SAVE_ACTION_DOWNLOAD;
+      config.parameters.extType = ExtTypes.DOWNLOAD_TYPE;
+      config.parameters.pickerType = PickerDetailType.FILE_MGR_AUTH;
     }
   }
 
@@ -358,21 +373,15 @@ function parseDocumentPickerSaveOption(args, action) {
   return config;
 }
 
-function getDownloadPickerResult(args) {
+function getModalPickerResult(args) {
   let saveResult = {
     error: undefined,
     data: undefined
-  };
-  if (args.want && args.want.parameters) {
-    console.log('lby : args.want.parameters begin');
-    if (args.want.parameters.pick_path_return) {
-      console.log('lby : pick_path_return begin');
-      saveResult.data = args.want.parameters.pick_path_return;
-    } else {
-      saveResult.data = args.want.parameters['ability.params.stream'];
-    }
   }
-  console.log('[picker] download saveResult: ' + JSON.stringify(saveResult));
+  if (args) {
+    saveResult.data = args.uri;
+  }
+  console.log('modal picker: download saveResult: ' + JSON.stringify(saveResult));
   return saveResult;
 }
 
@@ -406,21 +415,42 @@ function getDocumentPickerSaveResult(args) {
   return saveResult;
 }
 
-function startDownloadPicker(context, config) {
+function startModalPicker(context, config) {
   if (context === undefined) {
-    console.log('startDownloadPicker context undefined');
-    throw Error('startDownloadPicker context undefined');
+    console.log('modal picker: startModalPicker context undefined.');
+    throw Error('modal picker: startModalPicker context undefined.');
   }
   if (config === undefined) {
-    console.log('startDownloadPicker config undefined');
-    throw Error('startDownloadPicker config undefined');
+    console.log('modal picker: startModalPicker config undefined.');
+    throw Error('modal picker: startModalPicker config undefined.');
   }
   gContext = context;
-  let helper = pickerHelper.startDownloadPicker(gContext, config);
+  if (pickerHelper === undefined) {
+    console.log('modal picker: pickerHelper undefined.')
+  }
+  let helper = pickerHelper.startModalPicker(gContext, config);
   if (helper !== undefined) {
-    console.log('startDownloadPicker helper undefined');
+    console.log('modal picker: startModalPicker helper undefined.');
   }
   return helper;
+}
+
+async function modalPicker(args, context, config) {
+  console.log('modal picker: config: ' + JSON.stringify(config));
+  let modalSaveResult = await startModalPicker(context, config);
+  const saveResult = getModalPickerResult(modalSaveResult);
+  if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
+    return args[ARGS_ONE](saveResult.error, saveResult.data);
+  } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
+    return args[ARGS_ZERO](saveResult.error, saveResult.data);
+  }
+  return new Promise((resolve, reject) => {
+    if (saveResult.data !== undefined) {
+      resolve(saveResult.data);
+    } else {
+      reject(saveResult.error);
+    }
+  })
 }
 
 async function documentPickerSave(...args) {
@@ -441,28 +471,12 @@ async function documentPickerSave(...args) {
     throw getErr(ErrCode.CONTEXT_NO_EXIST);
   }
 
-  // 判断是否为download场景
   documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION_MODAL);
-  // todo: 确定对方接收ACTION的参数名
-  if (documentSaveConfig.parameters.mode == DocumentSaveMode.DOWNLOAD) {
-    // todo: 确定对方接收pickerMode的参数名
-    // todo: 确定download逻辑类名
-    documentSaveResult = await startDownloadPicker(documentSaveContext, documentSaveConfig);
-    const saveResult = getDocumentPickerSaveResult(documentSaveResult);
-    if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
-      return args[ARGS_ONE](saveResult.error, saveResult.data);
-    } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
-      return args[ARGS_ZERO](saveResult.error, saveResult.data);
-    }
-    return new Promise((resolve, reject) => {
-      if (saveResult.data !== undefined) {
-        resolve(saveResult.data);
-      } else {
-        reject(saveResult.error);
-      }
-    })
+  if (documentSaveConfig.parameters.pickerMode === DocumentSaveMode.DOWNLOAD) {
+    console.log('modal picker: will start modal picker process. (DOWNLOAD)');
+    modalPicker(args, documentSaveContext, documentSaveConfig);
+    return;
   }
-  // 否则保持原逻辑
 
   try {
     if (documentSaveContext === undefined) {
@@ -569,6 +583,7 @@ function DocumentSaveOptions() {
   this.newFileNames = undefined;
   this.defaultFilePathUri = undefined;
   this.fileSuffixChoices = undefined;
+  this.pickerMode = DocumentSaveMode.DEFAULT;
 }
 
 function AudioSelectOptions() {}
@@ -593,6 +608,9 @@ function AudioViewPicker() {
 }
 
 export default {
+  startModalPicker,
+  ExtTypes : ExtTypes,
+  PickerDetailType: PickerDetailType,
   PhotoViewMIMETypes : PhotoViewMIMETypes,
   PhotoSelectOptions : PhotoSelectOptions,
   PhotoSelectResult : PhotoSelectResult,
