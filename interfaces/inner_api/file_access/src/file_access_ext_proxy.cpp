@@ -582,7 +582,7 @@ static int ReadFileFilterResults(MessageParcel &reply, SharedMemoryInfo &memInfo
 }
 
 int FileAccessExtProxy::ListFile(const FileInfo &fileInfo, const int64_t offset, const FileFilter &filter,
-        SharedMemoryInfo &memInfo)
+    SharedMemoryInfo &memInfo)
 {
     UserAccessTracer trace;
     trace.Start("ListFile");
