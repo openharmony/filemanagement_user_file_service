@@ -38,7 +38,7 @@ static napi_value Export(napi_env env, napi_value exports)
             HILOG_ERROR("INNER BUG. Failed to export class %{public}s for module trash", nExporterName.c_str());
             return nullptr;
         } else {
-            HILOG_INFO("Class %{public}s for module trash has been exported", nExporterName.c_str());
+            HILOG_DEBUG("Class %{public}s for module trash has been exported", nExporterName.c_str());
         }
     }
     return exports;

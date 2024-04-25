@@ -34,7 +34,7 @@ static napi_value Export(napi_env env, napi_value exports)
                 product->GetClassName().c_str());
             return nullptr;
         } else {
-            HILOG_INFO("Class %{public}s for module fileio has been exported", product->GetClassName().c_str());
+            HILOG_DEBUG("Class %{public}s for module fileio has been exported", product->GetClassName().c_str());
         }
     }
 
