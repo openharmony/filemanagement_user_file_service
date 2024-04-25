@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_KITS_JS_PICKER_INCLUDE_NAPI_ERROR_H_
-#define INTERFACES_KITS_JS_PICKER_INCLUDE_NAPI_ERROR_H_
+#ifndef INTERFACES_KITS_JS_PICKER_INCLUDE_NAPI_ERROR_H
+#define INTERFACES_KITS_JS_PICKER_INCLUDE_NAPI_ERROR_H
 
 #include <string>
 #include "napi/native_api.h"
@@ -35,4 +35,4 @@ struct NapiError {
 };
 } // namespace Picker
 } // namespace OHOS
-#endif  // INTERFACES_KITS_JS_PICKER_INCLUDE_NAPI_ERROR_H_
+#endif // INTERFACES_KITS_JS_PICKER_INCLUDE_NAPI_ERROR_H

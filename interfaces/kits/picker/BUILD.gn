@@ -13,10 +13,11 @@
 
 import("//build/ohos.gni")
 import("//build/ohos/ace/ace.gni")
-import("//foundation/ability/ability_runtime/ability_runtime.gni")
 import("../../../../../../arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
-import("../../../filemanagement_aafwk.gni")
+import(
+    "../../../../../../foundation/ability/ability_runtime/ability_runtime.gni")
 import("../../../../../../foundation/arkui/ace_engine/ace_config.gni")
+import("../../../filemanagement_aafwk.gni")
 
 # compile .js to .abc.
 action("gen_picker_abc") {
@@ -58,16 +59,14 @@ ohos_shared_library("picker") {
   branch_protector_ret = "pac_ret"
   ldflags = [ "-Wl" ]
 
-  include_dirs = [
-    "include",
-  ]
+  include_dirs = [ "include" ]
 
   sources = [
     "native_module_ohos_picker.cpp",
     "src/modal_ui_callback.cpp",
+    "src/napi_error.cpp",
     "src/picker_n_exporter.cpp",
     "src/picker_napi_utils.cpp",
-    "src/napi_error.cpp",
   ]
 
   deps = [
@@ -81,18 +80,18 @@ ohos_shared_library("picker") {
     "ability_runtime:ability_context_native",
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
+    "ability_runtime:abilitykit_native",
     "ability_runtime:app_context",
     "ability_runtime:dataobs_manager",
     "ability_runtime:napi_base_context",
     "ability_runtime:runtime",
     "ability_runtime:service_extension",
     "ability_runtime:ui_extension",
-    "ability_runtime:abilitykit_native",
-    "napi:ace_napi",
+    "ace_engine:ace_uicontent",
     "file_api:filemgmt_libhilog",
     "file_api:filemgmt_libn",
-    "ace_engine:ace_uicontent",
     "hilog:libhilog",
+    "napi:ace_napi",
   ]
 
   sanitize = {

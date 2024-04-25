@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_KITS_JS_PICKER_INCLUDE_PICKER_NAPI_UTILS_H_
-#define INTERFACES_KITS_JS_PICKER_INCLUDE_PICKER_NAPI_UTILS_H_
+#ifndef INTERFACES_KITS_JS_PICKER_INCLUDE_PICKER_NAPI_UTILS_H
+#define INTERFACES_KITS_JS_PICKER_INCLUDE_PICKER_NAPI_UTILS_H
 
 #include <memory>
 #include <vector>
@@ -22,156 +22,6 @@
 #include "napi/native_node_api.h"
 #include "hilog_wrapper.h"
 #include "picker_client_errno.h"
-
-#ifdef NAPI_ASSERT
-#undef NAPI_ASSERT
-#endif
-
-#define CHECK_ARGS_WITH_MESSAGE(env, cond, msg)                 \
-    do {                                                            \
-        if (!(cond)) {                                    \
-            NapiError::ThrowError(env, JS_ERR_PARAMETER_INVALID, __FUNCTION__, __LINE__, msg); \
-            return nullptr;                                          \
-        }                                                           \
-    } while (0)
-
-#define CHECK_COND_WITH_MESSAGE(env, cond, msg)                 \
-    do {                                                            \
-        if (!(cond)) {                                    \
-            NapiError::ThrowError(env, OHOS_INVALID_PARAM_CODE, __FUNCTION__, __LINE__, msg); \
-            return nullptr;                                          \
-        }                                                           \
-    } while (0)
-
-#define NAPI_ASSERT(env, cond, msg) CHECK_ARGS_WITH_MESSAGE(env, cond, msg)
-
-#define GET_JS_ARGS(env, info, argc, argv, thisVar)                         \
-    do {                                                                    \
-        void *data;                                                         \
-        napi_get_cb_info(env, info, &(argc), argv, &(thisVar), &(data));    \
-    } while (0)
-
-#define GET_JS_OBJ_WITH_ZERO_ARGS(env, info, status, thisVar)                           \
-    do {                                                                                \
-        void *data;                                                                     \
-        status = napi_get_cb_info(env, info, nullptr, nullptr, &(thisVar), &(data));    \
-    } while (0)
-
-#define GET_JS_ASYNC_CB_REF(env, arg, count, cbRef)                                             \
-    do {                                                                                        \
-        napi_valuetype valueType = napi_undefined;                                              \
-        if ((napi_typeof(env, arg, &valueType) == napi_ok) && (valueType == napi_function)) {   \
-            napi_create_reference(env, arg, count, &(cbRef));                                   \
-        } else {                                                                                \
-            HILOG_ERROR("invalid arguments");                                           \
-            NAPI_ASSERT(env, false, "type mismatch");                                           \
-        }                                                                                       \
-    } while (0)
-
-#define ASSERT_NULLPTR_CHECK(env, result)       \
-    do {                                        \
-        if ((result) == nullptr) {              \
-            napi_get_undefined(env, &(result)); \
-            return result;                      \
-        }                                       \
-    } while (0)
-
-#define NAPI_CREATE_PROMISE(env, callbackRef, deferred, result)     \
-    do {                                                            \
-        if ((callbackRef) == nullptr) {                             \
-            napi_create_promise(env, &(deferred), &(result));       \
-        }                                                           \
-    } while (0)
-
-#define NAPI_CREATE_RESOURCE_NAME(env, resource, resourceName, context)         \
-    do {                                                                            \
-        napi_create_string_utf8(env, resourceName, NAPI_AUTO_LENGTH, &(resource));  \
-        (context)->SetApiName(resourceName);                                        \
-    } while (0)
-
-#define CHECK_NULL_PTR_RETURN_UNDEFINED(env, ptr, ret, message)     \
-    do {                                                            \
-        if ((ptr) == nullptr) {                                     \
-            HILOG_ERROR(message);                           \
-            napi_get_undefined(env, &(ret));                        \
-            return ret;                                             \
-        }                                                           \
-    } while (0)
-
-#define CHECK_NULL_PTR_RETURN_VOID(ptr, message)   \
-    do {                                           \
-        if ((ptr) == nullptr) {                    \
-            HILOG_ERROR(message);          \
-            return;                                \
-        }                                          \
-    } while (0)
-#define CHECK_IF_EQUAL(condition, errMsg)   \
-    do {                                    \
-        if (!(condition)) {                 \
-            HILOG_ERROR(errMsg);    \
-            return;                         \
-        }                                   \
-    } while (0)
-
-#define CHECK_COND_RET(cond, ret, message)                          \
-    do {                                                            \
-        if (!(cond)) {                                              \
-            HILOG_ERROR(message);                                  \
-            return ret;                                             \
-        }                                                           \
-    } while (0)
-
-#define CHECK_STATUS_RET(cond, message)                             \
-    do {                                                            \
-        napi_status __ret = (cond);                                 \
-        if (__ret != napi_ok) {                                     \
-            HILOG_ERROR(message);                                  \
-            return __ret;                                           \
-        }                                                           \
-    } while (0)
-
-#define CHECK_NULLPTR_RET(ret)                                      \
-    do {                                                            \
-        if ((ret) == nullptr) {                                     \
-            return nullptr;                                         \
-        }                                                           \
-    } while (0)
-
-#define CHECK_ARGS_BASE(env, cond, err, retVal)                     \
-    do {                                                            \
-        if ((cond) != napi_ok) {                                    \
-            NapiError::ThrowError(env, err, __FUNCTION__, __LINE__); \
-            return retVal;                                          \
-        }                                                           \
-    } while (0)
-
-#define CHECK_ARGS(env, cond, err) CHECK_ARGS_BASE(env, cond, err, nullptr)
-
-#define CHECK_ARGS_THROW_INVALID_PARAM(env, cond) CHECK_ARGS(env, cond, OHOS_INVALID_PARAM_CODE)
-
-#define CHECK_ARGS_RET_VOID(env, cond, err) CHECK_ARGS_BASE(env, cond, err, NAPI_RETVAL_NOTHING)
-
-#define CHECK_COND(env, cond, err)                                  \
-    do {                                                            \
-        if (!(cond)) {                                              \
-            NapiError::ThrowError(env, err, __FUNCTION__, __LINE__); \
-            return nullptr;                                         \
-        }                                                           \
-    } while (0)
-
-#define RETURN_NAPI_TRUE(env)                                                 \
-    do {                                                                      \
-        napi_value result = nullptr;                                          \
-        CHECK_ARGS(env, napi_get_boolean(env, true, &result), JS_INNER_FAIL); \
-        return result;                                                        \
-    } while (0)
-
-#define RETURN_NAPI_UNDEFINED(env)                                        \
-    do {                                                                  \
-        napi_value result = nullptr;                                      \
-        CHECK_ARGS(env, napi_get_undefined(env, &result), JS_INNER_FAIL); \
-        return result;                                                    \
-    } while (0)
 
 namespace OHOS {
 namespace Picker {
@@ -228,5 +78,4 @@ public:
 
 } // namespace Picker
 } // namespace OHOS
-
-#endif  // INTERFACES_KITS_JS_PICKER_INCLUDE_PICKER_NAPI_UTILS_H_
+#endif // INTERFACES_KITS_JS_PICKER_INCLUDE_PICKER_NAPI_UTILS_H

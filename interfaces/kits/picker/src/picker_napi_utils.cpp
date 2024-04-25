@@ -90,9 +90,9 @@ napi_value PickerNapiUtils::NapiCreateAsyncWork(napi_env env, unique_ptr<AsyncCo
 {
     napi_value result = nullptr;
     napi_value resource = nullptr;
-    NAPI_CREATE_PROMISE(env, asyncContext->callbackRef, asyncContext->deferred, result);
-    NAPI_CREATE_RESOURCE_NAME(env, resource, resourceName.c_str(), asyncContext);
-
+    napi_create_promise(env, &(asyncContext->deferred), &(result));
+    napi_create_string_utf8(env, resourceName.c_str(), NAPI_AUTO_LENGTH, &(resource));
+    asyncContext->SetApiName(resourceName.c_str());
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resource, execute, complete,
         static_cast<void *>(asyncContext.get()), &asyncContext->work));
     NAPI_CALL(env, napi_queue_async_work(env, asyncContext->work));

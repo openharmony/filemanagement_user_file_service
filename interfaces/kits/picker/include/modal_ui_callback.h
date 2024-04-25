@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef INTERFACES_KITS_JS_PICKER_INCLUDE_MODAL_UI_CALLBACK_H
-#define INTERFACES_KITS_JS_PICKER_INCLUDE_MODAL_UI_CALLBACK_H
+#ifndef MODAL_UI_CALLBACK_H
+#define MODAL_UI_CALLBACK_H
 
 #include "ability_context.h"
 #include "want.h"

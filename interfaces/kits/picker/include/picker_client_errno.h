@@ -64,7 +64,7 @@ constexpr int32_t JS_E_NAMETOOLONG    = UFM_JS_ERR(UFM_SYSCAP_BASE, 36);
 
 const std::unordered_map<int, std::string> jsErrMap = {
     { JS_ERR_PERMISSION_DENIED, "without permission" },
-    { JS_INNER_FAIL,            "medialibrary inner fail" },
+    { JS_INNER_FAIL,            "modal picker inner fail" },
     { JS_ERR_PARAMETER_INVALID, "invalid parameter" },
     { JS_E_DISPLAYNAME,         "display name invalid" },
     { JS_ERR_NO_SUCH_FILE,      "no such file" },

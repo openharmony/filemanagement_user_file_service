@@ -59,19 +59,27 @@ static void StartModalPickerAsyncCallbackComplete(napi_env env, napi_status stat
 {
     HILOG_INFO("modal picker: StartModalPickerAsyncCallbackComplete begin.");
     auto *context = static_cast<PickerAsyncContext*>(data);
-    CHECK_NULL_PTR_RETURN_VOID(context, "Async context is null");
+    if (context == nullptr) {
+        HILOG_ERROR("Async context is null");
+        return;
+    }
 
     auto jsContext = make_unique<JSAsyncContextOutput>();
     jsContext->status = false;
 
-    CHECK_ARGS_RET_VOID(env, napi_get_undefined(env, &jsContext->data), JS_ERR_PARAMETER_INVALID);
-    CHECK_ARGS_RET_VOID(env, napi_get_undefined(env, &jsContext->error), JS_ERR_PARAMETER_INVALID);
-
+    status = napi_get_undefined(env, &jsContext->data);
+    if (status != napi_ok) {
+        HILOG_ERROR("modal picker: napi_get_undefined jsContext->data failed");
+    }
+    status = napi_get_undefined(env, &jsContext->error);
+    if (status != napi_ok) {
+        HILOG_ERROR("modal picker: napi_get_undefined jsContext->error failed");
+    }
     const string uri = context->pickerCallBack->uri;
     HILOG_DEBUG("modal picker: uri is %{public}s.", uri.c_str());
     napi_value jsUri = nullptr;
-    CHECK_ARGS_RET_VOID(env, napi_create_string_utf8(env, uri.c_str(),
-        NAPI_AUTO_LENGTH, &jsUri), JS_INNER_FAIL);
+    status = napi_create_string_utf8(env, uri.c_str(), NAPI_AUTO_LENGTH, &jsUri);
+
     if (jsUri == nullptr) {
         HILOG_ERROR("jsUri is nullptr.");
     }
@@ -143,7 +151,8 @@ static napi_value StartPickerExtension(napi_env env, napi_callback_info info,
     auto callback = std::make_shared<ModalUICallback>(uiContent, AsyncContext->pickerCallBack.get());
     Ace::ModalUIExtensionCallbacks extensionCallback = {
         .onRelease = std::bind(&ModalUICallback::OnRelease, callback, std::placeholders::_1),
-        .onResult = std::bind(&ModalUICallback::OnResultForModal, callback, std::placeholders::_1, std::placeholders::_2),
+        .onResult = std::bind(&ModalUICallback::OnResultForModal, callback, std::placeholders::_1, 
+            std::placeholders::_2),
         .onReceive = std::bind(&ModalUICallback::OnReceive, callback, std::placeholders::_1),
         .onError = std::bind(&ModalUICallback::OnError, callback, std::placeholders::_1, std::placeholders::_2,
             std::placeholders::_3),
@@ -153,12 +162,12 @@ static napi_value StartPickerExtension(napi_env env, napi_callback_info info,
     HILOG_INFO("modal picker: will CreateModalUIExtension by extType: %{public}s, pickerType: %{public}s", targetType.c_str(), pickerType.c_str());
     int sessionId = uiContent->CreateModalUIExtension(request, extensionCallback, config);
     if (sessionId == 0) {
-        HILOG_ERROR("modal picker create modalUIExtension failed");
+        HILOG_ERROR("modal picker: create modalUIExtension failed");
         return nullptr;
     }
     callback->SetSessionId(sessionId);
     napi_value result = nullptr;
-    CHECK_ARGS(env, napi_get_boolean(env, true, &result), JS_INNER_FAIL);
+    napi_get_boolean(env, true, &result);
     return result;
 }
 
@@ -169,12 +178,20 @@ static napi_status AsyncContextSetStaticObjectInfo(napi_env env, napi_callback_i
     HILOG_INFO("modal picker: AsyncContextSetStaticObjectInfo begin.");
     napi_value thisVar = nullptr;
     asyncContext->argc = maxArgs;
-    CHECK_STATUS_RET(napi_get_cb_info(env, info, &asyncContext->argc, &(asyncContext->argv[ARGS_ZERO]), &thisVar,
-        nullptr), "Failed to get cb info");
-    CHECK_COND_RET(((asyncContext->argc >= minArgs) && (asyncContext->argc <= maxArgs)), napi_invalid_arg,
-        "Number of args is invalid");
+    napi_status ret = napi_get_cb_info(env, info, &asyncContext->argc, &(asyncContext->argv[ARGS_ZERO]), &thisVar, nullptr);
+    if (ret != napi_ok) {
+        HILOG_ERROR("modal picker: Failed to get cb info");
+        return ret;
+    }      
+    if (!((asyncContext->argc >= minArgs) && (asyncContext->argc <= maxArgs))) {                                              
+        HILOG_ERROR("modal picker: Number of args is invalid");
+        return napi_invalid_arg;
+    }
     if (minArgs > 0) {
-        CHECK_COND_RET(asyncContext->argv[ARGS_ZERO] != nullptr, napi_invalid_arg, "Argument list is empty");
+        if (asyncContext->argv[ARGS_ZERO] == nullptr) {                                              
+            HILOG_ERROR("modal picker: Argument list is empty");
+            return napi_invalid_arg;
+        }
     }
     return napi_ok;
 }
@@ -185,11 +202,16 @@ static napi_value ParseArgsStartModalPicker(napi_env env, napi_callback_info inf
     HILOG_INFO("modal picker: ParseArgsStartModalPicker begin.");
     constexpr size_t minArgs = ARGS_TWO;
     constexpr size_t maxArgs = ARGS_THREE;
-    CHECK_ARGS(env, AsyncContextSetStaticObjectInfo(env, info, context, minArgs, maxArgs),
-        JS_ERR_PARAMETER_INVALID);
-    CHECK_NULLPTR_RET(StartPickerExtension(env, info, context));
+    napi_status status = AsyncContextSetStaticObjectInfo(env, info, context, minArgs, maxArgs);
+    if (status != napi_ok) {
+        HILOG_ERROR("modal picker: AsyncContextSetStaticObjectInfo faild");
+    }
+    napi_value ret = StartPickerExtension(env, info, context);
+    if ((ret) == nullptr) {
+        return nullptr;
+    }       
     napi_value result = nullptr;
-    CHECK_ARGS(env, napi_get_boolean(env, true, &result), JS_INNER_FAIL);
+    napi_get_boolean(env, true, &result);
     return result;
 }
 
