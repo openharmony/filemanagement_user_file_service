@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -153,13 +153,14 @@ static napi_value StartPickerExtension(napi_env env, napi_callback_info info,
         .onRelease = std::bind(&ModalUICallback::OnRelease, callback, std::placeholders::_1),
         .onResult = std::bind(&ModalUICallback::OnResultForModal, callback, std::placeholders::_1, 
             std::placeholders::_2),
-        .onReceive = std::bind(&ModalUICallback::OnReceive, callback, std::placeholders::_1),
+        .onReceive = std::bind(&ModalUICallback::OnReceive, callback, std::placeholders::_1), 
         .onError = std::bind(&ModalUICallback::OnError, callback, std::placeholders::_1, std::placeholders::_2,
             std::placeholders::_3),
         .onDestroy = std::bind(&ModalUICallback::OnDestroy, callback),
     };
     Ace::ModalUIExtensionConfig config;
-    HILOG_INFO("modal picker: will CreateModalUIExtension by extType: %{public}s, pickerType: %{public}s", targetType.c_str(), pickerType.c_str());
+    HILOG_INFO("modal picker: will CreateModalUIExtension by extType: %{public}s, pickerType: %{public}s", 
+        targetType.c_str(), pickerType.c_str());
     int sessionId = uiContent->CreateModalUIExtension(request, extensionCallback, config);
     if (sessionId == 0) {
         HILOG_ERROR("modal picker: create modalUIExtension failed");
@@ -178,17 +179,18 @@ static napi_status AsyncContextSetStaticObjectInfo(napi_env env, napi_callback_i
     HILOG_INFO("modal picker: AsyncContextSetStaticObjectInfo begin.");
     napi_value thisVar = nullptr;
     asyncContext->argc = maxArgs;
-    napi_status ret = napi_get_cb_info(env, info, &asyncContext->argc, &(asyncContext->argv[ARGS_ZERO]), &thisVar, nullptr);
+    napi_status ret = napi_get_cb_info(env, info, &asyncContext->argc, &(asyncContext->argv[ARGS_ZERO]), 
+        &thisVar, nullptr);
     if (ret != napi_ok) {
         HILOG_ERROR("modal picker: Failed to get cb info");
         return ret;
-    }      
-    if (!((asyncContext->argc >= minArgs) && (asyncContext->argc <= maxArgs))) {                                              
+    }
+    if (!((asyncContext->argc >= minArgs) && (asyncContext->argc <= maxArgs))) {
         HILOG_ERROR("modal picker: Number of args is invalid");
         return napi_invalid_arg;
     }
     if (minArgs > 0) {
-        if (asyncContext->argv[ARGS_ZERO] == nullptr) {                                              
+        if (asyncContext->argv[ARGS_ZERO] == nullptr) {
             HILOG_ERROR("modal picker: Argument list is empty");
             return napi_invalid_arg;
         }
@@ -207,9 +209,9 @@ static napi_value ParseArgsStartModalPicker(napi_env env, napi_callback_info inf
         HILOG_ERROR("modal picker: AsyncContextSetStaticObjectInfo faild");
     }
     napi_value ret = StartPickerExtension(env, info, context);
-    if ((ret) == nullptr) {
+    if (ret == nullptr) {
         return nullptr;
-    }       
+    }
     napi_value result = nullptr;
     napi_get_boolean(env, true, &result);
     return result;

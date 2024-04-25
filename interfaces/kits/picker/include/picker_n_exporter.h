@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,10 +22,8 @@
 #include "data_ability_predicates.h"
 #include "filemgmt_libn.h"
 #include "picker_napi_utils.h"
-#include "napi_error.h"
 #include "napi_base_context.h"
 #include "napi_common_want.h"
-#include "picker_client_errno.h"
 
 
 namespace OHOS {
@@ -45,7 +43,7 @@ struct PickerCallBack {
     string uri;
 };
 
-struct PickerAsyncContext : public NapiError {
+struct PickerAsyncContext {
     napi_async_work work;
     napi_deferred deferred;
     napi_ref callbackRef;

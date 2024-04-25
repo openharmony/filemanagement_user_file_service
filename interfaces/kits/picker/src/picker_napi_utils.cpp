@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -42,24 +42,6 @@ void PickerNapiUtils::CreateNapiErrorObject(napi_env env, napi_value &errorObj, 
     }
 }
 
-void PickerNapiUtils::HandleError(napi_env env, int error, napi_value &errorObj, const string &Name)
-{
-    if (error == ERR_DEFAULT) {
-        return;
-    }
-
-    string errMsg = "System inner fail";
-    int originalError = error;
-    if (jsErrMap.count(error) > 0) {
-        errMsg = jsErrMap.at(error);
-    } else {
-        error = JS_INNER_FAIL;
-    }
-    CreateNapiErrorObject(env, errorObj, error, errMsg);
-    errMsg = Name + " " + errMsg;
-    HILOG_ERROR("Error: %{public}s, js errcode:%{public}d ", errMsg.c_str(), originalError);
-}
-
 void PickerNapiUtils::InvokeJSAsyncMethod(napi_env env, napi_deferred deferred, napi_ref callbackRef,
     napi_async_work work, const JSAsyncContextOutput &asyncContext)
 {
@@ -92,7 +74,6 @@ napi_value PickerNapiUtils::NapiCreateAsyncWork(napi_env env, unique_ptr<AsyncCo
     napi_value resource = nullptr;
     napi_create_promise(env, &(asyncContext->deferred), &(result));
     napi_create_string_utf8(env, resourceName.c_str(), NAPI_AUTO_LENGTH, &(resource));
-    asyncContext->SetApiName(resourceName.c_str());
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resource, execute, complete,
         static_cast<void *>(asyncContext.get()), &asyncContext->work));
     NAPI_CALL(env, napi_queue_async_work(env, asyncContext->work));

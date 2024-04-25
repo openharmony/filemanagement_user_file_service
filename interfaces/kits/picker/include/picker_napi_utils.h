@@ -21,7 +21,6 @@
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "hilog_wrapper.h"
-#include "picker_client_errno.h"
 
 namespace OHOS {
 namespace Picker {
@@ -65,7 +64,6 @@ struct NapiClassInfo {
 /* Util class used by napi asynchronous methods for making call to js callback function */
 class PickerNapiUtils {
 public:
-    static void HandleError(napi_env env, int error, napi_value &errorObj, const std::string &Name);
     static void CreateNapiErrorObject(napi_env env, napi_value &errorObj, const int32_t errCode,
         const std::string errMsg);
     static void InvokeJSAsyncMethod(napi_env env, napi_deferred deferred, napi_ref callbackRef, napi_async_work work,
