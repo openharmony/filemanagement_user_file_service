@@ -151,15 +151,15 @@ static napi_value StartPickerExtension(napi_env env, napi_callback_info info,
     auto callback = std::make_shared<ModalUICallback>(uiContent, AsyncContext->pickerCallBack.get());
     Ace::ModalUIExtensionCallbacks extensionCallback = {
         .onRelease = std::bind(&ModalUICallback::OnRelease, callback, std::placeholders::_1),
-        .onResult = std::bind(&ModalUICallback::OnResultForModal, callback, std::placeholders::_1, 
+        .onResult = std::bind(&ModalUICallback::OnResultForModal, callback, std::placeholders::_1,
             std::placeholders::_2),
-        .onReceive = std::bind(&ModalUICallback::OnReceive, callback, std::placeholders::_1), 
+        .onReceive = std::bind(&ModalUICallback::OnReceive, callback, std::placeholders::_1),
         .onError = std::bind(&ModalUICallback::OnError, callback, std::placeholders::_1, std::placeholders::_2,
             std::placeholders::_3),
         .onDestroy = std::bind(&ModalUICallback::OnDestroy, callback),
     };
     Ace::ModalUIExtensionConfig config;
-    HILOG_INFO("modal picker: will CreateModalUIExtension by extType: %{public}s, pickerType: %{public}s", 
+    HILOG_INFO("modal picker: will CreateModalUIExtension by extType: %{public}s, pickerType: %{public}s",
         targetType.c_str(), pickerType.c_str());
     int sessionId = uiContent->CreateModalUIExtension(request, extensionCallback, config);
     if (sessionId == 0) {
@@ -179,7 +179,7 @@ static napi_status AsyncContextSetStaticObjectInfo(napi_env env, napi_callback_i
     HILOG_INFO("modal picker: AsyncContextSetStaticObjectInfo begin.");
     napi_value thisVar = nullptr;
     asyncContext->argc = maxArgs;
-    napi_status ret = napi_get_cb_info(env, info, &asyncContext->argc, &(asyncContext->argv[ARGS_ZERO]), 
+    napi_status ret = napi_get_cb_info(env, info, &asyncContext->argc, &(asyncContext->argv[ARGS_ZERO]),
         &thisVar, nullptr);
     if (ret != napi_ok) {
         HILOG_ERROR("modal picker: Failed to get cb info");

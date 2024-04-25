@@ -29,7 +29,7 @@ const DocumentSelectMode = {
   MIXED: 2,
 };
 
-const DocumentSaveMode = {
+const DocumentPickerMode = {
   DEFAULT: 0,
   DOWNLOAD: 1,
 };
@@ -344,7 +344,7 @@ function parseDocumentPickerSaveOption(args, action) {
     action: action,
     parameters: {
       startMode: 'save',
-      pickerMode: DocumentSaveMode.DEFAULT,
+      pickerMode: DocumentPickerMode.DEFAULT,
     }
   };
 
@@ -361,7 +361,7 @@ function parseDocumentPickerSaveOption(args, action) {
     if ((option.fileSuffixChoices !== undefined) && option.fileSuffixChoices.length > 0) {
       config.parameters.key_file_suffix_choices = option.fileSuffixChoices;
     }
-    if (option.pickerMode === DocumentSaveMode.DOWNLOAD) {
+    if (option.pickerMode === DocumentPickerMode.DOWNLOAD) {
       config.parameters.pickerMode = option.pickerMode;
       config.action = ACTION.SAVE_ACTION_DOWNLOAD;
       config.parameters.extType = ExtTypes.DOWNLOAD_TYPE;
@@ -429,7 +429,7 @@ function startModalPicker(context, config) {
     console.log('modal picker: pickerHelper undefined.')
   }
   let helper = pickerHelper.startModalPicker(gContext, config);
-  if (helper !== undefined) {
+  if (helper === undefined) {
     console.log('modal picker: startModalPicker helper undefined.');
   }
   return helper;
@@ -472,7 +472,7 @@ async function documentPickerSave(...args) {
   }
 
   documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION_MODAL);
-  if (documentSaveConfig.parameters.pickerMode === DocumentSaveMode.DOWNLOAD) {
+  if (documentSaveConfig.parameters.pickerMode === DocumentPickerMode.DOWNLOAD) {
     console.log('modal picker: will start modal picker process. (DOWNLOAD)');
     modalPicker(args, documentSaveContext, documentSaveConfig);
     return;
@@ -583,7 +583,7 @@ function DocumentSaveOptions() {
   this.newFileNames = undefined;
   this.defaultFilePathUri = undefined;
   this.fileSuffixChoices = undefined;
-  this.pickerMode = DocumentSaveMode.DEFAULT;
+  this.pickerMode = DocumentPickerMode.DEFAULT;
 }
 
 function AudioSelectOptions() {}
@@ -616,7 +616,7 @@ export default {
   PhotoSelectResult : PhotoSelectResult,
   PhotoSaveOptions : PhotoSaveOptions,
   DocumentSelectMode : DocumentSelectMode,
-  DocumentSaveMode : DocumentSaveMode,
+  DocumentPickerMode : DocumentPickerMode,
   DocumentSelectOptions : DocumentSelectOptions,
   DocumentSaveOptions : DocumentSaveOptions,
   AudioSelectOptions : AudioSelectOptions,
