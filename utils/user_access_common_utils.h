@@ -21,17 +21,18 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
+const std::string FULL_MOUNT_ENABLE_PARAMETER = "const.filemanager.full_mount.enable";
 
-static bool GetDeviceType(std::string &deviceType)
+static bool IsFullMountEnable()
 {
-    char deviceTypeChar[PARAM_CONST_VALUE_LEN_MAX];
-    int32_t ret = GetParameter("const.product.devicetype", "0", deviceTypeChar, PARAM_CONST_VALUE_LEN_MAX);
-    if (ret < 0) {
-        HILOG_ERROR("Get deviceType fail. %{public}d", ret);
-        return false;
+    char value[] = "false";
+    int ret = GetParameter(FULL_MOUNT_ENABLE_PARAMETER.c_str(), "false", value, sizeof(value));
+    if ((ret > 0) && (std::string(value) == "true")) {
+        HILOG_INFO("Supporting all mounts");
+        return true;
     }
-    deviceType = deviceTypeChar;
-    return true;
+    HILOG_INFO("Not supporting all mounts");
+    return false;
 }
 
 static bool GetUserName(std::string &userName)

@@ -23,10 +23,9 @@ namespace OHOS {
 using namespace std;
 using namespace FileAccessFwk;
 
-bool GetDeviceTypeFuzzTest(const uint8_t *data, size_t size)
+bool IsFullMountFuzzTest(const uint8_t *data, size_t size)
 {
-    string deviceType;
-    GetDeviceType(deviceType);
+    IsFullMountEnable();
     return true;
 }
 
@@ -42,7 +41,7 @@ bool GetUserNameFuzzTest(const uint8_t *data, size_t size)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-    OHOS::GetDeviceTypeFuzzTest(data, size);
+    OHOS::IsFullMountFuzzTest(data, size);
     OHOS::GetUserNameFuzzTest(data, size);
 
     return 0;
