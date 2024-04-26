@@ -45,7 +45,7 @@ void PickerNapiUtils::CreateNapiErrorObject(napi_env env, napi_value &errorObj, 
 void PickerNapiUtils::InvokeJSAsyncMethod(napi_env env, napi_deferred deferred, napi_ref callbackRef,
     napi_async_work work, const JSAsyncContextOutput &asyncContext)
 {
-    HILOG_INFO("modal picker: InvokeJSAsyncMethod begin.")
+    HILOG_INFO("modal picker: InvokeJSAsyncMethod begin.");
     if (asyncContext.status) {
         napi_resolve_deferred(env, deferred, asyncContext.data);
     } else {
