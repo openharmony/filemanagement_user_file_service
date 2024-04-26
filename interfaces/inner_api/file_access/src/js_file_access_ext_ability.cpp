@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1227,9 +1227,6 @@ bool JsFileAccessExtAbility::ParserGetRootsJsResult(napi_env &env, napi_value na
         return false;
     }
 
-    std::string deviceType;
-    bool deviceResult = GetDeviceType(deviceType);
-    HILOG_INFO("deviceType: %{public}s", deviceType.c_str());
     for (uint32_t i = 0; i < length; i++) {
         napi_value nativeRootInfo = nullptr;
         napi_get_element(env, nativeArray, i, &nativeRootInfo);
@@ -1244,7 +1241,7 @@ bool JsFileAccessExtAbility::ParserGetRootsJsResult(napi_env &env, napi_value na
             return false;
         }
 
-        if (deviceResult && deviceType == "2in1") {
+        if (IsFullMountEnable()) {
             ChangeCurrentDir(rootInfo);
         }
         result.data.emplace_back(std::move(rootInfo));
