@@ -58,7 +58,7 @@ static napi_value Init(napi_env env, napi_value exports)
             HILOG_ERROR("INNER BUG. Failed to export class %{public}s", product->GetClassName().c_str());
             return nullptr;
         } else {
-            HILOG_ERROR("Class %{public}s has been exported", product->GetClassName().c_str());
+            HILOG_DEBUG("Class %{public}s has been exported", product->GetClassName().c_str());
         }
     }
 
