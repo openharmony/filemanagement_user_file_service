@@ -208,11 +208,11 @@ static napi_value ParseArgsStartModalPicker(napi_env env, napi_callback_info inf
     if (status != napi_ok) {
         HILOG_ERROR("modal picker: AsyncContextSetStaticObjectInfo faild");
     }
+    napi_value result = nullptr;
     napi_value ret = StartPickerExtension(env, info, context);
     if (ret == nullptr) {
         return nullptr;
     }
-    napi_value result = nullptr;
     napi_get_boolean(env, true, &result);
     return result;
 }
@@ -221,7 +221,10 @@ napi_value PickerNExporter::StartModalPicker(napi_env env, napi_callback_info in
 {
     HILOG_INFO("modal picker: StartModalPicker begin.");
     unique_ptr<PickerAsyncContext> asyncContext = make_unique<PickerAsyncContext>();
-    ParseArgsStartModalPicker(env, info, asyncContext);
+    napi_value ret = ParseArgsStartModalPicker(env, info, asyncContext);
+    if (ret == nullptr) {
+        return nullptr;
+    }
     return PickerNapiUtils::NapiCreateAsyncWork(env, asyncContext, "StrartModalPicker",
         StartModalPickerExecute, StartModalPickerAsyncCallbackComplete);
 }

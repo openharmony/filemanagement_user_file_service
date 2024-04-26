@@ -436,21 +436,25 @@ function startModalPicker(context, config) {
 }
 
 async function modalPicker(args, context, config) {
-  console.log('modal picker: config: ' + JSON.stringify(config));
-  let modalSaveResult = await startModalPicker(context, config);
-  const saveResult = getModalPickerResult(modalSaveResult);
-  if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
-    return args[ARGS_ONE](saveResult.error, saveResult.data);
-  } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
-    return args[ARGS_ZERO](saveResult.error, saveResult.data);
-  }
-  return new Promise((resolve, reject) => {
-    if (saveResult.data !== undefined) {
-      resolve(saveResult.data);
-    } else {
-      reject(saveResult.error);
+  try {
+    console.log('modal picker: config: ' + JSON.stringify(config));
+    let modalSaveResult = await startModalPicker(context, config);
+    const saveResult = getModalPickerResult(modalSaveResult);
+    if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
+      return args[ARGS_ONE](saveResult.error, saveResult.data);
+    } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
+      return args[ARGS_ZERO](saveResult.error, saveResult.data);
     }
-  })
+    return new Promise((resolve, reject) => {
+      if (saveResult.data !== undefined) {
+        resolve(saveResult.data);
+      } else {
+        reject(saveResult.error);
+      }
+    })
+  } catch (resultError) {
+    console.error('modal picker: Result error: ' + resultError);
+  }
 }
 
 async function documentPickerSave(...args) {

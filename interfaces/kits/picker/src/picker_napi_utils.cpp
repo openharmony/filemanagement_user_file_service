@@ -45,23 +45,11 @@ void PickerNapiUtils::CreateNapiErrorObject(napi_env env, napi_value &errorObj, 
 void PickerNapiUtils::InvokeJSAsyncMethod(napi_env env, napi_deferred deferred, napi_ref callbackRef,
     napi_async_work work, const JSAsyncContextOutput &asyncContext)
 {
-    napi_value retVal;
-    napi_value callback = nullptr;
-
-    /* Deferred is used when JS Callback method expects a promise value */
-    if (deferred) {
-        if (asyncContext.status) {
-            napi_resolve_deferred(env, deferred, asyncContext.data);
-        } else {
-            napi_reject_deferred(env, deferred, asyncContext.error);
-        }
+    HILOG_INFO("modal picker: InvokeJSAsyncMethod begin.")
+    if (asyncContext.status) {
+        napi_resolve_deferred(env, deferred, asyncContext.data);
     } else {
-        napi_value result[ARGS_TWO];
-        result[PARAM0] = asyncContext.error;
-        result[PARAM1] = asyncContext.data;
-        napi_get_reference_value(env, callbackRef, &callback);
-        napi_call_function(env, nullptr, callback, ARGS_TWO, result, &retVal);
-        napi_delete_reference(env, callbackRef);
+        napi_reject_deferred(env, deferred, asyncContext.error);
     }
     napi_delete_async_work(env, work);
 }
