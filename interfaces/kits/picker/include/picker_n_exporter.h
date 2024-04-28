@@ -38,7 +38,6 @@ struct NameListArg {
 
 struct PickerCallBack {
     bool ready = false;
-    bool isOrigin;
     int32_t resultCode;
     string uri;
 };
