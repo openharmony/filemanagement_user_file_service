@@ -378,8 +378,10 @@ function getModalPickerResult(args) {
     error: undefined,
     data: undefined
   }
-  if (args) {
-    saveResult.data = args.uri;
+  if (args && args.uri) {
+    var dataArr = [];
+    dataArr.push(args.uri);
+    saveResult.data = dataArr;
   }
   console.log('modal picker: download saveResult: ' + JSON.stringify(saveResult));
   return saveResult;
@@ -440,18 +442,7 @@ async function modalPicker(args, context, config) {
     console.log('modal picker: config: ' + JSON.stringify(config));
     let modalSaveResult = await startModalPicker(context, config);
     const saveResult = getModalPickerResult(modalSaveResult);
-    if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
-      return args[ARGS_ONE](saveResult.error, saveResult.data);
-    } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
-      return args[ARGS_ZERO](saveResult.error, saveResult.data);
-    }
-    return new Promise((resolve, reject) => {
-      if (saveResult.data !== undefined) {
-        resolve(saveResult.data);
-      } else {
-        reject(saveResult.error);
-      }
-    })
+    return saveResult;
   } catch (resultError) {
     console.error('modal picker: Result error: ' + resultError);
   }
@@ -467,6 +458,7 @@ async function documentPickerSave(...args) {
   let documentSaveContext = undefined;
   let documentSaveConfig = undefined;
   let documentSaveResult = undefined;
+  let saveResult = undefined;
 
   try {
     documentSaveContext = getContext(this);
@@ -478,29 +470,28 @@ async function documentPickerSave(...args) {
   documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION_MODAL);
   if (documentSaveConfig.parameters.pickerMode === DocumentPickerMode.DOWNLOAD) {
     console.log('modal picker: will start modal picker process. (DOWNLOAD)');
-    modalPicker(args, documentSaveContext, documentSaveConfig);
-    return;
-  }
-
-  try {
-    if (documentSaveContext === undefined) {
-      throw getErr(ErrCode.CONTEXT_NO_EXIST);
-    }
-    documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION_MODAL);
-    documentSaveResult = await documentSaveContext.requestDialogService(documentSaveConfig);
-  } catch (paramError) {
-    console.error('[picker] paramError: ' + JSON.stringify(paramError));
+    saveResult = await modalPicker(args, documentSaveContext, documentSaveConfig);
+  } else {
     try {
-      documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION);
-      documentSaveResult = await documentSaveContext.startAbilityForResult(documentSaveConfig, {windowMode: 0});
-    } catch (error) {
-      console.error('[picker] document save error: ' + error);
-      return undefined;
+      if (documentSaveContext === undefined) {
+        throw getErr(ErrCode.CONTEXT_NO_EXIST);
+      }
+      documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION_MODAL);
+      documentSaveResult = await documentSaveContext.requestDialogService(documentSaveConfig);
+    } catch (paramError) {
+      console.error('[picker] paramError: ' + JSON.stringify(paramError));
+      try {
+        documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION);
+        documentSaveResult = await documentSaveContext.startAbilityForResult(documentSaveConfig, {windowMode: 0});
+      } catch (error) {
+        console.error('[picker] document save error: ' + error);
+        return undefined;
+      }
     }
+    console.log('[picker] document save result: ' + JSON.stringify(documentSaveResult));
+    saveResult = getDocumentPickerSaveResult(documentSaveResult);
   }
-  console.log('[picker] document save result: ' + JSON.stringify(documentSaveResult));
   try {
-    const saveResult = getDocumentPickerSaveResult(documentSaveResult);
     if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
       return args[ARGS_ONE](saveResult.error, saveResult.data);
     } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
