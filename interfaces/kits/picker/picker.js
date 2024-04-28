@@ -378,7 +378,7 @@ function getModalPickerResult(args) {
     error: undefined,
     data: undefined
   }
-  if (args && args.uri) {
+  if (args) {
     var dataArr = [];
     dataArr.push(args.uri);
     saveResult.data = dataArr;
