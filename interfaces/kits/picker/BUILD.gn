@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//build/ohos/ace/ace.gni")
 import("../../../../../../arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("../../../filemanagement_aafwk.gni")
 
@@ -54,7 +55,15 @@ gen_js_obj("picker_abc") {
 ohos_shared_library("picker") {
   branch_protector_ret = "pac_ret"
   ldflags = [ "-Wl" ]
-  sources = [ "native_module_ohos_picker.cpp" ]
+
+  include_dirs = [ "include" ]
+
+  sources = [
+    "native_module_ohos_picker.cpp",
+    "src/modal_ui_callback.cpp",
+    "src/picker_n_exporter.cpp",
+    "src/picker_napi_utils.cpp",
+  ]
 
   deps = [
     ":picker_abc",
@@ -62,7 +71,22 @@ ohos_shared_library("picker") {
   ]
 
   external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:app_context",
+    "ability_runtime:dataobs_manager",
+    "ability_runtime:napi_base_context",
+    "ability_runtime:runtime",
+    "ability_runtime:service_extension",
+    "ability_runtime:ui_extension",
+    "ace_engine:ace_uicontent",
+    "file_api:filemgmt_libhilog",
+    "file_api:filemgmt_libn",
+    "hilog:libhilog",
     "napi:ace_napi",
   ]
 
