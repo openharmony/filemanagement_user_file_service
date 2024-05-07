@@ -35,7 +35,7 @@ const DocumentPickerMode = {
 };
 
 const ExtTypes = {
-  DOWNLOAD_TYPE: 'download',
+  DOWNLOAD_TYPE: 'filePicker',
 };
 
 const PickerDetailType = {
