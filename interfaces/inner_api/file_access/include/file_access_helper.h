@@ -103,9 +103,6 @@ private:
     FileAccessHelper(const sptr<IRemoteObject> &token,
         const std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> &cMap);
 
-    void AddFileAccessDeathRecipient(const sptr<IRemoteObject> &token);
-    void OnSchedulerDied(const wptr<IRemoteObject> &remote);
-
     std::shared_ptr<ConnectInfo> GetConnectInfo(const std::string &bundleName);
     std::shared_ptr<ConnectExtensionInfo> GetConnectExtensionInfo(Uri &uri);
 
@@ -115,20 +112,6 @@ private:
 
     sptr<IRemoteObject> token_ = nullptr;
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap_;
-    std::mutex deathRecipientMutex_;
-
-    sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
-};
-
-class FileAccessDeathRecipient : public IRemoteObject::DeathRecipient {
-public:
-    using RemoteDiedHandler = std::function<void(const wptr<IRemoteObject> &)>;
-    explicit FileAccessDeathRecipient(RemoteDiedHandler handler);
-    virtual ~FileAccessDeathRecipient();
-    virtual void OnRemoteDied(const wptr<IRemoteObject> &remote);
-
-private:
-    RemoteDiedHandler handler_;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

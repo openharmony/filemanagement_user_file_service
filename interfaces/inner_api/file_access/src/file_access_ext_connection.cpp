@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -40,6 +40,7 @@ void FileAccessExtConnection::OnAbilityConnectDone(
         HILOG_ERROR("fileExtProxy_ is nullptr");
         return;
     }
+    AddFileAccessDeathRecipient(fileExtProxy_->AsObject());
     HILOG_INFO("OnAbilityConnectDone set connected info");
     isConnected_.store(true);
     std::lock_guard<std::mutex> lock(connectLockInfo_.mutex);
@@ -85,6 +86,51 @@ bool FileAccessExtConnection::IsExtAbilityConnected()
 sptr<IFileAccessExtBase> FileAccessExtConnection::GetFileExtProxy()
 {
     return fileExtProxy_;
+}
+
+void FileAccessExtConnection::AddFileAccessDeathRecipient(const sptr<IRemoteObject> &token)
+{
+    std::lock_guard<std::mutex> lock(deathRecipientMutex_);
+    if (token != nullptr && callerDeathRecipient_ != nullptr) {
+        token->RemoveDeathRecipient(callerDeathRecipient_);
+    }
+    if (callerDeathRecipient_ == nullptr) {
+        callerDeathRecipient_ =
+            new FileAccessDeathRecipient(
+                std::bind(&FileAccessExtConnection::OnSchedulerDied, this, std::placeholders::_1));
+    }
+    if (token != nullptr) {
+        token->AddDeathRecipient(callerDeathRecipient_);
+    }
+}
+
+void FileAccessExtConnection::OnSchedulerDied(const wptr<IRemoteObject> &remote)
+{
+    HILOG_ERROR("OnSchedulerDied");
+    auto object = remote.promote();
+    if (object) {
+        object = nullptr;
+    }
+    isConnected_.store(false);
+    if (fileExtProxy_) {
+        fileExtProxy_ = nullptr;
+    }
+}
+
+void FileAccessDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    HILOG_ERROR("OnRemoteDied");
+    if (handler_) {
+        handler_(remote);
+    }
+}
+
+FileAccessDeathRecipient::FileAccessDeathRecipient(RemoteDiedHandler handler) : handler_(handler)
+{
+}
+
+FileAccessDeathRecipient::~FileAccessDeathRecipient()
+{
 }
 } // namespace FileAccessFwk
 } // namespace OHOS
