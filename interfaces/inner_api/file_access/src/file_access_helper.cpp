@@ -128,27 +128,6 @@ FileAccessHelper::~FileAccessHelper()
     Release();
 }
 
-void FileAccessHelper::AddFileAccessDeathRecipient(const sptr<IRemoteObject> &token)
-{
-    std::lock_guard<std::mutex> lock(deathRecipientMutex_);
-    if (token != nullptr && callerDeathRecipient_ != nullptr) {
-        token->RemoveDeathRecipient(callerDeathRecipient_);
-    }
-    if (callerDeathRecipient_ == nullptr) {
-        callerDeathRecipient_ =
-            new FileAccessDeathRecipient(std::bind(&FileAccessHelper::OnSchedulerDied, this, std::placeholders::_1));
-    }
-    if (token != nullptr) {
-        token->AddDeathRecipient(callerDeathRecipient_);
-    }
-}
-
-void FileAccessHelper::OnSchedulerDied(const wptr<IRemoteObject> &remote)
-{
-    auto object = remote.promote();
-    object = nullptr;
-}
-
 std::shared_ptr<ConnectInfo> FileAccessHelper::GetConnectInfo(const std::string &bundleName)
 {
     auto iterator = cMap_.find(bundleName);
@@ -362,21 +341,14 @@ sptr<IFileAccessExtBase> FileAccessHelper::GetProxyByBundleName(const std::strin
         HILOG_ERROR("GetProxyByUri failed with invalid connectInfo");
         return nullptr;
     }
-
     if (!connectInfo->fileAccessExtConnection->IsExtAbilityConnected()) {
         connectInfo->fileAccessExtConnection->ConnectFileExtAbility(connectInfo->want, token_);
     }
-
     auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
-    if (fileAccessExtProxy) {
-        AddFileAccessDeathRecipient(fileAccessExtProxy->AsObject());
-    }
-
     if (fileAccessExtProxy == nullptr) {
         HILOG_ERROR("GetProxyByUri failed with invalid fileAccessExtProxy");
         return nullptr;
     }
-
     return fileAccessExtProxy;
 }
 
@@ -387,12 +359,7 @@ bool FileAccessHelper::GetProxy()
         if (!connectInfo->fileAccessExtConnection->IsExtAbilityConnected()) {
             connectInfo->fileAccessExtConnection->ConnectFileExtAbility(connectInfo->want, token_);
         }
-
         auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
-        if (fileAccessExtProxy) {
-            AddFileAccessDeathRecipient(fileAccessExtProxy->AsObject());
-        }
-
         if (fileAccessExtProxy == nullptr) {
             HILOG_ERROR("GetProxy failed with invalid fileAccessExtProxy");
             return false;
@@ -938,9 +905,7 @@ int FileAccessHelper::GetRoots(std::vector<RootInfo> &rootInfoVec)
         auto connectInfo = iter->second;
         auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
         std::vector<RootInfo> results;
-        if (fileAccessExtProxy) {
-            AddFileAccessDeathRecipient(fileAccessExtProxy->AsObject());
-        } else {
+        if (!fileAccessExtProxy) {
             HILOG_ERROR("GetFileExtProxy return nullptr, bundle name is %{public}s", iter->first.c_str());
             continue;
         }
@@ -1217,21 +1182,6 @@ int FileAccessHelper::MoveFile(Uri &sourceFile, Uri &targetParent, std::string &
     }
 
     return ERR_OK;
-}
-
-void FileAccessDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
-{
-    if (handler_) {
-        handler_(remote);
-    }
-}
-
-FileAccessDeathRecipient::FileAccessDeathRecipient(RemoteDiedHandler handler) : handler_(handler)
-{
-}
-
-FileAccessDeathRecipient::~FileAccessDeathRecipient()
-{
 }
 } // namespace FileAccessFwk
 } // namespace OHOS
