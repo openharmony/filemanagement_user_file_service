@@ -768,6 +768,10 @@ export default class FileExtAbility extends Extension {
     return `file://docs/storage/External/${path}`;
   }
 
+  hmdfsPath2uri(path): string {
+    return `file://docs/storage/hmdfs/${path}`;
+  }
+
   getRoots() {
     let roots = [
       {
@@ -800,6 +804,26 @@ export default class FileExtAbility extends Extension {
         volumeInfoList.push(volumeInfo);
       }
       roots = roots.concat(volumeInfoList);
+
+      try {
+        let rootPathHmdfs = '/storage/hmdfs';
+        let hmdfsInfoList = [];
+        let hmdfsName = fs.listFileSync(rootPathHmdfs);
+        for (let i = 0; i < hmdfsName.length; i++) {
+          let hmdfsInfo = {
+            uri: this.hmdfsPath2uri(hmdfsName[i]),
+            displayName: hmdfsName[i],
+            relativePath: '/storage/hmdfs/' + hmdfsName[i],
+            deviceType: deviceType.DEVICE_SHARED_TERMINAL,
+            deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
+          };
+          hmdfsInfoList.push(hmdfsInfo);
+        }
+        roots = roots.concat(hmdfsInfoList);
+      } catch (e) {
+        hilog.info(DOMAIN_CODE, TAG, 'getRoots errorcode: ' + e.code, ' message: ' + e.message);
+      }
+
       return rootsReturnObject(roots, ERR_OK);
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'getRoots errorcode: ' + e.code, ' message: ' + e.message);
