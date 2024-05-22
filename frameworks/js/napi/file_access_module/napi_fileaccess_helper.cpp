@@ -772,18 +772,18 @@ napi_value NAPI_Copy(napi_env env, napi_callback_info info)
     if (!result) {
         return NapiFileInfoExporter::ThrowError(env, E_GETRESULT);
     }
-    int ret = ERR_OK;
-    auto cbExec = [srcPathStr, destPathStr, force, result, &ret, fileAccessHelper]() -> NError {
+    auto ret = std::make_shared<int>(ERR_OK);
+    auto cbExec = [srcPathStr, destPathStr, force, result, ret, fileAccessHelper]() -> NError {
         OHOS::Uri srcUri(srcPathStr);
         OHOS::Uri destUri(destPathStr);
-        ret = fileAccessHelper->Copy(srcUri, destUri, *result, force);
-        if ((ret == COPY_EXCEPTION) && !result->empty()) {
+        *ret = fileAccessHelper->Copy(srcUri, destUri, *result, force);
+        if ((*ret == COPY_EXCEPTION) && !result->empty()) {
             return NError(result->at(0).errCode);
         }
         return NError();
     };
-    auto cbComplete = [&ret, result](napi_env env, NError err) -> NVal {
-        if (ret == COPY_EXCEPTION) {
+    auto cbComplete = [ret, result](napi_env env, NError err) -> NVal {
+        if (*ret == COPY_EXCEPTION) {
             return { env, err.GetNapiErr(env) };
         }
         return { env, CreateObjectArray(env, *result) };
@@ -1364,18 +1364,18 @@ napi_value NAPI_MoveItem(napi_env env, napi_callback_info info)
     if (result == nullptr) {
         return NapiFileInfoExporter::ThrowError(env, E_GETRESULT);
     }
-    int ret = ERR_OK;
-    auto cbExec = [srcPathStr, destPathStr, force, result, &ret, fileAccessHelper]() -> NError {
+    auto ret = std::make_shared<int>(ERR_OK);
+    auto cbExec = [srcPathStr, destPathStr, force, result, ret, fileAccessHelper]() -> NError {
         OHOS::Uri srcUri(srcPathStr);
         OHOS::Uri destUri(destPathStr);
-        ret = fileAccessHelper->MoveItem(srcUri, destUri, *result, force);
-        if ((ret == COPY_EXCEPTION) && !result->empty()) {
+        *ret = fileAccessHelper->MoveItem(srcUri, destUri, *result, force);
+        if ((*ret == COPY_EXCEPTION) && !result->empty()) {
             return NError(result->at(0).errCode);
         }
         return NError();
     };
-    auto cbComplete = [&ret, result](napi_env env, NError err) -> NVal {
-        if (ret == COPY_EXCEPTION) {
+    auto cbComplete = [ret, result](napi_env env, NError err) -> NVal {
+        if (*ret == COPY_EXCEPTION) {
             return { env, err.GetNapiErr(env) };
         }
         return { env, CreateObjectArray(env, *result) };
