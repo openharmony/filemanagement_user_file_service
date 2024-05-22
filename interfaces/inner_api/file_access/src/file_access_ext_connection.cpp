@@ -50,32 +50,41 @@ void FileAccessExtConnection::OnAbilityConnectDone(
 
 void FileAccessExtConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
-    fileExtProxy_ = nullptr;
-    isConnected_.store(false);
+    HILOG_INFO("OnAbilityDisconnectDone resultCode=%{public}d", resultCode);
 }
 
 void FileAccessExtConnection::ConnectFileExtAbility(const AAFwk::Want &want, const sptr<IRemoteObject> &token)
 {
+    fileExtProxy_ = nullptr;
+    isConnected_.store(false);
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, this, token);
-    HILOG_INFO("ConnectFileExtAbility ret: %{public}d ", ret);
     if (ret != ERR_OK) {
-        HILOG_INFO("ConnectAbility ret=%{public}d", ret);
+        HILOG_ERROR("ConnectAbility failed, ret=%{public}d", ret);
         return;
     }
     std::unique_lock<std::mutex> lock(connectLockInfo_.mutex);
     const int WAIT_TIME = 3;  // second
     if (!connectLockInfo_.condition.wait_for(lock, std::chrono::seconds(WAIT_TIME),
         [this] { return fileExtProxy_ != nullptr && connectLockInfo_.isReady; })) {
-        HILOG_INFO("Wait connect timeout.");
+        HILOG_ERROR("Wait connect timeout.");
+        return;
     }
+    HILOG_INFO("ConnectFileExtAbility success");
 }
 
 void FileAccessExtConnection::DisconnectFileExtAbility()
 {
+    if (fileExtProxy_ != nullptr) {
+        RemoveFileAccessDeathRecipient(fileExtProxy_->AsObject());
+    }
+    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(this);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("DisconnectAbility failed, ret=%{public}d", ret);
+        return;
+    }
     fileExtProxy_ = nullptr;
     isConnected_.store(false);
-    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(this);
-    HILOG_INFO("DisconnectFileExtAbility called end, ret=%{public}d", ret);
+    HILOG_INFO("DisconnectFileExtAbility done");
 }
 
 bool FileAccessExtConnection::IsExtAbilityConnected()
@@ -104,6 +113,14 @@ void FileAccessExtConnection::AddFileAccessDeathRecipient(const sptr<IRemoteObje
     }
 }
 
+void FileAccessExtConnection::RemoveFileAccessDeathRecipient(const sptr<IRemoteObject> &token)
+{
+    std::lock_guard<std::mutex> lock(deathRecipientMutex_);
+    if (token != nullptr && callerDeathRecipient_ != nullptr) {
+        token->RemoveDeathRecipient(callerDeathRecipient_);
+    }
+}
+
 void FileAccessExtConnection::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 {
     HILOG_ERROR("OnSchedulerDied");
@@ -114,6 +131,13 @@ void FileAccessExtConnection::OnSchedulerDied(const wptr<IRemoteObject> &remote)
     isConnected_.store(false);
     if (fileExtProxy_) {
         fileExtProxy_ = nullptr;
+    }
+}
+
+FileAccessExtConnection::~FileAccessExtConnection()
+{
+    if (isConnected_.load()) {
+        DisconnectFileExtAbility();
     }
 }
 
