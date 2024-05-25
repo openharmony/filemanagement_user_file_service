@@ -194,7 +194,11 @@ async function photoPickerSelect(...args) {
 
   let photoSelectContext = undefined;
   try {
-    photoSelectContext = getContext(this);
+    if (this.context !== undefined) {
+      photoSelectContext = this.context;
+    } else {
+      photoSelectContext = getContext(this);
+    }
   } catch (getContextError) {
     console.error('[picker] getContext error: ' + getContextError);
     throw getErr(ErrCode.CONTEXT_NO_EXIST);
@@ -297,7 +301,11 @@ async function documentPickerSelect(...args) {
   let documentSelectResult = undefined;
 
   try {
-    documentSelectContext = getContext(this);
+    if (this.context !== undefined) {
+      documentSelectContext = this.context;
+    } else {
+      documentSelectContext = getContext(this);
+    }
   } catch (getContextError) {
     console.error('[picker] getContext error: ' + getContextError);
     throw getErr(ErrCode.CONTEXT_NO_EXIST);
@@ -461,7 +469,11 @@ async function documentPickerSave(...args) {
   let saveResult = undefined;
 
   try {
-    documentSaveContext = getContext(this);
+    if (this.context !== undefined) {
+      documentSaveContext = this.context;
+    } else {
+      documentSaveContext = getContext(this);
+    }
   } catch (getContextError) {
     console.error('[picker] getContext error: ' + getContextError);
     throw getErr(ErrCode.CONTEXT_NO_EXIST);
@@ -522,7 +534,11 @@ async function audioPickerSelect(...args) {
 
   let audioSelectContext = undefined;
   try {
-    audioSelectContext = getContext(this);
+    if (this.context !== undefined) {
+      audioSelectContext = this.context;
+    } else {
+      audioSelectContext = getContext(this);
+    }
   } catch (getContextError) {
     console.error('[picker] getContext error: ' + getContextError);
     throw getErr(ErrCode.CONTEXT_NO_EXIST);
@@ -587,19 +603,30 @@ function AudioSaveOptions() {
   this.newFileNames = undefined;
 }
 
-function PhotoViewPicker() {
+function ParseContext(args)
+{
+  if (args.length > ARGS_ONE || args.length < ARGS_ZERO || typeof args[ARGS_ZERO] !== 'object') {
+    return undefined;
+  }
+  return args[ARGS_ZERO];
+}
+
+function PhotoViewPicker(...args) {
   this.select = photoPickerSelect;
   this.save = documentPickerSave;
+  this.context = ParseContext(args);
 }
 
-function DocumentViewPicker() {
+function DocumentViewPicker(...args) {
   this.select = documentPickerSelect;
   this.save = documentPickerSave;
+  this.context = ParseContext(args);
 }
 
-function AudioViewPicker() {
+function AudioViewPicker(...args) {
   this.select = audioPickerSelect;
   this.save = documentPickerSave;
+  this.context = ParseContext(args);
 }
 
 export default {
