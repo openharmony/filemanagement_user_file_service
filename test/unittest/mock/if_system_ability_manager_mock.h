@@ -62,6 +62,8 @@ public:
         std::vector<sptr<IRemoteObject>>& saList));
     MOCK_METHOD2(GetRunningSaExtensionInfoList, int32_t(const std::string& extension,
         std::vector<SaExtensionInfo>& infoList));
+    MOCK_METHOD3(GetCommonEventExtraDataIdlist, int32_t(int32_t systemAbilityId,
+        std::vector<int64_t>& extraDataIdList, const std::string& eventName));
 };
 } // namespace OHOS
 
