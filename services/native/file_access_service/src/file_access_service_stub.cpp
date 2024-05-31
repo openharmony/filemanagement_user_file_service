@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -61,14 +61,14 @@ int32_t FileAccessServiceStub::OnRemoteRequest(uint32_t code, MessageParcel &dat
         return ERR_INVALID_STATE;
     }
 
-    const auto &itFunc = stubFuncMap_.find(code);
-    if (itFunc != stubFuncMap_.end()) {
-        return (this->*(itFunc->second))(data, reply);
-    }
-
     if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
         HILOG_ERROR("permission error");
         return E_PERMISSION;
+    }
+
+    const auto &itFunc = stubFuncMap_.find(code);
+    if (itFunc != stubFuncMap_.end()) {
+        return (this->*(itFunc->second))(data, reply);
     }
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
