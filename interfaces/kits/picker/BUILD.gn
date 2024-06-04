@@ -80,6 +80,7 @@ ohos_shared_library("picker") {
     "ability_runtime:app_context",
     "ability_runtime:dataobs_manager",
     "ability_runtime:napi_base_context",
+    "ability_runtime:napi_common",
     "ability_runtime:runtime",
     "ability_runtime:service_extension",
     "ability_runtime:ui_extension",
