@@ -63,6 +63,11 @@ napi_status napi_create_int32(napi_env env, int32_t value, napi_value* result)
     return OHOS::FileAccessFwk::Assistant::ins_->napi_create_int32(env, value, result);
 }
 
+napi_status napi_create_int64(napi_env env, int64_t value, napi_value* result)
+{
+    return OHOS::FileAccessFwk::Assistant::ins_->napi_create_int64(env, value, result);
+}
+
 napi_status napi_get_value_string_utf8(napi_env env, napi_value value, char* buf, size_t bufsize, size_t* result)
 {
     return OHOS::FileAccessFwk::Assistant::ins_->napi_get_value_string_utf8(env, value, buf, bufsize, result);
@@ -91,4 +96,29 @@ napi_status napi_get_element(napi_env env, napi_value object, uint32_t index, na
 napi_status napi_escape_handle(napi_env env, napi_escapable_handle_scope scope, napi_value escapee, napi_value* result)
 {
     return OHOS::FileAccessFwk::Assistant::ins_->napi_escape_handle(env, scope, escapee, result);
+}
+
+napi_status napi_get_null(napi_env env, napi_value* result)
+{
+    return OHOS::FileAccessFwk::Assistant::ins_->napi_get_null(env, result);
+}
+
+napi_status napi_create_object(napi_env env, napi_value* result)
+{
+    return OHOS::FileAccessFwk::Assistant::ins_->napi_create_object(env, result);
+}
+
+napi_status napi_create_array_with_length(napi_env env, size_t length, napi_value* result)
+{
+    return OHOS::FileAccessFwk::Assistant::ins_->napi_create_array_with_length(env, length, result);
+}
+
+napi_status napi_create_double(napi_env env, double value, napi_value* result)
+{
+    return OHOS::FileAccessFwk::Assistant::ins_->napi_create_double(env, value, result);
+}
+
+napi_status napi_set_named_property(napi_env env, napi_value object, const char* utf8Name, napi_value value)
+{
+    return OHOS::FileAccessFwk::Assistant::ins_->napi_set_named_property(env, object, utf8Name, value);
 }

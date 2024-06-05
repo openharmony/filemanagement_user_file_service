@@ -31,6 +31,7 @@ namespace OHOS::FileAccessFwk {
 using namespace std;
 using namespace testing;
 using namespace testing::ext;
+const int ARG_INDEX_FIRST = 1;
 const int ARG_INDEX_SECOND = 2;
 const int ARG_INDEX_THIRD = 3;
 const int ARG_INDEX_FOUR = 4;
@@ -159,6 +160,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CallObjectMethod
         result = ability->CallObjectMethod(nullptr, nullptr, 0);
         EXPECT_TRUE(result == nullptr);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_CallObjectMethod_0000";
@@ -197,6 +199,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CallJsMethod_000
         result = ability->CallJsMethod(funcNameIn, *jsRuntime, jsObj, argParser, retParser);
         EXPECT_EQ(result, ERR_OK);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_CallJsMethod_0000";
@@ -251,6 +254,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_DoCallJsMethod_0
         result = ability->CallJsMethod(funcNameIn, *jsRuntime, jsObj, argParser, retParser);
         EXPECT_EQ(result, EINVAL);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_DoCallJsMethod_0000";
@@ -298,6 +302,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_DoCallJsMethod_0
         result = ability->CallJsMethod(funcNameIn, *jsRuntime, jsObj, argParser, retParser);
         EXPECT_EQ(result, EINVAL);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_DoCallJsMethod_0001";
@@ -324,6 +329,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0000, t
         auto result = ability->OpenFile(uri, 0, fd);
         EXPECT_EQ(result, EINVAL);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_OpenFile_0000";
@@ -364,6 +370,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0001, t
         result = ability->OpenFile(uri, 0, fd);
         EXPECT_EQ(result, ERR_OK);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_OpenFile_0001";
@@ -480,6 +487,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0002, t
         result = ability->OpenFile(uri, 0, fd);
         EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_OpenFile_0002";
@@ -513,6 +521,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0003, t
         auto result = ability->OpenFile(uri, 0, fd);
         EXPECT_EQ(result, ERR_OK);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_OpenFile_0003";
@@ -540,6 +549,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CreateFile_0000,
         auto result = ability->CreateFile(parent, displayName, newFile);
         EXPECT_EQ(result, EINVAL);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_CreateFile_0000";
@@ -580,6 +590,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CreateFile_0001,
         result = ability->CreateFile(parent, displayName, newFile);
         EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_CreateFile_0001";
@@ -626,6 +637,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CreateFile_0002,
         result = ability->CreateFile(parent, displayName, newFile);
         EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_CreateFile_0002";
@@ -656,6 +668,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CreateFile_0003,
         auto result = ability->CreateFile(parent, displayName, newFile);
         EXPECT_EQ(result, ERR_OK);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_CreateFile_0003";
@@ -683,6 +696,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Mkdir_0000, test
         auto result = ability->Mkdir(parent, displayName, newFile);
         EXPECT_EQ(result, EINVAL);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Mkdir_0000";
@@ -723,6 +737,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Mkdir_0001, test
         result = ability->Mkdir(parent, displayName, newFile);
         EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Mkdir_0001";
@@ -768,6 +783,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Mkdir_0002, test
         result = ability->Mkdir(parent, displayName, newFile);
         EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Mkdir_0002";
@@ -798,6 +814,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Mkdir_0003, test
         auto result = ability->Mkdir(parent, displayName, newFile);
         EXPECT_EQ(result, ERR_OK);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Mkdir_0003";
@@ -823,6 +840,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Delete_0000, tes
         auto result = ability->Delete(sourceFile);
         EXPECT_EQ(result, EINVAL);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Delete_0000";
@@ -870,6 +888,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Delete_0001, tes
         result = ability->Delete(sourceFile);
         EXPECT_EQ(result, E_IPCS);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Delete_0001";
@@ -910,6 +929,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Delete_0002, tes
         auto result = ability->Delete(sourceFile);
         EXPECT_EQ(result, ERR_OK);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Delete_0002";
@@ -937,6 +957,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Move_0000, testi
         auto result = ability->Move(sourceFile, targetParent, newFile);
         EXPECT_EQ(result, EINVAL);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Move_0000";
@@ -977,6 +998,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Move_0001, testi
         result = ability->Move(sourceFile, targetParent, newFile);
         EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Move_0001";
@@ -1023,6 +1045,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Move_0002, testi
         result = ability->Move(sourceFile, targetParent, newFile);
         EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Move_0002";
@@ -1053,6 +1076,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Move_0003, testi
         auto result = ability->Move(sourceFile, targetParent, newFile);
         EXPECT_EQ(result, ERR_OK);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Move_0003";
@@ -1081,6 +1105,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0000, testi
         auto result = ability->Copy(sourceUri, destUri, copyResult, force);
         EXPECT_EQ(result, EXCEPTION);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Copy_0000";
@@ -1134,6 +1159,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0001, testi
         result = ability->Copy(sourceUri, destUri, copyResult, force);
         EXPECT_EQ(result, EXCEPTION);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Copy_0001";
@@ -1169,6 +1195,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0002, testi
         auto result = ability->Copy(sourceUri, destUri, copyResult, force);
         EXPECT_EQ(result, EXCEPTION);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Copy_0002";
@@ -1207,6 +1234,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0003, testi
         auto result = ability->Copy(sourceUri, destUri, copyResult, force);
         EXPECT_EQ(result, EXCEPTION);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Copy_0003";
@@ -1246,6 +1274,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0004, testi
         auto result = ability->Copy(sourceUri, destUri, copyResult, force);
         EXPECT_EQ(result, ERR_OK);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Copy_0004";
@@ -1286,6 +1315,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0005, testi
         auto result = ability->Copy(sourceUri, destUri, copyResult, force);
         EXPECT_EQ(result, E_IPCS);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Copy_0005";
@@ -1324,11 +1354,13 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0006, testi
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(E_IPCS), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_create_array(_, _))
-            .WillRepeatedly(DoAll(SetArgPointee<1>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+            .WillRepeatedly(DoAll(SetArgPointee<ARG_INDEX_FIRST>(reinterpret_cast<napi_value>(&rslt)),
+                Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_get_array_length(_, _, _)).WillOnce(Return(napi_invalid_arg));
         auto result = ability->Copy(sourceUri, destUri, copyResult, force);
         EXPECT_EQ(result, E_IPCS);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Copy_0006";
@@ -1367,13 +1399,15 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0007, testi
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(E_IPCS), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_create_array(_, _))
-            .WillRepeatedly(DoAll(SetArgPointee<1>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+            .WillRepeatedly(DoAll(SetArgPointee<ARG_INDEX_FIRST>(reinterpret_cast<napi_value>(&rslt)),
+                Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_get_array_length(_, _, _))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(1), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_get_element(_, _, _, _)).WillOnce(Return(napi_ok));
         auto result = ability->Copy(sourceUri, destUri, copyResult, force);
         EXPECT_EQ(result, E_IPCS);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Copy_0007";
@@ -1402,6 +1436,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0000, t
         auto result = ability->CopyFile(sourceUri, destUri, fileName, newFileUri);
         EXPECT_EQ(result, EINVAL);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_CopyFile_0000";
@@ -1455,6 +1490,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0001, t
         result = ability->CopyFile(sourceUri, destUri, fileName, newFileUri);
         EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_CopyFile_0001";
@@ -1500,6 +1536,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0002, t
         auto result = ability->CopyFile(sourceUri, destUri, fileName, newFileUri);
         EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_CopyFile_0002";
@@ -1548,6 +1585,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0003, t
         auto result = ability->CopyFile(sourceUri, destUri, fileName, newFileUri);
         EXPECT_EQ(result, ERR_OK);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_CopyFile_0003";
@@ -1599,6 +1637,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0004, t
         auto result = ability->CopyFile(sourceUri, destUri, fileName, newFileUri);
         EXPECT_EQ(result, E_IPCS);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_CopyFile_0004";
@@ -1636,6 +1675,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0005, t
         auto result = ability->CopyFile(sourceUri, destUri, fileName, newFileUri);
         EXPECT_EQ(result, E_IPCS);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_CopyFile_0005";
@@ -1679,6 +1719,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0006, t
         result = ability->CopyFile(sourceUri, destUri, fileName, newFileUri);
         EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_CopyFile_0006";
@@ -1714,6 +1755,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0007, t
         auto result = ability->CopyFile(sourceUri, destUri, fileName, newFileUri);
         EXPECT_EQ(result, ERR_OK);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_CopyFile_0007";
@@ -1741,6 +1783,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0000, tes
         auto result = ability->Rename(sourceFile, displayName, newFile);
         EXPECT_EQ(result, EINVAL);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Rename_0000";
@@ -1781,6 +1824,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0001, tes
         result = ability->Rename(sourceFile, displayName, newFile);
         EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Rename_0001";
@@ -1826,6 +1870,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0002, tes
         result = ability->Rename(sourceFile, displayName, newFile);
         EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Rename_0002";
@@ -1856,8 +1901,11 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0003, tes
         auto result = ability->Rename(sourceFile, displayName, newFile);
         EXPECT_EQ(result, ERR_OK);
     } catch (...) {
+        EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Rename_0003";
 }
+
+#include "js_file_access_ext_ability_ex_test.cpp"
 }
