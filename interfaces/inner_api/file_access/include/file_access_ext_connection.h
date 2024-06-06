@@ -31,7 +31,7 @@ namespace FileAccessFwk {
 class FileAccessExtConnection : public AAFwk::AbilityConnectionStub {
 public:
     FileAccessExtConnection() = default;
-    virtual ~FileAccessExtConnection() = default;
+    virtual ~FileAccessExtConnection();
 
     void OnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
@@ -44,6 +44,7 @@ public:
 
 private:
     void AddFileAccessDeathRecipient(const sptr<IRemoteObject> &token);
+    void RemoveFileAccessDeathRecipient(const sptr<IRemoteObject> &token);
     struct ThreadLockInfo {
         std::condition_variable condition;
         std::mutex mutex;
