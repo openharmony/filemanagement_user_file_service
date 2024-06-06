@@ -41,6 +41,7 @@ public:
     virtual napi_status napi_get_named_property(napi_env, napi_value, const char*, napi_value*) = 0;
     virtual int uv_queue_work(uv_loop_t*, uv_work_t*, uv_work_cb, uv_after_work_cb) = 0;
     virtual napi_status napi_get_value_int32(napi_env, napi_value, int32_t*) = 0;
+    virtual napi_status napi_get_value_int64(napi_env, napi_value, int64_t*) = 0;
     virtual napi_status napi_create_string_utf8(napi_env, const char*, size_t, napi_value*) = 0;
     virtual napi_status napi_create_int32(napi_env, int32_t, napi_value*) = 0;
     virtual napi_status napi_create_int64(napi_env, int64_t, napi_value*) = 0;
@@ -71,6 +72,7 @@ public:
     MOCK_METHOD4(napi_get_named_property, napi_status(napi_env, napi_value, const char*, napi_value*));
     MOCK_METHOD4(uv_queue_work, int(uv_loop_t*, uv_work_t*, uv_work_cb, uv_after_work_cb));
     MOCK_METHOD3(napi_get_value_int32, napi_status(napi_env, napi_value, int32_t*));
+    MOCK_METHOD3(napi_get_value_int64, napi_status(napi_env, napi_value, int64_t*));
     MOCK_METHOD3(napi_create_int64, napi_status(napi_env, int64_t, napi_value*));
     MOCK_METHOD4(napi_create_string_utf8, napi_status(napi_env, const char*, size_t, napi_value*));
     MOCK_METHOD3(napi_create_int32, napi_status(napi_env, int32_t, napi_value*));

@@ -53,6 +53,11 @@ napi_status napi_get_value_int32(napi_env env, napi_value value, int32_t* result
     return OHOS::FileAccessFwk::Assistant::ins_->napi_get_value_int32(env, value, result);
 }
 
+napi_status napi_get_value_int64(napi_env env, napi_value value, int64_t* result)
+{
+    return OHOS::FileAccessFwk::Assistant::ins_->napi_get_value_int64(env, value, result);
+}
+
 napi_status napi_create_string_utf8(napi_env env, const char* str, size_t length, napi_value* result)
 {
     return OHOS::FileAccessFwk::Assistant::ins_->napi_create_string_utf8(env, str, length, result);
