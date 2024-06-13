@@ -228,7 +228,8 @@ static napi_value GetListFileResult(napi_env env, struct NameListArg* pNameList)
         return nullptr;
     }
     auto buf = CreateUniquePtr<char[]>(BUF_SIZE);
-    for (int i = 0, index = 0; i < pNameList->direntNum; ++i) {
+    int index = 0;
+    for (int i = 0; i < pNameList->direntNum; ++i) {
         string recentFilePath = RecentNExporter::recentPath_ + string((*(pNameList->namelist[i])).d_name);
         if (index < MAX_RECENT_SIZE) {
             auto [checkRealFileRes, realFileStatBuf] = CheckRealFileExist(recentFilePath);
@@ -265,6 +266,7 @@ static napi_value GetListFileResult(napi_env env, struct NameListArg* pNameList)
             }
         }
     }
+    HILOG_INFO("The count of recent file is %{public}d", index);
     return res;
 }
 

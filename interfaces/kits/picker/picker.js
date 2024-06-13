@@ -205,6 +205,7 @@ async function photoPickerSelect(...args) {
   }
   try {
     if (photoSelectContext === undefined) {
+      console.error('[picker] photoSelectContext == undefined');
       throw getErr(ErrCode.CONTEXT_NO_EXIST);
     }
     let result = await photoSelectContext.startAbilityForResult(config, {windowMode: 0});
@@ -312,6 +313,7 @@ async function documentPickerSelect(...args) {
   }
   try {
     if (documentSelectContext === undefined) {
+      console.error('[picker] documentSelectContext == undefined');
       throw getErr(ErrCode.CONTEXT_NO_EXIST);
     }
     documentSelectConfig = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION_MODAL);
@@ -391,7 +393,7 @@ function getModalPickerResult(args) {
     dataArr.push(args.uri);
     saveResult.data = dataArr;
   }
-  console.log('modal picker: download saveResult: ' + JSON.stringify(saveResult));
+  console.log('[picker] modal picker: download saveResult: ' + JSON.stringify(saveResult));
   return saveResult;
 }
 
@@ -427,32 +429,32 @@ function getDocumentPickerSaveResult(args) {
 
 function startModalPicker(context, config) {
   if (context === undefined) {
-    console.log('modal picker: startModalPicker context undefined.');
-    throw Error('modal picker: startModalPicker context undefined.');
+    console.log('[picker] modal picker: startModalPicker context undefined.');
+    throw Error('[picker] modal picker: startModalPicker context undefined.');
   }
   if (config === undefined) {
-    console.log('modal picker: startModalPicker config undefined.');
-    throw Error('modal picker: startModalPicker config undefined.');
+    console.log('[picker] modal picker: startModalPicker config undefined.');
+    throw Error('[picker] modal picker: startModalPicker config undefined.');
   }
   gContext = context;
   if (pickerHelper === undefined) {
-    console.log('modal picker: pickerHelper undefined.')
+    console.log('[picker] modal picker: pickerHelper undefined.')
   }
   let helper = pickerHelper.startModalPicker(gContext, config);
   if (helper === undefined) {
-    console.log('modal picker: startModalPicker helper undefined.');
+    console.log('[picker] modal picker: startModalPicker helper undefined.');
   }
   return helper;
 }
 
 async function modalPicker(args, context, config) {
   try {
-    console.log('modal picker: config: ' + JSON.stringify(config));
+    console.log('[picker] modal picker: config: ' + JSON.stringify(config));
     let modalSaveResult = await startModalPicker(context, config);
     const saveResult = getModalPickerResult(modalSaveResult);
     return saveResult;
   } catch (resultError) {
-    console.error('modal picker: Result error: ' + resultError);
+    console.error('[picker] modal picker: Result error: ' + resultError);
   }
 }
 
@@ -481,11 +483,12 @@ async function documentPickerSave(...args) {
 
   documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION_MODAL);
   if (documentSaveConfig.parameters.pickerMode === DocumentPickerMode.DOWNLOAD) {
-    console.log('modal picker: will start modal picker process. (DOWNLOAD)');
+    console.log('[picker] modal picker: will start modal picker process. (DOWNLOAD)');
     saveResult = await modalPicker(args, documentSaveContext, documentSaveConfig);
   } else {
     try {
       if (documentSaveContext === undefined) {
+        console.error('[picker] documentSaveContext == undefined');
         throw getErr(ErrCode.CONTEXT_NO_EXIST);
       }
       documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION_MODAL);
@@ -545,6 +548,7 @@ async function audioPickerSelect(...args) {
   }
   try {
     if (audioSelectContext === undefined) {
+      console.error('[picker] audioSelectContext == undefined');
       throw getErr(ErrCode.CONTEXT_NO_EXIST);
     }
     let result = await audioSelectContext.startAbilityForResult(audioSelectConfig, {windowMode: 0});
