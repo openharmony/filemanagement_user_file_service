@@ -40,6 +40,7 @@ struct PickerCallBack {
     bool ready = false;
     int32_t resultCode;
     string uri;
+    vector<string> uriArr;
 };
 
 struct PickerAsyncContext {
@@ -55,6 +56,7 @@ class PickerNExporter final : public FileManagement::LibN::NExporter {
 public:
     inline static const std::string className_ = "Picker";
     static napi_value StartModalPicker(napi_env env, napi_callback_info info);
+    static napi_value MakeNValWithUriArr(napi_env env, const vector<string> &uriArr);
     bool Export() override;
     std::string GetClassName() override;
     PickerNExporter(napi_env env, napi_value exports);

@@ -51,6 +51,10 @@ void ModalUICallback::OnResultForModal(int32_t resultCode, const OHOS::AAFwk::Wa
         HILOG_INFO("modal picker: downloadNewUri exit.");
         pickerCallBack_->uri = result.GetStringParam("downloadNewUri");
     }
+    if (result.GetParams().HasParam("uriArr")) {
+        HILOG_INFO("modal picker: uriArr exit.");
+        pickerCallBack_->uriArr = result.GetStringArrayParam("uriArr");
+    }
     pickerCallBack_->resultCode = resultCode;
     pickerCallBack_->ready = true;
 }
