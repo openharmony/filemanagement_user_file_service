@@ -47,7 +47,6 @@ private:
     void RemoveFileAccessDeathRecipient(const sptr<IRemoteObject> &token);
     struct ThreadLockInfo {
         std::condition_variable condition;
-        std::mutex mutex;
         bool isReady = false;
     };
     ThreadLockInfo connectLockInfo_;
@@ -56,6 +55,7 @@ private:
     std::atomic<bool> isConnected_ = {false};
     sptr<IFileAccessExtBase> fileExtProxy_;
     std::mutex deathRecipientMutex_;
+    std::mutex proxyMutex_;
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
 };
 
