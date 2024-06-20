@@ -52,7 +52,7 @@ static napi_value MakeNValWithUriArr(napi_env env, const vector<string> &uriArr)
     }
     napi_value jsUris = nullptr;
     napi_create_array_with_length(env, uriArr.size(), &jsUris);
-    for(size_t i = 0; i < uriArr.size(); i++) {
+    for (size_t i = 0; i < uriArr.size(); i++) {
         HILOG_DEBUG("modal picker: uriArr[%{public}zu] is %{public}s.", i, uriArr[i].c_str());
         napi_value jsUri = nullptr;
         napi_status status = napi_create_string_utf8(env, uriArr[i].c_str(), NAPI_AUTO_LENGTH, &jsUri);
