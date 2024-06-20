@@ -49,7 +49,7 @@ void ModalUICallback::OnResultForModal(int32_t resultCode, const OHOS::AAFwk::Wa
     HILOG_INFO("modal picker: OnResultForModal enter. resultCode is %{public}d", resultCode);
     if (result.GetParams().HasParam("downloadNewUri")) {
         pickerCallBack_->uri = result.GetStringParam("downloadNewUri");
-        HILOG_INFO("modal picker: uri is %{public}s.", uri.c_str());
+        HILOG_INFO("modal picker: uri is %{public}s.", pickerCallBack_->uri.c_str());
     }
     if (result.GetParams().HasParam("uriArr")) {
         HILOG_INFO("modal picker: uriArr exit.");
