@@ -45,13 +45,14 @@ string PickerNExporter::GetClassName()
     return PickerNExporter::className_;
 }
 
-static napi_value MakeNValWithUriArr(napi_env env, const vector<string> &uriArr) {
+static napi_value MakeNValWithUriArr(napi_env env, const vector<string> &uriArr)
+{
     if (uriArr.size() == 0) {
         return nullptr;
     }
     napi_value jsUris = nullptr;
     napi_create_array_with_length(env, uriArr.size(), &jsUris);
-    for(size_t i = 0; i< uriArr.size(); i++) {
+    for(size_t i = 0; i < uriArr.size(); i++) {
         HILOG_DEBUG("modal picker: uriArr[%{public}zu] is %{public}s.", i, uriArr[i].c_str());
         napi_value jsUri = nullptr;
         napi_status status = napi_create_string_utf8(env, uriArr[i].c_str(), NAPI_AUTO_LENGTH, &jsUri);
@@ -95,7 +96,6 @@ static void StartModalPickerAsyncCallbackComplete(napi_env env, napi_status stat
         HILOG_ERROR("modal picker: napi_get_undefined jsContext->error failed");
     }
     const string uri = context->pickerCallBack->uri;
-    HILOG_DEBUG("modal picker: uri is %{public}s.", uri.c_str());
     napi_value jsUri = nullptr;
     status = napi_create_string_utf8(env, uri.c_str(), NAPI_AUTO_LENGTH, &jsUri);
     if (jsUri == nullptr) {
