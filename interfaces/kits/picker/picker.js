@@ -40,6 +40,8 @@ const ExtTypes = {
 
 const PickerDetailType = {
   FILE_MGR_AUTH: 'downloadAuth', 
+  FILE_MGR_SELECT:'select',
+  FILE_MGR_SAVE:'save',
 };
 
 const ErrCode = {
@@ -67,7 +69,6 @@ const ACTION = {
   SELECT_ACTION_MODAL: 'ohos.want.action.OPEN_FILE_SERVICE',
   SAVE_ACTION: 'ohos.want.action.CREATE_FILE',
   SAVE_ACTION_MODAL: 'ohos.want.action.CREATE_FILE_SERVICE',
-  SAVE_ACTION_DOWNLOAD: 'ohos.want.action.DOWNLOAD',
 }
 
 const CREATE_FILE_NAME_LENGTH_LIMIT = 256;
@@ -241,7 +242,9 @@ function parseDocumentPickerSelectOption(args, action) {
   if (args.length > ARGS_ZERO && typeof args[ARGS_ZERO] === 'object') {
     let option = args[ARGS_ZERO];
     config.parameters.key_select_mode = option.selectMode;
-    console.log('parseDocumentPickerSelectOption: ' + option.selectMode);
+    config.parameters.extType = ExtTypes.DOWNLOAD_TYPE;
+    config.parameters.pickerType = PickerDetailType.FILE_MGR_SELECT;
+    console.log('[picker] parseDocumentPickerSelectOption: ' + JSON.stringify(option));
 
     if ((option.maxSelectNumber !== undefined) && option.maxSelectNumber > 0) {
       config.parameters.key_pick_num = option.maxSelectNumber;
@@ -261,7 +264,7 @@ function parseDocumentPickerSelectOption(args, action) {
   return config;
 }
 
-function getDocumentPickerSelectResult(args) {
+function getAudioPickerSelectResult(args) {
   let selectResult = {
     error: undefined,
     data: undefined
@@ -290,6 +293,30 @@ function getDocumentPickerSelectResult(args) {
   return selectResult;
 }
 
+function getDocumentPickerSelectResult(args) {
+  let selectResult = {
+    error: undefined,
+    data: undefined
+  };
+  // 0:success
+  // -1:modal cancel
+  if (args.resultCode !== undefined && args.resultCode === 0) {
+    if (args.ability_params_stream) {
+      selectResult.data = args.ability_params_stream;
+      selectResult.error = args.resultCode;
+    }
+    
+  } else if (args.resultCode !== undefined && args.resultCode === -1) {
+    selectResult.data = [];
+    selectResult.error = args.resultCode;
+  } else {
+    selectResult.error = getErr(ErrCode.RESULT_ERROR);
+  }
+
+  console.log('[picker] document select selectResult: ' + JSON.stringify(selectResult));
+  return selectResult;
+}
+
 async function documentPickerSelect(...args) {
   let checkDocumentSelectArgsResult = checkArguments(args);
   if (checkDocumentSelectArgsResult !== undefined) {
@@ -300,6 +327,7 @@ async function documentPickerSelect(...args) {
   let documentSelectContext = undefined;
   let documentSelectConfig = undefined;
   let documentSelectResult = undefined;
+  let selectResult = undefined;
 
   try {
     if (this.context !== undefined) {
@@ -317,36 +345,14 @@ async function documentPickerSelect(...args) {
       throw getErr(ErrCode.CONTEXT_NO_EXIST);
     }
     documentSelectConfig = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION_MODAL);
-    documentSelectResult = await documentSelectContext.requestDialogService(documentSelectConfig);
+    console.error('[picker] DocumentSelect documentSelectConfig: ' + JSON.stringify(documentSelectConfig));
+    documentSelectResult = await modalPicker(args, documentSelectContext, documentSelectConfig);
   } catch (paramError) {
     console.error('[picker] DocumentSelect paramError: ' + JSON.stringify(paramError));
-    try {
-      documentSelectConfig = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION);
-      documentSelectResult = await documentSelectContext.startAbilityForResult(documentSelectConfig, {windowMode: 0});
-    } catch (error) {
-      console.error('[picker] DocumentSelect error: ' + error);
-      return undefined;
-    }
   }
   console.log('[picker] DocumentSelect result: ' + JSON.stringify(documentSelectResult));
-  try {
-    const selectResult = getDocumentPickerSelectResult(documentSelectResult);
-    if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
-      return args[ARGS_ONE](selectResult.error, selectResult.data);
-    } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
-      return args[ARGS_ZERO](selectResult.error, selectResult.data);
-    }
-    return new Promise((resolve, reject) => {
-      if (selectResult.data !== undefined) {
-        resolve(selectResult.data);
-      } else {
-        reject(selectResult.error);
-      }
-    })
-  } catch (resultError) {
-    console.error('[picker] Result error: ' + resultError);
-  }
-  return undefined;
+  selectResult = getDocumentPickerSelectResult(documentSelectResult);
+  return sendResult(args, selectResult);
 }
 
 function parseDocumentPickerSaveOption(args, action) {
@@ -360,6 +366,9 @@ function parseDocumentPickerSaveOption(args, action) {
 
   if (args.length > ARGS_ZERO && typeof args[ARGS_ZERO] === 'object') {
     let option = args[ARGS_ZERO];
+    console.log('[picker] document save option: ' + JSON.stringify(option));
+    config.parameters.extType = ExtTypes.DOWNLOAD_TYPE;
+    config.parameters.pickerType = PickerDetailType.FILE_MGR_SAVE;
     if ((option.newFileNames !== undefined) && option.newFileNames.length > 0) {
       config.parameters.key_pick_file_name = option.newFileNames;
       config.parameters.saveFile = option.newFileNames[0];
@@ -373,28 +382,12 @@ function parseDocumentPickerSaveOption(args, action) {
     }
     if (option.pickerMode === DocumentPickerMode.DOWNLOAD) {
       config.parameters.pickerMode = option.pickerMode;
-      config.action = ACTION.SAVE_ACTION_DOWNLOAD;
-      config.parameters.extType = ExtTypes.DOWNLOAD_TYPE;
       config.parameters.pickerType = PickerDetailType.FILE_MGR_AUTH;
     }
   }
 
   console.log('[picker] document save config: ' + JSON.stringify(config));
   return config;
-}
-
-function getModalPickerResult(args) {
-  let saveResult = {
-    error: undefined,
-    data: undefined
-  }
-  if (args) {
-    var dataArr = [];
-    dataArr.push(args.uri);
-    saveResult.data = dataArr;
-  }
-  console.log('[picker] modal picker: download saveResult: ' + JSON.stringify(saveResult));
-  return saveResult;
 }
 
 function getDocumentPickerSaveResult(args) {
@@ -404,26 +397,21 @@ function getDocumentPickerSaveResult(args) {
   };
 
   // 0:success
-  // -1:Non modal cancel
-  // 1:Modal cancel
-  // ResultCode is a non modal return code.
-  // Result is the return code of the modality.
-  if ((args.resultCode !== undefined && args.resultCode === 0) || (args.result !== undefined && args.result === 0)) {
-    if (args.want && args.want.parameters) {
-      if (args.want.parameters.pick_path_return) {
-        saveResult.data = args.want.parameters.pick_path_return;
-      } else {
-        saveResult.data = args.want.parameters['ability.params.stream'];
-      }
+  // -1:modal cancel
+  if (args.resultCode !== undefined && args.resultCode === 0) {
+    if (args.ability_params_stream) {
+      saveResult.data = args.ability_params_stream;
+      saveResult.error = args.resultCode;
     }
-  } else if ((args.resultCode !== undefined && args.resultCode === -1) ||
-      (args.result !== undefined && args.result === 1) ) {
+    
+  } else if (args.resultCode !== undefined && args.resultCode === -1) {
     saveResult.data = [];
+    saveResult.error = args.resultCode;
   } else {
     saveResult.error = getErr(ErrCode.RESULT_ERROR);
   }
 
-  console.log('[picker] document saveResult: ' + JSON.stringify(saveResult));
+  console.log('[picker] getDocumentPickerSaveResult saveResult: ' + JSON.stringify(saveResult));
   return saveResult;
 }
 
@@ -438,7 +426,7 @@ function startModalPicker(context, config) {
   }
   gContext = context;
   if (pickerHelper === undefined) {
-    console.log('[picker] modal picker: pickerHelper undefined.')
+    console.log('[picker] modal picker: pickerHelper undefined.');
   }
   let helper = pickerHelper.startModalPicker(gContext, config);
   if (helper === undefined) {
@@ -450,9 +438,8 @@ function startModalPicker(context, config) {
 async function modalPicker(args, context, config) {
   try {
     console.log('[picker] modal picker: config: ' + JSON.stringify(config));
-    let modalSaveResult = await startModalPicker(context, config);
-    const saveResult = getModalPickerResult(modalSaveResult);
-    return saveResult;
+    let modalResult = await startModalPicker(context, config);
+    return modalResult;
   } catch (resultError) {
     console.error('[picker] modal picker: Result error: ' + resultError);
   }
@@ -482,43 +469,32 @@ async function documentPickerSave(...args) {
   }
 
   documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION_MODAL);
-  if (documentSaveConfig.parameters.pickerMode === DocumentPickerMode.DOWNLOAD) {
-    console.log('[picker] modal picker: will start modal picker process. (DOWNLOAD)');
-    saveResult = await modalPicker(args, documentSaveContext, documentSaveConfig);
-  } else {
-    try {
-      if (documentSaveContext === undefined) {
-        console.error('[picker] documentSaveContext == undefined');
-        throw getErr(ErrCode.CONTEXT_NO_EXIST);
-      }
-      documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION_MODAL);
-      documentSaveResult = await documentSaveContext.requestDialogService(documentSaveConfig);
-    } catch (paramError) {
-      console.error('[picker] paramError: ' + JSON.stringify(paramError));
-      try {
-        documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION);
-        documentSaveResult = await documentSaveContext.startAbilityForResult(documentSaveConfig, {windowMode: 0});
-      } catch (error) {
-        console.error('[picker] document save error: ' + error);
-        return undefined;
-      }
-    }
-    console.log('[picker] document save result: ' + JSON.stringify(documentSaveResult));
-    saveResult = getDocumentPickerSaveResult(documentSaveResult);
-  }
+  console.log('[picker] document save start');
+
+  documentSaveResult = await modalPicker(args, documentSaveContext, documentSaveConfig);
+  saveResult = getDocumentPickerSaveResult(documentSaveResult);
+  console.log('[picker] download save result: ' + JSON.stringify(saveResult));
+  return sendResult(args, saveResult);
+}
+
+async function sendResult(args, result) {
   try {
+    if (result === undefined) {
+      console.log('[picker] modal picker: result is undefined.');
+      return undefined;
+    }
     if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
-      return args[ARGS_ONE](saveResult.error, saveResult.data);
+      return args[ARGS_ONE](result.error, result.data);
     } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
-      return args[ARGS_ZERO](saveResult.error, saveResult.data);
+      return args[ARGS_ZERO](result.error, result.data);
     }
     return new Promise((resolve, reject) => {
-      if (saveResult.data !== undefined) {
-        resolve(saveResult.data);
+      if (result.data !== undefined) {
+        resolve(result.data);
       } else {
-        reject(saveResult.error);
+        reject(result.error);
       }
-    })
+    });
   } catch (resultError) {
     console.error('[picker] Result error: ' + resultError);
   }
@@ -553,7 +529,7 @@ async function audioPickerSelect(...args) {
     }
     let result = await audioSelectContext.startAbilityForResult(audioSelectConfig, {windowMode: 0});
     console.log('[picker] audio select result: ' + JSON.stringify(result));
-    const audioSelectResult = getDocumentPickerSelectResult(result);
+    const audioSelectResult = getAudioPickerSelectResult(result);
     console.log('[picker] documentSelectResult: ' + JSON.stringify(audioSelectResult));
     if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') { 
       return args[ARGS_ONE](audioSelectResult.error, audioSelectResult.data);
