@@ -179,24 +179,27 @@ sptr<IFileAccessExtBase> FileAccessService::ConnectExtension(Uri &uri, const sha
 {
     string bundleName;
     GetBundleNameFromUri(uri, bundleName);
-    lock_guard<mutex> lock(mutex_);
-    auto iterator = cMap_.find(bundleName);
-    if (iterator != cMap_.end()) {
-        return iterator->second;
+    auto curBundleExtProxy = FindExtProxyByBundleName(bundleName);
+    if (curBundleExtProxy != nullptr) {
+        return curBundleExtProxy;
     }
     sptr<IFileAccessExtBase> extensionProxy;
-    int32_t ret = GetExensionProxy(info, extensionProxy);
-    if (ret != ERR_OK || extensionProxy == nullptr) {
-        return nullptr;
+    {
+        lock_guard<mutex> lock(mutex_);
+        int32_t ret = GetExensionProxy(info, extensionProxy);
+        if (ret != ERR_OK || extensionProxy == nullptr) {
+            return nullptr;
+        }
+        auto object = extensionProxy->AsObject();
+        object->AddDeathRecipient(extensionDeathRecipient_);
     }
-    auto object = extensionProxy->AsObject();
-    object->AddDeathRecipient(extensionDeathRecipient_);
-    cMap_.emplace(bundleName, extensionProxy);
+    AddExtProxyInfo(bundleName, extensionProxy);
     return extensionProxy;
 }
 
 void FileAccessService::ResetProxy(const wptr<IRemoteObject> &remote)
 {
+    lock_guard<mutex> lock(mapMutex_);
     if (remote != nullptr && extensionDeathRecipient_ != nullptr) {
         for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
             auto proxyRemote = iter->second->AsObject();
@@ -655,6 +658,22 @@ int32_t FileAccessService::RmUriObsNodeRelations(std::string &uriStr, std::share
     extensionProxy->StopWatcher(originalUri);
     RemoveRelations(uriStr, obsNode);
     return ERR_OK;
+}
+
+sptr<IFileAccessExtBase> FileAccessService::FindExtProxyByBundleName(std::string bundleName)
+{
+    lock_guard<mutex> lock(mapMutex_);
+    auto iterator = cMap_.find(bundleName);
+    if (iterator != cMap_.end()) {
+        return iterator->second;
+    }
+    return nullptr;
+}
+
+void FileAccessService::AddExtProxyInfo(std::string bundleName, sptr<IFileAccessExtBase> extProxy)
+{
+    lock_guard<mutex> lock(mapMutex_);
+    cMap_.emplace(bundleName, extProxy);
 }
 } // namespace FileAccessFwk
 } // namespace OHOS
