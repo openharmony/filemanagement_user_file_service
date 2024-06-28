@@ -67,7 +67,7 @@ static napi_value MakeResultWithPickerCallBack(napi_env env, std::shared_ptr<Pic
 
     const int32_t resCode = pickerCallBack->resultCode;
     HILOG_INFO("modal picker: resCode is %{public}d. want is %{public}s.",
-       resCode, pickerCallBack->want.ToString().c_str());
+    resCode, pickerCallBack->want.ToString().c_str());
     napi_value resultCode = nullptr;
     napi_create_int32(env, resCode, &resultCode);
     status = napi_set_named_property(env, result, "resultCode", resultCode);
@@ -115,9 +115,7 @@ static void StartModalPickerAsyncCallbackComplete(napi_env env, napi_status stat
     if (status != napi_ok) {
         HILOG_ERROR("modal picker: napi_get_undefined jsContext->error failed");
     }
-
     napi_value result = MakeResultWithPickerCallBack(env, context->pickerCallBack);
-
     if (result != nullptr) {
         jsContext->data = result;
         jsContext->status = true;
