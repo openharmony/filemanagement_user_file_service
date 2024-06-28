@@ -39,7 +39,7 @@ struct NameListArg {
 struct PickerCallBack {
     bool ready = false;
     int32_t resultCode;
-    string uri;
+    OHOS::AAFwk::Want want;
 };
 
 struct PickerAsyncContext {
@@ -55,6 +55,7 @@ class PickerNExporter final : public FileManagement::LibN::NExporter {
 public:
     inline static const std::string className_ = "Picker";
     static napi_value StartModalPicker(napi_env env, napi_callback_info info);
+    static napi_value MakeResultWithPickerCallBack(napi_env env, std::shared_ptr<PickerCallBack> pickerCallBack);
     bool Export() override;
     std::string GetClassName() override;
     PickerNExporter(napi_env env, napi_value exports);
