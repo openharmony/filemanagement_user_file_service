@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
-#include "external_file_access_test_basic.h"
+#include "external_file_access_test.h"
 #include "accesstoken_kit.h"
 #include "context_impl.h"
 #include "file_access_framework_errno.h"
@@ -28,10 +28,6 @@
 #include "iservice_registry.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
-
-#define private public
-#include "file_access_helper.h"
-#undef private
 
 namespace OHOS::FileAccessFwk {
 static int g_num = 0;
@@ -130,7 +126,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0002, testing:
 HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0003, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
-    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_CreateFile_0002";
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_CreateFile_0003";
     try {
         Uri newFileUri("");
         Uri parentUri("~!@#$%^&*()_");
@@ -209,7 +205,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_CreateFile_0005, testing:
         for (size_t i = 0; i < info.size(); i++) {
             Uri parentUri(info[i].uri);
             Uri newFileUri("");
-            std::string displayName = "test1.txt";
+            std::string displayName = "external_file_access_CreateFile_0005.txt";
             g_num = 0;
             for (int j = 0; j < INIT_THREADS_NUMBER; j++) {
                 std::thread execthread(CreateFileTdd, fileAccessHelper, parentUri, displayName, newFileUri);

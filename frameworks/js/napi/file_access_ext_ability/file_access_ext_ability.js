@@ -87,4 +87,4 @@ class FileAccessExtensionAbility {
   }
 }
 
-export default FileAccessExtensionAbility
+export default FileAccessExtensionAbility;

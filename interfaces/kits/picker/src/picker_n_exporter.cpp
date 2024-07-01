@@ -80,9 +80,9 @@ static napi_value MakeResultWithPickerCallBack(napi_env env, std::shared_ptr<Pic
 
     if (pickerCallBack->want.GetParams().HasParam("ability.params.stream")) {
         std::vector<std::string> list = pickerCallBack->want.GetStringArrayParam("ability.params.stream");
-        const int32_t len = list.size();
+        const uint32_t len = list.size();
         HILOG_INFO("modal picker: ability.params.stream size. %{public}d ", len);
-        for (int i = 0; i < len; i++) {
+        for (uint32_t i = 0; i < len; i++) {
             napi_value uri = nullptr;
             napi_create_string_utf8(env, list[i].c_str(), NAPI_AUTO_LENGTH, &uri);
             napi_set_element(env, array, i, uri);
