@@ -29,6 +29,7 @@ ohos_hap("external_file_manager_hap") {
     ":external_file_manager_js_assets",
     ":external_file_manager_resources",
   ]
+  publicity_file = "../publicity.xml"
   certificate_profile = "signature/fileextension.p7b"
   hap_name = "external_file_manager"
   subsystem_name = "filemanagement"
