@@ -28,7 +28,7 @@ ModalUICallback::ModalUICallback(Ace::UIContent* uiContent, PickerCallBack* pick
 
 void ModalUICallback::SetSessionId(int32_t sessionId)
 {
-    this->sessionId_=sessionId;
+    this->sessionId_ = sessionId;
 }
 
 void ModalUICallback::OnRelease(int32_t releaseCode)
@@ -46,16 +46,10 @@ void ModalUICallback::OnError(int32_t code, const std::string& name, const std::
 
 void ModalUICallback::OnResultForModal(int32_t resultCode, const OHOS::AAFwk::Want &result)
 {
-    HILOG_INFO("modal picker: OnResultForModal enter. resultCode is %{public}d", resultCode);
-    if (result.GetParams().HasParam("downloadNewUri")) {
-        pickerCallBack_->uri = result.GetStringParam("downloadNewUri");
-        HILOG_INFO("modal picker: uri is %{public}s.", pickerCallBack_->uri.c_str());
-    }
-    if (result.GetParams().HasParam("uriArr")) {
-        HILOG_INFO("modal picker: uriArr exit.");
-        pickerCallBack_->uriArr = result.GetStringArrayParam("uriArr");
-    }
+    HILOG_INFO("modal picker: OnResultForModal enter. resultCode is %{public}d, %{public}s",
+        resultCode,  result.ToString().c_str());
     pickerCallBack_->resultCode = resultCode;
+    pickerCallBack_->want = result;
     pickerCallBack_->ready = true;
 }
 

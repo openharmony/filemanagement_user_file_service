@@ -45,28 +45,6 @@ string PickerNExporter::GetClassName()
     return PickerNExporter::className_;
 }
 
-static napi_value MakeNValWithUriArr(napi_env env, const vector<string> &uriArr)
-{
-    if (uriArr.size() == 0) {
-        return nullptr;
-    }
-    napi_value jsUris = nullptr;
-    napi_create_array_with_length(env, uriArr.size(), &jsUris);
-    for (size_t i = 0; i < uriArr.size(); i++) {
-        HILOG_DEBUG("modal picker: uriArr[%{public}zu] is %{public}s.", i, uriArr[i].c_str());
-        napi_value jsUri = nullptr;
-        napi_status status = napi_create_string_utf8(env, uriArr[i].c_str(), NAPI_AUTO_LENGTH, &jsUri);
-        if (status != napi_ok) {
-            HILOG_ERROR("modal picker: uriArr napi_create_string_utf8 failed.");
-        }
-        if ((jsUri == nullptr) || (napi_set_element(env, jsUris, i, jsUri) != napi_ok)) {
-            HILOG_ERROR("modal picker: jsUri == nullptr or uriArr napi_set_element failed.");
-            break;
-        }
-    }
-    return jsUris;
-}
-
 static void StartModalPickerExecute(napi_env env, void *data)
 {
     HILOG_INFO("modal picker: StartModalPickerExecute begin");
@@ -75,6 +53,51 @@ static void StartModalPickerExecute(napi_env env, void *data)
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_TIME_MS));
     }
     HILOG_INFO("modal picker: StartModalPickerExecute is ready.");
+}
+
+static void MakeResultWithArr(napi_env env, std::string key, napi_value &result, std::shared_ptr<PickerCallBack> pickerCallBack)
+{
+    napi_value array;
+    napi_create_array(env, &array);
+    napi_status status = napi_generic_failure;
+    if (pickerCallBack->want.GetParams().HasParam(key)) {
+        std::vector<std::string> list = pickerCallBack->want.GetStringArrayParam(key);
+        const int32_t len = list.size();
+        HILOG_INFO("modal picker: %{public}s size. %{public}d ", key.c_str(), len);
+        for (int i = 0; i < len; i++) {
+            napi_value uri = nullptr;
+            napi_create_string_utf8(env, list[i].c_str(), NAPI_AUTO_LENGTH, &uri);
+            napi_set_element(env, array, i, uri);
+        }
+        status = napi_set_named_property(env, result, key, array);
+        if (status != napi_ok) {
+            HILOG_ERROR("modal picker: napi_set_named_property uri failed");
+        }
+    }
+}
+
+static napi_value MakeResultWithPickerCallBack(napi_env env, std::shared_ptr<PickerCallBack> pickerCallBack)
+{
+    if (pickerCallBack == nullptr) {
+        HILOG_ERROR("pickerCallBack is null");
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    napi_status status = napi_generic_failure;
+    napi_create_object(env, &result);
+
+    const int32_t resCode = pickerCallBack->resultCode;
+    HILOG_INFO("modal picker: resCode is %{public}d. want is %{public}s.",
+        resCode, pickerCallBack->want.ToString().c_str());
+    napi_value resultCode = nullptr;
+    napi_create_int32(env, resCode, &resultCode);
+    status = napi_set_named_property(env, result, "resultCode", resultCode);
+    if (status != napi_ok) {
+        HILOG_ERROR("modal picker: napi_set_named_property resultCode failed");
+    }
+    MakeResultWithArr(env, "ability.params.stream", result, pickerCallBack);
+    MakeResultWithArr(env, "uriArr", result, pickerCallBack);
+    return result;
 }
 
 static void StartModalPickerAsyncCallbackComplete(napi_env env, napi_status status, void *data)
@@ -95,26 +118,7 @@ static void StartModalPickerAsyncCallbackComplete(napi_env env, napi_status stat
     if (status != napi_ok) {
         HILOG_ERROR("modal picker: napi_get_undefined jsContext->error failed");
     }
-    const string uri = context->pickerCallBack->uri;
-    napi_value jsUri = nullptr;
-    status = napi_create_string_utf8(env, uri.c_str(), NAPI_AUTO_LENGTH, &jsUri);
-    if (jsUri == nullptr) {
-        HILOG_ERROR("jsUri is nullptr.");
-    }
-    napi_value result = nullptr;
-    napi_create_object(env, &result);
-    status = napi_set_named_property(env, result, "uri", jsUri);
-    if (status != napi_ok) {
-        HILOG_ERROR("modal picker: napi_set_named_property uri failed");
-    }
-    const vector<string> uriArr = context->pickerCallBack->uriArr;
-    if (uriArr.size() > 0) {
-        napi_value jsUriArr = MakeNValWithUriArr(env, uriArr);
-        status = napi_set_named_property(env, result, "uriArr", jsUriArr);
-        if (status != napi_ok) {
-            HILOG_ERROR("modal picker: napi_set_named_property uriArr failed");
-        }
-    }
+    napi_value result = MakeResultWithPickerCallBack(env, context->pickerCallBack);
     if (result != nullptr) {
         jsContext->data = result;
         jsContext->status = true;
