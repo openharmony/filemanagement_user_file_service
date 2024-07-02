@@ -60,8 +60,8 @@ static void MakeResultWithArr(napi_env env, std::string key, napi_value &result,
     napi_value array;
     napi_create_array(env, &array);
     napi_status status = napi_generic_failure;
-    if (pickerCallBack->want.GetParams().HasParam(key)) {
-        std::vector<std::string> list = pickerCallBack->want.GetStringArrayParam(key);
+    if (pickerCallBack->want.GetParams().HasParam(key.c_str())) {
+        std::vector<std::string> list = pickerCallBack->want.GetStringArrayParam(key.c_str());
         const int32_t len = list.size();
         HILOG_INFO("modal picker: %{public}s size. %{public}d ", key.c_str(), len);
         for (int i = 0; i < len; i++) {
@@ -69,7 +69,7 @@ static void MakeResultWithArr(napi_env env, std::string key, napi_value &result,
             napi_create_string_utf8(env, list[i].c_str(), NAPI_AUTO_LENGTH, &uri);
             napi_set_element(env, array, i, uri);
         }
-        status = napi_set_named_property(env, result, key, array);
+        status = napi_set_named_property(env, result, key.c_str(), array);
         if (status != napi_ok) {
             HILOG_ERROR("modal picker: napi_set_named_property uri failed");
         }
