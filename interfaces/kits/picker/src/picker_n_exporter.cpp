@@ -55,7 +55,8 @@ static void StartModalPickerExecute(napi_env env, void *data)
     HILOG_INFO("modal picker: StartModalPickerExecute is ready.");
 }
 
-static void MakeResultWithArr(napi_env env, std::string key, napi_value &result, std::shared_ptr<PickerCallBack> pickerCallBack)
+static void MakeResultWithArr(napi_env env, std::string key, napi_value &result,
+    std::shared_ptr<PickerCallBack> pickerCallBack)
 {
     napi_value array;
     napi_create_array(env, &array);
