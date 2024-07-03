@@ -95,7 +95,7 @@ static napi_value MakeResultWithPickerCallBack(napi_env env, std::shared_ptr<Pic
     if (status != napi_ok) {
         HILOG_ERROR("modal picker: napi_set_named_property resultCode failed");
     }
-    MakeResultWithArr(env, "ability.params.stream", result, pickerCallBack);
+    MakeResultWithArr(env, "ability_params_stream", result, pickerCallBack);
     MakeResultWithArr(env, "uriArr", result, pickerCallBack);
     return result;
 }
