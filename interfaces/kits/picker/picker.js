@@ -387,19 +387,20 @@ function getAudioPickerSelectResult(args) {
     error: undefined,
     data: undefined
   };
-  if (args.resultCode !== undefined && args.resultCode === RESULT_CODE_OK) {
+  if (args.resultCode === undefined) {
+    saveResult.error = getErr(ErrCode.RESULT_ERROR);
+    console.log('[picker] getAudioPickerSelectResult saveResult: ' + JSON.stringify(saveResult));
+    return saveResult;
+  }
+  if (args.resultCode === RESULT_CODE_OK) {
     if (args.uriArr) {
       saveResult.data = args.uriArr;
       saveResult.error = args.resultCode;
     }
-    
-  } else if (args.resultCode !== undefined && args.resultCode === RESULT_CODE_ERROR) {
+  } else if (args.resultCode === RESULT_CODE_ERROR) {
     saveResult.data = [];
     saveResult.error = args.resultCode;
-  } else {
-    saveResult.error = getErr(ErrCode.RESULT_ERROR);
   }
-
   console.log('[picker] getAudioPickerSelectResult saveResult: ' + JSON.stringify(saveResult));
   return saveResult;
 }
@@ -410,21 +411,20 @@ function getDocumentPickerSaveResult(args) {
     error: undefined,
     data: undefined
   };
-
-  // 0:success
-  // -1:modal cancel
-  if (args.resultCode !== undefined && args.resultCode === RESULT_CODE_OK) {
+  if (args.resultCode !== undefined) {
+    saveResult.error = getErr(ErrCode.RESULT_ERROR);
+    console.log('[picker] getDocumentPickerSaveResult saveResult: ' + JSON.stringify(saveResult));
+    return saveResult;
+  }
+  if (args.resultCode === RESULT_CODE_OK) {
     if (args.ability_params_stream) {
       saveResult.data = args.ability_params_stream;
       saveResult.error = args.resultCode;
     }
-  } else if (args.resultCode !== undefined && args.resultCode === RESULT_CODE_ERROR) {
+  } else if (args.resultCode === RESULT_CODE_ERROR) {
     saveResult.data = [];
     saveResult.error = args.resultCode;
-  } else {
-    saveResult.error = getErr(ErrCode.RESULT_ERROR);
   }
-
   console.log('[picker] getDocumentPickerSaveResult saveResult: ' + JSON.stringify(saveResult));
   return saveResult;
 }
