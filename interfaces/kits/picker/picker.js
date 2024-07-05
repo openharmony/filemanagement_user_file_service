@@ -382,26 +382,26 @@ function parseDocumentPickerSaveOption(args, action) {
 }
 
 function getAudioPickerSelectResult(args) {
-  let saveResult = {
+  let selectResult = {
     error: undefined,
     data: undefined
   };
   if (args.resultCode === undefined) {
-    saveResult.error = getErr(ErrCode.RESULT_ERROR);
-    console.log('[picker] getAudioPickerSelectResult saveResult: ' + JSON.stringify(saveResult));
-    return saveResult;
+    selectResult.error = getErr(ErrCode.RESULT_ERROR);
+    console.log('[picker] getAudioPickerSelectResult selectResult: ' + JSON.stringify(selectResult));
+    return selectResult;
   }
   if (args.resultCode === RESULT_CODE_OK) {
     if (args.uriArr) {
-      saveResult.data = args.uriArr;
-      saveResult.error = args.resultCode;
+      selectResult.data = args.uriArr;
+      selectResult.error = args.resultCode;
     }
   } else if (args.resultCode === RESULT_CODE_ERROR) {
-    saveResult.data = [];
-    saveResult.error = args.resultCode;
+    selectResult.data = [];
+    selectResult.error = args.resultCode;
   }
-  console.log('[picker] getAudioPickerSelectResult saveResult: ' + JSON.stringify(saveResult));
-  return saveResult;
+  console.log('[picker] getAudioPickerSelectResult selectResult: ' + JSON.stringify(selectResult));
+  return selectResult;
 }
 
 
