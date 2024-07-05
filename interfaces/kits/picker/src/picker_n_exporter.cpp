@@ -63,9 +63,8 @@ static void MakeResultWithArr(napi_env env, std::string key, napi_value &result,
     napi_status status = napi_generic_failure;
     if (pickerCallBack->want.GetParams().HasParam(key.c_str())) {
         std::vector<std::string> list = pickerCallBack->want.GetStringArrayParam(key.c_str());
-        const int32_t len = list.size();
-        HILOG_INFO("modal picker: %{public}s size. %{public}d ", key.c_str(), len);
-        for (int i = 0; i < len; i++) {
+        HILOG_INFO("modal picker: %{public}s size. %{public}zu ", key.c_str(), list.size());
+        for (size_t i = 0; i < list.size(); i++) {
             napi_value uri = nullptr;
             napi_create_string_utf8(env, list[i].c_str(), NAPI_AUTO_LENGTH, &uri);
             napi_set_element(env, array, i, uri);
