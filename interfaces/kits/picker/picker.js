@@ -76,6 +76,8 @@ const CREATE_FILE_NAME_LENGTH_LIMIT = 256;
 const ARGS_ZERO = 0;
 const ARGS_ONE = 1;
 const ARGS_TWO = 2;
+const RESULT_CODE_ERROR = -1;
+const RESULT_CODE_OK = 0;
 
 /*
 * UTF-8字符编码数值对应的存储长度：
@@ -290,13 +292,13 @@ function getDocumentPickerSelectResult(args) {
   };
   // 0:success
   // -1:modal cancel
-  if (args.resultCode !== undefined && args.resultCode === 0) {
+  if (args.resultCode !== undefined && args.resultCode === RESULT_CODE_OK) {
     if (args.ability_params_stream) {
       selectResult.data = args.ability_params_stream;
       selectResult.error = args.resultCode;
     }
     
-  } else if (args.resultCode !== undefined && args.resultCode === -1) {
+  } else if (args.resultCode !== undefined && args.resultCode === RESULT_CODE_ERROR) {
     selectResult.data = [];
     selectResult.error = args.resultCode;
   } else {
@@ -385,13 +387,13 @@ function getAudioPickerSelectResult(args) {
     error: undefined,
     data: undefined
   };
-  if (args.resultCode !== undefined && args.resultCode === 0) {
+  if (args.resultCode !== undefined && args.resultCode === RESULT_CODE_OK) {
     if (args.uriArr) {
       saveResult.data = args.uriArr;
       saveResult.error = args.resultCode;
     }
     
-  } else if (args.resultCode !== undefined && args.resultCode === -1) {
+  } else if (args.resultCode !== undefined && args.resultCode === RESULT_CODE_ERROR) {
     saveResult.data = [];
     saveResult.error = args.resultCode;
   } else {
@@ -411,13 +413,12 @@ function getDocumentPickerSaveResult(args) {
 
   // 0:success
   // -1:modal cancel
-  if (args.resultCode !== undefined && args.resultCode === 0) {
+  if (args.resultCode !== undefined && args.resultCode === RESULT_CODE_OK) {
     if (args.ability_params_stream) {
       saveResult.data = args.ability_params_stream;
       saveResult.error = args.resultCode;
     }
-    
-  } else if (args.resultCode !== undefined && args.resultCode === -1) {
+  } else if (args.resultCode !== undefined && args.resultCode === RESULT_CODE_ERROR) {
     saveResult.data = [];
     saveResult.error = args.resultCode;
   } else {
