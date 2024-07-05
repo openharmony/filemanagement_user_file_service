@@ -290,21 +290,20 @@ function getDocumentPickerSelectResult(args) {
     error: undefined,
     data: undefined
   };
-  // 0:success
-  // -1:modal cancel
-  if (args.resultCode !== undefined && args.resultCode === RESULT_CODE_OK) {
+  if (args.resultCode === undefined) {
+    selectResult.error = getErr(ErrCode.RESULT_ERROR);
+    console.log('[picker] document select selectResult: ' + JSON.stringify(selectResult));
+    return selectResult;
+  }
+  if (args.resultCode === RESULT_CODE_OK) {
     if (args.ability_params_stream) {
       selectResult.data = args.ability_params_stream;
       selectResult.error = args.resultCode;
-    }
-    
-  } else if (args.resultCode !== undefined && args.resultCode === RESULT_CODE_ERROR) {
+    } 
+  } else if (args.resultCode === RESULT_CODE_ERROR) {
     selectResult.data = [];
     selectResult.error = args.resultCode;
-  } else {
-    selectResult.error = getErr(ErrCode.RESULT_ERROR);
   }
-
   console.log('[picker] document select selectResult: ' + JSON.stringify(selectResult));
   return selectResult;
 }
@@ -411,7 +410,7 @@ function getDocumentPickerSaveResult(args) {
     error: undefined,
     data: undefined
   };
-  if (args.resultCode !== undefined) {
+  if (args.resultCode === undefined) {
     saveResult.error = getErr(ErrCode.RESULT_ERROR);
     console.log('[picker] getDocumentPickerSaveResult saveResult: ' + JSON.stringify(saveResult));
     return saveResult;
