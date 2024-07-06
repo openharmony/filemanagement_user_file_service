@@ -66,7 +66,7 @@ ohos_unittest("medialibrary_file_access_test") {
       "${user_file_service_path}/test/unittest/resources/ohos_test.xml"
 }
 
-ohos_unittest("external_file_access_test") {
+ohos_unittest("external_file_access_basic_test") {
   branch_protector_ret = "pac_ret"
   sanitize = {
     integer_overflow = true
@@ -77,8 +77,62 @@ ohos_unittest("external_file_access_test") {
   module_out_path = "user_file_service/tests"
 
   sources = [
+    "external_file_access_test.cpp",
     "external_file_access_test_basic.cpp",
     "external_file_access_test_info.cpp",
+  ]
+
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
+    "//third_party/googletest/googlemock/include/gmock",
+    "${user_file_service_path}/interfaces/inner_api/file_access/include",
+    "${user_file_service_path}/services/native/file_access_service/include",
+  ]
+
+  configs = [ "//build/config/compiler:exceptions" ]
+
+  deps = [
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_path}/frameworks/native/appkit:app_context",
+    "${user_file_service_path}/interfaces/inner_api/file_access:file_access_extension_ability_kit",
+    "${user_file_service_path}/services:file_access_service",
+    "//third_party/googletest:gmock_main",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:ability_manager",
+    "ability_runtime:app_manager",
+    "ability_runtime:runtime",
+    "ability_runtime:wantagent_innerkits",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "ipc:rpc",
+    "samgr:samgr_proxy",
+  ]
+
+  defines = [ "private=public" ]
+}
+
+ohos_unittest("external_file_access_management_test") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    integer_overflow = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  module_out_path = "user_file_service/tests"
+
+  sources = [
+    "external_file_access_test.cpp",
     "external_file_access_test_management.cpp",
     "external_file_access_test_operations.cpp",
   ]
@@ -118,6 +172,8 @@ ohos_unittest("external_file_access_test") {
     "ipc:rpc",
     "samgr:samgr_proxy",
   ]
+
+  defines = [ "private=public" ]
 }
 
 ohos_unittest("external_file_access_notify_test") {
@@ -376,8 +432,9 @@ group("user_file_service_unit_test") {
 
   deps = [
     ":abnormal_file_access_test",
+    ":external_file_access_basic_test",
+    ":external_file_access_management_test",
     ":external_file_access_notify_test",
-    ":external_file_access_test",
     ":file_access_ext_stub_impl_test",
     ":file_access_service_proxy_test",
     ":js_file_access_ext_ability_test",
