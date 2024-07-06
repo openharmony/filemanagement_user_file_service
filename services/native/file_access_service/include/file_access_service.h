@@ -266,6 +266,8 @@ private:
     bool IsUnused();
     int32_t RmUriObsNodeRelations(std::string &uriStr, std::shared_ptr<ObserverNode> &obsNode,
         const std::shared_ptr<ConnectExtensionInfo> &info);
+    sptr<IFileAccessExtBase> FindExtProxyByBundleName(std::string bundleName);
+    void AddExtProxyInfo(std::string bundleName, sptr<IFileAccessExtBase> extProxy);
     std::shared_ptr<UnloadTimer> unLoadTimer_ = nullptr;
     std::shared_ptr<OnDemandTimer> onDemandTimer_ = nullptr;
     static sptr<FileAccessService> instance_;
@@ -277,6 +279,7 @@ private:
     std::mutex nodeMutex_;
     std::unordered_map<std::string, std::shared_ptr<ObserverNode>> relationshipMap_;
     HolderManager<std::shared_ptr<ObserverContext>> obsManager_;
+    std::mutex mapMutex_;
     std::unordered_map<std::string, sptr<IFileAccessExtBase>> cMap_;
 };
 } // namespace FileAccessFwk
