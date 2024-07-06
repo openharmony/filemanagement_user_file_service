@@ -110,9 +110,13 @@ sptr<AppExecFwk::IBundleMgr> FileAccessHelper::GetBundleMgrProxy()
 FileAccessHelper::FileAccessHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
     const std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> &cMap)
 {
-    HILOG_INFO("Create FileAccessHelper by context");
-    token_ = context->GetToken();
-    cMap_ = cMap;
+    if (context != nullptr) {
+        HILOG_INFO("Create FileAccessHelper by context");
+        token_ = context->GetToken();
+        cMap_ = cMap;
+    } else {
+        HILOG_ERROR("Context is null");
+    }
 }
 
 FileAccessHelper::FileAccessHelper(const sptr<IRemoteObject> &token,

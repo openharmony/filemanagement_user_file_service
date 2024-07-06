@@ -77,6 +77,14 @@ napi_value NapiFileIteratorExporter::Constructor(napi_env env, napi_callback_inf
 static int MakeListFileResult(napi_value &objFileInfoExporter, FileIteratorEntity *fileIteratorEntity,
     FileInfoEntity *fileInfoEntity, napi_env env, NVal &nVal, bool &isDone)
 {
+    if (fileIteratorEntity == nullptr) {
+        HILOG_ERROR("FileIteratorEntity is null");
+        return E_GETRESULT;
+    }
+    if (fileInfoEntity == nullptr) {
+        HILOG_ERROR("FileInfoEntity is null");
+        return E_GETRESULT;
+    }
     SharedMemoryInfo &memInfo = fileIteratorEntity->memInfo;
     std::lock_guard<std::mutex> lock(fileIteratorEntity->entityOperateMutex);
     if (memInfo.Empty() && !memInfo.isOver) {
@@ -111,9 +119,25 @@ static int MakeListFileResult(napi_value &objFileInfoExporter, FileIteratorEntit
     return ERR_OK;
 }
 
+static bool VerifyArg(FileIteratorEntity *fileIteratorEntity, FileInfoEntity *fileInfoEntity)
+{
+    if (fileIteratorEntity == nullptr) {
+        HILOG_ERROR("FileIteratorEntity is null");
+        return true;
+    }
+    if (fileInfoEntity == nullptr) {
+        HILOG_ERROR("FileInfoEntity is null");
+        return true;
+    }
+    return false;
+}
+
 static int MakeScanFileResult(napi_value &objFileInfoExporter, FileIteratorEntity *fileIteratorEntity,
     FileInfoEntity *fileInfoEntity, napi_env env, NVal &nVal, bool &isDone)
 {
+    if (VerifyArg(fileIteratorEntity, fileInfoEntity)) {
+        return E_GETRESULT;
+    }
     std::lock_guard<std::mutex> lock(fileIteratorEntity->entityOperateMutex);
     if (fileIteratorEntity->fileInfoVec.size() == 0) {
         fileIteratorEntity->fileInfoVec.clear();
@@ -168,6 +192,9 @@ static bool FilterTrashAndRecentDir(const std::string &uri)
 static int GetNextIterator(napi_value &objFileInfoExporter, FileIteratorEntity *fileIteratorEntity,
     FileInfoEntity *fileInfoEntity, napi_env env, NVal& retNVal)
 {
+    if (fileIteratorEntity == nullptr || fileInfoEntity == nullptr) {
+        return E_GETRESULT;
+    }
     int ret = E_GETRESULT;
     bool isDone = false;
     if (fileIteratorEntity->flag == CALL_LISTFILE) {

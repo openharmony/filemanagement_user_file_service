@@ -168,11 +168,11 @@ static int DoCallJsMethod(CallJsParam *param)
 {
     UserAccessTracer trace;
     trace.Start("DoCallJsMethod");
-    JsRuntime *jsRuntime = param->jsRuntime;
-    if (jsRuntime == nullptr) {
+    if (param == nullptr || param->jsRuntime == nullptr) {
         HILOG_ERROR("failed to get jsRuntime.");
         return EINVAL;
     }
+    JsRuntime *jsRuntime = param->jsRuntime;
 
     HandleEscape handleEscape(*jsRuntime);
     auto &nativeEngine = jsRuntime->GetNativeEngine();
@@ -1754,6 +1754,10 @@ napi_status JsFileAccessExtAbility::GetFileInfoFromJs(napi_env &env, napi_value 
 napi_status JsFileAccessExtAbility::GetUriAndCodeFromJs(napi_env &env, napi_value result,
     const std::shared_ptr<Value<std::string>> &value)
 {
+    if (value == nullptr) {
+        HILOG_ERROR("Value is null.");
+        return napi_generic_failure;
+    }
     napi_value uri = nullptr;
     napi_get_named_property(env, result, "uri", &uri);
     if (GetStringValue(env, uri, value->data) != napi_ok) {
@@ -1776,6 +1780,10 @@ napi_status JsFileAccessExtAbility::GetFdAndCodeFromJs(napi_env &env, napi_value
 {
     napi_value fd = nullptr;
     napi_get_named_property(env, result, "fd", &fd);
+    if (value == nullptr) {
+        HILOG_ERROR("Value is null.");
+        return napi_generic_failure;
+    }
     if (napi_get_value_int32(env, fd, &value->data) != napi_ok) {
         HILOG_ERROR("Convert js value fail.");
         return napi_generic_failure;

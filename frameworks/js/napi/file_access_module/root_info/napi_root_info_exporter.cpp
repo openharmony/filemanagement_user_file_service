@@ -85,6 +85,14 @@ napi_value NapiRootInfoExporter::Constructor(napi_env env, napi_callback_info in
 static int TransferListFile(const RootInfoEntity* rootEntity, FileIteratorEntity* fileIteratorEntity,
     FileFilter& filter, const FileInfo& fileInfo)
 {
+    if (fileIteratorEntity == nullptr) {
+        HILOG_ERROR("FileIteratorEntity is null");
+        return E_GETRESULT;
+    }
+    if (rootEntity == nullptr) {
+        HILOG_ERROR("RootEntity is null");
+        return E_GETRESULT;
+    }
     fileIteratorEntity->fileAccessHelper = rootEntity->fileAccessHelper;
     fileIteratorEntity->fileInfo = fileInfo;
     fileIteratorEntity->offset = 0;

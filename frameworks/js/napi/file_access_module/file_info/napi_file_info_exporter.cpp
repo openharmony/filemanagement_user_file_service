@@ -88,6 +88,14 @@ napi_value NapiFileInfoExporter::ThrowError(napi_env env, int code)
 static int TransferListFile(const FileInfoEntity* fileInfoEntity, FileIteratorEntity* fileIteratorEntity,
     FileFilter& filter)
 {
+    if (fileIteratorEntity == nullptr) {
+        HILOG_ERROR("FileIteratorEntity is null");
+        return E_GETRESULT;
+    }
+    if (fileInfoEntity == nullptr) {
+        HILOG_ERROR("FileInfoEntity is null");
+        return E_GETRESULT;
+    }
     fileIteratorEntity->fileAccessHelper = fileInfoEntity->fileAccessHelper;
     fileIteratorEntity->fileInfo = fileInfoEntity->fileInfo;
     fileIteratorEntity->offset = 0;
