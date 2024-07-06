@@ -69,6 +69,9 @@ static void MakeResultWithArr(napi_env env, std::string key, napi_value &result,
             napi_create_string_utf8(env, list[i].c_str(), NAPI_AUTO_LENGTH, &uri);
             napi_set_element(env, array, i, uri);
         }
+        if (key == "ability.params.stream") {
+            key = "ability_params_stream";
+        }
         status = napi_set_named_property(env, result, key.c_str(), array);
         if (status != napi_ok) {
             HILOG_ERROR("modal picker: napi_set_named_property uri failed");
@@ -95,7 +98,7 @@ static napi_value MakeResultWithPickerCallBack(napi_env env, std::shared_ptr<Pic
     if (status != napi_ok) {
         HILOG_ERROR("modal picker: napi_set_named_property resultCode failed");
     }
-    MakeResultWithArr(env, "ability_params_stream", result, pickerCallBack);
+    MakeResultWithArr(env, "ability.params.stream", result, pickerCallBack);
     MakeResultWithArr(env, "uriArr", result, pickerCallBack);
     return result;
 }

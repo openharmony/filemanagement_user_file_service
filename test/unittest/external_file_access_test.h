@@ -17,9 +17,7 @@
 
 #include <gtest/gtest.h>
 
-#define private public
 #include "file_access_helper.h"
-#undef private
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -45,8 +43,9 @@ public:
     void SetUp() override;
     void TearDown() override;
     static bool ReplaceBundleNameFromPath(std::string &path, const std::string &newName);
-    static shared_ptr<FileAccessHelper> GetFileAccessHelper();
     static bool ReplaceBundleName(std::string& str, const std::string& newBundleName);
+    static shared_ptr<FileAccessHelper> GetFileAccessHelper();
+    static shared_ptr<OHOS::AbilityRuntime::Context> GetContext();
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

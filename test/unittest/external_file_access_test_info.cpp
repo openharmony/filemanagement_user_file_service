@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
-#include "external_file_access_test_basic.h"
+#include "external_file_access_test.h"
 #include "accesstoken_kit.h"
 #include "context_impl.h"
 #include "file_access_framework_errno.h"
@@ -28,10 +28,6 @@
 #include "iservice_registry.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
-
-#define private public
-#include "file_access_helper.h"
-#undef private
 
 namespace OHOS::FileAccessFwk {
 using json = nlohmann::json;
