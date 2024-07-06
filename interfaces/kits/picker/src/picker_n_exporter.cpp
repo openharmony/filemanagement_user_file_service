@@ -55,6 +55,30 @@ static void StartModalPickerExecute(napi_env env, void *data)
     HILOG_INFO("modal picker: StartModalPickerExecute is ready.");
 }
 
+static void MakeResultWithArr(napi_env env, std::string key, napi_value &result,
+    std::shared_ptr<PickerCallBack> pickerCallBack)
+{
+    napi_value array;
+    napi_create_array(env, &array);
+    napi_status status = napi_generic_failure;
+    if (pickerCallBack->want.GetParams().HasParam(key.c_str())) {
+        std::vector<std::string> list = pickerCallBack->want.GetStringArrayParam(key.c_str());
+        HILOG_INFO("modal picker: %{public}s size. %{public}zu ", key.c_str(), list.size());
+        for (size_t i = 0; i < list.size(); i++) {
+            napi_value uri = nullptr;
+            napi_create_string_utf8(env, list[i].c_str(), NAPI_AUTO_LENGTH, &uri);
+            napi_set_element(env, array, i, uri);
+        }
+        if (key == "ability.params.stream") {
+            key = "ability_params_stream";
+        }
+        status = napi_set_named_property(env, result, key.c_str(), array);
+        if (status != napi_ok) {
+            HILOG_ERROR("modal picker: napi_set_named_property uri failed");
+        }
+    }
+}
+
 static napi_value MakeResultWithPickerCallBack(napi_env env, std::shared_ptr<PickerCallBack> pickerCallBack)
 {
     if (pickerCallBack == nullptr) {
@@ -74,24 +98,8 @@ static napi_value MakeResultWithPickerCallBack(napi_env env, std::shared_ptr<Pic
     if (status != napi_ok) {
         HILOG_ERROR("modal picker: napi_set_named_property resultCode failed");
     }
-
-    napi_value array;
-    napi_create_array(env, &array);
-
-    if (pickerCallBack->want.GetParams().HasParam("ability.params.stream")) {
-        std::vector<std::string> list = pickerCallBack->want.GetStringArrayParam("ability.params.stream");
-        const uint32_t len = list.size();
-        HILOG_INFO("modal picker: ability.params.stream size. %{public}d ", len);
-        for (uint32_t i = 0; i < len; i++) {
-            napi_value uri = nullptr;
-            napi_create_string_utf8(env, list[i].c_str(), NAPI_AUTO_LENGTH, &uri);
-            napi_set_element(env, array, i, uri);
-        }
-        status = napi_set_named_property(env, result, "ability_params_stream", array);
-        if (status != napi_ok) {
-            HILOG_ERROR("modal picker: napi_set_named_property uri failed");
-        }
-    }
+    MakeResultWithArr(env, "ability.params.stream", result, pickerCallBack);
+    MakeResultWithArr(env, "uriArr", result, pickerCallBack);
     return result;
 }
 
@@ -103,10 +111,8 @@ static void StartModalPickerAsyncCallbackComplete(napi_env env, napi_status stat
         HILOG_ERROR("Async context is null");
         return;
     }
-
     auto jsContext = make_unique<JSAsyncContextOutput>();
     jsContext->status = false;
-
     status = napi_get_undefined(env, &jsContext->data);
     if (status != napi_ok) {
         HILOG_ERROR("modal picker: napi_get_undefined jsContext->data failed");

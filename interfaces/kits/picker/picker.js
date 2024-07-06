@@ -36,6 +36,7 @@ const DocumentPickerMode = {
 
 const ExtTypes = {
   DOWNLOAD_TYPE: 'filePicker',
+  AUDIO_PICKER_TYPE: 'audioPicker',
 };
 
 const PickerDetailType = {
@@ -75,6 +76,8 @@ const CREATE_FILE_NAME_LENGTH_LIMIT = 256;
 const ARGS_ZERO = 0;
 const ARGS_ONE = 1;
 const ARGS_TWO = 2;
+const RESULT_CODE_ERROR = -1;
+const RESULT_CODE_OK = 0;
 
 /*
 * UTF-8字符编码数值对应的存储长度：
@@ -264,33 +267,22 @@ function parseDocumentPickerSelectOption(args, action) {
   return config;
 }
 
-function getAudioPickerSelectResult(args) {
-  let selectResult = {
-    error: undefined,
-    data: undefined
-  };
-  // 0:success
-  // -1:Non modal cancel
-  // 1:Modal cancel
-  // ResultCode is a non modal return code.
-  // Result is the return code of the modality.
-  if ((args.resultCode !== undefined && args.resultCode === 0) || (args.result !== undefined && args.result === 0)) {
-    if (args.want && args.want.parameters) {
-      if (args.want.parameters.select_item_list) {
-        selectResult.data = args.want.parameters.select_item_list;
-      } else {
-        selectResult.data = args.want.parameters['ability.params.stream'];
-      }
-    }
-  } else if ((args.resultCode !== undefined && args.resultCode === -1) ||
-      (args.result !== undefined && args.result === 1)) {
-    selectResult.data = [];
-  } else {
-    selectResult.error = getErr(ErrCode.RESULT_ERROR);
-  }
 
-  console.log('[picker] document select selectResult: ' + JSON.stringify(selectResult));
-  return selectResult;
+function parseAudioPickerSelectOption(args, action) {
+  let config = {
+    action: action,
+    parameters: {
+      extType: ExtTypes.AUDIO_PICKER_TYPE,
+    }
+  };
+  if (args.length > ARGS_ZERO && typeof args[ARGS_ZERO] === 'object') {
+    let option = args[ARGS_ZERO];
+    if ((option.maxSelectNumber !== undefined) && option.maxSelectNumber > 0) {
+      config.parameters.key_pick_num = option.maxSelectNumber;
+    }
+  }
+  console.log('modal picker: audio select config: ' + JSON.stringify(config));
+  return config;
 }
 
 function getDocumentPickerSelectResult(args) {
@@ -298,21 +290,20 @@ function getDocumentPickerSelectResult(args) {
     error: undefined,
     data: undefined
   };
-  // 0:success
-  // -1:modal cancel
-  if (args.resultCode !== undefined && args.resultCode === 0) {
+  if (args.resultCode === undefined) {
+    selectResult.error = getErr(ErrCode.RESULT_ERROR);
+    console.log('[picker] document select selectResult: ' + JSON.stringify(selectResult));
+    return selectResult;
+  }
+  if (args.resultCode === RESULT_CODE_OK) {
     if (args.ability_params_stream) {
       selectResult.data = args.ability_params_stream;
       selectResult.error = args.resultCode;
-    }
-    
-  } else if (args.resultCode !== undefined && args.resultCode === -1) {
+    } 
+  } else if (args.resultCode === RESULT_CODE_ERROR) {
     selectResult.data = [];
     selectResult.error = args.resultCode;
-  } else {
-    selectResult.error = getErr(ErrCode.RESULT_ERROR);
   }
-
   console.log('[picker] document select selectResult: ' + JSON.stringify(selectResult));
   return selectResult;
 }
@@ -390,27 +381,49 @@ function parseDocumentPickerSaveOption(args, action) {
   return config;
 }
 
+function getAudioPickerSelectResult(args) {
+  let selectResult = {
+    error: undefined,
+    data: undefined
+  };
+  if (args.resultCode === undefined) {
+    selectResult.error = getErr(ErrCode.RESULT_ERROR);
+    console.log('[picker] getAudioPickerSelectResult selectResult: ' + JSON.stringify(selectResult));
+    return selectResult;
+  }
+  if (args.resultCode === RESULT_CODE_OK) {
+    if (args.uriArr) {
+      selectResult.data = args.uriArr;
+      selectResult.error = args.resultCode;
+    }
+  } else if (args.resultCode === RESULT_CODE_ERROR) {
+    selectResult.data = [];
+    selectResult.error = args.resultCode;
+  }
+  console.log('[picker] getAudioPickerSelectResult selectResult: ' + JSON.stringify(selectResult));
+  return selectResult;
+}
+
+
 function getDocumentPickerSaveResult(args) {
   let saveResult = {
     error: undefined,
     data: undefined
   };
-
-  // 0:success
-  // -1:modal cancel
-  if (args.resultCode !== undefined && args.resultCode === 0) {
+  if (args.resultCode === undefined) {
+    saveResult.error = getErr(ErrCode.RESULT_ERROR);
+    console.log('[picker] getDocumentPickerSaveResult saveResult: ' + JSON.stringify(saveResult));
+    return saveResult;
+  }
+  if (args.resultCode === RESULT_CODE_OK) {
     if (args.ability_params_stream) {
       saveResult.data = args.ability_params_stream;
       saveResult.error = args.resultCode;
     }
-    
-  } else if (args.resultCode !== undefined && args.resultCode === -1) {
+  } else if (args.resultCode === RESULT_CODE_ERROR) {
     saveResult.data = [];
     saveResult.error = args.resultCode;
-  } else {
-    saveResult.error = getErr(ErrCode.RESULT_ERROR);
   }
-
   console.log('[picker] getDocumentPickerSaveResult saveResult: ' + JSON.stringify(saveResult));
   return saveResult;
 }
@@ -442,6 +455,7 @@ async function modalPicker(args, context, config) {
     return modalResult;
   } catch (resultError) {
     console.error('[picker] modal picker: Result error: ' + resultError);
+    return undefined;
   }
 }
 
@@ -508,7 +522,7 @@ async function audioPickerSelect(...args) {
     throw checkAudioArgsResult;
   }
 
-  const audioSelectConfig = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION);
+  const audioSelectConfig = parseAudioPickerSelectOption(args, ACTION.SELECT_ACTION);
   console.log('[picker] audio select config: ' + JSON.stringify(audioSelectConfig));
 
   let audioSelectContext = undefined;
@@ -527,22 +541,9 @@ async function audioPickerSelect(...args) {
       console.error('[picker] audioSelectContext == undefined');
       throw getErr(ErrCode.CONTEXT_NO_EXIST);
     }
-    let result = await audioSelectContext.startAbilityForResult(audioSelectConfig, {windowMode: 0});
-    console.log('[picker] audio select result: ' + JSON.stringify(result));
-    const audioSelectResult = getAudioPickerSelectResult(result);
-    console.log('[picker] documentSelectResult: ' + JSON.stringify(audioSelectResult));
-    if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') { 
-      return args[ARGS_ONE](audioSelectResult.error, audioSelectResult.data);
-    } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
-      return args[ARGS_ZERO](audioSelectResult.error, audioSelectResult.data);
-    }
-    return new Promise((resolve, reject) => {
-      if (audioSelectResult.data !== undefined) {
-        resolve(audioSelectResult.data);
-      } else {
-        reject(audioSelectResult.error);
-      }
-    })
+    let modalSelectResult = await modalPicker(args, audioSelectContext, audioSelectConfig);
+    let saveResult = getAudioPickerSelectResult(modalSelectResult);
+    return sendResult(args, saveResult);
   } catch (error) {
     console.error('[picker] audio select error: ' + error);
   }
