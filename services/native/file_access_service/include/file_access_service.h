@@ -67,6 +67,10 @@ class ObserverContext {
 
         bool EqualTo(std::shared_ptr<ObserverContext> observerContext)
         {
+            if (!(observerContext != nullptr && observerContext->obs_ != nullptr) || obs_ == nullptr) {
+                HILOG_ERROR("context pointer is nullptr");
+                return false;
+            }
             return obs_->AsObject() == observerContext->obs_->AsObject();
         }
 

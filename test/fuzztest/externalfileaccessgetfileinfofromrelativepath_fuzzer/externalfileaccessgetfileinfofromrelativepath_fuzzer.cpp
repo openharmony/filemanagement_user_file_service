@@ -88,8 +88,10 @@ bool ExternalFileAccessGetFileInfoFromRelativePathFuzzTest(std::unique_ptr<char[
     sptr<FileAccessExtStubImpl> fileAccessExtStubObj(new (std::nothrow) FileAccessExtStubImpl(
         fileAccessExtAbilitySharePtr, nullptr));
 
-    fileAccessExtStubObj->OnRemoteRequest(code, datas, reply, option);
-    
+    if (fileAccessExtStubObj) {
+        fileAccessExtStubObj->OnRemoteRequest(code, datas, reply, option);
+    }
+
     fileAccessExtAbility = nullptr;
     fileAccessExtStubObj = nullptr;
 

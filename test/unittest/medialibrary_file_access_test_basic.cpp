@@ -70,6 +70,9 @@ void FileAccessHelperTest::SetUpTestCase()
     cout << "FileAccessHelperTest code test" << endl;
     SetNativeToken();
     auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (saManager == nullptr) {
+        return;
+    }
     auto remoteObj = saManager->GetSystemAbility(ABILITY_ID);
     AAFwk::Want want;
     vector<AAFwk::Want> wantVec;
@@ -98,7 +101,9 @@ void FileAccessHelperTest::SetUpTestCase()
 
 void FileAccessHelperTest::TearDownTestCase()
 {
-    g_fah->Release();
+    if (g_fah) {
+        g_fah->Release();
+    }
     g_fah = nullptr;
 }
 
@@ -118,6 +123,7 @@ shared_ptr<FileAccessHelper> FileExtensionHelperTest::GetFileAccessHelper()
 static Uri GetParentUri()
 {
     vector<RootInfo> info;
+    EXPECT_NE(g_fah, nullptr);
     int result = g_fah->GetRoots(info);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri parentUri("");
@@ -142,6 +148,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0000, testing
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_CreateFile_0000";
     try {
         Uri newFileUri("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->CreateFile(g_newDirUri, "medialibrary_file_access_CreateFile_0000.txt", newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0000 result:" << result;
@@ -168,6 +175,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0001, testing
     try {
         Uri newFileUri("");
         Uri parentUri("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->CreateFile(parentUri, "medialibrary_file_access_CreateFile_0001.txt", newFileUri);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0001 result:" << result;
@@ -192,6 +200,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0002, testing
     try {
         Uri newFileUri("");
         Uri parentUri("storage/media/100/local/files/Download");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->CreateFile(parentUri, "medialibrary_file_access_CreateFile_0002.txt", newFileUri);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0002 result:" << result;
@@ -216,6 +225,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0003, testing
     try {
         Uri newFileUri("");
         Uri parentUri("~!@#$%^&*()_");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->CreateFile(parentUri, "medialibrary_file_access_CreateFile_0003.txt", newFileUri);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0003 result:" << result;
@@ -240,6 +250,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0004, testing
     try {
         Uri newFileUri("");
         string displayName = "";
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->CreateFile(g_newDirUri, displayName, newFileUri);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "CreateFile_0004 result:" << result;
@@ -282,6 +293,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_CreateFile_0005, testing
         std::string displayName1 = "test1";
         std::string displayName2 = "test2";
         std::string displayName3 = "test3.txt";
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, displayName1, newFileUri1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Mkdir(newFileUri1, displayName2, newFileUri2);
@@ -315,6 +327,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0000, testing::ext
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Mkdir_0000";
     try {
         Uri newDirUriTest("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "medialibrary_file_access_Mkdir_0000", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0000 result:" << result;
@@ -341,6 +354,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0001, testing::ext
     try {
         Uri newDirUriTest("");
         Uri parentUri("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(parentUri, "medialibrary_file_access_Mkdir_0001", newDirUriTest);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0001 result:" << result;
@@ -365,6 +379,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0002, testing::ext
     try {
         Uri newDirUriTest("");
         Uri parentUri("storage/media/100/local/files/Download");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(parentUri, "medialibrary_file_access_Mkdir_0002", newDirUriTest);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0002 result:" << result;
@@ -389,6 +404,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0003, testing::ext
     try {
         Uri newDirUriTest("");
         Uri parentUri("~!@#$%^&*()_");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(parentUri, "medialibrary_file_access_Mkdir_0003", newDirUriTest);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0003 result:" << result;
@@ -413,6 +429,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0004, testing::ext
     try {
         Uri newDirUriTest("");
         string displayName = "";
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, displayName, newDirUriTest);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Mkdir_0004 result:" << result;
@@ -455,6 +472,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Mkdir_0005, testing::ext
         std::string displayName1 = "test1";
         std::string displayName2 = "test2";
         std::string displayName3 = "test3";
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, displayName1, newFileUri1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Mkdir(newFileUri1, displayName2, newFileUri2);
@@ -487,6 +505,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0000, testing::ex
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Delete_0000";
     try {
         Uri newDirUriTest("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri newFileUri("");
@@ -517,6 +536,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0001, testing::ex
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Delete_0001";
     try {
         Uri newDirUriTest("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Delete(newDirUriTest);
@@ -542,6 +562,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0002, testing::ex
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Delete_0002";
     try {
         Uri selectFileUri("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Delete(selectFileUri);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Delete_0002 result:" << result;
@@ -565,6 +586,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0003, testing::ex
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Delete_0003";
     try {
         Uri newDirUriTest("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri selectFileUri("storage/media/100/local/files/Download/test");
@@ -593,6 +615,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0004, testing::ex
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Delete_0004";
     try {
         Uri selectFileUri("!@#$%^&*()");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Delete(selectFileUri);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Delete_0004 result:" << result;
@@ -629,6 +652,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Delete_0005, testing::ex
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Delete_0005";
     try {
         Uri newDirUriTest("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri newFileUri("");
@@ -668,6 +692,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0000, testing::ext:
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
@@ -704,6 +729,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0001, testing::ext:
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test3", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Mkdir(g_newDirUri, "test4", newDirUriTest2);
@@ -739,6 +765,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0002, testing::ext:
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Move_0002";
     try {
         Uri newDirUriTest("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri("");
@@ -769,6 +796,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0003, testing::ext:
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test5", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Mkdir(g_newDirUri, "test6", newDirUriTest2);
@@ -805,6 +833,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0004, testing::ext:
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Move_0004";
     try {
         Uri newDirUriTest("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri("");
@@ -834,6 +863,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0005, testing::ext:
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Move_0005";
     try {
         Uri newDirUriTest("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri("");
@@ -867,6 +897,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0006, testing::ext:
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test7", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Mkdir(g_newDirUri, "test8", newDirUriTest2);
@@ -904,6 +935,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0007, testing::ext:
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test9", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Mkdir(g_newDirUri, "test10", newDirUriTest2);
@@ -941,6 +973,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0008, testing::ext:
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
@@ -974,6 +1007,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0009, testing::ext:
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
@@ -1014,6 +1048,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0010, testing::ext:
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
@@ -1069,6 +1104,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Move_0011, testing::ext:
     try {
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test1", newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = g_fah->Mkdir(g_newDirUri, "test2", newDirUriTest2);
@@ -1107,6 +1143,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0000, testing::ext:
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Copy_0000";
     try {
         Uri srcUri("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "Copy_0000_src", srcUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri aFileUri("");
@@ -1152,6 +1189,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0001, testing::ext:
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Copy_0001";
     try {
         Uri srcUri("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "Copy_0001_src", srcUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri aFileUri("");
@@ -1207,6 +1245,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0002, testing::ext:
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Copy_0002";
     try {
         Uri srcUri("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "Copy_0002_src", srcUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri srcFileUri("");
@@ -1256,6 +1295,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0003, testing::ext:
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Copy_0003";
     try {
         Uri srcUri("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "Copy_0003_src", srcUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri srcFileUri("");
@@ -1304,6 +1344,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0004, testing::ext:
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Copy_0004";
     try {
         Uri srcUri("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "Copy_0004_src", srcUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
@@ -1367,6 +1408,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0005, testing::ext:
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Copy_0005";
     try {
         Uri srcUri("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "Copy_0005_src", srcUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
@@ -1429,6 +1471,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0006, testing::ext:
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Copy_0006";
     try {
         Uri srcUri("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "Copy_0006_src", srcUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri srcFileUri("");
@@ -1478,6 +1521,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Copy_0007, testing::ext:
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Copy_0007";
     try {
         Uri srcUri("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "Copy_0007_src", srcUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
@@ -1541,6 +1585,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0000, testing::
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ListFile_0000";
     try {
         Uri newDirUriTest("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri("");
@@ -1584,6 +1629,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0001, testing::
         int64_t maxCount = 1000;
         vector<FileAccessFwk::FileInfo> fileInfoVec;
         FileFilter filter({}, {}, {}, -1, -1, false, false);
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
@@ -1608,6 +1654,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0002, testing::
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ListFile_0002";
     try {
         Uri newDirUriTest("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri("");
@@ -1652,6 +1699,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0003, testing::
         int64_t maxCount = 1000;
         vector<FileAccessFwk::FileInfo> fileInfoVec;
         FileFilter filter;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         EXPECT_EQ(fileInfoVec.size(), OHOS::FileAccessFwk::ERR_OK);
@@ -1676,6 +1724,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0004, testing::
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ListFile_0004";
     try {
         Uri newDirUriTest("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri1("");
@@ -1707,6 +1756,7 @@ static void ListFileTdd(shared_ptr<FileAccessHelper> fahs, FileInfo fileInfo, Fi
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ListFileTdd";
     int64_t offset = 0;
     int64_t maxCount = 1000;
+    EXPECT_NE(g_fah, nullptr);
     int ret = fahs->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
         GTEST_LOG_(ERROR) << "ListFileTdd get result error, code:" << ret;
@@ -1732,6 +1782,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ListFile_0005, testing::
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ListFile_0005";
     try {
         Uri newDirUriTest("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(g_newDirUri, "test", newDirUriTest);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri testUri1("");

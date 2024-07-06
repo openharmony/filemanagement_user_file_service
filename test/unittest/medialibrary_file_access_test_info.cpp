@@ -49,6 +49,7 @@ Uri g_newDirUri("");
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0000, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0000";
     try {
         Uri parentUri = GetParentUri();
@@ -106,6 +107,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0000, testing::
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0001, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0001";
     try {
         Uri uri("");
@@ -131,6 +133,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0001, testing::
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0002, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0002";
     try {
         Uri uri("storage/media/100/local/files/Download/medialibrary_file_access_OpenFile_0002.txt");
@@ -156,6 +159,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0002, testing::
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0003, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0003";
     try {
         Uri uri("~!@#$%^&*()_");
@@ -181,6 +185,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0003, testing::
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0004, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0004";
     try {
         Uri newFileUri("");
@@ -212,6 +217,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0004, testing::
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0005, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0005";
     try {
         Uri newFileUri("");
@@ -243,6 +249,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0005, testing::
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0006, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0006";
     try {
         Uri newFileUri("");
@@ -274,6 +281,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0006, testing::
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0007, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0007";
     try {
         Uri newFileUri("");
@@ -320,6 +328,7 @@ static void OpenFileTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, int flag, in
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0008, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_OpenFile_0008";
     try {
         Uri newFileUri("");
@@ -353,6 +362,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_OpenFile_0008, testing::
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0000, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Rename_0000";
     try {
         Uri newDirUriTest("");
@@ -385,6 +395,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0000, testing::ex
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0001, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Rename_0001";
     try {
         Uri newDirUriTest("");
@@ -414,6 +425,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0001, testing::ex
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0002, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Rename_0002";
     try {
         Uri renameUri("");
@@ -439,6 +451,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0002, testing::ex
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0003, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Rename_0003";
     try {
         Uri newDirUriTest("");
@@ -472,6 +485,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0003, testing::ex
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0004, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Rename_0004";
     try {
         Uri renameUri("");
@@ -497,6 +511,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0004, testing::ex
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0005, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Rename_0005";
     try {
         Uri newDirUriTest("");
@@ -543,6 +558,7 @@ static void RenameTdd(shared_ptr<FileAccessHelper> fahs, Uri sourceFile, std::st
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0006, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Rename_0006";
     try {
         Uri newDirUriTest("");
@@ -579,6 +595,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Rename_0006, testing::ex
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0000, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ScanFile_0000";
     try {
         Uri newDirUriTest("");
@@ -621,6 +638,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0000, testing::
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0001, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ScanFile_0001";
     try {
         Uri newDirUriTest("");
@@ -663,6 +681,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0001, testing::
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0002, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ScanFile_0002";
     try {
         Uri newDirUriTest("");
@@ -712,6 +731,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0002, testing::
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0003, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ScanFile_0003";
     try {
         Uri newDirUriTest("");
@@ -768,6 +788,7 @@ static void ScanFileTdd(FileInfo fileInfo, FileFilter filter, std::vector<FileIn
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0004, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ScanFile_0004";
     try {
         Uri newDirUriTest("");
@@ -845,6 +866,7 @@ static bool ReplaceBundleNameFromPath(std::string &path, const std::string &newN
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0005, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_ScanFile_0005";
     try {
         Uri newDirUriTest("");
@@ -890,6 +912,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_ScanFile_0005, testing::
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetRoots_0000, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_GetRoots_0000";
     try {
         vector<RootInfo> info;
@@ -927,6 +950,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetRoots_0000, testing::
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromUri_0000, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin medialibrary_file_access_GetFileInfoFromUri_0000";
     try {
         vector<RootInfo> infos;
@@ -965,6 +989,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromUri_0000,
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromUri_0001, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin medialibrary_file_access_GetFileInfoFromUri_0001";
     try {
         Uri newDirUriTest("");
@@ -1004,6 +1029,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromUri_0001,
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromUri_0002, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin medialibrary_file_access_GetFileInfoFromUri_0002";
     try {
         Uri newDirUriTest("");
@@ -1047,6 +1073,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromUri_0002,
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromUri_0003, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin medialibrary_file_access_GetFileInfoFromUri_0003";
     try {
         vector<RootInfo> info;
@@ -1077,6 +1104,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromUri_0003,
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromUri_0004, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin medialibrary_file_access_GetFileInfoFromUri_0004";
     try {
         vector<RootInfo> info;
@@ -1112,6 +1140,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromUri_0004,
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromUri_0005, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin medialibrary_file_access_GetFileInfoFromUri_0005";
     try {
         Uri uri("~!@#$%^&*()_");
@@ -1146,6 +1175,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromUri_0005,
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromRelativePath_0000, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin medialibrary_file_access_GetFileInfoFromRelativePath_0000";
     try {
         FileInfo fileInfo;
@@ -1195,6 +1225,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromRelativeP
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromRelativePath_0001, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin medialibrary_file_access_GetFileInfoFromRelativePath_0001";
     try {
         FileInfo fileInfo;
@@ -1232,6 +1263,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromRelativeP
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromRelativePath_0002, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin medialibrary_file_access_GetFileInfoFromRelativePath_0002";
     try {
         FileInfo fileInfo;
@@ -1273,6 +1305,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromRelativeP
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromRelativePath_0003, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin medialibrary_file_access_GetFileInfoFromRelativePath_0003";
     try {
         FileInfo fileInfo;
@@ -1317,6 +1350,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromRelativeP
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromRelativePath_0004, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin medialibrary_file_access_GetFileInfoFromRelativePath_0004";
     try {
         FileInfo fileInfo;
@@ -1368,6 +1402,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_GetFileInfoFromRelativeP
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0000, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Query_0000";
     try {
         FileAccessFwk::FileInfo fileInfo;
@@ -1412,6 +1447,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0000, testing::ext
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0001, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Query_0001";
     try {
         FileAccessFwk::FileInfo fileInfo;
@@ -1458,6 +1494,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0001, testing::ext
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0002, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Query_0002";
     try {
         FileAccessFwk::FileInfo fileInfo;
@@ -1495,6 +1532,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0002, testing::ext
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0003, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Query_0003";
     try {
         Uri testUri("&*()*/?");
@@ -1523,6 +1561,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0003, testing::ext
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0004, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Query_0004";
     try {
         Uri newDirUriTest("");
@@ -1561,6 +1600,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0004, testing::ext
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0005, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Query_0005";
     try {
         Uri newDirUriTest("");
@@ -1598,6 +1638,7 @@ HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0005, testing::ext
 HWTEST_F(FileAccessHelperTest, medialibrary_file_access_Query_0006, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileAccessHelperTest-begin medialibrary_file_access_Query_0006";
     try {
         Uri newDirUriTest("");

@@ -265,7 +265,6 @@ export default class FileExtAbility extends Extension {
   }
 
   deleteToTrash(path): number {
-    hilog.info(DOMAIN_CODE, TAG, 'deleteToTrash: path:' + path);
     let code = ERR_OK;
     let pathLen = path.length;
     if (path.charAt(pathLen - 1) === '/') {
@@ -283,9 +282,7 @@ export default class FileExtAbility extends Extension {
     let curTime = new Date().getTime();
     try {
       // 拼接新路径
-      hilog.info(DOMAIN_CODE, TAG, 'deleteToTrash: path:' + path);
       let currentTrashParentPath = this.getUserPath(path) + '/.Trash/' + curTime + selectPathOnly + TRASH_SUB_FODER + curTime;
-      hilog.info(DOMAIN_CODE, TAG, 'deleteToTrash: currentTrashParentPath:' + currentTrashParentPath);
       // 创建回收站目录
       this.mkdirs(currentTrashParentPath);
       let stat = fs.statSync(path);
@@ -293,7 +290,6 @@ export default class FileExtAbility extends Extension {
         let selectFileOnly = path.substring(posLastSlash);
         hilog.info(DOMAIN_CODE, TAG, 'deleteToTrash: selectFileOnly:' + selectFileOnly);
         let newFileName = currentTrashParentPath + selectFileOnly;
-        hilog.info(DOMAIN_CODE, TAG, 'deleteToTrash: newFileName:' + newFileName);
         // 移动文件
         fs.moveFileSync(path, newFileName, 0);
       } else {
@@ -319,7 +315,6 @@ export default class FileExtAbility extends Extension {
     }
     let path = getPath(selectFileUri);
 
-    hilog.info(DOMAIN_CODE, TAG, 'Delete: path = ' + path);
     if (!path.startsWith(EXTERNAL_PATH)) {
       return this.deleteToTrash(path);
     }

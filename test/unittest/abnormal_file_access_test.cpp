@@ -71,6 +71,9 @@ public:
         cout << "AbnormalFileExtensionHelperTest code test" << endl;
         SetNativeToken(true);
         auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (saManager == nullptr) {
+            return;
+        }
         auto remoteObj = saManager->GetSystemAbility(ABILITY_ID);
         g_context = make_shared<OHOS::AbilityRuntime::ContextImpl>();
         g_context->SetToken(remoteObj);
@@ -101,7 +104,9 @@ public:
     }
     static void TearDownTestCase()
     {
-        g_fah->Release();
+        if (g_fah) {
+            g_fah->Release();
+        }
         g_fah = nullptr;
     };
     void SetUp(){};
@@ -123,6 +128,7 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_OpenFile
     try {
         Uri uri("");
         int fd;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->OpenFile(uri, WRITE_READ, fd);
         EXPECT_EQ(result, E_PERMISSION_SYS);
     } catch (...) {
@@ -147,6 +153,7 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_CreateFi
         Uri parent("");
         string displayName("");
         Uri newFile("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->CreateFile(parent, displayName, newFile);
         EXPECT_EQ(result, E_PERMISSION_SYS);
     } catch (...) {
@@ -171,6 +178,7 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_Mkdir_00
         Uri parent("");
         string displayName("");
         Uri newDir("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Mkdir(parent, displayName, newDir);
         EXPECT_EQ(result, E_PERMISSION_SYS);
     } catch (...) {
@@ -193,6 +201,7 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_Delete_0
     GTEST_LOG_(INFO) << "AbnormalFileExtensionHelperTest-begin abnormal_external_file_access_Delete_0000";
     try {
         Uri uri("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Delete(uri);
         EXPECT_EQ(result, E_PERMISSION_SYS);
     } catch (...) {
@@ -217,6 +226,7 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_Move_000
         Uri sourceFile("");
         Uri targetParent("");
         Uri newFile("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Move(sourceFile, targetParent, newFile);
         EXPECT_EQ(result, E_PERMISSION_SYS);
     } catch (...) {
@@ -242,6 +252,7 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_Copy_000
         Uri destUri("");
         vector<Result> copyResult;
         bool force = false;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Copy(sourceUri, destUri, copyResult, force);
         EXPECT_EQ(result, COPY_EXCEPTION);
     } catch (...) {
@@ -266,6 +277,7 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_Rename_0
         Uri sourceFile("");
         string displayName("");
         Uri newFile("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Rename(sourceFile, displayName, newFile);
         EXPECT_EQ(result, E_PERMISSION_SYS);
     } catch (...) {
@@ -293,6 +305,7 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_ListFile
         SharedMemoryInfo memInfo;
         int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
             memInfo);
+        EXPECT_NE(g_fah, nullptr);
         result = g_fah->ListFile(fileInfo, offset, filter, memInfo);
         EXPECT_EQ(result, E_PERMISSION_SYS);
         SharedMemoryOperation::DestroySharedMemory(memInfo);
@@ -320,6 +333,7 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_ScanFile
         int64_t maxCount = 0;
         FileFilter filter;
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
         EXPECT_EQ(result, E_PERMISSION_SYS);
     } catch (...) {
@@ -343,6 +357,7 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_Query_00
     try {
         Uri uri("");
         string metaJson("");
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Query(uri, metaJson);
         EXPECT_EQ(result, E_PERMISSION_SYS);
     } catch (...) {
@@ -365,6 +380,7 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_GetRoots
     GTEST_LOG_(INFO) << "AbnormalFileExtensionHelperTest-begin abnormal_external_file_access_GetRoots_0000";
     try {
         vector<RootInfo> rootInfoVec;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(rootInfoVec);
         EXPECT_EQ(result, E_PERMISSION_SYS);
     } catch (...) {
@@ -390,6 +406,7 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_GetRegis
         "abnormal_external_file_access_GetRegisteredFileAccessExtAbilityInfo_0000";
     try {
         vector<AAFwk::Want> wantVec;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRegisteredFileAccessExtAbilityInfo(wantVec);
         EXPECT_EQ(result, E_PERMISSION_SYS);
     } catch (...) {
@@ -415,6 +432,7 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_Access_0
     try {
         Uri uri("");
         bool isExist = true;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->Access(uri, isExist);
         EXPECT_EQ(result, E_PERMISSION_SYS);
     } catch (...) {
@@ -439,6 +457,7 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_GetFileI
     try {
         Uri selectFile("");
         FileInfo fileInfo;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetFileInfoFromUri(selectFile, fileInfo);
         EXPECT_EQ(result, E_PERMISSION_SYS);
     } catch (...) {
@@ -464,6 +483,7 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_GetFileI
     try {
         string selectFile("");
         FileInfo fileInfo;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetFileInfoFromRelativePath(selectFile, fileInfo);
         EXPECT_EQ(result, E_PERMISSION_SYS);
     } catch (...) {
