@@ -7,7 +7,7 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -239,14 +239,14 @@ function parseDocumentPickerSelectOption(args, action) {
     action: action,
     parameters: {
       startMode: 'choose',
+      extType: ExtTypes.DOWNLOAD_TYPE,
+      pickerType: PickerDetailType.FILE_MGR_SELECT,
     }
   };
 
   if (args.length > ARGS_ZERO && typeof args[ARGS_ZERO] === 'object') {
     let option = args[ARGS_ZERO];
     config.parameters.key_select_mode = option.selectMode;
-    config.parameters.extType = ExtTypes.DOWNLOAD_TYPE;
-    config.parameters.pickerType = PickerDetailType.FILE_MGR_SELECT;
     console.log('[picker] parseDocumentPickerSelectOption: ' + JSON.stringify(option));
 
     if ((option.maxSelectNumber !== undefined) && option.maxSelectNumber > 0) {
@@ -352,14 +352,14 @@ function parseDocumentPickerSaveOption(args, action) {
     parameters: {
       startMode: 'save',
       pickerMode: DocumentPickerMode.DEFAULT,
+      extType: ExtTypes.DOWNLOAD_TYPE,
+      pickerType: PickerDetailType.FILE_MGR_SAVE,
     }
   };
 
   if (args.length > ARGS_ZERO && typeof args[ARGS_ZERO] === 'object') {
     let option = args[ARGS_ZERO];
     console.log('[picker] document save option: ' + JSON.stringify(option));
-    config.parameters.extType = ExtTypes.DOWNLOAD_TYPE;
-    config.parameters.pickerType = PickerDetailType.FILE_MGR_SAVE;
     if ((option.newFileNames !== undefined) && option.newFileNames.length > 0) {
       config.parameters.key_pick_file_name = option.newFileNames;
       config.parameters.saveFile = option.newFileNames[0];
