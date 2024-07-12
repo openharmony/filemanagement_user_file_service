@@ -70,6 +70,9 @@ shared_ptr<FileAccessHelper> GetFileAccessHelper()
     }
     SetNativeToken();
     auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (saManager == nullptr) {
+        return nullptr;
+    }
     auto remoteObj = saManager->GetSystemAbility(ABILITY_ID);
     AAFwk::Want want;
     vector<AAFwk::Want> wantVec;
@@ -112,6 +115,9 @@ bool CreatorFuzzTest(const uint8_t* data, size_t size)
     }
     std::string bundleName(reinterpret_cast<const char*>(data), size);
     auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (saManager == nullptr) {
+        return false;
+    }
     auto remoteObj = saManager->GetSystemAbility(ABILITY_ID);
     AAFwk::Want want;
     want.SetElementName(bundleName, "FileExtensionAbility");

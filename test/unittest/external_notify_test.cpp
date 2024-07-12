@@ -104,6 +104,9 @@ public:
         cout << "FileExtensionNotifyTest code test" << endl;
         SetNativeToken();
         auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (saManager == nullptr) {
+            return;
+        }
         auto remoteObj = saManager->GetSystemAbility(ABILITY_ID);
         g_context = make_shared<OHOS::AbilityRuntime::ContextImpl>();
         g_context->SetToken(remoteObj);
@@ -133,7 +136,9 @@ public:
     }
     static void TearDownTestCase()
     {
-        g_fah->Release();
+        if (g_fah) {
+            g_fah->Release();
+        }
         g_fah = nullptr;
     };
     void SetUp(){};
@@ -179,6 +184,7 @@ static tuple<Uri, Uri, Uri, Uri> ReadyRegisterNotify00(Uri& parentUri,
 {
     bool notifyForDescendants = false;
     Uri newDirUriTest1("");
+    EXPECT_NE(g_fah, nullptr);
     int result = g_fah->Mkdir(parentUri, "uri_dir1", newDirUriTest1);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri newDirUriTest2("");
@@ -207,6 +213,7 @@ static tuple<Uri, Uri, Uri, Uri> ReadyRegisterNotify00(Uri& parentUri,
 static tuple<Uri, Uri> TriggerNotify00(Uri& newDirUriTest1, Uri& newDirUriTest2, Uri& newFileUri1, Uri& newFileUri2)
 {
     Uri testUri("");
+    EXPECT_NE(g_fah, nullptr);
     int result = g_fah->CreateFile(newDirUriTest1, "testUri", testUri);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     usleep(SLEEP_TIME);
@@ -253,6 +260,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0000, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_0000";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
@@ -290,6 +298,7 @@ static tuple<Uri, Uri, Uri> ReadyRegisterNotify01(Uri& parentUri, sptr<IFileAcce
     bool notifyForDescendants1 = true;
     bool notifyForDescendants2 = false;
     Uri newFileUri1("");
+    EXPECT_NE(g_fah, nullptr);
     int result = g_fah->CreateFile(parentUri, "uri_file1", newFileUri1);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri newFileUri2("");
@@ -322,6 +331,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0001, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_0001";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
@@ -368,6 +378,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0001, testing::ext
 static tuple<Uri, Uri, Uri, Uri> ReadyRegisterNotify02(Uri& parentUri)
 {
     Uri newDirUriTest1("");
+    EXPECT_NE(g_fah, nullptr);
     int result = g_fah->Mkdir(parentUri, "uri_dir1", newDirUriTest1);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri newDirUriTest2("");
@@ -387,6 +398,7 @@ static tuple<Uri, Uri> TriggerNotify02(Uri& newDirUriTest1, Uri& newDirUriTest2,
 {
     const int tm = 2;
     Uri testFile("");
+    EXPECT_NE(g_fah, nullptr);
     int result = g_fah->CreateFile(newDirUriTest1, "test_file", testFile);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     usleep(SLEEP_TIME);
@@ -429,6 +441,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0002, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_0002";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants = true;
@@ -489,6 +502,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0003, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_0003";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants = true;
@@ -528,6 +542,7 @@ static tuple<Uri, Uri, Uri, Uri> ReadyRegisterNotify05(Uri& parentUri, sptr<IFil
 {
     bool notifyForDescendants = true;
     Uri uri_dir("");
+    EXPECT_NE(g_fah, nullptr);
     int result = g_fah->Mkdir(parentUri, "uri_dir123", uri_dir);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri uri_dirSub1("");
@@ -566,6 +581,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0005, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_0005";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
@@ -617,6 +633,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0006, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_0006";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants = true;
@@ -657,6 +674,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0007, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_0007";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         sptr<IFileAccessObserver> myObserver1 = nullptr;
@@ -691,6 +709,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0008, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_0008";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
@@ -720,6 +739,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0009, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_0009";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants = true;
@@ -758,6 +778,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0010, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_0010";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants = true;
@@ -796,6 +817,7 @@ static tuple<Uri, Uri> ReadyRegisterNotify11(Uri& parentUri, Uri &newFileDir1, s
 {
     const int tm = SLEEP_TIME * 2;
     bool notifyForDescendants1 = true;
+    EXPECT_NE(g_fah, nullptr);
     int result = g_fah->Mkdir(parentUri, "uri_dir11", newFileDir1);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     Uri newFileUri1("");
@@ -829,6 +851,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0011, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_0011";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants2 = false;
@@ -878,6 +901,7 @@ static void RegisterDirNotify(Uri parentUri, std::string dirName, IFileAccessObs
 {
     Uri newDirUriTest("");
     bool notifyForDescendants = true;
+    EXPECT_NE(g_fah, nullptr);
     int result = g_fah->Mkdir(parentUri, dirName, newDirUriTest);
     EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     sptr<IFileAccessObserver> myObserver(observer);
@@ -906,6 +930,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_00012, testing::ex
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_00012";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri parentUri(info[1].uri);
@@ -936,6 +961,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_00013, testing::ex
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_00013";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri parentUri(info[1].uri);
@@ -967,6 +993,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_00014, testing::ex
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_00014";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri parentUri(info[1].uri);
@@ -1003,6 +1030,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_00015, testing::ex
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_00015";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri parentUri(info[1].uri);
@@ -1037,6 +1065,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0016, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_0016";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants = true;
@@ -1081,6 +1110,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0017, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_0017";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants = true;
@@ -1124,6 +1154,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0018, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_0018";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants = true;
@@ -1167,6 +1198,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0019, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionNotifyTest-begin external_file_access_notify_0019";
     try {
         vector<RootInfo> info;
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants = true;
@@ -1206,6 +1238,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0020, testing::ext
             "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED"
         };
         SetNativeToken("SetUpTestCase", perms, sizeof(perms) / sizeof(perms[0]));
+        EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
         SetNativeToken();

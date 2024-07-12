@@ -130,6 +130,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CallObjectMethod
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_CallObjectMethod_0000";
     try {
+        EXPECT_NE(ability, nullptr);
         auto result = ability->CallObjectMethod(nullptr, nullptr, 0);
         EXPECT_TRUE(result == nullptr);
 
@@ -179,6 +180,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CallJsMethod_000
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_CallJsMethod_0000";
     try {
+        EXPECT_NE(ability, nullptr);
         string funcNameIn;
         NativeReference *jsObj = nullptr;
         InputArgsParser argParser = [](napi_env &env, napi_value *argv, size_t &argc) -> bool {
@@ -218,6 +220,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_DoCallJsMethod_0
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_DoCallJsMethod_0000";
     try {
+        EXPECT_NE(ability, nullptr);
         string funcNameIn;
         napi_value rslt = nullptr;
         NativeReference *jsObj = nullptr;
@@ -273,6 +276,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_DoCallJsMethod_0
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_DoCallJsMethod_0001";
     try {
+        EXPECT_NE(ability, nullptr);
         string funcNameIn;
         napi_value rslt = nullptr;
         NativeReference *jsObj = nullptr;
@@ -321,6 +325,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0000, t
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_OpenFile_0000";
     try {
+        EXPECT_NE(ability, nullptr);
         const Uri uri("");
         int fd = -1;
 
@@ -348,6 +353,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0001, t
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_OpenFile_0001";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         const Uri uri("");
         int fd = -1;
@@ -460,6 +466,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0002, t
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_OpenFile_0002";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         const Uri uri("");
         int fd = -1;
@@ -506,6 +513,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0003, t
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_OpenFile_0003";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         const Uri uri("");
         int fd = -1;
@@ -543,6 +551,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CreateFile_0000,
         Uri parent("");
         string displayName("");
         Uri newFile("");
+        EXPECT_NE(ability, nullptr);
 
         // 模拟调用CallJsMethod失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_invalid_arg));
@@ -568,6 +577,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CreateFile_0001,
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_CreateFile_0001";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri parent("");
         string displayName("");
@@ -609,6 +619,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CreateFile_0002,
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_CreateFile_0002";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri parent("");
         string displayName("");
@@ -656,6 +667,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CreateFile_0003,
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_CreateFile_0003";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         string path = "test";
         Uri parent("");
@@ -687,6 +699,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Mkdir_0000, test
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Mkdir_0000";
     try {
+        EXPECT_NE(ability, nullptr);
         Uri parent("");
         string displayName("");
         Uri newFile("");
@@ -715,6 +728,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Mkdir_0001, test
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Mkdir_0001";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri parent("");
         string displayName("");
@@ -756,6 +770,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Mkdir_0002, test
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Mkdir_0002";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri parent("");
         string displayName("");
@@ -802,6 +817,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Mkdir_0003, test
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Mkdir_0003";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         string path = "test";
         Uri parent("");
@@ -833,6 +849,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Delete_0000, tes
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Delete_0000";
     try {
+        EXPECT_NE(ability, nullptr);
         Uri sourceFile("");
 
         // 模拟调用CallJsMethod失败
@@ -859,6 +876,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Delete_0001, tes
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Delete_0001";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri sourceFile("");
         ability->jsObj_ = make_shared<NativeReferenceMock>();
@@ -907,6 +925,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Delete_0002, tes
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Delete_0002";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri sourceFile("");
         ability->jsObj_ = make_shared<NativeReferenceMock>();
@@ -948,6 +967,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Move_0000, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Move_0000";
     try {
+        EXPECT_NE(ability, nullptr);
         Uri sourceFile("");
         Uri targetParent("");
         Uri newFile("");
@@ -976,6 +996,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Move_0001, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Move_0001";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri sourceFile("");
         Uri targetParent("");
@@ -1017,6 +1038,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Move_0002, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Move_0002";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri sourceFile("");
         Uri targetParent("");
@@ -1064,6 +1086,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Move_0003, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Move_0003";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         string path = "test";
         Uri sourceFile("");
@@ -1095,6 +1118,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0000, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0000";
     try {
+        EXPECT_NE(ability, nullptr);
         Uri sourceUri("");
         Uri destUri("");
         vector<Result> copyResult;
@@ -1124,6 +1148,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0001, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0001";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri sourceUri("");
         Uri destUri("");
@@ -1178,6 +1203,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0002, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0002";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri sourceUri("");
         Uri destUri("");
@@ -1214,6 +1240,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0003, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0003";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri sourceUri("");
         Uri destUri("");
@@ -1253,6 +1280,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0004, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0004";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri sourceUri("");
         Uri destUri("");
@@ -1293,6 +1321,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0005, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0005";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri sourceUri("");
         Uri destUri("");
@@ -1334,6 +1363,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0006, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0006";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri sourceUri("");
         Uri destUri("");
@@ -1379,6 +1409,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0007, testi
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Copy_0007";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri sourceUri("");
         Uri destUri("");
@@ -1426,6 +1457,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0000, t
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_CopyFile_0000";
     try {
+        EXPECT_NE(ability, nullptr);
         Uri sourceUri("");
         Uri destUri("");
         string fileName;
@@ -1456,6 +1488,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0001, t
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_CopyFile_0001";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri sourceUri("");
         Uri destUri("");
@@ -1509,6 +1542,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0002, t
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_CopyFile_0002";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri sourceUri("");
         Uri destUri("");
@@ -1555,6 +1589,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0003, t
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_CopyFile_0003";
     try {
+        EXPECT_NE(ability, nullptr);
         string path = "test";
         napi_value rslt = nullptr;
         Uri sourceUri("");
@@ -1604,6 +1639,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0004, t
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_CopyFile_0004";
     try {
+        EXPECT_NE(ability, nullptr);
         string path = "test";
         napi_value rslt = nullptr;
         Uri sourceUri("");
@@ -1657,6 +1693,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0005, t
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_CopyFile_0005";
     try {
+        EXPECT_NE(ability, nullptr);
         string path = "test";
         napi_value rslt = nullptr;
         Uri sourceUri("");
@@ -1694,6 +1731,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0006, t
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_CopyFile_0006";
     try {
+        EXPECT_NE(ability, nullptr);
         string path = "test";
         napi_value rslt = nullptr;
         Uri sourceUri("");
@@ -1738,6 +1776,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0007, t
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_CopyFile_0007";
     try {
+        EXPECT_NE(ability, nullptr);
         string path = "test";
         napi_value rslt = nullptr;
         Uri sourceUri("");
@@ -1774,6 +1813,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0000, tes
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Rename_0000";
     try {
+        EXPECT_NE(ability, nullptr);
         Uri sourceFile("");
         string displayName("");
         Uri newFile("");
@@ -1802,6 +1842,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0001, tes
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Rename_0001";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri sourceFile("");
         string displayName("");
@@ -1843,6 +1884,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0002, tes
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Rename_0002";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         Uri sourceFile("");
         string displayName("");
@@ -1889,6 +1931,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0003, tes
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_Rename_0003";
     try {
+        EXPECT_NE(ability, nullptr);
         napi_value rslt = nullptr;
         string path = "test";
         Uri sourceFile("");

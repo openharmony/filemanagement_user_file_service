@@ -32,6 +32,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ListFile_0000, t
         int64_t maxCount = 0;
         FileFilter filter;
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取uri为空
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -85,6 +86,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ListFile_0001, t
         int64_t maxCount = 0;
         FileFilter filter;
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取nativeFilter为空
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -139,6 +141,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ListFile_0002, t
         FileFilter filter;
         filter.SetHasFilter(true);
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟创建nativeFilter失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -207,6 +210,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ListFile_0003, t
         FileFilter filter;
         filter.SetHasFilter(true);
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取fileFilter.displayNameArray失败
         CallListFileHeadSucceed(insMoc);
@@ -252,6 +256,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ListFile_0004, t
         FileFilter filter;
         filter.SetHasFilter(true);
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取fileFilter.nativeFileSizeOver失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -341,6 +346,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ListFile_0005, t
         FileFilter filter;
         filter.SetHasFilter(true);
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取fileFilter.nativeExcludeMedia失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -403,6 +409,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ListFile_0006, t
         FileFilter filter;
         filter.SetHasFilter(true);
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟设置fileFilter.mimeTypeArray失败
         CallCreateNativeValueSucceed(insMoc);
@@ -472,6 +479,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ListFile_0007, t
         FileFilter filter;
         filter.SetHasFilter(true);
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取code失败
         CallCreateNativeValueSucceed(insMoc);
@@ -531,11 +539,10 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ListFile_0008, t
     try {
         napi_value rslt = nullptr;
         FileInfo fileInfo;
-        int64_t offset = 0;
-        int64_t maxCount = 0;
         FileFilter filter;
         filter.SetHasFilter(true);
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取length失败
         CallCreateNativeValueSucceed(insMoc);
@@ -553,7 +560,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ListFile_0008, t
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
         EXPECT_CALL(*insMoc, napi_create_array(_, _)).WillOnce(Return(napi_ok));
         EXPECT_CALL(*insMoc, napi_get_array_length(_, _, _)).WillOnce(Return(napi_invalid_arg));
-        auto result = ability->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        auto result = ability->ListFile(fileInfo, 0, 0, filter, fileInfoVec);
         EXPECT_EQ(result, ERR_OK);
 
         // 模拟获取length成功
@@ -572,7 +579,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ListFile_0008, t
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
         EXPECT_CALL(*insMoc, napi_create_array(_, _)).WillOnce(Return(napi_ok));
         EXPECT_CALL(*insMoc, napi_get_array_length(_, _, _)).WillOnce(Return(napi_ok));
-        result = ability->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        result = ability->ListFile(fileInfo, 0, 0, filter, fileInfoVec);
         EXPECT_EQ(result, ERR_OK);
     } catch (...) {
         EXPECT_TRUE(false);
@@ -602,6 +609,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ListFile_0009, t
         FileFilter filter;
         filter.SetHasFilter(true);
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟调用CallJsMethod失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_invalid_arg));
@@ -655,6 +663,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ScanFile_0000, t
         int64_t maxCount = 0;
         FileFilter filter;
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取uri为空
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -708,6 +717,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ScanFile_0001, t
         int64_t maxCount = 0;
         FileFilter filter;
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取nativeFilter为空
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -762,6 +772,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ScanFile_0002, t
         FileFilter filter;
         filter.SetHasFilter(true);
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟创建nativeFilter失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -816,6 +827,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ScanFile_0003, t
         FileFilter filter;
         filter.SetHasFilter(true);
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取fileFilter.displayNameArray失败
         CallListFileHeadSucceed(insMoc);
@@ -861,6 +873,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ScanFile_0004, t
         FileFilter filter;
         filter.SetHasFilter(true);
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取fileFilter.nativeFileSizeOver失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -926,6 +939,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ScanFile_0005, t
         FileFilter filter;
         filter.SetHasFilter(true);
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取fileFilter.nativeExcludeMedia失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -988,6 +1002,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ScanFile_0006, t
         FileFilter filter;
         filter.SetHasFilter(true);
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟设置fileFilter.mimeTypeArray失败
         CallCreateNativeValueSucceed(insMoc);
@@ -1057,6 +1072,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ScanFile_0007, t
         FileFilter filter;
         filter.SetHasFilter(true);
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取code失败
         CallCreateNativeValueSucceed(insMoc);
@@ -1116,11 +1132,10 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ScanFile_0008, t
     try {
         napi_value rslt = nullptr;
         FileInfo fileInfo;
-        int64_t offset = 0;
-        int64_t maxCount = 0;
         FileFilter filter;
         filter.SetHasFilter(true);
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取length失败
         CallCreateNativeValueSucceed(insMoc);
@@ -1138,7 +1153,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ScanFile_0008, t
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
         EXPECT_CALL(*insMoc, napi_create_array(_, _)).WillOnce(Return(napi_ok));
         EXPECT_CALL(*insMoc, napi_get_array_length(_, _, _)).WillOnce(Return(napi_invalid_arg));
-        auto result = ability->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        auto result = ability->ScanFile(fileInfo, 0, 0, filter, fileInfoVec);
         EXPECT_EQ(result, ERR_OK);
 
         // 模拟获取length成功
@@ -1157,7 +1172,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ScanFile_0008, t
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
         EXPECT_CALL(*insMoc, napi_create_array(_, _)).WillOnce(Return(napi_ok));
         EXPECT_CALL(*insMoc, napi_get_array_length(_, _, _)).WillOnce(Return(napi_ok));
-        result = ability->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        result = ability->ScanFile(fileInfo, 0, 0, filter, fileInfoVec);
         EXPECT_EQ(result, ERR_OK);
     } catch (...) {
         EXPECT_TRUE(false);
@@ -1187,6 +1202,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ScanFile_0009, t
         FileFilter filter;
         filter.SetHasFilter(true);
         vector<FileInfo> fileInfoVec;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟调用CallJsMethod失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_invalid_arg));
@@ -1237,6 +1253,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromU
         napi_value rslt = nullptr;
         Uri selectFile("");
         FileInfo fileInfo;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取nativeUri为空
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -1284,6 +1301,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromU
         napi_value rslt = nullptr;
         Uri selectFile("");
         FileInfo fileInfo;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取fileInfo失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -1346,6 +1364,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromU
         napi_value rslt = nullptr;
         Uri selectFile("");
         FileInfo fileInfo;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取fileInfo.relativePath失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -1409,6 +1428,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromU
         napi_value rslt = nullptr;
         Uri selectFile("");
         FileInfo fileInfo;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取fileInfo.mode失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -1454,6 +1474,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromU
         napi_value rslt = nullptr;
         Uri selectFile("");
         FileInfo fileInfo;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取fileInfo.size失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -1499,6 +1520,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromU
         napi_value rslt = nullptr;
         Uri selectFile("");
         FileInfo fileInfo;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取fileInfo.size失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -1545,6 +1567,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromU
         napi_value rslt = nullptr;
         Uri selectFile("");
         FileInfo fileInfo;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取fileInfo.mimeType失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -1593,6 +1616,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromU
         napi_value rslt = nullptr;
         Uri selectFile("");
         FileInfo fileInfo;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟调用CallJsMethod失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_invalid_arg));
@@ -1647,6 +1671,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromR
         napi_value rslt = nullptr;
         string selectFileRealtivePath;
         FileInfo fileInfo;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取nativePath为空
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -1696,6 +1721,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromR
         napi_value rslt = nullptr;
         string selectFileRealtivePath;
         FileInfo fileInfo;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取fileInfo失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -1759,6 +1785,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromR
         napi_value rslt = nullptr;
         string selectFileRealtivePath;
         FileInfo fileInfo;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取fileInfo.relativePath失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -1823,6 +1850,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromR
         napi_value rslt = nullptr;
         string selectFileRealtivePath;
         FileInfo fileInfo;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取fileInfo.mode失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -1869,6 +1897,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromR
         napi_value rslt = nullptr;
         string selectFileRealtivePath;
         FileInfo fileInfo;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取fileInfo.size失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -1915,6 +1944,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromR
         napi_value rslt = nullptr;
         string selectFileRealtivePath;
         FileInfo fileInfo;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取fileInfo.size失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -1962,6 +1992,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromR
         napi_value rslt = nullptr;
         string selectFileRealtivePath;
         FileInfo fileInfo;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟获取fileInfo.mimeType失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
@@ -2012,6 +2043,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromR
         napi_value rslt = nullptr;
         string selectFileRealtivePath;
         FileInfo fileInfo;
+        EXPECT_NE(ability, nullptr);
 
         // 模拟调用CallJsMethod失败
         EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_invalid_arg));

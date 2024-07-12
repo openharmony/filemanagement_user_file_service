@@ -41,12 +41,13 @@ static int g_num = 0;
  * @tc.level Level 1
  * @tc.require: SR000H0386
  */
-HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0490, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0000, testing::ext::TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFile_0000";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
         vector<RootInfo> info;
+        EXPECT_NE(fileAccessHelper, nullptr);
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
@@ -87,7 +88,9 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0001, testing::e
     try {
         Uri uri("");
         int fd;
-        int result = FileExtensionHelperTest::GetFileAccessHelper()->OpenFile(uri, WRITE_READ, fd);
+        shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
+        int result = fileAccessHelper->OpenFile(uri, WRITE_READ, fd);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0001 result:" << result;
     } catch (...) {
@@ -111,6 +114,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0002, testing::e
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
         vector<RootInfo> info;
+        EXPECT_NE(fileAccessHelper, nullptr);
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         for (size_t i = 0; i < info.size(); i++) {
@@ -147,7 +151,9 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0003, testing::e
     try {
         Uri uri("~!@#$%^&*()_");
         int fd;
-        int result = FileExtensionHelperTest::GetFileAccessHelper()->OpenFile(uri, WRITE_READ, fd);
+        shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
+        int result = fileAccessHelper->OpenFile(uri, WRITE_READ, fd);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "OpenFile_0003 result:" << result;
     } catch (...) {
@@ -170,6 +176,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0004, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFile_0004";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -206,6 +213,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0005, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFile_0005";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -242,6 +250,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0006, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFile_0006";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -278,6 +287,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0007, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFile_0007";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -329,6 +339,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0008, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFile_0008";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -368,6 +379,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0009, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFile_0009";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -403,6 +415,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_OpenFile_0010, testing::e
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_OpenFile_0010";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -445,6 +458,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0000, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Delete_0000";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -482,6 +496,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0001, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Delete_0001";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -514,7 +529,9 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0002, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Delete_0002";
     try {
         Uri selectFileUri("");
-        int result = FileExtensionHelperTest::GetFileAccessHelper()->Delete(selectFileUri);
+        shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
+        int result = fileAccessHelper->Delete(selectFileUri);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Delete_0002 result:" << result;
     } catch (...) {
@@ -537,6 +554,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0003, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Delete_0003";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -572,7 +590,9 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0004, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Delete_0004";
     try {
         Uri selectFileUri("!@#$%^&*()");
-        int result = FileExtensionHelperTest::GetFileAccessHelper()->Delete(selectFileUri);
+        shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
+        int result = fileAccessHelper->Delete(selectFileUri);
         EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
         GTEST_LOG_(INFO) << "Delete_0004 result:" << result;
     } catch (...) {
@@ -608,6 +628,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0005, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Delete_0005";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -649,6 +670,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0006, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Delete_0006";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -683,6 +705,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Delete_0007, testing::ext
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Delete_0007";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -722,6 +745,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0000, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0000";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -765,6 +789,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0001, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0001";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -806,6 +831,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0002, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0002";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -842,6 +868,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0003, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0003";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -886,6 +913,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0004, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0004";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -922,6 +950,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0005, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0005";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -961,6 +990,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0006, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0006";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1005,6 +1035,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0007, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0007";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1049,6 +1080,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0008, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0008";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1087,6 +1119,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0009, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0009";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1132,6 +1165,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0010, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0010";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1178,6 +1212,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0011, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0011";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1238,6 +1273,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0012, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0012";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1285,6 +1321,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0013, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0013";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1332,6 +1369,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0014, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0014";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1379,6 +1417,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0015, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0015";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1419,6 +1458,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0016, testing::ext::
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0016";
     try {
         shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);

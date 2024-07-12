@@ -66,6 +66,9 @@ void FileExtensionHelperTest::SetUpTestCase()
     cout << "FileExtensionHelperTest code test" << endl;
     SetNativeToken();
     auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (saManager == nullptr) {
+        return;
+    }
     auto systemAbilityObj = saManager->GetSystemAbility(ABILITY_ID);
     g_context = make_shared<OHOS::AbilityRuntime::ContextImpl>();
     g_context->SetToken(systemAbilityObj);

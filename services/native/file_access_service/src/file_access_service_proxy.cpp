@@ -77,6 +77,12 @@ void FileAccessServiceProxy::ServiceProxyLoadCallback::OnLoadSystemAbilitySucces
     }
     std::unique_lock<std::mutex> lock(proxyMutex_);
     serviceProxy_ = iface_cast<FileAccessServiceProxy>(remoteObject);
+    if (!serviceProxy_) {
+        HILOG_ERROR("Failed to get remote object");
+        isLoadSuccess_.store(false);
+        proxyConVar_.notify_one();
+        return;
+    }
     auto remoteObj = serviceProxy_->AsObject();
     if (!remoteObj) {
         HILOG_ERROR("Failed to get remote object");
@@ -134,7 +140,12 @@ int32_t FileAccessServiceProxy::OnChange(Uri uri, NotifyType notifyType)
 
     MessageParcel reply;
     MessageOption option;
-    int err = Remote()->SendRequest(static_cast<uint32_t>(FileAccessServiceInterfaceCode::CMD_ONCHANGE), data, reply,
+    auto remote = Remote();
+    if (!remote) {
+        HILOG_ERROR("failed to get remote");
+        return E_IPCS;
+    }
+    int err = remote->SendRequest(static_cast<uint32_t>(FileAccessServiceInterfaceCode::CMD_ONCHANGE), data, reply,
         option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
@@ -166,7 +177,7 @@ int32_t FileAccessServiceProxy::RegisterNotify(Uri uri, bool notifyForDescendant
         return E_IPCS;
     }
 
-    if (!data.WriteRemoteObject(observer->AsObject())) {
+    if (!(observer && data.WriteRemoteObject(observer->AsObject()))) {
         HILOG_ERROR("fail to WriteRemoteObject observer");
         return E_IPCS;
     }
@@ -188,7 +199,12 @@ int32_t FileAccessServiceProxy::RegisterNotify(Uri uri, bool notifyForDescendant
 
     MessageParcel reply;
     MessageOption option;
-    int err = Remote()->SendRequest(static_cast<uint32_t>(FileAccessServiceInterfaceCode::CMD_REGISTER_NOTIFY), data,
+    auto remote = Remote();
+    if (!remote) {
+        HILOG_ERROR("failed to get remote");
+        return E_IPCS;
+    }
+    int err = remote->SendRequest(static_cast<uint32_t>(FileAccessServiceInterfaceCode::CMD_REGISTER_NOTIFY), data,
         reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
@@ -208,7 +224,13 @@ int32_t FileAccessServiceProxy::UnregisterNotifyInternal(MessageParcel &data)
 {
     MessageParcel reply;
     MessageOption option;
-    int err = Remote()->SendRequest(static_cast<uint32_t>(FileAccessServiceInterfaceCode::CMD_UNREGISTER_NOTIFY), data,
+    auto remote = Remote();
+    if (!remote) {
+        HILOG_ERROR("failed to get remote");
+        return E_IPCS;
+    }
+
+    int err = remote->SendRequest(static_cast<uint32_t>(FileAccessServiceInterfaceCode::CMD_UNREGISTER_NOTIFY), data,
         reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
@@ -297,7 +319,12 @@ int32_t FileAccessServiceProxy::GetExensionProxy(const std::shared_ptr<ConnectEx
 
     MessageParcel reply;
     MessageOption option;
-    int err = Remote()->SendRequest(static_cast<uint32_t>(FileAccessServiceInterfaceCode::CMD_GET_EXTENSION_PROXY),
+    auto remote = Remote();
+    if (!remote) {
+        HILOG_ERROR("failed to get remote");
+        return E_IPCS;
+    }
+    int err = remote->SendRequest(static_cast<uint32_t>(FileAccessServiceInterfaceCode::CMD_GET_EXTENSION_PROXY),
         data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);

@@ -48,6 +48,10 @@ struct StatEntity {
 
 static void Deleter(struct NameListArg *arg)
 {
+    if (arg == nullptr) {
+        HILOG_ERROR("invalid argument");
+        return;
+    }
     for (int i = 0; i < arg->direntNum; i++) {
         free((arg->namelist)[i]);
         (arg->namelist)[i] = nullptr;
@@ -57,6 +61,9 @@ static void Deleter(struct NameListArg *arg)
 
 static int32_t FilterFunc(const struct dirent *filename)
 {
+    if (filename == nullptr) {
+        return FILTER_DISMATCH;
+    }
     if (string_view(filename->d_name) == "." || string_view(filename->d_name) == "..") {
         return FILTER_DISMATCH;
     }

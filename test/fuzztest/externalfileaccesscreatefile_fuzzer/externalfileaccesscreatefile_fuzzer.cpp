@@ -87,9 +87,11 @@ bool ExternalFileAccessCreateFileFuzzTest(std::unique_ptr<char[]> data, size_t s
 
     sptr<FileAccessExtStubImpl> fileAccessExtStubObj(new (std::nothrow) FileAccessExtStubImpl(
         fileAccessExtAbilitySharePtr, nullptr));
-
-    fileAccessExtStubObj->OnRemoteRequest(code, datas, reply, option);
     
+    if (fileAccessExtStubObj) {
+        fileAccessExtStubObj->OnRemoteRequest(code, datas, reply, option);
+    }
+
     fileAccessExtAbility = nullptr;
     fileAccessExtStubObj = nullptr;
 

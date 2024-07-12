@@ -52,8 +52,13 @@ private:
     public:
         void OnRemoteDied(const wptr<IRemoteObject> &object) override
         {
-            object->RemoveDeathRecipient(this);
-            functor_(object);
+            auto ptr = object.promote();
+            if (!ptr) {
+                HILOG_ERROR("remote object is nullptr");
+                return;
+            }
+            ptr->RemoveDeathRecipient(this);
+            functor_(ptr);
         };
     private:
         std::function<void(const wptr<IRemoteObject> &)> functor_;

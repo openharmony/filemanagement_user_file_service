@@ -191,7 +191,9 @@ sptr<IFileAccessExtBase> FileAccessService::ConnectExtension(Uri &uri, const sha
             return nullptr;
         }
         auto object = extensionProxy->AsObject();
-        object->AddDeathRecipient(extensionDeathRecipient_);
+        if (object) {
+            object->AddDeathRecipient(extensionDeathRecipient_);
+        }
     }
     AddExtProxyInfo(bundleName, extensionProxy);
     return extensionProxy;
@@ -203,7 +205,7 @@ void FileAccessService::ResetProxy(const wptr<IRemoteObject> &remote)
     if (remote != nullptr && extensionDeathRecipient_ != nullptr) {
         for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
             auto proxyRemote = iter->second->AsObject();
-            if (proxyRemote != nullptr && proxyRemote== remote.promote()) {
+            if (proxyRemote != nullptr && proxyRemote == remote.promote()) {
                 proxyRemote->RemoveDeathRecipient(extensionDeathRecipient_);
                 cMap_.erase(iter->first);
             }
@@ -348,11 +350,18 @@ int32_t FileAccessService::RegisterNotifyImpl(Uri uri, bool notifyForDescendants
         // this is new callback, save this context
         obsContext->Ref();
         code = obsManager_.save(obsContext);
+        if (obsContext->obs_ == nullptr) {
+            return E_GETRESULT;
+        }
         auto object = obsContext->obs_->AsObject();
         object->AddDeathRecipient(observerDeathRecipient_);
     } else {
         // this callback is already in manager, add ref.
-        obsManager_.get(code)->Ref();
+        auto object = obsManager_.get(code);
+        if (object == nullptr) {
+            return E_GETRESULT;
+        }
+        object->Ref();
     }
     return OperateObsNode(uri, notifyForDescendants, code, info);
 }
@@ -411,6 +420,9 @@ int32_t FileAccessService::CleanAllNotifyImpl(Uri uri, const std::shared_ptr<Con
     }
     for (auto code : obsNode->obsCodeList_) {
         auto context = obsManager_.get(code);
+        if (context == nullptr) {
+            continue;
+        }
         context->UnRef();
         if (!context->IsValid()) {
             obsManager_.release(code);
@@ -430,7 +442,7 @@ int32_t FileAccessService::CleanAllNotifyImpl(Uri uri, const std::shared_ptr<Con
     }
     extensionProxy->StopWatcher(originalUri);
     RemoveRelations(uriStr, obsNode);
-    if (IsUnused()) {
+    if (IsUnused() && unLoadTimer_) {
         unLoadTimer_->reset();
     }
     return ERR_OK;
@@ -448,7 +460,7 @@ int32_t FileAccessService::UnregisterNotify(Uri uri, const sptr<IFileAccessObser
             return ret;
         }
     }
-    if (IsUnused()) {
+    if (IsUnused() && unLoadTimer_) {
         unLoadTimer_->reset();
     }
     return ERR_OK;
@@ -459,6 +471,10 @@ int32_t FileAccessService::UnregisterNotifyImpl(Uri uri, const sptr<IFileAccessO
 {
     UserAccessTracer trace;
     trace.Start("UnregisterNotifyImpl");
+    if (observer == nullptr) {
+        HILOG_ERROR("UnregisterNotify failed with invalid observer");
+        return E_IPCS;
+    }
     if (observer->AsObject() == nullptr) {
         HILOG_ERROR("UnregisterNotify failed with invalid observer");
         return E_IPCS;
@@ -483,14 +499,19 @@ int32_t FileAccessService::UnregisterNotifyImpl(Uri uri, const sptr<IFileAccessO
         HILOG_ERROR("Can not find obsNode by code");
         return ret;
     }
-    obsManager_.get(code)->UnRef();
+    auto object = obsManager_.get(code);
+    if (object == nullptr) {
+        HILOG_ERROR("Can not find obsNode by code");
+        return E_IPCS;
+    }
+    object->UnRef();
     // node has other observers, do not need remove.
     if (obsNode->CheckObsCodeListNotEmpty()) {
         HILOG_DEBUG("Has code do not stopWatcher");
         return ERR_OK;
     }
     // if data refcount is invalid, release this code.
-    if (!obsManager_.get(code)->IsValid()) {
+    if (!object->IsValid()) {
         obsManager_.release(code);
     }
     return RmUriObsNodeRelations(uriStr, obsNode, info);
@@ -513,7 +534,9 @@ void FileAccessService::SendListNotify(string uriStr, NotifyType notifyType, con
         if (it != DEVICE_ROOTS.end()) {
             vector<string> uris = {uriStr};
             NotifyMessage notifyMessage{notifyType, uris};
-            context->obs_->OnChange(notifyMessage);
+            if (context->obs_) {
+                context->obs_->OnChange(notifyMessage);
+            }
             continue;
         }
         lock_guard<mutex> lock(context->mapMutex_);
@@ -527,7 +550,9 @@ void FileAccessService::SendListNotify(string uriStr, NotifyType notifyType, con
             NotifyMessage notifyMessage;
             notifyMessage.notifyType_ = notifyType;
             notifyMessage.uris_ = context->notifyMap_[notifyType];
-            context->obs_->OnChange(notifyMessage);
+            if (context->obs_) {
+                context->obs_->OnChange(notifyMessage);
+            }
             context->notifyMap_.erase(notifyType);
         }
     }
@@ -586,6 +611,9 @@ void FileAccessService::InitTimer()
         FileAccessService::GetInstance()->obsManager_.getAll(contexts);
         bool isMessage = false;
         for (auto context : contexts) {
+            if (context == nullptr) {
+                continue;
+            }
             if (!context->notifyMap_.size()) {
                 continue;
             }

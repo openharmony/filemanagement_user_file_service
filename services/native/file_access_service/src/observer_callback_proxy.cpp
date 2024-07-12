@@ -41,7 +41,12 @@ void ObserverCallbackProxy::OnChange(NotifyMessage &notifyMessage)
 
     MessageParcel reply;
     MessageOption option;
-    int err = Remote()->SendRequest(CMD_ONCHANGE, data, reply, option);
+    auto remote = Remote();
+    if (!remote) {
+        HILOG_ERROR("failed to get remote");
+        return;
+    }
+    int err = remote->SendRequest(CMD_ONCHANGE, data, reply, option);
     if (err != ERR_OK) {
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
         return;

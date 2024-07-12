@@ -45,6 +45,7 @@ static int g_num = 0;
 HWTEST_F(FileExtensionHelperTest, external_file_access_GetRoots_0000, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetRoots_0000";
     try {
         vector<RootInfo> info;
@@ -95,6 +96,7 @@ static void TestFileAccess(shared_ptr<FileAccessHelper> fileAccessHelper, Uri& d
 HWTEST_F(FileExtensionHelperTest, external_file_access_Access_0000, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Access_0000";
     try {
         vector<RootInfo> info;
@@ -129,6 +131,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Access_0000, testing::ext
 HWTEST_F(FileExtensionHelperTest, external_file_access_Access_0001, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Access_0001";
     try {
         vector<RootInfo> info;
@@ -164,6 +167,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Access_0001, testing::ext
 HWTEST_F(FileExtensionHelperTest, external_file_access_Access_0002, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Access_0002";
     try {
         vector<RootInfo> info;
@@ -201,6 +205,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Access_0002, testing::ext
 HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0000, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetFileInfoFromUri_0000";
     try {
         vector<RootInfo> info;
@@ -241,6 +246,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0000, 
 HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0001, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetFileInfoFromUri_0001";
     try {
         vector<RootInfo> info;
@@ -288,6 +294,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0001, 
 HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0002, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetFileInfoFromUri_0002";
     try {
         vector<RootInfo> info;
@@ -339,6 +346,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0002, 
 HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0003, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetFileInfoFromUri_0003";
     try {
         vector<RootInfo> info;
@@ -369,6 +377,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0003, 
 HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0004, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetFileInfoFromUri_0004";
     try {
         vector<RootInfo> info;
@@ -404,6 +413,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0004, 
 HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0005, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetFileInfoFromUri_0005";
     try {
         Uri uri("~!@#$%^&*()_");
@@ -437,6 +447,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0005, 
 HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0006, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetFileInfoFromUri_0006";
     try {
         vector<RootInfo> info;
@@ -485,6 +496,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0006, 
 HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0007, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetFileInfoFromUri_0007";
     try {
         vector<RootInfo> info;
@@ -537,6 +549,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetFileInfoFromUri_0007, 
 HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0000, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Mkdir_0000";
     try {
         vector<RootInfo> info;
@@ -569,6 +582,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0000, testing::ext:
 HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0001, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Mkdir_0001";
     try {
         Uri newDirUriTest("");
@@ -594,6 +608,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0001, testing::ext:
 HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0002, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Mkdir_0002";
     try {
         Uri newDirUriTest("");
@@ -619,6 +634,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0002, testing::ext:
 HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0003, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Mkdir_0002";
     try {
         Uri newDirUriTest("");
@@ -644,6 +660,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0003, testing::ext:
 HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0004, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Mkdir_0004";
     try {
         vector<RootInfo> info;
@@ -666,6 +683,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0004, testing::ext:
 static void MkdirTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, std::string displayName, Uri newFile)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_MkdirTdd";
     int ret = fahs->Mkdir(uri, displayName, newFile);
     if (ret != OHOS::FileAccessFwk::ERR_OK) {
@@ -690,6 +708,7 @@ static void MkdirTdd(shared_ptr<FileAccessHelper> fahs, Uri uri, std::string dis
 HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0005, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Mkdir_0005";
     try {
         vector<RootInfo> info;
@@ -727,6 +746,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0005, testing::ext:
 HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0006, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Mkdir_0006";
     try {
         vector<RootInfo> info;
@@ -763,6 +783,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0006, testing::ext:
 HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0007, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Mkdir_0007";
     try {
         vector<RootInfo> info;
@@ -796,6 +817,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0007, testing::ext:
 HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0008, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Mkdir_0008";
     try {
         vector<RootInfo> info;
@@ -829,6 +851,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0008, testing::ext:
 HWTEST_F(FileExtensionHelperTest, external_file_access_GetConnectInfo_0000, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetConnectInfo_0000";
     try {
         std::shared_ptr<ConnectInfo> connectInfo = fileAccessHelper->GetConnectInfo("NotExistBundleName");
@@ -853,6 +876,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetConnectInfo_0000, test
 HWTEST_F(FileExtensionHelperTest, external_file_access_GetProxyByUri_0000, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetProxyByUri_0000";
     try {
         Uri uri("");
@@ -877,6 +901,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetProxyByUri_0000, testi
 HWTEST_F(FileExtensionHelperTest, external_file_access_GetProxyByUri_0001, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetProxyByUri_0001";
     try {
         Uri uri("file://com.ohos.UserFile.NotExistBundleName/data/storage/el1/bundle/storage_daemon");
@@ -936,6 +961,7 @@ static void WriteBuffToFile(shared_ptr<FileAccessHelper>& fileAccessHelper, Uri&
 HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0000, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Query_0000";
     try {
         vector<RootInfo> info;
@@ -983,6 +1009,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0000, testing::ext:
 HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0001, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Query_0001";
     try {
         vector<RootInfo> info;
@@ -1026,6 +1053,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0001, testing::ext:
 HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0002, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Query_0002";
     try {
         vector<RootInfo> info;
@@ -1078,6 +1106,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0002, testing::ext:
 HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0003, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Query_0003";
     try {
         Uri testUri("&*()*/?");
@@ -1107,6 +1136,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0003, testing::ext:
 HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0004, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Query_0004";
     try {
         vector<RootInfo> info;
@@ -1147,6 +1177,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0004, testing::ext:
 HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0005, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Query_0005";
     try {
         vector<RootInfo> info;
@@ -1186,6 +1217,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0005, testing::ext:
 HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0006, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Query_0006";
     try {
         vector<RootInfo> info;
@@ -1221,6 +1253,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0006, testing::ext:
 HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0007, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Query_0007";
     try {
         vector<RootInfo> info;
@@ -1272,6 +1305,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Query_0007, testing::ext:
 HWTEST_F(FileExtensionHelperTest, external_file_access_GetBundleNameFromPath_0000, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_GetBundleNameFromPath_0000";
     try {
         Uri uri("file://media/some/path");
@@ -1294,6 +1328,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetBundleNameFromPath_000
 HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0000, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_item_0000";
     try {
         vector<RootInfo> info;
@@ -1333,6 +1368,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0000, testing::
 HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0001, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_item_0001";
     try {
         vector<RootInfo> info;
@@ -1376,6 +1412,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0001, testing::
 HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0002, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_item_0002";
     try {
         vector<RootInfo> info;
@@ -1418,6 +1455,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0002, testing::
 HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0003, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_item_0003";
     try {
         vector<RootInfo> info;
@@ -1460,6 +1498,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0003, testing::
 HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0004, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_item_0004";
     try {
         vector<RootInfo> info;
@@ -1507,6 +1546,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0004, testing::
 HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0005, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_item_0005";
     try {
         vector<RootInfo> info;
@@ -1551,6 +1591,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0005, testing::
 HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0006, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_item_0006";
     try {
         vector<RootInfo> info;
@@ -1606,6 +1647,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0006, testing::
 HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0007, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_item_0007";
     try {
         vector<RootInfo> info;
@@ -1659,6 +1701,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0007, testing::
 HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0008, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_item_0008";
     try {
         vector<RootInfo> info;
@@ -1703,6 +1746,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0008, testing::
 HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0009, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_item_0009";
     try {
         vector<RootInfo> info;
@@ -1747,6 +1791,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0009, testing::
 HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0010, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_item_0010";
     try {
         std::vector<Result> moveResult;
@@ -1786,6 +1831,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0010, testing::
 HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0011, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_item_0011";
     try {
         std::vector<Result> moveResult;
@@ -1828,6 +1874,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0011, testing::
 HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0012, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_item_0012";
     try {
         std::vector<Result> moveResult;
@@ -1883,6 +1930,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0012, testing::
 HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0013, testing::ext::TestSize.Level1)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_item_0013";
     try {
         std::vector<Result> moveResult;
