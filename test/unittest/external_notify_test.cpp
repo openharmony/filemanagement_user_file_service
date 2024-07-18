@@ -56,12 +56,13 @@ shared_ptr<OHOS::AbilityRuntime::Context> g_context = nullptr;
 void SetNativeToken()
 {
     uint64_t tokenId;
-    const char **perms = new const char *[2];
+    const char **perms = new const char *[3];
     perms[0] = "ohos.permission.FILE_ACCESS_MANAGER";
     perms[1] = "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED";
+    perms[2] = "ohos.permission.CONNECT_FILE_ACCESS_EXTENSION";
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
-        .permsNum = 2,
+        .permsNum = 3,
         .aclsNum = 0,
         .dcaps = nullptr,
         .perms = perms,
@@ -263,10 +264,10 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0000, testing::ext
         EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserver2 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserver3 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserver4 = new (std::nothrow) MyObserver();
+        sptr<IFileAccessObserver> myObserver1 = sptr(new (std::nothrow) MyObserver());
+        sptr<IFileAccessObserver> myObserver2 = sptr(new (std::nothrow) MyObserver());
+        sptr<IFileAccessObserver> myObserver3 = sptr(new (std::nothrow) MyObserver());
+        sptr<IFileAccessObserver> myObserver4 = sptr(new (std::nothrow) MyObserver());
         Uri parentUri(info[1].uri);
         auto [newDirUriTest1, newDirUriTest2, newFileUri1, newFileUri2] =
             ReadyRegisterNotify00(parentUri, myObserver1, myObserver2, myObserver3, myObserver4);
@@ -335,9 +336,9 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0001, testing::ext
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
-        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserver2 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserver3 = new (std::nothrow) MyObserver();
+        sptr<IFileAccessObserver> myObserver1 = sptr(new (std::nothrow) MyObserver());
+        sptr<IFileAccessObserver> myObserver2 = sptr(new (std::nothrow) MyObserver());
+        sptr<IFileAccessObserver> myObserver3 = sptr(new (std::nothrow) MyObserver());
         Uri parentUri(info[1].uri);
         auto [newFileUri1, newFileUri2, newFileUri3] =
             ReadyRegisterNotify01(parentUri, myObserver1, myObserver2, myObserver3);
@@ -506,8 +507,8 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0003, testing::ext
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants = true;
-        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserver2 = new (std::nothrow) MyObserver();
+        sptr<IFileAccessObserver> myObserver1 = sptr(new (std::nothrow) MyObserver());
+        sptr<IFileAccessObserver> myObserver2 = sptr(new (std::nothrow) MyObserver());
         Uri parentUri(info[1].uri);
         Uri newDirUriTest1("");
         result = g_fah->Mkdir(parentUri, "uri_dir1", newDirUriTest1);
@@ -584,7 +585,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0005, testing::ext
         EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
+        sptr<IFileAccessObserver> myObserver1 = sptr(new (std::nothrow) MyObserver());
         Uri parentUri(info[1].uri);
         auto [uri_dir, uri_dirSub1, uri_dirSub2, renameDirUri1] = ReadyRegisterNotify05(parentUri, myObserver1);
         if (g_notifyEvent != MOVED_TO) {
@@ -637,7 +638,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0006, testing::ext
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants = true;
-        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
+        sptr<IFileAccessObserver> myObserver1 = sptr(new (std::nothrow) MyObserver());
         Uri parentUri(info[1].uri);
         Uri newFileUri1("");
         result = g_fah->CreateFile(parentUri, "uri_file", newFileUri1);
@@ -712,7 +713,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0008, testing::ext
         EXPECT_NE(g_fah, nullptr);
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
+        sptr<IFileAccessObserver> myObserver1 = sptr(new (std::nothrow) MyObserver());
         Uri newFileUri1("*/&%");
         bool notifyForDescendants = true;
         result = g_fah->RegisterNotify(newFileUri1, notifyForDescendants, myObserver1);
@@ -743,7 +744,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0009, testing::ext
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants = true;
-        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
+        sptr<IFileAccessObserver> myObserver1 = sptr(new (std::nothrow) MyObserver());
         Uri parentUri(info[1].uri);
         Uri newFileUri1("");
         result = g_fah->CreateFile(parentUri, "测试文件", newFileUri1);
@@ -782,8 +783,8 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0010, testing::ext
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants = true;
-        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserver2 = new (std::nothrow) MyObserver();
+        sptr<IFileAccessObserver> myObserver1 = sptr(new (std::nothrow) MyObserver());
+        sptr<IFileAccessObserver> myObserver2 = sptr(new (std::nothrow) MyObserver());
         Uri parentUri(info[1].uri);
         Uri newFileUri1("");
         result = g_fah->CreateFile(parentUri, "uri_file1", newFileUri1);
@@ -855,8 +856,8 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0011, testing::ext
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants2 = false;
-        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) TestObserver();
-        sptr<IFileAccessObserver> myObserver2 = new (std::nothrow) MyObserver();
+        sptr<IFileAccessObserver> myObserver1 = sptr(new (std::nothrow) TestObserver());
+        sptr<IFileAccessObserver> myObserver2 = sptr(new (std::nothrow) MyObserver());
         Uri parentUri(info[1].uri);
         Uri newFileDir1("");
         auto [newFileUri1, renameFileUri1] =
@@ -936,7 +937,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_00012, testing::ex
         Uri parentUri(info[1].uri);
         Uri newFileUri1("");
         GTEST_LOG_(INFO) << parentUri.ToString();
-        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
+        sptr<IFileAccessObserver> myObserver1 = sptr(new (std::nothrow) MyObserver());
         for (int i = 0; i < INIT_THREADS_NUMBER; i++) {
             std::thread execthread1(RegisterDirNotify, parentUri, "WatcherTest", myObserver1.GetRefPtr());
             execthread1.join();
@@ -966,7 +967,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_00013, testing::ex
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri parentUri(info[1].uri);
         GTEST_LOG_(INFO) << parentUri.ToString();
-        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
+        sptr<IFileAccessObserver> myObserver1 = sptr(new (std::nothrow) MyObserver());
         std::thread execthread1(RegisterDirNotify, parentUri, "WatcherTest1", myObserver1.GetRefPtr());
         execthread1.join();
         std::thread execthread2(RegisterDirNotify, parentUri, "WatcherTest2", myObserver1.GetRefPtr());
@@ -998,9 +999,9 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_00014, testing::ex
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri parentUri(info[1].uri);
         GTEST_LOG_(INFO) << parentUri.ToString();
-        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserver2 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserver3 = new (std::nothrow) MyObserver();
+        sptr<IFileAccessObserver> myObserver1 = sptr(new (std::nothrow) MyObserver());
+        sptr<IFileAccessObserver> myObserver2 = sptr(new (std::nothrow) MyObserver());
+        sptr<IFileAccessObserver> myObserver3 = sptr(new (std::nothrow) MyObserver());
 
         std::thread execthread1(RegisterDirNotify, parentUri, "WatcherTest", myObserver1.GetRefPtr());
         execthread1.join();
@@ -1035,9 +1036,9 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_00015, testing::ex
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         Uri parentUri(info[1].uri);
         GTEST_LOG_(INFO) << parentUri.ToString();
-        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserver2 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserver3 = new (std::nothrow) MyObserver();
+        sptr<IFileAccessObserver> myObserver1 = sptr(new (std::nothrow) MyObserver());
+        sptr<IFileAccessObserver> myObserver2 = sptr(new (std::nothrow) MyObserver());
+        sptr<IFileAccessObserver> myObserver3 = sptr(new (std::nothrow) MyObserver());
 
         std::thread execthread1(RegisterDirNotify, parentUri, "WatcherTest1", myObserver1.GetRefPtr());
         execthread1.join();
@@ -1069,9 +1070,9 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0016, testing::ext
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants = true;
-        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserver2 = new (std::nothrow) MyObserver();
-        sptr<IFileAccessObserver> myObserver3 = new (std::nothrow) MyObserver();
+        sptr<IFileAccessObserver> myObserver1 = sptr(new (std::nothrow) MyObserver());
+        sptr<IFileAccessObserver> myObserver2 = sptr(new (std::nothrow) MyObserver());
+        sptr<IFileAccessObserver> myObserver3 = sptr(new (std::nothrow) MyObserver());
         Uri parentUri(info[1].uri);
         Uri newFileDir1("");
         result = g_fah->Mkdir(parentUri, "uri_dir0016", newFileDir1);
@@ -1114,7 +1115,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0017, testing::ext
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants = true;
-        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
+        sptr<IFileAccessObserver> myObserver1 = sptr(new (std::nothrow) MyObserver());
         Uri parentUri(info[1].uri);
         Uri newFileDir1("");
         result = g_fah->Mkdir(parentUri, "uri_dir", newFileDir1);
@@ -1158,7 +1159,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0018, testing::ext
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants = true;
-        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) TestObserver();
+        sptr<IFileAccessObserver> myObserver1 = sptr(new (std::nothrow) TestObserver());
         Uri parentUri(info[1].uri);
         Uri newFileDir1("");
         result = g_fah->Mkdir(parentUri, "uri_dir", newFileDir1);
@@ -1202,7 +1203,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0019, testing::ext
         int result = g_fah->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         bool notifyForDescendants = true;
-        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) TestObserver();
+        sptr<IFileAccessObserver> myObserver1 = sptr(new (std::nothrow) TestObserver());
         Uri parentUri(info[1].uri);
         Uri newFileDir1("");
         result = g_fah->Mkdir(parentUri, "uri_dir", newFileDir1);
@@ -1246,7 +1247,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0020, testing::ext
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
 
         bool notifyForDescendants = true;
-        sptr<IFileAccessObserver> myObserver1 = new (std::nothrow) MyObserver();
+        sptr<IFileAccessObserver> myObserver1 = sptr(new (std::nothrow) MyObserver());
         Uri parentUri(info[1].uri);
         Uri newFileDir1("");
         SetNativeToken("SetUpTestCase", perms, sizeof(perms) / sizeof(perms[0]));

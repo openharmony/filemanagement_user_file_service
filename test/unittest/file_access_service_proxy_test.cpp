@@ -58,7 +58,7 @@ public:
     static void SetUpTestCase(void)
     {
         Assistant::ins_ = insMoc;
-        SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = sptr<ISystemAbilityManager>(samgr);
+        SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = sptr<ISystemAbilityManager>(samgr.get());
     }
     static void TearDownTestCase()
     {
@@ -73,7 +73,7 @@ public:
 public:
     static inline shared_ptr<AssistantMock> insMoc = make_shared<AssistantMock>();
     static inline sptr<FileAccessServiceMock> impl = sptr<FileAccessServiceMock>(new FileAccessServiceMock());
-    static inline ISystemAbilityManagerMock* samgr = new ISystemAbilityManagerMock();
+    static inline shared_ptr<ISystemAbilityManagerMock> samgr = make_shared<ISystemAbilityManagerMock>();
 };
 
 /**

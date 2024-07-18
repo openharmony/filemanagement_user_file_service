@@ -54,7 +54,7 @@ sptr<FileAccessService> FileAccessService::GetInstance()
 
     lock_guard<mutex> lock(mutex_);
     if (instance_ == nullptr) {
-        instance_ = new FileAccessService();
+        instance_ = sptr(new FileAccessService());
         if (instance_ == nullptr) {
             HILOG_ERROR("GetInstance nullptr");
             return instance_;
@@ -136,10 +136,10 @@ void FileAccessService::Init()
 {
     InitTimer();
     if (extensionDeathRecipient_ == nullptr) {
-        extensionDeathRecipient_ = new ExtensionDeathRecipient();
+        extensionDeathRecipient_ = sptr(new ExtensionDeathRecipient());
     }
     if (observerDeathRecipient_  == nullptr) {
-        observerDeathRecipient_ = new ObserverDeathRecipient();
+        observerDeathRecipient_ = sptr(new ObserverDeathRecipient());
     }
 }
 

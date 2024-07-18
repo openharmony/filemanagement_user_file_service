@@ -41,12 +41,13 @@ const int UID_DEFAULT = 0;
 void SetNativeToken()
 {
     uint64_t tokenId;
-    const char **perms = new const char *[2];
+    const char **perms = new const char *[3];
     perms[0] = "ohos.permission.FILE_ACCESS_MANAGER";
     perms[1] = "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED";
+    perms[2] = "ohos.permission.CONNECT_FILE_ACCESS_EXTENSION";
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
-        .permsNum = 2,
+        .permsNum = 3,
         .aclsNum = 0,
         .dcaps = nullptr,
         .perms = perms,
