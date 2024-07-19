@@ -38,7 +38,7 @@ using namespace FileManagement;
 using namespace std;
 using namespace FileAccessFwk;
 
-static std::mutex trashPathMutex;
+static std::mutex g_trashPathMutex;
 
 static bool CheckCallingPermission(const std::string &permission)
 {
@@ -331,7 +331,8 @@ static string GetToDeletePath(const string &toDeletePath, napi_env env)
         NError(EINVAL).ThrowErr(env);
         return nullptr;
     }
-    string realFilePathWithTime = toDeletePath.substr(trashPathPrefixPos + FileTrashNExporter::trashPath_.length() + slashSize);
+    string realFilePathWithTime =
+        toDeletePath.substr(trashPathPrefixPos + FileTrashNExporter::trashPath_.length() + slashSize);
     // 获取时间戳目录位置
     size_t trashPathWithTimePrefixPos = realFilePathWithTime.find_first_of("/");
     size_t realTimeDirPos = trashPathPrefixPos + FileTrashNExporter::trashPath_.length() +
@@ -546,7 +547,7 @@ static napi_value RecoverDir(napi_env env, const string &dirPath)
         HILOG_ERROR("RecoverFilePart: Failed to Recover File in Dir.");
         return nullptr;
     }
-    
+
     // 删除目录
     auto err = RmDirent(GetToDeletePath(dirPath, env));
     if (err) {
@@ -691,7 +692,7 @@ string FileTrashNExporter::GetClassName()
 void FileTrashNExporter::InitTrashPath()
 {
     if (FileTrashNExporter::trashPath_.empty()) {
-        std::unique_lock<std::mutex> lock(trashPathMutex);
+        std::unique_lock<std::mutex> lock(g_trashPathMutex);
         if (!FileTrashNExporter::trashPath_.empty()) {
             return ;
         }
