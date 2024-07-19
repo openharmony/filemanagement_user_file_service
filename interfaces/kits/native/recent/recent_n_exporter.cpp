@@ -72,7 +72,7 @@ napi_value RecentNExporter::AddRecentFile(napi_env env, napi_callback_info cbinf
     }
     auto [succ, uri, ignore] = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     FileUri fileUri(string(uri.get()));
-    auto filePath = fileUri.GetPath();
+    auto filePath = fileUri.GetRealPath();
     struct stat statBuf;
     if (stat(filePath.c_str(), &statBuf) < 0) {
         HILOG_ERROR("Failed to stat uri, errno=%{public}d", errno);
