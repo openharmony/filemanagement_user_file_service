@@ -19,7 +19,7 @@ import type { Filter } from '@ohos.file.fs';
 import fileAccess from '@ohos.file.fileAccess';
 import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
 import hilog from '@ohos.hilog';
-import { getFileInfos, buildFilterOptions, buildNoFilterOptions, hasFilter } from './ListScanFileInfo';
+import { getListFileInfos, getScanFileInfos, buildFilterOptions, buildNoFilterOptions, hasFilter } from './ListScanFileInfo';
 import type { Fileinfo } from './Common';
 import { getPath, checkUri, encodePathOfUri, decodeUri, uriReturnObject, BUNDLE_NAME, DOMAIN_CODE, fileinfoReturnObject } from './Common';
 import { FILE_PREFIX_NAME, TAG, fdReturnObject, boolReturnObject, rootsReturnObject } from './Common';
@@ -650,7 +650,7 @@ export default class FileExtAbility extends Extension {
     if (!checkUri(sourceFileUri)) {
       return infosReturnObject([], E_URIS);
     }
-    return getFileInfos(sourceFileUri, offset, count, filter, false);
+    return getListFileInfos(sourceFileUri, offset, count, filter, false);
   }
 
   scanFile(sourceFileUri: string, offset: number, count: number, filter: Filter) :
@@ -661,7 +661,7 @@ export default class FileExtAbility extends Extension {
       return infosReturnObject([], E_URIS);
     }
 
-    return getFileInfos(sourceFileUri, offset, count, filter, true);
+    return getScanFileInfos(sourceFileUri, offset, count, filter, true);
   }
 
   getFileInfoFromUri(selectFileUri) {
