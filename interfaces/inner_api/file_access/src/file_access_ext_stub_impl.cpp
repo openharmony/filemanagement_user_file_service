@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -134,8 +134,8 @@ int FileAccessExtStubImpl::Rename(const Uri &sourceFile, const std::string &disp
     return ret;
 }
 
-int FileAccessExtStubImpl::ListFile(const FileInfo &fileInfo, const int64_t offset, const FileFilter &filter,
-    SharedMemoryInfo &memInfo)
+int FileAccessExtStubImpl::ListFile(const FileInfo &fileInfo, const int64_t offset,
+    const FileFilter &filter, SharedMemoryInfo &memInfo)
 {
     UserAccessTracer trace;
     trace.Start("ListFile");

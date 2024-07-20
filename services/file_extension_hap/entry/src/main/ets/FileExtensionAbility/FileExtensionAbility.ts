@@ -21,7 +21,7 @@ import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
 import hilog from '@ohos.hilog';
 import { getFileInfos, buildFilterOptions, buildNoFilterOptions, hasFilter } from './ListScanFileInfo';
 import type { Fileinfo } from './Common';
-import { getPath, checkUri, encodePathOfUri, decodeUri, uriReturnObject, BUNDLE_NAME, DOMAIN_CODE, fileinfoReturnObject } from './Common';
+import { getPath, checkUri, uriReturnObject, encodePathOfUri, decodeUri, BUNDLE_NAME, DOMAIN_CODE, fileinfoReturnObject } from './Common';
 import { FILE_PREFIX_NAME, TAG, fdReturnObject, boolReturnObject, rootsReturnObject } from './Common';
 import { infosReturnObject, resultsResultObject } from './Common';
 
@@ -97,6 +97,7 @@ export default class FileExtAbility extends Extension {
   onCreate(want): void {
     hilog.info(DOMAIN_CODE, TAG, 'Extension init process');
   }
+
 
   genNewFileUri(uri, displayName) {
     let newFileUri = uri;
@@ -196,7 +197,7 @@ export default class FileExtAbility extends Extension {
       hilog.info(DOMAIN_CODE, TAG, 'createFile, uri is ' + parentUri);
       let newFileUri = this.genNewFileUri(parentUri, displayName);
       let path = getPath(newFileUri);
-      if(fs.accessSync(path)) {
+      if (fs.accessSync(path)) {
         return uriReturnObject('', E_EXIST);
       }
       let file = fs.openSync(path, fs.OpenMode.CREATE);
@@ -253,7 +254,7 @@ export default class FileExtAbility extends Extension {
     if (path.indexOf(USER_PATH) !== 0) {
       return CURRENT_USER_PATH;
     }
-    for (i = 0;i < path.length; i++) {
+    for (i = 0; i < path.length; i++) {
       if (path[i] === '/') {
         num ++;
         if (num === CURRENT_USER_PATH_LEN) {
@@ -871,7 +872,7 @@ export default class FileExtAbility extends Extension {
         };
       } else {
         if (res) {
-          console.info("file exists");
+          console.info('file exists');
         }
       }
     });
@@ -896,9 +897,9 @@ export default class FileExtAbility extends Extension {
   }
 
   isDeviceUri(uri): boolean {
-    let tempUri = uri.slice(0, uri.lastIndexOf('/'))
-    let deviceUris = fileAccess.DeviceRoots
-    if (deviceUris.indexOf(tempUri) != -1) {
+    let tempUri = uri.slice(0, uri.lastIndexOf('/'));
+    let deviceUris = fileAccess.DeviceRoots;
+    if (deviceUris.indexOf(tempUri) !== -1) {
       return true;
     }
     return false;
@@ -955,11 +956,11 @@ export default class FileExtAbility extends Extension {
       if (!observerMap.has(uri)) {
         return E_GETRESULT;
       }
-        let watcher = observerMap.get(uri);
-        if (typeof watcher !== undefined) {
-          watcher.stop();
-          observerMap.delete(uri);
-        }
+      let watcher = observerMap.get(uri);
+      if (typeof watcher !== undefined) {
+        watcher.stop();
+        observerMap.delete(uri);
+      }
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, 'stopWatcher error ' + e.message);
       return E_GETRESULT;
@@ -1031,7 +1032,6 @@ export default class FileExtAbility extends Extension {
       hilog.error(DOMAIN_CODE, TAG, 'check arguments error, invalid arguments');
       return this.getReturnValue(sourceFileUri, targetParentUri, E_URIS, EXCEPTION);
     }
-
     let displayName = this.getFileName(sourceFileUri);
     let newFileUri = this.genNewFileUri(targetParentUri, displayName);
     let newPathDir = getPath(targetParentUri);
@@ -1042,27 +1042,21 @@ export default class FileExtAbility extends Extension {
       return this.getReturnValue(sourceFileUri, targetParentUri, E_URIS, EXCEPTION);
     }
     if (oldPath === newPath) {
-      // move to the same directory
       return this.getReturnValue(sourceFileUri, newFileOrDirUri, ERR_OK, '', EXCEPTION);
     } else if (newPath.indexOf(oldPath) === 0 && newPath.charAt(oldPath.length) === '/') {
-      // move to a subdirectory of the source directory
       return this.getReturnValue(sourceFileUri, targetParentUri, E_GETRESULT, '', NOEXCEPTION);
     }
-
     try {
-      // The source file does not exist or the destination is not a directory
       let stat = fs.statSync(getPath(targetParentUri));
       let statOld = fs.statSync(oldPath);
       if (!fs.accessSync(oldPath) || !stat || !stat.isDirectory() || !statOld) {
         hilog.error(DOMAIN_CODE, TAG, 'operate illegal');
         return this.getReturnValue(sourceFileUri, targetParentUri, E_GETRESULT, '', EXCEPTION);
       }
-
       if (statOld.isFile()) {
         hilog.info(DOMAIN_CODE, TAG, 'sourceUri is file');
         let isExist = fs.accessSync(newPath);
         if (isExist && fs.statSync(newPath).isDirectory()) {
-          hilog.info(DOMAIN_CODE, TAG, 'dst is dir');
           return this.getReturnValue(sourceFileUri, newFileUri, E_IS_DIR, '', NOEXCEPTION);
         }
         if (isExist && force === false) {

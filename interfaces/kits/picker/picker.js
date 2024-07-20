@@ -40,7 +40,7 @@ const ExtTypes = {
 };
 
 const PickerDetailType = {
-  FILE_MGR_AUTH: 'downloadAuth', 
+  FILE_MGR_AUTH: 'downloadAuth',
   FILE_MGR_SELECT:'select',
   FILE_MGR_SAVE:'save',
 };
@@ -267,7 +267,6 @@ function parseDocumentPickerSelectOption(args, action) {
   return config;
 }
 
-
 function parseAudioPickerSelectOption(args, action) {
   let config = {
     action: action,
@@ -420,7 +419,7 @@ function getDocumentPickerSaveResult(args) {
     if (args.ability_params_stream) {
       saveResult.data = args.ability_params_stream;
       saveResult.error = args.resultCode;
-      if (args.userSuffixIndex) {
+      if (args.userSuffixIndex >= 0) {
         saveResult.suffix = args.userSuffixIndex;
       }
     }

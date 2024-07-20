@@ -1562,6 +1562,7 @@ napi_value JsFileAccessExtAbility::FuncCallback(napi_env env, napi_callback_info
         HILOG_ERROR("napi_get_cb_info fail.");
         return GetUndefinedValue(env);
     }
+
     if (argc != ARGC_TWO) {
         HILOG_ERROR("invalid args.");
         return GetUndefinedValue(env);
@@ -1748,6 +1749,7 @@ napi_status JsFileAccessExtAbility::GetFileInfoFromJs(napi_env &env, napi_value 
         HILOG_ERROR("Convert mimeType fail");
         return napi_generic_failure;
     }
+
     return napi_ok;
 }
 

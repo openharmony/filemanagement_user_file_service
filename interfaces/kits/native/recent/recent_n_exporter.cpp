@@ -35,7 +35,7 @@ using namespace LibN;
 using namespace AppFileService::ModuleFileUri;
 
 using namespace FileAccessFwk;
-static std::mutex recentPathMutex;
+static std::mutex g_recentPathMutex;
 static bool CheckPermission(const std::string &permission)
 {
     Security::AccessToken::AccessTokenID tokenCaller = IPCSkeleton::GetCallingTokenID();
@@ -190,7 +190,8 @@ static tuple<int, struct stat> CheckRealFileExist(const string &recentFilePath)
             HILOG_ERROR("Failed to stat file, errno=%{public}d", errno);
             return { errno, statBuf };
         }
-        string oldRecentFilePath = RecentNExporter::recentPath_ + to_string(statBuf.st_dev) + "_" + to_string(statBuf.st_ino);
+        string oldRecentFilePath =
+            RecentNExporter::recentPath_ + to_string(statBuf.st_dev) + "_" + to_string(statBuf.st_ino);
         if (oldRecentFilePath == recentFilePath) {
             return { 0, statBuf };
         }
@@ -278,7 +279,8 @@ static napi_value ListFileCore(napi_env env)
         NError(ENOMEM).ThrowErr(env);
         return nullptr;
     }
-    pNameList->direntNum = scandir(RecentNExporter::recentPath_.c_str(), &(pNameList->namelist), FilterFunc, SortReceneFile);
+    pNameList->direntNum = scandir(RecentNExporter::recentPath_.c_str(),
+        &(pNameList->namelist), FilterFunc, SortReceneFile);
     if (pNameList->direntNum < 0) {
         HILOG_ERROR("Failed to scan dir, errno=%{public}d", errno);
         NError(errno).ThrowErr(env);
@@ -320,7 +322,7 @@ string RecentNExporter::GetClassName()
 void RecentNExporter::InitRecentPath()
 {
     if (RecentNExporter::recentPath_.empty()) {
-        std::unique_lock<std::mutex> lock(recentPathMutex);
+        std::unique_lock<std::mutex> lock(g_recentPathMutex);
         if (!RecentNExporter::recentPath_.empty()) {
             return ;
         }
