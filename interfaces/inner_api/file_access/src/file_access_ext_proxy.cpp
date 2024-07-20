@@ -40,8 +40,7 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags, int &fd)
         return E_IPCS;
     }
 
-    std::string insideInputUri = uri.ToString();
-    if (!data.WriteString(insideInputUri)) {
+    if (!data.WriteParcelable(&uri)) {
         HILOG_ERROR("fail to WriteParcelable uri");
         return E_IPCS;
     }
@@ -89,8 +88,7 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
         return E_IPCS;
     }
 
-    std::string insideInputUri = parent.ToString();
-    if (!data.WriteString(insideInputUri)) {
+    if (!data.WriteParcelable(&parent)) {
         HILOG_ERROR("fail to WriteParcelable parent");
         return E_IPCS;
     }
@@ -119,17 +117,17 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
         return ret;
     }
 
-    std::string tempUri;
-    if (!reply.ReadString(tempUri)) {
+    std::unique_ptr<Uri> tempUri(reply.ReadParcelable<Uri>());
+    if (tempUri == nullptr) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
         return E_IPCS;
     }
 
-    if (tempUri.empty()) {
+    newFile = Uri(*tempUri);
+    if (newFile.ToString().empty()) {
         HILOG_ERROR("get uri is empty.");
         return E_GETRESULT;
     }
-    newFile = Uri(tempUri);
 
     return ERR_OK;
 }
@@ -144,8 +142,7 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
         return E_IPCS;
     }
 
-    std::string insideInputUri = parent.ToString();
-    if (!data.WriteString(insideInputUri)) {
+    if (!data.WriteParcelable(&parent)) {
         HILOG_ERROR("fail to WriteParcelable parent");
         return E_IPCS;
     }
@@ -174,17 +171,17 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
         return ret;
     }
 
-    std::string tempUri;
-    if (!reply.ReadString(tempUri)) {
+    std::unique_ptr<Uri> tempUri(reply.ReadParcelable<Uri>());
+    if (tempUri == nullptr) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
         return E_IPCS;
     }
 
-    if (tempUri.empty()) {
+    newFile = Uri(*tempUri);
+    if (newFile.ToString().empty()) {
         HILOG_ERROR("get uri is empty.");
         return E_GETRESULT;
     }
-    newFile = Uri(tempUri);
 
     return ERR_OK;
 }
@@ -199,8 +196,7 @@ int FileAccessExtProxy::Delete(const Uri &sourceFile)
         return E_IPCS;
     }
 
-    std::string insideInputUri = sourceFile.ToString();
-    if (!data.WriteString(insideInputUri)) {
+    if (!data.WriteParcelable(&sourceFile)) {
         HILOG_ERROR("fail to WriteParcelable sourceFile");
         return E_IPCS;
     }
@@ -237,14 +233,12 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
         return E_IPCS;
     }
 
-    std::string insideInputSourceUri = sourceFile.ToString();
-    if (!data.WriteString(insideInputSourceUri)) {
+    if (!data.WriteParcelable(&sourceFile)) {
         HILOG_ERROR("fail to WriteParcelable sourceFile");
         return E_IPCS;
     }
 
-    std::string insideInputTargetUri = targetParent.ToString();
-    if (!data.WriteString(insideInputTargetUri)) {
+    if (!data.WriteParcelable(&targetParent)) {
         HILOG_ERROR("fail to WriteParcelable targetParent");
         return E_IPCS;
     }
@@ -268,17 +262,17 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
         return ret;
     }
 
-    std::string tempUri;
-    if (!reply.ReadString(tempUri)) {
+    std::unique_ptr<Uri> tempUri(reply.ReadParcelable<Uri>());
+    if (tempUri == nullptr) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
         return E_IPCS;
-    };
+    }
 
-    if (tempUri.empty()) {
+    newFile = Uri(*tempUri);
+    if (newFile.ToString().empty()) {
         HILOG_ERROR("get uri is empty.");
         return E_GETRESULT;
     }
-    newFile = Uri(tempUri);
 
     return ERR_OK;
 }
@@ -287,15 +281,13 @@ static int WriteCopyFuncArguments(OHOS::MessageParcel &data, const Uri &sourceUr
 {
     UserAccessTracer trace;
     trace.Start("WriteCopyFuncArguments");
-    std::string insideInputSourceUri = sourceUri.ToString();
-    if (!data.WriteString(insideInputSourceUri)) {
-        HILOG_ERROR("fail to WriteParcelable insideInputSourceUri");
+    if (!data.WriteParcelable(&sourceUri)) {
+        HILOG_ERROR("fail to WriteParcelable uri");
         return E_IPCS;
     }
 
-    std::string insideInputTargetUri = destUri.ToString();
-    if (!data.WriteString(insideInputTargetUri)) {
-        HILOG_ERROR("fail to WriteParcelable insideInputTargetUri");
+    if (!data.WriteParcelable(&destUri)) {
+        HILOG_ERROR("fail to WriteParcelable targetParent");
         return E_IPCS;
     }
 
@@ -451,8 +443,7 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
         return E_IPCS;
     }
 
-    std::string insideInputSourceUri = sourceFile.ToString();
-    if (!data.WriteString(insideInputSourceUri)) {
+    if (!data.WriteParcelable(&sourceFile)) {
         HILOG_ERROR("fail to WriteParcelable sourceFile");
         return E_IPCS;
     }
@@ -481,17 +472,17 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
         return ret;
     }
 
-    std::string tempUri;
-    if (!reply.ReadString(tempUri)) {
+    std::unique_ptr<Uri> tempUri(reply.ReadParcelable<Uri>());
+    if (tempUri == nullptr) {
         HILOG_ERROR("ReadParcelable value is nullptr.");
         return E_IPCS;
     }
 
-    if (tempUri.empty()) {
+    newFile = Uri(*tempUri);
+    if (newFile.ToString().empty()) {
         HILOG_ERROR("get uri is empty.");
         return E_GETRESULT;
     }
-    newFile = Uri(tempUri);
 
     return ERR_OK;
 }
@@ -705,8 +696,7 @@ int FileAccessExtProxy::Query(const Uri &uri, std::vector<std::string> &columns,
         return E_IPCS;
     }
 
-    std::string insideInputUri = uri.ToString();
-    if (!data.WriteString(insideInputUri)) {
+    if (!data.WriteParcelable(&uri)) {
         HILOG_ERROR("fail to WriteParcelable sourceFile");
         return E_IPCS;
     }
@@ -799,8 +789,7 @@ int FileAccessExtProxy::GetFileInfoFromUri(const Uri &selectFile, FileInfo &file
         return E_IPCS;
     }
 
-    std::string insideInputUri = selectFile.ToString();
-    if (!data.WriteString(insideInputUri)) {
+    if (!data.WriteParcelable(&selectFile)) {
         HILOG_ERROR("fail to WriteParcelable selectFile");
         return E_IPCS;
     }
@@ -888,8 +877,7 @@ int FileAccessExtProxy::Access(const Uri &uri, bool &isExist)
         return E_IPCS;
     }
 
-    std::string insideInputUri = uri.ToString();
-    if (!data.WriteString(insideInputUri)) {
+    if (!data.WriteParcelable(&uri)) {
         HILOG_ERROR("fail to WriteParcelable uri");
         return E_IPCS;
     }
