@@ -162,17 +162,6 @@ export default class FileExtAbility extends Extension {
     }
   }
 
-  isCrossDeviceLink(sourceFileUri, targetParentUri): boolean {
-    let roots = this.getRoots().roots;
-    for (let index = 0; index < roots.length; index++) {
-      let uri = roots[index].uri;
-      if (sourceFileUri.indexOf(uri) === 0 && targetParentUri.indexOf(uri) === 0) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   openFile(sourceFileUri, flags): {number, number} {
     sourceFileUri = decodeUri(sourceFileUri);
     if (!checkUri(sourceFileUri)) {
@@ -766,7 +755,23 @@ export default class FileExtAbility extends Extension {
 
   hmdfsPath2uri(path): string {
     return `file://docs/storage/hmdfs/${path}`;
-    1
+  }
+
+  getHmdfsPath(): {}[] {
+    let rootPathHmdfs = '/storage/hmdfs';
+    let hmdfsInfoList = [];
+    let hmdfsName = fs.listFileSync(rootPathHmdfs);
+    for (let i = 0; i < hmdfsName.length; i++) {
+      let hmdfsInfo = {
+        uri: this.hmdfsPath2uri(hmdfsName[i]),
+        displayName: hmdfsName[i],
+        relativePath: '/storage/hmdfs/' + hmdfsName[i],
+        deviceType: deviceType.DEVICE_SHARED_TERMINAL,
+        deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
+      };
+      hmdfsInfoList.push(hmdfsInfo);
+    }
+    return hmdfsInfoList;
   }
 
   getRoots() {
@@ -803,20 +808,7 @@ export default class FileExtAbility extends Extension {
       roots = roots.concat(volumeInfoList);
 
       try {
-        let rootPathHmdfs = '/storage/hmdfs';
-        let hmdfsInfoList = [];
-        let hmdfsName = fs.listFileSync(rootPathHmdfs);
-        for (let i = 0; i < hmdfsName.length; i++) {
-          let hmdfsInfo = {
-            uri: this.hmdfsPath2uri(hmdfsName[i]),
-            displayName: hmdfsName[i],
-            relativePath: '/storage/hmdfs/' + hmdfsName[i],
-            deviceType: deviceType.DEVICE_SHARED_TERMINAL,
-            deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
-          };
-          hmdfsInfoList.push(hmdfsInfo);
-        }
-        roots = roots.concat(hmdfsInfoList);
+        roots = roots.concat(getHmdfsPath());
       } catch (e) {
         hilog.info(DOMAIN_CODE, TAG, 'getRoots errorcode: ' + e.code, ' message: ' + e.message);
       }
