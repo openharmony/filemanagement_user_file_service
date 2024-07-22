@@ -162,6 +162,17 @@ export default class FileExtAbility extends Extension {
     }
   }
 
+  isCrossDeviceLink(sourceFileUri, targetParentUri): boolean {
+    let roots = this.getRoots().roots;
+    for (let index = 0; index < roots.length; index++) {
+      let uri = roots[index].uri;
+      if (sourceFileUri.indexOf(uri) === 0 && targetParentUri.indexOf(uri) === 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   openFile(sourceFileUri, flags): {number, number} {
     sourceFileUri = decodeUri(sourceFileUri);
     if (!checkUri(sourceFileUri)) {
