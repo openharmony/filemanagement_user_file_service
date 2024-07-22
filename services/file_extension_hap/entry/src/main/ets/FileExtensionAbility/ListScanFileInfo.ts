@@ -22,6 +22,8 @@ import { getPath, uriReturnObject, encodePathOfUri, DOMAIN_CODE, TAG, infosRetur
 const documentFlag = fileExtensionInfo.DocumentFlag;
 const ERR_OK = 0;
 const E_GETRESULT = 14300004;
+const APP_DATA = 'appdata';
+const CURRENT_USER_PATH = '/storage/Users/currentUser';
 
 function hasFilter(filter: Filter) : boolean {
   if (filter === null) {
@@ -129,7 +131,7 @@ function genNewFileName(filename: string): string {
   return newFilename;
 }
 
-function getFileInfos(sourceFileUri: string, offset: number, count: number, filter: Filter, recursion: boolean) :
+function getListFileInfos(sourceFileUri: string, offset: number, count: number, filter: Filter, recursion: boolean) :
 {infos: Fileinfo[], code: number} {
   let infos : Fileinfo[] = [];
   let path = getPath(sourceFileUri);
@@ -176,4 +178,98 @@ function getFileInfos(sourceFileUri: string, offset: number, count: number, filt
   }
   return infosReturnObject(infos, ERR_OK);
 }
-export { getFileInfos, buildFilterOptions, buildNoFilterOptions, hasFilter };
+
+function getSubUriList(path: string, listNum: number, filter: Filter) : string[]
+{
+  let dirOptions = {
+    'recursion': false
+  };
+  let fileOption = hasFilter(filter) ?
+      buildFilterOptions(filter, listNum, false) : buildNoFilterOptions(listNum, false);
+  let dirTmpResult = fs.listFileSync(path, dirOptions).filter(item => item !== APP_DATA).map(function(item) {
+    return CURRENT_USER_PATH + '/' + item;
+  });
+  let fileResult = fs.listFileSync(path, fileOption).filter(item => item !== APP_DATA).map(function(item) {
+    return CURRENT_USER_PATH + '/' + item;
+  });
+  let dirResult : string[] = [];
+  for (let i = 0; i < dirTmpResult.length; ++i) {
+    if (fs.statSync(dirTmpResult[i]).isDirectory()) {
+      dirResult.push(dirTmpResult[i]);
+    }
+  }
+  return Array.from(new Set(fileResult.concat(dirResult)));
+}
+
+function getSubFileInfos(
+  changeData: {
+    options: {recursion: boolean, listNum: number, filter?: Filter},
+    tempOffset: number,
+    listNumCnt: number
+  }, needInfo: {subPath: string, count: number, isRootPath: boolean, sourceFileUri: string}): Fileinfo[] {
+  let infos: Fileinfo[] = [];
+  let tmpStat = fs.statSync(needInfo.subPath);
+  let bIsDct = tmpStat.isDirectory();
+  let fileNameList = bIsDct ? fs.listFileSync(needInfo.subPath, changeData.options) : [needInfo.subPath];
+  let listLen = fileNameList.length;
+  if (changeData.tempOffset >= listLen) {
+    changeData.tempOffset -= listLen;
+    return infos;
+  }
+  for (let j = changeData.tempOffset; j < fileNameList.length; ++j, ++changeData.listNumCnt) {
+    if (changeData.listNumCnt === needInfo.count) {
+      break;
+    }
+    let mode = documentFlag.SUPPORTS_READ | documentFlag.SUPPORTS_WRITE;
+    let filePath = getNewPathOrUri(needInfo.subPath, fileNameList[j]);
+    let stat = bIsDct ? fs.statSync(filePath) : tmpStat;
+    mode |= (bIsDct | stat.isDirectory()) ? documentFlag.REPRESENTS_DIR : documentFlag.REPRESENTS_FILE;
+    let newFileUri = getNewPathOrUri(
+      needInfo.isRootPath ? needInfo.sourceFileUri + needInfo.subPath : needInfo.sourceFileUri, fileNameList[j]);
+    newFileUri = encodePathOfUri(newFileUri);
+    infos.push({ uri: newFileUri, relativePath: filePath, fileName: genNewFileName(fileNameList[j]),
+      mode: mode, size: stat.size, mtime: stat.mtime, mimeType: '' });
+  }
+  changeData.tempOffset = 0;
+  changeData.options.listNum = needInfo.count - changeData.listNumCnt;
+  return infos;
+}
+
+function getScanFileInfos(sourceFileUri: string, offset: number, count: number, filter: Filter, recursion: boolean) :
+{infos: Fileinfo[], code: number} {
+  let infos : Fileinfo[] = [];
+  let path = getPath(sourceFileUri);
+  try {
+    let statPath = fs.statSync(path);
+    if (!statPath.isDirectory()) {
+      return infosReturnObject([], E_GETRESULT);
+    }
+    let listNum = offset + count;
+    let isRootPath = (path === CURRENT_USER_PATH);
+    let listInfo = (isRootPath) ? getSubUriList(path, listNum, filter) : [path];
+    let changeData = {
+      options: hasFilter(filter) ?
+        buildFilterOptions(filter, listNum, recursion) : buildNoFilterOptions(listNum, recursion),
+      tempOffset: offset,
+      listNumCnt: 0
+    };
+    for (let i = 0; i < listInfo.length; ++i) {
+      const needInfo = {
+        subPath: listInfo[i],
+        count: count,
+        isRootPath: isRootPath,
+        sourceFileUri: sourceFileUri
+      };
+      let subFileRes = getSubFileInfos(changeData, needInfo);
+      infos.push(...subFileRes);
+      if (changeData.options.listNum <= 0) {
+        break;
+      }
+    }
+  } catch (e) {
+    hilog.error(DOMAIN_CODE, TAG, `getFileInfos error: ${e.message},code: ${e.code}`);
+    return infosReturnObject([], E_GETRESULT);
+  }
+  return infosReturnObject(infos, ERR_OK);
+}
+export { getListFileInfos, getScanFileInfos, buildFilterOptions, buildNoFilterOptions, hasFilter };
