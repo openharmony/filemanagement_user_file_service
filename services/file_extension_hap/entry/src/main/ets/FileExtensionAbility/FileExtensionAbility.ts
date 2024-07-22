@@ -766,6 +766,7 @@ export default class FileExtAbility extends Extension {
 
   hmdfsPath2uri(path): string {
     return `file://docs/storage/hmdfs/${path}`;
+    1
   }
 
   getRoots() {
