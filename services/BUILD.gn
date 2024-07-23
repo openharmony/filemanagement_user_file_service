@@ -130,7 +130,6 @@ ohos_shared_library("file_access_service") {
     "samgr:samgr_proxy",
   ]
 
-  innerapi_tags = [ "platformsdk" ]
   subsystem_name = "filemanagement"
   part_name = "user_file_service"
 }
