@@ -244,7 +244,7 @@ int JsFileAccessExtAbility::CallJsMethod(const std::string &funcName, JsRuntime 
             CallJsParam *param = reinterpret_cast<CallJsParam *>(work->data);
             if (param == nullptr) {
                 HILOG_ERROR("failed to get CallJsParam.");
-                return; 
+                return;
             }
 
             napi_handle_scope scope = nullptr;
@@ -254,7 +254,7 @@ int JsFileAccessExtAbility::CallJsMethod(const std::string &funcName, JsRuntime 
             if (DoCallJsMethod(param) != ERR_OK) {
                 HILOG_ERROR("failed to call DoCallJsMethod.");
             }
-        
+
             std::unique_lock<std::mutex> lock(param->fileOperateMutex);
             param->isReady = true;
             param->fileOperateCondition.notify_one();

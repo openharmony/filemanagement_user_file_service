@@ -58,28 +58,6 @@ function getPath(uri): string {
   return path;
 }
 
-function encodePathOfUri(uri): string {  
-  try {
-    let suffixUri = uri.slice(SLICE_PREFIX_URI, uri.length);
-    let prefixUri = uri.slice(0, SLICE_PREFIX_URI); 
-    uri = prefixUri.concat(encodeURIComponent(suffixUri).replace(/%2F/g, '/'));
-  } catch (e) {
-    hilog.error(DOMAIN_CODE, TAG, 'The reason of encodeURIComponent: ' + e.message + ' code: ' + e.code);
-    uri = '';
-  }
-  return uri;
-}
-
-function decodeUri(uri): string {
-  try {
-    uri = decodeURIComponent(uri);
-  } catch (e) {
-    hilog.error(DOMAIN_CODE, TAG, 'The reason of decodeURIComponent: ' + e.message + ' code: ' + e.code);
-    uri = '';
-  }
-  return uri;
-}
-
 interface Fileinfo {
   uri: string,
   relativePath: string,
@@ -137,6 +115,28 @@ function rootsReturnObject(roots: object, code: number): {roots: object, code: n
     roots: roots,
     code: code
   };
+}
+
+function encodePathOfUri(uri): string {  
+  try {
+    let suffixUri = uri.slice(SLICE_PREFIX_URI, uri.length);
+    let prefixUri = uri.slice(0, SLICE_PREFIX_URI); 
+    uri = prefixUri.concat(encodeURIComponent(suffixUri).replace(/%2F/g, '/'));
+  } catch (e) {
+    hilog.error(DOMAIN_CODE, TAG, 'The reason of encodeURIComponent: ' + e.message + ' code: ' + e.code);
+    uri = '';
+  }
+  return uri;
+}
+
+function decodeUri(uri): string {
+  try {
+    uri = decodeURIComponent(uri);
+  } catch (e) {
+    hilog.error(DOMAIN_CODE, TAG, 'The reason of decodeURIComponent: ' + e.message + ' code: ' + e.code);
+    uri = '';
+  }
+  return uri;
 }
 
 export { 

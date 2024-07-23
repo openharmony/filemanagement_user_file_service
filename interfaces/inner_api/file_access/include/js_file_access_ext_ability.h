@@ -113,7 +113,6 @@ private:
         T data;
         int code {ERR_OK};
     };
-
     napi_value CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0);
     int CallJsMethod(const std::string &funcName, JsRuntime &jsRuntime, NativeReference *jsObj,
         InputArgsParser argParser, ResultValueParser retParser);

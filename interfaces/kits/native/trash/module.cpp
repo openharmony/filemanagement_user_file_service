@@ -19,8 +19,6 @@
 #include "file_trash_n_exporter.h"
 #include "filemgmt_libn.h"
 #include "hilog_wrapper.h"
-#include "os_account_manager.h"
-#include "parameter.h"
 
 namespace OHOS {
 namespace Trash {
