@@ -58,7 +58,7 @@ int32_t FileAccessServiceProxy::OnChange(Uri uri, NotifyType notifyType)
     return ERR_OK;
 }
 
-int32_t FileAccessServiceProxy::GetExensionProxy(const std::shared_ptr<ConnectExtensionInfo> &,
+int32_t FileAccessServiceProxy::GetExtensionProxy(const std::shared_ptr<ConnectExtensionInfo> &,
     sptr<IFileAccessExtBase> &)
 {
     return 0;
@@ -66,6 +66,17 @@ int32_t FileAccessServiceProxy::GetExensionProxy(const std::shared_ptr<ConnectEx
 
 int32_t FileAccessServiceProxy::UnregisterNotify(Uri, const sptr<IFileAccessObserver> &,
     const std::shared_ptr<ConnectExtensionInfo> &)
+{
+    return 0;
+}
+
+int32_t FileAccessServiceProxy::ConnectFileExtAbility(const AAFwk::Want &,
+    const sptr<AAFwk::IAbilityConnection>&)
+{
+    return 0;
+}
+
+int32_t FileAccessServiceProxy::DisConnectFileExtAbility(const sptr<AAFwk::IAbilityConnection>&)
 {
     return 0;
 }

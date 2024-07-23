@@ -16,6 +16,7 @@
 #ifndef I_FILE_ACCESS_SERVICE_BASE_H
 #define I_FILE_ACCESS_SERVICE_BASE_H
 
+#include "ability_connect_callback_interface.h"
 #include "file_access_helper.h"
 #include "iremote_broker.h"
 #include "iremote_object.h"
@@ -36,8 +37,11 @@ protected:
     virtual int32_t UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer,
         const std::shared_ptr<ConnectExtensionInfo> &info) = 0;
     //Get exension proxy by SA
-    virtual int32_t GetExensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
+    virtual int32_t GetExtensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
         sptr<IFileAccessExtBase> &extensionProxy) = 0;
+    virtual int32_t ConnectFileExtAbility(const AAFwk::Want &want,
+        const sptr<AAFwk::IAbilityConnection>& connection) = 0;
+    virtual int32_t DisConnectFileExtAbility(const sptr<AAFwk::IAbilityConnection>& connection) = 0;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

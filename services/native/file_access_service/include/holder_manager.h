@@ -37,6 +37,7 @@ public:
     {
         std::lock_guard<std::mutex> guard(holderMutex_);
         holder_.clear();
+        HILOG_INFO("~HolderManager holder size: %{public}zu", holder_.size());
     }
 
     uint32_t save(Type content)
@@ -47,6 +48,7 @@ public:
         } while (exist(id));
         std::lock_guard<std::mutex> guard(holderMutex_);
         holder_.insert(std::pair<uint32_t, Type>(id, content));
+        HILOG_INFO("save id:%{public}d holder size: %{public}zu", id, holder_.size());
         return id;
     }
 
@@ -67,8 +69,10 @@ public:
         if (iter != holder_.end()) {
             auto res = iter->second;
             holder_.erase(id);
+            HILOG_INFO("pop id: %{public}d find holder size: %{public}zu", id, holder_.size());
             return res;
         }
+        HILOG_INFO("pop id: %{public}d not find holder size: %{public}zu", id, holder_.size());
         return Type();
     }
 
@@ -76,7 +80,10 @@ public:
     {
         std::lock_guard<std::mutex> guard(holderMutex_);
         if (holder_.count(id)) {
+            HILOG_INFO("release id: %{public}d find holder size: %{public}zu", id, holder_.size());
             holder_.erase(id);
+        } else {
+            HILOG_INFO("release id: %{public}d not find holder size: %{public}zu", id, holder_.size());
         }
     }
 

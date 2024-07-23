@@ -56,8 +56,8 @@ ohos_shared_library("file_access_extension_ability_kit") {
 
   sources = [
     "${user_file_service_path}/services/native/file_access_service/src/file_access_service_proxy.cpp",
+    "src/app_file_access_ext_connection.cpp",
     "src/file_access_ext_ability.cpp",
-    "src/file_access_ext_connection.cpp",
     "src/file_access_ext_proxy.cpp",
     "src/file_access_ext_stub.cpp",
     "src/file_access_ext_stub_impl.cpp",

@@ -43,6 +43,10 @@ FileAccessServiceStub::FileAccessServiceStub()
         &FileAccessServiceStub::CmdUnregisterNotify;
     stubFuncMap_[static_cast<uint32_t>(FileAccessServiceInterfaceCode::CMD_ONCHANGE)] =
         &FileAccessServiceStub::CmdOnChange;
+    stubFuncMap_[static_cast<uint32_t>(FileAccessServiceInterfaceCode::CMD_CONNECT_FILE_EXT_ABILITY)] =
+        &FileAccessServiceStub::CmdConnectFileExtAbility;
+    stubFuncMap_[static_cast<uint32_t>(FileAccessServiceInterfaceCode::CMD_DISCONNECT_FILE_EXT_ABILITY)] =
+        &FileAccessServiceStub::CmdDisConnectFileExtAbility;
 }
 
 FileAccessServiceStub::~FileAccessServiceStub()
@@ -190,6 +194,51 @@ bool FileAccessServiceStub::CheckCallingPermission(const std::string &permission
     return true;
 }
 
+ErrCode FileAccessServiceStub::CmdConnectFileExtAbility(MessageParcel &data, MessageParcel &reply)
+{
+    UserAccessTracer trace;
+    trace.Start("CmdConnectFileExtAbility");
+    std::shared_ptr<AAFwk::Want> wantPtr(data.ReadParcelable<AAFwk::Want>());
+    if (wantPtr == nullptr) {
+        return E_IPCS;
+    }
+    AAFwk::Want want = AAFwk::Want(*wantPtr);
+    
+    sptr<AAFwk::IAbilityConnection> connection = iface_cast<AAFwk::IAbilityConnection>(data.ReadRemoteObject());
+    if (!connection) {
+        HILOG_ERROR("fail to read connection");
+        return E_IPCS;
+    }
+
+    int ret = ConnectFileExtAbility(want, connection);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("fail to CmdConnectFileExtAbility");
+        return E_IPCS;
+    }
+
+    return ERR_OK;
+}
+
+
+ErrCode FileAccessServiceStub::CmdDisConnectFileExtAbility(MessageParcel &data, MessageParcel &reply)
+{
+    UserAccessTracer trace;
+    trace.Start("CmdDisConnectFileExtAbility");
+    sptr<AAFwk::IAbilityConnection> connection = iface_cast<AAFwk::IAbilityConnection>(data.ReadRemoteObject());
+    if (!connection) {
+        HILOG_ERROR("fail to read connection");
+        return E_IPCS;
+    }
+
+    int ret = DisConnectFileExtAbility(connection);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("fail to CmdDisConnectFileExtAbility");
+        return E_IPCS;
+    }
+
+    return ERR_OK;
+}
+
 ErrCode FileAccessServiceStub::CmdGetExensionProxy(MessageParcel &data, MessageParcel &reply)
 {
     UserAccessTracer trace;
@@ -201,9 +250,9 @@ ErrCode FileAccessServiceStub::CmdGetExensionProxy(MessageParcel &data, MessageP
     }
 
     sptr<IFileAccessExtBase> extensionProxy;
-    int ret = GetExensionProxy(connectExtensionInfo, extensionProxy);
+    int ret = GetExtensionProxy(connectExtensionInfo, extensionProxy);
     if (!reply.WriteInt32(ret) || extensionProxy == nullptr) {
-        HILOG_ERROR("fail to GetExensionProxy");
+        HILOG_ERROR("fail to GetExtensionProxy");
         return E_IPCS;
     }
     if (!reply.WriteRemoteObject(extensionProxy->AsObject())) {
