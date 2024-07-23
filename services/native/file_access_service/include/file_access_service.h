@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "bundle_mgr_interface.h"
+#include "file_access_ext_connection.h"
 #include "file_access_service_stub.h"
 #include "ifile_access_ext_base.h"
 #include "holder_manager.h"
@@ -36,7 +37,7 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-
+class AgentFileAccessExtConnection;
 class ObserverContext {
     public:
         ObserverContext(sptr<IFileAccessObserver> obs): obs_(obs) {}
@@ -225,6 +226,9 @@ public:
     virtual void OnStart() override;
     virtual void OnStop() override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string> &args) override;
+    
+    void DisconnectAppProxy(const sptr<AAFwk::IAbilityConnection>& connection);
+    void RemoveAppProxy(const sptr<AAFwk::IAbilityConnection>& connection);
 
 protected:
     int32_t RegisterNotify(Uri uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer,
@@ -233,8 +237,11 @@ protected:
         const std::shared_ptr<ConnectExtensionInfo> &info = nullptr) override;
     int32_t CleanAllNotify(Uri uri, const std::shared_ptr<ConnectExtensionInfo> &info) override;
     int32_t OnChange(Uri uri, NotifyType notifyType) override;
-    int32_t GetExensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
+    int32_t GetExtensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
                              sptr<IFileAccessExtBase> &extensionProxy) override;
+    int32_t ConnectFileExtAbility(const AAFwk::Want &want,
+        const sptr<AAFwk::IAbilityConnection>& connection) override;
+    int32_t DisConnectFileExtAbility(const sptr<AAFwk::IAbilityConnection>& connection) override;
 
 private:
     class ExtensionDeathRecipient : public IRemoteObject::DeathRecipient {
@@ -273,6 +280,8 @@ private:
         const std::shared_ptr<ConnectExtensionInfo> &info);
     sptr<IFileAccessExtBase> FindExtProxyByBundleName(std::string bundleName);
     void AddExtProxyInfo(std::string bundleName, sptr<IFileAccessExtBase> extProxy);
+    // 管理对象 方法
+    void AddAppProxy(const sptr<AAFwk::IAbilityConnection>& key, sptr<AgentFileAccessExtConnection>& value);
     std::shared_ptr<UnloadTimer> unLoadTimer_ = nullptr;
     std::shared_ptr<OnDemandTimer> onDemandTimer_ = nullptr;
     static sptr<FileAccessService> instance_;
@@ -286,6 +295,18 @@ private:
     HolderManager<std::shared_ptr<ObserverContext>> obsManager_;
     std::mutex mapMutex_;
     std::unordered_map<std::string, sptr<IFileAccessExtBase>> cMap_;
+    
+    class AppDeathRecipient : public IRemoteObject::DeathRecipient {
+    public:
+        AppDeathRecipient() {}
+        virtual void OnRemoteDied(const wptr<IRemoteObject>& remote);
+        virtual ~AppDeathRecipient() = default;
+    };
+
+    std::mutex appProxyMutex_;
+    std::unordered_map<size_t, sptr<AgentFileAccessExtConnection>> appProxyMap_;
+    std::unordered_map<size_t, sptr<AAFwk::IAbilityConnection>> appConnection_;
+    sptr<IRemoteObject::DeathRecipient> appDeathRecipient_;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

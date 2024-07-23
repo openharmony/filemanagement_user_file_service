@@ -66,7 +66,8 @@
                     "header_files": [
                       "file_access_ext_ability.h",
                       "file_access_extension_info.h",
-                      "file_access_ext_stub_impl.h"
+                      "file_access_ext_stub_impl.h",
+                      "file_access_ext_proxy.h"
                     ],
                     "header_base": "//foundation/filemanagement/user_file_service/interfaces/inner_api/file_access/include"
                   }

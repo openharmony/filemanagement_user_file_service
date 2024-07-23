@@ -350,7 +350,7 @@ HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_UnregisterNotify_
 /**
  * @tc.number: user_file_service_file_access_service_proxy_GetExensionProxy_0000
  * @tc.name: file_access_service_proxy_GetExensionProxy_0000
- * @tc.desc: Test function of GetExensionProxy interface for ERROR.
+ * @tc.desc: Test function of GetExtensionProxy interface for ERROR.
  * @tc.size: MEDIUM
  * @tc.type: FUNC
  * @tc.level Level 3
@@ -365,36 +365,36 @@ HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_GetExensionProxy_
         shared_ptr<ConnectExtensionInfo> info = nullptr;
         sptr<IFileAccessExtBase> extensionProxy = nullptr;
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(false));
-        auto result = proxy->GetExensionProxy(info, extensionProxy);
+        auto result = proxy->GetExtensionProxy(info, extensionProxy);
         EXPECT_EQ(result, E_IPCS);
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true));
-        result = proxy->GetExensionProxy(info, extensionProxy);
+        result = proxy->GetExtensionProxy(info, extensionProxy);
         EXPECT_EQ(result, E_GETINFO);
         info = make_shared<ConnectExtensionInfo>();
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(false));
-        result = proxy->GetExensionProxy(info, extensionProxy);
+        result = proxy->GetExtensionProxy(info, extensionProxy);
         EXPECT_EQ(result, E_IPCS);
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true));
         EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(E_URIS));
-        result = proxy->GetExensionProxy(info, extensionProxy);
+        result = proxy->GetExtensionProxy(info, extensionProxy);
         EXPECT_EQ(result, E_URIS);
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
             .WillOnce(Return(false));
         EXPECT_CALL(*insMoc, Int()).WillOnce(Return(ERR_OK));
         EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
-        result = proxy->GetExensionProxy(info, extensionProxy);
+        result = proxy->GetExtensionProxy(info, extensionProxy);
         EXPECT_EQ(result, ERR_OK);
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
             .WillOnce(Return(true));
         EXPECT_CALL(*insMoc, Int()).WillOnce(Return(E_IPCS));
         EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
-        result = proxy->GetExensionProxy(info, extensionProxy);
+        result = proxy->GetExtensionProxy(info, extensionProxy);
         EXPECT_EQ(result, E_IPCS);
         EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
             .WillOnce(Return(true));
         EXPECT_CALL(*insMoc, Int()).WillOnce(Return(ERR_OK));
         EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
-        result = proxy->GetExensionProxy(info, extensionProxy);
+        result = proxy->GetExtensionProxy(info, extensionProxy);
         EXPECT_EQ(result, E_IPCS);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessServiceProxyTest occurs an exception.";

@@ -22,16 +22,20 @@
 #include "ability_connect_callback_stub.h"
 #include "element_name.h"
 #include "ifile_access_ext_base.h"
+#include "file_access_ext_proxy.h"
+#include "file_access_service.h"
 #include "iremote_object.h"
 #include "refbase.h"
 #include "want.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
+class FileAccessService;
+
 class FileAccessExtConnection : public AAFwk::AbilityConnectionStub {
 public:
     FileAccessExtConnection() = default;
-    virtual ~FileAccessExtConnection();
+    virtual ~FileAccessExtConnection() = default;
 
     void OnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
@@ -39,14 +43,12 @@ public:
     void ConnectFileExtAbility(const AAFwk::Want &want, const sptr<IRemoteObject> &token);
     void DisconnectFileExtAbility();
     bool IsExtAbilityConnected();
-    void OnSchedulerDied(const wptr<IRemoteObject> &remote);
     sptr<IFileAccessExtBase> GetFileExtProxy();
 
 private:
-    void AddFileAccessDeathRecipient(const sptr<IRemoteObject> &token);
-    void RemoveFileAccessDeathRecipient(const sptr<IRemoteObject> &token);
     struct ThreadLockInfo {
         std::condition_variable condition;
+        std::mutex mutex;
         bool isReady = false;
     };
     ThreadLockInfo connectLockInfo_;
@@ -54,21 +56,22 @@ private:
     static std::mutex mutex_;
     std::atomic<bool> isConnected_ = {false};
     sptr<IFileAccessExtBase> fileExtProxy_;
-    std::mutex deathRecipientMutex_;
-    std::mutex proxyMutex_;
-    sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
 };
 
-class FileAccessDeathRecipient : public IRemoteObject::DeathRecipient {
+
+class AgentFileAccessExtConnection : public AAFwk::AbilityConnectionStub {
 public:
-    using RemoteDiedHandler = std::function<void(const wptr<IRemoteObject> &)>;
-    explicit FileAccessDeathRecipient(RemoteDiedHandler handler);
-    virtual ~FileAccessDeathRecipient();
-    virtual void OnRemoteDied(const wptr<IRemoteObject> &remote);
-
+    AgentFileAccessExtConnection(const sptr<AAFwk::IAbilityConnection>& connection) : connection_(connection){};
+    virtual ~AgentFileAccessExtConnection();
+    void OnAbilityConnectDone(
+        const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
+    void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
+    void ConnectFileExtAbility(const AAFwk::Want &want);
+    void DisconnectFileExtAbility();
 private:
-    RemoteDiedHandler handler_;
+    const sptr<AAFwk::IAbilityConnection> connection_ = nullptr;
 };
+
 } // namespace FileAccessFwk
 } // namespace OHOS
 #endif // FILE_ACCESS_EXT_CONNECTION_H

@@ -51,6 +51,21 @@ bool GetFileExtProxyFuzzTest(shared_ptr<FileAccessExtConnection> conn)
     return true;
 }
 
+bool ConnectFileExtAbility(shared_ptr<FileAccessExtConnection> conn)
+{
+    AAFwk::Want want;
+    sptr<IRemoteObject> remoteObject = nullptr;
+    conn->ConnectFileExtAbility(want, remoteObject);
+    return true;
+}
+
+bool DisconnectFileExtAbility(shared_ptr<FileAccessExtConnection> conn)
+{
+    conn->DisconnectFileExtAbility();
+    return true;
+}
+
+
 } // namespace OHOS
 
 /* Fuzzer entry point */
@@ -65,6 +80,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::OnAbilityDisconnectDoneFuzzTest(conn);
     OHOS::IsExtAbilityConnectedFuzzTest(conn);
     OHOS::GetFileExtProxyFuzzTest(conn);
+    OHOS::ConnectFileExtAbility(conn);
+    OHOS::DisconnectFileExtAbility(conn);
 
     return 0;
 }

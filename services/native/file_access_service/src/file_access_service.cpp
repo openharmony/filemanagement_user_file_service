@@ -15,13 +15,12 @@
 
 #include "file_access_service.h"
 
+#include <cstddef>
 #include <unistd.h>
 
 #include "user_access_tracer.h"
 #include "file_access_framework_errno.h"
-#include "file_access_ext_connection.h"
 #include "file_access_extension_info.h"
-#include "file_access_ext_connection.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ipc_skeleton.h"
@@ -141,6 +140,9 @@ void FileAccessService::Init()
     if (observerDeathRecipient_  == nullptr) {
         observerDeathRecipient_ = sptr(new ObserverDeathRecipient());
     }
+    if (appDeathRecipient_ == nullptr) {
+        appDeathRecipient_ = sptr(new AppDeathRecipient());
+    }
 }
 
 static bool GetBundleNameFromUri(Uri &uri, string &bundleName)
@@ -186,7 +188,7 @@ sptr<IFileAccessExtBase> FileAccessService::ConnectExtension(Uri &uri, const sha
     sptr<IFileAccessExtBase> extensionProxy;
     {
         lock_guard<mutex> lock(mutex_);
-        int32_t ret = GetExensionProxy(info, extensionProxy);
+        int32_t ret = GetExtensionProxy(info, extensionProxy);
         if (ret != ERR_OK || extensionProxy == nullptr) {
             return nullptr;
         }
@@ -358,7 +360,7 @@ int32_t FileAccessService::RegisterNotifyImpl(Uri uri, bool notifyForDescendants
 {
     UserAccessTracer trace;
     trace.Start("RegisterNotifyImpl");
-    std::string token = IPCSkeleton::ResetCallingIdentity();
+    // std::string token = IPCSkeleton::ResetCallingIdentity();
     shared_ptr<ObserverContext> obsContext = make_shared<ObserverContext>(observer);
     // find if obsManager_ has this callback.
     uint32_t code = obsManager_.getId([obsContext](const shared_ptr<ObserverContext> &afterContext) {
@@ -402,6 +404,7 @@ void FileAccessService::RemoveRelations(string &uriStr, shared_ptr<ObserverNode>
 
 int FileAccessService::FindUri(const string &uriStr, shared_ptr<ObserverNode> &outObsNode)
 {
+    HILOG_INFO("uriStr: %{public}s", uriStr.c_str());
     lock_guard<mutex> lock(nodeMutex_);
     auto iter = relationshipMap_.find(uriStr);
     if (iter == relationshipMap_.end()) {
@@ -618,7 +621,9 @@ int32_t FileAccessService::OnChange(Uri uri, NotifyType notifyType)
 
 bool FileAccessService::IsUnused()
 {
-    return obsManager_.isEmpty();
+    HILOG_INFO("IsUnused: obsManager_: %{public}d, appProxyMap_: %{public}d",
+        obsManager_.isEmpty(), appProxyMap_.empty());
+    return obsManager_.isEmpty() && appProxyMap_.empty();
 }
 
 void FileAccessService::InitTimer()
@@ -666,7 +671,41 @@ void FileAccessService::InitTimer()
     unLoadTimer_->start();
 }
 
-int32_t FileAccessService::GetExensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
+int32_t FileAccessService::ConnectFileExtAbility(const AAFwk::Want &want,
+    const sptr<AAFwk::IAbilityConnection>& connection)
+{
+    HILOG_INFO("ConnectFileExtAbility start");
+    if (connection == nullptr) {
+        HILOG_ERROR("connection is nullptr");
+        return E_CONNECT;
+    }
+
+    sptr<AgentFileAccessExtConnection> fileAccessExtConnection(
+        new(std::nothrow) AgentFileAccessExtConnection(connection));
+    if (fileAccessExtConnection == nullptr) {
+        HILOG_ERROR("new fileAccessExtConnection fail");
+        return E_CONNECT;
+    }
+
+    fileAccessExtConnection->ConnectFileExtAbility(want);
+    AddAppProxy(connection, fileAccessExtConnection);
+    return ERR_OK;
+}
+
+int32_t FileAccessService::DisConnectFileExtAbility(const sptr<AAFwk::IAbilityConnection>& connection)
+{
+    HILOG_INFO("ConnectFileExtAbility start");
+    if (connection == nullptr) {
+        HILOG_ERROR("connection is nullptr");
+        return E_CONNECT;
+    }
+    DisconnectAppProxy(connection);
+    RemoveAppProxy(connection);
+    return ERR_OK;
+}
+
+
+int32_t FileAccessService::GetExtensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
     sptr<IFileAccessExtBase> &extensionProxy)
 {
     sptr<FileAccessExtConnection> fileAccessExtConnection(new(std::nothrow) FileAccessExtConnection());
@@ -721,5 +760,75 @@ void FileAccessService::AddExtProxyInfo(std::string bundleName, sptr<IFileAccess
     lock_guard<mutex> lock(mapMutex_);
     cMap_.emplace(bundleName, extProxy);
 }
+
+void FileAccessService::AddAppProxy(const sptr<AAFwk::IAbilityConnection>& connection,
+    sptr<AgentFileAccessExtConnection>& value)
+{
+    if (connection == nullptr || value == nullptr) {
+        HILOG_ERROR("key is null or value is null");
+        return;
+    }
+    size_t key = reinterpret_cast<size_t>(connection->AsObject().GetRefPtr());
+    HILOG_INFO("sa add key, %{public}zu", key);
+    lock_guard<mutex> lock(appProxyMutex_);
+    if (appProxyMap_.count(key)) {
+        HILOG_INFO("sa had proxy,needn't create connection");
+        return;
+    }
+    connection->AsObject()->AddDeathRecipient(appDeathRecipient_);
+    appProxyMap_[key] = value;
+    appConnection_[key] = connection;
+    HILOG_INFO("appProxyMap_ size: %{public}zu", appProxyMap_.size());
+}
+
+void FileAccessService::RemoveAppProxy(const sptr<AAFwk::IAbilityConnection>& connection)
+{
+    if (connection == nullptr) {
+        HILOG_WARN("key is null");
+        return;
+    }
+    size_t key = reinterpret_cast<size_t>(connection->AsObject().GetRefPtr());
+    if (appProxyMap_.find(key) == appProxyMap_.end()) {
+        HILOG_WARN("appProxyMap_ not key: %{public}zu", key);
+        return;
+    }
+    lock_guard<mutex> lock(appProxyMutex_);
+    if (appProxyMap_.find(key) == appProxyMap_.end()) {
+        HILOG_INFO("appProxyMap_ not key");
+        return;
+    }
+
+    appProxyMap_.erase(key);
+    appConnection_.erase(key);
+    HILOG_INFO("appProxyMap_ size: %{public}zu", appProxyMap_.size());
+}
+
+void FileAccessService::DisconnectAppProxy(const sptr<AAFwk::IAbilityConnection>& connection)
+{
+    size_t key = reinterpret_cast<size_t>(connection->AsObject().GetRefPtr());
+    lock_guard<mutex> lock(appProxyMutex_);
+    if (appProxyMap_.find(key) == appProxyMap_.end()) {
+        HILOG_WARN("appProxyMap_ not key: %{public}zu", key);
+        return;
+    }
+    HILOG_INFO("DisconnectAppProxy DisconnectFileExtAbility key: %{public}zu", key);
+    if (appProxyMap_[key] != nullptr) {
+        appProxyMap_[key]->DisconnectFileExtAbility();
+    }
+}
+
+void FileAccessService::AppDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    HILOG_INFO("FileAccessService::AppDeathRecipient::OnRemoteDied, remote obj died.");
+    if (remote == nullptr) {
+        HILOG_ERROR("remote is nullptr");
+        return;
+    }
+    auto remoteBroker = iface_cast<AAFwk::IAbilityConnection>(remote.promote());
+    size_t key = reinterpret_cast<size_t>(remoteBroker->AsObject().GetRefPtr());
+    HILOG_INFO("remote: %{public}zu", key);
+    FileAccessService::GetInstance()->RemoveAppProxy(remoteBroker);
+}
+
 } // namespace FileAccessFwk
 } // namespace OHOS
