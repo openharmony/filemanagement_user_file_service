@@ -28,7 +28,7 @@ using namespace FileAccessFwk;
 
 SystemAbilityManagerClient& SystemAbilityManagerClient::GetInstance()
 {
-    static auto instance = new SystemAbilityManagerClient();
+    static auto instance = std::make_shared<SystemAbilityManagerClient>();
     return *instance;
 }
 
