@@ -56,10 +56,11 @@ shared_ptr<OHOS::AbilityRuntime::Context> g_context = nullptr;
 void SetNativeToken()
 {
     uint64_t tokenId;
-    const char **perms = new const char *[3];
-    perms[0] = "ohos.permission.FILE_ACCESS_MANAGER";
-    perms[1] = "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED";
-    perms[2] = "ohos.permission.CONNECT_FILE_ACCESS_EXTENSION";
+    const char *perms[] = {
+        "ohos.permission.FILE_ACCESS_MANAGER",
+        "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED",
+        "ohos.permission.CONNECT_FILE_ACCESS_EXTENSION"
+    };
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
         .permsNum = 3,
@@ -76,7 +77,6 @@ void SetNativeToken()
     tokenId |= systemAppMask;
     SetSelfTokenID(tokenId);
     OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
-    delete[] perms;
 }
 
 void SetNativeToken(const char* processName, const char*perms[], int32_t permsNum)
