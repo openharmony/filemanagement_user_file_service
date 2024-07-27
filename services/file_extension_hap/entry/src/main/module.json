@@ -22,20 +22,6 @@
         "type": "fileAccess",
         "uri": "fileAccess://docs",
         "visible": true
-      },
-      {
-        "srcEntrance": "./ets/FileExtensionAbility/FileBackupExtensionAbility.ts",
-        "name": "FileBackupExtensionAbility",
-        "description": "filebackupextension",
-        "icon": "$media:icon",
-        "type": "backup",
-        "visible": true,
-        "metadata": [
-            {
-                "name": "ohos.extension.backup",
-                "resource": "$profile:backup_config"
-            }
-        ]
       }
     ],
     "requestPermissions": [
