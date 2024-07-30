@@ -705,7 +705,7 @@ int FileAccessExtProxy::Query(const Uri &uri, std::vector<std::string> &columns,
         HILOG_ERROR("Parameter Query fail to WriteInt64 count");
         return E_IPCS;
     }
-    if (count > FILE_RESULT_TYPE.size()) {
+    if (static_cast<size_t>(count) > FILE_RESULT_TYPE.size()) {
         HILOG_ERROR(" The number of query operations exceeds %{public}zu ", FILE_RESULT_TYPE.size());
         return EINVAL;
     }
