@@ -46,8 +46,7 @@ void ModalUICallback::OnError(int32_t code, const std::string& name, const std::
 
 void ModalUICallback::OnResultForModal(int32_t resultCode, const OHOS::AAFwk::Want &result)
 {
-    HILOG_INFO("modal picker: OnResultForModal enter. resultCode is %{public}d, %{public}s",
-        resultCode,  result.ToString().c_str());
+    HILOG_INFO("modal picker: OnResultForModal enter. resultCode is %{public}d,", resultCode);
     pickerCallBack_->resultCode = resultCode;
     pickerCallBack_->want = result;
     pickerCallBack_->ready = true;
