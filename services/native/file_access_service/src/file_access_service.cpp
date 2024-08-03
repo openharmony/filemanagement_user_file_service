@@ -245,15 +245,26 @@ void FileAccessService::CleanRelativeObserver(const sptr<IFileAccessObserver> &o
     uint32_t code = obsManager_.getId([obsContext](const shared_ptr<ObserverContext>  &afterContext) {
         return obsContext->EqualTo(afterContext);
     });
+    std::vector<Uri> uriLists = GetUriList(code);
+    for (int i = 0; i < uriLists.size(); ++i) {
+        UnregisterNotify(uriLists[i], observer);
+    }
+}
+
+std::vector<Uri> FileAccessService::GetUriList(uint32_t code)
+{
+    lock_guard<mutex> lock(nodeMutex_);
+    std::vector<Uri> uriList;
     for (auto pair : relationshipMap_) {
         auto codeList = pair.second->obsCodeList_;
         auto haveCodeIter = find_if(codeList.begin(), codeList.end(),
             [code](const uint32_t &listCode) { return code == listCode; });
         if (haveCodeIter != codeList.end()) {
             Uri uri(pair.first);
-            UnregisterNotify(uri, observer);
+            uriList.push_back(uri);
         }
     }
+    return uriList;
 }
 
 static void convertUris(Uri uri, std::vector<Uri> &uris)
