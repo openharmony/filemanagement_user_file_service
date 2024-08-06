@@ -25,7 +25,7 @@
 #include "js_native_api_types.h"
 #include "native_reference_mock.h"
 
-constexpr int EXCEPTION = -1;
+#include "js_file_access_ext_ability.cpp"
 
 namespace OHOS::FileAccessFwk {
 using namespace std;
@@ -1951,4 +1951,5 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0003, tes
 }
 
 #include "js_file_access_ext_ability_ex_test.cpp"
+#include "js_file_access_ext_ability_other_test.cpp"
 }
