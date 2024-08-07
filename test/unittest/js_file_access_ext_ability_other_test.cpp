@@ -480,3 +480,465 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ConstructQueryAr
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_ConstructQueryArg_0001";
 }
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_StartWatcher_0000
+ * @tc.name: js_file_access_ext_ability_StartWatcher_0000
+ * @tc.desc: Test function of StartWatcher interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_StartWatcher_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_StartWatcher_0000";
+    try {
+        EXPECT_NE(ability, nullptr);
+        Uri uri("");
+
+        // 模拟调用CallJsMethod失败
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_invalid_arg));
+        auto result = ability->StartWatcher(uri);
+        EXPECT_EQ(result, EINVAL);
+    } catch (...) {
+        EXPECT_TRUE(false);
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_StartWatcher_0000";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_StartWatcher_0001
+ * @tc.name: js_file_access_ext_ability_StartWatcher_0001
+ * @tc.desc: Test function of StartWatcher interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_StartWatcher_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_StartWatcher_0001";
+    try {
+        EXPECT_NE(ability, nullptr);
+        napi_value rslt = nullptr;
+        Uri uri("");
+        ability->jsObj_ = make_shared<NativeReferenceMock>();
+
+        // 模拟获取nativeUri为空
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _)).WillOnce(Return(napi_ok));
+        auto result = ability->StartWatcher(uri);
+        EXPECT_EQ(result, false);
+
+        // 模拟创建FuncCallback失败
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_create_function(_, _, _, _, _, _)).WillOnce(Return(napi_ok));
+        result = ability->StartWatcher(uri);
+        EXPECT_EQ(result, false);
+    } catch (...) {
+        EXPECT_TRUE(false);
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_StartWatcher_0001";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_StartWatcher_0002
+ * @tc.name: js_file_access_ext_ability_StartWatcher_0002
+ * @tc.desc: Test function of StartWatcher interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_StartWatcher_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_StartWatcher_0002";
+    try {
+        EXPECT_NE(ability, nullptr);
+        napi_value rslt = nullptr;
+        Uri uri("");
+        ability->jsObj_ = make_shared<NativeReferenceMock>();
+
+        // 模拟获取ret失败
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_create_function(_, _, _, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_FIFTH>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_FIFTH>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(E_IPCS), Return(napi_ok)));
+        auto result = ability->StartWatcher(uri);
+        EXPECT_EQ(result, E_IPCS);
+    } catch (...) {
+        EXPECT_TRUE(false);
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_StartWatcher_0002";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_StartWatcher_0003
+ * @tc.name: js_file_access_ext_ability_StartWatcher_0003
+ * @tc.desc: Test function of StartWatcher interface for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_StartWatcher_0003, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_StartWatcher_0003";
+    try {
+        EXPECT_NE(ability, nullptr);
+        napi_value rslt = nullptr;
+        Uri uri("");
+        string path = "test";
+        ability->jsObj_ = make_shared<NativeReferenceMock>();
+
+        // 模拟StartWatcher调用成功
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_create_function(_, _, _, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_FIFTH>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_FIFTH>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(ERR_OK), Return(napi_ok)));
+        auto result = ability->StartWatcher(uri);
+        EXPECT_EQ(result, ERR_OK);
+    } catch (...) {
+        EXPECT_TRUE(false);
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_StartWatcher_0003";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_StopWatcher_0000
+ * @tc.name: js_file_access_ext_ability_StopWatcher_0000
+ * @tc.desc: Test function of StopWatcher interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_StopWatcher_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_StopWatcher_0000";
+    try {
+        EXPECT_NE(ability, nullptr);
+        Uri uri("");
+
+        // 模拟调用CallJsMethod失败
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_invalid_arg));
+        auto result = ability->StopWatcher(uri);
+        EXPECT_EQ(result, EINVAL);
+    } catch (...) {
+        EXPECT_TRUE(false);
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_StopWatcher_0000";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_StopWatcher_0001
+ * @tc.name: js_file_access_ext_ability_StopWatcher_0001
+ * @tc.desc: Test function of StopWatcher interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_StopWatcher_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_StopWatcher_0001";
+    try {
+        EXPECT_NE(ability, nullptr);
+        Uri uri("");
+        ability->jsObj_ = make_shared<NativeReferenceMock>();
+
+        // 模拟获取nativeUri为空
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _)).WillOnce(Return(napi_ok));
+        auto result = ability->StopWatcher(uri);
+        EXPECT_EQ(result, false);
+    } catch (...) {
+        EXPECT_TRUE(false);
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_StopWatcher_0001";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_StopWatcher_0002
+ * @tc.name: js_file_access_ext_ability_StopWatcher_0002
+ * @tc.desc: Test function of StopWatcher interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_StopWatcher_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_StopWatcher_0002";
+    try {
+        EXPECT_NE(ability, nullptr);
+        napi_value rslt = nullptr;
+        Uri uri("");
+        ability->jsObj_ = make_shared<NativeReferenceMock>();
+
+        // 模拟获取ret失败
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_FIFTH>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(E_IPCS), Return(napi_ok)));
+        auto result = ability->StopWatcher(uri);
+        EXPECT_EQ(result, E_IPCS);
+    } catch (...) {
+        EXPECT_TRUE(false);
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_StopWatcher_0002";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_StopWatcher_0003
+ * @tc.name: js_file_access_ext_ability_StopWatcher_0003
+ * @tc.desc: Test function of StopWatcher interface for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_StopWatcher_0003, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_StopWatcher_0003";
+    try {
+        EXPECT_NE(ability, nullptr);
+        napi_value rslt = nullptr;
+        Uri uri("");
+        string path = "test";
+        ability->jsObj_ = make_shared<NativeReferenceMock>();
+
+        // 模拟StopWatcher调用成功
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, uv_queue_work(_, _, _, _)).WillOnce(Return(0));
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_FIFTH>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(ERR_OK), Return(napi_ok)));
+        auto result = ability->StopWatcher(uri);
+        EXPECT_EQ(result, ERR_OK);
+    } catch (...) {
+        EXPECT_TRUE(false);
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_StopWatcher_0003";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_FuncCallback_0000
+ * @tc.name: js_file_access_ext_ability_FuncCallback_0000
+ * @tc.desc: Test function of FuncCallback interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_FuncCallback_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_FuncCallback_0000";
+    try {
+        EXPECT_NE(ability, nullptr);
+        int value = 0;
+        napi_env env = nullptr;
+        napi_callback_info info = nullptr;
+
+        auto result = ability->FuncCallback(env, info);
+        EXPECT_TRUE(result == nullptr);
+
+        env = reinterpret_cast<napi_env>(&value);
+        EXPECT_CALL(*insMoc, napi_get_undefined(_, _)).WillOnce(Return(napi_ok));
+        result = ability->FuncCallback(env, info);
+        EXPECT_TRUE(result == nullptr);
+
+        info = reinterpret_cast<napi_callback_info>(&value);
+        EXPECT_CALL(*insMoc, napi_get_cb_info(_, _, _, _, _, _)).WillOnce(Return(napi_invalid_arg));
+        EXPECT_CALL(*insMoc, napi_get_undefined(_, _)).WillOnce(Return(napi_ok));
+        result = ability->FuncCallback(env, info);
+        EXPECT_TRUE(result == nullptr);
+
+        EXPECT_CALL(*insMoc, napi_get_cb_info(_, _, _, _, _, _))
+           .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>((0)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_undefined(_, _)).WillOnce(Return(napi_ok));
+        result = ability->FuncCallback(env, info);
+        EXPECT_TRUE(result == nullptr);
+
+        EXPECT_CALL(*insMoc, napi_get_cb_info(_, _, _, _, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _)).WillOnce(Return(napi_invalid_arg));
+        EXPECT_CALL(*insMoc, napi_get_undefined(_, _)).WillOnce(Return(napi_ok));
+        result = ability->FuncCallback(env, info);
+        EXPECT_TRUE(result == nullptr);
+    } catch (...) {
+        EXPECT_TRUE(false);
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_FuncCallback_0000";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_ParserQueryFileJsResult_0000
+ * @tc.name: js_file_access_ext_ability_ParserQueryFileJsResult_0000
+ * @tc.desc: Test function of ParserQueryFileJsResult interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ParserQueryFileJsResult_0000,
+    testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_ParserQueryFileJsResult_0000";
+    try {
+        EXPECT_NE(ability, nullptr);
+        napi_value rslt = nullptr;
+        napi_env env = nullptr;
+        napi_value nativeValue = {};
+        JsFileAccessExtAbility::Value<vector<string>> value;
+
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_invalid_arg));
+        auto result = ability->ParserQueryFileJsResult(env, nativeValue, value);
+        EXPECT_FALSE(result);
+
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_create_array(_, _)).WillOnce(Return(napi_ok));
+        result = ability->ParserQueryFileJsResult(env, nativeValue, value);
+        EXPECT_FALSE(result);
+
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _)).WillOnce(Return(napi_ok))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_create_array(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_array_length(_, _, _)).WillOnce(Return(napi_invalid_arg));
+        result = ability->ParserQueryFileJsResult(env, nativeValue, value);
+        EXPECT_FALSE(result);
+
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _)).WillOnce(Return(napi_ok))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_create_array(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_array_length(_, _, _)).WillOnce(Return(napi_ok));
+        result = ability->ParserQueryFileJsResult(env, nativeValue, value);
+        EXPECT_TRUE(result);
+    } catch (...) {
+        EXPECT_TRUE(false);
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_ParserQueryFileJsResult_0000";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_ParserQueryFileJsResult_0001
+ * @tc.name: js_file_access_ext_ability_ParserQueryFileJsResult_0001
+ * @tc.desc: Test function of ParserQueryFileJsResult interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ParserQueryFileJsResult_0001,
+    testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_ParserQueryFileJsResult_0001";
+    try {
+        EXPECT_NE(ability, nullptr);
+        napi_value rslt = nullptr;
+        napi_env env = nullptr;
+        napi_value nativeValue = {};
+        JsFileAccessExtAbility::Value<vector<string>> value;
+
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _)).WillOnce(Return(napi_ok))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_create_array(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_array_length(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(1), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_element(_, _, _, _)).WillOnce(Return(napi_ok));
+        auto result = ability->ParserQueryFileJsResult(env, nativeValue, value);
+        EXPECT_FALSE(result);
+
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _)).WillOnce(Return(napi_ok))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_create_array(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_array_length(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(1), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_element(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _)).WillOnce(Return(napi_invalid_arg));
+        result = ability->ParserQueryFileJsResult(env, nativeValue, value);
+        EXPECT_FALSE(result);
+
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _)).WillOnce(Return(napi_ok))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_create_array(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_array_length(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(1), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_element(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _)).WillOnce(Return(napi_ok))
+            .WillOnce(Return(napi_ok));
+        result = ability->ParserQueryFileJsResult(env, nativeValue, value);
+        EXPECT_TRUE(result);
+    } catch (...) {
+        EXPECT_TRUE(false);
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_ParserQueryFileJsResult_0001";
+}
