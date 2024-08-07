@@ -259,6 +259,7 @@ private:
     int32_t OperateObsNode(Uri &uri, bool notifyForDescendants, uint32_t code,
         const std::shared_ptr<ConnectExtensionInfo> &info);
     void CleanRelativeObserver(const sptr<IFileAccessObserver> &observer);
+    std::vector<Uri> GetUriList(uint32_t code);
     void SendListNotify(std::string uri, NotifyType notifyType, const std::vector<uint32_t> &list);
     void RemoveRelations(std::string &uriStr, std::shared_ptr<ObserverNode> obsNode);
     int FindUri(const std::string &uriStr, std::shared_ptr<ObserverNode> &outObsNode);
