@@ -152,6 +152,10 @@ function getListFileInfos(sourceFileUri: string, offset: number, count: number, 
       if (i === listNum) {
         break;
       }
+      if (path === CURRENT_USER_PATH && fileNameList[i] === APP_DATA) {
+        hilog.info(DOMAIN_CODE, TAG, `filter appdata doc`);
+        continue;
+      }
       let mode = documentFlag.SUPPORTS_READ | documentFlag.SUPPORTS_WRITE;
       let filePath = getNewPathOrUri(path, fileNameList[i]);
       let stat = fs.statSync(filePath);
@@ -162,15 +166,8 @@ function getListFileInfos(sourceFileUri: string, offset: number, count: number, 
       }
       let newFileUri = getNewPathOrUri(sourceFileUri, fileNameList[i]);
       newFileUri = encodePathOfUri(newFileUri);
-      infos.push({
-        uri: newFileUri,
-        relativePath: filePath,
-        fileName: genNewFileName(fileNameList[i]),
-        mode: mode,
-        size: stat.size,
-        mtime: stat.mtime,
-        mimeType: '',
-      });
+      infos.push({ uri: newFileUri, relativePath: filePath, fileName: genNewFileName(fileNameList[i]),
+        mode: mode, size: stat.size, mtime: stat.mtime, mimeType: '' });
     }
   } catch (e) {
     hilog.error(DOMAIN_CODE, TAG, `getFileInfos error: ${e.message},code: ${e.code}`);
@@ -210,7 +207,12 @@ function getSubFileInfos(
   let infos: Fileinfo[] = [];
   let tmpStat = fs.statSync(needInfo.subPath);
   let bIsDct = tmpStat.isDirectory();
-  let fileNameList = bIsDct ? fs.listFileSync(needInfo.subPath, changeData.options) : [needInfo.subPath];
+  let fileNameList = bIsDct ? fs.listFileSync(needInfo.subPath, changeData.options) :
+      [needInfo.subPath.substring(CURRENT_USER_PATH.length)];
+  let subPath = needInfo.subPath;
+  if (needInfo.isRootPath) {
+    subPath = bIsDct ? subPath.substring(CURRENT_USER_PATH.length) : '';
+  }
   let listLen = fileNameList.length;
   if (changeData.tempOffset >= listLen) {
     changeData.tempOffset -= listLen;
@@ -225,7 +227,7 @@ function getSubFileInfos(
     let stat = bIsDct ? fs.statSync(filePath) : tmpStat;
     mode |= (bIsDct | stat.isDirectory()) ? documentFlag.REPRESENTS_DIR : documentFlag.REPRESENTS_FILE;
     let newFileUri = getNewPathOrUri(
-      needInfo.isRootPath ? needInfo.sourceFileUri + needInfo.subPath : needInfo.sourceFileUri, fileNameList[j]);
+      needInfo.isRootPath ? needInfo.sourceFileUri + subPath : needInfo.sourceFileUri, fileNameList[j]);
     newFileUri = encodePathOfUri(newFileUri);
     infos.push({ uri: newFileUri, relativePath: filePath, fileName: genNewFileName(fileNameList[j]),
       mode: mode, size: stat.size, mtime: stat.mtime, mimeType: '' });
