@@ -59,6 +59,7 @@ public:
     virtual napi_status napi_create_function(napi_env, const char*, size_t, napi_callback, void*, napi_value*) = 0;
     virtual napi_status napi_get_cb_info(napi_env, napi_callback_info, size_t*, napi_value*, napi_value*, void**) = 0;
     virtual napi_status napi_get_undefined(napi_env, napi_value*) = 0;
+    virtual napi_status napi_get_value_bool(napi_env, napi_value, bool*) = 0;
 public:
     static inline std::shared_ptr<Assistant> ins_ = nullptr;
 };
@@ -94,6 +95,7 @@ public:
     MOCK_METHOD6(napi_get_cb_info, napi_status(napi_env, napi_callback_info, size_t*, napi_value*, napi_value*,
         void**));
     MOCK_METHOD2(napi_get_undefined, napi_status(napi_env, napi_value*));
+    MOCK_METHOD3(napi_get_value_bool, napi_status(napi_env, napi_value, bool*));
 };
 
 } // End of namespace FileAccessFwk

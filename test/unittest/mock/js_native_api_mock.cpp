@@ -144,3 +144,8 @@ napi_status napi_get_undefined(napi_env env, napi_value* result)
 {
     return OHOS::FileAccessFwk::Assistant::ins_->napi_get_undefined(env, result);
 }
+
+napi_status napi_get_value_bool(napi_env env, napi_value value, bool* result)
+{
+    return OHOS::FileAccessFwk::Assistant::ins_->napi_get_value_bool(env, value, result);
+}
