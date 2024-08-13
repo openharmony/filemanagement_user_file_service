@@ -246,7 +246,7 @@ void FileAccessService::CleanRelativeObserver(const sptr<IFileAccessObserver> &o
         return obsContext->EqualTo(afterContext);
     });
     std::vector<Uri> uriLists = GetUriList(code);
-    for (int i = 0; i < uriLists.size(); ++i) {
+    for (size_t i = 0; i < uriLists.size(); ++i) {
         UnregisterNotify(uriLists[i], observer);
     }
 }
