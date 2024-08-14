@@ -1398,3 +1398,291 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Access_0003, tes
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_Access_0003";
 }
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_GetResultByJs_0000
+ * @tc.name: js_file_access_ext_ability_GetResultByJs_0000
+ * @tc.desc: Test function of GetResultByJs interface for success and failure branches.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetResultByJs_0000, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_GetResultByJs_0000";
+    try {
+        EXPECT_NE(ability, nullptr);
+        napi_value rslt = nullptr;
+        napi_env env = nullptr;
+        napi_value nativeResult = nullptr;
+        Result result;
+        int ret = NOEXCEPTION;
+
+        EXPECT_FALSE(GetResultByJs(env, nativeResult, result, ret));
+
+        nativeResult = reinterpret_cast<napi_value>(&rslt);
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _)).WillOnce(Return(napi_invalid_arg));
+        EXPECT_FALSE(GetResultByJs(env, nativeResult, result, ret));
+
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _)).WillOnce(Return(napi_ok))
+            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_invalid_arg));
+        EXPECT_FALSE(GetResultByJs(env, nativeResult, result, ret));
+
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok))
+            .WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _)).WillOnce(Return(napi_ok))
+            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_invalid_arg));
+        EXPECT_FALSE(GetResultByJs(env, nativeResult, result, ret));
+
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok))
+            .WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_value_string_utf8(_, _, _, _, _)).WillOnce(Return(napi_ok))
+            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_TRUE(GetResultByJs(env, nativeResult, result, ret));
+
+        ret = EXCEPTION;
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_invalid_arg));
+        EXPECT_FALSE(GetResultByJs(env, nativeResult, result, ret));
+
+        EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_TRUE(GetResultByJs(env, nativeResult, result, ret));
+
+        ret = MAX_ARG_COUNT;
+        EXPECT_TRUE(GetResultByJs(env, nativeResult, result, ret));
+    } catch (...) {
+        EXPECT_TRUE(false);
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_GetResultByJs_0000";
+}
+
+static void InvokeCreateNativeValueSucceed(shared_ptr<AssistantMock> insMoc)
+{
+    // 模拟调用CreateNativeValue成功
+    napi_value rslt = nullptr;
+    EXPECT_CALL(*insMoc, napi_create_array_with_length(_, _, _))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+    EXPECT_CALL(*insMoc, napi_create_int64(_, _, _))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+    EXPECT_CALL(*insMoc, napi_create_double(_, _, _))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+    EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _))
+        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_MakeJsNativeFileFilter_0000
+ * @tc.name: js_file_access_ext_ability_MakeJsNativeFileFilter_0000
+ * @tc.desc: Test function of MakeJsNativeFileFilter interface for success and failure branches.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_MakeJsNativeFileFilter_0000,
+    testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_MakeJsNativeFileFilter_0000";
+    try {
+        EXPECT_NE(ability, nullptr);
+        napi_env env = nullptr;
+        FileFilter filter;
+        napi_value nativeFilter = nullptr;
+
+        EXPECT_CALL(*insMoc, napi_create_array_with_length(_, _, _)).WillOnce(Return(napi_ok));
+        auto ret = ability->MakeJsNativeFileFilter(env, filter, nativeFilter);
+        EXPECT_EQ(ret, E_GETRESULT);
+
+        InvokeCreateNativeValueSucceed(insMoc);
+        EXPECT_CALL(*insMoc, napi_set_named_property(_, _, _, _)).WillOnce(Return(napi_invalid_arg));
+        ret = ability->MakeJsNativeFileFilter(env, filter, nativeFilter);
+        EXPECT_EQ(ret, EINVAL);
+
+        InvokeCreateNativeValueSucceed(insMoc);
+        EXPECT_CALL(*insMoc, napi_set_named_property(_, _, _, _)).WillOnce(Return(napi_ok))
+            .WillOnce(Return(napi_invalid_arg));
+        ret = ability->MakeJsNativeFileFilter(env, filter, nativeFilter);
+        EXPECT_EQ(ret, EINVAL);
+
+        InvokeCreateNativeValueSucceed(insMoc);
+        EXPECT_CALL(*insMoc, napi_set_named_property(_, _, _, _)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok))
+            .WillOnce(Return(napi_invalid_arg));
+        ret = ability->MakeJsNativeFileFilter(env, filter, nativeFilter);
+        EXPECT_EQ(ret, EINVAL);
+
+        InvokeCreateNativeValueSucceed(insMoc);
+        EXPECT_CALL(*insMoc, napi_set_named_property(_, _, _, _)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok))
+            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_invalid_arg));
+        ret = ability->MakeJsNativeFileFilter(env, filter, nativeFilter);
+        EXPECT_EQ(ret, EINVAL);
+    } catch (...) {
+        EXPECT_TRUE(false);
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_MakeJsNativeFileFilter_0000";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_MakeJsNativeFileFilter_0001
+ * @tc.name: js_file_access_ext_ability_MakeJsNativeFileFilter_0001
+ * @tc.desc: Test function of MakeJsNativeFileFilter interface for success and failure branches.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_MakeJsNativeFileFilter_0001,
+    testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_MakeJsNativeFileFilter_0001";
+    try {
+        EXPECT_NE(ability, nullptr);
+        napi_env env = nullptr;
+        FileFilter filter;
+        napi_value nativeFilter = nullptr;
+
+        InvokeCreateNativeValueSucceed(insMoc);
+        EXPECT_CALL(*insMoc, napi_set_named_property(_, _, _, _)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok))
+            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_invalid_arg));
+        auto ret = ability->MakeJsNativeFileFilter(env, filter, nativeFilter);
+        EXPECT_EQ(ret, EINVAL);
+
+        InvokeCreateNativeValueSucceed(insMoc);
+        EXPECT_CALL(*insMoc, napi_set_named_property(_, _, _, _)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok))
+            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok))
+            .WillOnce(Return(napi_invalid_arg));
+        ret = ability->MakeJsNativeFileFilter(env, filter, nativeFilter);
+        EXPECT_EQ(ret, EINVAL);
+
+        InvokeCreateNativeValueSucceed(insMoc);
+        EXPECT_CALL(*insMoc, napi_set_named_property(_, _, _, _)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok))
+            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok))
+            .WillOnce(Return(napi_ok));
+        ret = ability->MakeJsNativeFileFilter(env, filter, nativeFilter);
+        EXPECT_EQ(ret, ERR_OK);
+    } catch (...) {
+        EXPECT_TRUE(false);
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_MakeJsNativeFileFilter_0001";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_BuildFileInfoNumParam_0000
+ * @tc.name: js_file_access_ext_ability_BuildFileInfoNumParam_0000
+ * @tc.desc: Test function of BuildFileInfoNumParam interface for success and failure branches.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_BuildFileInfoNumParam_0000,
+    testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_BuildFileInfoNumParam_0000";
+    try {
+        EXPECT_NE(ability, nullptr);
+        napi_value rslt = nullptr;
+        napi_env env = nullptr;
+        FileFilter filter;
+        FileInfoNumParam param { "", filter, false };
+        napi_value argv;
+        size_t argc;
+
+        filter.hasFilter_ = true;
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_create_object(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_FALSE(ability->BuildFileInfoNumParam(env, param, &argv, argc));
+
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_create_object(_, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_FIRST>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_create_array_with_length(_, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_FALSE(ability->BuildFileInfoNumParam(env, param, &argv, argc));
+
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_create_int64(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_create_object(_, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_FIRST>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_create_array_with_length(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_create_double(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)))
+            .WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_set_named_property(_, _, _, _)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok))
+            .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok))
+            .WillOnce(Return(napi_ok));
+        EXPECT_FALSE(ability->BuildFileInfoNumParam(env, param, &argv, argc));
+    } catch (...) {
+        EXPECT_TRUE(false);
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_BuildFileInfoNumParam_0000";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_BuildFileInfoNumParam_0001
+ * @tc.name: js_file_access_ext_ability_BuildFileInfoNumParam_0001
+ * @tc.desc: Test function of BuildFileInfoNumParam interface for success and failure branches.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_BuildFileInfoNumParam_0001,
+    testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_BuildFileInfoNumParam_0001";
+    try {
+        EXPECT_NE(ability, nullptr);
+        napi_value rslt = nullptr;
+        FileFilter filter;
+        FileInfoNumParam param { "", filter, false };
+        napi_value argv[3];
+        size_t argc;
+
+        filter.hasFilter_ = false;
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_null(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_FALSE(ability->BuildFileInfoNumParam(env, param, argv, argc));
+
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_get_null(_, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_FIRST>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_FALSE(ability->BuildFileInfoNumParam(env, param, argv, argc));
+
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_null(_, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_FIRST>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_FALSE(ability->BuildFileInfoNumParam(env, param, argv, argc));
+
+        EXPECT_CALL(*insMoc, napi_create_string_utf8(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_null(_, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_FIRST>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_CALL(*insMoc, napi_get_boolean(_, _, _))
+            .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
+        EXPECT_TRUE(ability->BuildFileInfoNumParam(env, param, argv, argc));
+    } catch (...) {
+        EXPECT_TRUE(false);
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_BuildFileInfoNumParam_0001";
+}
