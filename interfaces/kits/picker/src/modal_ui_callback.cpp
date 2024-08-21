@@ -20,7 +20,7 @@ namespace OHOS {
 namespace Picker {
 using namespace OHOS::Ace;
 using namespace std;
-ModalUICallback::ModalUICallback(Ace::UIContent* uiContent, PickerCallBack* pickerCallBack)
+ModalUICallback::ModalUICallback(Ace::UIContent* uiContent, std::shared_ptr<PickerCallBack> pickerCallBack)
 {
     this->uiContent = uiContent;
     this->pickerCallBack_ = pickerCallBack;

@@ -198,7 +198,7 @@ static napi_value StartPickerExtension(napi_env env, napi_callback_info info,
     }
     request.SetParam(ABILITY_WANT_PARAMS_UIEXTENSIONTARGETTYPE, targetType);
     AsyncContext->pickerCallBack = make_shared<PickerCallBack>();
-    auto callback = std::make_shared<ModalUICallback>(uiContent, AsyncContext->pickerCallBack.get());
+    auto callback = std::make_shared<ModalUICallback>(uiContent, AsyncContext->pickerCallBack);
     Ace::ModalUIExtensionCallbacks extensionCallback = {
         .onRelease = std::bind(&ModalUICallback::OnRelease, callback, std::placeholders::_1),
         .onResult = std::bind(&ModalUICallback::OnResultForModal, callback, std::placeholders::_1,

@@ -27,7 +27,7 @@ namespace Picker {
 
 class ModalUICallback {
 public:
-    explicit ModalUICallback(Ace::UIContent* uiContent, PickerCallBack* pickerCallBack);
+    explicit ModalUICallback(Ace::UIContent* uiContent, std::shared_ptr<PickerCallBack> pickerCallBack);
     void OnRelease(int32_t releaseCode);
     void OnResultForModal(int32_t resultCode, const OHOS::AAFwk::Want& result);
     void OnReceive(const OHOS::AAFwk::WantParams& request);
@@ -38,7 +38,7 @@ public:
 private:
     int32_t sessionId_ = 0;
     Ace::UIContent* uiContent;
-    PickerCallBack* pickerCallBack_;
+    std::shared_ptr<PickerCallBack> pickerCallBack_;
 };
 } // namespace Picker
 } // namespace OHOS
