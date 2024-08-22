@@ -1929,7 +1929,7 @@ int JsFileAccessExtAbility::MoveFile(const Uri &sourceFile, const Uri &targetPar
         napi_create_string_utf8(env, targetParent.ToString().c_str(), targetParent.ToString().length(), &dstUri);
         napi_value name = nullptr;
         napi_create_string_utf8(env, fileName.c_str(), fileName.length(), &name);
-        if (srcUri == nullptr || dstUri == nullptr || name ==nullptr) {
+        if (srcUri == nullptr || dstUri == nullptr || name == nullptr) {
             HILOG_ERROR("create sourceFile uri native js value fail.");
             return false;
         }

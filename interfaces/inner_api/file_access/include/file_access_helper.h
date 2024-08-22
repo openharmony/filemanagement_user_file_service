@@ -25,7 +25,7 @@
 
 #include "bundle_mgr_interface.h"
 #include "context.h"
-#include "file_access_ext_connection.h"
+#include "app_file_access_ext_connection.h"
 #include "file_access_extension_info.h"
 #include "ifile_access_ext_base.h"
 #include "iobserver_callback.h"
@@ -50,7 +50,7 @@ namespace {
 
 struct ConnectInfo {
     AAFwk::Want want = {};
-    sptr<FileAccessExtConnection> fileAccessExtConnection = nullptr;
+    sptr<AppFileAccessExtConnection> fileAccessExtConnection = nullptr;
 };
 
 class FileAccessHelper final : public std::enable_shared_from_this<FileAccessHelper> {

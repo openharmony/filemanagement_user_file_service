@@ -21,7 +21,9 @@ ohos_fuzztest("FileAccessExtConnectionFuzzTest") {
       "${user_file_service_path}/test/fuzztest/fileaccessextconnection_fuzzer"
   include_dirs = [
     "${ability_runtime_path}/interfaces/inner_api/ability_manager/include",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${user_file_service_path}/interfaces/inner_api/file_access/include",
+    "${user_file_service_path}/services/native/file_access_service/include",
     "${user_file_service_path}/interfaces/kits/js/src/common",
     "${user_file_service_path}/utils",
   ]
@@ -32,8 +34,8 @@ ohos_fuzztest("FileAccessExtConnectionFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
   sources = [
-    "${user_file_service_path}/interfaces/inner_api/file_access/src/file_access_ext_connection.cpp",
     "${user_file_service_path}/interfaces/inner_api/file_access/src/file_access_ext_proxy.cpp",
+    "${user_file_service_path}/services/native/file_access_service/src/file_access_ext_connection.cpp",
     "${user_file_service_path}/test/fuzztest/fileaccessextconnection_fuzzer/fileaccessextconnection_fuzzer.cpp",
   ]
 

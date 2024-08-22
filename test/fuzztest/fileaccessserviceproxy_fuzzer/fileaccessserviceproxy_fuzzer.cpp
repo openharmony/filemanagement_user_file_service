@@ -92,7 +92,7 @@ bool GetExensionProxyFuzzTest(shared_ptr<FileAccessServiceProxy> proxy, const ui
     auto info = make_shared<ConnectExtensionInfo>();
     sptr<IFileAccessExtBase> extensionProxy = nullptr;
 
-    proxy->GetExensionProxy(info, extensionProxy);
+    proxy->GetExtensionProxy(info, extensionProxy);
     return true;
 }
 } // namespace OHOS
