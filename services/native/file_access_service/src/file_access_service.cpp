@@ -307,7 +307,6 @@ int32_t FileAccessService::OperateObsNode(Uri &uri, bool notifyForDescendants, u
 {
     string uriStr = uri.ToString();
     HILOG_INFO("OperateObsNode uriStr: %{public}s", uriStr.c_str());
-    auto iter = relationshipMap_.find(uriStr);
     shared_ptr<ObserverNode> obsNode;
     {
         lock_guard<mutex> lock(nodeMutex_);
