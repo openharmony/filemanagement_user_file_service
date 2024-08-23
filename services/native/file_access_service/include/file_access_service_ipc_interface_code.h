@@ -22,7 +22,9 @@ namespace FileAccessFwk {
         CMD_REGISTER_NOTIFY = 0,
         CMD_UNREGISTER_NOTIFY,
         CMD_ONCHANGE,
-        CMD_GET_EXTENSION_PROXY
+        CMD_GET_EXTENSION_PROXY,
+        CMD_CONNECT_FILE_EXT_ABILITY,
+        CMD_DISCONNECT_FILE_EXT_ABILITY
     };
 } // namespace FileAccessFwk
 } // namespace OHOS

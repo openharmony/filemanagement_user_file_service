@@ -29,9 +29,12 @@ public:
         const std::shared_ptr<ConnectExtensionInfo> &info) override { return 0; }
     int32_t UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer,
         const std::shared_ptr<ConnectExtensionInfo> &info) override { return 0; }
-    int32_t GetExensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
+    int32_t GetExtensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
         sptr<IFileAccessExtBase> &extensionProxy) override { return 0; }
     int32_t CleanAllNotify(Uri uri, const std::shared_ptr<ConnectExtensionInfo> &info) override { return 0; }
+    int32_t ConnectFileExtAbility(const AAFwk::Want &want,
+        const sptr<AAFwk::IAbilityConnection>& connection) override { return 0; };
+    int32_t DisConnectFileExtAbility(const sptr<AAFwk::IAbilityConnection>& connection) override { return 0; };
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
