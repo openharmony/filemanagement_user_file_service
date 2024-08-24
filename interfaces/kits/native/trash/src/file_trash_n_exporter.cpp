@@ -25,6 +25,7 @@
 #include "file_util.h"
 #include "ipc_skeleton.h"
 #include "rust_file.h"
+#include "tokenid_kit.h"
 #include "user_access_common_utils.h"
 
 namespace OHOS {
@@ -40,12 +41,33 @@ using namespace FileAccessFwk;
 
 static std::mutex g_trashPathMutex;
 
+static bool IsSystemApp()
+{
+    uint64_t accessTokenIDEx = OHOS::IPCSkeleton::GetCallingFullTokenID();
+    return OHOS::Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(accessTokenIDEx);
+}
+
 static bool CheckCallingPermission(const std::string &permission)
 {
     Security::AccessToken::AccessTokenID tokenCaller = IPCSkeleton::GetCallingTokenID();
     int res = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenCaller, permission);
     if (res != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
         HILOG_ERROR("FileTrashNExporter::CheckCallingPermission have no fileAccess permission");
+        return false;
+    }
+    return true;
+}
+
+static bool CheckSystemAppAndPermission(const std::string &permission, napi_env env)
+{
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileTrashNExporter::Recover check IsSystemAppByFullTokenID failed");
+        NError(E_PERMISSION_SYS).ThrowErr(env);
+        return false;
+    }
+    if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
+        HILOG_ERROR("Check permission error");
+        NError(E_PERMISSION).ThrowErr(env);
         return false;
     }
     return true;
@@ -387,9 +409,8 @@ static bool GenerateFileInfoEntity(FileInfo& fileInfoEntity, string filterDirent
 
 napi_value FileTrashNExporter::ListFile(napi_env env, napi_callback_info info)
 {
-    if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
-        HILOG_ERROR("permission error");
-        NError(E_PERMISSION).ThrowErr(env);
+    if (!CheckSystemAppAndPermission(FILE_ACCESS_PERMISSION, env)) {
+        HILOG_ERROR("ListFile CheckSystemAppAndPermission error");
         return nullptr;
     }
 
@@ -560,9 +581,8 @@ static napi_value RecoverDir(napi_env env, const string &dirPath)
 
 napi_value FileTrashNExporter::Recover(napi_env env, napi_callback_info info)
 {
-    if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
-        HILOG_ERROR("permission error");
-        NError(E_PERMISSION).ThrowErr(env);
+    if (!CheckSystemAppAndPermission(FILE_ACCESS_PERMISSION, env)) {
+        HILOG_ERROR("Recover CheckSystemAppAndPermission error");
         return nullptr;
     }
 
@@ -616,9 +636,8 @@ napi_value FileTrashNExporter::Recover(napi_env env, napi_callback_info info)
 
 napi_value FileTrashNExporter::CompletelyDelete(napi_env env, napi_callback_info info)
 {
-    if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
-        HILOG_ERROR("permission error");
-        NError(E_PERMISSION).ThrowErr(env);
+    if (!CheckSystemAppAndPermission(FILE_ACCESS_PERMISSION, env)) {
+        HILOG_ERROR("CompletelyDelete CheckSystemAppAndPermission error");
         return nullptr;
     }
 
