@@ -39,6 +39,8 @@ ohos_fuzztest("FileAccessExtConnectionFuzzTest") {
     "${user_file_service_path}/test/fuzztest/fileaccessextconnection_fuzzer/fileaccessextconnection_fuzzer.cpp",
   ]
 
+  deps = [ "${user_file_service_path}/services:file_access_service" ]
+
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
