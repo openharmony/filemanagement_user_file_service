@@ -25,6 +25,7 @@
 #include "file_utils.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
+#include "tokenid_kit.h"
 #include "user_access_common_utils.h"
 
 namespace OHOS {
@@ -43,6 +44,27 @@ static bool CheckPermission(const std::string &permission)
         Security::AccessToken::PermissionState::PERMISSION_GRANTED;
 }
 
+static bool IsSystemApp()
+{
+    uint64_t accessTokenIDEx = OHOS::IPCSkeleton::GetCallingFullTokenID();
+    return OHOS::Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(accessTokenIDEx);
+}
+
+static bool CheckSystemAppAndPermission(const std::string &permission, napi_env env)
+{
+    if (!IsSystemApp()) {
+        HILOG_ERROR("FileTrashNExporter::Recover check IsSystemAppByFullTokenID failed");
+        NError(E_PERMISSION_SYS).ThrowErr(env);
+        return false;
+    }
+    if (!CheckPermission(FILE_ACCESS_PERMISSION)) {
+        HILOG_ERROR("Check permission error");
+        NError(E_PERMISSION).ThrowErr(env);
+        return false;
+    }
+    return true;
+}
+
 static napi_value SetFileTime(napi_env env, const string &recentFilePath)
 {
     if (lutimes(recentFilePath.c_str(), nullptr) < 0) {
@@ -59,11 +81,11 @@ static napi_value SetFileTime(napi_env env, const string &recentFilePath)
 
 napi_value RecentNExporter::AddRecentFile(napi_env env, napi_callback_info cbinfo)
 {
-    if (!CheckPermission(FILE_ACCESS_PERMISSION)) {
-        HILOG_ERROR("Failed to get file access permission");
-        NError(E_PERMISSION).ThrowErr(env);
+    if (!CheckSystemAppAndPermission(FILE_ACCESS_PERMISSION, env)) {
+        HILOG_ERROR("AddRecentFile CheckSystemAppAndPermission error");
         return nullptr;
     }
+
     NFuncArg funcArg(env, cbinfo);
     if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         HILOG_ERROR("Number of arguments unmatched");
@@ -107,11 +129,11 @@ napi_value RecentNExporter::AddRecentFile(napi_env env, napi_callback_info cbinf
 
 napi_value RecentNExporter::RemoveRecentFile(napi_env env, napi_callback_info cbinfo)
 {
-    if (!CheckPermission(FILE_ACCESS_PERMISSION)) {
-        HILOG_ERROR("Failed to get file access permission");
-        NError(E_PERMISSION).ThrowErr(env);
+    if (!CheckSystemAppAndPermission(FILE_ACCESS_PERMISSION, env)) {
+        HILOG_ERROR("AddRecentFile CheckSystemAppAndPermission error");
         return nullptr;
     }
+
     NFuncArg funcArg(env, cbinfo);
     if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         HILOG_ERROR("Number of arguments unmatched");
@@ -291,11 +313,11 @@ static napi_value ListFileCore(napi_env env)
 
 napi_value RecentNExporter::ListRecentFile(napi_env env, napi_callback_info cbinfo)
 {
-    if (!CheckPermission(FILE_ACCESS_PERMISSION)) {
-        HILOG_ERROR("Failed to get file access permission");
-        NError(E_PERMISSION).ThrowErr(env);
+    if (!CheckSystemAppAndPermission(FILE_ACCESS_PERMISSION, env)) {
+        HILOG_ERROR("ListRecentFile CheckSystemAppAndPermission error");
         return nullptr;
     }
+
     NFuncArg funcArg(env, cbinfo);
     if (!funcArg.InitArgs(NARG_CNT::ZERO)) {
         HILOG_ERROR("Number of arguments unmatched");
