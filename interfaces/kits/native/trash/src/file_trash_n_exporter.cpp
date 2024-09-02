@@ -185,7 +185,7 @@ static napi_value CreateObjectArray(napi_env env, vector<FileInfo> result)
 
 static string FindSourceFilePath(const string &path)
 {
-    HILOG_INFO("FindSourceFilePath: curFilePath = %{public}s", path.c_str());
+    HILOG_INFO("FindSourceFilePath: curFilePath = %{private}s", path.c_str());
     size_t slashSize = 1;
     // 获取/trash目录位置
     size_t trashPathPrefixPos = path.find(FileTrashNExporter::trashPath_);
@@ -213,7 +213,7 @@ static string FindSourceFilePath(const string &path)
     string realFileName = realFilePath.substr(pos + TRASH_SUB_DIR.length() +
         timeSlot.length() + slashSize);
     realFilePath = "/" + realFilePathPrefix + realFileName;
-    HILOG_INFO("FindSourceFilePath: realFilePath After = %{public}s", realFilePath.c_str());
+    HILOG_INFO("FindSourceFilePath: realFilePath After = %{private}s", realFilePath.c_str());
     return realFilePath;
 }
 

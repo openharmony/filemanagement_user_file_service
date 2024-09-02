@@ -307,17 +307,18 @@ int32_t FileAccessService::OperateObsNode(Uri &uri, bool notifyForDescendants, u
 {
     string uriStr = uri.ToString();
     HILOG_INFO("OperateObsNode uriStr: %{public}s", uriStr.c_str());
-    shared_ptr<ObserverNode> obsNode;
     {
         lock_guard<mutex> lock(nodeMutex_);
         auto iter = relationshipMap_.find(uriStr);
         if (iter != relationshipMap_.end()) {
-            obsNode = iter->second;
+            auto obsNode = iter->second;
             // this node has this callback or not, if has this, unref manager.
             auto haveCodeIter = find_if(obsNode->obsCodeList_.begin(), obsNode->obsCodeList_.end(),
                 [code](const uint32_t &listCode) { return code == listCode; });
             if (haveCodeIter != obsNode->obsCodeList_.end()) {
-                obsManager_.get(code)->UnRef();
+                if (obsManager_.get(code) != nullptr) {
+                    obsManager_.get(code)->UnRef();
+                }
                 if (obsNode->needChildNote_ == notifyForDescendants) {
                     HILOG_DEBUG("Register same uri and same callback and same notifyForDescendants");
                     return ERR_OK;
@@ -340,7 +341,7 @@ int32_t FileAccessService::OperateObsNode(Uri &uri, bool notifyForDescendants, u
     extensionProxy->StartWatcher(uri);
     {
         lock_guard<mutex> lock(nodeMutex_);
-        obsNode = make_shared<ObserverNode>(notifyForDescendants);
+        auto obsNode = make_shared<ObserverNode>(notifyForDescendants);
         // add new node relations.
         for (auto &[comUri, node] : relationshipMap_) {
             if (IsParentUri(comUri, uriStr)) {
