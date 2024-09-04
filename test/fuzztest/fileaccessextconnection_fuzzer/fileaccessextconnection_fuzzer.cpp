@@ -24,7 +24,7 @@ namespace OHOS {
 using namespace std;
 using namespace FileAccessFwk;
 
-bool OnAbilityConnectDoneFuzzTest(shared_ptr<FileAccessExtConnection> conn)
+bool OnAbilityConnectDoneFuzzTest(sptr<FileAccessExtConnection> conn)
 {
     AppExecFwk::ElementName element;
     sptr<IRemoteObject> remoteObject = nullptr;
@@ -32,26 +32,26 @@ bool OnAbilityConnectDoneFuzzTest(shared_ptr<FileAccessExtConnection> conn)
     return true;
 }
 
-bool OnAbilityDisconnectDoneFuzzTest(shared_ptr<FileAccessExtConnection> conn)
+bool OnAbilityDisconnectDoneFuzzTest(sptr<FileAccessExtConnection> conn)
 {
     AppExecFwk::ElementName element;
     conn->OnAbilityDisconnectDone(element, 0);
     return true;
 }
 
-bool IsExtAbilityConnectedFuzzTest(shared_ptr<FileAccessExtConnection> conn)
+bool IsExtAbilityConnectedFuzzTest(sptr<FileAccessExtConnection> conn)
 {
     conn->IsExtAbilityConnected();
     return true;
 }
 
-bool GetFileExtProxyFuzzTest(shared_ptr<FileAccessExtConnection> conn)
+bool GetFileExtProxyFuzzTest(sptr<FileAccessExtConnection> conn)
 {
     conn->GetFileExtProxy();
     return true;
 }
 
-bool ConnectFileExtAbility(shared_ptr<FileAccessExtConnection> conn)
+bool ConnectFileExtAbility(sptr<FileAccessExtConnection> conn)
 {
     AAFwk::Want want;
     sptr<IRemoteObject> remoteObject = nullptr;
@@ -59,19 +59,17 @@ bool ConnectFileExtAbility(shared_ptr<FileAccessExtConnection> conn)
     return true;
 }
 
-bool DisconnectFileExtAbility(shared_ptr<FileAccessExtConnection> conn)
+bool DisconnectFileExtAbility(sptr<FileAccessExtConnection> conn)
 {
     conn->DisconnectFileExtAbility();
     return true;
 }
-
-
 } // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-    auto conn = std::make_shared<OHOS::FileAccessFwk::FileAccessExtConnection>();
+    auto conn = OHOS::sptr<OHOS::FileAccessFwk::FileAccessExtConnection>();
     if (conn == nullptr) {
         return 0;
     }
