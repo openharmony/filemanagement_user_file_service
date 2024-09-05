@@ -42,6 +42,7 @@ void ModalUICallback::OnError(int32_t code, const std::string& name, const std::
 {
     HILOG_ERROR("modal picker: OnError enter. errorCode=%{public}d, name=%{public}s, message=%{public}s",
         code, name.c_str(), message.c_str());
+    this->uiContent->CloseModalUIExtension(this->sessionId_);
 }
 
 void ModalUICallback::OnResultForModal(int32_t resultCode, const OHOS::AAFwk::Want &result)
@@ -51,6 +52,7 @@ void ModalUICallback::OnResultForModal(int32_t resultCode, const OHOS::AAFwk::Wa
     pickerCallBack_->resultCode = resultCode;
     pickerCallBack_->want = result;
     pickerCallBack_->ready = true;
+    this->uiContent->CloseModalUIExtension(this->sessionId_);
 }
 
 void ModalUICallback::OnReceive(const OHOS::AAFwk::WantParams &request)
