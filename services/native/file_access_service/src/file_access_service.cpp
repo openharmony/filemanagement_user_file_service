@@ -297,7 +297,9 @@ int32_t FileAccessService::OperateObsNode(Uri &uri, bool notifyForDescendants, u
         auto haveCodeIter = find_if(obsNode->obsCodeList_.begin(), obsNode->obsCodeList_.end(),
             [code](const uint32_t &listCode) { return code == listCode; });
         if (haveCodeIter != obsNode->obsCodeList_.end()) {
-            obsManager_.get(code)->UnRef();
+            if (obsManager_.get(code) != nullptr) {
+                obsManager_.get(code)->UnRef();
+            }
             if (obsNode->needChildNote_ == notifyForDescendants) {
                 HILOG_DEBUG("Register same uri and same callback and same notifyForDescendants");
                 return ERR_OK;
