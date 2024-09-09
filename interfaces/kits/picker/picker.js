@@ -483,7 +483,7 @@ function startModalPicker(context, config, window) {
     throw Error('[picker] PickerHelper undefined.');
   }
   let helper;
-  if (window != undefined) {
+  if (window !== undefined) {
     helper = pickerHelper.startModalPicker(gContext, config, window);
   } else {
     helper = pickerHelper.startModalPicker(gContext, config);
@@ -651,13 +651,13 @@ function ParseContext(args)
   return args[ARGS_ZERO];
 }
 
-function ParseWindow(args)
+function parseWindow(args)
 {
   if (args.length != ARGS_TWO) {
     console.log('[picker] ParseWindow: not window mode.');
     return undefined;
   }
-  if (args.length == ARGS_TWO && typeof args[ARGS_ONE] !== 'object') {
+  if (args.length === ARGS_TWO && typeof args[ARGS_ONE] !== 'object') {
     console.log('[picker] ParseWindow: not window mode or type err.');
     return undefined;
   }
@@ -675,7 +675,7 @@ function DocumentViewPicker(...args) {
   this.select = documentPickerSelect;
   this.save = documentPickerSave;
   this.context = ParseContext(args);
-  this.window = ParseWindow(args);
+  this.window = parseWindow(args);
   this.getSelectedIndex = getSelectedSuffixIndex;
   this.suffixIndex = -1;
 }
