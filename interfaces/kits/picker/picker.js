@@ -471,7 +471,7 @@ function getDocumentPickerSaveResult(args) {
   return saveResult;
 }
 
-function startModalPicker(context, config) {
+function startModalPicker(context, config, window) {
   if (context === undefined) {
     throw Error('[picker] Context undefined.');
   }
