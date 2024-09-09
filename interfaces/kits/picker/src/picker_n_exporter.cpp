@@ -170,8 +170,7 @@ static ErrCode GetWindowName(napi_env env, napi_value properties, sptr<Rosen::Wi
 {
     HILOG_INFO("[picker] Begin GetWindowName.");
     napi_value name;
-    napi_status status;
-    status = napi_get_named_property(env, properties, "name", &name);
+    napi_status status = napi_get_named_property(env, properties, "name", &name);
     if (status != napi_ok) {
         HILOG_ERROR("Get name from properties fail.");
         return ERR_INV;
@@ -261,7 +260,7 @@ static napi_value StartPickerExtension(napi_env env, napi_callback_info info,
 {
     HILOG_INFO("[picker]: StartPickerExtension begin.");
     Ace::UIContent *uiContent;
-    if (asyncContext->argc == 3 && window_) {
+    if (asyncContext->argc == ARGS_THREE && window_) {
         HILOG_INFO("[picker] Will get uiContent by window.");
         uiContent = window_->GetUIContent();
     } else {
