@@ -150,6 +150,9 @@ static void StartModalPickerAsyncCallbackComplete(napi_env env, napi_status stat
             context->work, *jsContext);
     }
     delete context;
+    if (window_) {
+        window_ = nullptr;
+    }
 }
 
 static bool IsTypeRight(napi_env env, napi_value val, napi_valuetype type)
