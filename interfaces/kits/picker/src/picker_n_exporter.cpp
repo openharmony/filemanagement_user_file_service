@@ -152,7 +152,7 @@ static void StartModalPickerAsyncCallbackComplete(napi_env env, napi_status stat
     delete context;
 }
 
-static bool IsTypeRight(napi_env env, napi_value val, napi_value_type type)
+static bool IsTypeRight(napi_env env, napi_value val, napi_valuetype type)
 {
     napi_valuetype valueType;
     napi_status status = napi_typeof(env, val, &valueType);
@@ -176,7 +176,7 @@ static ErrCode GetWindowName(napi_env env, napi_value properties, sptr<Rosen::Wi
     size_t nameLen;
     status = napi_get_value_string_utf8(env, name, NULL, 0, &nameLen);
     if (status != napi_ok) {
-        HILOG_ERROR("[picker] Get window name length fail.")
+        HILOG_ERROR("[picker] Get window name length fail.");
         return ERR_INV;
     }
     char *nameBuf = new char[nameLen + 1];
@@ -198,7 +198,7 @@ static ErrCode GetWindowName(napi_env env, napi_value properties, sptr<Rosen::Wi
 }
 
 template <class AsyncContext>
-static ErrCode GetCustomShowingWindow(napi_env, AsyncContext &asyncContext,
+static ErrCode GetCustomShowingWindow(napi_env env, AsyncContext &asyncContext,
     const napi_callback_info info, sptr<Rosen::Window> &window)
 {
     HILOG_INFO("[picker] GetCustomShowingWindow enter.");
