@@ -52,7 +52,7 @@ struct PickerAsyncContext {
     std::shared_ptr<PickerCallBack> pickerCallBack;
 };
 
-static sptr<Rosen::window> window_;
+static sptr<Rosen::Window> window_;
 
 class PickerNExporter final : public FileManagement::LibN::NExporter {
 public:
