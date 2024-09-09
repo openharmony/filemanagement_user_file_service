@@ -24,6 +24,7 @@
 #include "picker_napi_utils.h"
 #include "napi_base_context.h"
 #include "napi_common_want.h"
+#include "ui_extension_context.h"
 
 
 namespace OHOS {
@@ -50,6 +51,8 @@ struct PickerAsyncContext {
     napi_value argv[NAPI_ARGC_MAX];
     std::shared_ptr<PickerCallBack> pickerCallBack;
 };
+
+static sptr<Rosen::window> window_;
 
 class PickerNExporter final : public FileManagement::LibN::NExporter {
 public:
