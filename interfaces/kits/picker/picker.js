@@ -317,7 +317,7 @@ function getDocumentPickerSelectResult(args) {
     error: undefined,
     data: undefined
   };
-  if (args.resultCode === undefined) {
+  if (args === undefined || args.resultCode === undefined) {
     selectResult.error = getErr(ErrCode.RESULT_ERROR);
     console.log('[picker] document select selectResult: ' + JSON.stringify(selectResult));
     return selectResult;
@@ -418,7 +418,7 @@ function getAudioPickerSelectResult(args) {
     error: undefined,
     data: undefined
   };
-  if (args.resultCode === undefined) {
+  if (args === undefined || args.resultCode === undefined) {
     selectResult.error = getErr(ErrCode.RESULT_ERROR);
     console.log('[picker] getAudioPickerSelectResult selectResult: ' + JSON.stringify(selectResult));
     return selectResult;
