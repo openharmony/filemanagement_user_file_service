@@ -202,7 +202,6 @@ static ErrCode GetCustomShowingWindow(napi_env env, AsyncContext &asyncContext,
     const napi_callback_info info, sptr<Rosen::Window> &window)
 {
     HILOG_INFO("[picker] GetCustomShowingWindow enter.");
-    napi_valuetype valueType;
     napi_status status;
     if (!IsTypeRight(env, asyncContext->argv[ARGS_TWO], napi_object)) {
         HILOG_ERROR("[picker] The type of the parameter transferred to the window is not object.");
@@ -210,7 +209,7 @@ static ErrCode GetCustomShowingWindow(napi_env env, AsyncContext &asyncContext,
     }
     auto windowObj = asyncContext->argv[ARGS_TWO];
     napi_value getPropertiesFunc;
-    status = napi_get_name_property(env, windowObj, "getWindowProperties", &getPropertiesFunc);
+    status = napi_get_named_property(env, windowObj, "getWindowProperties", &getPropertiesFunc);
     if (status != napi_ok || !getPropertiesFunc) {
         HILOG_ERROR("[picker] getWindowProperties fail.");
         return ERR_INV;
