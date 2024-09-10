@@ -264,6 +264,7 @@ static napi_value StartPickerExtension(napi_env env, napi_callback_info info,
         HILOG_INFO("[picker] Will get uiContent by window.");
         uiContent = window_->GetUIContent();
     } else {
+        HILOG_INFO("[picker] Will get uiContent by context.");
         uiContent= GetUIContent(env, info, asyncContext);
     }
     
