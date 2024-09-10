@@ -653,7 +653,7 @@ function ParseContext(args)
 
 function parseWindow(args)
 {
-  if (args.length != ARGS_TWO) {
+  if (args.length !== ARGS_TWO) {
     console.log('[picker] ParseWindow: not window mode.');
     return undefined;
   }
