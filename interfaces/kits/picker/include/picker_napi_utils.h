@@ -44,9 +44,10 @@ constexpr uint32_t NAPI_INIT_REF_COUNT = 1;
 constexpr size_t NAPI_ARGC_MAX = 5;
 
 // Error codes
-const int32_t ERR_DEFAULT = 0;
+const int32_t ERR_OK = 0;
 const int32_t ERR_MEM_ALLOCATION = 2;
 const int32_t ERR_INVALID_OUTPUT = 3;
+const int32_t ERR_INV = -1;
 
 struct JSAsyncContextOutput {
     napi_value error;

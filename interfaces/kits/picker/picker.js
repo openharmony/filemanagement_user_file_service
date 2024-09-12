@@ -308,7 +308,7 @@ function parseAudioPickerSelectOption(args, action) {
       config.parameters.key_pick_num = option.maxSelectNumber;
     }
   }
-  console.log('modal picker: audio select config: ' + JSON.stringify(config));
+  console.log('[picker] audio select config: ' + JSON.stringify(config));
   return config;
 }
 
@@ -317,7 +317,7 @@ function getDocumentPickerSelectResult(args) {
     error: undefined,
     data: undefined
   };
-  if (args.resultCode === undefined) {
+  if (args === undefined || args.resultCode === undefined) {
     selectResult.error = getErr(ErrCode.RESULT_ERROR);
     console.log('[picker] document select selectResult: ' + JSON.stringify(selectResult));
     return selectResult;
@@ -348,6 +348,7 @@ async function documentPickerSelect(...args) {
   let documentSelectConfig = undefined;
   let documentSelectResult = undefined;
   let selectResult = undefined;
+  let documentSelectWindow = undefined;
 
   try {
     if (this.context !== undefined) {
@@ -364,9 +365,12 @@ async function documentPickerSelect(...args) {
       console.error('[picker] documentSelectContext == undefined');
       throw getErr(ErrCode.CONTEXT_NO_EXIST);
     }
+    if (this.window !== undefined) {
+        documentSelectWindow = this.window;
+    }
     documentSelectConfig = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION_MODAL);
     console.error('[picker] DocumentSelect documentSelectConfig: ' + JSON.stringify(documentSelectConfig));
-    documentSelectResult = await modalPicker(args, documentSelectContext, documentSelectConfig);
+    documentSelectResult = await modalPicker(documentSelectContext, documentSelectConfig, documentSelectWindow);
   } catch (paramError) {
     console.error('[picker] DocumentSelect paramError: ' + JSON.stringify(paramError));
   }
@@ -414,7 +418,7 @@ function getAudioPickerSelectResult(args) {
     error: undefined,
     data: undefined
   };
-  if (args.resultCode === undefined) {
+  if (args === undefined || args.resultCode === undefined) {
     selectResult.error = getErr(ErrCode.RESULT_ERROR);
     console.log('[picker] getAudioPickerSelectResult selectResult: ' + JSON.stringify(selectResult));
     return selectResult;
@@ -444,7 +448,7 @@ function getDocumentPickerSaveResult(args) {
     data: undefined,
     suffix: -1
   };
-  if (args.resultCode === undefined) {
+  if (args === undefined || args.resultCode === undefined) {
     saveResult.error = getErr(ErrCode.RESULT_ERROR);
     console.log('[picker] getDocumentPickerSaveResult saveResult: ' + JSON.stringify(saveResult));
     return saveResult;
@@ -467,33 +471,36 @@ function getDocumentPickerSaveResult(args) {
   return saveResult;
 }
 
-function startModalPicker(context, config) {
+function startModalPicker(context, config, window) {
   if (context === undefined) {
-    console.log('[picker] modal picker: startModalPicker context undefined.');
-    throw Error('[picker] modal picker: startModalPicker context undefined.');
+    throw Error('[picker] Context undefined.');
   }
   if (config === undefined) {
-    console.log('[picker] modal picker: startModalPicker config undefined.');
-    throw Error('[picker] modal picker: startModalPicker config undefined.');
+    throw Error('[picker] Config undefined.');
   }
   gContext = context;
   if (pickerHelper === undefined) {
-    console.log('[picker] modal picker: pickerHelper undefined.');
+    throw Error('[picker] PickerHelper undefined.');
   }
-  let helper = pickerHelper.startModalPicker(gContext, config);
+  let helper;
+  if (window !== undefined) {
+    helper = pickerHelper.startModalPicker(gContext, config, window);
+  } else {
+    helper = pickerHelper.startModalPicker(gContext, config);
+  }
   if (helper === undefined) {
-    console.log('[picker] modal picker: startModalPicker helper undefined.');
+    throw Error('[picker] Please check the parameter you entered.');
   }
   return helper;
 }
 
-async function modalPicker(args, context, config) {
+async function modalPicker(context, config, window) {
   try {
-    console.log('[picker] modal picker: config: ' + JSON.stringify(config));
-    let modalResult = await startModalPicker(context, config);
+    console.log('[picker] Config: ' + JSON.stringify(config));
+    let modalResult = await startModalPicker(context, config, window);
     return modalResult;
   } catch (resultError) {
-    console.error('[picker] modal picker: Result error: ' + resultError);
+    console.error('[picker] Result error: ' + resultError);
     return undefined;
   }
 }
@@ -509,6 +516,7 @@ async function documentPickerSave(...args) {
   let documentSaveConfig = undefined;
   let documentSaveResult = undefined;
   let saveResult = undefined;
+  let documentSaveWindow = undefined;
 
   try {
     if (this.context !== undefined) {
@@ -520,11 +528,14 @@ async function documentPickerSave(...args) {
     console.error('[picker] getContext error: ' + getContextError);
     throw getErr(ErrCode.CONTEXT_NO_EXIST);
   }
+  if (this.window !== undefined) {
+      documentSaveWindow = this.window;
+  }
 
   documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION_MODAL);
   console.log('[picker] document save start');
 
-  documentSaveResult = await modalPicker(args, documentSaveContext, documentSaveConfig);
+  documentSaveResult = await modalPicker(documentSaveContext, documentSaveConfig, documentSaveWindow);
   saveResult = getDocumentPickerSaveResult(documentSaveResult);
   this.suffixIndex = saveResult.suffix;
   return sendResult(args, saveResult);
@@ -573,6 +584,7 @@ async function audioPickerSelect(...args) {
   console.log('[picker] audio select config: ' + JSON.stringify(audioSelectConfig));
 
   let audioSelectContext = undefined;
+  let audipSelectWindow = undefined;
   try {
     if (this.context !== undefined) {
       audioSelectContext = this.context;
@@ -588,7 +600,7 @@ async function audioPickerSelect(...args) {
       console.error('[picker] audioSelectContext == undefined');
       throw getErr(ErrCode.CONTEXT_NO_EXIST);
     }
-    let modalSelectResult = await modalPicker(args, audioSelectContext, audioSelectConfig);
+    let modalSelectResult = await modalPicker(audioSelectContext, audioSelectConfig, audipSelectWindow);
     let saveResult = getAudioPickerSelectResult(modalSelectResult);
     return sendResult(args, saveResult);
   } catch (error) {
@@ -633,10 +645,24 @@ function AudioSaveOptions() {
 
 function ParseContext(args)
 {
-  if (args.length > ARGS_ONE || args.length < ARGS_ZERO || typeof args[ARGS_ZERO] !== 'object') {
+  if (args.length > ARGS_TWO || args.length < ARGS_ZERO || typeof args[ARGS_ZERO] !== 'object') {
     return undefined;
   }
   return args[ARGS_ZERO];
+}
+
+function parseWindow(args)
+{
+  if (args.length !== ARGS_TWO) {
+    console.log('[picker] ParseWindow: not window mode.');
+    return undefined;
+  }
+  if (args.length === ARGS_TWO && typeof args[ARGS_ONE] !== 'object') {
+    console.log('[picker] ParseWindow: not window mode or type err.');
+    return undefined;
+  }
+  console.log('[picker] ParseWindow: window mode.');
+  return args[ARGS_ONE]; 
 }
 
 function PhotoViewPicker(...args) {
@@ -649,6 +675,7 @@ function DocumentViewPicker(...args) {
   this.select = documentPickerSelect;
   this.save = documentPickerSave;
   this.context = ParseContext(args);
+  this.window = parseWindow(args);
   this.getSelectedIndex = getSelectedSuffixIndex;
   this.suffixIndex = -1;
 }
