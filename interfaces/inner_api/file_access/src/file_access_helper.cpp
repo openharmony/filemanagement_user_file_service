@@ -219,6 +219,7 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::DoCreatorHel
         connectInfo->want = wants[i];
         connectInfo->fileAccessExtConnection = fileAccessExtConnection;
         std::string bundleName = wants[i].GetElement().GetBundleName();
+        HILOG_INFO("DoCreatorHelper bundleName is %{public}s", bundleName.c_str());
         cMap.insert(std::pair<std::string, std::shared_ptr<ConnectInfo>>(bundleName, connectInfo));
     }
 
@@ -341,6 +342,7 @@ sptr<IFileAccessExtBase> FileAccessHelper::GetProxyByUri(Uri &uri)
 sptr<IFileAccessExtBase> FileAccessHelper::GetProxyByBundleName(const std::string &bundleName)
 {
     auto connectInfo = GetConnectInfo(bundleName);
+    HILOG_INFO("GetProxyByBundleName start %{public}s", bundleName.c_str());
     if (connectInfo == nullptr) {
         HILOG_ERROR("GetProxyByUri failed with invalid connectInfo");
         return nullptr;

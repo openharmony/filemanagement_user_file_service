@@ -57,6 +57,8 @@ static void Deleter(struct NameListArg *arg)
         (arg->namelist)[i] = nullptr;
     }
     free(arg->namelist);
+    free(arg);
+    arg = nullptr;
 }
 
 static int32_t FilterFunc(const struct dirent *filename)

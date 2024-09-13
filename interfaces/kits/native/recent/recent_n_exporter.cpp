@@ -164,6 +164,8 @@ static void Deleter(struct NameListArg *arg)
         (arg->namelist)[i] = nullptr;
     }
     free(arg->namelist);
+    free(arg);
+    arg = nullptr;
 }
 
 static int64_t GetFileMtime(const string &fileName)
