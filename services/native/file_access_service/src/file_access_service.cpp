@@ -788,13 +788,9 @@ void FileAccessService::RemoveAppProxy(const sptr<AAFwk::IAbilityConnection>& co
         return;
     }
     size_t key = reinterpret_cast<size_t>(connection->AsObject().GetRefPtr());
-    if (appProxyMap_.find(key) == appProxyMap_.end()) {
-        HILOG_WARN("appProxyMap_ not key: %{public}zu", key);
-        return;
-    }
     lock_guard<mutex> lock(appProxyMutex_);
     if (appProxyMap_.find(key) == appProxyMap_.end()) {
-        HILOG_INFO("appProxyMap_ not key");
+        HILOG_INFO("appProxyMap_ not key %{public}zu", key);
         return;
     }
 
