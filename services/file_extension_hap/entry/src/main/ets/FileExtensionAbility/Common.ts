@@ -128,7 +128,7 @@ function encodePathOfUri(uri): string {
   }
   return uri;
 }
-
+ 
 function decodeUri(uri): string {
   try {
     uri = decodeURIComponent(uri);
