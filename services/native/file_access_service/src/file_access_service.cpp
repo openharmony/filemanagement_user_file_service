@@ -245,15 +245,26 @@ void FileAccessService::CleanRelativeObserver(const sptr<IFileAccessObserver> &o
     uint32_t code = obsManager_.getId([obsContext](const shared_ptr<ObserverContext>  &afterContext) {
         return obsContext->EqualTo(afterContext);
     });
+    std::vector<Uri> uriLists = GetUriList(code);
+    for (size_t i = 0; i < uriLists.size(); ++i) {
+        UnregisterNotify(uriLists[i], observer);
+    }
+}
+
+std::vector<Uri> FileAccessService::GetUriList(uint32_t code)
+{
+    lock_guard<mutex> lock(nodeMutex_);
+    std::vector<Uri> uriList;
     for (auto pair : relationshipMap_) {
         auto codeList = pair.second->obsCodeList_;
         auto haveCodeIter = find_if(codeList.begin(), codeList.end(),
             [code](const uint32_t &listCode) { return code == listCode; });
         if (haveCodeIter != codeList.end()) {
             Uri uri(pair.first);
-            UnregisterNotify(uri, observer);
+            uriList.push_back(uri);
         }
     }
+    return uriList;
 }
 
 static void convertUris(Uri uri, std::vector<Uri> &uris)
@@ -288,29 +299,31 @@ int32_t FileAccessService::OperateObsNode(Uri &uri, bool notifyForDescendants, u
     const std::shared_ptr<ConnectExtensionInfo> &info)
 {
     string uriStr = uri.ToString();
-    lock_guard<mutex> lock(nodeMutex_);
-    auto iter = relationshipMap_.find(uriStr);
-    shared_ptr<ObserverNode> obsNode;
-    if (iter != relationshipMap_.end()) {
-        obsNode = iter->second;
-        // this node has this callback or not, if has this, unref manager.
-        auto haveCodeIter = find_if(obsNode->obsCodeList_.begin(), obsNode->obsCodeList_.end(),
-            [code](const uint32_t &listCode) { return code == listCode; });
-        if (haveCodeIter != obsNode->obsCodeList_.end()) {
-            if (obsManager_.get(code) != nullptr) {
-                obsManager_.get(code)->UnRef();
-            }
-            if (obsNode->needChildNote_ == notifyForDescendants) {
-                HILOG_DEBUG("Register same uri and same callback and same notifyForDescendants");
+    HILOG_INFO("OperateObsNode uriStr: %{public}s", uriStr.c_str());
+    {
+        lock_guard<mutex> lock(nodeMutex_);
+        auto iter = relationshipMap_.find(uriStr);
+        if (iter != relationshipMap_.end()) {
+            auto obsNode = iter->second;
+            // this node has this callback or not, if has this, unref manager.
+            auto haveCodeIter = find_if(obsNode->obsCodeList_.begin(), obsNode->obsCodeList_.end(),
+                [code](const uint32_t &listCode) { return code == listCode; });
+            if (haveCodeIter != obsNode->obsCodeList_.end()) {
+                if (obsManager_.get(code) != nullptr) {
+                    obsManager_.get(code)->UnRef();
+                }
+                if (obsNode->needChildNote_ == notifyForDescendants) {
+                    HILOG_DEBUG("Register same uri and same callback and same notifyForDescendants");
+                    return ERR_OK;
+                }
+                // need modify obsNode notifyForDescendants
+                obsNode->needChildNote_ = notifyForDescendants;
+                HILOG_DEBUG("Register same uri and same callback but need modify notifyForDescendants");
                 return ERR_OK;
             }
-            // need modify obsNode notifyForDescendants
-            obsNode->needChildNote_ = notifyForDescendants;
-            HILOG_DEBUG("Register same uri and same callback but need modify notifyForDescendants");
+            obsNode->obsCodeList_.push_back(code);
             return ERR_OK;
         }
-        obsNode->obsCodeList_.push_back(code);
-        return ERR_OK;
     }
 
     auto extensionProxy = ConnectExtension(uri, info);
@@ -319,21 +332,24 @@ int32_t FileAccessService::OperateObsNode(Uri &uri, bool notifyForDescendants, u
         return E_CONNECT;
     }
     extensionProxy->StartWatcher(uri);
-    obsNode = make_shared<ObserverNode>(notifyForDescendants);
-    // add new node relations.
-    for (auto &[comUri, node] : relationshipMap_) {
-        if (IsParentUri(comUri, uriStr)) {
-            obsNode->parent_ = node;
-            node->children_.push_back(obsNode);
+    {
+        lock_guard<mutex> lock(nodeMutex_);
+        auto obsNode = make_shared<ObserverNode>(notifyForDescendants);
+        // add new node relations.
+        for (auto &[comUri, node] : relationshipMap_) {
+            if (IsParentUri(comUri, uriStr)) {
+                obsNode->parent_ = node;
+                node->children_.push_back(obsNode);
+            }
+            if (IsChildUri(comUri, uriStr)) {
+                obsNode->children_.push_back(node);
+                node->parent_ = obsNode;
+            }
         }
-        if (IsChildUri(comUri, uriStr)) {
-            obsNode->children_.push_back(node);
-            node->parent_ = obsNode;
-        }
+        // obsCodeList_ is to save callback number
+        obsNode->obsCodeList_.push_back(code);
+        relationshipMap_.insert(make_pair(uriStr, obsNode));
     }
-    // obsCodeList_ is to save callback number
-    obsNode->obsCodeList_.push_back(code);
-    relationshipMap_.insert(make_pair(uriStr, obsNode));
     return ERR_OK;
 }
 
