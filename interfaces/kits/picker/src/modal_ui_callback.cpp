@@ -51,8 +51,6 @@ void ModalUICallback::OnResultForModal(int32_t resultCode, const OHOS::AAFwk::Wa
         resultCode,  result.ToString().c_str());
     pickerCallBack_->resultCode = resultCode;
     pickerCallBack_->want = result;
-    pickerCallBack_->ready = true;
-    this->uiContent->CloseModalUIExtension(this->sessionId_);
 }
 
 void ModalUICallback::OnReceive(const OHOS::AAFwk::WantParams &request)
