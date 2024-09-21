@@ -50,8 +50,6 @@ void ModalUICallback::OnResultForModal(int32_t resultCode, const OHOS::AAFwk::Wa
     HILOG_INFO("[picker] OnResultForModal enter. resultCode is %{public}d,", resultCode);
     pickerCallBack_->resultCode = resultCode;
     pickerCallBack_->want = result;
-    pickerCallBack_->ready = true;
-    this->uiContent->CloseModalUIExtension(this->sessionId_);
 }
 
 void ModalUICallback::OnReceive(const OHOS::AAFwk::WantParams &request)
