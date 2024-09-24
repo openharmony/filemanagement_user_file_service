@@ -204,6 +204,9 @@ static int GetNextIterator(napi_value &objFileInfoExporter, FileIteratorEntity *
     }
     while (!isDone && FilterTrashAndRecentDir(fileInfoEntity->fileInfo.uri)) {
         fileInfoEntity = NClass::GetEntityOf<FileInfoEntity>(env, objFileInfoExporter);
+        if (fileInfoEntity == nullptr) {
+            return E_GETRESULT;
+        }
         retNVal = NVal::CreateObject(env);
         HILOG_DEBUG("TRASH_DIR or RECENT_DIR: %{public}s", fileInfoEntity->fileInfo.uri.c_str());
         if (fileIteratorEntity->flag == CALL_LISTFILE) {
