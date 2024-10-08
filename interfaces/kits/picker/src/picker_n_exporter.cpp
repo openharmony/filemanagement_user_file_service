@@ -105,7 +105,7 @@ static void MakeResultWithBool(napi_env env, std::string key, napi_value &result
 {
     napi_status status = napi_generic_failure;
     if (pickerCallBack->want.GetParams().HasParam(key.c_str())) {
-        const bool boolVal = pickerCallBack->want.GetIntParam(key.c_str(), false);
+        const bool boolVal = pickerCallBack->want.GetBoolParam(key.c_str(), false);
         HILOG_INFO("[picker]: %{public}s is %{public}d ", key.c_str(), boolVal);
         napi_value nBoolVal = nullptr;
         napi_get_boolean(env, boolVal, &nBoolVal);
