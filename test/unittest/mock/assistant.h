@@ -56,6 +56,10 @@ public:
     virtual napi_status napi_create_array_with_length(napi_env, size_t, napi_value*) = 0;
     virtual napi_status napi_create_double(napi_env, double, napi_value*) = 0;
     virtual napi_status napi_set_named_property(napi_env, napi_value, const char*, napi_value) = 0;
+    virtual napi_status napi_create_function(napi_env, const char*, size_t, napi_callback, void*, napi_value*) = 0;
+    virtual napi_status napi_get_cb_info(napi_env, napi_callback_info, size_t*, napi_value*, napi_value*, void**) = 0;
+    virtual napi_status napi_get_undefined(napi_env, napi_value*) = 0;
+    virtual napi_status napi_get_value_bool(napi_env, napi_value, bool*) = 0;
 public:
     static inline std::shared_ptr<Assistant> ins_ = nullptr;
 };
@@ -87,6 +91,11 @@ public:
     MOCK_METHOD3(napi_create_array_with_length, napi_status(napi_env, size_t, napi_value*));
     MOCK_METHOD3(napi_create_double, napi_status(napi_env, double, napi_value*));
     MOCK_METHOD4(napi_set_named_property, napi_status(napi_env, napi_value, const char*, napi_value));
+    MOCK_METHOD6(napi_create_function, napi_status(napi_env, const char*, size_t, napi_callback, void*, napi_value*));
+    MOCK_METHOD6(napi_get_cb_info, napi_status(napi_env, napi_callback_info, size_t*, napi_value*, napi_value*,
+        void**));
+    MOCK_METHOD2(napi_get_undefined, napi_status(napi_env, napi_value*));
+    MOCK_METHOD3(napi_get_value_bool, napi_status(napi_env, napi_value, bool*));
 };
 
 } // End of namespace FileAccessFwk

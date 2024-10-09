@@ -127,3 +127,25 @@ napi_status napi_set_named_property(napi_env env, napi_value object, const char*
 {
     return OHOS::FileAccessFwk::Assistant::ins_->napi_set_named_property(env, object, utf8Name, value);
 }
+
+napi_status napi_create_function(napi_env env, const char* utf8name, size_t length, napi_callback cb, void* data,
+    napi_value* result)
+{
+    return OHOS::FileAccessFwk::Assistant::ins_->napi_create_function(env, utf8name, length, cb, data, result);
+}
+
+napi_status napi_get_cb_info(napi_env env, napi_callback_info cbinfo, size_t* argc, napi_value* argv,
+    napi_value* thisArg, void** data)
+{
+    return OHOS::FileAccessFwk::Assistant::ins_->napi_get_cb_info(env, cbinfo, argc, argv, thisArg, data);
+}
+
+napi_status napi_get_undefined(napi_env env, napi_value* result)
+{
+    return OHOS::FileAccessFwk::Assistant::ins_->napi_get_undefined(env, result);
+}
+
+napi_status napi_get_value_bool(napi_env env, napi_value value, bool* result)
+{
+    return OHOS::FileAccessFwk::Assistant::ins_->napi_get_value_bool(env, value, result);
+}
