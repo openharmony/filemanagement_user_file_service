@@ -700,12 +700,12 @@ int FileAccessExtProxy::Query(const Uri &uri, std::vector<std::string> &columns,
         HILOG_ERROR("fail to WriteParcelable sourceFile");
         return E_IPCS;
     }
-    int64_t count = columns.size();
+    size_t count = columns.size();
     if (!data.WriteInt64(count)) {
         HILOG_ERROR("Parameter Query fail to WriteInt64 count");
         return E_IPCS;
     }
-    if (static_cast<size_t>(count) > FILE_RESULT_TYPE.size()) {
+    if (count > FILE_RESULT_TYPE.size()) {
         HILOG_ERROR(" The number of query operations exceeds %{public}zu ", FILE_RESULT_TYPE.size());
         return EINVAL;
     }
