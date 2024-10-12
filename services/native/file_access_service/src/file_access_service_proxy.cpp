@@ -295,12 +295,103 @@ int32_t FileAccessServiceProxy::UnregisterNotify(Uri uri, const sptr<IFileAccess
     return result;
 }
 
+int32_t FileAccessServiceProxy::ConnectFileExtAbility(const AAFwk::Want &want,
+    const sptr<AAFwk::IAbilityConnection>& connection)
+{
+    UserAccessTracer trace;
+    trace.Start("ConnectFileExtAbility");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessServiceProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return E_IPCS;
+    }
 
-int32_t FileAccessServiceProxy::GetExensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("fail to WriteParcelable want");
+        return E_IPCS;
+    }
+
+    if (connection == nullptr || connection->AsObject() == nullptr) {
+        HILOG_ERROR("connection is nullptr");
+        return E_GETINFO;
+    }
+
+    if (!data.WriteRemoteObject(connection->AsObject())) {
+        HILOG_ERROR("fail to WriteParcelable connection");
+        return E_IPCS;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto remote = Remote();
+    if (!remote) {
+        HILOG_ERROR("failed to get remote");
+        return E_IPCS;
+    }
+    int err = remote->SendRequest(static_cast<uint32_t>(
+        FileAccessServiceInterfaceCode::CMD_CONNECT_FILE_EXT_ABILITY), data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+        return err;
+    }
+
+    int ret = E_IPCS;
+    if (!reply.ReadInt32(ret) || ret != ERR_OK) {
+        HILOG_ERROR("ConnectFileExtAbility operation failed ret : %{public}d", ret);
+        return ret;
+    }
+
+    return ERR_OK;
+}
+
+int32_t FileAccessServiceProxy::DisConnectFileExtAbility(const sptr<AAFwk::IAbilityConnection>& connection)
+{
+    UserAccessTracer trace;
+    trace.Start("DisConnectFileExtAbility");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(FileAccessServiceProxy::GetDescriptor())) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return E_IPCS;
+    }
+
+    if (connection == nullptr || connection->AsObject() == nullptr) {
+        HILOG_ERROR("connection is nullptr");
+        return E_GETINFO;
+    }
+
+    if (!data.WriteRemoteObject(connection->AsObject())) {
+        HILOG_ERROR("fail to WriteParcelable connection");
+        return E_IPCS;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto remote = Remote();
+    if (!remote) {
+        HILOG_ERROR("failed to get remote");
+        return E_IPCS;
+    }
+    int err = remote->SendRequest(static_cast<uint32_t>(
+        FileAccessServiceInterfaceCode::CMD_DISCONNECT_FILE_EXT_ABILITY), data, reply, option);
+    if (err != ERR_OK) {
+        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+        return err;
+    }
+
+    int ret = E_IPCS;
+    if (!reply.ReadInt32(ret) || ret != ERR_OK) {
+        HILOG_ERROR("DisConnectFileExtAbility operation failed ret : %{public}d", ret);
+        return ret;
+    }
+
+    return ERR_OK;
+}
+
+int32_t FileAccessServiceProxy::GetExtensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
     sptr<IFileAccessExtBase> &extensionProxy)
 {
     UserAccessTracer trace;
-    trace.Start("GetExensionProxy");
+    trace.Start("GetExtensionProxy");
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessServiceProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -333,7 +424,7 @@ int32_t FileAccessServiceProxy::GetExensionProxy(const std::shared_ptr<ConnectEx
 
     int ret = E_IPCS;
     if (!reply.ReadInt32(ret) || ret != ERR_OK) {
-        HILOG_ERROR("GetExensionProxy operation failed ret : %{public}d", ret);
+        HILOG_ERROR("GetExtensionProxy operation failed ret : %{public}d", ret);
         return ret;
     }
 

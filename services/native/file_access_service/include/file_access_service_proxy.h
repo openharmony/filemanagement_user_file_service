@@ -33,9 +33,12 @@ public:
         const std::shared_ptr<ConnectExtensionInfo> &info) override;
     int32_t UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer,
         const std::shared_ptr<ConnectExtensionInfo> &info) override;
-    int32_t GetExensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
+    int32_t GetExtensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
                              sptr<IFileAccessExtBase> &extensionProxy) override;
-
+    int32_t ConnectFileExtAbility(const AAFwk::Want &want,
+        const sptr<AAFwk::IAbilityConnection>& connection) override;
+    int32_t DisConnectFileExtAbility(const sptr<AAFwk::IAbilityConnection>& connection) override;
+    
     class ServiceProxyLoadCallback : public SystemAbilityLoadCallbackStub {
     public:
         void OnLoadSystemAbilitySuccess(int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject) override;

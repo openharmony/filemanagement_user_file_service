@@ -198,13 +198,13 @@ std::pair<std::shared_ptr<FileAccessHelper>, int> FileAccessHelper::DoCreatorHel
 {
     std::unordered_map<std::string, std::shared_ptr<ConnectInfo>> cMap;
     for (size_t i = 0; i < wants.size(); i++) {
-        sptr<FileAccessExtConnection> fileAccessExtConnection(new(std::nothrow) FileAccessExtConnection());
+        sptr<AppFileAccessExtConnection> fileAccessExtConnection(new(std::nothrow) AppFileAccessExtConnection());
         if (fileAccessExtConnection == nullptr) {
             HILOG_ERROR("new fileAccessExtConnection fail");
             return {nullptr, E_GETRESULT};
         }
         if (!fileAccessExtConnection->IsExtAbilityConnected()) {
-            fileAccessExtConnection->ConnectFileExtAbility(wants[i], token);
+            fileAccessExtConnection->ConnectFileExtAbility(wants[i]);
         }
         sptr<IFileAccessExtBase> fileExtProxy = fileAccessExtConnection->GetFileExtProxy();
         if (fileExtProxy == nullptr) {
@@ -346,7 +346,7 @@ sptr<IFileAccessExtBase> FileAccessHelper::GetProxyByBundleName(const std::strin
         return nullptr;
     }
     if (!connectInfo->fileAccessExtConnection->IsExtAbilityConnected()) {
-        connectInfo->fileAccessExtConnection->ConnectFileExtAbility(connectInfo->want, token_);
+        connectInfo->fileAccessExtConnection->ConnectFileExtAbility(connectInfo->want);
     }
     auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
     if (fileAccessExtProxy == nullptr) {
@@ -361,7 +361,7 @@ bool FileAccessHelper::GetProxy()
     for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
         auto connectInfo = iter->second;
         if (!connectInfo->fileAccessExtConnection->IsExtAbilityConnected()) {
-            connectInfo->fileAccessExtConnection->ConnectFileExtAbility(connectInfo->want, token_);
+            connectInfo->fileAccessExtConnection->ConnectFileExtAbility(connectInfo->want);
         }
         auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
         if (fileAccessExtProxy == nullptr) {
