@@ -783,13 +783,6 @@ export default class FileExtAbility extends Extension {
         relativePath: '/storage/Users/currentUser',
         deviceType: deviceType.DEVICE_LOCAL_DISK,
         deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
-      },
-      {
-        uri: 'file://docs/storage/Share',
-        displayName: 'shared_disk',
-        relativePath: '/storage/Share',
-        deviceType: deviceType.DEVICE_SHARED_DISK,
-        deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
       }
     ];
     try {
