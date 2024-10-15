@@ -21,7 +21,7 @@ const PhotoViewMIMETypes = {
   VIDEO_TYPE: 'video/*',
   IMAGE_VIDEO_TYPE: '*/*',
   INVALID_TYPE: ''
-}
+};
 
 const DocumentSelectMode = {
   FILE: 0,
@@ -50,7 +50,7 @@ const ErrCode = {
   RESULT_ERROR: 13900042,
   NAME_TOO_LONG: 13900030,
   CONTEXT_NO_EXIST: 16000011,
-}
+};
 
 const ERRCODE_MAP = new Map([
   [ErrCode.INVALID_ARGS, 'Invalid argument'],
@@ -70,7 +70,7 @@ const ACTION = {
   SELECT_ACTION_MODAL: 'ohos.want.action.OPEN_FILE_SERVICE',
   SAVE_ACTION: 'ohos.want.action.CREATE_FILE',
   SAVE_ACTION_MODAL: 'ohos.want.action.CREATE_FILE_SERVICE',
-}
+};
 
 const CREATE_FILE_NAME_LENGTH_LIMIT = 256;
 const ARGS_ZERO = 0;
@@ -109,7 +109,6 @@ function strSizeUTF8(str) {
 
 function checkArguments(args) {
   let checkArgumentsResult = undefined;
-
   if (args.length === ARGS_TWO && typeof args[ARGS_ONE] !== 'function') {
     checkArgumentsResult = getErr(ErrCode.INVALID_ARGS);
   }
@@ -122,13 +121,15 @@ function checkArguments(args) {
       }
     }
 
-    if (option.newFileNames !== undefined && option.newFileNames.length > 0) {
-      for (let i = 0; i < option.newFileNames.length; i++) {
-        let value = option.newFileNames[i];
-        if (strSizeUTF8(value) >= CREATE_FILE_NAME_LENGTH_LIMIT) {
-          console.log('[picker] checkArguments Invalid name: ' + value);
-          checkArgumentsResult = getErr(ErrCode.NAME_TOO_LONG);
-        }
+    if (option.newFileNames === undefined || option.newFileNames.length <= 0) {
+      return checkArgumentsResult;
+    }
+
+    for (let i = 0; i < option.newFileNames.length; i++) {
+      let value = option.newFileNames[i];
+      if (strSizeUTF8(value) >= CREATE_FILE_NAME_LENGTH_LIMIT) {
+        console.log('[picker] checkArguments Invalid name: ' + value);
+        checkArgumentsResult = getErr(ErrCode.NAME_TOO_LONG);
       }
     }
   }
@@ -163,6 +164,32 @@ function parsePhotoPickerSelectOption(args) {
   }
 
   return config;
+}
+
+function anonymousPathArray(geturi) {
+  let anonymousPathArrays = [];
+  let anonymousPath = '';
+  if (geturi === undefined) {
+    return anonymousPathArrays;
+  }
+  for (let i = 0; i < geturi.length; ++i) {
+    let lastSlashIndex = geturi[i].lastIndexOf('/');
+    if (lastSlashIndex === -1) {
+      anonymousPathArrays.push(geturi[i]);
+    } else {
+      let dirPath = geturi[i].substring(0, lastSlashIndex + 1);
+      let fileName = geturi[i].substring(lastSlashIndex + 1);
+      if (fileName.length <= 0) {
+        anonymousPath = '******';
+      } else {
+        let lastLetter = fileName.slice(-1);
+        let maskedName = '******' + lastLetter;
+        anonymousPath = dirPath + maskedName;
+      }
+      anonymousPathArrays.push(anonymousPath);
+    }
+    }
+  return anonymousPathArrays;
 }
 
 function getPhotoPickerSelectResult(args) {
@@ -227,7 +254,7 @@ async function photoPickerSelect(...args) {
       } else {
         reject(photoSelectResult.error);
       }
-    })
+    });
   } catch (error) {
     console.error('[picker] photo select error: ' + error);
   }
@@ -303,7 +330,9 @@ function getDocumentPickerSelectResult(args) {
     selectResult.data = [];
     selectResult.error = args.resultCode;
   }
-  console.log('[picker] document select selectResult: ' + JSON.stringify(selectResult));
+
+  console.log('[picker] document select selectResult: : errorcode is = ' + selectResult.error +
+              ', selecturi is = ' + anonymousPathArray(selectResult.data));
   return selectResult;
 }
 
@@ -340,7 +369,6 @@ async function documentPickerSelect(...args) {
   } catch (paramError) {
     console.error('[picker] DocumentSelect paramError: ' + JSON.stringify(paramError));
   }
-  console.log('[picker] DocumentSelect result: ' + JSON.stringify(documentSelectResult));
   selectResult = getDocumentPickerSelectResult(documentSelectResult);
   return sendResult(args, selectResult);
 }
@@ -394,12 +422,16 @@ function getAudioPickerSelectResult(args) {
     if (args.uriArr) {
       selectResult.data = args.uriArr;
       selectResult.error = args.resultCode;
+    } else {
+      selectResult.data = [];
+      selectResult.error = args.resultCode;
     }
   } else if (args.resultCode === RESULT_CODE_ERROR) {
     selectResult.data = [];
     selectResult.error = args.resultCode;
   }
-  console.log('[picker] getAudioPickerSelectResult selectResult: ' + JSON.stringify(selectResult));
+  console.log('[picker] getAudioPickerSelectResult selectResult: errorcode is = ' + selectResult.error +
+    ', selecturi is = ' + anonymousPathArray(selectResult.data));
   return selectResult;
 }
 
@@ -423,7 +455,8 @@ function getDocumentPickerSaveResult(args) {
     saveResult.data = [];
     saveResult.error = args.resultCode;
   }
-  console.log('[picker] getDocumentPickerSaveResult saveResult: ' + JSON.stringify(saveResult));
+  console.log('[picker] getDocumentPickerSaveResult saveResult: errorcode is = ' + saveResult.error +
+    ', selecturi is = ' + anonymousPathArray(saveResult.data) + ', usersavesuffix = ' + saveResult.suffix);
   return saveResult;
 }
 
@@ -486,7 +519,6 @@ async function documentPickerSave(...args) {
 
   documentSaveResult = await modalPicker(args, documentSaveContext, documentSaveConfig);
   saveResult = getDocumentPickerSaveResult(documentSaveResult);
-  console.log('[picker] download save result: ' + JSON.stringify(saveResult));
   return sendResult(args, saveResult);
 }
 
@@ -626,4 +658,4 @@ export default {
   PhotoViewPicker : PhotoViewPicker,
   DocumentViewPicker: DocumentViewPicker,
   AudioViewPicker : AudioViewPicker,
-}
+};
