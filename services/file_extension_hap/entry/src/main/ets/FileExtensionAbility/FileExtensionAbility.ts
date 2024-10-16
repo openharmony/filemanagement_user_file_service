@@ -769,7 +769,6 @@ export default class FileExtAbility extends Extension {
         deviceType: deviceType.DEVICE_SHARED_TERMINAL,
         deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
       };
-      hilog.info(DOMAIN_CODE, TAG, `df count: ${hmdfsInfo.length}`);
       hmdfsInfoList.push(hmdfsInfo);
     }
     return hmdfsInfoList;
@@ -807,7 +806,7 @@ export default class FileExtAbility extends Extension {
         volumeInfoList.push(volumeInfo);
       }
       roots = roots.concat(volumeInfoList);
-      hilog.info(DOMAIN_CODE, TAG, `External file count: ${volumeInfoList.length}`);
+      
       try {
         roots = roots.concat(getHmdfsPath());
       } catch (e) {
