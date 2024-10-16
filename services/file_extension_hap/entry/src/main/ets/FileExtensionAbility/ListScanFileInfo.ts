@@ -23,6 +23,7 @@ const documentFlag = fileExtensionInfo.DocumentFlag;
 const ERR_OK = 0;
 const E_GETRESULT = 14300004;
 const APP_DATA = 'appdata';
+const BACKUP_DIR = '.backup';
 const CURRENT_USER_PATH = '/storage/Users/currentUser';
 
 function hasFilter(filter: Filter) : boolean {
@@ -152,8 +153,8 @@ function getListFileInfos(sourceFileUri: string, offset: number, count: number, 
       if (i === listNum) {
         break;
       }
-      if (path === CURRENT_USER_PATH && fileNameList[i] === APP_DATA) {
-        hilog.info(DOMAIN_CODE, TAG, `filter appdata doc`);
+      if (path === CURRENT_USER_PATH && (fileNameList[i] === APP_DATA || fileNameList[i] === BACKUP_DIR)) {
+        hilog.info(DOMAIN_CODE, TAG, `filter appdata doc or backup dir`);
         continue;
       }
       let mode = documentFlag.SUPPORTS_READ | documentFlag.SUPPORTS_WRITE;
