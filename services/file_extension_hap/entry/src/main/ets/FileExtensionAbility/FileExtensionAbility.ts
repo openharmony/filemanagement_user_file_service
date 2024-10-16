@@ -806,7 +806,7 @@ export default class FileExtAbility extends Extension {
         volumeInfoList.push(volumeInfo);
       }
       roots = roots.concat(volumeInfoList);
-      
+
       try {
         roots = roots.concat(getHmdfsPath());
       } catch (e) {
