@@ -41,7 +41,6 @@ ohos_unittest("medialibrary_file_access_test") {
   deps = [
     "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
     "${ability_runtime_path}/frameworks/native/appkit:app_context",
-    "${user_file_service_path}/interfaces/inner_api/file_access:file_access_extension_ability_kit",
     "//third_party/googletest:gmock_main",
   ]
 
