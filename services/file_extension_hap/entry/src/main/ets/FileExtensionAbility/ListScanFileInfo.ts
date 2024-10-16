@@ -153,8 +153,8 @@ function getListFileInfos(sourceFileUri: string, offset: number, count: number, 
       if (i === listNum) {
         break;
       }
-      if (path === CURRENT_USER_PATH && (fileNameList[i] === APP_DATA || fileNameList[i] === BACKUP_DIR)) {
-        hilog.info(DOMAIN_CODE, TAG, `filter appdata doc or backup dir`);
+      if (path === CURRENT_USER_PATH && fileNameList[i] === APP_DATA) {
+        hilog.info(DOMAIN_CODE, TAG, `filter appdata doc`);
         continue;
       }
       let mode = documentFlag.SUPPORTS_READ | documentFlag.SUPPORTS_WRITE;

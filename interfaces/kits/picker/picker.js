@@ -445,8 +445,7 @@ function getAudioPickerSelectResult(args) {
 function getDocumentPickerSaveResult(args) {
   let saveResult = {
     error: undefined,
-    data: undefined,
-    suffix: -1
+    data: undefined
   };
   if (args === undefined || args.resultCode === undefined) {
     saveResult.error = getErr(ErrCode.RESULT_ERROR);
@@ -457,9 +456,6 @@ function getDocumentPickerSaveResult(args) {
     if (args.ability_params_stream) {
       saveResult.data = args.ability_params_stream;
       saveResult.error = args.resultCode;
-      if (args.userSuffixIndex >= 0) {
-        saveResult.suffix = args.userSuffixIndex;
-      }
     }
   } else if (args.resultCode === RESULT_CODE_ERROR) {
     saveResult.data = [];
@@ -537,16 +533,7 @@ async function documentPickerSave(...args) {
 
   documentSaveResult = await modalPicker(documentSaveContext, documentSaveConfig, documentSaveWindow);
   saveResult = getDocumentPickerSaveResult(documentSaveResult);
-  this.suffixIndex = saveResult.suffix;
   return sendResult(args, saveResult);
-}
-
-function getSelectedSuffixIndex() {
-  console.log('[picker] Get Selected Suffix Index start');
-  let index = this.suffixIndex;
-  this.suffixIndex = -1;
-  console.log('[picker] Get Selected Suffix Index end: ' + index);
-  return index;
 }
 
 async function sendResult(args, result) {
@@ -676,8 +663,6 @@ function DocumentViewPicker(...args) {
   this.save = documentPickerSave;
   this.context = ParseContext(args);
   this.window = parseWindow(args);
-  this.getSelectedIndex = getSelectedSuffixIndex;
-  this.suffixIndex = -1;
 }
 
 function AudioViewPicker(...args) {
@@ -687,7 +672,6 @@ function AudioViewPicker(...args) {
 }
 
 export default {
-  getSelectedSuffixIndex,
   startModalPicker,
   ExtTypes : ExtTypes,
   PickerDetailType: PickerDetailType,
