@@ -171,7 +171,7 @@ static int64_t GetFileMtime(const string &fileName)
     string filePath = RecentNExporter::recentPath_ + fileName;
     struct stat statBuf;
     if (lstat(filePath.c_str(), &statBuf) < 0) {
-        HILOG_ERROR("Failed to lstat uri, errno=%{public}d, fileName=%{private}s", errno, fileName.c_str());
+        HILOG_ERROR("Failed to lstat uri, errno=%{public}d, fileName=%{public}s", errno, fileName.c_str());
         return errno;
     }
     return static_cast<int64_t>(statBuf.st_mtime);
@@ -181,7 +181,7 @@ static string GetName(const string &path)
 {
     auto pos = path.find_last_of('/');
     if (pos == string::npos) {
-        HILOGE("Failed to split filename from path, path: %{private}s", path.c_str());
+        HILOGE("Failed to split filename from path, path: %{public}s", path.c_str());
     }
     return path.substr(pos + 1);
 }
