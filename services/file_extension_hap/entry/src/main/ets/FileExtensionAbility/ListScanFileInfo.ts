@@ -23,7 +23,6 @@ const documentFlag = fileExtensionInfo.DocumentFlag;
 const ERR_OK = 0;
 const E_GETRESULT = 14300004;
 const APP_DATA = 'appdata';
-const BACKUP_DIR = '.backup';
 const CURRENT_USER_PATH = '/storage/Users/currentUser';
 
 function hasFilter(filter: Filter) : boolean {
