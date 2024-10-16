@@ -770,6 +770,7 @@ export default class FileExtAbility extends Extension {
         deviceFlags: deviceFlag.SUPPORTS_READ | deviceFlag.SUPPORTS_WRITE,
       };
       hmdfsInfoList.push(hmdfsInfo);
+      hilog.info(DOMAIN_CODE, TAG, `df count: ${hmdfsInfo.length}`);
     }
     return hmdfsInfoList;
   }

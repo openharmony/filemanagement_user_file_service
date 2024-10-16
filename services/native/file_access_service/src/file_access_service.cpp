@@ -203,9 +203,14 @@ sptr<IFileAccessExtBase> FileAccessService::ConnectExtension(Uri &uri, const sha
 
 void FileAccessService::ResetProxy(const wptr<IRemoteObject> &remote)
 {
+    HILOG_DEBUG("FileAccessService::ResetProxy start");
     lock_guard<mutex> lock(mapMutex_);
     if (remote != nullptr && extensionDeathRecipient_ != nullptr) {
         for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
+            if (iter->second == nullptr) {
+                HILOG_ERROR("iter->second is null or extensionDeathRecipient_ is null.");
+                continue;
+            }
             auto proxyRemote = iter->second->AsObject();
             if (proxyRemote != nullptr && proxyRemote == remote.promote()) {
                 proxyRemote->RemoveDeathRecipient(extensionDeathRecipient_);
@@ -351,8 +356,8 @@ int32_t FileAccessService::OperateObsNode(Uri &uri, bool notifyForDescendants, u
         // obsCodeList_ is to save callback number
         obsNode->obsCodeList_.push_back(code);
         relationshipMap_.insert(make_pair(uriStr, obsNode));
+        return ERR_OK;
     }
-    return ERR_OK;
 }
 
 int32_t FileAccessService::RegisterNotifyImpl(Uri uri, bool notifyForDescendants,
@@ -406,6 +411,7 @@ int FileAccessService::FindUri(const string &uriStr, shared_ptr<ObserverNode> &o
 {
     HILOG_INFO("uriStr: %{public}s", uriStr.c_str());
     lock_guard<mutex> lock(nodeMutex_);
+    HILOG_DEBUG("FindUri start");
     auto iter = relationshipMap_.find(uriStr);
     if (iter == relationshipMap_.end()) {
         HILOG_ERROR("Can not find uri");
@@ -591,6 +597,7 @@ int32_t FileAccessService::OnChange(Uri uri, NotifyType notifyType)
         return ERR_URI;
     }
     string uris = uriStr.substr(uriIndex);
+    HILOG_DEBUG("OnChange FindUri start");
     //When the path is not found, search for its parent path
     if (FindUri(uriStr, node) != ERR_OK) {
         size_t slashIndex = uriStr.rfind("/");
@@ -610,6 +617,7 @@ int32_t FileAccessService::OnChange(Uri uri, NotifyType notifyType)
         SendListNotify(uris, notifyType, node->obsCodeList_);
         return ERR_OK;
     }
+    HILOG_DEBUG("OnChange FindUri end");
     SendListNotify(uris, notifyType, node->obsCodeList_);
     if ((node->parent_ == nullptr) || (!node->parent_->needChildNote_)) {
         HILOG_DEBUG("Do not need notify parent");
