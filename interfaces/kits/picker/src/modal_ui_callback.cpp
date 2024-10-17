@@ -33,14 +33,14 @@ void ModalUICallback::SetSessionId(int32_t sessionId)
 
 void ModalUICallback::OnRelease(int32_t releaseCode)
 {
-    HILOG_INFO("modal picker: OnRelease enter. release code is %{public}d", releaseCode);
+    HILOG_INFO("[picker] OnRelease enter. release code is %{public}d", releaseCode);
     this->uiContent->CloseModalUIExtension(this->sessionId_);
     pickerCallBack_->ready = true;
 }
 
 void ModalUICallback::OnError(int32_t code, const std::string& name, const std::string& message)
 {
-    HILOG_ERROR("modal picker: OnError enter. errorCode=%{public}d, name=%{public}s, message=%{public}s",
+    HILOG_ERROR("[picker] OnError enter. errorCode=%{public}d, name=%{public}s, message=%{public}s",
         code, name.c_str(), message.c_str());
     this->uiContent->CloseModalUIExtension(this->sessionId_);
 }
@@ -54,12 +54,12 @@ void ModalUICallback::OnResultForModal(int32_t resultCode, const OHOS::AAFwk::Wa
 
 void ModalUICallback::OnReceive(const OHOS::AAFwk::WantParams &request)
 {
-    HILOG_INFO("modal picker: OnReceive enter.");
+    HILOG_INFO("[picker] OnReceive enter.");
 }
 
 void ModalUICallback::OnDestroy()
 {
-    HILOG_INFO("modal picker: OnDestroy enter.");
+    HILOG_INFO("[picker] OnDestroy enter.");
 }
 } // namespace Picker
 } // namespace OHOS
