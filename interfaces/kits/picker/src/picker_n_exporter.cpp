@@ -96,8 +96,8 @@ static void MakeResultWithBool(napi_env env, std::string key, napi_value &result
         status = napi_set_named_property(env, result, key.c_str(), nBoolVal);
         if (status != napi_ok) {
             HILOG_ERROR("[picker]: napi_set_named_property %{public}s failed", key.c_str());
-         }
-     }
+        }
+    }
 }
 
 static napi_value MakeResultWithPickerCallBack(napi_env env, std::shared_ptr<PickerCallBack> pickerCallBack)
