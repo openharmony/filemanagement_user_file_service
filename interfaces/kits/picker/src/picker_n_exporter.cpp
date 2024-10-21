@@ -33,6 +33,8 @@ using namespace FileManagement::LibN;
 using namespace AppExecFwk;
 #define WAIT_TIME_MS 100
 
+static const string PHOTO_URIS_KEY = "photoUris";
+
 bool PickerNExporter::Export()
 {
     return exports_.AddProp({
@@ -72,9 +74,28 @@ static void MakeResultWithArr(napi_env env, std::string key, napi_value &result,
         if (key == "ability.params.stream") {
             key = "ability_params_stream";
         }
+        if (key == "select-item-list") {
+            key = PHOTO_URIS_KEY;
+        }
         status = napi_set_named_property(env, result, key.c_str(), array);
         if (status != napi_ok) {
-            HILOG_ERROR("[picker]: napi_set_named_property uri failed");
+            HILOG_ERROR("[picker]: napi_set_named_property %{public}s failed", key.c_str());
+        }
+    }
+}
+
+static void MakeResultWithBool(napi_env env, std::string key, napi_value &result,
+    std::shared_ptr<PickerCallBack> pickerCallBack)
+{
+    napi_status status = napi_generic_failure;
+    if (pickerCallBack->want.GetParams().HasParam(key.c_str())) {
+        const bool boolVal = pickerCallBack->want.GetBoolParam(key.c_str(), false);
+        HILOG_INFO("[picker]: %{public}s is %{public}d ", key.c_str(), boolVal);
+        napi_value nBoolVal = nullptr;
+        napi_get_boolean(env, boolVal, &nBoolVal);
+        status = napi_set_named_property(env, result, key.c_str(), nBoolVal);
+        if (status != napi_ok) {
+            HILOG_ERROR("[picker]: napi_set_named_property %{public}s failed", key.c_str());
         }
     }
 }
@@ -99,6 +120,8 @@ static napi_value MakeResultWithPickerCallBack(napi_env env, std::shared_ptr<Pic
     }
     MakeResultWithArr(env, "ability.params.stream", result, pickerCallBack);
     MakeResultWithArr(env, "uriArr", result, pickerCallBack);
+    MakeResultWithArr(env, "select-item-list", result, pickerCallBack);
+    MakeResultWithBool(env, "isOriginal", result, pickerCallBack);
     return result;
 }
 

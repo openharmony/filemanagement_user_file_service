@@ -37,6 +37,7 @@ const DocumentPickerMode = {
 const ExtTypes = {
   DOWNLOAD_TYPE: 'filePicker',
   AUDIO_PICKER_TYPE: 'audioPicker',
+  PHOTO_PICKER_TYPE: 'photoPicker',
 };
 
 const PickerDetailType = {
@@ -148,6 +149,7 @@ function parsePhotoPickerSelectOption(args) {
     type: 'multipleselect',
     parameters: {
       uri: 'multipleselect',
+      extType: ExtTypes.PHOTO_PICKER_TYPE,
     },
   };
 
@@ -200,11 +202,9 @@ function getPhotoPickerSelectResult(args) {
   };
 
   if (args.resultCode === 0) {
-    if (args.want && args.want.parameters) {
-      let uris = args.want.parameters['select-item-list'];
-      let isOrigin = args.want.parameters.isOriginal;
-      selectResult.data = new PhotoSelectResult(uris, isOrigin);
-    }
+    let uris = args.photoUris;
+    let isOriginal = args.isOriginal;
+    selectResult.data = new PhotoSelectResult(uris, isOriginal);
   } else if (args.resultCode === -1) {
     selectResult.data = new PhotoSelectResult([], undefined);
   } else {
@@ -225,6 +225,7 @@ async function photoPickerSelect(...args) {
   console.log('[picker] Photo config: ' + JSON.stringify(config));
 
   let photoSelectContext = undefined;
+  let photoSelectWindow = undefined;
   try {
     if (this.context !== undefined) {
       photoSelectContext = this.context;
@@ -240,9 +241,9 @@ async function photoPickerSelect(...args) {
       console.error('[picker] photoSelectContext == undefined');
       throw getErr(ErrCode.CONTEXT_NO_EXIST);
     }
-    let result = await photoSelectContext.startAbilityForResult(config, {windowMode: 0});
-    console.log('[picker] photo select result: ' + JSON.stringify(result));
-    const photoSelectResult = getPhotoPickerSelectResult(result);
+    let modalSelectResult = await modalPicker(photoSelectContext, config, photoSelectWindow);
+    console.log('[picker] photo select result: ' + JSON.stringify(modalSelectResult));
+    const photoSelectResult = getPhotoPickerSelectResult(modalSelectResult);
     console.log('[picker] photoSelectResult: ' + JSON.stringify(photoSelectResult));
     if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
       return args[ARGS_ONE](photoSelectResult.error, photoSelectResult.data);
