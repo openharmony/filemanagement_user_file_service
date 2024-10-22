@@ -830,7 +830,7 @@ static int GetQueryResult(std::string &uri, std::vector<std::string> &columns, s
                 if (results[i].empty()) {
                     results[i] = "0";
                 }
-                jsonObject[columns[i]] = std::stoi(results[i]);
+                jsonObject[columns[i]] = std::atoi(results[i].c_str());
                 break;
             case INT64_TYPE:
                 if (results[i].empty()) {
