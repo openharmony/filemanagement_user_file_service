@@ -464,7 +464,7 @@ function getDocumentPickerSaveResult(args) {
   }
 
   console.log('[picker] getDocumentPickerSaveResult saveResult: errorcode is = ' + saveResult.error +
-              ', selecturi is = ' + anonymousPathArray(saveResult.data) + ', usersavesuffix = ' + saveResult.suffix);
+              ', selecturi is = ' + anonymousPathArray(saveResult.data));
   return saveResult;
 }
 
