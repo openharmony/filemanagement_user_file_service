@@ -553,7 +553,7 @@ function getSelectedSuffixIndex() {
 async function sendResult(args, result) {
   try {
     if (result === undefined) {
-      console.log('[picker] modal picker: result is undefined.');
+      console.log('[picker] result is undefined.');
       return undefined;
     }
     if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {

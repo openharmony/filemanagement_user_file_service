@@ -932,6 +932,7 @@ int FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::W
 {
     UserAccessTracer trace;
     trace.Start("GetRegisteredFileAccessExtAbilityInfo");
+    HILOG_INFO("GetRegisteredFileAccessExtAbilityInfo start.");
     if (!IsSystemApp()) {
         HILOG_ERROR("FileAccessHelper::GetRoots check IsSystemAppByFullTokenID failed");
         return E_PERMISSION_SYS;
@@ -945,6 +946,7 @@ int FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(std::vector<AAFwk::W
     }
     bool ret = bm->QueryExtensionAbilityInfos(
         AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION, GetUserId(), extensionInfos);
+    HILOG_INFO("QueryExtensionAbilityInfos end.");
     if (!ret) {
         HILOG_ERROR("FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo QueryExtensionAbilityInfos error");
         return E_GETINFO;

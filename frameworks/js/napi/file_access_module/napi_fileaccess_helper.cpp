@@ -224,6 +224,7 @@ napi_value NAPI_GetFileAccessAbilityInfo(napi_env env, napi_callback_info info)
         return NError(ret);
     };
     auto cbComplete = [result](napi_env env, NError err) -> NVal {
+        HILOG_INFO("cbComplete in");
         if (err) {
             return { env, err.GetNapiErr(env) };
         }

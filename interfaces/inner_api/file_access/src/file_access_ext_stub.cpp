@@ -438,10 +438,12 @@ ErrCode FileAccessExtStub::CmdListFile(MessageParcel &data, MessageParcel &reply
 
     std::tie(ret, fileInfo, offset, filter, memInfo) = ReadFileFilterFuncArguments(data);
     if (ret != ERR_OK) {
+        HILOG_ERROR(" failed to ReadFileFilterFuncArguments");
         return ret;
     }
     ret = SharedMemoryOperation::MapSharedMemory(*memInfo);
     if (ret != ERR_OK) {
+        HILOG_ERROR("failed to MapSharedMemory");
         return ret;
     }
 

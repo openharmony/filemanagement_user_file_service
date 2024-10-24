@@ -26,7 +26,7 @@ function checkUri(uri: string): boolean {
       hilog.info(DOMAIN_CODE, TAG, 'uri is ' + uri);
       return true;
     } else {
-      hilog.error(DOMAIN_CODE, TAG, 'checkUri error, uri is ' + uri);
+      hilog.error(DOMAIN_CODE, TAG, 'checkUri failed, uri is ' + uri);
       return false;
     }
   } catch (error) {
@@ -40,7 +40,7 @@ function getPath(uri): string {
   let arr = uri.split(sep);
   let minLength = 2;
   if (arr.length < minLength) {
-    hilog.error(DOMAIN_CODE, TAG, 'getPath-parameter-uri format exception, uri is' + uri);
+    hilog.error(DOMAIN_CODE, TAG, 'getPath-parameter-uri format exception, uri is:' + uri);
     return '';
   }
   let path = uri.replace(arr[0] + sep, '');
