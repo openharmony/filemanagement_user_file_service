@@ -57,7 +57,7 @@ static void Deleter(struct NameListArg *arg)
         (arg->namelist)[i] = nullptr;
     }
     free(arg->namelist);
-    free(arg);
+    delete arg;
     arg = nullptr;
 }
 

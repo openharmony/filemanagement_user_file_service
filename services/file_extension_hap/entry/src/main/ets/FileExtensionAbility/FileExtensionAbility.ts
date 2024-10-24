@@ -811,7 +811,7 @@ export default class FileExtAbility extends Extension {
       try {
         roots = roots.concat(getHmdfsPath());
       } catch (e) {
-        hilog.info(DOMAIN_CODE, TAG, 'getRoots errorcode: ' + e.code, ' message: ' + e.message);
+        hilog.info(DOMAIN_CODE, TAG, 'getRoots failed errorcode: ' + e.code, ' message: ' + e.message);
       }
 
       return rootsReturnObject(roots, ERR_OK);

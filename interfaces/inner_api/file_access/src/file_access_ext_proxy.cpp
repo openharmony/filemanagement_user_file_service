@@ -585,6 +585,7 @@ int FileAccessExtProxy::ListFile(const FileInfo &fileInfo, const int64_t offset,
 
     int ret = WriteFileFilterFuncArguments(data, std::make_tuple(&fileInfo, offset, &filter, &memInfo));
     if (ret != ERR_OK) {
+        HILOG_ERROR("fail to WriteFileFilterFuncArguments. err: %{public}d", ret);
         return ret;
     }
 
