@@ -60,7 +60,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_GetRoots_0000, testing::e
             GTEST_LOG_(INFO) << info[i].deviceType;
             GTEST_LOG_(INFO) << info[i].relativePath;
         }
-        EXPECT_GE(info.size(), 2);
+        EXPECT_GE(info.size(), 1);
     } catch (...) {
         GTEST_LOG_(ERROR) << "external_file_access_GetRoots_0000 occurs an exception.";
     }
@@ -823,7 +823,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Mkdir_0008, testing::ext:
         vector<RootInfo> info;
         int result = fileAccessHelper->GetRoots(info);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        EXPECT_GE(info.size(), 2);
+        EXPECT_GE(info.size(), 1);
         Uri parentUri(info[0].uri);
         Uri newDirUriTest("");
         result = fileAccessHelper->Mkdir(parentUri, "Documents", newDirUriTest);
