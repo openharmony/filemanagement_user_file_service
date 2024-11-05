@@ -25,6 +25,7 @@
 #include "file_access_service_mock.h"
 #include "if_system_ability_manager_mock.h"
 #include "iservice_registry.h"
+#include "message_parcel_mock.h"
 
 int32_t OHOS::SystemAbilityLoadCallbackStub::OnRemoteRequest(unsigned int, OHOS::MessageParcel&, OHOS::MessageParcel&,
     OHOS::MessageOption&)
@@ -53,25 +54,50 @@ public:
     MOCK_METHOD0(AsObject, sptr<IRemoteObject>());
 };
 
+class AbilityConnectionMock : public OHOS::AAFwk::IAbilityConnection {
+public:
+    AbilityConnectionMock() = default;
+    ~AbilityConnectionMock() = default;
+public:
+    void OnAbilityConnectDone(const AppExecFwk::ElementName&, const sptr<IRemoteObject>&, int) override {}
+    void OnAbilityDisconnectDone(const AppExecFwk::ElementName&, int) override {}
+    MOCK_METHOD0(AsObject, sptr<IRemoteObject>());
+};
+
+class TestObject : public IRemoteBroker {
+public:
+    DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.FileAccessFwk.TestObject");
+};
+
+class RemoteObjectMock : public IRemoteStub<TestObject> {
+public:
+    RemoteObjectMock() = default;
+    ~RemoteObjectMock() = default;
+};
+
 class FileAccessServiceProxyTest : public testing::Test {
 public:
     static void SetUpTestCase(void)
     {
         Assistant::ins_ = insMoc;
+        MessageParcelMock::messageParcel = msg;
         SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = sptr<ISystemAbilityManager>(samgr.get());
     }
     static void TearDownTestCase()
     {
         insMoc = nullptr;
+        msg = nullptr;
         samgr = nullptr;
         impl = nullptr;
         Assistant::ins_ = nullptr;
+        MessageParcelMock::messageParcel = nullptr;
         SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = nullptr;
     }
     void SetUp() {}
     void TearDown() {}
 public:
     static inline shared_ptr<AssistantMock> insMoc = make_shared<AssistantMock>();
+    static inline shared_ptr<MessageParcelMock> msg = make_shared<MessageParcelMock>();
     static inline sptr<FileAccessServiceMock> impl = sptr<FileAccessServiceMock>(new FileAccessServiceMock());
     static inline shared_ptr<ISystemAbilityManagerMock> samgr = make_shared<ISystemAbilityManagerMock>();
 };
@@ -170,33 +196,51 @@ HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_OnChange_0000, te
     try {
         shared_ptr<FileAccessServiceProxy> proxy = make_shared<FileAccessServiceProxy>(impl);
 
-        Uri uri("");
-        NotifyType notifyType = NotifyType::NOTIFY_ADD;
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(false));
-        auto result = proxy->OnChange(uri, notifyType);
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(false));
+        auto result = proxy->OnChange(Uri(""), NotifyType::NOTIFY_ADD);
         EXPECT_EQ(result, E_IPCS);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(false));
-        result = proxy->OnChange(uri, notifyType);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(false));
+        result = proxy->OnChange(Uri(""), NotifyType::NOTIFY_ADD);
         EXPECT_EQ(result, E_IPCS);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(false));
-        result = proxy->OnChange(uri, notifyType);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteInt32(_)).WillOnce(Return(false));
+        result = proxy->OnChange(Uri(""), NotifyType::NOTIFY_ADD);
         EXPECT_EQ(result, E_IPCS);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true));
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteInt32(_)).WillOnce(Return(true));
         EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(E_URIS));
-        result = proxy->OnChange(uri, notifyType);
+        result = proxy->OnChange(Uri(""), NotifyType::NOTIFY_ADD);
         EXPECT_EQ(result, E_URIS);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
-            .WillOnce(Return(false));
-        EXPECT_CALL(*insMoc, Int()).WillOnce(Return(ERR_OK));
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteInt32(_)).WillOnce(Return(true));
         EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
-        result = proxy->OnChange(uri, notifyType);
-        EXPECT_EQ(result, ERR_OK);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
-            .WillOnce(Return(true));
-        EXPECT_CALL(*insMoc, Int()).WillOnce(Return(E_IPCS));
-        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
-        result = proxy->OnChange(uri, notifyType);
+        EXPECT_CALL(*msg, ReadInt32(_)).WillOnce(Return(false));
+        result = proxy->OnChange(Uri(""), NotifyType::NOTIFY_ADD);
         EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteInt32(_)).WillOnce(Return(true));
+        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
+        EXPECT_CALL(*msg, ReadInt32(_)).WillOnce(Return(true));
+        result = proxy->OnChange(Uri(""), NotifyType::NOTIFY_ADD);
+        EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteInt32(_)).WillOnce(Return(true));
+        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
+        EXPECT_CALL(*msg, ReadInt32(_)).WillOnce(DoAll(SetArgReferee<0>(ERR_OK), Return(true)));
+        result = proxy->OnChange(Uri(""), NotifyType::NOTIFY_ADD);
+        EXPECT_EQ(result, ERR_OK);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessServiceProxyTest occurs an exception.";
     }
@@ -222,46 +266,146 @@ HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_RegisterNotify_00
         bool notifyForDescendants = false;
         shared_ptr<ConnectExtensionInfo> info = nullptr;
         sptr<IFileAccessObserverMock> observer = sptr<IFileAccessObserverMock>(new IFileAccessObserverMock());
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(false));
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(false));
         auto result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info);
         EXPECT_EQ(result, E_IPCS);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(false));
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(false));
         result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info);
         EXPECT_EQ(result, E_IPCS);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(false));
+
+        sptr<IFileAccessObserver> obs = nullptr;
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        result = proxy->RegisterNotify(uri, notifyForDescendants, obs, info);
+        EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
         EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(false));
         result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info);
         EXPECT_EQ(result, E_IPCS);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
-            .WillOnce(Return(false));
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
         EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteBool(_)).WillOnce(Return(false));
         result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info);
         EXPECT_EQ(result, E_IPCS);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
-            .WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true));
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
         EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
-        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(E_URIS));
-        shared_ptr<ConnectExtensionInfo> info2 = make_shared<ConnectExtensionInfo>();
-        result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info2);
-        EXPECT_EQ(result, E_URIS);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
-            .WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true));
-        EXPECT_CALL(*insMoc, Int()).WillOnce(Return(ERR_OK));
-        EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
-        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
-        result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info2);
-        EXPECT_EQ(result, ERR_OK);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
-            .WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true));
-        EXPECT_CALL(*insMoc, Int()).WillOnce(Return(E_IPCS));
-        EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
-        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
-        result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info2);
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteBool(_)).WillOnce(Return(true));
+        result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info);
+        EXPECT_EQ(result, E_GETINFO);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessServiceProxyTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-end file_access_service_proxy_RegisterNotify_0000";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_service_proxy_RegisterNotify_0100
+ * @tc.name: file_access_service_proxy_RegisterNotify_0100
+ * @tc.desc: Test function of RegisterNotify interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8Y05B
+ */
+HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_RegisterNotify_0100, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-begin file_access_service_proxy_RegisterNotify_0100";
+    try {
+        shared_ptr<FileAccessServiceProxy> proxy = make_shared<FileAccessServiceProxy>(impl);
+
+        Uri uri("");
+        bool notifyForDescendants = false;
+        shared_ptr<ConnectExtensionInfo> info = make_shared<ConnectExtensionInfo>();
+        sptr<IFileAccessObserverMock> observer = sptr<IFileAccessObserverMock>(new IFileAccessObserverMock());
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true)).WillOnce(Return(false));
+        EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteBool(_)).WillOnce(Return(true));
+        auto result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info);
+        EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true)).WillOnce(Return(true));
+        EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true))
+            .WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteBool(_)).WillOnce(Return(true));
+        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(E_URIS));
+        result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info);
+        EXPECT_EQ(result, E_URIS);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true)).WillOnce(Return(true));
+        EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true))
+            .WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteBool(_)).WillOnce(Return(true));
+        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
+        EXPECT_CALL(*msg, ReadInt32(_)).WillOnce(Return(false));
+        result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info);
+        EXPECT_EQ(result, E_IPCS);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessServiceProxyTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-end file_access_service_proxy_RegisterNotify_0100";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_service_proxy_RegisterNotify_0200
+ * @tc.name: file_access_service_proxy_RegisterNotify_0200
+ * @tc.desc: Test function of RegisterNotify interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8Y05B
+ */
+HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_RegisterNotify_0200, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-begin file_access_service_proxy_RegisterNotify_0100";
+    try {
+        shared_ptr<FileAccessServiceProxy> proxy = make_shared<FileAccessServiceProxy>(impl);
+
+        Uri uri("");
+        bool notifyForDescendants = false;
+        shared_ptr<ConnectExtensionInfo> info = make_shared<ConnectExtensionInfo>();
+        sptr<IFileAccessObserverMock> observer = sptr<IFileAccessObserverMock>(new IFileAccessObserverMock());
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true)).WillOnce(Return(true));
+        EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true))
+            .WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteBool(_)).WillOnce(Return(true));
+        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
+        EXPECT_CALL(*msg, ReadInt32(_)).WillOnce(Return(true));
+        auto result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info);
+        EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true)).WillOnce(Return(true));
+        EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true))
+            .WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteBool(_)).WillOnce(Return(true));
+        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
+        EXPECT_CALL(*msg, ReadInt32(_)).WillOnce(DoAll(SetArgReferee<0>(ERR_OK), Return(true)));
+        result = proxy->RegisterNotify(uri, notifyForDescendants, observer, info);
+        EXPECT_EQ(result, ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessServiceProxyTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-end file_access_service_proxy_RegisterNotify_0200";
 }
 
 /**
@@ -284,16 +428,21 @@ HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_UnregisterNotifyI
         EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(E_URIS));
         auto result = proxy->UnregisterNotifyInternal(data);
         EXPECT_EQ(result, E_URIS);
+
         EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(false));
-        EXPECT_CALL(*insMoc, Int()).WillOnce(Return(ERR_OK));
-        result = proxy->UnregisterNotifyInternal(data);
-        EXPECT_EQ(result, ERR_OK);
-        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true));
-        EXPECT_CALL(*insMoc, Int()).WillOnce(Return(E_IPCS));
+        EXPECT_CALL(*msg, ReadInt32(_)).WillOnce(Return(false));
         result = proxy->UnregisterNotifyInternal(data);
         EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
+        EXPECT_CALL(*msg, ReadInt32(_)).WillOnce(Return(true));
+        result = proxy->UnregisterNotifyInternal(data);
+        EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
+        EXPECT_CALL(*msg, ReadInt32(_)).WillOnce(DoAll(SetArgReferee<0>(ERR_OK), Return(true)));
+        result = proxy->UnregisterNotifyInternal(data);
+        EXPECT_EQ(result, ERR_OK);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessServiceProxyTest occurs an exception.";
     }
@@ -318,33 +467,299 @@ HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_UnregisterNotify_
         Uri uri("");
         sptr<IFileAccessObserverMock> observer = nullptr;
         shared_ptr<ConnectExtensionInfo> info = nullptr;
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(false));
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(false));
         auto result = proxy->UnregisterNotify(uri, observer, info);
         EXPECT_EQ(result, E_IPCS);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(false));
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(false));
         result = proxy->UnregisterNotify(uri, observer, info);
         EXPECT_EQ(result, E_IPCS);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(false));
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteBool(_)).WillOnce(Return(false));
         result = proxy->UnregisterNotify(uri, observer, info);
         EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteBool(_)).WillOnce(Return(true));
+        result = proxy->UnregisterNotify(uri, observer, info);
+        EXPECT_EQ(result, E_GETINFO);
+
         observer = sptr<IFileAccessObserverMock>(new IFileAccessObserverMock());
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(false));
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteBool(_)).WillOnce(Return(false));
         result = proxy->UnregisterNotify(uri, observer, info);
         EXPECT_EQ(result, E_IPCS);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
-            .WillOnce(Return(false));
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteBool(_)).WillOnce(Return(true));
         EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(false));
         result = proxy->UnregisterNotify(uri, observer, info);
         EXPECT_EQ(result, E_IPCS);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
-            .WillOnce(Return(false));
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteBool(_)).WillOnce(Return(true));
         EXPECT_CALL(*observer, AsObject()).WillOnce(Return(nullptr));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true));
+        result = proxy->UnregisterNotify(uri, observer, info);
+        EXPECT_EQ(result, E_GETINFO);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessServiceProxyTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-end file_access_service_proxy_UnregisterNotify_0000";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_service_proxy_ConnectFileExtAbility_0000
+ * @tc.name: file_access_service_proxy_ConnectFileExtAbility_0000
+ * @tc.desc: Test function of ConnectFileExtAbility interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8Y05B
+ */
+HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_ConnectFileExtAbility_0000,
+    testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-begin file_access_service_proxy_ConnectFileExtAbility_0000";
+    try {
+        shared_ptr<FileAccessServiceProxy> proxy = make_shared<FileAccessServiceProxy>(impl);
+        AAFwk::Want want;
+        sptr<AbilityConnectionMock> connection = nullptr;
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(false));
+        auto result = proxy->ConnectFileExtAbility(want, connection);
+        EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(false));
+        result = proxy->ConnectFileExtAbility(want, connection);
+        EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        result = proxy->ConnectFileExtAbility(want, connection);
+        EXPECT_EQ(result, E_GETINFO);
+
+        connection = sptr<AbilityConnectionMock>(new AbilityConnectionMock());
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*connection, AsObject()).WillOnce(Return(nullptr));
+        result = proxy->ConnectFileExtAbility(want, connection);
+        EXPECT_EQ(result, E_GETINFO);
+
+        auto obj = sptr(new (std::nothrow) RemoteObjectMock());
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*connection, AsObject()).WillOnce(Return(obj)).WillOnce(Return(obj));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(false));
+        result = proxy->ConnectFileExtAbility(want, connection);
+        EXPECT_EQ(result, E_IPCS);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessServiceProxyTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-end file_access_service_proxy_ConnectFileExtAbility_0000";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_service_proxy_ConnectFileExtAbility_0100
+ * @tc.name: file_access_service_proxy_ConnectFileExtAbility_0100
+ * @tc.desc: Test function of ConnectFileExtAbility interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8Y05B
+ */
+HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_ConnectFileExtAbility_0100,
+    testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-begin file_access_service_proxy_ConnectFileExtAbility_0000";
+    try {
+        shared_ptr<FileAccessServiceProxy> proxy = make_shared<FileAccessServiceProxy>(impl);
+        AAFwk::Want want;
+        sptr<AbilityConnectionMock> connection = sptr<AbilityConnectionMock>(new AbilityConnectionMock());
+        auto obj = sptr(new (std::nothrow) RemoteObjectMock());
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*connection, AsObject()).WillOnce(Return(obj)).WillOnce(Return(nullptr));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true));
+        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(E_IPCS));
+        auto result = proxy->ConnectFileExtAbility(want, connection);
+        EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*connection, AsObject()).WillOnce(Return(obj)).WillOnce(Return(nullptr));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true));
+        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
+        EXPECT_CALL(*msg, ReadInt32(_)).WillOnce(DoAll(Return(false)));
+        result = proxy->ConnectFileExtAbility(want, connection);
+        EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*connection, AsObject()).WillOnce(Return(obj)).WillOnce(Return(nullptr));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true));
+        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
+        EXPECT_CALL(*msg, ReadInt32(_)).WillOnce(DoAll(SetArgReferee<0>(E_IPCS), Return(true)));
+        result = proxy->ConnectFileExtAbility(want, connection);
+        EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*connection, AsObject()).WillOnce(Return(obj)).WillOnce(Return(nullptr));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true));
+        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
+        EXPECT_CALL(*msg, ReadInt32(_)).WillOnce(DoAll(SetArgReferee<0>(ERR_OK), Return(true)));
+        result = proxy->ConnectFileExtAbility(want, connection);
+        EXPECT_EQ(result, ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessServiceProxyTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-end file_access_service_proxy_ConnectFileExtAbility_0100";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_service_proxy_DisConnectFileExtAbility_0000
+ * @tc.name: file_access_service_proxy_DisConnectFileExtAbility_0000
+ * @tc.desc: Test function of DisConnectFileExtAbility interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8Y05B
+ */
+HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_DisConnectFileExtAbility_0000,
+    testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-begin file_access_service_proxy_DisConnectFileExtAbility_0000";
+    try {
+        shared_ptr<FileAccessServiceProxy> proxy = make_shared<FileAccessServiceProxy>(impl);
+        sptr<AbilityConnectionMock> connection = nullptr;
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(false));
+        auto result = proxy->DisConnectFileExtAbility(connection);
+        EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        result = proxy->DisConnectFileExtAbility(connection);
+        EXPECT_EQ(result, E_GETINFO);
+
+        connection = sptr<AbilityConnectionMock>(new AbilityConnectionMock());
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*connection, AsObject()).WillOnce(Return(nullptr));
+        result = proxy->DisConnectFileExtAbility(connection);
+        EXPECT_EQ(result, E_GETINFO);
+
+        auto obj = sptr(new (std::nothrow) RemoteObjectMock());
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*connection, AsObject()).WillOnce(Return(obj)).WillOnce(Return(nullptr));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(false));
+        result = proxy->DisConnectFileExtAbility(connection);
+        EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*connection, AsObject()).WillOnce(Return(obj)).WillOnce(Return(nullptr));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true));
+        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(E_IPCS));
+        result = proxy->DisConnectFileExtAbility(connection);
+        EXPECT_EQ(result, E_IPCS);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessServiceProxyTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-end file_access_service_proxy_DisConnectFileExtAbility_0000";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_service_proxy_DisConnectFileExtAbility_0100
+ * @tc.name: file_access_service_proxy_DisConnectFileExtAbility_0100
+ * @tc.desc: Test function of DisConnectFileExtAbility interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8Y05B
+ */
+HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_DisConnectFileExtAbility_0100,
+    testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-begin file_access_service_proxy_DisConnectFileExtAbility_0100";
+    try {
+        shared_ptr<FileAccessServiceProxy> proxy = make_shared<FileAccessServiceProxy>(impl);
+        sptr<AbilityConnectionMock> connection = sptr<AbilityConnectionMock>(new AbilityConnectionMock());
+        auto obj = sptr(new (std::nothrow) RemoteObjectMock());
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*connection, AsObject()).WillOnce(Return(obj)).WillOnce(Return(nullptr));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true));
+        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
+        EXPECT_CALL(*msg, ReadInt32(_)).WillOnce(DoAll(Return(false)));
+        auto result = proxy->DisConnectFileExtAbility(connection);
+        EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*connection, AsObject()).WillOnce(Return(obj)).WillOnce(Return(nullptr));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true));
+        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
+        EXPECT_CALL(*msg, ReadInt32(_)).WillOnce(DoAll(SetArgReferee<0>(E_IPCS), Return(true)));
+        result = proxy->DisConnectFileExtAbility(connection);
+        EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*connection, AsObject()).WillOnce(Return(obj)).WillOnce(Return(nullptr));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true));
+        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
+        EXPECT_CALL(*msg, ReadInt32(_)).WillOnce(DoAll(SetArgReferee<0>(ERR_OK), Return(true)));
+        result = proxy->DisConnectFileExtAbility(connection);
+        EXPECT_EQ(result, ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessServiceProxyTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-end file_access_service_proxy_DisConnectFileExtAbility_0100";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_service_proxy_UnregisterNotify_0100
+ * @tc.name: file_access_service_proxy_UnregisterNotify_0100
+ * @tc.desc: Test function of UnregisterNotify interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8Y05B
+ */
+HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_UnregisterNotify_0100,
+    testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-begin file_access_service_proxy_UnregisterNotify_0100";
+    try {
+        Uri uri("");
+        sptr<IFileAccessObserverMock> observer = nullptr;
+        shared_ptr<FileAccessServiceProxy> proxy = make_shared<FileAccessServiceProxy>(impl);
+        shared_ptr<ConnectExtensionInfo> info = make_shared<ConnectExtensionInfo>();
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true)).WillOnce(Return(false));
+        EXPECT_CALL(*msg, WriteBool(_)).WillOnce(Return(true));
+        auto result = proxy->UnregisterNotify(uri, observer, info);
+        EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteBool(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true));
+        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(E_IPCS));
         result = proxy->UnregisterNotify(uri, observer, info);
         EXPECT_EQ(result, E_IPCS);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessServiceProxyTest occurs an exception.";
     }
-    GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-end file_access_service_proxy_UnregisterNotify_0000";
+    GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-end file_access_service_proxy_UnregisterNotify_0100";
 }
 
 /**
@@ -361,39 +776,52 @@ HWTEST_F(FileAccessServiceProxyTest, file_access_service_proxy_GetExensionProxy_
     GTEST_LOG_(INFO) << "FileAccessServiceProxyTest-begin file_access_service_proxy_GetExensionProxy_0000";
     try {
         shared_ptr<FileAccessServiceProxy> proxy = make_shared<FileAccessServiceProxy>(impl);
-
         shared_ptr<ConnectExtensionInfo> info = nullptr;
         sptr<IFileAccessExtBase> extensionProxy = nullptr;
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(false));
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(false));
         auto result = proxy->GetExtensionProxy(info, extensionProxy);
         EXPECT_EQ(result, E_IPCS);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true));
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
         result = proxy->GetExtensionProxy(info, extensionProxy);
         EXPECT_EQ(result, E_GETINFO);
+
         info = make_shared<ConnectExtensionInfo>();
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(false));
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(false));
         result = proxy->GetExtensionProxy(info, extensionProxy);
         EXPECT_EQ(result, E_IPCS);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true));
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true));
         EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(E_URIS));
         result = proxy->GetExtensionProxy(info, extensionProxy);
         EXPECT_EQ(result, E_URIS);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
-            .WillOnce(Return(false));
-        EXPECT_CALL(*insMoc, Int()).WillOnce(Return(ERR_OK));
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true));
         EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
-        result = proxy->GetExtensionProxy(info, extensionProxy);
-        EXPECT_EQ(result, ERR_OK);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
-            .WillOnce(Return(true));
-        EXPECT_CALL(*insMoc, Int()).WillOnce(Return(E_IPCS));
-        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
+        EXPECT_CALL(*msg, ReadInt32(_)).WillOnce(Return(false));
         result = proxy->GetExtensionProxy(info, extensionProxy);
         EXPECT_EQ(result, E_IPCS);
-        EXPECT_CALL(*insMoc, Bool()).WillOnce(Return(true)).WillOnce(Return(true)).WillOnce(Return(true))
-            .WillOnce(Return(true));
-        EXPECT_CALL(*insMoc, Int()).WillOnce(Return(ERR_OK));
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true));
         EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
+        EXPECT_CALL(*msg, ReadInt32(_)).WillOnce(Return(true));
+        result = proxy->GetExtensionProxy(info, extensionProxy);
+        EXPECT_EQ(result, E_IPCS);
+
+        EXPECT_CALL(*msg, WriteInterfaceToken(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteParcelable(_)).WillOnce(Return(true));
+        EXPECT_CALL(*msg, WriteRemoteObject(An<const sptr<IRemoteObject>&>())).WillOnce(Return(true));
+        EXPECT_CALL(*impl, SendRequest(_, _, _, _)).WillOnce(Return(ERR_OK));
+        EXPECT_CALL(*msg, ReadInt32(_)).WillOnce(DoAll(SetArgReferee<0>(ERR_OK), Return(true)));
+        EXPECT_CALL(*msg, ReadRemoteObject()).WillOnce(Return(nullptr));
         result = proxy->GetExtensionProxy(info, extensionProxy);
         EXPECT_EQ(result, E_IPCS);
     } catch (...) {
