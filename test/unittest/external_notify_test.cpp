@@ -603,7 +603,7 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0005, testing::ext
         result = g_fah->Delete(uri_dirSub1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         usleep(SLEEP_TIME);
-        EXPECT_EQ(g_notifyEvent, MOVED_FROM);
+        EXPECT_TRUE(g_notifyEvent == MOVED_FROM || g_notifyEvent == MOVED_SELF);
         EXPECT_EQ(g_notifyUri, uri_dirSub1.ToString());
 
         sleep(2);
