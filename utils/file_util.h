@@ -203,7 +203,7 @@ static int RenameFile(const string &src, const string &dest)
         new uv_fs_t, fs_req_cleanup };
     if (!rename_req) {
         HILOG_ERROR("RenameFile: Failed to request heap memory.");
-        return false;
+        return ENOMEM;
     }
     int ret = uv_fs_rename(nullptr, rename_req.get(), src.c_str(), dest.c_str(), nullptr);
     if (ret < 0 && (string_view(uv_err_name(ret)) == "EXDEV")) {
