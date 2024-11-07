@@ -34,6 +34,10 @@ void ModalUICallback::SetSessionId(int32_t sessionId)
 void ModalUICallback::OnRelease(int32_t releaseCode)
 {
     HILOG_INFO("[picker] OnRelease enter. release code is %{public}d", releaseCode);
+    if (!pickerCallBack_) {
+        HILOG_ERROR("[picker] OnRelease error");
+        return;
+    }
     this->uiContent->CloseModalUIExtension(this->sessionId_);
     pickerCallBack_->ready = true;
 }
@@ -48,6 +52,10 @@ void ModalUICallback::OnError(int32_t code, const std::string& name, const std::
 void ModalUICallback::OnResultForModal(int32_t resultCode, const OHOS::AAFwk::Want &result)
 {
     HILOG_INFO("[picker] OnResultForModal enter. resultCode is %{public}d,", resultCode);
+    if (!pickerCallBack_) {
+        HILOG_ERROR("[picker] OnResultForModal error.");
+        return;
+    }
     pickerCallBack_->resultCode = resultCode;
     pickerCallBack_->want = result;
 }

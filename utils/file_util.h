@@ -52,7 +52,11 @@ static void Deleter(struct NameListArg *arg)
         HILOG_ERROR("invalid argument");
         return;
     }
-    for (int i = 0; i < arg->direntNum; i++) {
+    if (arg->namelist == nullptr) {
+        HILOG_ERROR("arg->namelist is nullptr");
+        return;
+    }
+    for (uint32_t i = 0; i < arg->direntNum; i++) {
         free((arg->namelist)[i]);
         (arg->namelist)[i] = nullptr;
     }
@@ -274,7 +278,7 @@ static int ScanDir(const string &path)
         HILOG_ERROR("Failed to request heap memory.");
         return ENOMEM;
     }
-    HILOG_INFO("RecursiveFunc: scandir path = %{public}s", path.c_str());
+    HILOG_INFO("RecursiveFunc: scandir path = %{private}s", path.c_str());
     return scandir(path.c_str(), &(pNameList->namelist), FilterFunc, alphasort);
 }
 } // OHOS::FileManagement

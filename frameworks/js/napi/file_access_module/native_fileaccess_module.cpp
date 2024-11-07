@@ -54,6 +54,10 @@ static napi_value Init(napi_env env, napi_value exports)
     products.emplace_back(std::make_unique<NapiFileIteratorExporter>(env, exports));
     products.emplace_back(std::make_unique<NapiFileInfoExporter>(env, exports));
     for (auto &&product : products) {
+        if (product == nullptr) {
+            HILOG_ERROR("INNER BUG. product is nullptr");
+            return nullptr;
+        }
         if (!product->Export()) {
             HILOG_ERROR("INNER BUG. Failed to export class %{public}s", product->GetClassName().c_str());
             return nullptr;

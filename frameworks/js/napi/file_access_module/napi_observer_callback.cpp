@@ -74,11 +74,19 @@ static napi_status SetValueArray(const napi_env& env,
 void NapiObserver::NapiWorkScope(uv_work_t *work, int status)
 {
     if (work == nullptr) {
-        HILOG_ERROR("Work is null");
+        HILOG_ERROR("Work is nullptr");
         return;
     }
     std::unique_ptr<CallbackParam> param(reinterpret_cast<CallbackParam *>(work->data));
     napi_handle_scope scope = nullptr;
+    if (param == nullptr) {
+        HILOG_ERROR("Param is nullptr");
+        return;
+    }
+    if (param->napiObserver == nullptr) {
+        HILOG_ERROR("param->napiObserver is nullptr");
+        return;
+    }
     napi_open_handle_scope(param->napiObserver->env_, &scope);
     if (scope == nullptr) {
         HILOG_ERROR("napi_open_handle_scope failed");

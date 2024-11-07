@@ -29,7 +29,9 @@ void NAPI_application_FileAccessExtensionAbility_AutoRegister()
         .name = "application.FileAccessExtensionAbility",
         .fileName = "application/libfileaccessextensionability_napi.so/FileAccessExtensionAbility.js",
     };
-    moduleManager->Register(&newModuleInfo);
+    if (moduleManager != nullptr) {
+        moduleManager->Register(&newModuleInfo);
+    }
 }
 
 extern "C" __attribute__((visibility("default")))

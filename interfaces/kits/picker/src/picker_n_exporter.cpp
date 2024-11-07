@@ -51,6 +51,14 @@ static void StartModalPickerExecute(napi_env env, void *data)
 {
     HILOG_INFO("[picker]: StartModalPickerExecute begin");
     auto *context = static_cast<PickerAsyncContext*>(data);
+    if (!context) {
+        HILOG_ERROR("[picker]:context is nullptr");
+        return;
+    }
+    if (!context->pickerCallBack) {
+        HILOG_ERROR("[picker]:!context->pickerCallBack is nullptr");
+        return;
+    }
     while (!context->pickerCallBack->ready) {
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_TIME_MS));
     }
@@ -60,6 +68,10 @@ static void StartModalPickerExecute(napi_env env, void *data)
 static void MakeResultWithArr(napi_env env, std::string key, napi_value &result,
     std::shared_ptr<PickerCallBack> pickerCallBack)
 {
+    if (pickerCallBack == nullptr) {
+        HILOG_ERROR("[picker]:pickerCallBack is nullptr");
+        return;
+    }
     napi_value array;
     napi_create_array(env, &array);
     napi_status status = napi_generic_failure;
@@ -87,6 +99,10 @@ static void MakeResultWithArr(napi_env env, std::string key, napi_value &result,
 static void MakeResultWithInt(napi_env env, std::string key, napi_value &result,
     std::shared_ptr<PickerCallBack> pickerCallBack)
 {
+    if (pickerCallBack == nullptr) {
+        HILOG_ERROR("[picker]: pickerCallBack is nullptr");
+        return;
+    }
     napi_status status = napi_generic_failure;
     if (pickerCallBack->want.GetParams().HasParam(key.c_str())) {
         const int32_t suffixindex = pickerCallBack->want.GetIntParam(key.c_str(), -1);
@@ -103,6 +119,10 @@ static void MakeResultWithInt(napi_env env, std::string key, napi_value &result,
 static void MakeResultWithBool(napi_env env, std::string key, napi_value &result,
     std::shared_ptr<PickerCallBack> pickerCallBack)
 {
+    if (pickerCallBack == nullptr) {
+        HILOG_ERROR("[picker]: pickerCallBack is nullptr");
+        return;
+    }
     napi_status status = napi_generic_failure;
     if (pickerCallBack->want.GetParams().HasParam(key.c_str())) {
         const bool boolVal = pickerCallBack->want.GetBoolParam(key.c_str(), false);
@@ -119,7 +139,7 @@ static void MakeResultWithBool(napi_env env, std::string key, napi_value &result
 static napi_value MakeResultWithPickerCallBack(napi_env env, std::shared_ptr<PickerCallBack> pickerCallBack)
 {
     if (pickerCallBack == nullptr) {
-        HILOG_ERROR("pickerCallBack is null");
+        HILOG_ERROR("[picker]: pickerCallBack is null");
         return nullptr;
     }
     napi_value result = nullptr;
@@ -227,6 +247,10 @@ static ErrCode GetCustomShowingWindow(napi_env env, AsyncContext &asyncContext,
     const napi_callback_info info, sptr<Rosen::Window> &window)
 {
     HILOG_INFO("[picker] GetCustomShowingWindow enter.");
+    if (!asyncContext) {
+        HILOG_ERROR("[picker] asyncContext is nullptr.");
+        return ERR_INV;
+    }
     napi_status status;
     if (!IsTypeRight(env, asyncContext->argv[ARGS_TWO], napi_object)) {
         HILOG_ERROR("[picker] The type of the parameter transferred to the window is not object.");
@@ -255,6 +279,10 @@ static ErrCode GetCustomShowingWindow(napi_env env, AsyncContext &asyncContext,
 Ace::UIContent *GetUIContent(napi_env env, napi_callback_info info,
     unique_ptr<PickerAsyncContext> &AsyncContext)
 {
+    if (!AsyncContext) {
+        HILOG_ERROR("[picker] asyncContext is nullptr.");
+        return nullptr;
+    }
     bool isStageMode = false;
     napi_status status = AbilityRuntime::IsStageContext(env, AsyncContext->argv[ARGS_ZERO], isStageMode);
     if (status != napi_ok || !isStageMode) {
@@ -334,6 +362,10 @@ static napi_status AsyncContextSetStaticObjectInfo(napi_env env, napi_callback_i
     AsyncContext &asyncContext, const size_t minArgs, const size_t maxArgs)
 {
     HILOG_INFO("[picker]: AsyncContextSetStaticObjectInfo begin.");
+    if (!asyncContext) {
+        HILOG_ERROR("[picker] asyncContext is nullptr.");
+        return napi_invalid_arg;
+    }
     napi_value thisVar = nullptr;
     asyncContext->argc = maxArgs;
     napi_status ret = napi_get_cb_info(env, info, &asyncContext->argc, &(asyncContext->argv[ARGS_ZERO]),
