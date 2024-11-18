@@ -203,6 +203,10 @@ function getPhotoPickerSelectResult(args) {
 
   if (args.resultCode === 0) {
     let uris = args.photoUris;
+    if (uris === undefined) {
+      console.log('[picker] Photo uris is undefined');
+      uris = [];
+    }
     let isOriginal = args.isOriginal;
     selectResult.data = new PhotoSelectResult(uris, isOriginal);
   } else if (args.resultCode === -1) {
