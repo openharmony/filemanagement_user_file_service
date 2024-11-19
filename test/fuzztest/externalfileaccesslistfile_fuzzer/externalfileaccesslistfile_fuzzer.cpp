@@ -37,13 +37,6 @@ using namespace std;
 using namespace OHOS;
 using namespace FileAccessFwk;
 using namespace AbilityRuntime;
-constexpr size_t FOO_MAX_LEN = 1024;
-constexpr size_t U32_AT_SIZE = 4;
-
-
-enum {
-    TOKEN_INDEX_ONE = 0,
-};
 
 void SetNativeToken()
 {
@@ -71,14 +64,14 @@ void SetNativeToken()
     OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
-bool ExternalFileAccessListFileFuzzTest(std::unique_ptr<char[]> data, size_t size)
+bool ExternalFileAccessListFileFuzzTest(const uint8_t *data, size_t size)
 {
     SetNativeToken();
     // CMD_LISTFILE
     uint32_t code = 8;
     MessageParcel datas;
     datas.WriteInterfaceToken(FileAccessExtStub::GetDescriptor());
-    datas.WriteBuffer(data.get(), size);
+    datas.WriteBuffer(reinterpret_cast<const char*>(data), size);
     datas.RewindRead(0);
     MessageParcel reply;
     MessageOption option;
@@ -103,22 +96,6 @@ bool ExternalFileAccessListFileFuzzTest(std::unique_ptr<char[]> data, size_t siz
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-    /* Run your code on data */
-    if (data == nullptr) {
-        return 0;
-    }
-
-    /* Validate the length of size */
-    if (size < OHOS::U32_AT_SIZE || size > OHOS::FOO_MAX_LEN) {
-        return 0;
-    }
-
-    auto str = std::make_unique<char[]>(size + 1);
-    (void)memset_s(str.get(), size + 1, 0x00, size + 1);
-    if (memcpy_s(str.get(), size, data, size) != EOK) {
-        return 0;
-    }
-
-    OHOS::ExternalFileAccessListFileFuzzTest(move(str), size);
+    OHOS::ExternalFileAccessListFileFuzzTest(data, size);
     return 0;
 }
