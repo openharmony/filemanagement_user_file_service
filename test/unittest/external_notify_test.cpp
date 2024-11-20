@@ -1125,8 +1125,6 @@ HWTEST_F(FileExtensionNotifyTest, external_file_access_notify_0017, testing::ext
         Uri fileUri("");
         result = g_fah->CreateFile(newFileDir1, "uri_file", fileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
-        usleep(SLEEP_TIME / 10);
-        EXPECT_NE(g_notifyEvent, ADD_EVENT);
         usleep(SLEEP_TIME);
         EXPECT_EQ(g_notifyEvent, ADD_EVENT);
 

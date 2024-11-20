@@ -228,7 +228,8 @@ bool MkdirFuzzTest(const uint8_t* data, size_t size)
     for (size_t i = 0; i < info.size(); i++) {
         Uri parentUri(info[i].uri);
         Uri newDirUri("");
-        result = helper->Mkdir(parentUri, "MkdirFuzzTest", newDirUri);
+        std::string dirName(reinterpret_cast<const char*>(data), size);
+        result = helper->Mkdir(parentUri, dirName, newDirUri);
         if (result != OHOS::FileAccessFwk::ERR_OK) {
             HILOG_ERROR("Mkdir failed. ret : %{public}d", result);
             return false;
@@ -272,14 +273,18 @@ bool MoveFuzzTest(const uint8_t* data, size_t size)
         Uri parentUri(info[i].uri);
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
-        int result1 = helper->Mkdir(parentUri, "test1", newDirUriTest1);
-        int result2 = helper->Mkdir(parentUri, "test2", newDirUriTest2);
+        size_t len = size >> 2;
+        std::string test1(reinterpret_cast<const char*>(data), len);
+        std::string test2(reinterpret_cast<const char*>(data + len), len);
+        int result1 = helper->Mkdir(parentUri, test1, newDirUriTest1);
+        int result2 = helper->Mkdir(parentUri, test2, newDirUriTest2);
         if (result1 != OHOS::FileAccessFwk::ERR_OK || result2 != OHOS::FileAccessFwk::ERR_OK) {
             HILOG_ERROR("Mkdir failed. ret : %{public}d, %{public}d", result1, result2);
             return false;
         }
         Uri testUri("");
-        result = helper->CreateFile(newDirUriTest1, "test.txt", testUri);
+        std::string test(reinterpret_cast<const char*>(data + len + len), len);
+        result = helper->CreateFile(newDirUriTest1, test, testUri);
         if (result != OHOS::FileAccessFwk::ERR_OK) {
             HILOG_ERROR("CreateFile failed. ret : %{public}d", result);
             return false;
@@ -321,7 +326,8 @@ bool RenameFuzzTest(const uint8_t* data, size_t size)
             return false;
         }
         Uri renameUri("");
-        result = helper->Rename(newDirUriTest, "testRename", renameUri);
+        std::string testRename(reinterpret_cast<const char*>(data), size);
+        result = helper->Rename(newDirUriTest, testRename, renameUri);
         if (result != OHOS::FileAccessFwk::ERR_OK) {
             HILOG_ERROR("Rename failed. ret : %{public}d", result);
             return false;
