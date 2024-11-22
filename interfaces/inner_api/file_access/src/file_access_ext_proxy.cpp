@@ -34,6 +34,10 @@ int FileAccessExtProxy::OpenFile(const Uri &uri, const int flags, int &fd)
 {
     UserAccessTracer trace;
     trace.Start("OpenFile");
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Remote is nullptr");
+        return E_IPCS;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -82,6 +86,10 @@ int FileAccessExtProxy::CreateFile(const Uri &parent, const std::string &display
 {
     UserAccessTracer trace;
     trace.Start("CreateFile");
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Remote is nullptr");
+        return E_IPCS;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -136,6 +144,10 @@ int FileAccessExtProxy::Mkdir(const Uri &parent, const std::string &displayName,
 {
     UserAccessTracer trace;
     trace.Start("Mkdir");
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Remote is nullptr");
+        return E_IPCS;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -190,6 +202,10 @@ int FileAccessExtProxy::Delete(const Uri &sourceFile)
 {
     UserAccessTracer trace;
     trace.Start("Delete");
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Remote is nullptr");
+        return E_IPCS;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -227,6 +243,10 @@ int FileAccessExtProxy::Move(const Uri &sourceFile, const Uri &targetParent, Uri
 {
     UserAccessTracer trace;
     trace.Start("Move");
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Remote is nullptr");
+        return E_IPCS;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -359,6 +379,10 @@ int FileAccessExtProxy::Copy(const Uri &sourceUri, const Uri &destUri, std::vect
 {
     UserAccessTracer trace;
     trace.Start("Copy");
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Remote is nullptr");
+        return E_IPCS;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -392,6 +416,10 @@ int FileAccessExtProxy::CopyFile(const Uri &sourceUri, const Uri &destUri, const
 {
     UserAccessTracer trace;
     trace.Start("CopyFile");
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Remote is nullptr");
+        return E_IPCS;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -437,6 +465,10 @@ int FileAccessExtProxy::Rename(const Uri &sourceFile, const std::string &display
 {
     UserAccessTracer trace;
     trace.Start("Rename");
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Remote is nullptr");
+        return E_IPCS;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -577,6 +609,10 @@ int FileAccessExtProxy::ListFile(const FileInfo &fileInfo, const int64_t offset,
 {
     UserAccessTracer trace;
     trace.Start("ListFile");
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Remote is nullptr");
+        return E_IPCS;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -618,6 +654,10 @@ int FileAccessExtProxy::ScanFile(const FileInfo &fileInfo, const int64_t offset,
 {
     UserAccessTracer trace;
     trace.Start("ScanFile");
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Remote is nullptr");
+        return E_IPCS;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -691,6 +731,10 @@ int FileAccessExtProxy::Query(const Uri &uri, std::vector<std::string> &columns,
 {
     UserAccessTracer trace;
     trace.Start("Query");
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Remote is nullptr");
+        return E_IPCS;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -738,6 +782,10 @@ int FileAccessExtProxy::GetRoots(std::vector<RootInfo> &rootInfoVec)
 {
     UserAccessTracer trace;
     trace.Start("GetRoots");
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Remote is nullptr");
+        return E_IPCS;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -784,6 +832,10 @@ int FileAccessExtProxy::GetFileInfoFromUri(const Uri &selectFile, FileInfo &file
 {
     UserAccessTracer trace;
     trace.Start("GetFileInfoFromUri");
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Remote is nullptr");
+        return E_IPCS;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -828,6 +880,10 @@ int FileAccessExtProxy::GetFileInfoFromRelativePath(const std::string &selectFil
 {
     UserAccessTracer trace;
     trace.Start("GetFileInfoFromRelativePath");
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Remote is nullptr");
+        return E_IPCS;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -872,6 +928,10 @@ int FileAccessExtProxy::Access(const Uri &uri, bool &isExist)
 {
     UserAccessTracer trace;
     trace.Start("Access");
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Remote is nullptr");
+        return E_IPCS;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -914,6 +974,10 @@ int FileAccessExtProxy::StartWatcher(const Uri &uri)
 {
     UserAccessTracer trace;
     trace.Start("StartWatcher");
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Remote is nullptr");
+        return E_IPCS;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -952,6 +1016,10 @@ int FileAccessExtProxy::StopWatcher(const Uri &uri)
 {
     UserAccessTracer trace;
     trace.Start("StopWatcher");
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Remote is nullptr");
+        return E_IPCS;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");
@@ -1028,6 +1096,10 @@ int FileAccessExtProxy::MoveItem(const Uri &sourceFile, const Uri &targetParent,
 {
     UserAccessTracer trace;
     trace.Start("MoveItem");
+    if (Remote() == nullptr) {
+        HILOG_ERROR("Remote is nullptr");
+        return E_IPCS;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(FileAccessExtProxy::GetDescriptor())) {
         HILOG_ERROR("WriteInterfaceToken failed");

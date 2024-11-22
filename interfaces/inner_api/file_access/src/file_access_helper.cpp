@@ -362,6 +362,10 @@ bool FileAccessHelper::GetProxy()
 {
     for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
         auto connectInfo = iter->second;
+        if (connectInfo == nullptr || connectInfo->fileAccessExtConnection == nullptr) {
+            HILOG_ERROR("connectInfo is nullptr");
+            return false;
+        }
         if (!connectInfo->fileAccessExtConnection->IsExtAbilityConnected()) {
             connectInfo->fileAccessExtConnection->ConnectFileExtAbility(connectInfo->want);
         }
@@ -909,6 +913,10 @@ int FileAccessHelper::GetRoots(std::vector<RootInfo> &rootInfoVec)
     int ret = ERR_OK;
     for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
         auto connectInfo = iter->second;
+        if (connectInfo == nullptr || connectInfo->fileAccessExtConnection == nullptr) {
+            HILOG_ERROR("connectInfo is nullptr");
+            return E_IPCS;
+        }
         auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
         std::vector<RootInfo> results;
         if (!fileAccessExtProxy) {

@@ -84,11 +84,13 @@ void JsFileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &rec
         HILOG_ERROR("Failed to get srcPath");
         return;
     }
-
+    if (abilityInfo_ == nullptr) {
+        HILOG_ERROR("abilityInfo_ is nullptr");
+        return;
+    }
     std::string moduleName(Extension::abilityInfo_->moduleName);
     moduleName.append("::").append(abilityInfo_->name);
     HandleScope handleScope(jsRuntime_);
-
     jsObj_ = jsRuntime_.LoadModule(moduleName, srcPath, abilityInfo_->hapPath,
         abilityInfo_->compileMode == AbilityRuntime::CompileMode::ES_MODULE);
     if (jsObj_ == nullptr) {
@@ -242,7 +244,7 @@ int JsFileAccessExtAbility::CallJsMethod(const std::string &funcName, JsRuntime 
         loop, work.get(), [](uv_work_t *work) {},
         [](uv_work_t *work, int status) {
             CallJsParam *param = reinterpret_cast<CallJsParam *>(work->data);
-            if (param == nullptr) {
+            if (param == nullptr || param->jsRuntime == nullptr) {
                 HILOG_ERROR("failed to get CallJsParam.");
                 return;
             }
@@ -1194,7 +1196,7 @@ void ChangeCurrentDir(RootInfo &rootInfo)
         HILOG_WARN("get userName fail");
         return;
     }
-    HILOG_DEBUG("GetuserName: %{public}s", userName.c_str());
+    HILOG_DEBUG("GetuserName: %{private}s", userName.c_str());
     if (rootInfo.uri.rfind("file://docs/storage/Users/currentUser") == 0) {
         rootInfo.uri = "file://docs/storage/Users/" + userName;
     }

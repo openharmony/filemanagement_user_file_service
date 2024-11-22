@@ -98,6 +98,10 @@ static int TransferListFile(const RootInfoEntity* rootEntity, FileIteratorEntity
     fileIteratorEntity->offset = 0;
     fileIteratorEntity->filter = std::move(filter);
     fileIteratorEntity->flag = CALL_LISTFILE;
+    if (rootEntity->fileAccessHelper == nullptr) {
+        HILOG_ERROR("rootEntity->fileAccessHelper is nullptr");
+        return E_GETRESULT;
+    }
     return rootEntity->fileAccessHelper->ListFile(fileInfo, fileIteratorEntity->offset, filter,
         fileIteratorEntity->memInfo);
 }

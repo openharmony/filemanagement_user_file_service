@@ -31,6 +31,10 @@ static napi_value Export(napi_env env, napi_value exports)
     products.emplace_back(make_unique<FileTrashNExporter>(env, exports));
 
     for (auto &&product : products) {
+        if (!product) {
+            HILOG_ERROR("product is nullptr");
+            return nullptr;
+        }
         string nExporterName = product->GetClassName();
         if (!product->Export()) {
             HILOG_ERROR("INNER BUG. Failed to export class %{public}s for module trash", nExporterName.c_str());

@@ -1302,6 +1302,10 @@ napi_value NAPI_UnregisterObserver(napi_env env, napi_callback_info info)
         }
 
         auto wrapper = observerWrapper.release();
+        if (wrapper == nullptr) {
+            HILOG_ERROR("wrapper is nullptr");
+            return nullptr;
+        }
         retCode = fileAccessHelper->UnregisterNotify(uri, wrapper->callback);
     }
 

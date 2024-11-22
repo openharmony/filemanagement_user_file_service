@@ -71,6 +71,9 @@ void FileAccessService::OnStart()
     UserAccessTracer trace;
     trace.Start("OnStart");
     sptr<FileAccessService> service = FileAccessService::GetInstance();
+    if (service == nullptr) {
+        HILOG_ERROR("service is nullptr");
+    }
     service->Init();
     if (!Publish(service)) {
         HILOG_ERROR("OnStart register to system ability manager failed");
@@ -249,6 +252,10 @@ void FileAccessService::ObserverDeathRecipient::OnRemoteDied(const wptr<IRemoteO
 void FileAccessService::CleanRelativeObserver(const sptr<IFileAccessObserver> &observer)
 {
     shared_ptr<ObserverContext> obsContext = make_shared<ObserverContext>(observer);
+    if (obsContext == nullptr) {
+        HILOG_ERROR("obsContext is nullptr");
+        return;
+    }
     uint32_t code = obsManager_.getId([obsContext](const shared_ptr<ObserverContext>  &afterContext) {
         return obsContext->EqualTo(afterContext);
     });
@@ -306,7 +313,7 @@ int32_t FileAccessService::OperateObsNode(Uri &uri, bool notifyForDescendants, u
     const std::shared_ptr<ConnectExtensionInfo> &info)
 {
     string uriStr = uri.ToString();
-    HILOG_INFO("OperateObsNode uriStr: %{public}s", uriStr.c_str());
+    HILOG_INFO("OperateObsNode uriStr: %{private}s", uriStr.c_str());
     {
         lock_guard<mutex> lock(nodeMutex_);
         auto iter = relationshipMap_.find(uriStr);
@@ -409,7 +416,7 @@ void FileAccessService::RemoveRelations(string &uriStr, shared_ptr<ObserverNode>
 
 int FileAccessService::FindUri(const string &uriStr, shared_ptr<ObserverNode> &outObsNode)
 {
-    HILOG_INFO("uriStr: %{public}s", uriStr.c_str());
+    HILOG_INFO("uriStr: %{private}s", uriStr.c_str());
     lock_guard<mutex> lock(nodeMutex_);
     HILOG_DEBUG("FindUri start");
     auto iter = relationshipMap_.find(uriStr);
@@ -781,6 +788,10 @@ void FileAccessService::AddAppProxy(const sptr<AAFwk::IAbilityConnection>& conne
     lock_guard<mutex> lock(appProxyMutex_);
     if (appProxyMap_.count(key)) {
         HILOG_INFO("sa had proxy,needn't create connection");
+        return;
+    }
+    if (connection->AsObject() == nullptr) {
+        HILOG_ERROR("connection->AsObject() is nullptr");
         return;
     }
     connection->AsObject()->AddDeathRecipient(appDeathRecipient_);

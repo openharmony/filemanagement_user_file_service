@@ -159,7 +159,15 @@ napi_value RecentNExporter::RemoveRecentFile(napi_env env, napi_callback_info cb
 
 static void Deleter(struct NameListArg *arg)
 {
-    for (int i = 0; i < arg->direntNum; i++) {
+    if (arg == nullptr) {
+        HILOG_ERROR("invalid argument arg is nullptr");
+        return;
+    }
+    if (arg->namelist == nullptr) {
+        HILOG_ERROR("arg->namelist is nullptr");
+        return;
+    }
+    for (uint32_t i = 0; i < arg->direntNum; i++) {
         free((arg->namelist)[i]);
         (arg->namelist)[i] = nullptr;
     }
@@ -195,6 +203,10 @@ static int SortReceneFile(const struct dirent **a, const struct dirent **b)
 
 static int FilterFunc(const struct dirent *filename)
 {
+    if (filename == nullptr) {
+        HILOGE("filename is bullptr");
+        return false;
+    }
     if (string_view(filename->d_name) == "." || string_view(filename->d_name) == "..") {
         return false;
     }
@@ -254,7 +266,7 @@ static napi_value GetListFileResult(napi_env env, struct NameListArg* pNameList)
     }
     auto buf = CreateUniquePtr<char[]>(BUF_SIZE);
     int index = 0;
-    for (int i = 0; i < pNameList->direntNum; ++i) {
+    for (uint32_t i = 0; i < pNameList->direntNum; ++i) {
         string recentFilePath = RecentNExporter::recentPath_ + string((*(pNameList->namelist[i])).d_name);
         if (index < MAX_RECENT_SIZE) {
             auto [checkRealFileRes, realFileStatBuf] = CheckRealFileExist(recentFilePath);
