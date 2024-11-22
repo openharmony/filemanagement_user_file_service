@@ -49,7 +49,12 @@ bool MarshallingFuzzTest(shared_ptr<SharedMemoryInfo> info, const uint8_t *data,
 
 bool UnmarshallingFuzzTest(shared_ptr<SharedMemoryInfo> info, const uint8_t *data, size_t size)
 {
+    if (data == nullptr || size < sizeof(uint64_t)) {
+        return true;
+    }
+
     MessageParcel reply;
+    reply.WriteUint64(*reinterpret_cast<const uint64_t*>(data));
     info->Unmarshalling(reply);
 
     return true;
@@ -90,13 +95,29 @@ bool ExpandSharedMemoryFuzzTest(const uint8_t *data, size_t size)
 
 bool WriteFileInfosFuzzTest(const uint8_t *data, size_t size)
 {
-    FileInfo info;
+    if (data == nullptr || size < sizeof(int32_t) + sizeof(int64_t) + sizeof(int64_t)) {
+        return true;
+    }
+
+    int pos = 0;
+    int32_t mode = TypeCast<int32_t>(data, &pos);
+    int64_t sz = TypeCast<int64_t>(data + pos, &pos);
+    int64_t mtime = TypeCast<int64_t>(data + pos, &pos);
+    int len = (size - pos) >> 2;
+    std::string uri(*reinterpret_cast<const char*>(data + pos), len);
+    std::string relativePath(*reinterpret_cast<const char*>(data + pos + len), len);
+    std::string fileName(*reinterpret_cast<const char*>(data + pos + len + len), len);
+    std::string mimeType(*reinterpret_cast<const char*>(data + pos + len + len + len), len);
+
+    FileInfo info(uri, relativePath, fileName, mode, mimeType);
+    info.size = sz;
+    info.mtime = mtime;
     vector<FileInfo> fileInfoVec;
-    fileInfoVec.emplace_back();
+    fileInfoVec.emplace_back(info);
+
     SharedMemoryInfo memInfo;
     SharedMemoryOperation::WriteFileInfos(fileInfoVec, memInfo);
     SharedMemoryOperation::ReadFileInfo(info, memInfo);
-
     return true;
 }
 

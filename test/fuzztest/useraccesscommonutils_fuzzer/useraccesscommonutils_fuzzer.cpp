@@ -31,7 +31,7 @@ bool IsFullMountFuzzTest(const uint8_t *data, size_t size)
 
 bool GetUserNameFuzzTest(const uint8_t *data, size_t size)
 {
-    string userName;
+    string userName(reinterpret_cast<const char*>(data), size);
     GetUserName(userName);
     return true;
 }

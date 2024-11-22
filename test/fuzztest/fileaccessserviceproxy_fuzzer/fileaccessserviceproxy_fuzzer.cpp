@@ -89,7 +89,11 @@ bool UnregisterNotifyFuzzTest(shared_ptr<FileAccessServiceProxy> proxy, const ui
 
 bool GetExensionProxyFuzzTest(shared_ptr<FileAccessServiceProxy> proxy, const uint8_t *data, size_t size)
 {
-    auto info = make_shared<ConnectExtensionInfo>();
+    int len = size >> 1;
+    AAFwk::Want want;
+    want.SetElementName(std::string(reinterpret_cast<const char*>(data), len),
+        std::string(reinterpret_cast<const char*>(data + len), size - len));
+    auto info = make_shared<ConnectExtensionInfo>(want, nullptr);
     sptr<IFileAccessExtBase> extensionProxy = nullptr;
 
     proxy->GetExtensionProxy(info, extensionProxy);

@@ -14,7 +14,7 @@
  */
 #include "fileaccessextconnection_fuzzer.h"
 
-#include <cstring>
+#include <string>
 #include <memory>
 
 #include "hilog_wrapper.h"
@@ -24,17 +24,21 @@ namespace OHOS {
 using namespace std;
 using namespace FileAccessFwk;
 
-bool OnAbilityConnectDoneFuzzTest(sptr<FileAccessExtConnection> conn)
+bool OnAbilityConnectDoneFuzzTest(sptr<FileAccessExtConnection> conn, const uint8_t *data, size_t size)
 {
     AppExecFwk::ElementName element;
+    std::string name(reinterpret_cast<const char*>(data), size);
+    element.SetBundleName(name);
     sptr<IRemoteObject> remoteObject = nullptr;
     conn->OnAbilityConnectDone(element, remoteObject, 0);
     return true;
 }
 
-bool OnAbilityDisconnectDoneFuzzTest(sptr<FileAccessExtConnection> conn)
+bool OnAbilityDisconnectDoneFuzzTest(sptr<FileAccessExtConnection> conn, const uint8_t *data, size_t size)
 {
     AppExecFwk::ElementName element;
+    std::string name(reinterpret_cast<const char*>(data), size);
+    element.SetBundleName(name);
     conn->OnAbilityDisconnectDone(element, 0);
     return true;
 }
@@ -51,9 +55,12 @@ bool GetFileExtProxyFuzzTest(sptr<FileAccessExtConnection> conn)
     return true;
 }
 
-bool ConnectFileExtAbility(sptr<FileAccessExtConnection> conn)
+bool ConnectFileExtAbility(sptr<FileAccessExtConnection> conn, const uint8_t *data, size_t size)
 {
+    int len = size >> 1;
     AAFwk::Want want;
+    want.SetElementName(std::string(reinterpret_cast<const char*>(data), len),
+        std::string(reinterpret_cast<const char*>(data + len), size - len));
     sptr<IRemoteObject> remoteObject = nullptr;
     conn->ConnectFileExtAbility(want, remoteObject);
     return true;
@@ -74,11 +81,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         return 0;
     }
 
-    OHOS::OnAbilityConnectDoneFuzzTest(conn);
-    OHOS::OnAbilityDisconnectDoneFuzzTest(conn);
+    OHOS::OnAbilityConnectDoneFuzzTest(conn, data, size);
+    OHOS::OnAbilityDisconnectDoneFuzzTest(conn, data, size);
     OHOS::IsExtAbilityConnectedFuzzTest(conn);
     OHOS::GetFileExtProxyFuzzTest(conn);
-    OHOS::ConnectFileExtAbility(conn);
+    OHOS::ConnectFileExtAbility(conn, data, size);
     OHOS::DisconnectFileExtAbility(conn);
 
     return 0;
