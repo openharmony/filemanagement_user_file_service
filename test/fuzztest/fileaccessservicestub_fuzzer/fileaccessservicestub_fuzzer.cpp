@@ -106,7 +106,10 @@ ErrCode CmdUnregisterNotifyFuzzTest(shared_ptr<FileAccessServiceStub> fileAccess
 ErrCode CmdGetExensionProxyFuzzTest(shared_ptr<FileAccessServiceStub> fileAccessServiceStub, const uint8_t *data,
     size_t size)
 {
-    AAFwk::Want want = {};
+    int len = size >> 1;
+    AAFwk::Want want;
+    want.SetElementName(std::string(reinterpret_cast<const char*>(data), len),
+        std::string(reinterpret_cast<const char*>(data + len), size - len));
     MessageParcel msg;
     MessageParcel reply;
     msg.WriteParcelable(&want);
