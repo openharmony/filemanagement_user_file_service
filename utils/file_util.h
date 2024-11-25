@@ -56,7 +56,7 @@ static void Deleter(struct NameListArg *arg)
         HILOG_ERROR("arg->namelist is nullptr");
         return;
     }
-    for (uint32_t i = 0; i < arg->direntNum; i++) {
+    for (int32_t i = 0; i < arg->direntNum; i++) {
         free((arg->namelist)[i]);
         (arg->namelist)[i] = nullptr;
     }
