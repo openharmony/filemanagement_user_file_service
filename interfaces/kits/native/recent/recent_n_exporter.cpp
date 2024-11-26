@@ -167,7 +167,7 @@ static void Deleter(struct NameListArg *arg)
         HILOG_ERROR("arg->namelist is nullptr");
         return;
     }
-    for (uint32_t i = 0; i < arg->direntNum; i++) {
+    for (int32_t i = 0; i < arg->direntNum; i++) {
         free((arg->namelist)[i]);
         (arg->namelist)[i] = nullptr;
     }
@@ -266,7 +266,7 @@ static napi_value GetListFileResult(napi_env env, struct NameListArg* pNameList)
     }
     auto buf = CreateUniquePtr<char[]>(BUF_SIZE);
     int index = 0;
-    for (uint32_t i = 0; i < pNameList->direntNum; ++i) {
+    for (int32_t i = 0; i < pNameList->direntNum; ++i) {
         string recentFilePath = RecentNExporter::recentPath_ + string((*(pNameList->namelist[i])).d_name);
         if (index < MAX_RECENT_SIZE) {
             auto [checkRealFileRes, realFileStatBuf] = CheckRealFileExist(recentFilePath);

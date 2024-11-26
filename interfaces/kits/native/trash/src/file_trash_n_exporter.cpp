@@ -119,7 +119,7 @@ static int RecursiveFunc(const string &path, vector<string> &dirents)
     }
     pNameList->direntNum = num;
     string pathInRecur = path;
-    for (uint32_t i = 0; i < num; i++) {
+    for (int32_t i = 0; i < num; i++) {
         if (!pNameList->namelist) {
             HILOG_ERROR("pNameList->namelist is nullptr.");
             return ENOMEM;
