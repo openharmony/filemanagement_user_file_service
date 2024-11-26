@@ -264,6 +264,7 @@ bool CmdGetRootsFuzzTest(shared_ptr<FileAccessExtStub> fileAccessExtStub, const 
     MessageParcel msg;
     MessageParcel reply;
 
+    msg.WriteBuffer(data, size);
     fileAccessExtStub->CmdGetRoots(msg, reply);
     return true;
 }

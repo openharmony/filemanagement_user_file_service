@@ -25,6 +25,7 @@ using namespace FileAccessFwk;
 
 bool IsFullMountFuzzTest(const uint8_t *data, size_t size)
 {
+    (void)data;
     IsFullMountEnable();
     return true;
 }
