@@ -557,6 +557,7 @@ bool CmdGetRootsFuzzTest(shared_ptr<FileAccessExtStub> fileAccessExtStub, const 
 {
     MessageParcel msg;
     MessageParcel reply;
+    msg.WriteBuffer(data, size);
 
     que = {};
     que.push(false);

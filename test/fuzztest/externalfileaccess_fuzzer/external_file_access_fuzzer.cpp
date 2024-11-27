@@ -137,10 +137,7 @@ bool CreatorFuzzTest(const uint8_t* data, size_t size)
 
 bool CheckDataAndHelper(const uint8_t* data, size_t size, shared_ptr<FileAccessHelper>& helper)
 {
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
+    (void)data;
     helper = GetFileAccessHelper();
     if (helper == nullptr) {
         HILOG_ERROR("GetFileAccessHelper return nullptr.");
