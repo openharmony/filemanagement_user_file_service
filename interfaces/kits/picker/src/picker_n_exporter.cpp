@@ -228,12 +228,14 @@ static ErrCode GetWindowName(napi_env env, napi_value properties, sptr<Rosen::Wi
     status = napi_get_value_string_utf8(env, name, nameBuf, nameLen + 1, &nameLen);
     if (status != napi_ok) {
         HILOG_ERROR("[picker] Get value string UTF8 fail.");
+        delete[] nameBuf;
         return ERR_INV;
     }
     HILOG_INFO("[picker] Get window name: %{public}s", nameBuf);
     auto customWindow = Rosen::Window::Find(nameBuf);
     if (!customWindow) {
         HILOG_ERROR("[picker] Window find fail.");
+        delete[] nameBuf;
         return ERR_INV;
     }
     window = customWindow;
