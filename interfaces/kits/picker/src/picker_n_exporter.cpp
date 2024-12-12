@@ -84,6 +84,22 @@ static void MakeResultWithArr(napi_env env, std::string key, napi_value &result,
     }
 }
 
+static void MakeResultWithInt(napi_env env, std::string key, napi_value &result,
+    std::shared_ptr<PickerCallBack> pickerCallBack)
+{
+    napi_status status = napi_generic_failure;
+    if (pickerCallBack->want.GetParams().HasParam(key.c_str())) {
+        const int32_t suffixindex = pickerCallBack->want.GetIntParam(key.c_str(), -1);
+        HILOG_INFO("Modal picker: %{public}s is %{public}d ", key.c_str(), suffixindex);
+        napi_value suffix = nullptr;
+        napi_create_int32(env, suffixindex, &suffix);
+        status = napi_set_named_property(env, result, key.c_str(), suffix);
+        if (status != napi_ok) {
+            HILOG_ERROR("Modal picker: napi_set_named_property suffix failed");
+        }
+    }
+}
+
 static void MakeResultWithBool(napi_env env, std::string key, napi_value &result,
     std::shared_ptr<PickerCallBack> pickerCallBack)
 {
@@ -122,6 +138,7 @@ static napi_value MakeResultWithPickerCallBack(napi_env env, std::shared_ptr<Pic
     MakeResultWithArr(env, "uriArr", result, pickerCallBack);
     MakeResultWithArr(env, "select-item-list", result, pickerCallBack);
     MakeResultWithBool(env, "isOriginal", result, pickerCallBack);
+    MakeResultWithInt(env, "userSuffixIndex", result, pickerCallBack);
     return result;
 }
 
