@@ -209,16 +209,19 @@ void FileAccessService::ResetProxy(const wptr<IRemoteObject> &remote)
     HILOG_DEBUG("FileAccessService::ResetProxy start");
     lock_guard<mutex> lock(mapMutex_);
     if (remote != nullptr && extensionDeathRecipient_ != nullptr) {
-        for (auto iter = cMap_.begin(); iter != cMap_.end(); ++iter) {
+        for (auto iter = cMap_.begin(); iter != cMap_.end();) {
             if (iter->second == nullptr) {
                 HILOG_ERROR("iter->second is null or extensionDeathRecipient_ is null.");
+                ++iter;
                 continue;
             }
             auto proxyRemote = iter->second->AsObject();
             if (proxyRemote != nullptr && proxyRemote == remote.promote()) {
                 proxyRemote->RemoveDeathRecipient(extensionDeathRecipient_);
-                cMap_.erase(iter->first);
+                iter = cMap_.erase(iter);
+                continue;
             }
+            ++iter;
         }
     } else {
         HILOG_ERROR("FileAccessService::ResetProxy, proxy is null or extensionDeathRecipient_ is null.");
@@ -539,14 +542,14 @@ int32_t FileAccessService::UnregisterNotifyImpl(Uri uri, const sptr<IFileAccessO
         return E_IPCS;
     }
     object->UnRef();
+    // if data refcount is invalid, release this code.
+    if (!object->IsValid()) {
+        obsManager_.release(code);
+    }
     // node has other observers, do not need remove.
     if (obsNode->CheckObsCodeListNotEmpty()) {
         HILOG_DEBUG("Has code do not stopWatcher");
         return ERR_OK;
-    }
-    // if data refcount is invalid, release this code.
-    if (!object->IsValid()) {
-        obsManager_.release(code);
     }
     return RmUriObsNodeRelations(uriStr, obsNode, info);
 }
