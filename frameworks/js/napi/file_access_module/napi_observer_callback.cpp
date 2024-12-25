@@ -137,15 +137,18 @@ void NapiObserver::OnChange(NotifyMessage &notifyMessage)
     }
     std::unique_ptr<CallbackParam> callbackParam = std::make_unique<CallbackParam>(this, notifyMessage);
     work_->data = callbackParam.get();
-    int ret = uv_queue_work(loop, work_.get(),
-        [](uv_work_t *work) {},
-        [](uv_work_t *work, int status) {
-            NapiWorkScope(work, status);
-        });
-    if (ret == 0) {
-        callbackParam.release();
-        work_.release();
+
+    auto task = [work {work_.get()}]() {
+        NapiWorkScope(work, 0);
+    };
+    auto ret = napi_send_event(env_, task, napi_eprio_high);
+    if (ret != napi_ok) {
+        HILOG_ERROR("failed to napi_send_event, ret:%{public}d.", ret);
+        return;
     }
+
+    callbackParam.release();
+    work_.release();
 }
 } // namespace FileAccessFwk
 } // namespace OHOS

@@ -234,36 +234,29 @@ int JsFileAccessExtAbility::CallJsMethod(const std::string &funcName, JsRuntime 
         HILOG_ERROR("failed to new param.");
         return EINVAL;
     }
-    auto work = std::make_shared<uv_work_t>();
-    if (work == nullptr) {
-        HILOG_ERROR("failed to new uv_work_t.");
-        return EINVAL;
-    }
-    work->data = reinterpret_cast<void *>(param.get());
-    int ret = uv_queue_work(
-        loop, work.get(), [](uv_work_t *work) {},
-        [](uv_work_t *work, int status) {
-            CallJsParam *param = reinterpret_cast<CallJsParam *>(work->data);
-            if (param == nullptr || param->jsRuntime == nullptr) {
-                HILOG_ERROR("failed to get CallJsParam.");
-                return;
-            }
 
-            napi_handle_scope scope = nullptr;
-            napi_env env = reinterpret_cast<napi_env>(&(param->jsRuntime->GetNativeEngine()));
-            napi_open_handle_scope(env, &scope);
+    auto task = [param {param.get()}]() {
+        if (param == nullptr || param->jsRuntime == nullptr) {
+            HILOG_ERROR("failed to get CallJsParam.");
+            return;
+        }
 
-            if (DoCallJsMethod(param) != ERR_OK) {
-                HILOG_ERROR("failed to call DoCallJsMethod.");
-            }
+        napi_handle_scope scope = nullptr;
+        napi_env env = reinterpret_cast<napi_env>(&(param->jsRuntime->GetNativeEngine()));
+        napi_open_handle_scope(env, &scope);
 
-            std::unique_lock<std::mutex> lock(param->fileOperateMutex);
-            param->isReady = true;
-            param->fileOperateCondition.notify_one();
-            napi_close_handle_scope(env, scope);
-        });
-    if (ret != 0) {
-        HILOG_ERROR("failed to exec uv_queue_work.");
+        if (DoCallJsMethod(param) != ERR_OK) {
+            HILOG_ERROR("failed to call DoCallJsMethod.");
+        }
+
+        std::unique_lock<std::mutex> lock(param->fileOperateMutex);
+        param->isReady = true;
+        param->fileOperateCondition.notify_one();
+        napi_close_handle_scope(env, scope);
+    };
+    auto ret = napi_send_event(jsRuntime.GetNapiEnv(), task, napi_eprio_high);
+    if (ret != napi_ok) {
+        HILOG_ERROR("failed to napi_send_event, ret:%{public}d.", ret);
         return EINVAL;
     }
     std::unique_lock<std::mutex> lock(param->fileOperateMutex);
