@@ -16,17 +16,6 @@
 #include "assistant.h"
 #include "uv.h"
 
-int uv_queue_work(uv_loop_t* loop, uv_work_t* req, uv_work_cb work_cb, uv_after_work_cb after_work_cb)
-{
-    if (work_cb) {
-        work_cb(req);
-    }
-    if (after_work_cb) {
-        after_work_cb(req, 0);
-    }
-    return OHOS::FileAccessFwk::Assistant::ins_->uv_queue_work(loop, req, work_cb, after_work_cb);
-}
-
 napi_status napi_get_uv_event_loop(napi_env env, struct uv_loop_s** loop)
 {
     return OHOS::FileAccessFwk::Assistant::ins_->napi_get_uv_event_loop(env, loop);
@@ -148,4 +137,12 @@ napi_status napi_get_undefined(napi_env env, napi_value* result)
 napi_status napi_get_value_bool(napi_env env, napi_value value, bool* result)
 {
     return OHOS::FileAccessFwk::Assistant::ins_->napi_get_value_bool(env, value, result);
+}
+
+napi_status napi_send_event(napi_env env, const std::function<void()> cb, napi_event_priority priority)
+{
+    if (cb) {
+        cb();
+    }
+    return OHOS::FileAccessFwk::Assistant::ins_->napi_send_event(env, cb, priority);
 }
