@@ -462,7 +462,7 @@ function getDocumentPickerSaveResult(args) {
     if (args.ability_params_stream) {
       saveResult.data = args.ability_params_stream;
       saveResult.error = args.resultCode;
-      if (args.userSuffixIndex) {
+      if (args.userSuffixIndex >= 0) {
         saveResult.suffix = args.userSuffixIndex;
       }
     }
@@ -472,7 +472,7 @@ function getDocumentPickerSaveResult(args) {
   }
 
   console.log('[picker] getDocumentPickerSaveResult saveResult: errorcode is = ' + saveResult.error +
-              ', selecturi is = ' + anonymousPathArray(saveResult.data));
+              ', selecturi is = ' + anonymousPathArray(saveResult.data) + ', usersavesuffix =' + saveResult.suffix);
   return saveResult;
 }
 
