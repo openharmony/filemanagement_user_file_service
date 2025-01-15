@@ -111,9 +111,7 @@ ohos_shared_library("cj_picker_ffi") {
 
   include_dirs = [ "cj/include" ]
 
-  sources = [
-    "cj/src/cj_picker.cpp",
-  ]
+  sources = [ "cj/src/cj_picker.cpp" ]
 
   external_deps = [
     "ability_base:want",

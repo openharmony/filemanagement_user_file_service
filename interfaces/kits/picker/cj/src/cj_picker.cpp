@@ -44,7 +44,8 @@ static Ace::UIContent* GetUIContextByContext(OHOS::AbilityRuntime::Context* cont
     return abilityContext->GetUIContent();
 }
 
-static int32_t StartCjPickerExtension(OHOS::AbilityRuntime::Context* context, WantHandle want, void (*cjCallback)(PickerResult))
+static int32_t StartCjPickerExtension(OHOS::AbilityRuntime::Context* context,
+    WantHandle want, void (*cjCallback)(PickerResult))
 {
     HILOG_INFO("[picker]: StartPickerExtension begin.");
     Ace::UIContent *uiContent;
@@ -164,7 +165,8 @@ static PickerResult MakePickerResult(std::shared_ptr<CjPickerCallBack> pickerCal
 }
 
 extern "C" {
-int32_t FfiOHOSFilePickerModalPicker(OHOS::AbilityRuntime::Context* context, WantHandle config, char* windowName, void (*callback)(PickerResult))
+int32_t FfiOHOSFilePickerModalPicker(OHOS::AbilityRuntime::Context* context,
+    WantHandle config, char* windowName, void (*callback)(PickerResult))
 {
     if (!context || !config) {
         HILOG_ERROR("[picker] context or config is nullptr.");
@@ -180,7 +182,8 @@ int32_t FfiOHOSFilePickerModalPicker(OHOS::AbilityRuntime::Context* context, Wan
 }
 }
 
-CjModalUICallback::CjModalUICallback(Ace::UIContent* uiContent, std::shared_ptr<CjPickerCallBack> pickerCallBack, void (*callback)(PickerResult))
+CjModalUICallback::CjModalUICallback(Ace::UIContent* uiContent,
+    std::shared_ptr<CjPickerCallBack> pickerCallBack, void (*callback)(PickerResult))
 {
     this->uiContent = uiContent;
     this->pickerCallBack_ = pickerCallBack;

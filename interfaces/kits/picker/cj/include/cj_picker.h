@@ -55,12 +55,14 @@ struct PickerResult {
     CArrString photoUris;
 };
 
-FFI_EXPORT int32_t FfiOHOSFilePickerModalPicker(OHOS::AbilityRuntime::Context* context, WantHandle config, char* windowName, void (*callback)(PickerResult));
+FFI_EXPORT int32_t FfiOHOSFilePickerModalPicker(OHOS::AbilityRuntime::Context* context,
+    WantHandle config, char* windowName, void (*callback)(PickerResult));
 }
 
 class CjModalUICallback {
 public:
-    explicit CjModalUICallback(Ace::UIContent* uiContent, std::shared_ptr<CjPickerCallBack> pickerCallBack, void (*callback)(PickerResult));
+    explicit CjModalUICallback(Ace::UIContent* uiContent,
+        std::shared_ptr<CjPickerCallBack> pickerCallBack, void (*callback)(PickerResult));
     void OnRelease(int32_t releaseCode);
     void OnResultForModal(int32_t resultCode, const OHOS::AAFwk::Want& result);
     void OnReceive(const OHOS::AAFwk::WantParams& request);
