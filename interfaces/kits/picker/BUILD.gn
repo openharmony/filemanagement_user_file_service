@@ -104,3 +104,46 @@ ohos_shared_library("picker") {
   subsystem_name = "filemanagement"
   part_name = "user_file_service"
 }
+
+ohos_shared_library("cj_picker_ffi") {
+  branch_protector_ret = "pac_ret"
+  ldflags = [ "-Wl" ]
+
+  include_dirs = [ "cj/include" ]
+
+  sources = [
+    "cj/src/cj_picker.cpp",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:ability_manager",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:app_context",
+    "ability_runtime:dataobs_manager",
+    "ability_runtime:runtime",
+    "ability_runtime:service_extension",
+    "ability_runtime:ui_extension",
+    "ace_engine:ace_uicontent",
+    "file_api:filemgmt_libhilog",
+    "file_api:filemgmt_libn",
+    "hilog:libhilog",
+    "napi:cj_bind_ffi",
+    "napi:cj_bind_native",
+  ]
+
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
+  innerapi_tags = [ "platformsdk" ]
+  subsystem_name = "filemanagement"
+  part_name = "user_file_service"
+}
