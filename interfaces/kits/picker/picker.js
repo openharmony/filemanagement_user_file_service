@@ -29,6 +29,14 @@ const DocumentSelectMode = {
   MIXED: 2,
 };
 
+const MergeTypeMode = {
+  DEFAULT: 0,
+  AUDIO: 1,
+  VIDEO: 2,
+  DOCUMENT: 3,
+  PICTURE: 4,
+};
+
 const DocumentPickerMode = {
   DEFAULT: 0,
   DOWNLOAD: 1,
@@ -280,8 +288,8 @@ function parseDocumentPickerSelectOption(args, action) {
   if (args.length > ARGS_ZERO && typeof args[ARGS_ZERO] === 'object') {
     let option = args[ARGS_ZERO];
     config.parameters.key_select_mode = option.selectMode;
-    console.log('[picker] parseDocumentPickerSelectOption: ' + JSON.stringify(option));
-
+    config.parameters.key_merge_type_mode = option.mergeMode;
+    console.log('[picker] parseDocumentPickerSelectOption: ' + JSON.stringify(option));   
     if ((option.maxSelectNumber !== undefined) && option.maxSelectNumber > 0) {
       config.parameters.key_pick_num = option.maxSelectNumber;
     }
@@ -293,6 +301,11 @@ function parseDocumentPickerSelectOption(args, action) {
     }
     if (option.authMode !== undefined) {
       config.parameters.key_auth_mode = option.authMode;
+    }
+    config.parameters.key_mult_auth_mode = option.multiAuthMode;
+    if (option.multiUriArray !== undefined) {
+      config.parameters.key_mult_uri_arr = option.multiUriArray;
+      console.log('[picker] parseDocumentPickerSelectOption multiUriArray length: ' + option.multiUriArray.length);
     }
   }
 
@@ -633,6 +646,9 @@ function DocumentSelectOptions() {
   this.fileSuffixFilters = undefined;
   this.maxSelectNumber = undefined;
   this.selectMode = DocumentSelectMode.FILE;
+  this.mergeMode = MergeTypeMode.DEFAULT;
+  this.multiAuthMode = false;
+  this.multiUriArray = undefined;
 }
 
 function DocumentSaveOptions() {
@@ -702,6 +718,7 @@ export default {
   PhotoSaveOptions : PhotoSaveOptions,
   DocumentSelectMode : DocumentSelectMode,
   DocumentPickerMode : DocumentPickerMode,
+  MergeTypeMode : MergeTypeMode,
   DocumentSelectOptions : DocumentSelectOptions,
   DocumentSaveOptions : DocumentSaveOptions,
   AudioSelectOptions : AudioSelectOptions,
