@@ -88,6 +88,8 @@ ohos_shared_library("picker") {
     "file_api:filemgmt_libhilog",
     "file_api:filemgmt_libn",
     "hilog:libhilog",
+    "ipc:ipc_napi",
+    "ipc:ipc_single",
     "napi:ace_napi",
   ]
 

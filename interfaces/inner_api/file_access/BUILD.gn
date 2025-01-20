@@ -92,6 +92,7 @@ ohos_shared_library("file_access_extension_ability_kit") {
     "hitrace:hitrace_meter",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "ipc:ipc_napi",
     "napi:ace_napi",
     "os_account:os_account_innerkits",
     "samgr:samgr_proxy",
@@ -127,6 +128,8 @@ ohos_shared_library("file_access_extension_ability_module") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
+    "ipc:ipc_napi",
+    "ipc:ipc_single",
     "napi:ace_napi",
   ]
 
