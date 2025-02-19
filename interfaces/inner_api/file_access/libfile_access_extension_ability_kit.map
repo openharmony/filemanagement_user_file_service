@@ -19,9 +19,9 @@
       *OHOS::FileAccessFwk::UnwrapArrayWantFromJS*;
       *OHOS::FileAccessFwk::WrapArrayWantToJS*;
       *OHOS::FileAccessFwk::FileAccessNotifyManager*;
-      *OHOS::FileAccessFwk::FileAccessExtStub*;
+      *OHOS::FileAccessFwk::FileAccessExtBaseStub*;
       *OHOS::FileAccessFwk::FileAccessExtStubImpl*;
-      *OHOS::FileAccessFwk::FileAccessExtProxy*;
+      *OHOS::FileAccessFwk::FileAccessExtBaseProxy*;
     };
   local:
     *;

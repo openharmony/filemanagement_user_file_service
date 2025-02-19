@@ -119,7 +119,7 @@ void NapiObserver::NapiWorkScope(uv_work_t *work, int status)
     napi_close_handle_scope(param->napiObserver->env_, scope);
 }
 
-void NapiObserver::OnChange(NotifyMessage &notifyMessage)
+void NapiObserver::OnChange(const NotifyMessage &notifyMessage)
 {
     uv_loop_s *loop = nullptr;
     napi_status napiStatus = napi_get_uv_event_loop(env_, &loop);

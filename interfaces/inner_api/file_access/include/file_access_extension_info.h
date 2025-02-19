@@ -300,13 +300,38 @@ public:
     virtual bool ReadFromParcel(MessageParcel& parcel) = 0;
 };
 
-struct ConnectExtensionInfo : public MessageParcelable {
+struct ConnectExtensionInfo : public Parcelable, public MessageParcelable {
 public:
     AAFwk::Want want = {};
     sptr<IRemoteObject> token = nullptr;
 
     ConnectExtensionInfo() = default;
     ConnectExtensionInfo(AAFwk::Want want, sptr<IRemoteObject> token) : want(want), token(token) {}
+
+    virtual bool Marshalling(Parcel &parcel) const override
+    {
+        if (!parcel.WriteParcelable(&want)) {
+            return false;
+        }
+        if (!parcel.WriteRemoteObject(token)) {
+            return false;
+        }
+        return true;
+    }
+
+    static ConnectExtensionInfo *Unmarshalling(Parcel &parcel)
+    {
+        ConnectExtensionInfo *result = new (std::nothrow)ConnectExtensionInfo();
+        if (result == nullptr) {
+            return nullptr;
+        }
+
+        if (!result->ReadFromParcelwithParcelInput(parcel)) {
+            delete result;
+            result = nullptr;
+        }
+        return result;
+    }
 
     bool WriteToParcel(MessageParcel &parcel) const override
     {
@@ -319,6 +344,17 @@ public:
         return true;
     }
 
+    bool ReadFromParcelwithParcelInput(Parcel &parcel)
+    {
+        MessageParcel& mParcel = static_cast<MessageParcel&>(parcel);
+        std::shared_ptr<AAFwk::Want> wantPtr(parcel.ReadParcelable<AAFwk::Want>());
+        token = mParcel.ReadRemoteObject();
+        if (wantPtr == nullptr || token == nullptr) {
+            return false;
+        }
+        want = AAFwk::Want(*wantPtr);
+        return true;
+    }
     bool ReadFromParcel(MessageParcel &parcel) override
     {
         std::shared_ptr<AAFwk::Want> wantPtr(parcel.ReadParcelable<AAFwk::Want>());

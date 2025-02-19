@@ -28,7 +28,7 @@
 #include "app_file_access_ext_connection.h"
 #include "file_access_extension_info.h"
 #include "ifile_access_ext_base.h"
-#include "iobserver_callback.h"
+#include "ifile_access_observer.h"
 #include "iremote_object.h"
 #include "refbase.h"
 #include "uri.h"

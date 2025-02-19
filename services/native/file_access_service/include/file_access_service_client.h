@@ -13,31 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef FILE_ACCESS_SERVICE_PROXY_H
-#define FILE_ACCESS_SERVICE_PROXY_H
+#ifndef FILE_ACCESS_SERVICE_CLIENT_H
+#define FILE_ACCESS_SERVICE_CLIENT_H
 
 #include "ifile_access_service_base.h"
 #include "iremote_proxy.h"
 #include "system_ability_load_callback_stub.h"
+#include "file_access_service_base_proxy.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
-class FileAccessServiceProxy : public IRemoteProxy<IFileAccessServiceBase> {
+class FileAccessServiceClient  {
 public:
-    explicit FileAccessServiceProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IFileAccessServiceBase>(impl) {}
-    ~FileAccessServiceProxy() = default;
-    static sptr<FileAccessServiceProxy> GetInstance();
+
+    ~FileAccessServiceClient() = default;
+    static sptr<IFileAccessServiceBase> GetInstance();
     static void InvaildInstance();
-    int32_t OnChange(Uri uri, NotifyType notifyType) override;
-    int32_t RegisterNotify(Uri uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer,
-        const std::shared_ptr<ConnectExtensionInfo> &info) override;
-    int32_t UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer,
-        const std::shared_ptr<ConnectExtensionInfo> &info) override;
-    int32_t GetExtensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
-                             sptr<IFileAccessExtBase> &extensionProxy) override;
-    int32_t ConnectFileExtAbility(const AAFwk::Want &want,
-        const sptr<AAFwk::IAbilityConnection>& connection) override;
-    int32_t DisConnectFileExtAbility(const sptr<AAFwk::IAbilityConnection>& connection) override;
     
     class ServiceProxyLoadCallback : public SystemAbilityLoadCallbackStub {
     public:
@@ -68,9 +59,8 @@ private:
     };
     int32_t UnregisterNotifyInternal(MessageParcel &data);
     static inline std::mutex proxyMutex_;
-    static inline sptr<FileAccessServiceProxy> serviceProxy_;
-    static inline BrokerDelegator<FileAccessServiceProxy> delegator_;
+    static inline sptr<IFileAccessServiceBase> serviceProxy_;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
-#endif // FILE_ACCESS_SERVICE_PROXY_H
+#endif // FILE_ACCESS_SERVICE_CLIENT_H

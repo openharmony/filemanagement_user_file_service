@@ -16,19 +16,23 @@
 #ifndef FILE_ACCESS_SERVICE_MOCK_H
 #define FILE_ACCESS_SERVICE_MOCK_H
 
-#include "file_access_service_stub.h"
+#include "file_access_service_base_stub.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
 using Uri = OHOS::Uri;
-class FileAccessServiceMock : public FileAccessServiceStub {
+class FileAccessServiceMock : public FileAccessServiceBaseStub {
 public:
-    MOCK_METHOD2(OnChange, int32_t(Uri uri, NotifyType notifyType));
-    MOCK_METHOD4(RegisterNotify, int32_t(Uri uri, bool notifyForDescendants,
-        const sptr<IFileAccessObserver> &observer, const std::shared_ptr<ConnectExtensionInfo> &info));
-    MOCK_METHOD3(UnregisterNotify, int32_t(Uri uri, const sptr<IFileAccessObserver> &observer,
-        const std::shared_ptr<ConnectExtensionInfo> &info));
-    MOCK_METHOD2(GetExtensionProxy, int32_t(const std::shared_ptr<ConnectExtensionInfo> &info,
+    FileAccessServiceMock() {}
+
+    ~FileAccessServiceMock() {}
+    MOCK_METHOD2(OnChange, int32_t(const Uri &uri, NotifyType notifyType));
+    MOCK_METHOD4(RegisterNotify, int32_t(const Uri &uri, bool notifyForDescendants,
+        const sptr<IFileAccessObserver> &observer, const ConnectExtensionInfo& info));
+    MOCK_METHOD3(UnregisterNotify, int32_t(const Uri &uri, const sptr<IFileAccessObserver> &observer,
+        const ConnectExtensionInfo& info));
+    MOCK_METHOD2(UnregisterNotifyNoObserver, int32_t(const Uri &uri, const ConnectExtensionInfo& info));
+    MOCK_METHOD2(GetExtensionProxy, int32_t(const ConnectExtensionInfo& info,
         sptr<IFileAccessExtBase> &extensionProxy));
     MOCK_METHOD0(AsObject, sptr<IRemoteObject>());
     MOCK_METHOD2(CleanAllNotify, int32_t(Uri uri, const std::shared_ptr<ConnectExtensionInfo> &info));

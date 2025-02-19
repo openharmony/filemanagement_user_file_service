@@ -24,9 +24,10 @@
 #include <unordered_map>
 #include <vector>
 
+#include "file_access_helper.h"
 #include "bundle_mgr_interface.h"
 #include "file_access_ext_connection.h"
-#include "file_access_service_stub.h"
+#include "file_access_service_base_stub.h"
 #include "ifile_access_ext_base.h"
 #include "holder_manager.h"
 #include "ifile_access_ext_base.h"
@@ -215,10 +216,11 @@ private:
     uint32_t count_ = 0;
 };
 
-class FileAccessService final : public SystemAbility, public FileAccessServiceStub {
+class FileAccessService final : public SystemAbility, public FileAccessServiceBaseStub {
     DECLARE_SYSTEM_ABILITY(FileAccessService)
 
 public:
+    bool CheckCallingPermission(const std::string &permission);
     static sptr<FileAccessService> GetInstance();
     void Init();
     virtual ~FileAccessService() = default;
@@ -231,13 +233,14 @@ public:
     void RemoveAppProxy(const sptr<AAFwk::IAbilityConnection>& connection);
 
 protected:
-    int32_t RegisterNotify(Uri uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer,
-        const std::shared_ptr<ConnectExtensionInfo> &info) override;
-    int32_t UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer,
-        const std::shared_ptr<ConnectExtensionInfo> &info = nullptr) override;
-    int32_t CleanAllNotify(Uri uri, const std::shared_ptr<ConnectExtensionInfo> &info) override;
-    int32_t OnChange(Uri uri, NotifyType notifyType) override;
-    int32_t GetExtensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
+    int32_t RegisterNotify(const Uri &uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer,
+        const ConnectExtensionInfo& info) override;
+    int32_t UnregisterNotify(const Uri &uri, const sptr<IFileAccessObserver> &observer,
+        const ConnectExtensionInfo& info) override;
+    int32_t UnregisterNotifyNoObserver(const Uri &uri, const ConnectExtensionInfo& info) override;
+    int32_t CleanAllNotify(Uri uri, const std::shared_ptr<ConnectExtensionInfo> &info);
+    int32_t OnChange(const Uri &uri, NotifyType notifyType) override;
+    int32_t GetExtensionProxy(const ConnectExtensionInfo& info,
                              sptr<IFileAccessExtBase> &extensionProxy) override;
     int32_t ConnectFileExtAbility(const AAFwk::Want &want,
         const sptr<AAFwk::IAbilityConnection>& connection) override;

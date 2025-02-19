@@ -14,11 +14,12 @@
 1.0 {
   global:
     extern "C++" {
-      *FileAccessServiceProxy*;
+      *FileAccessServiceClient*;
+      *FileAccessServiceBaseProxy*;
       *FileAccessService*;
-      *FileAccessServiceStub*;
-      *ObserverCallbackStub*;
-      *ObserverCallbackProxy*;
+      *FileAccessServiceBaseStub*;
+      *FileAccessObserverStub*;
+      *FileAccessObserverProxy*;
       **;
     };
   local:

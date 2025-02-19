@@ -25,9 +25,9 @@
 #include "file_access_framework_errno.h"
 #include "file_access_observer_common.h"
 #include "iservice_registry.h"
-#include "iobserver_callback.h"
+#include "ifile_access_observer.h"
 #include "nativetoken_kit.h"
-#include "observer_callback_stub.h"
+#include "file_access_observer_stub.h"
 #include "token_setproc.h"
 
 #define private public
@@ -146,35 +146,39 @@ public:
     void TearDown(){};
 };
 
-class MyObserver : public ObserverCallbackStub {
+class MyObserver : public FileAccessObserverStub {
 public:
     MyObserver() {};
     virtual ~MyObserver() = default;
-    void OnChange(NotifyMessage &notifyMessage) override;
+    int OnChange(const NotifyMessage &notifyMessage) override;
 };
 
-void MyObserver::OnChange(NotifyMessage &notifyMessage)
+int MyObserver::OnChange(const NotifyMessage &notifyMessage)
 {
     g_notifyEvent = static_cast<int>(notifyMessage.notifyType_);
     std::string notifyUri = notifyMessage.uris_[0];
     g_notifyUri = notifyUri;
     GTEST_LOG_(INFO) << "enter notify uri =" + notifyUri + " type =" + std::to_string(g_notifyEvent) +" uri size" +
         std::to_string(notifyMessage.uris_.size());
+
+    return 1;
 }
 
-class TestObserver : public ObserverCallbackStub {
+class TestObserver : public FileAccessObserverStub {
 public:
     TestObserver() {};
     virtual ~TestObserver() = default;
-    void OnChange(NotifyMessage &notifyMessage) override;
+    int OnChange(const NotifyMessage &notifyMessage) override;
 };
 
-void TestObserver::OnChange(NotifyMessage &notifyMessage)
+int TestObserver::OnChange(const NotifyMessage &notifyMessage)
 {
     g_notifyFlag = static_cast<int>(notifyMessage.notifyType_);
     std::string notifyUri = notifyMessage.uris_[0];
     g_notifyUris = notifyMessage.uris_;
     GTEST_LOG_(INFO) << "enter TestObserver uri =" + notifyUri + "type =" + std::to_string(g_notifyFlag);
+
+    return 1;
 }
 
 static tuple<Uri, Uri, Uri, Uri> ReadyRegisterNotify00(Uri& parentUri,

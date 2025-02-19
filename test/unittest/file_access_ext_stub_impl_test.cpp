@@ -22,11 +22,15 @@
 #include "context.h"
 #include "extension_context.h"
 #include "ability_context.h"
+#include "file_access_ext_base_stub.h"
 #include "file_access_ext_stub_impl.h"
 #include "file_access_extension_info.h"
 #include "file_access_framework_errno.h"
 #include "file_access_ext_ability_mock.h"
-#include "uri.h"
+#include "uri_ext.h"
+#include "accesstoken_kit.h"
+#include "nativetoken_kit.h"
+#include "token_setproc.h"
 
 namespace OHOS::FileAccessFwk {
 using namespace std;
@@ -34,11 +38,33 @@ using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AbilityRuntime;
 
-FileAccessExtStub::FileAccessExtStub() {}
+void SetNativeToken()
+{
+    uint64_t tokenId;
+    const char *perms[] = {
+        "ohos.permission.FILE_ACCESS_MANAGER",
+        "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED",
+        "ohos.permission.CONNECT_FILE_ACCESS_EXTENSION"
+    };
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = 3,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .aplStr = "system_core",
+    };
 
-FileAccessExtStub::~FileAccessExtStub() {}
+    infoInstance.processName = "SetUpTestCase";
+    tokenId = GetAccessTokenId(&infoInstance);
+    const uint64_t systemAppMask = (static_cast<uint64_t>(1) << 32);
+    tokenId |= systemAppMask;
+    SetSelfTokenID(tokenId);
+    OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+}
 
-int FileAccessExtStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,
+int FileAccessExtBaseStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,
     MessageOption& option)
 {
     return 0;
@@ -67,7 +93,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_OpenFile_0000, tes
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_OpenFile_0000";
     try {
         int fd;
-        Uri uri("");
+        Urie uri("");
         FileAccessExtStubImpl impl(nullptr, nullptr);
         int result = impl.OpenFile(uri, WRITE_READ, fd);
         EXPECT_EQ(result, E_IPCS);
@@ -92,8 +118,9 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_OpenFile_0001, tes
     try {
         EXPECT_CALL(*ability, OpenFile(_, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
 
+        SetNativeToken();
         int fd;
-        Uri uri("");
+        Urie uri("");
         FileAccessExtStubImpl impl(ability, nullptr);
         int result = impl.OpenFile(uri, WRITE_READ, fd);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -116,8 +143,8 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_CreateFile_0000, t
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_CreateFile_0000";
     try {
-        Uri uri("");
-        Uri newUri("");
+        Urie uri("");
+        Urie newUri("");
         string displayName = "";
         FileAccessExtStubImpl impl(nullptr, nullptr);
         int result = impl.CreateFile(uri, displayName, newUri);
@@ -143,8 +170,8 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_CreateFile_0001, t
     try {
         EXPECT_CALL(*ability, CreateFile(_, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
 
-        Uri uri("");
-        Uri newUri("");
+        Urie uri("");
+        Urie newUri("");
         string displayName = "";
         FileAccessExtStubImpl impl(ability, nullptr);
         int result = impl.CreateFile(uri, displayName, newUri);
@@ -168,8 +195,8 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Mkdir_0000, testin
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Mkdir_0000";
     try {
-        Uri uri("");
-        Uri newUri("");
+        Urie uri("");
+        Urie newUri("");
         string displayName = "";
         FileAccessExtStubImpl impl(nullptr, nullptr);
         int result = impl.Mkdir(uri, displayName, newUri);
@@ -195,8 +222,8 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Mkdir_0001, testin
     try {
         EXPECT_CALL(*ability, Mkdir(_, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
 
-        Uri uri("");
-        Uri newUri("");
+        Urie uri("");
+        Urie newUri("");
         string displayName = "";
         FileAccessExtStubImpl impl(ability, nullptr);
         int result = impl.Mkdir(uri, displayName, newUri);
@@ -220,7 +247,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Delete_0000, testi
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Delete_0000";
     try {
-        Uri sourceFile("");
+        Urie sourceFile("");
         FileAccessExtStubImpl impl(nullptr, nullptr);
         int result = impl.Delete(sourceFile);
         EXPECT_EQ(result, E_IPCS);
@@ -245,7 +272,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Delete_0001, testi
     try {
         EXPECT_CALL(*ability, Delete(_)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
 
-        Uri sourceFile("");
+        Urie sourceFile("");
         FileAccessExtStubImpl impl(ability, nullptr);
         int result = impl.Delete(sourceFile);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -268,9 +295,9 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Move_0000, testing
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Move_0000";
     try {
-        Uri sourceFile("");
-        Uri targetParent("");
-        Uri newFile("");
+        Urie sourceFile("");
+        Urie targetParent("");
+        Urie newFile("");
         FileAccessExtStubImpl impl(nullptr, nullptr);
         int result = impl.Move(sourceFile, targetParent, newFile);
         EXPECT_EQ(result, E_IPCS);
@@ -295,9 +322,9 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Move_0001, testing
     try {
         EXPECT_CALL(*ability, Move(_, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
 
-        Uri sourceFile("");
-        Uri targetParent("");
-        Uri newFile("");
+        Urie sourceFile("");
+        Urie targetParent("");
+        Urie newFile("");
         FileAccessExtStubImpl impl(ability, nullptr);
         int result = impl.Move(sourceFile, targetParent, newFile);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -320,8 +347,8 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Copy_0000, testing
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Copy_0000";
     try {
-        Uri sourceFile("");
-        Uri destUri("");
+        Urie sourceFile("");
+        Urie destUri("");
         vector<Result> copyResult;
         FileAccessExtStubImpl impl(nullptr, nullptr);
         int result = impl.Copy(sourceFile, destUri, copyResult);
@@ -347,8 +374,8 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Copy_0001, testing
     try {
         EXPECT_CALL(*ability, Copy(_, _, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
 
-        Uri sourceFile("");
-        Uri destUri("");
+        Urie sourceFile("");
+        Urie destUri("");
         vector<Result> copyResult;
         FileAccessExtStubImpl impl(ability, nullptr);
         int result = impl.Copy(sourceFile, destUri, copyResult);
@@ -372,10 +399,10 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_CopyFile_0000, tes
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_CopyFile_0000";
     try {
-        Uri sourceFile("");
-        Uri destUri("");
+        Urie sourceFile("");
+        Urie destUri("");
         string fileName;
-        Uri newFileUri("");
+        Urie newFileUri("");
         FileAccessExtStubImpl impl(nullptr, nullptr);
         int result = impl.CopyFile(sourceFile, destUri, fileName, newFileUri);
         EXPECT_EQ(result, E_IPCS);
@@ -400,10 +427,10 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_CopyFile_0001, tes
     try {
         EXPECT_CALL(*ability, CopyFile(_, _, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
 
-        Uri sourceFile("");
-        Uri destUri("");
+        Urie sourceFile("");
+        Urie destUri("");
         string fileName;
-        Uri newFileUri("");
+        Urie newFileUri("");
         FileAccessExtStubImpl impl(ability, nullptr);
         int result = impl.CopyFile(sourceFile, destUri, fileName, newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -426,8 +453,8 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Rename_0000, testi
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Rename_0000";
     try {
-        Uri sourceFile("");
-        Uri newUri("");
+        Urie sourceFile("");
+        Urie newUri("");
         string displayName = "";
         FileAccessExtStubImpl impl(nullptr, nullptr);
         int result = impl.Rename(sourceFile, displayName, newUri);
@@ -453,8 +480,8 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Rename_0001, testi
     try {
         EXPECT_CALL(*ability, Rename(_, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
 
-        Uri sourceFile("");
-        Uri newUri("");
+        Urie sourceFile("");
+        Urie newUri("");
         string displayName = "";
         FileAccessExtStubImpl impl(ability, nullptr);
         int result = impl.Rename(sourceFile, displayName, newUri);
@@ -510,8 +537,10 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_ListFile_0001, tes
         int64_t offset = 0;
         const FileFilter filter;
         SharedMemoryInfo memInfo;
+        int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+            memInfo);
         FileAccessExtStubImpl impl(ability, nullptr);
-        int result = impl.ListFile(fileInfo, offset, filter, memInfo);
+        result = impl.ListFile(fileInfo, offset, filter, memInfo);
         EXPECT_EQ(result, EPERM);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
@@ -538,8 +567,10 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_ListFile_0002, tes
         int64_t offset = 0;
         const FileFilter filter;
         SharedMemoryInfo memInfo;
+        int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+            memInfo);
         FileAccessExtStubImpl impl(ability, nullptr);
-        int result = impl.ListFile(fileInfo, offset, filter, memInfo);
+        result = impl.ListFile(fileInfo, offset, filter, memInfo);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
@@ -616,7 +647,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Query_0000, testin
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Query_0000";
     try {
-        Uri uri("");
+        Urie uri("");
         vector<string> columns;
         vector<string> results;
         FileAccessExtStubImpl impl(nullptr, nullptr);
@@ -643,7 +674,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Query_0001, testin
     try {
         EXPECT_CALL(*ability, Query(_, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
 
-        Uri uri("");
+        Urie uri("");
         vector<string> columns;
         vector<string> results;
         FileAccessExtStubImpl impl(ability, nullptr);
@@ -668,7 +699,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_GetFileInfoFromUri
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_GetFileInfoFromUri_0000";
     try {
-        Uri selectFile("");
+        Urie selectFile("");
         FileInfo fileInfo;
         FileAccessExtStubImpl impl(nullptr, nullptr);
         int result = impl.GetFileInfoFromUri(selectFile, fileInfo);
@@ -694,7 +725,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_GetFileInfoFromUri
     try {
         EXPECT_CALL(*ability, GetFileInfoFromUri(_, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
 
-        Uri selectFile("");
+        Urie selectFile("");
         FileInfo fileInfo;
         FileAccessExtStubImpl impl(ability, nullptr);
         int result = impl.GetFileInfoFromUri(selectFile, fileInfo);
@@ -818,7 +849,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Access_0000, testi
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Access_0000";
     try {
-        Uri uri("");
+        Urie uri("");
         bool isExist;
         FileAccessExtStubImpl impl(nullptr, nullptr);
         int result = impl.Access(uri, isExist);
@@ -844,7 +875,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Access_0001, testi
     try {
         EXPECT_CALL(*ability, Access(_, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
 
-        Uri uri("");
+        Urie uri("");
         bool isExist;
         FileAccessExtStubImpl impl(ability, nullptr);
         int result = impl.Access(uri, isExist);
@@ -868,7 +899,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_StartWatcher_0000,
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_StartWatcher_0000";
     try {
-        Uri uri("");
+        Urie uri("");
         FileAccessExtStubImpl impl(nullptr, nullptr);
         int result = impl.StartWatcher(uri);
         EXPECT_EQ(result, E_IPCS);
@@ -893,7 +924,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_StartWatcher_0001,
     try {
         EXPECT_CALL(*ability, StartWatcher(_)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
 
-        Uri uri("");
+        Urie uri("");
         FileAccessExtStubImpl impl(ability, nullptr);
         int result = impl.StartWatcher(uri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -916,7 +947,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_StopWatcher_0000, 
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_StopWatcher_0000";
     try {
-        Uri uri("");
+        Urie uri("");
         FileAccessExtStubImpl impl(nullptr, nullptr);
         int result = impl.StopWatcher(uri);
         EXPECT_EQ(result, E_IPCS);
@@ -941,7 +972,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_StopWatcher_0001, 
     try {
         EXPECT_CALL(*ability, StopWatcher(_)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
 
-        Uri uri("");
+        Urie uri("");
         FileAccessExtStubImpl impl(ability, nullptr);
         int result = impl.StopWatcher(uri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -964,8 +995,8 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveItem_0000, tes
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_MoveItem_0000";
     try {
-        Uri sourceFile("");
-        Uri targetParent("");
+        Urie sourceFile("");
+        Urie targetParent("");
         vector<Result> moveResult;
         FileAccessExtStubImpl impl(nullptr, nullptr);
         int result = impl.MoveItem(sourceFile, targetParent, moveResult);
@@ -991,8 +1022,8 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveItem_0001, tes
     try {
         EXPECT_CALL(*ability, MoveItem(_, _, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
 
-        Uri sourceFile("");
-        Uri targetParent("");
+        Urie sourceFile("");
+        Urie targetParent("");
         vector<Result> moveResult;
         FileAccessExtStubImpl impl(ability, nullptr);
         int result = impl.MoveItem(sourceFile, targetParent, moveResult);
@@ -1016,10 +1047,10 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveFile_0000, tes
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_MoveFile_0000";
     try {
-        Uri sourceFile("");
-        Uri targetParent("");
+        Urie sourceFile("");
+        Urie targetParent("");
         string fileName;
-        Uri newFile("");
+        Urie newFile("");
         FileAccessExtStubImpl impl(nullptr, nullptr);
         int result = impl.MoveFile(sourceFile, targetParent, fileName, newFile);
         EXPECT_EQ(result, E_IPCS);
@@ -1044,10 +1075,10 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveFile_0001, tes
     try {
         EXPECT_CALL(*ability, MoveFile(_, _, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
 
-        Uri sourceFile("");
-        Uri targetParent("");
+        Urie sourceFile("");
+        Urie targetParent("");
         string fileName;
-        Uri newFile("");
+        Urie newFile("");
         FileAccessExtStubImpl impl(ability, nullptr);
         int result = impl.MoveFile(sourceFile, targetParent, fileName, newFile);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);

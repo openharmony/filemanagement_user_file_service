@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,9 +13,12 @@
  * limitations under the License.
  */
 
-#ifndef FILE_ACCESS_SERVICE_PROXY_FUZZER_H
-#define FILE_ACCESS_SERVICE_PROXY_FUZZER_H
-
-#define FUZZ_PROJECT_NAME "fileaccessserviceproxy_fuzzer"
-
-#endif
+enum NotifyType {
+    NOTIFY_ADD = 0,
+    NOTIFY_DELETE,
+    NOTIFY_MOVE_TO,
+    NOTIFY_MOVE_FROM,
+    NOTIFY_MOVE_SELE,
+    NOTIFY_DEVICE_ONLINE,
+    NOTIFY_DEVICE_OFFLINE
+};

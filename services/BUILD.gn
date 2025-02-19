@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//build/config/components/idl_tool/idl.gni")
 import("//build/ohos.gni")
 import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
 
@@ -85,6 +86,82 @@ ohos_resources("external_file_manager_resources") {
   hap_profile = "file_extension_hap/entry/src/main/module.json"
 }
 
+idl_gen_interface("IFile_Access_Service_Base") {
+  sources = [ "IFileAccessServiceBase.idl" ]
+  sources_callback = [ "IFileAccessObserver.idl" ]
+  sources_common = [ "NotifyType.idl" ]
+  hitrace = "HITRACE_TAG_FILEMANAGEMENT"
+  log_domainid = "0xD00430A"
+  log_tag = "filemanagement"
+}
+
+config("IFile_Access_Service_Base_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "native/file_access_service/include",
+    "${user_file_service_path}/interfaces/inner_api/file_access/include",
+    "${user_file_service_path}/utils",
+    "${user_file_service_path}/interfaces/kits/js/src/common",
+    "${target_gen_dir}",
+  ]
+}
+
+ohos_source_set("file_access_service_base_source") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  public_configs = [ ":IFile_Access_Service_Base_config" ]
+  output_values = get_target_outputs(":IFile_Access_Service_Base")
+  sources = filter_include(output_values, [ "*.cpp" ])
+  deps = [
+    ":IFile_Access_Service_Base",
+    "${user_file_service_path}/interfaces/inner_api/file_access:file_access_ext_base_include",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_connect_callback_stub",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "ipc:ipc_single",
+  ]
+
+  subsystem_name = "filemanagement"
+  part_name = "user_file_service"
+}
+
+ohos_source_set("file_access_service_base_include") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  public_configs = [ ":IFile_Access_Service_Base_config" ]
+  deps = [
+    ":IFile_Access_Service_Base",
+    "${user_file_service_path}/interfaces/inner_api/file_access:file_access_ext_base_include",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_connect_callback_stub",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "ipc:ipc_single",
+  ]
+
+  subsystem_name = "filemanagement"
+  part_name = "user_file_service"
+}
+
 ohos_shared_library("file_access_service") {
   branch_protector_ret = "pac_ret"
   sanitize = {
@@ -102,18 +179,20 @@ ohos_shared_library("file_access_service") {
   ]
   shlib_type = "sa"
   sources = [
+    "${user_file_service_path}/interfaces/inner_api/file_access/src/uri_ext.cpp",
     "native/file_access_service/src/file_access_ext_connection.cpp",
     "native/file_access_service/src/file_access_service.cpp",
-    "native/file_access_service/src/file_access_service_proxy.cpp",
-    "native/file_access_service/src/file_access_service_stub.cpp",
-    "native/file_access_service/src/observer_callback_proxy.cpp",
-    "native/file_access_service/src/observer_callback_stub.cpp",
+    "native/file_access_service/src/file_access_service_client.cpp",
   ]
   configs = [ ":ability_config" ]
   version_script = "libfile_access_service.map"
   public_configs = [ ":ability_public_config" ]
 
-  deps = [ "${user_file_service_path}/interfaces/inner_api/file_access:file_access_extension_ability_kit" ]
+  deps = [
+    ":file_access_service_base_source",
+    "${user_file_service_path}/interfaces/inner_api/file_access:file_access_ext_base_include",
+    "${user_file_service_path}/interfaces/inner_api/file_access:file_access_extension_ability_kit",
+  ]
 
   external_deps = [
     "ability_base:want",

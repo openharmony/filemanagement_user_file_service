@@ -22,7 +22,7 @@
 #include "ability_connect_callback_stub.h"
 #include "element_name.h"
 #include "ifile_access_ext_base.h"
-#include "file_access_ext_proxy.h"
+#include "file_access_ext_base_proxy.h"
 #include "file_access_service.h"
 #include "iremote_object.h"
 #include "refbase.h"

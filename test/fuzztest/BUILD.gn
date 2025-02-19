@@ -29,10 +29,6 @@ group("user_file_service_fuzz_test") {
     "externalfileaccessrename_fuzzer:ExternalFileAccessRenameFuzzTest",
     "externalfileaccessscanfile_fuzzer:ExternalFileAccessScanFileFuzzTest",
     "fileaccessextconnection_fuzzer:FileAccessExtConnectionFuzzTest",
-    "fileaccessextstub_fuzzer:FileAccessExtStubFuzzTest",
-    "fileaccessextstubbranch_fuzzer:FileAccessExtStubBranchFuzzTest",
-    "fileaccessserviceproxy_fuzzer:FileAccessServiceProxyFuzzTest",
-    "fileaccessservicestub_fuzzer:FileAccessServiceStubFuzzTest",
     "fileinfosharedmemory_fuzzer:FileInfoSharedMemoryFuzzTest",
     "useraccesscommonutils_fuzzer:UserAccessCommonUtilsFuzzTest",
   ]
