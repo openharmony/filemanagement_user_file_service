@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef URIE_H
-#define URIE_H
+#ifndef FILE_ACCESS_URI_EXT_H
+#define FILE_ACCESS_URI_EXT_H
 
 #include <string>
 #include "uri.h"
@@ -94,7 +94,6 @@ private:
     std::size_t cachedSsi_;
     std::size_t cachedFsi_;
 };
-}
-}
-
-#endif  // URIE_H
+} // namespace FileAccessFwk
+} // namespace OHOS
+#endif  // FILE_ACCESS_URI_EXT_H

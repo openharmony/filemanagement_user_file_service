@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -404,8 +404,8 @@ int FileAccessHelper::OpenFile(Uri &uri, int flags, int &fd)
         return E_IPCS;
     }
 
-    Urie urie(uri.ToString());
-    int ret = fileExtProxy->OpenFile(urie, flags, fd);
+    Urie uriCon(uri.ToString());
+    int ret = fileExtProxy->OpenFile(uriCon, flags, fd);
     if (ret != ERR_OK) {
         HILOG_ERROR("OpenFile get result error, code:%{public}d", ret);
         return ret;
@@ -434,14 +434,14 @@ int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Ur
         return E_IPCS;
     }
 
-    Urie parent_(parent.ToString());
-    Urie newFile_("");
-    int ret = fileExtProxy->CreateFile(parent_, displayName, newFile_);
+    Urie parentCon(parent.ToString());
+    Urie newFileCon("");
+    int ret = fileExtProxy->CreateFile(parentCon, displayName, newFileCon);
     if (ret != ERR_OK) {
         HILOG_ERROR("CreateFile get result error, code:%{public}d", ret);
         return ret;
     }
-    newFile = Uri(newFile_.ToString());
+    newFile = Uri(newFileCon.ToString());
 
     return ERR_OK;
 }
@@ -466,14 +466,14 @@ int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &ne
         return E_IPCS;
     }
 
-    Urie parent_(parent.ToString());
-    Urie newDir_("");
-    int ret = fileExtProxy->Mkdir(parent_, displayName, newDir_);
+    Urie parentCon(parent.ToString());
+    Urie newDirCon("");
+    int ret = fileExtProxy->Mkdir(parentCon, displayName, newDirCon);
     if (ret != ERR_OK) {
         HILOG_ERROR("Mkdir get result error, code:%{public}d", ret);
         return ret;
     }
-    newDir = Uri(newDir_.ToString());
+    newDir = Uri(newDirCon.ToString());
 
     return ERR_OK;
 }
@@ -498,8 +498,8 @@ int FileAccessHelper::Delete(Uri &selectFile)
         return E_IPCS;
     }
 
-    Urie selectFile_(selectFile.ToString());
-    int ret = fileExtProxy->Delete(selectFile_);
+    Urie selectFileCon(selectFile.ToString());
+    int ret = fileExtProxy->Delete(selectFileCon);
     if (ret != ERR_OK) {
         HILOG_ERROR("Delete get result error, code:%{public}d", ret);
         return ret;
@@ -535,15 +535,15 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
         return E_IPCS;
     }
 
-    Urie sourceFile_(sourceFile.ToString());
-    Urie targetParent_(targetParent.ToString());
-    Urie newFile_("");
-    int ret = fileExtProxy->Move(sourceFile_, targetParent_, newFile_);
+    Urie sourceFileCon(sourceFile.ToString());
+    Urie targetParentCon(targetParent.ToString());
+    Urie newFileCon("");
+    int ret = fileExtProxy->Move(sourceFileCon, targetParentCon, newFileCon);
     if (ret != ERR_OK) {
         HILOG_ERROR("Move get result error, code:%{public}d", ret);
         return ret;
     }
-    newFile = Uri(newFile_.ToString());
+    newFile = Uri(newFileCon.ToString());
 
     return ERR_OK;
 }
@@ -557,8 +557,8 @@ int FileAccessHelper::IsDirectory(Uri &uri, bool &isDir)
     }
 
     FileInfo fileInfo;
-    Urie uri_(uri.ToString());
-    int ret = proxy->GetFileInfoFromUri(uri_, fileInfo);
+    Urie uriCon(uri.ToString());
+    int ret = proxy->GetFileInfoFromUri(uriCon, fileInfo);
     if (ret != ERR_OK) {
         HILOG_ERROR("get FileInfo from uri error, code:%{public}d", ret);
         return ret;
@@ -624,10 +624,10 @@ int FileAccessHelper::CopyOperation(Uri &sourceUri, Uri &destUri, std::vector<Re
         return ret;
     }
 
-    Urie sourceUri_(sourceUri.ToString());
-    Urie destUri_(destUri.ToString());
+    Urie sourceUriCon(sourceUri.ToString());
+    Urie destUriCon(destUri.ToString());
     copyResult.clear();
-    ret = proxy->Copy(sourceUri_, destUri_, copyResult, force);
+    ret = proxy->Copy(sourceUriCon, destUriCon, copyResult, force);
     if (ret != ERR_OK) {
         if ((ret == COPY_EXCEPTION) || (ret == COPY_NOEXCEPTION)) {
             HILOG_ERROR("Copy exception, code:%{public}d", ret);
@@ -652,15 +652,15 @@ int FileAccessHelper::CopyFileOperation(Uri &sourceUri, Uri &destUri, const std:
         return E_IPCS;
     }
 
-    Urie sourceUri_(sourceUri.ToString());
-    Urie destUri_(destUri.ToString());
-    Urie newFileUri_("");
-    int ret = proxy->CopyFile(sourceUri_, destUri_, fileName, newFileUri_);
+    Urie sourceUriCon(sourceUri.ToString());
+    Urie destUriCon(destUri.ToString());
+    Urie newFileUriCon("");
+    int ret = proxy->CopyFile(sourceUriCon, destUriCon, fileName, newFileUriCon);
     if (ret != ERR_OK) {
         HILOG_ERROR("Copy file error, code:%{public}d", ret);
         return ret;
     }
-    newFileUri = Uri(newFileUri_.ToString());
+    newFileUri = Uri(newFileUriCon.ToString());
     return ret;
 }
 
@@ -742,14 +742,14 @@ int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Ur
         return E_IPCS;
     }
 
-    Urie sourceFile_(sourceFile.ToString());
-    Urie newFile_("");
-    int ret = fileExtProxy->Rename(sourceFile_, displayName, newFile_);
+    Urie sourceFileCon(sourceFile.ToString());
+    Urie newFileCon("");
+    int ret = fileExtProxy->Rename(sourceFileCon, displayName, newFileCon);
     if (ret != ERR_OK) {
         HILOG_ERROR("Rename get result error, code:%{public}d", ret);
         return ret;
     }
-    newFile = Uri(newFile_.ToString());
+    newFile = Uri(newFileCon.ToString());
 
     return ERR_OK;
 }
@@ -912,9 +912,9 @@ int FileAccessHelper::Query(Uri &uri, std::string &metaJson)
         return E_IPCS;
     }
 
-    Urie uri_(uri.ToString());
+    Urie uriCon(uri.ToString());
     results.clear();
-    ret = fileExtProxy->Query(uri_, columns, results);
+    ret = fileExtProxy->Query(uriCon, columns, results);
     if (ret != ERR_OK) {
         HILOG_ERROR("Query get result error, code:%{public}d", ret);
         return ret;
@@ -1027,8 +1027,8 @@ int FileAccessHelper::Access(Uri &uri, bool &isExist)
         return E_IPCS;
     }
 
-    Urie uri_(uri.ToString());
-    int ret = fileExtProxy->Access(uri_, isExist);
+    Urie uriCon(uri.ToString());
+    int ret = fileExtProxy->Access(uriCon, isExist);
     if (ret != ERR_OK) {
         HILOG_ERROR("Access get result error, code:%{public}d", ret);
         return ret;
@@ -1057,8 +1057,8 @@ int FileAccessHelper::GetFileInfoFromUri(Uri &selectFile, FileInfo &fileInfo)
         return E_IPCS;
     }
 
-    Urie selectFile_(selectFile.ToString());
-    int ret = fileExtProxy->GetFileInfoFromUri(selectFile_, fileInfo);
+    Urie selectFileCon(selectFile.ToString());
+    int ret = fileExtProxy->GetFileInfoFromUri(selectFileCon, fileInfo);
     if (ret != ERR_OK) {
         HILOG_ERROR("GetFileInfoFromUri get result error, code:%{public}d", ret);
         return ret;
@@ -1069,7 +1069,6 @@ int FileAccessHelper::GetFileInfoFromUri(Uri &selectFile, FileInfo &fileInfo)
 
 int FileAccessHelper::GetFileInfoFromRelativePath(std::string &selectFile, FileInfo &fileInfo)
 {
-    HILOG_INFO("GetFileInfoFromRelativePath Client");
     UserAccessTracer trace;
     trace.Start("GetFileInfoFromRelativePath");
     if (!IsSystemApp()) {
@@ -1112,7 +1111,13 @@ int FileAccessHelper::RegisterNotify(Uri uri, bool notifyForDescendants, sptr<IF
         return E_LOAD_SA;
     }
 
-    int ret = proxy->RegisterNotify(uri, notifyForDescendants, observer, *GetConnectExtensionInfo(uri));
+    std::shared_ptr<ConnectExtensionInfo> info = GetConnectExtensionInfo(uri);
+    if (!info) {
+        HILOG_ERROR("FileAccessHelper::RegisterNotify check ConnectExtensionInfo failed");
+        return EINVAL;
+    }
+
+    int ret = proxy->RegisterNotify(uri, notifyForDescendants, observer, *info);
     return ret;
 }
 
@@ -1136,7 +1141,13 @@ int FileAccessHelper::UnregisterNotify(Uri uri, sptr<IFileAccessObserver> &obser
         return E_LOAD_SA;
     }
 
-    int ret = proxy->UnregisterNotify(uri, observer, *GetConnectExtensionInfo(uri));
+    std::shared_ptr<ConnectExtensionInfo> info = GetConnectExtensionInfo(uri);
+    if (!info) {
+        HILOG_ERROR("FileAccessHelper::UnregisterNotify check ConnectExtensionInfo failed");
+        return EINVAL;
+    }
+
+    int ret = proxy->UnregisterNotify(uri, observer, *info);
     return ret;
 }
 
@@ -1159,7 +1170,13 @@ int FileAccessHelper::UnregisterNotify(Uri uri)
         return E_LOAD_SA;
     }
 
-    int ret = proxy->UnregisterNotifyNoObserver(uri, *GetConnectExtensionInfo(uri));
+    std::shared_ptr<ConnectExtensionInfo> info = GetConnectExtensionInfo(uri);
+    if (!info) {
+        HILOG_ERROR("FileAccessHelper::UnregisterNotify check ConnectExtensionInfo failed");
+        return EINVAL;
+    }
+
+    int ret = proxy->UnregisterNotifyNoObserver(uri, *info);
     return ret;
 }
 
@@ -1190,10 +1207,10 @@ int FileAccessHelper::MoveItem(Uri &sourceFile, Uri &targetParent, std::vector<R
         return GetResult("", "", E_IPCS, "", moveResult);
     }
 
-    Urie sourceFile_(sourceFile.ToString());
-    Urie targetParent_(targetParent.ToString());
+    Urie sourceFileCon(sourceFile.ToString());
+    Urie targetParentCon(targetParent.ToString());
     moveResult.clear();
-    int ret = fileExtProxy->MoveItem(sourceFile_, targetParent_, moveResult, force);
+    int ret = fileExtProxy->MoveItem(sourceFileCon, targetParentCon, moveResult, force);
     if (ret != ERR_OK) {
         HILOG_ERROR("Move get result error, code:%{public}d", ret);
         return ret;
@@ -1229,15 +1246,15 @@ int FileAccessHelper::MoveFile(Uri &sourceFile, Uri &targetParent, std::string &
         return E_IPCS;
     }
 
-    Urie sourceFile_(sourceFile.ToString());
-    Urie targetParent_(targetParent.ToString());
-    Urie newFile_("");
-    int ret = fileExtProxy->MoveFile(sourceFile_, targetParent_, fileName, newFile_);
+    Urie sourceFileCon(sourceFile.ToString());
+    Urie targetParentCon(targetParent.ToString());
+    Urie newFileCon("");
+    int ret = fileExtProxy->MoveFile(sourceFileCon, targetParentCon, fileName, newFileCon);
     if (ret != ERR_OK) {
         HILOG_ERROR("Move get result error, code:%{public}d", ret);
         return ret;
     }
-    newFile = Uri(newFile_.ToString());
+    newFile = Uri(newFileCon.ToString());
 
     return ERR_OK;
 }
