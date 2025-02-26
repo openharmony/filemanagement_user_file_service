@@ -630,7 +630,9 @@ int FileAccessHelper::CopyOperation(Uri &sourceUri, Uri &destUri, std::vector<Re
     copyResult.clear();
     int retCode;
     ret = proxy->Copy(sourceUriConvert, destUriConvert, copyResult, retCode, force);
-    ret = retCode;
+    if (ret == ERR_OK) {
+        ret = retCode;
+    }
     if (copyResult.size() > MAX_COPY_ERROR_COUNT) {
         HILOG_ERROR("Copy operation failed, count value greater than max count");
         Result result { "", "", E_COUNT, "Count value greater than max count"};
@@ -1222,7 +1224,9 @@ int FileAccessHelper::MoveItem(Uri &sourceFile, Uri &targetParent, std::vector<R
     moveResult.clear();
     int retCode;
     int ret = fileExtProxy->MoveItem(sourceFileConvert, targetParentConvert, moveResult, retCode, force);
-    ret = retCode;
+    if (ret == ERR_OK) {
+        ret = retCode;
+    }
     if (moveResult.size() > MAX_COPY_ERROR_COUNT) {
         HILOG_ERROR("Move operation failed, count value greater than max count");
         Result result { "", "", E_COUNT, "Count value greater than max count"};
