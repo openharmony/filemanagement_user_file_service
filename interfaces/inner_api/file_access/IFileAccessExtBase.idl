@@ -26,7 +26,7 @@ interface OHOS.FileAccessFwk.IFileAccessExtBase {
     [ipccode 4] void Delete([in] Urie sourceFile);
     [ipccode 5] void Move([in] Urie sourceFile, [in] Urie targetParent, [out] Urie newFile);
     [ipccode 6] void Copy([in] Urie sourceUri, [in] Urie destUri, [out] Result[] copyResult,
-        [in] boolean force);
+        [out] int retCode, [in] boolean force);
     [ipccode 17] void CopyFile([in] Urie sourceUri, [in] Urie destUri, [in] String fileName,
         [out] Urie newFileUri);
     [ipccode 7] void Rename([in] Urie sourceFile, [in] String displayName, [out] Urie newFile);
@@ -42,6 +42,6 @@ interface OHOS.FileAccessFwk.IFileAccessExtBase {
     [ipccode 10] void StartWatcher([in] Urie uri);
     [ipccode 11] void StopWatcher([in] Urie uri);
     [ipccode 18] void MoveItem([in] Urie sourceFile, [in] Urie targetParent, [out] Result[] moveResult,
-                         [in] boolean force);
+        [out] int retCode, [in] boolean force);
     [ipccode 19] void MoveFile([in] Urie sourceFile, [in] Urie targetParent, [in] String fileName, [out] Urie newFile);
 }

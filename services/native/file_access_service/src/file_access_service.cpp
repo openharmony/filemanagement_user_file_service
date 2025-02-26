@@ -369,8 +369,8 @@ int32_t FileAccessService::OperateObsNode(Uri &uri, bool notifyForDescendants, u
     if (extensionProxy == nullptr) {
         return E_CONNECT;
     }
-    Urie uri_(uriStr);
-    extensionProxy->StartWatcher(uri_);
+    Urie uriConvert(uriStr);
+    extensionProxy->StartWatcher(uriConvert);
     {
         lock_guard<mutex> lock(nodeMutex_);
         auto obsNode = make_shared<ObserverNode>(notifyForDescendants);
@@ -497,8 +497,8 @@ int32_t FileAccessService::CleanAllNotifyImpl(Uri uri, const std::shared_ptr<Con
         HILOG_ERROR("Creator get invalid fileExtProxy");
         return E_CONNECT;
     }
-    Urie originalUri_(originalUri.ToString());
-    extensionProxy->StopWatcher(originalUri_);
+    Urie originalUriConvert(originalUri.ToString());
+    extensionProxy->StopWatcher(originalUriConvert);
     RemoveRelations(uriStr, obsNode);
     if (IsUnused() && unLoadTimer_) {
         unLoadTimer_->reset();
@@ -815,8 +815,8 @@ int32_t FileAccessService::RmUriObsNodeRelations(std::string &uriStr, std::share
         HILOG_ERROR("Creator get invalid fileExtProxy");
         return E_CONNECT;
     }
-    Urie originalUri_(originalUri.ToString());
-    extensionProxy->StopWatcher(originalUri_);
+    Urie originalUriConvert(originalUri.ToString());
+    extensionProxy->StopWatcher(originalUriConvert);
     RemoveRelations(uriStr, obsNode);
     return ERR_OK;
 }

@@ -351,7 +351,9 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Copy_0000, testing
         Urie destUri("");
         vector<Result> copyResult;
         FileAccessExtStubImpl impl(nullptr, nullptr);
-        int result = impl.Copy(sourceFile, destUri, copyResult);
+        int retCode;
+        int result = impl.Copy(sourceFile, destUri, copyResult, retCode);
+        result = retCode;
         EXPECT_EQ(result, E_IPCS);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
@@ -378,7 +380,9 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Copy_0001, testing
         Urie destUri("");
         vector<Result> copyResult;
         FileAccessExtStubImpl impl(ability, nullptr);
-        int result = impl.Copy(sourceFile, destUri, copyResult);
+        int retCode;
+        int result = impl.Copy(sourceFile, destUri, copyResult, retCode);
+        result = retCode;
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
@@ -999,7 +1003,9 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveItem_0000, tes
         Urie targetParent("");
         vector<Result> moveResult;
         FileAccessExtStubImpl impl(nullptr, nullptr);
-        int result = impl.MoveItem(sourceFile, targetParent, moveResult);
+        int retCode;
+        int result = impl.MoveItem(sourceFile, targetParent, moveResult, retCode);
+        result = retCode;
         EXPECT_EQ(result, E_IPCS);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
@@ -1026,7 +1032,9 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveItem_0001, tes
         Urie targetParent("");
         vector<Result> moveResult;
         FileAccessExtStubImpl impl(ability, nullptr);
-        int result = impl.MoveItem(sourceFile, targetParent, moveResult);
+        int retCode;
+        int result = impl.MoveItem(sourceFile, targetParent, moveResult, retCode);
+        result = retCode;
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";

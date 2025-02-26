@@ -42,7 +42,7 @@ public:
     int Delete(const Urie &sourceFile) override;
     int Move(const Urie &sourceFile, const Urie &targetParent, Urie &newFile) override;
     int Copy(const Urie &sourceUri, const Urie &destUri, std::vector<Result> &copyResult,
-        bool force = false) override;
+        int32_t& retCode, bool force = false) override;
     int CopyFile(const Urie &sourceUri, const Urie &destUri, const std::string &fileName,
         Urie &newFileUri) override;
     int Rename(const Urie &sourceFile, const std::string &displayName, Urie &newFile) override;
@@ -58,7 +58,7 @@ public:
     int StartWatcher(const Urie &uri) override;
     int StopWatcher(const Urie &uri) override;
     int MoveItem(const Urie &sourceFile, const Urie &targetParent, std::vector<Result> &moveResult,
-                 bool force = false) override;
+                 int32_t& retCode, bool force = false) override;
     int MoveFile(const Urie &sourceFile, const Urie &targetParent, const std::string &fileName, Urie &newFile) override;
 private:
     std::shared_ptr<FileAccessExtAbility> GetOwner();

@@ -66,8 +66,8 @@ int FileAccessExtStubImpl::OpenFile(const Urie &uri, const int flags, int &fd)
     }
 
     fd = -1;
-    Uri uriCon(uri.ToString());
-    int ret = extension_->OpenFile(uriCon, flags, fd);
+    Uri uriConvert(uri.ToString());
+    int ret = extension_->OpenFile(uriConvert, flags, fd);
     return ret;
 }
 
@@ -84,10 +84,10 @@ int FileAccessExtStubImpl::CreateFile(const Urie &parent, const std::string &dis
         return E_PERMISSION;
     }
 
-    Uri parentCon(parent.ToString());
-    Uri newFileCon("");
-    int ret = extension_->CreateFile(parentCon, displayName, newFileCon);
-    newFile = Urie(newFileCon.ToString());
+    Uri parentConvert(parent.ToString());
+    Uri newFileConvert("");
+    int ret = extension_->CreateFile(parentConvert, displayName, newFileConvert);
+    newFile = Urie(newFileConvert.ToString());
     return ret;
 }
 
@@ -104,10 +104,10 @@ int FileAccessExtStubImpl::Mkdir(const Urie &parent, const std::string &displayN
         return E_PERMISSION;
     }
 
-    Uri parentCon(parent.ToString());
-    Uri newFileCon("");
-    int ret = extension_->Mkdir(parentCon, displayName, newFileCon);
-    newFile = Urie(newFileCon.ToString());
+    Uri parentConvert(parent.ToString());
+    Uri newFileConvert("");
+    int ret = extension_->Mkdir(parentConvert, displayName, newFileConvert);
+    newFile = Urie(newFileConvert.ToString());
     return ret;
 }
 
@@ -124,8 +124,8 @@ int FileAccessExtStubImpl::Delete(const Urie &sourceFile)
         return E_PERMISSION;
     }
 
-    Uri sourceFileCon(sourceFile.ToString());
-    int ret = extension_->Delete(sourceFileCon);
+    Uri sourceFileConvert(sourceFile.ToString());
+    int ret = extension_->Delete(sourceFileConvert);
     return ret;
 }
 
@@ -142,16 +142,16 @@ int FileAccessExtStubImpl::Move(const Urie &sourceFile, const Urie &targetParent
         return E_PERMISSION;
     }
 
-    Uri sourceFileCon(sourceFile.ToString());
-    Uri targetParentCon(targetParent.ToString());
-    Uri newFileCon("");
-    int ret = extension_->Move(sourceFileCon, targetParentCon, newFileCon);
-    newFile = Urie(newFileCon.ToString());
+    Uri sourceFileConvert(sourceFile.ToString());
+    Uri targetParentConvert(targetParent.ToString());
+    Uri newFileConvert("");
+    int ret = extension_->Move(sourceFileConvert, targetParentConvert, newFileConvert);
+    newFile = Urie(newFileConvert.ToString());
     return ret;
 }
 
 int FileAccessExtStubImpl::Copy(const Urie &sourceUri, const Urie &destUri, std::vector<Result> &copyResult,
-    bool force)
+    int32_t& retCode, bool force)
 {
     UserAccessTracer trace;
     trace.Start("Copy");
@@ -164,10 +164,11 @@ int FileAccessExtStubImpl::Copy(const Urie &sourceUri, const Urie &destUri, std:
         return E_PERMISSION;
     }
 
-    Uri sourceUriCon(sourceUri.ToString());
-    Uri destUriCon(destUri.ToString());
-    int ret = extension_->Copy(sourceUriCon, destUriCon, copyResult, force);
-    return ret;
+    Uri sourceUriConvert(sourceUri.ToString());
+    Uri destUriConvert(destUri.ToString());
+    int ret = extension_->Copy(sourceUriConvert, destUriConvert, copyResult, force);
+    retCode = ret;
+    return ERR_OK;
 }
 
 int FileAccessExtStubImpl::CopyFile(const Urie &sourceUri, const Urie &destUri, const std::string &fileName,
@@ -184,11 +185,11 @@ int FileAccessExtStubImpl::CopyFile(const Urie &sourceUri, const Urie &destUri, 
         return E_PERMISSION;
     }
 
-    Uri sourceUriCon(sourceUri.ToString());
-    Uri destUriCon(destUri.ToString());
-    Uri newFileUriCon("");
-    int ret = extension_->CopyFile(sourceUriCon, destUriCon, fileName, newFileUriCon);
-    newFileUri = Urie(newFileUriCon.ToString());
+    Uri sourceUriConvert(sourceUri.ToString());
+    Uri destUriConvert(destUri.ToString());
+    Uri newFileUriConvert("");
+    int ret = extension_->CopyFile(sourceUriConvert, destUriConvert, fileName, newFileUriConvert);
+    newFileUri = Urie(newFileUriConvert.ToString());
     return ret;
 }
 
@@ -205,10 +206,10 @@ int FileAccessExtStubImpl::Rename(const Urie &sourceFile, const std::string &dis
         return E_PERMISSION;
     }
 
-    Uri sourceFileCon(sourceFile.ToString());
-    Uri newFileCon("");
-    int ret = extension_->Rename(sourceFileCon, displayName, newFileCon);
-    newFile = Urie(newFileCon.ToString());
+    Uri sourceFileConvert(sourceFile.ToString());
+    Uri newFileConvert("");
+    int ret = extension_->Rename(sourceFileConvert, displayName, newFileConvert);
+    newFile = Urie(newFileConvert.ToString());
     return ret;
 }
 
@@ -298,8 +299,8 @@ int FileAccessExtStubImpl::Query(const Urie &uri, const std::vector<std::string>
     }
 
     std::vector<std::string> newColumns = const_cast<std::vector<std::string>&>(columns);
-    Uri uriCon(uri.ToString());
-    int ret = extension_->Query(uriCon, newColumns, results);
+    Uri uriConvert(uri.ToString());
+    int ret = extension_->Query(uriConvert, newColumns, results);
     return ret;
 }
 
@@ -333,8 +334,8 @@ int FileAccessExtStubImpl::GetFileInfoFromUri(const Urie &selectFile, FileInfo &
         return E_PERMISSION;
     }
 
-    Uri selectFileCon(selectFile.ToString());
-    int ret = extension_->GetFileInfoFromUri(selectFileCon, fileInfo);
+    Uri selectFileConvert(selectFile.ToString());
+    int ret = extension_->GetFileInfoFromUri(selectFileConvert, fileInfo);
     return ret;
 }
 
@@ -368,8 +369,8 @@ int FileAccessExtStubImpl::Access(const Urie &uri, bool &isExist)
         return E_PERMISSION;
     }
 
-    Uri uriCon(uri.ToString());
-    int ret = extension_->Access(uriCon, isExist);
+    Uri uriConvert(uri.ToString());
+    int ret = extension_->Access(uriConvert, isExist);
     return ret;
 }
 
@@ -386,8 +387,8 @@ int FileAccessExtStubImpl::StartWatcher(const Urie &uri)
         return E_PERMISSION;
     }
 
-    Uri uriCon(uri.ToString());
-    int ret = extension_->StartWatcher(uriCon);
+    Uri uriConvert(uri.ToString());
+    int ret = extension_->StartWatcher(uriConvert);
     return ret;
 }
 
@@ -404,13 +405,13 @@ int FileAccessExtStubImpl::StopWatcher(const Urie &uri)
         return E_PERMISSION;
     }
 
-    Uri uriCon(uri.ToString());
-    int ret = extension_->StopWatcher(uriCon);
+    Uri uriConvert(uri.ToString());
+    int ret = extension_->StopWatcher(uriConvert);
     return ret;
 }
 
 int FileAccessExtStubImpl::MoveItem(const Urie &sourceFile, const Urie &targetParent, std::vector<Result> &moveResult,
-                                    bool force)
+                                    int32_t& retCode, bool force)
 {
     UserAccessTracer trace;
     trace.Start("MoveItem");
@@ -423,9 +424,11 @@ int FileAccessExtStubImpl::MoveItem(const Urie &sourceFile, const Urie &targetPa
         return E_PERMISSION;
     }
 
-    Uri sourceFileCon(sourceFile.ToString());
-    Uri targetParentCon(targetParent.ToString());
-    return extension_->MoveItem(sourceFileCon, targetParentCon, moveResult, force);
+    Uri sourceFileConvert(sourceFile.ToString());
+    Uri targetParentConvert(targetParent.ToString());
+    int ret = extension_->MoveItem(sourceFileConvert, targetParentConvert, moveResult, force);
+    retCode = ret;
+    return ERR_OK;
 }
 
 int FileAccessExtStubImpl::MoveFile(const Urie &sourceFile, const Urie &targetParent, const std::string &fileName,
@@ -443,11 +446,11 @@ int FileAccessExtStubImpl::MoveFile(const Urie &sourceFile, const Urie &targetPa
     }
 
     std::string newFileName = const_cast<std::string&>(fileName);
-    Uri sourceFileCon(sourceFile.ToString());
-    Uri targetParentCon(targetParent.ToString());
-    Uri newFileCon("");
-    int ret =  extension_->MoveFile(sourceFileCon, targetParentCon, newFileName, newFileCon);
-    newFile = Urie(newFileCon.ToString());
+    Uri sourceFileConvert(sourceFile.ToString());
+    Uri targetParentConvert(targetParent.ToString());
+    Uri newFileConvert("");
+    int ret =  extension_->MoveFile(sourceFileConvert, targetParentConvert, newFileName, newFileConvert);
+    newFile = Urie(newFileConvert.ToString());
     return ret;
 }
 } // namespace FileAccessFwk
