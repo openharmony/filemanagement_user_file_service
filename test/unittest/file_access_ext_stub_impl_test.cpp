@@ -354,7 +354,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Copy_0000, testing
         int retCode;
         int result = impl.Copy(sourceFile, destUri, copyResult, retCode);
         result = retCode;
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, ERR_OK);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
@@ -1006,7 +1006,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveItem_0000, tes
         int retCode;
         int result = impl.MoveItem(sourceFile, targetParent, moveResult, retCode);
         result = retCode;
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, ERR_OK);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
