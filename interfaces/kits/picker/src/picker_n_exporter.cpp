@@ -346,8 +346,6 @@ static napi_value StartPickerExtension(napi_env env, napi_callback_info info,
         .onDestroy = std::bind(&ModalUICallback::OnDestroy, callback),
     };
     Ace::ModalUIExtensionConfig config;
-    config.prohibitedRemoveByNavigation = false;
-    config.prohibitedRemoveByRouter = false;
     HILOG_INFO("[picker]: will CreateModalUIExtension by extType: %{public}s, pickerType: %{public}s",
         targetType.c_str(), pickerType.c_str());
     int sessionId = uiContent->CreateModalUIExtension(request, extensionCallback, config);
