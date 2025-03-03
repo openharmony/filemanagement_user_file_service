@@ -1391,6 +1391,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0001, testing::
         std::vector<Result> moveResult;
         result = fileAccessHelper->MoveItem(sourceUri, newDirUriTest2, moveResult, false);
         EXPECT_EQ(result, -2);
+        EXPECT_EQ(moveResult[0].errCode, OHOS::FileAccessFwk::ERR_EXIST);
         result = fileAccessHelper->Delete(newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = fileAccessHelper->Delete(newDirUriTest2);
@@ -1523,6 +1524,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0004, testing::
         std::vector<Result> moveResult;
         result = fileAccessHelper->MoveItem(newDirUriTest1, newDirUriTest2, moveResult, false);
         EXPECT_EQ(result, -2);
+        EXPECT_EQ(moveResult[0].errCode, OHOS::FileAccessFwk::ERR_EXIST);
         GTEST_LOG_(INFO) << "Move_0000 result:" << result;
         result = fileAccessHelper->Delete(newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -1624,6 +1626,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0006, testing::
         std::vector<Result> moveResult;
         result = fileAccessHelper->MoveItem(newDirUriTest1, newDirUriTest3, moveResult, false);
         EXPECT_EQ(result, -2);
+        EXPECT_EQ(moveResult[0].errCode, OHOS::FileAccessFwk::ERR_EXIST);
         result = fileAccessHelper->Delete(newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = fileAccessHelper->Delete(newDirUriTest3);
@@ -1722,6 +1725,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0008, testing::
         std::vector<Result> moveResult;
         result = fileAccessHelper->MoveItem(sourceUri, newDirUriTest2, moveResult, true);
         EXPECT_EQ(result, -2);
+        EXPECT_EQ(moveResult.size(), 1);
         result = fileAccessHelper->Delete(newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = fileAccessHelper->Delete(newDirUriTest2);
@@ -1806,6 +1810,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0010, testing::
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = fileAccessHelper->MoveItem(sourceUri, newDirUriTest2, moveResult, true);
         EXPECT_EQ(result, -1);
+        EXPECT_EQ(moveResult[0].errCode, OHOS::FileAccessFwk::ERR_URI);
         result = fileAccessHelper->Delete(newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = fileAccessHelper->Delete(newDirUriTest2);
@@ -1848,6 +1853,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0011, testing::
         Uri targetUri(newDirUriTest2.ToString() + "/" + "test3");
         result = fileAccessHelper->MoveItem(sourceUri, targetUri, moveResult, true);
         EXPECT_EQ(result, -1);
+        EXPECT_EQ(moveResult[0].errCode, OHOS::FileAccessFwk::ERR_URI);
         result = fileAccessHelper->Delete(newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = fileAccessHelper->Delete(newDirUriTest2);
@@ -1902,6 +1908,8 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0012, testing::
 
         result = fileAccessHelper->MoveItem(newDirUriTest1, newDirUriTest2, moveResult, false);
         EXPECT_EQ(result, -2);
+        EXPECT_EQ(moveResult[0].errCode, OHOS::FileAccessFwk::ERR_IS_DIR);
+        EXPECT_EQ(moveResult[1].errCode, OHOS::FileAccessFwk::ERR_EXIST);
         result = fileAccessHelper->Delete(newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = fileAccessHelper->Delete(newDirUriTest2);
@@ -1956,6 +1964,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_item_0013, testing::
 
         result = fileAccessHelper->MoveItem(newDirUriTest1, newDirUriTest2, moveResult, true);
         EXPECT_EQ(result, -2);
+        EXPECT_EQ(moveResult[0].errCode, OHOS::FileAccessFwk::ERR_IS_DIR);
         result = fileAccessHelper->Delete(newDirUriTest1);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
         result = fileAccessHelper->Delete(newDirUriTest2);

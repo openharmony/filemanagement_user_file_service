@@ -300,6 +300,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0004, testing::ext::
             std::vector<Result> copyResult;
             result = fileAccessHelper->Copy(srcFile, destDir, copyResult, false);
             EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(copyResult.size(), 1);
 
             result = fileAccessHelper->OpenFile(existFile, WRITE_READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -362,6 +363,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0005, testing::ext::
             std::vector<Result> copyResult;
             result = fileAccessHelper->Copy(srcFile, destDir, copyResult);
             EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_GT(copyResult.size(), 0);
 
             result = fileAccessHelper->OpenFile(existFile, WRITE_READ, fd);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -507,6 +509,9 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0007, testing::ext::
             std::vector<Result> copyResult;
             result = fileAccessHelper->Copy(srcDir, destDir, copyResult, false);
             EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(copyResult.size(), 1);
+            EXPECT_EQ(copyResult[0].sourceUri, bFileUri.ToString());
+            EXPECT_EQ(copyResult[0].destUri, destFileUri.ToString());
 
             result = fileAccessHelper->Delete(srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
@@ -561,6 +566,7 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_0008, testing::ext::
             std::vector<Result> copyResult;
             result = fileAccessHelper->Copy(srcDir, destDir, copyResult);
             EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+            EXPECT_EQ(copyResult.size(), 1);
 
             result = fileAccessHelper->Delete(srcDir);
             EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
