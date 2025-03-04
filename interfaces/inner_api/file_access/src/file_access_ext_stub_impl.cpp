@@ -238,7 +238,7 @@ int FileAccessExtStubImpl::ListFile(const FileInfo &fileInfo, const int64_t offs
     int64_t currentOffset = offset;
     while (true) {
         uint64_t maxCounts =
-        memInfo.memSize > DEFAULT_CAPACITY_200KB ? FILEFILTER_MAX_COUNTS : FILEFILTER_DEFAULT_COUNTS;
+            memInfo.memSize > DEFAULT_CAPACITY_200KB ? FILEFILTER_MAX_COUNTS : FILEFILTER_DEFAULT_COUNTS;
         fileInfoVec.clear();
         ret = extension_->ListFile(fileInfo, currentOffset, maxCounts, filter, fileInfoVec);
         if (ret != ERR_OK) {
@@ -257,7 +257,7 @@ int FileAccessExtStubImpl::ListFile(const FileInfo &fileInfo, const int64_t offs
         }
         if (fileInfoVec.empty() ||(maxCounts > static_cast<uint64_t>(fileInfoVec.size())
             && currentWriteCounts == fileInfoVec.size())) {
-                memInfo.isOver = true;
+            memInfo.isOver = true;
             break;
         }
         currentOffset += currentWriteCounts;
