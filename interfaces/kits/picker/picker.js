@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -87,7 +87,9 @@ const ARGS_ONE = 1;
 const ARGS_TWO = 2;
 const RESULT_CODE_ERROR = -1;
 const RESULT_CODE_OK = 0;
-const FILENAME_LENGTH = 3;
+const LENGTH_TWO = 2;
+const LENGTH_THREE = 3;
+let suffixIndex = -1;
 
 /*
 * UTF-8字符编码数值对应的存储长度：
@@ -227,20 +229,24 @@ function getPhotoPickerSelectResult(args) {
 }
 
 async function photoPickerSelect(...args) {
-  let checkPhotoArgsResult = checkArguments(args);
+  if (args.length !== LENGTH_TWO) {
+    console.error('[picker] args error: ' + args.length);
+    return undefined;
+  }
+  let checkPhotoArgsResult = checkArguments(args[ARGS_ZERO]);
   if (checkPhotoArgsResult !== undefined) {
     console.log('[picker] Photo Invalid argument');
     throw checkPhotoArgsResult;
   }
 
-  const config = parsePhotoPickerSelectOption(args);
+  const config = parsePhotoPickerSelectOption(args[ARGS_ZERO]);
   console.log('[picker] Photo config: ' + JSON.stringify(config));
 
   let photoSelectContext = undefined;
   let photoSelectWindow = undefined;
   try {
-    if (this.context !== undefined) {
-      photoSelectContext = this.context;
+    if (args[ARGS_ONE] !== undefined) {
+      photoSelectContext = args[ARGS_ONE];
     } else {
       photoSelectContext = getContext(this);
     }
@@ -356,7 +362,11 @@ function getDocumentPickerSelectResult(args) {
 }
 
 async function documentPickerSelect(...args) {
-  let checkDocumentSelectArgsResult = checkArguments(args);
+  if (args.length !== LENGTH_THREE) {
+    console.error('[picker] args error: ' + args.length);
+    return undefined;
+  }
+  let checkDocumentSelectArgsResult = checkArguments(args[ARGS_ZERO]);
   if (checkDocumentSelectArgsResult !== undefined) {
     console.log('[picker] Document Select Invalid argument');
     throw checkDocumentSelectArgsResult;
@@ -369,8 +379,8 @@ async function documentPickerSelect(...args) {
   let documentSelectWindow = undefined;
 
   try {
-    if (this.context !== undefined) {
-      documentSelectContext = this.context;
+    if (args[ARGS_ONE] !== undefined) {
+      documentSelectContext = args[ARGS_ONE];
     } else {
       documentSelectContext = getContext(this);
     }
@@ -383,10 +393,10 @@ async function documentPickerSelect(...args) {
       console.error('[picker] documentSelectContext == undefined');
       throw getErr(ErrCode.CONTEXT_NO_EXIST);
     }
-    if (this.window !== undefined) {
-        documentSelectWindow = this.window;
+    if (args[ARGS_TWO] !== undefined) {
+        documentSelectWindow = args[ARGS_TWO];
     }
-    documentSelectConfig = parseDocumentPickerSelectOption(args, ACTION.SELECT_ACTION_MODAL);
+    documentSelectConfig = parseDocumentPickerSelectOption(args[ARGS_ZERO], ACTION.SELECT_ACTION_MODAL);
     console.error('[picker] DocumentSelect documentSelectConfig: ' + JSON.stringify(documentSelectConfig));
     documentSelectResult = await modalPicker(documentSelectContext, documentSelectConfig, documentSelectWindow);
   } catch (paramError) {
@@ -524,7 +534,11 @@ async function modalPicker(context, config, window) {
 }
 
 async function documentPickerSave(...args) {
-  let checkDocumentSaveArgsResult = checkArguments(args);
+  if (args.length !== LENGTH_THREE) {
+    console.error('[picker] args error: ' + args.length);
+    return undefined;
+  }
+  let checkDocumentSaveArgsResult = checkArguments(args[ARGS_ZERO]);
   if (checkDocumentSaveArgsResult !== undefined) {
     console.log('[picker] Document Save Invalid argument');
     throw checkDocumentSaveArgsResult;
@@ -537,8 +551,8 @@ async function documentPickerSave(...args) {
   let documentSaveWindow = undefined;
 
   try {
-    if (this.context !== undefined) {
-      documentSaveContext = this.context;
+    if (args[ARGS_ONE] !== undefined) {
+      documentSaveContext = args[ARGS_ONE];
     } else {
       documentSaveContext = getContext(this);
     }
@@ -546,23 +560,23 @@ async function documentPickerSave(...args) {
     console.error('[picker] getContext error: ' + getContextError);
     throw getErr(ErrCode.CONTEXT_NO_EXIST);
   }
-  if (this.window !== undefined) {
-      documentSaveWindow = this.window;
+  if (args[ARGS_TWO] !== undefined) {
+      documentSaveWindow = args[ARGS_TWO];
   }
 
-  documentSaveConfig = parseDocumentPickerSaveOption(args, ACTION.SAVE_ACTION_MODAL);
+  documentSaveConfig = parseDocumentPickerSaveOption(args[ARGS_ZERO], ACTION.SAVE_ACTION_MODAL);
   console.log('[picker] document save start');
 
   documentSaveResult = await modalPicker(documentSaveContext, documentSaveConfig, documentSaveWindow);
   saveResult = getDocumentPickerSaveResult(documentSaveResult);
-  this.suffixIndex = saveResult.suffix;
+  suffixIndex = saveResult.suffix;
   return sendResult(args, saveResult);
 }
 
 function getSelectedSuffixIndex() {
   console.log('[picker] Get Selected Suffix Index start');
-  let index = this.suffixIndex;
-  this.suffixIndex = -1;
+  let index = suffixIndex;
+  suffixIndex = -1;
   console.log('[picker] Get Selected Suffix Index end: ' + index);
   return index;
 }
@@ -592,20 +606,24 @@ async function sendResult(args, result) {
 }
 
 async function audioPickerSelect(...args) {
-  let checkAudioArgsResult = checkArguments(args);
+  if (args.length !== LENGTH_TWO) {
+    console.error('[picker] args error: ' + args.length);
+    return undefined;
+  }
+  let checkAudioArgsResult = checkArguments(args[ARGS_ZERO]);
   if (checkAudioArgsResult !== undefined) {
     console.log('[picker] Audio Invalid argument');
     throw checkAudioArgsResult;
   }
 
-  const audioSelectConfig = parseAudioPickerSelectOption(args, ACTION.SELECT_ACTION);
+  const audioSelectConfig = parseAudioPickerSelectOption(args[ARGS_ZERO], ACTION.SELECT_ACTION);
   console.log('[picker] audio select config: ' + JSON.stringify(audioSelectConfig));
 
   let audioSelectContext = undefined;
   let audipSelectWindow = undefined;
   try {
-    if (this.context !== undefined) {
-      audioSelectContext = this.context;
+    if (args[ARGS_ONE] !== undefined) {
+      audioSelectContext = args[ARGS_ONE];
     } else {
       audioSelectContext = getContext(this);
     }
@@ -627,41 +645,56 @@ async function audioPickerSelect(...args) {
   return undefined;
 }
 
-function PhotoSelectOptions() {
-  this.MIMEType = PhotoViewMIMETypes.INVALID_TYPE;
-  this.maxSelectNumber = -1;
+class PhotoSelectOptions {
+  constructor() {
+    this.MIMEType = PhotoViewMIMETypes.INVALID_TYPE;
+    this.maxSelectNumber = -1;
+  }
 }
 
-function PhotoSelectResult(uris, isOriginalPhoto) {
-  this.photoUris = uris;
-  this.isOriginalPhoto = isOriginalPhoto;
+class PhotoSelectResult {
+  constructor(uris, isOriginalPhoto) {
+    this.photoUris = uris;
+    this.isOriginalPhoto = isOriginalPhoto;
+  }
 }
 
-function PhotoSaveOptions() {
-  this.newFileNames = undefined;
+class PhotoSaveOptions {
+  constructor() {
+    this.newFileNames = undefined;
+  }
 }
 
-function DocumentSelectOptions() {
-  this.defaultFilePathUri = undefined;
-  this.fileSuffixFilters = undefined;
-  this.maxSelectNumber = undefined;
-  this.selectMode = DocumentSelectMode.FILE;
-  this.mergeMode = MergeTypeMode.DEFAULT;
-  this.multiAuthMode = false;
-  this.multiUriArray = undefined;
+class DocumentSelectOptions {
+  constructor() {
+    this.defaultFilePathUri = undefined;
+    this.fileSuffixFilters = undefined;
+    this.maxSelectNumber = undefined;
+    this.authMode = false;
+    this.selectMode = DocumentSelectMode.FILE;
+    this.mergeMode = MergeTypeMode.DEFAULT;
+    this.multiAuthMode = false;
+    this.multiUriArray = undefined;
+  }
 }
 
-function DocumentSaveOptions() {
-  this.newFileNames = undefined;
-  this.defaultFilePathUri = undefined;
-  this.fileSuffixChoices = undefined;
-  this.pickerMode = DocumentPickerMode.DEFAULT;
+class DocumentSaveOptions {
+  constructor() {
+    this.newFileNames = undefined;
+    this.defaultFilePathUri = undefined;
+    this.fileSuffixChoices = undefined;
+    this.pickerMode = DocumentPickerMode.DEFAULT;
+  }
 }
 
-function AudioSelectOptions() {}
+class AudioSelectOptions {
+  constructor() {}
+}
 
-function AudioSaveOptions() {
-  this.newFileNames = undefined;
+class AudioSaveOptions {
+  constructor() {
+    this.newFileNames = undefined;
+  }
 }
 
 function ParseContext(args)
@@ -686,25 +719,44 @@ function parseWindow(args)
   return args[ARGS_ONE]; 
 }
 
-function PhotoViewPicker(...args) {
-  this.select = photoPickerSelect;
-  this.save = documentPickerSave;
-  this.context = ParseContext(args);
+class PhotoViewPicker {
+  constructor(...args) {
+    this.context = ParseContext(args);
+  }
+  select(...args) {
+    return photoPickerSelect(args, this.context);
+  }
+  save(...args) {
+    return documentPickerSave(args, this.context);
+  }
 }
 
-function DocumentViewPicker(...args) {
-  this.select = documentPickerSelect;
-  this.save = documentPickerSave;
-  this.context = ParseContext(args);
-  this.window = parseWindow(args);
-  this.getSelectedIndex = getSelectedSuffixIndex;
-  this.suffixIndex = -1;
+class DocumentViewPicker {
+  constructor(...args) {
+    this.context = ParseContext(args);
+    this.window = parseWindow(args);
+  }
+  select(...args) {
+    return documentPickerSelect(args, this.context, this.window);
+  }
+  save(...args) {
+    return documentPickerSave(args, this.context, this.window);
+  }
+  getSelectedIndex() {
+    return getSelectedSuffixIndex();
+  }
 }
 
-function AudioViewPicker(...args) {
-  this.select = audioPickerSelect;
-  this.save = documentPickerSave;
-  this.context = ParseContext(args);
+class AudioViewPicker {
+  constructor(...args) {
+    this.context = ParseContext(args);
+  }
+  select(...args) {
+    return audioPickerSelect(args, this.context);
+  }
+  save(...args) {
+    return documentPickerSave(args, this.context);
+  }
 }
 
 export default {
