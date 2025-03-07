@@ -1,0 +1,32 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import NotifyType;
+import IFileAccessObserver;
+sequenceable Uri..OHOS.Uri;
+sequenceable FileAccessExtensionInfo..OHOS.FileAccessFwk.ConnectExtensionInfo;
+sequenceable Want..OHOS.AAFwk.Want;
+interface OHOS.FileAccessFwk.IFileAccessExtBase;
+interface OHOS.AAFwk.IAbilityConnection;
+interface OHOS.FileAccessFwk.IFileAccessServiceBase {
+    void RegisterNotify([in] Uri uri, [in] boolean notifyForDescendants, [in] IFileAccessObserver observer,
+        [in] ConnectExtensionInfo info);
+    void UnregisterNotify([in] Uri uri, [in] IFileAccessObserver observer, [in] ConnectExtensionInfo info);
+    void OnChange([in] Uri uri, [in] NotifyType notifyType);
+    void GetExtensionProxy([in] ConnectExtensionInfo info, [out] IFileAccessExtBase extensionProxy);
+    void ConnectFileExtAbility([in] Want want, [in] IAbilityConnection connection);
+    void DisConnectFileExtAbility([in] IAbilityConnection connection);
+    void UnregisterNotifyNoObserver([in] Uri uri, [in] ConnectExtensionInfo info);
+}

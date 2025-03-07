@@ -1,0 +1,47 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+sequenceable FileAccessExtensionInfo..OHOS.FileAccessFwk.Result;
+sequenceable FileAccessExtensionInfo..OHOS.FileAccessFwk.FileInfo;
+sequenceable FileFilter..OHOS.FileAccessFwk.FileFilter;
+sequenceable FileInfoSharedMemory..OHOS.FileAccessFwk.SharedMemoryInfo;
+sequenceable FileAccessExtensionInfo..OHOS.FileAccessFwk.RootInfo;
+sequenceable UriExt..OHOS.FileAccessFwk.Urie;
+interface OHOS.FileAccessFwk.IFileAccessExtBase {
+    [ipccode 1] void OpenFile([in] Urie uri, [in] int flags, [out] FileDescriptor fd);
+    [ipccode 2] void CreateFile([in] Urie parent, [in] String displayName, [out] Urie newFile);
+    [ipccode 3] void Mkdir([in] Urie parent, [in] String displayName, [out] Urie newFile);
+    [ipccode 4] void Delete([in] Urie sourceFile);
+    [ipccode 5] void Move([in] Urie sourceFile, [in] Urie targetParent, [out] Urie newFile);
+    [ipccode 6] void Copy([in] Urie sourceUri, [in] Urie destUri, [out] Result[] copyResult,
+        [out] int retCode, [in] boolean force);
+    [ipccode 17] void CopyFile([in] Urie sourceUri, [in] Urie destUri, [in] String fileName,
+        [out] Urie newFileUri);
+    [ipccode 7] void Rename([in] Urie sourceFile, [in] String displayName, [out] Urie newFile);
+    [ipccode 8] void ListFile([in] FileInfo fileInfo, [in] long offset, [in] FileFilter filter,
+        [inout] SharedMemoryInfo meminfo);
+    [ipccode 9] void ScanFile([in] FileInfo fileInfo, [in] long offset, [in] long maxCount,
+        [in] FileFilter filter, [out] FileInfo[] fileInfoVec);
+    [ipccode 12] void Query([in] Urie uri, [in] List<String> columns, [out] List<String> results);
+    [ipccode 15] void GetFileInfoFromUri([in] Urie selectFile, [out] FileInfo fileInfo);
+    [ipccode 16] void GetFileInfoFromRelativePath([in] String selectFile, [out] FileInfo fileInfo);
+    [ipccode 13] void GetRoots([out] List<RootInfo> rootInfoVec);
+    [ipccode 14] void Access([in] Urie uri, [out] boolean isExist);
+    [ipccode 10] void StartWatcher([in] Urie uri);
+    [ipccode 11] void StopWatcher([in] Urie uri);
+    [ipccode 18] void MoveItem([in] Urie sourceFile, [in] Urie targetParent, [out] Result[] moveResult,
+        [out] int retCode, [in] boolean force);
+    [ipccode 19] void MoveFile([in] Urie sourceFile, [in] Urie targetParent, [in] String fileName, [out] Urie newFile);
+}

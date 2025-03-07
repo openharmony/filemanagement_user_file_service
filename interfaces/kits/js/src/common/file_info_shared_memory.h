@@ -1,6 +1,6 @@
 
 /*
- * Copyright (C) 2023 - 2024 Huawei Device Co., Ltd.
+ * Copyright (C) 2023 - 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -57,9 +57,7 @@ public:
     uint32_t leftDataCounts = 0;
 
     SharedMemoryInfo() = default;
-    SharedMemoryInfo(const SharedMemoryInfo &) = delete;
-    SharedMemoryInfo &operator=(SharedMemoryInfo &) = delete;
-
+    
     bool Marshalling(Parcel &parcel) const override
     {
         if (!WriteFileDescriptor(parcel, memFd)) {
@@ -67,6 +65,18 @@ public:
             return false;
         }
         if (!parcel.WriteUint64(memSize)) {
+            return false;
+        }
+        if (!parcel.WriteUint32(dataCounts)) {
+            return false;
+        }
+        if (!parcel.WriteUint64(dataSize)) {
+            return false;
+        }
+        if (!parcel.WriteUint32(leftDataCounts)) {
+            return false;
+        }
+        if (!parcel.WriteBool(isOver)) {
             return false;
         }
         return true;
@@ -89,6 +99,10 @@ public:
         }
 
         memSize = parcel.ReadUint64();
+        dataCounts = parcel.ReadUint32();
+        dataSize = parcel.ReadUint64();
+        leftDataCounts = parcel.ReadUint32();
+        isOver = parcel.ReadBool();
         return true;
     }
 

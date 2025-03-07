@@ -23,7 +23,7 @@
 #include "file_access_extension_info.h"
 #include "file_access_framework_errno.h"
 #include "file_access_observer_common.h"
-#include "file_access_service_proxy.h"
+#include "file_access_service_client.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
@@ -1398,9 +1398,10 @@ int JsFileAccessExtAbility::Query(const Uri &uri, std::vector<std::string> &colu
         return E_GETRESULT;
     }
 
-    ConvertColumn(columns);
-    auto argParser = [uri, &columns](napi_env &env, napi_value *argv, size_t &argc) -> bool {
-        if (ConstructQueryArg(env, argv, argc, uri, columns) != napi_ok) {
+    std::vector<std::string> newColumns = columns;
+    ConvertColumn(newColumns);
+    auto argParser = [uri, &newColumns](napi_env &env, napi_value *argv, size_t &argc) -> bool {
+        if (ConstructQueryArg(env, argv, argc, uri, newColumns) != napi_ok) {
             HILOG_ERROR("Construct arg fail.");
             return false;
         }
@@ -1681,7 +1682,7 @@ int JsFileAccessExtAbility::Notify(Uri &uri, NotifyType notifyType)
 {
     UserAccessTracer trace;
     trace.Start("Notify");
-    auto proxy = FileAccessServiceProxy::GetInstance();
+    auto proxy = FileAccessServiceClient::GetInstance();
     if (proxy == nullptr) {
         HILOG_ERROR("Notify get SA failed");
         return E_LOAD_SA;

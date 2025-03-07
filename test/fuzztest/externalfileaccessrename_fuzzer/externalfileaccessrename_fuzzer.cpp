@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,7 +22,7 @@
 #include "extension_base.h"
 #include "extension_context.h"
 #include "message_parcel.h"
-#include "file_access_ext_stub.h"
+#include "file_access_ext_base_stub.h"
 #include "file_access_ext_stub_impl.h"
 #include "file_access_ext_ability.h"
 #include "js_file_access_ext_ability.h"
@@ -70,7 +70,7 @@ bool ExternalFileAccessRenameFuzzTest(const uint8_t *data, size_t size)
     // CMD_RENAME
     uint32_t code = 7;
     MessageParcel datas;
-    datas.WriteInterfaceToken(FileAccessExtStub::GetDescriptor());
+    datas.WriteInterfaceToken(FileAccessExtBaseStub::GetDescriptor());
     datas.WriteBuffer(reinterpret_cast<const char*>(data), size);
     datas.RewindRead(0);
     MessageParcel reply;

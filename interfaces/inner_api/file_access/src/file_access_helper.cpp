@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,7 +21,7 @@
 #include "bundle_mgr_proxy.h"
 #include "file_access_framework_errno.h"
 #include "file_access_extension_info.h"
-#include "file_access_service_proxy.h"
+#include "file_access_service_client.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "user_access_tracer.h"
@@ -32,6 +32,7 @@
 #include "system_ability_definition.h"
 #include "tokenid_kit.h"
 #include "n_error.h"
+#include "uri_ext.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -39,6 +40,7 @@ using json = nlohmann::json;
 namespace {
     constexpr int COPY_EXCEPTION = -1;
     constexpr int COPY_NOEXCEPTION = -2;
+    constexpr uint32_t MAX_COPY_ERROR_COUNT = 1000;
 }
 
 sptr<IFileAccessExtBase> g_sourceExtProxy;
@@ -335,8 +337,8 @@ sptr<IFileAccessExtBase> FileAccessHelper::GetProxyByUri(Uri &uri)
         }
     }
 
-    auto fileAccessExtProxy = GetProxyByBundleName(bundleName);
-    return fileAccessExtProxy;
+    auto fileAccessExtBaseProxy = GetProxyByBundleName(bundleName);
+    return fileAccessExtBaseProxy;
 }
 
 sptr<IFileAccessExtBase> FileAccessHelper::GetProxyByBundleName(const std::string &bundleName)
@@ -350,12 +352,12 @@ sptr<IFileAccessExtBase> FileAccessHelper::GetProxyByBundleName(const std::strin
     if (!connectInfo->fileAccessExtConnection->IsExtAbilityConnected()) {
         connectInfo->fileAccessExtConnection->ConnectFileExtAbility(connectInfo->want);
     }
-    auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
-    if (fileAccessExtProxy == nullptr) {
-        HILOG_ERROR("GetProxyByUri failed with invalid fileAccessExtProxy");
+    auto fileAccessExtBaseProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
+    if (fileAccessExtBaseProxy == nullptr) {
+        HILOG_ERROR("GetProxyByUri failed with invalid FileAccessExtBaseProxy");
         return nullptr;
     }
-    return fileAccessExtProxy;
+    return fileAccessExtBaseProxy;
 }
 
 bool FileAccessHelper::GetProxy()
@@ -369,9 +371,9 @@ bool FileAccessHelper::GetProxy()
         if (!connectInfo->fileAccessExtConnection->IsExtAbilityConnected()) {
             connectInfo->fileAccessExtConnection->ConnectFileExtAbility(connectInfo->want);
         }
-        auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
-        if (fileAccessExtProxy == nullptr) {
-            HILOG_ERROR("GetProxy failed with invalid fileAccessExtProxy");
+        auto fileAccessExtBaseProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
+        if (fileAccessExtBaseProxy == nullptr) {
+            HILOG_ERROR("GetProxy failed with invalid FileAccessExtBaseProxy");
             return false;
         }
     }
@@ -399,11 +401,12 @@ int FileAccessHelper::OpenFile(Uri &uri, int flags, int &fd)
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("failed with invalid FileAccessExtBaseProxy");
         return E_IPCS;
     }
 
-    int ret = fileExtProxy->OpenFile(uri, flags, fd);
+    Urie uriConvert(uri.ToString());
+    int ret = fileExtProxy->OpenFile(uriConvert, flags, fd);
     if (ret != ERR_OK) {
         HILOG_ERROR("OpenFile get result error, code:%{public}d", ret);
         return ret;
@@ -428,15 +431,18 @@ int FileAccessHelper::CreateFile(Uri &parent, const std::string &displayName, Ur
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(parent);
     if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("failed with invalid FileAccessExtBaseProxy");
         return E_IPCS;
     }
 
-    int ret = fileExtProxy->CreateFile(parent, displayName, newFile);
+    Urie parentConvert(parent.ToString());
+    Urie newFileConvert("");
+    int ret = fileExtProxy->CreateFile(parentConvert, displayName, newFileConvert);
     if (ret != ERR_OK) {
         HILOG_ERROR("CreateFile get result error, code:%{public}d", ret);
         return ret;
     }
+    newFile = Uri(newFileConvert.ToString());
 
     return ERR_OK;
 }
@@ -457,15 +463,18 @@ int FileAccessHelper::Mkdir(Uri &parent, const std::string &displayName, Uri &ne
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(parent);
     if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("failed with invalid FileAccessExtBaseProxy");
         return E_IPCS;
     }
 
-    int ret = fileExtProxy->Mkdir(parent, displayName, newDir);
+    Urie parentConvert(parent.ToString());
+    Urie newDirConvert("");
+    int ret = fileExtProxy->Mkdir(parentConvert, displayName, newDirConvert);
     if (ret != ERR_OK) {
         HILOG_ERROR("Mkdir get result error, code:%{public}d", ret);
         return ret;
     }
+    newDir = Uri(newDirConvert.ToString());
 
     return ERR_OK;
 }
@@ -486,11 +495,12 @@ int FileAccessHelper::Delete(Uri &selectFile)
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(selectFile);
     if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("failed with invalid FileAccessExtBaseProxy");
         return E_IPCS;
     }
 
-    int ret = fileExtProxy->Delete(selectFile);
+    Urie selectFileConvert(selectFile.ToString());
+    int ret = fileExtProxy->Delete(selectFileConvert);
     if (ret != ERR_OK) {
         HILOG_ERROR("Delete get result error, code:%{public}d", ret);
         return ret;
@@ -522,15 +532,19 @@ int FileAccessHelper::Move(Uri &sourceFile, Uri &targetParent, Uri &newFile)
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
     if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("failed with invalid FileAccessExtBaseProxy");
         return E_IPCS;
     }
 
-    int ret = fileExtProxy->Move(sourceFile, targetParent, newFile);
+    Urie sourceFileConvert(sourceFile.ToString());
+    Urie targetParentConvert(targetParent.ToString());
+    Urie newFileConvert("");
+    int ret = fileExtProxy->Move(sourceFileConvert, targetParentConvert, newFileConvert);
     if (ret != ERR_OK) {
         HILOG_ERROR("Move get result error, code:%{public}d", ret);
         return ret;
     }
+    newFile = Uri(newFileConvert.ToString());
 
     return ERR_OK;
 }
@@ -539,12 +553,13 @@ int FileAccessHelper::IsDirectory(Uri &uri, bool &isDir)
 {
     sptr<IFileAccessExtBase> proxy = FileAccessHelper::GetProxyByUri(uri);
     if (proxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("failed with invalid FileAccessExtBaseProxy");
         return E_IPCS;
     }
 
     FileInfo fileInfo;
-    int ret = proxy->GetFileInfoFromUri(uri, fileInfo);
+    Urie uriConvert(uri.ToString());
+    int ret = proxy->GetFileInfoFromUri(uriConvert, fileInfo);
     if (ret != ERR_OK) {
         HILOG_ERROR("get FileInfo from uri error, code:%{public}d", ret);
         return ret;
@@ -603,14 +618,28 @@ int FileAccessHelper::CopyOperation(Uri &sourceUri, Uri &destUri, std::vector<Re
     int ret = COPY_EXCEPTION;
     sptr<IFileAccessExtBase> proxy = GetProxyByUri(sourceUri);
     if (proxy == nullptr) {
-        HILOG_ERROR("Failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("Failed with invalid FileAccessExtBaseProxy");
         Result result;
         ret = TranslateResult(E_IPCS, result);
         copyResult.push_back(result);
         return ret;
     }
 
-    ret = proxy->Copy(sourceUri, destUri, copyResult, force);
+    Urie sourceUriConvert(sourceUri.ToString());
+    Urie destUriConvert(destUri.ToString());
+    copyResult.clear();
+    int retCode;
+    ret = proxy->Copy(sourceUriConvert, destUriConvert, copyResult, retCode, force);
+    if (ret == ERR_OK) {
+        ret = retCode;
+    }
+    if (copyResult.size() > MAX_COPY_ERROR_COUNT) {
+        HILOG_ERROR("Copy operation failed, count value greater than max count");
+        Result result { "", "", E_COUNT, "Count value greater than max count"};
+        copyResult.clear();
+        copyResult.push_back(result);
+        ret = COPY_EXCEPTION;
+    }
     if (ret != ERR_OK) {
         if ((ret == COPY_EXCEPTION) || (ret == COPY_NOEXCEPTION)) {
             HILOG_ERROR("Copy exception, code:%{public}d", ret);
@@ -631,15 +660,19 @@ int FileAccessHelper::CopyFileOperation(Uri &sourceUri, Uri &destUri, const std:
     trace.Start("CopyFileOperation");
     sptr<IFileAccessExtBase> proxy = GetProxyByUri(sourceUri);
     if (proxy == nullptr) {
-        HILOG_ERROR("Failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("Failed with invalid FileAccessExtBaseProxy");
         return E_IPCS;
     }
 
-    int ret = proxy->CopyFile(sourceUri, destUri, fileName, newFileUri);
+    Urie sourceUriConvert(sourceUri.ToString());
+    Urie destUriConvert(destUri.ToString());
+    Urie newFileUriConvert("");
+    int ret = proxy->CopyFile(sourceUriConvert, destUriConvert, fileName, newFileUriConvert);
     if (ret != ERR_OK) {
         HILOG_ERROR("Copy file error, code:%{public}d", ret);
         return ret;
     }
+    newFileUri = Uri(newFileUriConvert.ToString());
     return ret;
 }
 
@@ -717,15 +750,18 @@ int FileAccessHelper::Rename(Uri &sourceFile, const std::string &displayName, Ur
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
     if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("failed with invalid FileAccessExtBaseProxy");
         return E_IPCS;
     }
 
-    int ret = fileExtProxy->Rename(sourceFile, displayName, newFile);
+    Urie sourceFileConvert(sourceFile.ToString());
+    Urie newFileConvert("");
+    int ret = fileExtProxy->Rename(sourceFileConvert, displayName, newFileConvert);
     if (ret != ERR_OK) {
         HILOG_ERROR("Rename get result error, code:%{public}d", ret);
         return ret;
     }
+    newFile = Uri(newFileConvert.ToString());
 
     return ERR_OK;
 }
@@ -748,16 +784,22 @@ int FileAccessHelper::ListFile(const FileInfo &fileInfo, const int64_t offset, c
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
     if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("failed with invalid FileAccessExtBaseProxy");
         return E_IPCS;
     }
 
     memInfo.Clear();
+    SharedMemoryInfo memInfoTemp = memInfo;
     int ret = fileExtProxy->ListFile(fileInfo, offset, filter, memInfo);
     if (ret != ERR_OK) {
         HILOG_ERROR("ListFile get result error, code:%{public}d", ret);
         return ret;
     }
+    memInfo.totalDataCounts = memInfo.dataCounts;
+    memInfo.memName = memInfoTemp.memName;
+    memInfo.memHead = memInfoTemp.memHead;
+    memInfo.memTail = memInfoTemp.memTail;
+    memInfo.dataPtr = memInfoTemp.dataPtr;
     return ERR_OK;
 }
 
@@ -779,9 +821,10 @@ int FileAccessHelper::ScanFile(const FileInfo &fileInfo, const int64_t offset, c
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
     if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("failed with invalid FileAccessExtBaseProxy");
         return E_IPCS;
     }
+    fileInfoVec.clear();
 
     int ret = fileExtProxy->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
     if (ret != ERR_OK) {
@@ -877,11 +920,13 @@ int FileAccessHelper::Query(Uri &uri, std::string &metaJson)
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("failed with invalid FileAccessExtBaseProxy");
         return E_IPCS;
     }
 
-    ret = fileExtProxy->Query(uri, columns, results);
+    Urie uriConvert(uri.ToString());
+    results.clear();
+    ret = fileExtProxy->Query(uriConvert, columns, results);
     if (ret != ERR_OK) {
         HILOG_ERROR("Query get result error, code:%{public}d", ret);
         return ret;
@@ -906,7 +951,7 @@ int FileAccessHelper::GetRoots(std::vector<RootInfo> &rootInfoVec)
     }
 
     if (!GetProxy()) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("failed with invalid FileAccessExtBaseProxy");
         return E_IPCS;
     }
 
@@ -917,14 +962,14 @@ int FileAccessHelper::GetRoots(std::vector<RootInfo> &rootInfoVec)
             HILOG_ERROR("connectInfo is nullptr");
             return E_IPCS;
         }
-        auto fileAccessExtProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
+        auto fileAccessExtBaseProxy = connectInfo->fileAccessExtConnection->GetFileExtProxy();
         std::vector<RootInfo> results;
-        if (!fileAccessExtProxy) {
+        if (!fileAccessExtBaseProxy) {
             HILOG_ERROR("GetFileExtProxy return nullptr, bundle name is %{public}s", iter->first.c_str());
             continue;
         }
 
-        ret = fileAccessExtProxy->GetRoots(results);
+        ret = fileAccessExtBaseProxy->GetRoots(results);
         if (ret != ERR_OK) {
             HILOG_ERROR("getRoots get fail ret:%{public}d", ret);
             return ret;
@@ -990,11 +1035,12 @@ int FileAccessHelper::Access(Uri &uri, bool &isExist)
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(uri);
     if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("failed with invalid FileAccessExtBaseProxy");
         return E_IPCS;
     }
 
-    int ret = fileExtProxy->Access(uri, isExist);
+    Urie uriConvert(uri.ToString());
+    int ret = fileExtProxy->Access(uriConvert, isExist);
     if (ret != ERR_OK) {
         HILOG_ERROR("Access get result error, code:%{public}d", ret);
         return ret;
@@ -1019,11 +1065,12 @@ int FileAccessHelper::GetFileInfoFromUri(Uri &selectFile, FileInfo &fileInfo)
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(selectFile);
     if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("failed with invalid FileAccessExtBaseProxy");
         return E_IPCS;
     }
 
-    int ret = fileExtProxy->GetFileInfoFromUri(selectFile, fileInfo);
+    Urie selectFileConvert(selectFile.ToString());
+    int ret = fileExtProxy->GetFileInfoFromUri(selectFileConvert, fileInfo);
     if (ret != ERR_OK) {
         HILOG_ERROR("GetFileInfoFromUri get result error, code:%{public}d", ret);
         return ret;
@@ -1043,7 +1090,7 @@ int FileAccessHelper::GetFileInfoFromRelativePath(std::string &selectFile, FileI
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByBundleName(EXTERNAL_BNUDLE_NAME);
     if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("failed with invalid FileAccessExtBaseProxy");
         return E_IPCS;
     }
 
@@ -1070,13 +1117,19 @@ int FileAccessHelper::RegisterNotify(Uri uri, bool notifyForDescendants, sptr<IF
         return EINVAL;
     }
 
-    auto proxy = FileAccessServiceProxy::GetInstance();
+    auto proxy = FileAccessServiceClient::GetInstance();
     if (proxy == nullptr) {
         HILOG_ERROR("RegisterNotify get SA failed");
         return E_LOAD_SA;
     }
 
-    int ret = proxy->RegisterNotify(uri, notifyForDescendants, observer, GetConnectExtensionInfo(uri));
+    std::shared_ptr<ConnectExtensionInfo> info = GetConnectExtensionInfo(uri);
+    if (!info) {
+        HILOG_ERROR("FileAccessHelper::RegisterNotify check ConnectExtensionInfo failed");
+        return EINVAL;
+    }
+
+    int ret = proxy->RegisterNotify(uri, notifyForDescendants, observer, *info);
     return ret;
 }
 
@@ -1094,13 +1147,19 @@ int FileAccessHelper::UnregisterNotify(Uri uri, sptr<IFileAccessObserver> &obser
         return EINVAL;
     }
 
-    auto proxy = FileAccessServiceProxy::GetInstance();
+    auto proxy = FileAccessServiceClient::GetInstance();
     if (proxy == nullptr) {
         HILOG_ERROR("UnregisterNotify get SA failed");
         return E_LOAD_SA;
     }
 
-    int ret = proxy->UnregisterNotify(uri, observer, GetConnectExtensionInfo(uri));
+    std::shared_ptr<ConnectExtensionInfo> info = GetConnectExtensionInfo(uri);
+    if (!info) {
+        HILOG_ERROR("FileAccessHelper::UnregisterNotify check ConnectExtensionInfo failed");
+        return EINVAL;
+    }
+
+    int ret = proxy->UnregisterNotify(uri, observer, *info);
     return ret;
 }
 
@@ -1117,14 +1176,19 @@ int FileAccessHelper::UnregisterNotify(Uri uri)
         HILOG_ERROR("parameter check error.");
         return EINVAL;
     }
-    auto proxy = FileAccessServiceProxy::GetInstance();
+    auto proxy = FileAccessServiceClient::GetInstance();
     if (proxy == nullptr) {
         HILOG_ERROR("UnregisterNotify get SA failed");
         return E_LOAD_SA;
     }
 
-    sptr<IFileAccessObserver> observer = nullptr;
-    int ret = proxy->UnregisterNotify(uri, observer, GetConnectExtensionInfo(uri));
+    std::shared_ptr<ConnectExtensionInfo> info = GetConnectExtensionInfo(uri);
+    if (!info) {
+        HILOG_ERROR("FileAccessHelper::UnregisterNotify check ConnectExtensionInfo failed");
+        return EINVAL;
+    }
+
+    int ret = proxy->UnregisterNotifyNoObserver(uri, *info);
     return ret;
 }
 
@@ -1151,11 +1215,25 @@ int FileAccessHelper::MoveItem(Uri &sourceFile, Uri &targetParent, std::vector<R
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
     if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("failed with invalid FileAccessExtBaseProxy");
         return GetResult("", "", E_IPCS, "", moveResult);
     }
 
-    int ret = fileExtProxy->MoveItem(sourceFile, targetParent, moveResult, force);
+    Urie sourceFileConvert(sourceFile.ToString());
+    Urie targetParentConvert(targetParent.ToString());
+    moveResult.clear();
+    int retCode;
+    int ret = fileExtProxy->MoveItem(sourceFileConvert, targetParentConvert, moveResult, retCode, force);
+    if (ret == ERR_OK) {
+        ret = retCode;
+    }
+    if (moveResult.size() > MAX_COPY_ERROR_COUNT) {
+        HILOG_ERROR("Move operation failed, count value greater than max count");
+        Result result { "", "", E_COUNT, "Count value greater than max count"};
+        moveResult.clear();
+        moveResult.push_back(result);
+        ret = COPY_EXCEPTION;
+    }
     if (ret != ERR_OK) {
         HILOG_ERROR("Move get result error, code:%{public}d", ret);
         return ret;
@@ -1187,15 +1265,19 @@ int FileAccessHelper::MoveFile(Uri &sourceFile, Uri &targetParent, std::string &
 
     sptr<IFileAccessExtBase> fileExtProxy = GetProxyByUri(sourceFile);
     if (fileExtProxy == nullptr) {
-        HILOG_ERROR("failed with invalid fileAccessExtProxy");
+        HILOG_ERROR("failed with invalid FileAccessExtBaseProxy");
         return E_IPCS;
     }
 
-    int ret = fileExtProxy->MoveFile(sourceFile, targetParent, fileName, newFile);
+    Urie sourceFileConvert(sourceFile.ToString());
+    Urie targetParentConvert(targetParent.ToString());
+    Urie newFileConvert("");
+    int ret = fileExtProxy->MoveFile(sourceFileConvert, targetParentConvert, fileName, newFileConvert);
     if (ret != ERR_OK) {
         HILOG_ERROR("Move get result error, code:%{public}d", ret);
         return ret;
     }
+    newFile = Uri(newFileConvert.ToString());
 
     return ERR_OK;
 }

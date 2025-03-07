@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,7 +18,7 @@
 
 #include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
-#include "observer_callback_stub.h"
+#include "file_access_observer_stub.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
 #include "napi/native_api.h"
@@ -31,7 +31,7 @@ class NapiObserver {
 public:
     NapiObserver(napi_env env, napi_value callback);
     virtual ~NapiObserver();
-    void OnChange(NotifyMessage &notifyMessage);
+    void OnChange(const NotifyMessage &notifyMessage);
     napi_ref cbOnRef_ = nullptr;
 private:
     struct CallbackParam {
@@ -45,14 +45,15 @@ private:
     static void NapiWorkScope(uv_work_t *work, int status);
 };
 
-class NapiObserverCallback : public ObserverCallbackStub {
+class NapiObserverCallback : public FileAccessObserverStub {
 public:
-    explicit NapiObserverCallback(std::shared_ptr<NapiObserver> observer): ObserverCallbackStub(),
+    explicit NapiObserverCallback(std::shared_ptr<NapiObserver> observer): FileAccessObserverStub(),
         observer_(observer) {}
     virtual ~NapiObserverCallback() = default;
-    void OnChange(NotifyMessage &notifyMessage) override
+    int OnChange(const NotifyMessage &notifyMessage) override
     {
         observer_->OnChange(notifyMessage);
+        return 0;
     }
     std::shared_ptr<NapiObserver> observer_ = nullptr;
 };

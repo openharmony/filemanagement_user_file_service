@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -29,10 +29,6 @@ group("user_file_service_fuzz_test") {
     "externalfileaccessrename_fuzzer:ExternalFileAccessRenameFuzzTest",
     "externalfileaccessscanfile_fuzzer:ExternalFileAccessScanFileFuzzTest",
     "fileaccessextconnection_fuzzer:FileAccessExtConnectionFuzzTest",
-    "fileaccessextstub_fuzzer:FileAccessExtStubFuzzTest",
-    "fileaccessextstubbranch_fuzzer:FileAccessExtStubBranchFuzzTest",
-    "fileaccessserviceproxy_fuzzer:FileAccessServiceProxyFuzzTest",
-    "fileaccessservicestub_fuzzer:FileAccessServiceStubFuzzTest",
     "fileinfosharedmemory_fuzzer:FileInfoSharedMemoryFuzzTest",
     "useraccesscommonutils_fuzzer:UserAccessCommonUtilsFuzzTest",
   ]

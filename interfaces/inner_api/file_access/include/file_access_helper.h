@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,7 +28,7 @@
 #include "app_file_access_ext_connection.h"
 #include "file_access_extension_info.h"
 #include "ifile_access_ext_base.h"
-#include "iobserver_callback.h"
+#include "ifile_access_observer.h"
 #include "iremote_object.h"
 #include "refbase.h"
 #include "uri.h"

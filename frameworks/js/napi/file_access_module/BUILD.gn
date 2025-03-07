@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -53,8 +53,10 @@ ohos_shared_library("fileaccess") {
   ]
 
   deps = [
+    "${user_file_service_path}/interfaces/inner_api/file_access:file_access_ext_base_include",
     "${user_file_service_path}/interfaces/inner_api/file_access:file_access_extension_ability_kit",
     "${user_file_service_path}/services:file_access_service",
+    "${user_file_service_path}/services:file_access_service_base_include",
   ]
 
   external_deps = [

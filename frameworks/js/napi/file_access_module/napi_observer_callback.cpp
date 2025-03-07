@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -119,7 +119,7 @@ void NapiObserver::NapiWorkScope(uv_work_t *work, int status)
     napi_close_handle_scope(param->napiObserver->env_, scope);
 }
 
-void NapiObserver::OnChange(NotifyMessage &notifyMessage)
+void NapiObserver::OnChange(const NotifyMessage &notifyMessage)
 {
     uv_loop_s *loop = nullptr;
     napi_status napiStatus = napi_get_uv_event_loop(env_, &loop);

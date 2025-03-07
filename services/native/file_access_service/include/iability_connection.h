@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#ifndef FILE_ACCESS_EXT_STUB_BRANCH_FUZZER_H
-#define FILE_ACCESS_EXT_STUB_BRANCH_FUZZER_H
+#ifndef IABILITY_CONNECTION_H
+#define IABILITY_CONNECTION_H
 
-#define FUZZ_PROJECT_NAME "fileaccessextstubbranch_fuzzer"
+#include "ability_connect_callback_interface.h"
 
-#endif
+#endif // IABILITY_CONNECTION_H

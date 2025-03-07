@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,9 +18,9 @@
 
 #include "assistant.h"
 #include "extension_context.h"
-#include "file_access_ext_stub.h"
+#include "file_access_ext_base_stub.h"
 #include "file_access_service_mock.h"
-#include "file_access_service_proxy.h"
+#include "file_access_service_client.h"
 #include "js_file_access_ext_ability.h"
 #include "js_native_api_types.h"
 #include "native_reference_mock.h"
@@ -37,46 +37,47 @@ const int ARG_INDEX_THIRD = 3;
 const int ARG_INDEX_FOUR = 4;
 const int ARG_INDEX_FIFTH = 5;
 
-FileAccessServiceStub::FileAccessServiceStub() {}
-
-FileAccessServiceStub::~FileAccessServiceStub() {}
-
-int32_t FileAccessServiceStub::OnRemoteRequest(unsigned int, OHOS::MessageParcel&, OHOS::MessageParcel&,
+int32_t FileAccessServiceBaseStub::OnRemoteRequest(unsigned int, OHOS::MessageParcel&, OHOS::MessageParcel&,
     OHOS::MessageOption&)
 {
     return 0;
 }
 
-int32_t FileAccessServiceProxy::RegisterNotify(Uri, bool, const sptr<IFileAccessObserver> &,
-    const std::shared_ptr<ConnectExtensionInfo> &)
+int32_t FileAccessServiceBaseProxy::RegisterNotify(const Uri &, bool, const sptr<IFileAccessObserver> &,
+    const ConnectExtensionInfo &)
 {
     return 0;
 }
 
-int32_t FileAccessServiceProxy::OnChange(Uri uri, NotifyType notifyType)
+int32_t FileAccessServiceBaseProxy::OnChange(const Uri &uri, NotifyType notifyType)
 {
     return ERR_OK;
 }
 
-int32_t FileAccessServiceProxy::GetExtensionProxy(const std::shared_ptr<ConnectExtensionInfo> &,
+int32_t FileAccessServiceBaseProxy::GetExtensionProxy(const ConnectExtensionInfo &,
     sptr<IFileAccessExtBase> &)
 {
     return 0;
 }
 
-int32_t FileAccessServiceProxy::UnregisterNotify(Uri, const sptr<IFileAccessObserver> &,
-    const std::shared_ptr<ConnectExtensionInfo> &)
+int32_t FileAccessServiceBaseProxy::UnregisterNotify(const Uri &, const sptr<IFileAccessObserver> &,
+    const ConnectExtensionInfo &)
 {
     return 0;
 }
 
-int32_t FileAccessServiceProxy::ConnectFileExtAbility(const AAFwk::Want &,
+int32_t FileAccessServiceBaseProxy::UnregisterNotifyNoObserver(const Uri &, const ConnectExtensionInfo &)
+{
+    return 0;
+}
+
+int32_t FileAccessServiceBaseProxy::ConnectFileExtAbility(const AAFwk::Want &,
     const sptr<AAFwk::IAbilityConnection>&)
 {
     return 0;
 }
 
-int32_t FileAccessServiceProxy::DisConnectFileExtAbility(const sptr<AAFwk::IAbilityConnection>&)
+int32_t FileAccessServiceBaseProxy::DisConnectFileExtAbility(const sptr<AAFwk::IAbilityConnection>&)
 {
     return 0;
 }
@@ -89,11 +90,7 @@ void FileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &recor
     ExtensionBase<>::Init(record, application, handler, token);
 }
 
-FileAccessExtStub::FileAccessExtStub() {}
-
-FileAccessExtStub::~FileAccessExtStub() {}
-
-int32_t FileAccessExtStub::OnRemoteRequest(unsigned int, OHOS::MessageParcel&, OHOS::MessageParcel&,
+int32_t FileAccessExtBaseStub::OnRemoteRequest(unsigned int, OHOS::MessageParcel&, OHOS::MessageParcel&,
     OHOS::MessageOption&)
 {
     return 0;
@@ -123,9 +120,9 @@ public:
     static inline napi_env env = reinterpret_cast<napi_env>(&(jsRuntime->GetNativeEngine()));
 };
 
-sptr<FileAccessServiceProxy> FileAccessServiceProxy::GetInstance()
+sptr<IFileAccessServiceBase> FileAccessServiceClient::GetInstance()
 {
-    return iface_cast<FileAccessServiceProxy>(JsFileAccessExtAbilityTest::impl);
+    return iface_cast<IFileAccessServiceBase>(JsFileAccessExtAbilityTest::impl);
 }
 
 /**

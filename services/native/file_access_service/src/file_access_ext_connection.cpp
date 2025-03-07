@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,7 +19,7 @@
 
 #include "ability_connect_callback_interface.h"
 #include "ability_manager_client.h"
-#include "file_access_ext_proxy.h"
+#include "file_access_ext_base_proxy.h"
 #include "hilog_wrapper.h"
 #include "iremote_broker.h"
 #include "ipc_skeleton.h"
@@ -40,7 +40,7 @@ void FileAccessExtConnection::OnAbilityConnectDone(
         return;
     }
 
-    fileExtProxy_ = iface_cast<FileAccessExtProxy>(remoteObject);
+    fileExtProxy_ = iface_cast<FileAccessExtBaseProxy>(remoteObject);
     if (fileExtProxy_ == nullptr) {
         HILOG_ERROR("FileAccessExtConnection fileExtProxy_ is nullptr");
         return;

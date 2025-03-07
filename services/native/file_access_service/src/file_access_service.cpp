@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (C) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,6 +26,9 @@
 #include "ipc_skeleton.h"
 #include "system_ability_definition.h"
 #include "iservice_registry.h"
+#include "uri_ext.h"
+#include "access_token.h"
+#include "accesstoken_kit.h"
 
 using namespace std;
 namespace OHOS {
@@ -34,6 +37,7 @@ namespace {
     auto pms = FileAccessService::GetInstance();
     const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(pms.GetRefPtr());
     const std::string FILE_SCHEME = "file://";
+    const std::string FILE_ACCESS_PERMISSION = "ohos.permission.FILE_ACCESS_MANAGER";
 }
 sptr<FileAccessService> FileAccessService::instance_;
 mutex FileAccessService::mutex_;
@@ -44,6 +48,20 @@ constexpr int32_t MAX_WAIT_TIME = 20;
 constexpr int32_t ONE_SECOND = 1 * 1000;
 constexpr int32_t UNLOAD_SA_WAIT_TIME = 30;
 std::vector<Uri> deviceUris(DEVICE_ROOTS.begin(), DEVICE_ROOTS.end());
+
+bool FileAccessService::CheckCallingPermission(const std::string &permission)
+{
+    UserAccessTracer trace;
+    trace.Start("CheckCallingPermission");
+    Security::AccessToken::AccessTokenID tokenCaller = IPCSkeleton::GetCallingTokenID();
+    int res = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenCaller, permission);
+    if (res != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
+        HILOG_ERROR("FileAccessExtStub::CheckCallingPermission have no fileAccess permission");
+        return false;
+    }
+
+    return true;
+}
 
 sptr<FileAccessService> FileAccessService::GetInstance()
 {
@@ -191,7 +209,7 @@ sptr<IFileAccessExtBase> FileAccessService::ConnectExtension(Uri &uri, const sha
     sptr<IFileAccessExtBase> extensionProxy;
     {
         lock_guard<mutex> lock(mutex_);
-        int32_t ret = GetExtensionProxy(info, extensionProxy);
+        int32_t ret = GetExtensionProxy(*info, extensionProxy);
         if (ret != ERR_OK || extensionProxy == nullptr) {
             return nullptr;
         }
@@ -262,9 +280,10 @@ void FileAccessService::CleanRelativeObserver(const sptr<IFileAccessObserver> &o
     uint32_t code = obsManager_.getId([obsContext](const shared_ptr<ObserverContext>  &afterContext) {
         return obsContext->EqualTo(afterContext);
     });
+    ConnectExtensionInfo info = ConnectExtensionInfo();
     std::vector<Uri> uriLists = GetUriList(code);
     for (size_t i = 0; i < uriLists.size(); ++i) {
-        UnregisterNotify(uriLists[i], observer);
+        UnregisterNotify(uriLists[i], observer, info);
     }
 }
 
@@ -297,13 +316,20 @@ static void convertUris(Uri uri, std::vector<Uri> &uris)
     }
 }
 
-int32_t FileAccessService::RegisterNotify(Uri uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer,
-    const std::shared_ptr<ConnectExtensionInfo> &info)
+int32_t FileAccessService::RegisterNotify(const Uri &uri, bool notifyForDescendants,
+                                          const sptr<IFileAccessObserver> &observer,
+                                          const ConnectExtensionInfo& info)
 {
+    if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
+        HILOG_ERROR("permission error");
+        return E_PERMISSION;
+    }
+    std::shared_ptr<ConnectExtensionInfo> infoPtr =
+                std::make_shared<ConnectExtensionInfo>(info);
     std::vector<Uri> uris;
     convertUris(uri, uris);
     for (auto eachUri : uris) {
-        int ret = RegisterNotifyImpl(eachUri, notifyForDescendants, observer, info);
+        int ret = RegisterNotifyImpl(eachUri, notifyForDescendants, observer, infoPtr);
         if (ret != ERR_OK) {
             HILOG_ERROR("RegisterNotify error ret = %{public}d", ret);
             return ret;
@@ -316,13 +342,11 @@ int32_t FileAccessService::OperateObsNode(Uri &uri, bool notifyForDescendants, u
     const std::shared_ptr<ConnectExtensionInfo> &info)
 {
     string uriStr = uri.ToString();
-    HILOG_INFO("OperateObsNode uriStr: %{private}s", uriStr.c_str());
     {
         lock_guard<mutex> lock(nodeMutex_);
         auto iter = relationshipMap_.find(uriStr);
         if (iter != relationshipMap_.end()) {
             auto obsNode = iter->second;
-            // this node has this callback or not, if has this, unref manager.
             auto haveCodeIter = find_if(obsNode->obsCodeList_.begin(), obsNode->obsCodeList_.end(),
                 [code](const uint32_t &listCode) { return code == listCode; });
             if (haveCodeIter != obsNode->obsCodeList_.end()) {
@@ -333,7 +357,6 @@ int32_t FileAccessService::OperateObsNode(Uri &uri, bool notifyForDescendants, u
                     HILOG_DEBUG("Register same uri and same callback and same notifyForDescendants");
                     return ERR_OK;
                 }
-                // need modify obsNode notifyForDescendants
                 obsNode->needChildNote_ = notifyForDescendants;
                 HILOG_DEBUG("Register same uri and same callback but need modify notifyForDescendants");
                 return ERR_OK;
@@ -342,17 +365,15 @@ int32_t FileAccessService::OperateObsNode(Uri &uri, bool notifyForDescendants, u
             return ERR_OK;
         }
     }
-
     auto extensionProxy = ConnectExtension(uri, info);
     if (extensionProxy == nullptr) {
-        HILOG_ERROR("Creator get invalid fileExtProxy");
         return E_CONNECT;
     }
-    extensionProxy->StartWatcher(uri);
+    Urie uriConvert(uriStr);
+    extensionProxy->StartWatcher(uriConvert);
     {
         lock_guard<mutex> lock(nodeMutex_);
         auto obsNode = make_shared<ObserverNode>(notifyForDescendants);
-        // add new node relations.
         for (auto &[comUri, node] : relationshipMap_) {
             if (IsParentUri(comUri, uriStr)) {
                 obsNode->parent_ = node;
@@ -363,7 +384,6 @@ int32_t FileAccessService::OperateObsNode(Uri &uri, bool notifyForDescendants, u
                 node->parent_ = obsNode;
             }
         }
-        // obsCodeList_ is to save callback number
         obsNode->obsCodeList_.push_back(code);
         relationshipMap_.insert(make_pair(uriStr, obsNode));
     }
@@ -477,7 +497,8 @@ int32_t FileAccessService::CleanAllNotifyImpl(Uri uri, const std::shared_ptr<Con
         HILOG_ERROR("Creator get invalid fileExtProxy");
         return E_CONNECT;
     }
-    extensionProxy->StopWatcher(originalUri);
+    Urie originalUriConvert(originalUri.ToString());
+    extensionProxy->StopWatcher(originalUriConvert);
     RemoveRelations(uriStr, obsNode);
     if (IsUnused() && unLoadTimer_) {
         unLoadTimer_->reset();
@@ -485,13 +506,19 @@ int32_t FileAccessService::CleanAllNotifyImpl(Uri uri, const std::shared_ptr<Con
     return ERR_OK;
 }
 
-int32_t FileAccessService::UnregisterNotify(Uri uri, const sptr<IFileAccessObserver> &observer,
-    const std::shared_ptr<ConnectExtensionInfo> &info)
+int32_t FileAccessService::UnregisterNotify(const Uri &uri, const sptr<IFileAccessObserver> &observer,
+    const ConnectExtensionInfo &info)
 {
+    if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
+        HILOG_ERROR("permission error");
+        return E_PERMISSION;
+    }
+    std::shared_ptr<ConnectExtensionInfo> infoPtr =
+                std::make_shared<ConnectExtensionInfo>(info);
     std::vector<Uri> uris;
     convertUris(uri, uris);
     for (auto eachUri : uris) {
-        int ret = UnregisterNotifyImpl(eachUri, observer, info);
+        int ret = UnregisterNotifyImpl(eachUri, observer, infoPtr);
         if (ret != ERR_OK) {
             HILOG_ERROR("UnregisterNotify error ret = %{public}d", ret);
             return ret;
@@ -501,6 +528,18 @@ int32_t FileAccessService::UnregisterNotify(Uri uri, const sptr<IFileAccessObser
         unLoadTimer_->reset();
     }
     return ERR_OK;
+}
+
+int32_t FileAccessService::UnregisterNotifyNoObserver(const Uri &uri, const ConnectExtensionInfo &info)
+{
+    if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
+        HILOG_ERROR("permission error");
+        return E_PERMISSION;
+    }
+    std::shared_ptr<ConnectExtensionInfo> infoPtr =
+                std::make_shared<ConnectExtensionInfo>(info);
+    int ret = CleanAllNotify(uri, infoPtr);
+    return ret;
 }
 
 int32_t FileAccessService::UnregisterNotifyImpl(Uri uri, const sptr<IFileAccessObserver> &observer,
@@ -595,8 +634,12 @@ void FileAccessService::SendListNotify(string uriStr, NotifyType notifyType, con
     }
 }
 
-int32_t FileAccessService::OnChange(Uri uri, NotifyType notifyType)
+int32_t FileAccessService::OnChange(const Uri &uri, NotifyType notifyType)
 {
+    if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
+        HILOG_ERROR("permission error");
+        return E_PERMISSION;
+    }
     UserAccessTracer trace;
     trace.Start("OnChange");
     string uriStr = uri.ToString();
@@ -692,6 +735,10 @@ void FileAccessService::InitTimer()
 int32_t FileAccessService::ConnectFileExtAbility(const AAFwk::Want &want,
     const sptr<AAFwk::IAbilityConnection>& connection)
 {
+    if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
+        HILOG_ERROR("permission error");
+        return E_PERMISSION;
+    }
     HILOG_INFO("ConnectFileExtAbility start");
     if (connection == nullptr) {
         HILOG_ERROR("connection is nullptr");
@@ -712,6 +759,10 @@ int32_t FileAccessService::ConnectFileExtAbility(const AAFwk::Want &want,
 
 int32_t FileAccessService::DisConnectFileExtAbility(const sptr<AAFwk::IAbilityConnection>& connection)
 {
+    if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
+        HILOG_ERROR("permission error");
+        return E_PERMISSION;
+    }
     HILOG_INFO("ConnectFileExtAbility start");
     if (connection == nullptr) {
         HILOG_ERROR("connection is nullptr");
@@ -723,19 +774,25 @@ int32_t FileAccessService::DisConnectFileExtAbility(const sptr<AAFwk::IAbilityCo
 }
 
 
-int32_t FileAccessService::GetExtensionProxy(const std::shared_ptr<ConnectExtensionInfo> &info,
+int32_t FileAccessService::GetExtensionProxy(const ConnectExtensionInfo& info,
     sptr<IFileAccessExtBase> &extensionProxy)
 {
+    if (!CheckCallingPermission(FILE_ACCESS_PERMISSION)) {
+        HILOG_ERROR("permission error");
+        return E_PERMISSION;
+    }
+    std::shared_ptr<ConnectExtensionInfo> infoPtr =
+                std::make_shared<ConnectExtensionInfo>(info);
     sptr<FileAccessExtConnection> fileAccessExtConnection(new(std::nothrow) FileAccessExtConnection());
     if (fileAccessExtConnection == nullptr) {
         HILOG_ERROR("new fileAccessExtConnection fail");
         return E_CONNECT;
     }
-    if (info == nullptr || info->token == nullptr) {
+    if (infoPtr == nullptr || infoPtr->token == nullptr) {
         HILOG_ERROR("ConnectExtensionInfo is invalid");
         return E_CONNECT;
     }
-    fileAccessExtConnection->ConnectFileExtAbility(info->want, info->token);
+    fileAccessExtConnection->ConnectFileExtAbility(infoPtr->want, infoPtr->token);
     extensionProxy = fileAccessExtConnection->GetFileExtProxy();
     if (extensionProxy == nullptr) {
         HILOG_ERROR("extensionProxy is nullptr");
@@ -758,7 +815,8 @@ int32_t FileAccessService::RmUriObsNodeRelations(std::string &uriStr, std::share
         HILOG_ERROR("Creator get invalid fileExtProxy");
         return E_CONNECT;
     }
-    extensionProxy->StopWatcher(originalUri);
+    Urie originalUriConvert(originalUri.ToString());
+    extensionProxy->StopWatcher(originalUriConvert);
     RemoveRelations(uriStr, obsNode);
     return ERR_OK;
 }

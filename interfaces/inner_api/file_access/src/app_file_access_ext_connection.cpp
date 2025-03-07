@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,7 +20,7 @@
 
 #include "ability_connect_callback_interface.h"
 #include "ability_manager_client.h"
-#include "file_access_service_proxy.h"
+#include "file_access_service_client.h"
 #include "hilog_wrapper.h"
 #include "iremote_broker.h"
 
@@ -66,9 +66,9 @@ void AppFileAccessExtConnection::ConnectFileExtAbility(const AAFwk::Want &want)
         fileExtProxy_ = nullptr;
     }
     isConnected_.store(false);
-    auto proxy = FileAccessServiceProxy::GetInstance();
+    auto proxy = FileAccessServiceClient::GetInstance();
     if (proxy == nullptr) {
-        HILOG_ERROR("ConnectFileExtAbility FileAccessServiceProxy GetInstance fail");
+        HILOG_ERROR("ConnectFileExtAbility FileAccessServiceClient GetInstance fail");
         return;
     }
     
@@ -92,9 +92,9 @@ void AppFileAccessExtConnection::DisconnectFileExtAbility()
     if (fileExtProxy_ != nullptr) {
         RemoveFileAccessDeathRecipient(fileExtProxy_->AsObject());
     }
-    auto proxy = FileAccessServiceProxy::GetInstance();
+    auto proxy = FileAccessServiceClient::GetInstance();
     if (proxy == nullptr) {
-        HILOG_ERROR("DisconnectFileExtAbility FileAccessServiceProxy GetInstance fail");
+        HILOG_ERROR("DisconnectFileExtAbility FileAccessServiceClient GetInstance fail");
         return;
     }
     ErrCode ret = proxy->DisConnectFileExtAbility(this);
