@@ -534,7 +534,7 @@ async function modalPicker(context, config, window) {
 }
 
 async function documentPickerSave(...args) {
-  if (args.length !== LENGTH_THREE) {
+  if (args.length < LENGTH_TWO || args.length > LENGTH_THREE) {
     console.error('[picker] args error: ' + args.length);
     return undefined;
   }
@@ -560,7 +560,7 @@ async function documentPickerSave(...args) {
     console.error('[picker] getContext error: ' + getContextError);
     throw getErr(ErrCode.CONTEXT_NO_EXIST);
   }
-  if (args[ARGS_TWO] !== undefined) {
+  if (args.length === LENGTH_THREE && args[ARGS_TWO] !== undefined) {
       documentSaveWindow = args[ARGS_TWO];
   }
 
