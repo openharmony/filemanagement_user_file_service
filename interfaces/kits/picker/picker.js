@@ -295,6 +295,7 @@ function parseDocumentPickerSelectOption(args, action) {
     let option = args[ARGS_ZERO];
     config.parameters.key_select_mode = option.selectMode;
     config.parameters.key_merge_type_mode = option.mergeMode;
+    config.parameters.key_is_encryption_supported = option.isEncryptionSupported;
     console.log('[picker] parseDocumentPickerSelectOption: ' + JSON.stringify(option));   
     if ((option.maxSelectNumber !== undefined) && option.maxSelectNumber > 0) {
       config.parameters.key_pick_num = option.maxSelectNumber;
@@ -675,6 +676,7 @@ class DocumentSelectOptions {
     this.mergeMode = MergeTypeMode.DEFAULT;
     this.multiAuthMode = false;
     this.multiUriArray = undefined;
+    this.isEncryptionSupported = false;
   }
 }
 
