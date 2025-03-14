@@ -297,6 +297,7 @@ function parseDocumentPickerSelectOption(args, action) {
     config.parameters.key_select_mode = option.selectMode;
     config.parameters.key_merge_type_mode = option.mergeMode;
     config.parameters.key_is_encryption_supported = option.isEncryptionSupported;
+    config.parameters.key_theme_color_mode = option.themeColor;
     console.log('[picker] parseDocumentPickerSelectOption: ' + JSON.stringify(option));   
     if ((option.maxSelectNumber !== undefined) && option.maxSelectNumber > 0) {
       config.parameters.key_pick_num = option.maxSelectNumber;
@@ -422,6 +423,7 @@ function parseDocumentPickerSaveOption(args, action) {
   if (args.length > ARGS_ZERO && typeof args[ARGS_ZERO] === 'object') {
     let option = args[ARGS_ZERO];
     console.log('[picker] document save option: ' + JSON.stringify(option));
+    config.parameters.key_theme_color_mode = option.themeColor;
     if ((option.newFileNames !== undefined) && option.newFileNames.length > 0) {
       config.parameters.key_pick_file_name = option.newFileNames;
       config.parameters.saveFile = option.newFileNames[0];
@@ -678,6 +680,7 @@ class DocumentSelectOptions {
     this.multiAuthMode = false;
     this.multiUriArray = undefined;
     this.isEncryptionSupported = false;
+    this.themeColor = undefined;
   }
 }
 
@@ -687,6 +690,7 @@ class DocumentSaveOptions {
     this.defaultFilePathUri = undefined;
     this.fileSuffixChoices = undefined;
     this.pickerMode = DocumentPickerMode.DEFAULT;
+    this.themeColor = undefined;
   }
 }
 
