@@ -263,10 +263,11 @@ async function photoPickerSelect(...args) {
     console.log('[picker] photo select result: ' + JSON.stringify(modalSelectResult));
     const photoSelectResult = getPhotoPickerSelectResult(modalSelectResult);
     console.log('[picker] photoSelectResult: ' + JSON.stringify(photoSelectResult));
-    if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
-      return args[ARGS_ONE](photoSelectResult.error, photoSelectResult.data);
-    } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
-      return args[ARGS_ZERO](photoSelectResult.error, photoSelectResult.data);
+    let inputArgs = args[ARGS_ZERO];
+    if (inputArgs.length === ARGS_TWO && typeof inputArgs[ARGS_ONE] === 'function') {
+      return inputArgs[ARGS_ONE](photoSelectResult.error, photoSelectResult.data);
+    } else if (inputArgs.length === ARGS_ONE && typeof inputArgs[ARGS_ZERO] === 'function') {
+      return inputArgs[ARGS_ZERO](photoSelectResult.error, photoSelectResult.data);
     }
     return new Promise((resolve, reject) => {
       if (photoSelectResult.data !== undefined) {
@@ -404,7 +405,7 @@ async function documentPickerSelect(...args) {
     console.error('[picker] DocumentSelect paramError: ' + JSON.stringify(paramError));
   }
   selectResult = getDocumentPickerSelectResult(documentSelectResult);
-  return sendResult(args, selectResult);
+  return sendResult(args[ARGS_ZERO], selectResult);
 }
 
 function parseDocumentPickerSaveOption(args, action) {
@@ -535,7 +536,7 @@ async function modalPicker(context, config, window) {
 }
 
 async function documentPickerSave(...args) {
-  if (args.length !== LENGTH_THREE) {
+  if (args.length < LENGTH_TWO || args.length > LENGTH_THREE) {
     console.error('[picker] args error: ' + args.length);
     return undefined;
   }
@@ -561,7 +562,7 @@ async function documentPickerSave(...args) {
     console.error('[picker] getContext error: ' + getContextError);
     throw getErr(ErrCode.CONTEXT_NO_EXIST);
   }
-  if (args[ARGS_TWO] !== undefined) {
+  if (args.length === LENGTH_THREE && args[ARGS_TWO] !== undefined) {
       documentSaveWindow = args[ARGS_TWO];
   }
 
@@ -571,7 +572,7 @@ async function documentPickerSave(...args) {
   documentSaveResult = await modalPicker(documentSaveContext, documentSaveConfig, documentSaveWindow);
   saveResult = getDocumentPickerSaveResult(documentSaveResult);
   suffixIndex = saveResult.suffix;
-  return sendResult(args, saveResult);
+  return sendResult(args[ARGS_ZERO], saveResult);
 }
 
 function getSelectedSuffixIndex() {
@@ -638,7 +639,7 @@ async function audioPickerSelect(...args) {
     }
     let modalSelectResult = await modalPicker(audioSelectContext, audioSelectConfig, audipSelectWindow);
     let saveResult = getAudioPickerSelectResult(modalSelectResult);
-    return sendResult(args, saveResult);
+    return sendResult(args[ARGS_ZERO], saveResult);
   } catch (error) {
     console.error('[picker] audio select error: ' + error);
   }
