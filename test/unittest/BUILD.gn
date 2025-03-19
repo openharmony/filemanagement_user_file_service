@@ -22,7 +22,7 @@ ohos_unittest("medialibrary_file_access_test") {
     cfi_cross_dso = true
     debug = false
   }
-  module_out_path = "user_file_service/tests"
+  module_out_path = "user_file_service/user_file_service"
 
   sources = [
     "medialibrary_file_access_test_basic.cpp",
@@ -74,7 +74,7 @@ ohos_unittest("external_file_access_basic_test") {
     cfi_cross_dso = true
     debug = false
   }
-  module_out_path = "user_file_service/tests"
+  module_out_path = "user_file_service/user_file_service"
 
   sources = [
     "external_file_access_test.cpp",
@@ -131,7 +131,7 @@ ohos_unittest("external_file_access_management_test") {
     cfi_cross_dso = true
     debug = false
   }
-  module_out_path = "user_file_service/tests"
+  module_out_path = "user_file_service/user_file_service"
 
   sources = [
     "external_file_access_test.cpp",
@@ -188,7 +188,7 @@ ohos_unittest("external_file_access_notify_test") {
     cfi_cross_dso = true
     debug = false
   }
-  module_out_path = "user_file_service/tests"
+  module_out_path = "user_file_service/user_file_service"
 
   sources = [ "external_notify_test.cpp" ]
 
@@ -239,7 +239,7 @@ ohos_unittest("abnormal_file_access_test") {
     cfi_cross_dso = true
     debug = false
   }
-  module_out_path = "user_file_service/tests"
+  module_out_path = "user_file_service/user_file_service"
 
   sources = [
     "${user_file_service_path}/interfaces/inner_api/file_access/src/uri_ext.cpp",
@@ -291,7 +291,7 @@ ohos_unittest("file_access_ext_stub_impl_test") {
     debug = false
     blocklist = "${user_file_service_path}/cfi_blocklist.txt"
   }
-  module_out_path = "user_file_service/tests"
+  module_out_path = "user_file_service/user_file_service"
 
   include_dirs = [
     "${ability_runtime_napi_path}/inner/napi_common",
@@ -341,7 +341,7 @@ ohos_unittest("js_file_access_ext_ability_test") {
     debug = false
     blocklist = "${user_file_service_path}/cfi_blocklist.txt"
   }
-  module_out_path = "user_file_service/tests"
+  module_out_path = "user_file_service/user_file_service"
 
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
