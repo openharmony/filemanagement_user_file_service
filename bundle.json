@@ -71,6 +71,13 @@
                     ],
                     "header_base": "//foundation/filemanagement/user_file_service/interfaces/inner_api/file_access/include"
                   }
+                },
+                {
+                    "name": "//foundation/filemanagement/user_file_service/interfaces/kits/picker:cj_picker_ffi",
+                    "header": {
+                      "header_files": [],
+                      "header_base": "//foundation/filemanagement/user_file_service/interfaces/kits/picker/cj/include"
+                    }
                 }
             ],
             "test": [
