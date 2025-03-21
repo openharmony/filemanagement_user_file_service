@@ -162,7 +162,7 @@ function parsePhotoPickerSelectOption(args) {
       extType: ExtTypes.PHOTO_PICKER_TYPE,
     },
   };
-
+  console.log('[picker] parse Photo SelectOption start ');
   if (args.length > ARGS_ZERO && typeof args[ARGS_ZERO] === 'object') {
     let option = args[ARGS_ZERO];
     if (option.maxSelectNumber && option.maxSelectNumber > 0) {
@@ -175,7 +175,7 @@ function parsePhotoPickerSelectOption(args) {
       config.parameters.filterMediaType = PHOTO_VIEW_MIME_TYPE_MAP.get(option.MIMEType);
     }
   }
-
+  console.log('[picker] parse Photo SelectOption end ');
   return config;
 }
 
@@ -224,7 +224,7 @@ function getPhotoPickerSelectResult(args) {
   } else {
     selectResult.error = getErr(ErrCode.RESULT_ERROR);
   }
-
+  console.log('[picker] photo selectResult end');
   return selectResult;
 }
 
@@ -240,7 +240,6 @@ async function photoPickerSelect(...args) {
   }
 
   const config = parsePhotoPickerSelectOption(args[ARGS_ZERO]);
-  console.log('[picker] Photo config: ' + JSON.stringify(config));
 
   let photoSelectContext = undefined;
   let photoSelectWindow = undefined;
@@ -260,9 +259,8 @@ async function photoPickerSelect(...args) {
       throw getErr(ErrCode.CONTEXT_NO_EXIST);
     }
     let modalSelectResult = await modalPicker(photoSelectContext, config, photoSelectWindow);
-    console.log('[picker] photo select result: ' + JSON.stringify(modalSelectResult));
+    console.log('[picker] photo modalSelectResult is ready');
     const photoSelectResult = getPhotoPickerSelectResult(modalSelectResult);
-    console.log('[picker] photoSelectResult: ' + JSON.stringify(photoSelectResult));
     let inputArgs = args[ARGS_ZERO];
     if (inputArgs.length === ARGS_TWO && typeof inputArgs[ARGS_ONE] === 'function') {
       return inputArgs[ARGS_ONE](photoSelectResult.error, photoSelectResult.data);
@@ -294,11 +292,11 @@ function parseDocumentPickerSelectOption(args, action) {
 
   if (args.length > ARGS_ZERO && typeof args[ARGS_ZERO] === 'object') {
     let option = args[ARGS_ZERO];
+    console.log('[picker] parseDocumentPickerSelectOption start');  
     config.parameters.key_select_mode = option.selectMode;
     config.parameters.key_merge_type_mode = option.mergeMode;
     config.parameters.key_is_encryption_supported = option.isEncryptionSupported;
     config.parameters.key_theme_color_mode = option.themeColor;
-    console.log('[picker] parseDocumentPickerSelectOption: ' + JSON.stringify(option));   
     if ((option.maxSelectNumber !== undefined) && option.maxSelectNumber > 0) {
       config.parameters.key_pick_num = option.maxSelectNumber;
     }
@@ -317,8 +315,7 @@ function parseDocumentPickerSelectOption(args, action) {
       console.log('[picker] parseDocumentPickerSelectOption multiUriArray length: ' + option.multiUriArray.length);
     }
   }
-
-  console.log('[picker] document select config: ' + JSON.stringify(config));
+  console.log('[picker] parseDocumentPickerSelectOption end'); 
   return config;
 }
 
@@ -400,7 +397,6 @@ async function documentPickerSelect(...args) {
         documentSelectWindow = args[ARGS_TWO];
     }
     documentSelectConfig = parseDocumentPickerSelectOption(args[ARGS_ZERO], ACTION.SELECT_ACTION_MODAL);
-    console.error('[picker] DocumentSelect documentSelectConfig: ' + JSON.stringify(documentSelectConfig));
     documentSelectResult = await modalPicker(documentSelectContext, documentSelectConfig, documentSelectWindow);
   } catch (paramError) {
     console.error('[picker] DocumentSelect paramError: ' + JSON.stringify(paramError));
@@ -419,10 +415,9 @@ function parseDocumentPickerSaveOption(args, action) {
       pickerType: PickerDetailType.FILE_MGR_SAVE,
     }
   };
-
+  console.log('[picker] parse document save option start');
   if (args.length > ARGS_ZERO && typeof args[ARGS_ZERO] === 'object') {
     let option = args[ARGS_ZERO];
-    console.log('[picker] document save option: ' + JSON.stringify(option));
     config.parameters.key_theme_color_mode = option.themeColor;
     if ((option.newFileNames !== undefined) && option.newFileNames.length > 0) {
       config.parameters.key_pick_file_name = option.newFileNames;
@@ -440,8 +435,8 @@ function parseDocumentPickerSaveOption(args, action) {
       config.parameters.pickerType = PickerDetailType.FILE_MGR_AUTH;
     }
   }
-
-  console.log('[picker] document save config: ' + JSON.stringify(config));
+  console.log('[picker] document save config pickerMode is ' + config.parameters.pickerMode + 
+    ',pickerType is ' + config.parameters.pickerType);
   return config;
 }
 
@@ -528,7 +523,7 @@ function startModalPicker(context, config, window) {
 
 async function modalPicker(context, config, window) {
   try {
-    console.log('[picker] Config: ' + JSON.stringify(config));
+    console.log('[picker] modalPicker start ');
     let modalResult = await startModalPicker(context, config, window);
     return modalResult;
   } catch (resultError) {
