@@ -43,7 +43,7 @@ static int g_num = 0;
  * @tc.level Level 1
  * @tc.require: SR000H0387
  */
-HWTEST_F(FileExtensionHelperTest, external_file_access_GetRoots_0000, testing::ext::TestSize.Level1)
+HWTEST_F(FileExtensionHelperTest, external_file_access_GetRoots_0000, testing::ext::TestSize.Level0)
 {
     shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
     EXPECT_NE(fileAccessHelper, nullptr);
