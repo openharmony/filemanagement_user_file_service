@@ -66,6 +66,7 @@ public:
         Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::vector<AAFwk::Want> &wants);
     static std::shared_ptr<FileAccessHelper> Creator(const sptr<IRemoteObject> &token,
         const std::vector<AAFwk::Want> &wants);
+    static bool IsFilePathValid(const std::string &filePath);
 
     bool Release();
     int Access(Uri &uri, bool &isExist);
