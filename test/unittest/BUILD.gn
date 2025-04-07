@@ -394,6 +394,33 @@ ohos_unittest("js_file_access_ext_ability_test") {
   use_exceptions = true
 }
 
+ohos_unittest("urie_test") {
+  module_out_path = "user_file_service/user_file_service"
+  sources = [
+    "${user_file_service_path}/interfaces/inner_api/file_access/src/uri_ext.cpp",
+    "urie_test.cpp",
+  ]
+
+  include_dirs =
+      [ "${user_file_service_path}/interfaces/inner_api/file_access/include" ]
+
+  configs = [ "//build/config/compiler:exceptions" ]
+
+  deps = []
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_base:zuri",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+  ]
+
+  defines = [ "private=public" ]
+}
+
 group("user_file_service_unit_test") {
   testonly = true
 
@@ -404,5 +431,6 @@ group("user_file_service_unit_test") {
     ":external_file_access_notify_test",
     ":file_access_ext_stub_impl_test",
     ":js_file_access_ext_ability_test",
+    ":urie_test",
   ]
 }
