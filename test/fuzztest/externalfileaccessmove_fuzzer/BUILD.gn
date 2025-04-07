@@ -21,9 +21,6 @@ ohos_fuzztest("ExternalFileAccessMoveFuzzTest") {
       "${user_file_service_path}/test/fuzztest/externalfileaccessmove_fuzzer"
   include_dirs = [
     "${user_file_service_path}/utils",
-    "${ability_runtime_kits_path}/appkit/native/ability_runtime/app",
-    "${ability_runtime_kits_path}/appkit/native/app/include",
-    "${ability_runtime_kits_path}/appkit/native/ability_runtime/context",
     "${user_file_service_path}/interfaces/inner_api/file_access/include",
   ]
   cflags = [
@@ -35,8 +32,6 @@ ohos_fuzztest("ExternalFileAccessMoveFuzzTest") {
   sources = [ "${user_file_service_path}/test/fuzztest/externalfileaccessmove_fuzzer/externalfileaccessmove_fuzzer.cpp" ]
 
   deps = [
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
-    "${ability_runtime_path}/frameworks/native/appkit:app_context",
     "${user_file_service_path}/interfaces/inner_api/file_access:file_access_ext_base_include",
     "${user_file_service_path}/interfaces/inner_api/file_access:file_access_extension_ability_kit",
   ]

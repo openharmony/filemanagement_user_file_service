@@ -25,10 +25,7 @@ ohos_shared_library("recent") {
     debug = false
   }
 
-  include_dirs = [
-    ".",
-    "${user_file_service_path}/utils",
-  ]
+  include_dirs = [ "${user_file_service_path}/utils" ]
 
   sources = [
     "module.cpp",

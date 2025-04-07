@@ -29,25 +29,20 @@ ohos_unittest("medialibrary_file_access_test") {
     "medialibrary_file_access_test_info.cpp",
   ]
 
-  include_dirs = [
-    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
-    "${user_file_service_path}/interfaces/inner_api/file_access/include",
-    "${access_token_path}/frameworks/accesstoken:accesstoken_communication_adapter_cxx/",
-  ]
+  include_dirs =
+      [ "${user_file_service_path}/interfaces/inner_api/file_access/include" ]
 
   configs = [ "//build/config/compiler:exceptions" ]
 
-  deps = [
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
-    "${ability_runtime_path}/frameworks/native/appkit:app_context",
-    "${user_file_service_path}/interfaces/inner_api/file_access:file_access_extension_ability_kit",
-  ]
+  deps = [ "${user_file_service_path}/interfaces/inner_api/file_access:file_access_extension_ability_kit" ]
 
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_context_native",
     "ability_runtime:ability_manager",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:app_context",
     "ability_runtime:app_manager",
     "ability_runtime:runtime",
     "ability_runtime:wantagent_innerkits",
@@ -83,7 +78,6 @@ ohos_unittest("external_file_access_basic_test") {
   ]
 
   include_dirs = [
-    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${user_file_service_path}/interfaces/inner_api/file_access/include",
     "${user_file_service_path}/services/native/file_access_service/include",
   ]
@@ -91,8 +85,6 @@ ohos_unittest("external_file_access_basic_test") {
   configs = [ "//build/config/compiler:exceptions" ]
 
   deps = [
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
-    "${ability_runtime_path}/frameworks/native/appkit:app_context",
     "${user_file_service_path}/interfaces/inner_api/file_access:file_access_ext_base_include",
     "${user_file_service_path}/interfaces/inner_api/file_access:file_access_extension_ability_kit",
     "${user_file_service_path}/services:file_access_service",
@@ -104,6 +96,8 @@ ohos_unittest("external_file_access_basic_test") {
     "ability_base:zuri",
     "ability_runtime:ability_context_native",
     "ability_runtime:ability_manager",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:app_context",
     "ability_runtime:app_manager",
     "ability_runtime:runtime",
     "ability_runtime:wantagent_innerkits",
@@ -140,7 +134,6 @@ ohos_unittest("external_file_access_management_test") {
   ]
 
   include_dirs = [
-    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${user_file_service_path}/interfaces/inner_api/file_access/include",
     "${user_file_service_path}/services/native/file_access_service/include",
   ]
@@ -148,8 +141,6 @@ ohos_unittest("external_file_access_management_test") {
   configs = [ "//build/config/compiler:exceptions" ]
 
   deps = [
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
-    "${ability_runtime_path}/frameworks/native/appkit:app_context",
     "${user_file_service_path}/interfaces/inner_api/file_access:file_access_ext_base_include",
     "${user_file_service_path}/interfaces/inner_api/file_access:file_access_extension_ability_kit",
     "${user_file_service_path}/services:file_access_service",
@@ -161,6 +152,8 @@ ohos_unittest("external_file_access_management_test") {
     "ability_base:zuri",
     "ability_runtime:ability_context_native",
     "ability_runtime:ability_manager",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:app_context",
     "ability_runtime:app_manager",
     "ability_runtime:runtime",
     "ability_runtime:wantagent_innerkits",
@@ -193,7 +186,6 @@ ohos_unittest("external_file_access_notify_test") {
   sources = [ "external_notify_test.cpp" ]
 
   include_dirs = [
-    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${user_file_service_path}/interfaces/inner_api/file_access/include",
     "${user_file_service_path}/services/native/file_access_service/include",
   ]
@@ -201,8 +193,6 @@ ohos_unittest("external_file_access_notify_test") {
   configs = [ "//build/config/compiler:exceptions" ]
 
   deps = [
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
-    "${ability_runtime_path}/frameworks/native/appkit:app_context",
     "${user_file_service_path}/interfaces/inner_api/file_access:file_access_ext_base_include",
     "${user_file_service_path}/interfaces/inner_api/file_access:file_access_extension_ability_kit",
     "${user_file_service_path}/services:file_access_service",
@@ -214,6 +204,8 @@ ohos_unittest("external_file_access_notify_test") {
     "ability_base:zuri",
     "ability_runtime:ability_context_native",
     "ability_runtime:ability_manager",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:app_context",
     "ability_runtime:app_manager",
     "ability_runtime:runtime",
     "ability_runtime:wantagent_innerkits",
@@ -246,16 +238,12 @@ ohos_unittest("abnormal_file_access_test") {
     "abnormal_file_access_test.cpp",
   ]
 
-  include_dirs = [
-    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
-    "${user_file_service_path}/interfaces/inner_api/file_access/include",
-  ]
+  include_dirs =
+      [ "${user_file_service_path}/interfaces/inner_api/file_access/include" ]
 
   configs = [ "//build/config/compiler:exceptions" ]
 
   deps = [
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
-    "${ability_runtime_path}/frameworks/native/appkit:app_context",
     "${user_file_service_path}/interfaces/inner_api/file_access:file_access_ext_base_include",
     "${user_file_service_path}/interfaces/inner_api/file_access:file_access_extension_ability_kit",
     "${user_file_service_path}/services:file_access_service_base_source",
@@ -266,6 +254,8 @@ ohos_unittest("abnormal_file_access_test") {
     "ability_base:zuri",
     "ability_runtime:ability_context_native",
     "ability_runtime:ability_manager",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:app_context",
     "ability_runtime:app_manager",
     "ability_runtime:runtime",
     "ability_runtime:wantagent_innerkits",
@@ -294,9 +284,6 @@ ohos_unittest("file_access_ext_stub_impl_test") {
   module_out_path = "user_file_service/user_file_service"
 
   include_dirs = [
-    "${ability_runtime_napi_path}/inner/napi_common",
-    "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime",
-    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "${user_file_service_path}/interfaces/inner_api/file_access/include",
     "${user_file_service_path}/interfaces/kits/js/src/common",
     "${user_file_service_path}/utils",
@@ -344,9 +331,6 @@ ohos_unittest("js_file_access_ext_ability_test") {
   module_out_path = "user_file_service/user_file_service"
 
   include_dirs = [
-    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
-    "${commonlibrary_path}/c_utils/base/include",
-    "${file_api_path}/utils/filemgmt_libn/include",
     "${user_file_service_path}/interfaces/inner_api/file_access/include",
     "${user_file_service_path}/interfaces/inner_api/file_access/src",
     "${user_file_service_path}/interfaces/kits/js/src/common",
@@ -379,6 +363,7 @@ ohos_unittest("js_file_access_ext_ability_test") {
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "file_api:filemgmt_libn",
     "googletest:gmock_main",
     "googletest:gtest_main",
     "hilog:libhilog",

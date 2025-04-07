@@ -31,8 +31,8 @@ ohos_shared_library("fileaccess") {
   relative_install_dir = "module/file"
 
   include_dirs = [
-    "./",
     "${user_file_service_path}/frameworks/js/napi/common",
+    "${user_file_service_path}/frameworks/js/napi/file_access_module",
     "${user_file_service_path}/frameworks/js/napi/file_access_module/file_info",
     "${user_file_service_path}/frameworks/js/napi/file_access_module/root_info",
     "${user_file_service_path}/utils",

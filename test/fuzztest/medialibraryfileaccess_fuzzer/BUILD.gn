@@ -23,7 +23,6 @@ ohos_fuzztest("MedialibraryFileAccessFuzzTest") {
       "${user_file_service_path}/test/fuzztest/medialibraryfileaccess_fuzzer"
 
   include_dirs = [
-    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${user_file_service_path}/interfaces/inner_api/file_access/include",
     "${user_file_service_path}/utils",
   ]
@@ -31,11 +30,7 @@ ohos_fuzztest("MedialibraryFileAccessFuzzTest") {
   sources = [ "medialibrary_file_access_fuzzer.cpp" ]
   configs = [ "//build/config/compiler:exceptions" ]
 
-  deps = [
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
-    "${ability_runtime_path}/frameworks/native/appkit:app_context",
-    "${user_file_service_path}/interfaces/inner_api/file_access:file_access_extension_ability_kit",
-  ]
+  deps = [ "${user_file_service_path}/interfaces/inner_api/file_access:file_access_extension_ability_kit" ]
 
   external_deps = [
     "ability_base:want",
