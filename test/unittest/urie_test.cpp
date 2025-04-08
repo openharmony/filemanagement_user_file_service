@@ -14,11 +14,9 @@
  */
 
 #include <gtest/gtest.h>
-#define private public
-#define protected public
+#define TEST_ACCESS private: public; protected: public
 #include "uri_ext.h"
-#undef private
-#undef protected
+#undef TEST_ACCESS
 using namespace OHOS;
 using namespace OHOS::FileAccessFwk;
 using namespace testing::ext;
