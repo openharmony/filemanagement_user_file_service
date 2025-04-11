@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -492,5 +492,48 @@ HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_GetFileI
     }
     GTEST_LOG_(INFO) << "AbnormalFileExtensionHelperTest-end"
         "abnormal_external_file_access_GetFileInfoFromRelativePath_0000";
+}
+
+/**
+ * @tc.number: user_file_service_external_file_access_IsFilePathValid_0000
+ * @tc.name: abnormal_external_file_access_IsFilePathValid_0000
+ * @tc.desc: Test function of IsFilePathValid interface for ERROR because of invalid uri.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: I76YA0
+ */
+HWTEST_F(AbnormalFileExtensionHelperTest, abnormal_external_file_access_IsFilePathValid_0000,
+    testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "IsFilePathValid0000 Start";
+    try {
+        bool isValid = FileAccessHelper::IsFilePathValid("../test../test1");
+        EXPECT_FALSE(isValid);
+        isValid = FileAccessHelper::IsFilePathValid("/../test../test1");
+        EXPECT_FALSE(isValid);
+        isValid = FileAccessHelper::IsFilePathValid("test../../test");
+        EXPECT_FALSE(isValid);
+        isValid = FileAccessHelper::IsFilePathValid("test../../");
+        EXPECT_FALSE(isValid);
+        isValid = FileAccessHelper::IsFilePathValid("test../test../..");
+        EXPECT_FALSE(isValid);
+        isValid = FileAccessHelper::IsFilePathValid("/test/..test/..");
+        EXPECT_FALSE(isValid);
+
+        isValid = FileAccessHelper::IsFilePathValid("test");
+        EXPECT_TRUE(isValid);
+        isValid = FileAccessHelper::IsFilePathValid("/test/test../test");
+        EXPECT_TRUE(isValid);
+        isValid = FileAccessHelper::IsFilePathValid("/test../test../test");
+        EXPECT_TRUE(isValid);
+        isValid = FileAccessHelper::IsFilePathValid("/test../test../test../");
+        EXPECT_TRUE(isValid);
+        isValid = FileAccessHelper::IsFilePathValid("/test../test../test../..test");
+        EXPECT_TRUE(isValid);
+    } catch (...) {
+        GTEST_LOG_(INFO) << " IsFilePathValid0000 ERROR";
+    }
+    GTEST_LOG_(INFO) << "IsFilePathValid00 End";
 }
 } // namespace

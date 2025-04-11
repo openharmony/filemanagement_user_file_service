@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1481,6 +1481,47 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0016, testing::ext::
         GTEST_LOG_(ERROR) << "external_file_access_Move_0016 occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0016";
+}
+
+
+/**
+ * @tc.number: user_file_service_external_file_access_Move_0017
+ * @tc.name: external_file_access_Move_0017
+ * @tc.desc: Test function of Move uri is invalid .
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ * @tc.require: SR000H0387
+ */
+HWTEST_F(FileExtensionHelperTest, external_file_access_Move_0017, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Move_0017";
+    try {
+        shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+        EXPECT_NE(fileAccessHelper, nullptr);
+        vector<RootInfo> info;
+        int result = fileAccessHelper->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        for (size_t i = 0; i < info.size(); i++) {
+            Uri parentUri(info[i].uri);
+            Uri invalidUri("file://docs/storage/currentUser/../Download");
+            Uri newDirUriTest1("");
+            result = fileAccessHelper->Mkdir(parentUri, "test1", newDirUriTest1);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            Uri testUri("");
+            result = fileAccessHelper->CreateFile(newDirUriTest1, "test.txt", testUri);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+            Uri testUri2("");
+            result = fileAccessHelper->Move(testUri, invalidUri, testUri2);
+            EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+            GTEST_LOG_(INFO) << "Move_0017 result:" << result;
+            result = fileAccessHelper->Delete(newDirUriTest1);
+            EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        }
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_Move_0017 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Move_0017";
 }
 
 /**

@@ -587,8 +587,10 @@ async function sendResult(args, result) {
       return undefined;
     }
     if (args.length === ARGS_TWO && typeof args[ARGS_ONE] === 'function') {
+      console.log('[picker] sendresult is callback.');
       return args[ARGS_ONE](result.error, result.data);
     } else if (args.length === ARGS_ONE && typeof args[ARGS_ZERO] === 'function') {
+      console.log('[picker] sendresult is callback without options');
       return args[ARGS_ZERO](result.error, result.data);
     }
     return new Promise((resolve, reject) => {

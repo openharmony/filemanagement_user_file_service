@@ -47,6 +47,30 @@ sptr<IFileAccessExtBase> g_sourceExtProxy;
 sptr<IFileAccessExtBase> g_destExtProxy;
 
 std::vector<Uri> deviceUris(DEVICE_ROOTS.begin(), DEVICE_ROOTS.end());
+static const std::string PATH_INVALID_FLAG1 = "../";
+static const std::string PATH_INVALID_FLAG2 = "/..";
+static const uint32_t PATH_INVALID_FLAG_LEN = 3;
+static const char FILE_SEPARATOR_CHAR = '/';
+
+bool FileAccessHelper::IsFilePathValid(const std::string &filePath)
+{
+    size_t pos = filePath.find(PATH_INVALID_FLAG1);
+    while (pos != string::npos) {
+        if (pos == 0 || filePath[pos - 1] == FILE_SEPARATOR_CHAR) {
+            HILOG_ERROR("Relative path is not allowed, path contain ../, path = %{private}s",
+                filePath.c_str());
+            return false;
+        }
+        pos = filePath.find(PATH_INVALID_FLAG1, pos + PATH_INVALID_FLAG_LEN);
+    }
+    pos = filePath.rfind(PATH_INVALID_FLAG2);
+    if ((pos != string::npos) && (filePath.size() - pos == PATH_INVALID_FLAG_LEN)) {
+        HILOG_ERROR("Relative path is not allowed, path tail is /.., path = %{private}s",
+            filePath.c_str());
+        return false;
+    }
+    return true;
+}
 
 static int GetUserId()
 {
@@ -88,6 +112,10 @@ static bool CheckUri(Uri &uri)
     std::string schemeStr = std::string(uri.GetScheme());
     if (schemeStr.compare(FILE_SCHEME_NAME) != 0) {
         HILOG_ERROR("Uri scheme error.");
+        return false;
+    }
+    if (!FileAccessHelper::IsFilePathValid(uri.ToString().c_str())) {
+        HILOG_ERROR("Uri is invalid.");
         return false;
     }
     return true;
