@@ -176,6 +176,7 @@ public:
         if (ret < 0) {
             HILOG_ERROR("Set shared memory protection mask error, code: %{public}d", ret);
             ::close(memInfo.memFd);
+            memInfo.memFd = -1;
             return ret;
         }
 
@@ -203,6 +204,7 @@ public:
         if (memInfo.memHead != nullptr) {
             ::munmap(memInfo.memHead, memInfo.memSize);
             ::close(memInfo.memFd);
+            memInfo.memFd = -1;
             memInfo.memHead = nullptr;
         }
     }
@@ -214,6 +216,7 @@ public:
         if (memInfo.memHead == MAP_FAILED) {
             int ret = errno;
             ::close(memInfo.memFd);
+            memInfo.memFd = -1;
             HILOG_ERROR("Shared memory map error, code: %{public}d", ret);
             return ret;
         }
