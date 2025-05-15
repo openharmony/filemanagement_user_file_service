@@ -139,7 +139,8 @@ napi_status napi_get_value_bool(napi_env env, napi_value value, bool* result)
     return OHOS::FileAccessFwk::Assistant::ins_->napi_get_value_bool(env, value, result);
 }
 
-napi_status napi_send_event(napi_env env, const std::function<void()>& cb, napi_event_priority priority)
+napi_status napi_send_event(napi_env env, const std::function<void()>& cb, napi_event_priority priority,
+    const char* name)
 {
     if (cb) {
         cb();

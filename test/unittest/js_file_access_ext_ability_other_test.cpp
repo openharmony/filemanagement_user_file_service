@@ -1097,7 +1097,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ParserGetRootsJs
  * @tc.level Level 3
  * @tc.require: issuesI8ZE8T
  */
-HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetRoots_0000, testing::ext::TestSize.Level1)
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetRoots_0000, testing::ext::TestSize.Level0)
 {
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_GetRoots_0000";
     try {

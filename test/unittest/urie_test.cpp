@@ -53,7 +53,7 @@ void UriTest::TearDown(void)
  * @tc.name: GetSchemeSpecificPart
  * @tc.desc: Verify the function when the input string get string specific part.
  */
-HWTEST_F(UriTest, Uri_GetSchemeSpecificPart_0100, Function | MediumTest | Level1)
+HWTEST_F(UriTest, Uri_GetSchemeSpecificPart_0100, Function | MediumTest | Level0)
 {
     GTEST_LOG_(INFO) << "Uri_GetSchemeSpecificPart_0100 start";
     auto result = urie_->GetSchemeSpecificPart();
