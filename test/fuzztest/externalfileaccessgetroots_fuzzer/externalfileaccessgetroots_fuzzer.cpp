@@ -64,31 +64,33 @@ void SetNativeToken()
     OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
-bool ExternalFileAccessGetRootsFuzzTest(const uint8_t *data, size_t size)
+bool ExternalFileInterfaceFuzzTest(const uint8_t *data, size_t size)
 {
     SetNativeToken();
-    // CMD_GET_ROOTS
-    uint32_t code = 13;
-    MessageParcel datas;
-    datas.WriteInterfaceToken(FileAccessExtBaseStub::GetDescriptor());
-    datas.WriteBuffer(reinterpret_cast<const char*>(data), size);
-    datas.RewindRead(0);
-    MessageParcel reply;
-    MessageOption option;
-
     auto fileAccessExtAbility = FileAccessExtAbility::Create(nullptr);
     auto fileAccessExtAbilitySharePtr = std::shared_ptr<FileAccessExtAbility>(fileAccessExtAbility);
-
     sptr<FileAccessExtStubImpl> fileAccessExtStubObj(new (std::nothrow) FileAccessExtStubImpl(
         fileAccessExtAbilitySharePtr, nullptr));
 
-    if (fileAccessExtStubObj) {
+    if (!fileAccessExtStubObj) {
+        printf("stub handler is nullptr");
+        return false;
+    }
+
+    uint32_t codeMax = 20;
+    for (uint32_t code = 1; code < codeMax; code++) {
+        MessageParcel datas;
+        MessageParcel reply;
+        MessageOption option;
+
+        datas.WriteInterfaceToken(FileAccessExtBaseStub::GetDescriptor());
+        datas.WriteBuffer(reinterpret_cast<const char*>(data), size);
+        datas.RewindRead(0);
         fileAccessExtStubObj->OnRemoteRequest(code, datas, reply, option);
     }
 
     fileAccessExtAbility = nullptr;
     fileAccessExtStubObj = nullptr;
-
     return true;
 }
 } // namespace OHOS
@@ -96,6 +98,6 @@ bool ExternalFileAccessGetRootsFuzzTest(const uint8_t *data, size_t size)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-    OHOS::ExternalFileAccessGetRootsFuzzTest(data, size);
+    OHOS::ExternalFileInterfaceFuzzTest(data, size);
     return 0;
 }
