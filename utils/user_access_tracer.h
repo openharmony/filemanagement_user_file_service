@@ -26,20 +26,20 @@ public:
     virtual ~UserAccessTracer()
     {
         for (int32_t i = 0; i < count_; i++) {
-            FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+            FinishTraceEx(HiTraceOutputLevel::HITRACE_LEVEL_INFO, HITRACE_TAG_FILEMANAGEMENT, "");
         }
         count_ = 0;
     }
 
     void Start(const std::string &label)
     {
-        StartTrace(HITRACE_TAG_FILEMANAGEMENT, label);
+        StartTraceEx(HiTraceOutputLevel::HITRACE_LEVEL_INFO, HITRACE_TAG_FILEMANAGEMENT, label, "");
         count_++;
     }
 
     void Finish()
     {
-        FinishTrace(HITRACE_TAG_FILEMANAGEMENT);
+        FinishTraceEx(HiTraceOutputLevel::HITRACE_LEVEL_INFO, HITRACE_TAG_FILEMANAGEMENT, "");
         count_--;
     }
 private:
