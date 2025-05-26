@@ -26,7 +26,7 @@ public:
     virtual ~UserAccessTracer()
     {
         for (int32_t i = 0; i < count_; i++) {
-            FinishTraceEx(HiTraceOutputLevel::HITRACE_LEVEL_INFO, HITRACE_TAG_FILEMANAGEMENT, "");
+            FinishTraceEx(HiTraceOutputLevel::HITRACE_LEVEL_INFO, HITRACE_TAG_FILEMANAGEMENT);
         }
         count_ = 0;
     }
@@ -39,7 +39,7 @@ public:
 
     void Finish()
     {
-        FinishTraceEx(HiTraceOutputLevel::HITRACE_LEVEL_INFO, HITRACE_TAG_FILEMANAGEMENT, "");
+        FinishTraceEx(HiTraceOutputLevel::HITRACE_LEVEL_INFO, HITRACE_TAG_FILEMANAGEMENT);
         count_--;
     }
 private:
