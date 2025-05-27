@@ -33,7 +33,7 @@ public:
 
     void Start(const std::string &label)
     {
-        StartTraceEx(HiTraceOutputLevel::HITRACE_LEVEL_INFO, HITRACE_TAG_FILEMANAGEMENT, label, "");
+        StartTraceEx(HiTraceOutputLevel::HITRACE_LEVEL_INFO, HITRACE_TAG_FILEMANAGEMENT, label.c_str(), "");
         count_++;
     }
 
