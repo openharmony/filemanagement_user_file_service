@@ -57,7 +57,7 @@ Urie::Urie(const std::string& uriString) : OHOS::Uri(uriString)
 
     if (!CheckScheme()) {
         uriString_ = EMPTY;
-        std::cerr << "URI Scheme wrong" << std::endl;  // 简单的错误输出，可替换为合适的日志记录方式
+        HILOG_IMPL(LOG_CORE, LOG_DEBUG, 0xD001305, "URIe", "URI Scheme wrong");
     }
 }
 
