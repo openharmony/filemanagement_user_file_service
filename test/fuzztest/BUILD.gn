@@ -30,6 +30,7 @@ group("user_file_service_fuzz_test") {
     "externalfileaccessscanfile_fuzzer:ExternalFileAccessScanFileFuzzTest",
     "fileaccessextbaseproxy_fuzzer:FileAccessExtBaseProxyFuzzTest",
     "fileaccessextconnection_fuzzer:FileAccessExtConnectionFuzzTest",
+    "fileaccessservicebaseproxy_fuzzer:FileAccessServiceBaseProxyFuzzTest",
     "fileinfosharedmemory_fuzzer:FileInfoSharedMemoryFuzzTest",
     "useraccesscommonutils_fuzzer:UserAccessCommonUtilsFuzzTest",
   ]
