@@ -119,7 +119,6 @@ ohos_shared_library("file_access_extension_ability_kit") {
   }
 
   include_dirs = [
-    "${commonlibrary_path}/c_utils/base/include",
     "${user_file_service_path}/services/native/file_access_service/include",
   ]
 
@@ -141,10 +140,7 @@ ohos_shared_library("file_access_extension_ability_kit") {
   configs = [ ":ability_config" ]
 
   version_script = "libfile_access_extension_ability_kit.map"
-  public_configs = [
-    ":ability_public_config",
-    "${ability_runtime_path}/frameworks/native/ability:ability_context_public_config",
-  ]
+  public_configs = [ ":ability_public_config" ]
 
   external_deps = [
     "ability_base:want",

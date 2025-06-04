@@ -11,15 +11,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//build/config/components/ets_frontend/es2abc_config.gni")
 import("//build/ohos.gni")
 import("//build/ohos/ace/ace.gni")
-import("../../../../../../arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("../../../filemanagement_aafwk.gni")
 
 # compile .js to .abc.
 action("gen_picker_abc") {
   visibility = [ ":*" ]
-  script = "../../../../../../arkcompiler/ets_frontend/es2panda/scripts/generate_js_bytecode.py"
+  script = "//build/scripts/generate_js_bytecode.py"
 
   args = [
     "--src-js",

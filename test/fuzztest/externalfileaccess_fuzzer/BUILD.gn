@@ -48,11 +48,13 @@ ohos_fuzztest("ExternalFileAccessFuzzTest") {
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_core",
+    "cJSON:cjson_static",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
     "ipc:rpc",
     "samgr:samgr_proxy",
+    "selinux_adapter:librestorecon",
   ]
 
   cflags = [
