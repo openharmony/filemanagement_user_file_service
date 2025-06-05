@@ -17,23 +17,13 @@ import("//build/ohos/ace/ace.gni")
 import("../../../filemanagement_aafwk.gni")
 
 # compile .js to .abc.
-action("gen_picker_abc") {
-  visibility = [ ":*" ]
-  script = "//build/scripts/generate_js_bytecode.py"
 
-  args = [
-    "--src-js",
-    rebase_path("picker.js"),
-    "--dst-file",
-    rebase_path(target_out_dir + "/picker.abc"),
-    "--frontend-tool-path",
-    rebase_path("${es2abc_build_path}"),
-    "--module",
-  ]
-  deps =
-      [ "../../../../../../arkcompiler/ets_frontend/es2panda:es2panda_build" ]
-  inputs = [ "picker.js" ]
-  outputs = [ target_out_dir + "/picker.abc" ]
+es2abc_gen_abc("gen_picker_abc") {
+  src_js = rebase_path("picker.js")
+  dst_file = rebase_path(target_out_dir + "/picker.abc")
+  in_puts = [ "picker.js" ]
+  out_puts = [ target_out_dir + "/picker.abc" ]
+  extra_args = [ "--module" ]
 }
 
 base_output_path = get_label_info(":picker_js", "target_out_dir")
