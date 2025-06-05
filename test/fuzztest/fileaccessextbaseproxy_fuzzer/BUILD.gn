@@ -56,8 +56,8 @@ ohos_fuzztest("FileAccessExtBaseProxyFuzzTest") {
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "selinux_adapter:librestorecon",
     "samgr:samgr_proxy",
+    "selinux_adapter:librestorecon",
   ]
 
   defines = [ "private=public" ]
