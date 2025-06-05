@@ -15,21 +15,19 @@
 import("//build/config/features.gni")
 import("//build/test.gni")
 import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
-ohos_fuzztest("FileAccessExtBaseProxyFuzzTest") {
+
+##############################fuzztest##########################################
+ohos_fuzztest("FileAccessServiceBaseProxyFuzzTest") {
   module_out_path = "user_file_service/user_file_service"
   fuzz_config_file =
-      "${user_file_service_path}/test/fuzztest/fileaccessextbaseproxy_fuzzer"
+      "${user_file_service_path}/test/fuzztest/fileaccessservicebaseproxy_fuzzer"
+
   include_dirs = [
     "${user_file_service_path}/interfaces/inner_api/file_access/include",
     "${user_file_service_path}/utils",
   ]
-  cflags = [
-    "-g",
-    "-O0",
-    "-Wno-unused-variable",
-    "-fno-omit-frame-pointer",
-  ]
-  sources = [ "fileaccessextbaseproxy_fuzzer.cpp" ]
+
+  sources = [ "fileaccessservicebaseproxy_fuzzer.cpp" ]
 
   deps = [
     "${user_file_service_path}/interfaces/inner_api/file_access:file_access_ext_base_include",
@@ -56,6 +54,13 @@ ohos_fuzztest("FileAccessExtBaseProxyFuzzTest") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+  ]
+
+  cflags = [
+    "-g",
+    "-O0",
+    "-Wno-unused-variable",
+    "-fno-omit-frame-pointer",
   ]
 
   defines = [ "private=public" ]

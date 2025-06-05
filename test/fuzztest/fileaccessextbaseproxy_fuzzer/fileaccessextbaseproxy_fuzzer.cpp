@@ -323,6 +323,49 @@ bool MoveFileFuzzTest(sptr<IFileAccessExtBase> proxy, const uint8_t *data, size_
     proxy->MoveFile(sourceFile, targetParent, fileName, newFile);
     return true;
 }
+
+bool UrieFuzzTest(const uint8_t *data, size_t size)
+{
+    int len = size / 2;
+    Urie uri(string(reinterpret_cast<const char *>(data), len));
+    Urie other(string(reinterpret_cast<const char *>(data + len), len));
+
+    uri.uriString_ = string(reinterpret_cast<const char *>(data), len);
+    uri.GetScheme();
+    uri.GetSchemeSpecificPart();
+    uri.GetAuthority();
+    uri.GetHost();
+    uri.GetPort();
+    uri.GetUserInfo();
+    uri.GetQuery();
+    uri.GetPath();
+    uri.GetFragment();
+    uri.IsHierarchical();
+    uri.IsAbsolute();
+    uri.IsRelative();
+    uri.ToString();
+    uri.CheckScheme();
+    uri.ParseScheme();
+    uri.ParseSsp();
+    uri.ParseAuthority();
+    uri.ParseUserInfo();
+    uri.ParseHost();
+    uri.ParsePort();
+    uri.ParsePath();
+    uri.ParsePath(NOT_FOUND);
+    uri.ParseQuery();
+    uri.ParseFragment();
+    uri.FindSchemeSeparator();
+    uri.FindFragmentSeparator();
+    uri.Equals(other);
+    uri.CompareTo(other);
+    vector<std::string> segments;
+    uri.GetPathSegments(segments);
+    Parcel parcel;
+    uri.Marshalling(parcel);
+    uri.Unmarshalling(parcel);
+    return (uri == other);
+}
 } // namespace OHOS
 
 /* Fuzzer entry point */
@@ -330,7 +373,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     auto helper = OHOS::GetFileAccessHelper();
     if (helper == nullptr) {
-        printf("GetFileAccessHelper return nullptr.");
+        printf("helper is nullptr.");
         return false;
     }
     auto proxy = helper->GetProxyByBundleName(OHOS::EXTERNAL_BNUDLE_NAME);
@@ -358,5 +401,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::MoveItemFuzzTest(proxy, data, size);
     OHOS::MoveFileFuzzTest(proxy, data, size);
 
+    OHOS::UrieFuzzTest(data, size);
     return 0;
 }
