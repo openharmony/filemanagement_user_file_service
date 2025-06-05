@@ -49,13 +49,16 @@ ohos_fuzztest("ExternalFileAccessRenameFuzzTest") {
     "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "cJSON:cjson_static",
     "c_utils:utils",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "image_framework:image_native",
     "ipc:ipc_core",
+    "ipc:ipc_napi",
     "napi:ace_napi",
     "samgr:samgr_proxy",
+    "selinux_adapter:librestorecon",
   ]
 }
 

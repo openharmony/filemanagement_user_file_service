@@ -39,8 +39,10 @@
                 "access_token",
                 "os_account",
                 "c_utils",
+                "cJSON",
                 "image_framework",
-                "common_event_service"
+                "common_event_service",
+                "selinux_adapter"
             ]
         },
         "build": {

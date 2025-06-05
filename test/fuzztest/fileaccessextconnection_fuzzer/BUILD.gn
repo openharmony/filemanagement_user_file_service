@@ -48,6 +48,7 @@ ohos_fuzztest("FileAccessExtConnectionFuzzTest") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "ipc:ipc_napi",
     "safwk:system_ability_fwk",
   ]
 

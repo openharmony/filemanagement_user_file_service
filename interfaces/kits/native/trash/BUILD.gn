@@ -27,7 +27,6 @@ ohos_shared_library("trash") {
 
   include_dirs = [
     "include",
-    "${file_api_path}/interfaces/kits/rust/include",
     "${user_file_service_path}/utils",
   ]
 
