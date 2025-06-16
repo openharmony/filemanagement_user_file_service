@@ -168,7 +168,7 @@ bool ConnectFileExtAbilityFuzzTest(sptr<IFileAccessServiceBase> proxy, const uin
 
 bool UnregisterNotifyNoObserverFuzzTest(sptr<IFileAccessServiceBase> proxy, const uint8_t* data, size_t size)
 {
-    if (data == nullptr || size < sizeof(bool)) {
+    if (data == nullptr || size < sizeof(bool) || g_fah == nullptr) {
         return true;
     }
 
@@ -176,7 +176,7 @@ bool UnregisterNotifyNoObserverFuzzTest(sptr<IFileAccessServiceBase> proxy, cons
     Uri uri(string(reinterpret_cast<const char *>(data + pos), size - pos));
     AAFwk::Want want;
     want.SetElementName(EXTERNAL_BNUDLE_NAME, "FileExtensionAbility");
-    std::shared_ptr<ConnectExtensionInfo> info = std::make_shared<ConnectExtensionInfo>(want, g_fah->token_);
+    sptr<ConnectExtensionInfo> info = sptr(new (std::nothrow) ConnectExtensionInfo(want, g_fah->token_));
     proxy->UnregisterNotifyNoObserver(uri, *info);
     return true;
 }
