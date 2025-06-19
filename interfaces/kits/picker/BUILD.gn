@@ -81,6 +81,7 @@ ohos_shared_library("picker") {
     "ipc:ipc_napi",
     "ipc:ipc_single",
     "napi:ace_napi",
+    "udmf:udmf_client",
   ]
 
   sanitize = {

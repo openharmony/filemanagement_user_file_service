@@ -1,0 +1,125 @@
+diff --git a/bundle.json b/bundle.json
+index f26d9f7..aacfe37 100644
+--- a/bundle.json
++++ b/bundle.json
+@@ -42,6 +42,7 @@
+                 "cJSON",
+                 "image_framework",
+                 "common_event_service",
++                "udmf",
+                 "selinux_adapter"
+             ]
+         },
+diff --git a/interfaces/kits/picker/BUILD.gn b/interfaces/kits/picker/BUILD.gn
+index 3ffd403..83a187d 100644
+--- a/interfaces/kits/picker/BUILD.gn
++++ b/interfaces/kits/picker/BUILD.gn
+@@ -81,6 +81,7 @@ ohos_shared_library("picker") {
+     "ipc:ipc_napi",
+     "ipc:ipc_single",
+     "napi:ace_napi",
++    "udmf:udmf_client",
+   ]
+ 
+   sanitize = {
+diff --git a/interfaces/kits/picker/picker.js b/interfaces/kits/picker/picker.js
+index 9acacc4..739528f 100644
+--- a/interfaces/kits/picker/picker.js
++++ b/interfaces/kits/picker/picker.js
+@@ -350,7 +350,12 @@ function getDocumentPickerSelectResult(args) {
+     if (args.ability_params_stream) {
+       selectResult.data = args.ability_params_stream;
+       selectResult.error = args.resultCode;
+-    } 
++    }
++    
++    if (args.ability_params_udkey) {
++      selectResult.data = args.ability_params_udkey;
++      selectResult.error = args.resultCode;
++    }
+   } else if (args.resultCode === RESULT_CODE_ERROR) {
+     selectResult.data = [];
+     selectResult.error = args.resultCode;
+diff --git a/interfaces/kits/picker/src/picker_n_exporter.cpp b/interfaces/kits/picker/src/picker_n_exporter.cpp
+index e4b1b7a..d67d18a 100644
+--- a/interfaces/kits/picker/src/picker_n_exporter.cpp
++++ b/interfaces/kits/picker/src/picker_n_exporter.cpp
+@@ -24,6 +24,8 @@
+ #endif
+ #include "ui_extension_context.h"
+ #include "want.h"
++#include "unified_data.h"
++#include "udmf_client.h"
+ 
+ namespace OHOS {
+ namespace Picker {
+@@ -136,6 +138,61 @@ static void MakeResultWithBool(napi_env env, std::string key, napi_value &result
+     }
+ }
+ 
++static void MakeResultWithUdkey(napi_env env, std::string key, napi_value &result,
++    std::shared_ptr<PickerCallBack> pickerCallBack)
++{
++    if (pickerCallBack == nullptr) {
++        HILOG_ERROR("[picker]: pickerCallBack is nullptr");
++        return;
++    }
++    napi_value array;
++    napi_create_array(env, &array);
++    napi_status status = napi_generic_failure;
++    if (pickerCallBack->want.GetParams().HasParam(key.c_str())) {
++        const std::string udkey = pickerCallBack->want.GetStringParam(key.c_str());
++        HILOG_INFO("[picker]: %{public}s is %{public}s", key.c_str(), udkey.c_str());
++        UDMF::QueryOption query = {.key = udkey};
++        std::vector<UDMF::UnifiedData> unifiedDataSet;
++        auto stat = UDMF::UdmfClient::GetInstance().GetBatchData(query, unifiedDataSet);
++        if (stat != UDMF::Status::E_OK) {
++            HILOG_ERROR("[picker]: stat is not E_OK, stat: %{public}d", stat);
++            return;
++        }
++        size_t len = unifiedDataSet[0].GetRecords().size();
++        for (size_t i = 0; i < len; ++i) {
++            auto readRecord = unifiedDataSet[0].GetRecordAt(i);
++            auto entry = readRecord->GetEntry("general.file-uri");
++ 
++            if (!std::holds_alternative<std::shared_ptr<UDMF::Object>>(entry)) {
++                HILOG_ERROR("[picker]: entry is not Object");
++                continue;
++            }
++            auto obj = std::get<std::shared_ptr<UDMF::Object>>(entry);
++            std::string uri;
++            obj->GetValue("oriUri", uri);
++            if (uri.empty()) {
++                HILOG_ERROR("[picker]: uri is empty");
++                continue;
++            }
++ 
++            napi_value uriVal = nullptr;
++            napi_create_string_utf8(env, uri.c_str(), NAPI_AUTO_LENGTH, &uriVal);
++            status = napi_set_element(env, array, i, uriVal);
++            if (status != napi_ok) {
++                HILOG_ERROR("[picker]: napi_set_element failed, error: %{public}d", status);
++                continue;
++            }
++        }
++        if (key == "ability.params.udkey") {
++            key = "ability_params_udkey";
++        }
++        status = napi_set_named_property(env, result, key.c_str(), array);
++        if (status != napi_ok) {
++            HILOG_ERROR("[picker]: napi_set_named_property %{public}s failed", key.c_str());
++        }
++    }
++}
++
+ static napi_value MakeResultWithPickerCallBack(napi_env env, std::shared_ptr<PickerCallBack> pickerCallBack)
+ {
+     if (pickerCallBack == nullptr) {
+@@ -155,6 +212,7 @@ static napi_value MakeResultWithPickerCallBack(napi_env env, std::shared_ptr<Pic
+         HILOG_ERROR("[picker]: napi_set_named_property resultCode failed");
+     }
+     MakeResultWithArr(env, "ability.params.stream", result, pickerCallBack);
++    MakeResultWithUdkey(env, "ability.params.udkey", result, pickerCallBack);
+     MakeResultWithArr(env, "uriArr", result, pickerCallBack);
+     MakeResultWithArr(env, "select-item-list", result, pickerCallBack);
+     MakeResultWithBool(env, "isOriginal", result, pickerCallBack);
