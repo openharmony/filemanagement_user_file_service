@@ -15,3 +15,9 @@ ability_runtime_path = "//foundation/ability/ability_runtime"
 file_api_path = "//foundation/filemanagement/file_api"
 user_file_service_path = "//foundation/filemanagement/user_file_service"
 commonlibrary_path = "//commonlibrary"
+udmf_enabled = true
+
+if (defined(global_parts_info) &&
+      !defined(global_parts_info.distributeddatamgr_udmf)) {
+    udmf_enabled = false
+}
