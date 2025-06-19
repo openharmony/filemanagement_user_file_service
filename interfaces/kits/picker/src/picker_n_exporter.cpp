@@ -162,7 +162,6 @@ static void MakeResultWithUdkey(napi_env env, std::string key, napi_value &resul
         for (size_t i = 0; i < len; ++i) {
             auto readRecord = unifiedDataSet[0].GetRecordAt(i);
             auto entry = readRecord->GetEntry("general.file-uri");
- 
             if (!std::holds_alternative<std::shared_ptr<UDMF::Object>>(entry)) {
                 HILOG_ERROR("[picker]: entry is not Object");
                 continue;
@@ -174,7 +173,6 @@ static void MakeResultWithUdkey(napi_env env, std::string key, napi_value &resul
                 HILOG_ERROR("[picker]: uri is empty");
                 continue;
             }
- 
             napi_value uriVal = nullptr;
             napi_create_string_utf8(env, uri.c_str(), NAPI_AUTO_LENGTH, &uriVal);
             status = napi_set_element(env, array, i, uriVal);
