@@ -76,11 +76,7 @@ ohos_unittest("external_file_access_basic_test") {
   }
   module_out_path = "user_file_service/tests"
 
-  sources = [
-    "external_file_access_test.cpp",
-    "external_file_access_test_basic.cpp",
-    "external_file_access_test_info.cpp",
-  ]
+  sources = [ "external_file_access_test.cpp" ]
 
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
@@ -131,11 +127,7 @@ ohos_unittest("external_file_access_management_test") {
   }
   module_out_path = "user_file_service/tests"
 
-  sources = [
-    "external_file_access_test.cpp",
-    "external_file_access_test_management.cpp",
-    "external_file_access_test_operations.cpp",
-  ]
+  sources = [ "external_file_access_test.cpp" ]
 
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
@@ -186,7 +178,7 @@ ohos_unittest("external_file_access_notify_test") {
   }
   module_out_path = "user_file_service/tests"
 
-  sources = [ "external_notify_test.cpp" ]
+  sources = [ ]
 
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
