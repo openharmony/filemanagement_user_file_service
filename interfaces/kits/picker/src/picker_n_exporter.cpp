@@ -178,6 +178,10 @@ static void MakeResultWithUdkey(napi_env env, const std::string key, napi_value 
         }
         napi_value uriVal = nullptr;
         napi_create_string_utf8(env, uri.c_str(), NAPI_AUTO_LENGTH, &uriVal);
+        if (uriVal == nullptr) {
+            HILOG_ERROR("[picker]: create uri js value fail.");
+            continue;
+        }
         status = napi_set_element(env, array, i, uriVal);
         if (status != napi_ok) {
             HILOG_ERROR("[picker]: napi_set_element failed, error: %{public}d", status);
