@@ -185,10 +185,10 @@ static void MakeResultWithUdkey(napi_env env, const std::string key, napi_value 
             HILOG_ERROR("[picker]: napi_set_element failed, error: %{public}d", status);
             continue;
         }
-        status = napi_set_named_property(env, result, "ability_params_udkey", array);
-        if (status != napi_ok) {
-            HILOG_ERROR("[picker]: napi_set_named_property failed");
-        }
+    }
+    status = napi_set_named_property(env, result, "ability_params_udkey", array);
+    if (status != napi_ok) {
+        HILOG_ERROR("[picker]: napi_set_named_property failed");
     }
 #endif
 }
