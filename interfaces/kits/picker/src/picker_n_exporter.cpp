@@ -24,8 +24,10 @@
 #endif
 #include "ui_extension_context.h"
 #include "want.h"
+#ifdef UDMF_ENABLED
 #include "unified_data.h"
 #include "udmf_client.h"
+#endif
 
 namespace OHOS {
 namespace Picker {
@@ -138,9 +140,10 @@ static void MakeResultWithBool(napi_env env, std::string key, napi_value &result
     }
 }
 
-static void MakeResultWithUdkey(napi_env env, std::string key, napi_value &result,
+static void MakeResultWithUdkey(napi_env env, const std::string key, napi_value &result,
     std::shared_ptr<PickerCallBack> pickerCallBack)
 {
+#ifdef UDMF_ENABLED
     if (pickerCallBack == nullptr) {
         HILOG_ERROR("[picker]: pickerCallBack is nullptr");
         return;
@@ -148,47 +151,46 @@ static void MakeResultWithUdkey(napi_env env, std::string key, napi_value &resul
     napi_value array;
     napi_create_array(env, &array);
     napi_status status = napi_generic_failure;
-    if (pickerCallBack->want.GetParams().HasParam(key.c_str())) {
-        const std::string udkey = pickerCallBack->want.GetStringParam(key.c_str());
-        HILOG_INFO("[picker]: %{public}s is %{public}s", key.c_str(), udkey.c_str());
-        UDMF::QueryOption query = {.key = udkey};
-        std::vector<UDMF::UnifiedData> unifiedDataSet;
-        auto stat = UDMF::UdmfClient::GetInstance().GetBatchData(query, unifiedDataSet);
-        if (stat != UDMF::Status::E_OK) {
-            HILOG_ERROR("[picker]: stat is not E_OK, stat: %{public}d", stat);
-            return;
+    if (!pickerCallBack->want.GetParams().HasParam(key.c_str())) {
+        return;
+    }
+    const std::string udkey = pickerCallBack->want.GetStringParam(key.c_str());
+    HILOG_INFO("[picker]: %{public}s is %{public}s", key.c_str(), udkey.c_str());
+    UDMF::QueryOption query = {.key = udkey};
+    std::vector<UDMF::UnifiedData> unifiedDataSet;
+    auto stat = UDMF::UdmfClient::GetInstance().GetBatchData(query, unifiedDataSet);
+    if (stat != UDMF::Status::E_OK || unifiedDataSet.empty()) {
+        HILOG_ERROR("[picker]: unifiedDataSet isEmpty or GetBatchData failed, stat=%{public}d", stat);
+        return;
+    }
+    size_t len = unifiedDataSet[0].GetRecords().size();
+    for (size_t i = 0; i < len; ++i) {
+        auto readRecord = unifiedDataSet[0].GetRecordAt(i);
+        auto entry = readRecord->GetEntry("general.file-uri");
+        if (!std::holds_alternative<std::shared_ptr<UDMF::Object>>(entry)) {
+            HILOG_ERROR("[picker]: entry is not Object");
+            continue;
         }
-        size_t len = unifiedDataSet[0].GetRecords().size();
-        for (size_t i = 0; i < len; ++i) {
-            auto readRecord = unifiedDataSet[0].GetRecordAt(i);
-            auto entry = readRecord->GetEntry("general.file-uri");
-            if (!std::holds_alternative<std::shared_ptr<UDMF::Object>>(entry)) {
-                HILOG_ERROR("[picker]: entry is not Object");
-                continue;
-            }
-            auto obj = std::get<std::shared_ptr<UDMF::Object>>(entry);
-            std::string uri;
-            obj->GetValue("oriUri", uri);
-            if (uri.empty()) {
-                HILOG_ERROR("[picker]: uri is empty");
-                continue;
-            }
-            napi_value uriVal = nullptr;
-            napi_create_string_utf8(env, uri.c_str(), NAPI_AUTO_LENGTH, &uriVal);
-            status = napi_set_element(env, array, i, uriVal);
-            if (status != napi_ok) {
-                HILOG_ERROR("[picker]: napi_set_element failed, error: %{public}d", status);
-                continue;
-            }
+        auto obj = std::get<std::shared_ptr<UDMF::Object>>(entry);
+        std::string uri;
+        obj->GetValue("oriUri", uri);
+        if (uri.empty()) {
+            HILOG_ERROR("[picker]: uri is empty");
+            continue;
         }
-        if (key == "ability.params.udkey") {
-            key = "ability_params_udkey";
-        }
-        status = napi_set_named_property(env, result, key.c_str(), array);
+        napi_value uriVal = nullptr;
+        napi_create_string_utf8(env, uri.c_str(), NAPI_AUTO_LENGTH, &uriVal);
+        status = napi_set_element(env, array, i, uriVal);
         if (status != napi_ok) {
-            HILOG_ERROR("[picker]: napi_set_named_property %{public}s failed", key.c_str());
+            HILOG_ERROR("[picker]: napi_set_element failed, error: %{public}d", status);
+            continue;
+        }
+        status = napi_set_named_property(env, result, "ability_params_udkey", array);
+        if (status != napi_ok) {
+            HILOG_ERROR("[picker]: napi_set_named_property failed");
         }
     }
+#endif
 }
 
 static napi_value MakeResultWithPickerCallBack(napi_env env, std::shared_ptr<PickerCallBack> pickerCallBack)
