@@ -350,9 +350,7 @@ function getDocumentPickerSelectResult(args) {
     if (args.ability_params_stream) {
       selectResult.data = args.ability_params_stream;
       selectResult.error = args.resultCode;
-    }
-    
-    if (args.ability_params_udkey) {
+    } else if (args.ability_params_udkey) {
       selectResult.data = args.ability_params_udkey;
       selectResult.error = args.resultCode;
     }

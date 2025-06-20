@@ -143,7 +143,6 @@ static void MakeResultWithBool(napi_env env, std::string key, napi_value &result
 static void MakeResultWithUdkey(napi_env env, const std::string key, napi_value &result,
     std::shared_ptr<PickerCallBack> pickerCallBack)
 {
-#ifdef UDMF_ENABLED
     if (pickerCallBack == nullptr) {
         HILOG_ERROR("[picker]: pickerCallBack is nullptr");
         return;
@@ -155,7 +154,6 @@ static void MakeResultWithUdkey(napi_env env, const std::string key, napi_value 
         return;
     }
     const std::string udkey = pickerCallBack->want.GetStringParam(key.c_str());
-    HILOG_INFO("[picker]: %{public}s is %{public}s", key.c_str(), udkey.c_str());
     UDMF::QueryOption query = {.key = udkey};
     std::vector<UDMF::UnifiedData> unifiedDataSet;
     auto stat = UDMF::UdmfClient::GetInstance().GetBatchData(query, unifiedDataSet);
@@ -183,14 +181,12 @@ static void MakeResultWithUdkey(napi_env env, const std::string key, napi_value 
         status = napi_set_element(env, array, i, uriVal);
         if (status != napi_ok) {
             HILOG_ERROR("[picker]: napi_set_element failed, error: %{public}d", status);
-            continue;
         }
     }
     status = napi_set_named_property(env, result, "ability_params_udkey", array);
     if (status != napi_ok) {
         HILOG_ERROR("[picker]: napi_set_named_property failed");
     }
-#endif
 }
 
 static napi_value MakeResultWithPickerCallBack(napi_env env, std::shared_ptr<PickerCallBack> pickerCallBack)
@@ -212,7 +208,9 @@ static napi_value MakeResultWithPickerCallBack(napi_env env, std::shared_ptr<Pic
         HILOG_ERROR("[picker]: napi_set_named_property resultCode failed");
     }
     MakeResultWithArr(env, "ability.params.stream", result, pickerCallBack);
+#ifdef UDMF_ENABLED
     MakeResultWithUdkey(env, "ability.params.udkey", result, pickerCallBack);
+#endif
     MakeResultWithArr(env, "uriArr", result, pickerCallBack);
     MakeResultWithArr(env, "select-item-list", result, pickerCallBack);
     MakeResultWithBool(env, "isOriginal", result, pickerCallBack);
