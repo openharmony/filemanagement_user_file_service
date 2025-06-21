@@ -83,6 +83,11 @@ ohos_shared_library("picker") {
     "napi:ace_napi",
   ]
 
+  if (picker_udmf_enabled) {
+    defines = [ "UDMF_ENABLED" ]
+    external_deps += [ "udmf:udmf_client" ]
+  }
+  
   sanitize = {
     integer_overflow = true
     ubsan = true
