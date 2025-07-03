@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,22 +17,46 @@ import hilog from '@ohos.hilog';
 const BUNDLE_NAME = 'docs';
 const DOMAIN_CODE = 0x0001;
 const SLICE_PREFIX_URI = 12;
+const SHORT_FILE_LENGTH = 20;
+const PLAIN_TEXT_LENGTH = 4;
+const MIN_FILE_LENGTH = 3;
 const TAG = 'ExternalFileManager';
 const FILE_PREFIX_NAME = 'file://';
 
 function checkUri(uri: string): boolean {
   try {
     if (uri?.indexOf(FILE_PREFIX_NAME) === 0) {
-      hilog.info(DOMAIN_CODE, TAG, 'uri is ' + uri);
+      hilog.info(DOMAIN_CODE, TAG, 'uri is ' + getAnonyString(uri));
       return true;
     } else {
-      hilog.error(DOMAIN_CODE, TAG, 'checkUri failed, uri is ' + uri);
+      hilog.error(DOMAIN_CODE, TAG, 'checkUri failed, uri is ' + getAnonyString(uri));
       return false;
     }
   } catch (error) {
-    hilog.error(DOMAIN_CODE, TAG, 'checkUri error, uri is ' + uri);
+    hilog.error(DOMAIN_CODE, TAG, 'checkUri error, uri is ' + getAnonyString(uri));
     return false;
   }
+}
+
+function getAnonyString(uri): string {
+  let res = '';
+  let tmpStr = '********';
+  let len = uri.length;
+  if (len < MIN_FILE_LENGTH) {
+      return tmpStr;
+  }
+
+  if (len <= SHORT_FILE_LENGTH) {
+      res += uri[0];
+      res += tmpStr;
+      res += uri[len - 1];
+  } else {
+      res += uri.substring(0, PLAIN_TEXT_LENGTH);
+      res += tmpStr;
+      res += uri.substring(len - PLAIN_TEXT_LENGTH);
+  }
+
+  return res;
 }
 
 function getPath(uri): string {
@@ -40,21 +64,21 @@ function getPath(uri): string {
   let arr = uri.split(sep);
   let minLength = 2;
   if (arr.length < minLength) {
-    hilog.error(DOMAIN_CODE, TAG, 'getPath-parameter-uri format exception, uri is:' + uri);
+    hilog.error(DOMAIN_CODE, TAG, 'getPath-parameter-uri format exception, uri is:' + getAnonyString(uri));
     return '';
   }
   let path = uri.replace(arr[0] + sep, '');
   if (arr[1].indexOf('/') > 0 && arr[1].split('/')[0] === BUNDLE_NAME) {
     path = path.replace(arr[1].split('/')[0], '');
   } else {
-    hilog.error(DOMAIN_CODE, TAG, 'getPath-parameter-uri format exception, uri is ' + uri);
+    hilog.error(DOMAIN_CODE, TAG, 'getPath-parameter-uri format exception, uri is ' + getAnonyString(uri));
     return '';
   }
 
   if (path.charAt(path.length - 1) === '/') {
     path = path.substr(0, path.length - 1);
   }
-  hilog.info(DOMAIN_CODE, TAG, 'getPath after ' + path);
+  hilog.info(DOMAIN_CODE, TAG, 'getPath after ' + getAnonyString(path));
   return path;
 }
 
@@ -140,7 +164,7 @@ function decodeUri(uri): string {
 }
 
 export { 
-  getPath, checkUri, encodePathOfUri, decodeUri, uriReturnObject, infosReturnObject, fdReturnObject, boolReturnObject, resultsResultObject,
+  getPath, checkUri, encodePathOfUri, decodeUri, getAnonyString, uriReturnObject, infosReturnObject, fdReturnObject, boolReturnObject, resultsResultObject,
   fileinfoReturnObject, rootsReturnObject, BUNDLE_NAME, DOMAIN_CODE, FILE_PREFIX_NAME, TAG 
 };
 

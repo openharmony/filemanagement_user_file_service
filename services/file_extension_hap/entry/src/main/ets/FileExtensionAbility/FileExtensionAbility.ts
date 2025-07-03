@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,7 +21,7 @@ import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
 import hilog from '@ohos.hilog';
 import { getListFileInfos, getScanFileInfos, buildFilterOptions, buildNoFilterOptions, hasFilter } from './ListScanFileInfo';
 import type { Fileinfo } from './Common';
-import { getPath, checkUri, uriReturnObject, encodePathOfUri, decodeUri, BUNDLE_NAME, DOMAIN_CODE, fileinfoReturnObject } from './Common';
+import { getPath, checkUri, uriReturnObject, encodePathOfUri, decodeUri, getAnonyString, BUNDLE_NAME, DOMAIN_CODE, fileinfoReturnObject } from './Common';
 import { FILE_PREFIX_NAME, TAG, fdReturnObject, boolReturnObject, rootsReturnObject } from './Common';
 import { infosReturnObject, resultsResultObject } from './Common';
 
@@ -183,7 +183,7 @@ export default class FileExtAbility extends Extension {
       return uriReturnObject('', E_URIS);
     }
     try {
-      hilog.info(DOMAIN_CODE, TAG, 'createFile, uri is ' + parentUri);
+      hilog.info(DOMAIN_CODE, TAG, 'createFile, uri is ' + getAnonyString(parentUri));
       let newFileUri = this.genNewFileUri(parentUri, displayName);
       let path = getPath(newFileUri);
       if (fs.accessSync(path)) {
@@ -695,14 +695,14 @@ export default class FileExtAbility extends Extension {
     try {
       // Processing format: The first character is '/'
       if (selectFileRelativePath !== undefined && selectFileRelativePath.indexOf('/') === 0) {
-        hilog.info(DOMAIN_CODE, TAG, 'checkRelativePath-path is ' + selectFileRelativePath);
+        hilog.info(DOMAIN_CODE, TAG, 'checkRelativePath-path is ' + getAnonyString(selectFileRelativePath));
         return true;
       } else {
-        hilog.error(DOMAIN_CODE, TAG, 'checkRelativePath error, path is ' + selectFileRelativePath);
+        hilog.error(DOMAIN_CODE, TAG, 'checkRelativePath error, path is ' + getAnonyString(selectFileRelativePath));
         return false;
       }
     } catch (error) {
-      hilog.error(DOMAIN_CODE, TAG, 'checkRelativePath error, path is ' + selectFileRelativePath);
+      hilog.error(DOMAIN_CODE, TAG, 'checkRelativePath error, path is ' + getAnonyString(selectFileRelativePath));
       return false;
     }
   }
