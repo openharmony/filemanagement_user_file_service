@@ -31,6 +31,9 @@ SystemAbilityManagerClient& SystemAbilityManagerClient::GetInstance()
 
 sptr<ISystemAbilityManager> SystemAbilityManagerClient::GetSystemAbilityManager()
 {
+    if (Assistant::ins_ == nullptr) {
+        return false;
+    }
     if (Assistant::ins_->Bool() == false) {
         return nullptr;
     }
