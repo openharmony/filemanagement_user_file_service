@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Huawei Device Co., Ltd.
+ * Copyright (C) 2024-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,7 +36,7 @@ void PickerNapiUtils::CreateNapiErrorObject(napi_env env, napi_value &errorObj, 
         if (statusError == napi_ok) {
             statusError = napi_create_error(env, napiErrorCode, napiErrorMsg, &errorObj);
             if (statusError == napi_ok) {
-                HILOG_DEBUG("napi_create_error success");
+                HILOG_DEBUG("[picker]: napi_create_error success");
             }
         }
     }
@@ -45,7 +45,7 @@ void PickerNapiUtils::CreateNapiErrorObject(napi_env env, napi_value &errorObj, 
 void PickerNapiUtils::InvokeJSAsyncMethod(napi_env env, napi_deferred deferred, napi_ref callbackRef,
     napi_async_work work, const JSAsyncContextOutput &asyncContext)
 {
-    HILOG_INFO("modal picker: InvokeJSAsyncMethod begin.");
+    HILOG_INFO("[picker]: InvokeJSAsyncMethod begin.");
     if (asyncContext.status) {
         napi_resolve_deferred(env, deferred, asyncContext.data);
     } else {
