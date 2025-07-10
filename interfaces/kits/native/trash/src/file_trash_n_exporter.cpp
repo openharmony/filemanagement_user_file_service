@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -96,7 +96,7 @@ static string GetTimeSlotFromPath(const string &path)
     // 获取时间戳目录位置
     size_t trashPathWithTimePrefixPos = realFilePathWithTime.find_first_of("/");
     if (trashPathWithTimePrefixPos == string::npos) {
-        HILOG_ERROR("GetTimeSlotFromPath: Invalid path = %{private}s", path.c_str());
+        HILOG_ERROR("GetTimeSlotFromPath: Invalid path.");
         return "";
     }
     string timeSlot = realFilePathWithTime.substr(0, trashPathWithTimePrefixPos);
@@ -111,7 +111,7 @@ static int RecursiveFunc(const string &path, vector<string> &dirents)
         HILOG_ERROR("Failed to request heap memory.");
         return ENOMEM;
     }
-    HILOG_DEBUG("RecursiveFunc: scandir path = %{private}s", path.c_str());
+    HILOG_DEBUG("RecursiveFunc: scandir path start");
     int num = scandir(path.c_str(), &(pNameList->namelist), FilterFunc, alphasort);
     if (num < 0) {
         HILOG_ERROR("RecursiveFunc: Failed to scan dir");
@@ -130,7 +130,7 @@ static int RecursiveFunc(const string &path, vector<string> &dirents)
             string pathTemp = pathInRecur;
             pathInRecur += '/' + string((*(pNameList->namelist[i])).d_name);
             // check if path include TRASH_SUB_DIR + "/", need to add it into dirents
-            HILOG_DEBUG("RecursiveFunc: pathTemp = %{private}s", pathTemp.c_str());
+            HILOG_DEBUG("RecursiveFunc: path include TRASH_SUB_DIR.");
             string timeSlot = GetTimeSlotFromPath(pathTemp);
             if (!timeSlot.empty() && pathInRecur.rfind(TRASH_SUB_DIR + timeSlot + "/") != string::npos) {
                 // Only filter previous dir is TRASH_SUB_DIR
@@ -189,7 +189,7 @@ static napi_value CreateObjectArray(napi_env env, vector<FileInfo> result)
 
 static string FindSourceFilePath(const string &path)
 {
-    HILOG_INFO("FindSourceFilePath: curFilePath = %{private}s", path.c_str());
+    HILOG_INFO("FindSourceFilePath start.");
     size_t slashSize = 1;
     // 获取/trash目录位置
     size_t trashPathPrefixPos = path.find(FileTrashNExporter::trashPath_);
@@ -217,13 +217,13 @@ static string FindSourceFilePath(const string &path)
     string realFileName = realFilePath.substr(pos + TRASH_SUB_DIR.length() +
         timeSlot.length() + slashSize);
     realFilePath = "/" + realFilePathPrefix + realFileName;
-    HILOG_INFO("FindSourceFilePath: realFilePath After = %{private}s", realFilePath.c_str());
+    HILOG_INFO("FindSourceFilePath end.");
     return realFilePath;
 }
 
 static bool Mkdirs(const string &path, bool isDir, string &newRecoveredPath)
 {
-    HILOG_INFO("Mkdirs: path = %{private}s", path.c_str());
+    HILOG_INFO("Mkdirs: start.");
     string recoveredPath = path;
     string folderName = "";
     size_t lastPos = 0;
@@ -244,7 +244,7 @@ static bool Mkdirs(const string &path, bool isDir, string &newRecoveredPath)
         lastPos = i;
         auto [isExist, ret] = Access(recoveredPath);
         if (!isExist && !Mkdir(recoveredPath)) {
-            HILOG_ERROR("Mkdirs fail for %{private}s ", recoveredPath.c_str());
+            HILOG_ERROR("Mkdirs failed.");
             return false;
         }
         recoveredPath[i] = '/';
@@ -322,14 +322,14 @@ static int MoveFile(const string &srcFile, const string &destFile)
 
 static string RecurCheckIfOnlyContentInDir(const string &path, size_t trashWithTimePos, const string &trashWithTimePath)
 {
-    HILOG_INFO("RecurCheckIfOnlyContentInDir: path = %{private}s", path.c_str());
+    HILOG_INFO("RecurCheckIfOnlyContentInDir start.");
     size_t slashPos = path.find_last_of("/");
     if (slashPos <= trashWithTimePos) {
         HILOG_DEBUG("RecurCheckIfOnlyContentInDir: slashPos = %{public}zu", slashPos);
         return trashWithTimePath;
     }
     string parentPath = path.substr(0, slashPos);
-    HILOG_DEBUG("RecurCheckIfOnlyContentInDir: parentPath = %{private}s", parentPath.c_str());
+    HILOG_DEBUG("RecurCheckIfOnlyContentInDir ScanDir start.");
     int num = ScanDir(parentPath);
     HILOG_DEBUG("RecurCheckIfOnlyContentInDir: num = %{public}d", num);
     if (num > 1) {
@@ -340,14 +340,14 @@ static string RecurCheckIfOnlyContentInDir(const string &path, size_t trashWithT
         // 需要向上一层目录判断
         return RecurCheckIfOnlyContentInDir(parentPath, trashWithTimePos, trashWithTimePath);
     } else {
-        HILOG_ERROR("RecurCheckIfOnlyContentInDir: invalid path = %{private}s", path.c_str());
+        HILOG_ERROR("RecurCheckIfOnlyContentInDir: invalid path. ");
     }
     return nullptr;
 }
 
 static string GetToDeletePath(const string &toDeletePath, napi_env env)
 {
-    HILOG_INFO("GetToDeletePath: toDeletePath = %{private}s", toDeletePath.c_str());
+    HILOG_INFO("GetToDeletePath: start.");
     // 判断是否为有效回收站路径
     size_t slashSize = 1;
     // 获取/Trash目录位置
@@ -463,7 +463,7 @@ napi_value FileTrashNExporter::ListFile(napi_env env, napi_callback_info info)
 static napi_value RecoverFile(napi_env env, const string &filePath)
 {
     string sourceFilePath = FindSourceFilePath(filePath);
-    HILOG_INFO("RecoverFile: sourceFilePath = %{private}s", sourceFilePath.c_str());
+    HILOG_INFO("RecoverFile start.");
     string newDestPath = sourceFilePath;
     if (newDestPath.length() == 0 || !Mkdirs(sourceFilePath, false, newDestPath)) {
         HILOG_ERROR("RecoverFile: Mkdirs failed");
@@ -496,12 +496,10 @@ static napi_value RecoverFile(napi_env env, const string &filePath)
 static int RecoverFilePart(vector<string> filePathList, map<string, string> dirPath2UpdatedNameMap)
 {
     // 处理文件
+    HILOG_INFO("RecoverFilePart start.");
     for (size_t j = 0; j < filePathList.size(); j++) {
         string filePath = filePathList[j];
-        HILOG_INFO("RecoverFilePart: filePath  = %{private}s", filePath.c_str());
         string sourceFilePath = FindSourceFilePath(filePath);
-        HILOG_INFO("RecoverFilePart: sourceFilePath  = %{private}s", sourceFilePath.c_str());
-
         size_t lastSlashPos = sourceFilePath.find_last_of("/");
         string fileName = sourceFilePath.substr(lastSlashPos + 1);
         string sourceFilePathOnly = sourceFilePath.substr(0, lastSlashPos);
@@ -523,10 +521,10 @@ static map<string, string> MakeAndFindUpdateNameDir(vector<string> filterDirPath
     for (size_t j = 0; j < filterDirPathList.size(); j++) {
         string dirPath = filterDirPathList[j];
         string sourceFilePath = FindSourceFilePath(dirPath);
-        HILOG_DEBUG("MakeAndFindUpdateNameDir: sourceFilePath  = %{private}s", sourceFilePath.c_str());
+        HILOG_DEBUG("MakeAndFindUpdateNameDir: Mkdirs begin.");
         string newDestPath = sourceFilePath;
         if (Mkdirs(sourceFilePath, true, newDestPath)) {
-            HILOG_DEBUG("MakeAndFindUpdateNameDir: newDestPath  = %{private}s", newDestPath.c_str());
+            HILOG_DEBUG("MakeAndFindUpdateNameDir: Mkdirs is true.");
             if (newDestPath != sourceFilePath) {
                 dirPath2UpdatedNameMap.insert(make_pair(sourceFilePath, newDestPath));
             }
@@ -604,7 +602,7 @@ napi_value FileTrashNExporter::Recover(napi_env env, napi_callback_info info)
         return nullptr;
     }
     string uriStr = uriPtr.get();
-    HILOG_DEBUG("Recover: uriPtr.get()  = %{private}s", uriStr.c_str());
+    HILOG_DEBUG("Recover: uriPtr get end.");
 
     // 获取沙箱目录地址
     AppFileService::ModuleFileUri::FileUri fileUri(uriStr);
@@ -615,12 +613,11 @@ napi_value FileTrashNExporter::Recover(napi_env env, napi_callback_info info)
         HILOG_ERROR("Recover: Invalid Path");
         return nullptr;
     }
-    HILOG_DEBUG("Recover: path  = %{private}s", path.c_str());
-
+    HILOG_DEBUG("Recover: path is trash dir start.");
     // 判断是否是回收站路径
     if (path.find(FileTrashNExporter::trashPath_) == string::npos) {
         NError(EINVAL).ThrowErr(env);
-        HILOG_ERROR("Recover: path  = %{private}s is not Trash path", path.c_str());
+        HILOG_ERROR("Recover: path is not Trash path");
         return nullptr;
     }
 
@@ -661,7 +658,7 @@ napi_value FileTrashNExporter::CompletelyDelete(napi_env env, napi_callback_info
     }
 
     string uriStr = uriPtr.get();
-    HILOG_DEBUG("Recover: uriPtr.get()  = %{private}s", uriStr.c_str());
+    HILOG_DEBUG("Recover: uriPtr get end.");
 
     // 获取沙箱目录地址
     AppFileService::ModuleFileUri::FileUri fileUri(uriStr);
@@ -672,12 +669,12 @@ napi_value FileTrashNExporter::CompletelyDelete(napi_env env, napi_callback_info
         HILOG_ERROR("Recover: Invalid Path");
         return nullptr;
     }
-    HILOG_DEBUG("Recover: path  = %{private}s", path.c_str());
+    HILOG_DEBUG("Recover path is trash dir start.");
 
     // 判断是否是回收站路径
     if (path.find(FileTrashNExporter::trashPath_) == string::npos) {
         NError(EINVAL).ThrowErr(env);
-        HILOG_ERROR("Recover: path  = %{private}s is not Trash path", path.c_str());
+        HILOG_ERROR("Recover: path is not Trash path");
         return nullptr;
     }
 
@@ -727,7 +724,7 @@ void FileTrashNExporter::InitTrashPath()
                 FileTrashNExporter::trashPath_ = "/storage/Users/" + userName + "/.Trash";
             }
         }
-        HILOG_INFO("GetRecentDir %{private}s", FileTrashNExporter::trashPath_.c_str());
+        HILOG_INFO("GetRecentDir end. ");
     }
 }
 

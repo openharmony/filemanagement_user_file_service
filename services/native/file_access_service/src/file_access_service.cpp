@@ -91,6 +91,7 @@ void FileAccessService::OnStart()
     sptr<FileAccessService> service = FileAccessService::GetInstance();
     if (service == nullptr) {
         HILOG_ERROR("service is nullptr");
+        return;
     }
     service->Init();
     if (!Publish(service)) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -95,6 +95,7 @@ public:
 
     uint32_t getId(std::function<bool(const Type &)> func)
     {
+        std::lock_guard<std::mutex> guard(holderMutex_);
         auto haveIter = find_if(holder_.begin(), holder_.end(),
             [func](const std::pair<uint32_t, Type> type) {
                 return func(type.second);

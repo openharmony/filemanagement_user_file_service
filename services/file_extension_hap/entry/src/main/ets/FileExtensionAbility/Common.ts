@@ -26,14 +26,14 @@ const FILE_PREFIX_NAME = 'file://';
 function checkUri(uri: string): boolean {
   try {
     if (uri?.indexOf(FILE_PREFIX_NAME) === 0) {
-      hilog.info(DOMAIN_CODE, TAG, 'uri is ' + getAnonyString(uri));
+      hilog.info(DOMAIN_CODE, TAG, 'uri is ok.');
       return true;
     } else {
-      hilog.error(DOMAIN_CODE, TAG, 'checkUri failed, uri is ' + getAnonyString(uri));
+      hilog.error(DOMAIN_CODE, TAG, 'checkUri failed.');
       return false;
     }
   } catch (error) {
-    hilog.error(DOMAIN_CODE, TAG, 'checkUri error, uri is ' + getAnonyString(uri));
+    hilog.error(DOMAIN_CODE, TAG, 'checkUri error.');
     return false;
   }
 }
@@ -64,21 +64,21 @@ function getPath(uri): string {
   let arr = uri.split(sep);
   let minLength = 2;
   if (arr.length < minLength) {
-    hilog.error(DOMAIN_CODE, TAG, 'getPath-parameter-uri format exception, uri is:' + getAnonyString(uri));
+    hilog.error(DOMAIN_CODE, TAG, 'getPath error, arr.length < minLength.');
     return '';
   }
   let path = uri.replace(arr[0] + sep, '');
   if (arr[1].indexOf('/') > 0 && arr[1].split('/')[0] === BUNDLE_NAME) {
     path = path.replace(arr[1].split('/')[0], '');
   } else {
-    hilog.error(DOMAIN_CODE, TAG, 'getPath-parameter-uri format exception, uri is ' + getAnonyString(uri));
+    hilog.error(DOMAIN_CODE, TAG, 'getPath failed');
     return '';
   }
 
   if (path.charAt(path.length - 1) === '/') {
     path = path.substr(0, path.length - 1);
   }
-  hilog.info(DOMAIN_CODE, TAG, 'getPath after ' + getAnonyString(path));
+  hilog.info(DOMAIN_CODE, TAG, 'getPath end');
   return path;
 }
 

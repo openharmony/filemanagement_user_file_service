@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -74,15 +74,27 @@ napi_value NapiFileIteratorExporter::Constructor(napi_env env, napi_callback_inf
     return funcArg.GetThisVar();
 }
 
-static int MakeListFileResult(napi_value &objFileInfoExporter, FileIteratorEntity *fileIteratorEntity,
-    FileInfoEntity *fileInfoEntity, napi_env env, NVal &nVal, bool &isDone)
+static bool VerifyArg(FileIteratorEntity *fileIteratorEntity, FileInfoEntity *fileInfoEntity)
 {
     if (fileIteratorEntity == nullptr) {
         HILOG_ERROR("FileIteratorEntity is null");
-        return E_GETRESULT;
+        return false;
     }
     if (fileInfoEntity == nullptr) {
         HILOG_ERROR("FileInfoEntity is null");
+        return false;
+    }
+    if (fileIteratorEntity->fileAccessHelper == nullptr) {
+        HILOG_ERROR("fileIteratorEntity->fileAccessHelper is nullptr");
+        return false;
+    }
+    return true;
+}
+
+static int MakeListFileResult(napi_value &objFileInfoExporter, FileIteratorEntity *fileIteratorEntity,
+    FileInfoEntity *fileInfoEntity, napi_env env, NVal &nVal, bool &isDone)
+{
+    if (!VerifyArg(fileIteratorEntity, fileInfoEntity)) {
         return E_GETRESULT;
     }
     SharedMemoryInfo &memInfo = fileIteratorEntity->memInfo;
@@ -92,7 +104,6 @@ static int MakeListFileResult(napi_value &objFileInfoExporter, FileIteratorEntit
         if (ret != ERR_OK) {
             return ret;
         }
-
         fileIteratorEntity->offset += fileIteratorEntity->currentDataCounts;
         ret = fileIteratorEntity->fileAccessHelper->ListFile(fileIteratorEntity->fileInfo,
             fileIteratorEntity->offset, fileIteratorEntity->filter, memInfo);
@@ -119,23 +130,10 @@ static int MakeListFileResult(napi_value &objFileInfoExporter, FileIteratorEntit
     return ERR_OK;
 }
 
-static bool VerifyArg(FileIteratorEntity *fileIteratorEntity, FileInfoEntity *fileInfoEntity)
-{
-    if (fileIteratorEntity == nullptr) {
-        HILOG_ERROR("FileIteratorEntity is null");
-        return true;
-    }
-    if (fileInfoEntity == nullptr) {
-        HILOG_ERROR("FileInfoEntity is null");
-        return true;
-    }
-    return false;
-}
-
 static int MakeScanFileResult(napi_value &objFileInfoExporter, FileIteratorEntity *fileIteratorEntity,
     FileInfoEntity *fileInfoEntity, napi_env env, NVal &nVal, bool &isDone)
 {
-    if (VerifyArg(fileIteratorEntity, fileInfoEntity)) {
+    if (!VerifyArg(fileIteratorEntity, fileInfoEntity)) {
         return E_GETRESULT;
     }
     std::lock_guard<std::mutex> lock(fileIteratorEntity->entityOperateMutex);
@@ -184,7 +182,7 @@ static int MakeScanFileResult(napi_value &objFileInfoExporter, FileIteratorEntit
 
 static bool FilterTrashAndRecentDir(const std::string &uri)
 {
-    HILOG_INFO("FilterTrashAndRecentDir uri: %{public}s", uri.c_str());
+    HILOG_INFO("FilterTrashAndRecentDir start");
     std::smatch matchResult;
     return std::regex_match(uri, matchResult, TRASH_RECENT_DIR_REGEX) && matchResult.length() > 0;
 }
@@ -208,7 +206,7 @@ static int GetNextIterator(napi_value &objFileInfoExporter, FileIteratorEntity *
             return E_GETRESULT;
         }
         retNVal = NVal::CreateObject(env);
-        HILOG_DEBUG("TRASH_DIR or RECENT_DIR: %{public}s", fileInfoEntity->fileInfo.uri.c_str());
+        HILOG_DEBUG("GetNextIterator TRASH_DIR or RECENT_DIR");
         if (fileIteratorEntity->flag == CALL_LISTFILE) {
             ret = MakeListFileResult(objFileInfoExporter, fileIteratorEntity, fileInfoEntity, env, retNVal, isDone);
         } else if (fileIteratorEntity->flag == CALL_SCANFILE) {
