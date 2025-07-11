@@ -353,6 +353,9 @@ function getDocumentPickerSelectResult(args) {
     } else if (args.ability_params_udkey) {
       selectResult.data = args.ability_params_udkey;
       selectResult.error = args.resultCode;
+    } else {
+      selectResult.data = [];
+      selectResult.error = RESULT_CODE_ERROR;
     }
   } else if (args.resultCode === RESULT_CODE_ERROR) {
     selectResult.data = [];
@@ -490,6 +493,9 @@ function getDocumentPickerSaveResult(args) {
       if (args.userSuffixIndex >= 0) {
         saveResult.suffix = args.userSuffixIndex;
       }
+    } else {
+      saveResult.data = [];
+      saveResult.error = RESULT_CODE_ERROR;
     }
   } else if (args.resultCode === RESULT_CODE_ERROR) {
     saveResult.data = [];
