@@ -148,7 +148,7 @@ void GetUriArray(napi_env env, std::vector<UDMF::UnifiedData> unifiedDataSet, na
         auto readRecord = unifiedDataSet[0].GetRecordAt(i);
         if (readRecord == nullptr) {
             HILOG_ERROR("[picker]: readRecord is nullptr");
-            return;
+            continue;
         }
         auto entry = readRecord->GetEntry("general.file-uri");
         if (!std::holds_alternative<std::shared_ptr<UDMF::Object>>(entry)) {
