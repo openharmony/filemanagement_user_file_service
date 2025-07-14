@@ -79,13 +79,13 @@ void JsFileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &rec
     trace.Start("Init");
     FileAccessExtAbility::Init(record, application, handler, token);
     std::string srcPath = "";
+    if (abilityInfo_ == nullptr) {
+        HILOG_ERROR("abilityInfo_ is nullptr");
+        return;
+    }
     GetSrcPath(srcPath);
     if (srcPath.empty()) {
         HILOG_ERROR("Failed to get srcPath");
-        return;
-    }
-    if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("abilityInfo_ is nullptr");
         return;
     }
     std::string moduleName(Extension::abilityInfo_->moduleName);

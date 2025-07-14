@@ -57,16 +57,14 @@ bool FileAccessHelper::IsFilePathValid(const std::string &filePath)
     size_t pos = filePath.find(PATH_INVALID_FLAG1);
     while (pos != string::npos) {
         if (pos == 0 || filePath[pos - 1] == FILE_SEPARATOR_CHAR) {
-            HILOG_ERROR("Relative path is not allowed, path contain ../, path = %{private}s",
-                filePath.c_str());
+            HILOG_ERROR("Relative path is not allowed, path contain ../");
             return false;
         }
         pos = filePath.find(PATH_INVALID_FLAG1, pos + PATH_INVALID_FLAG_LEN);
     }
     pos = filePath.rfind(PATH_INVALID_FLAG2);
     if ((pos != string::npos) && (filePath.size() - pos == PATH_INVALID_FLAG_LEN)) {
-        HILOG_ERROR("Relative path is not allowed, path tail is /.., path = %{private}s",
-            filePath.c_str());
+        HILOG_ERROR("Relative path is not allowed, path tail is /..");
         return false;
     }
     return true;
