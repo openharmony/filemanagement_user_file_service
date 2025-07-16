@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -94,6 +94,10 @@ static int TransferListFile(const FileInfoEntity* fileInfoEntity, FileIteratorEn
     }
     if (fileInfoEntity == nullptr) {
         HILOG_ERROR("FileInfoEntity is null");
+        return E_GETRESULT;
+    }
+    if (fileInfoEntity->fileAccessHelper == nullptr) {
+        HILOG_ERROR("fileInfoEntity->fileAccessHelper is null");
         return E_GETRESULT;
     }
     fileIteratorEntity->fileAccessHelper = fileInfoEntity->fileAccessHelper;

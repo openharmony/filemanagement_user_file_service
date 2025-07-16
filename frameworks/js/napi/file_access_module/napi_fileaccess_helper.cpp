@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1241,6 +1241,7 @@ napi_value NAPI_RegisterObserver(napi_env env, napi_callback_info info)
             FileObserverCallbackWrapper *observerWrapper = static_cast<FileObserverCallbackWrapper *>(data);
             if (observerWrapper != nullptr) {
                 delete observerWrapper;
+                observerWrapper = nullptr;
             }
         };
         std::unique_ptr<FileObserverCallbackWrapper> observerWrapper = std::make_unique<FileObserverCallbackWrapper>();

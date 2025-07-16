@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -192,7 +192,7 @@ static string GetName(const string &path)
 {
     auto pos = path.find_last_of('/');
     if (pos == string::npos) {
-        HILOGE("Failed to split filename from path, path: %{private}s", path.c_str());
+        HILOGE("Failed to split filename from path.");
     }
     return path.substr(pos + 1);
 }
@@ -371,7 +371,7 @@ void RecentNExporter::InitRecentPath()
                 RecentNExporter::recentPath_ = "/storage/Users/" + userName + "/.Recent/";
             }
         }
-        HILOG_INFO("GetRecentDir %{public}s", RecentNExporter::recentPath_.c_str());
+        HILOG_INFO("GetRecentDir end.");
     }
 }
 

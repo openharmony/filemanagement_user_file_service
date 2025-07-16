@@ -183,7 +183,7 @@ export default class FileExtAbility extends Extension {
       return uriReturnObject('', E_URIS);
     }
     try {
-      hilog.info(DOMAIN_CODE, TAG, 'createFile, uri is ' + getAnonyString(parentUri));
+      hilog.info(DOMAIN_CODE, TAG, 'createFile start.');
       let newFileUri = this.genNewFileUri(parentUri, displayName);
       let path = getPath(newFileUri);
       if (fs.accessSync(path)) {
@@ -223,7 +223,7 @@ export default class FileExtAbility extends Extension {
       for (let i = 1; i < path.length; ++i) {
         if (path.charAt(i) === '/') {
           let subDir = path.substring(0, i);
-          hilog.info(DOMAIN_CODE, TAG, 'mkdirs: subDir path = ' + subDir);
+          hilog.info(DOMAIN_CODE, TAG, 'mkdirs start');
           try {
             let isAccess = fs.accessSync(subDir);
             if (!isAccess) {
@@ -695,14 +695,14 @@ export default class FileExtAbility extends Extension {
     try {
       // Processing format: The first character is '/'
       if (selectFileRelativePath !== undefined && selectFileRelativePath.indexOf('/') === 0) {
-        hilog.info(DOMAIN_CODE, TAG, 'checkRelativePath-path is ' + getAnonyString(selectFileRelativePath));
+        hilog.info(DOMAIN_CODE, TAG, 'checkRelativePath-path ok ');
         return true;
       } else {
-        hilog.error(DOMAIN_CODE, TAG, 'checkRelativePath error, path is ' + getAnonyString(selectFileRelativePath));
+        hilog.error(DOMAIN_CODE, TAG, 'checkRelativePath error');
         return false;
       }
     } catch (error) {
-      hilog.error(DOMAIN_CODE, TAG, 'checkRelativePath error, path is ' + getAnonyString(selectFileRelativePath));
+      hilog.error(DOMAIN_CODE, TAG, 'checkRelativePath failed ');
       return false;
     }
   }
