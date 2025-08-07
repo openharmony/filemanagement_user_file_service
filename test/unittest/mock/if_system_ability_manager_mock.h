@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -64,7 +64,6 @@ public:
         std::vector<SaExtensionInfo>& infoList));
     MOCK_METHOD3(GetCommonEventExtraDataIdlist, int32_t(int32_t systemAbilityId,
         std::vector<int64_t>& extraDataIdList, const std::string& eventName));
-    MOCK_METHOD1(GetLocalAbilityManagerProxy, sptr<IRemoteObject>(int32_t));
 };
 } // namespace OHOS
 
