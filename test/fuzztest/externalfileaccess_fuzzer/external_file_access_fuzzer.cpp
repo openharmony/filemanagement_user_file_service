@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +27,7 @@
 #include "file_info_shared_memory.h"
 #include "iservice_registry.h"
 #include "hilog_wrapper.h"
-
+#include "user_file_service_token_mock.h"
 namespace OHOS {
 using namespace std;
 using namespace OHOS;
@@ -37,39 +37,11 @@ const int ABILITY_ID = 5003;
 shared_ptr<FileAccessHelper> g_fah = nullptr;
 const int UID_TRANSFORM_TMP = 20000000;
 const int UID_DEFAULT = 0;
-
-void SetNativeToken()
-{
-    uint64_t tokenId;
-    const char *perms[] = {
-        "ohos.permission.FILE_ACCESS_MANAGER",
-        "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED",
-        "ohos.permission.CONNECT_FILE_ACCESS_EXTENSION"
-    };
-    NativeTokenInfoParams infoInstance = {
-        .dcapsNum = 0,
-        .permsNum = 3,
-        .aclsNum = 0,
-        .dcaps = nullptr,
-        .perms = perms,
-        .acls = nullptr,
-        .aplStr = "system_core",
-    };
-
-    infoInstance.processName = "SetUpTestCase";
-    tokenId = GetAccessTokenId(&infoInstance);
-    const uint64_t systemAppMask = (static_cast<uint64_t>(1) << 32);
-    tokenId |= systemAppMask;
-    SetSelfTokenID(tokenId);
-    OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
-}
-
 shared_ptr<FileAccessHelper> GetFileAccessHelper()
 {
     if (g_fah != nullptr) {
         return g_fah;
     }
-    SetNativeToken();
     auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (saManager == nullptr) {
         return nullptr;
@@ -109,7 +81,6 @@ shared_ptr<FileAccessHelper> GetFileAccessHelper()
 
 bool CreatorFuzzTest(const uint8_t* data, size_t size)
 {
-    SetNativeToken();
     if ((data == nullptr) || (size <= 0)) {
         HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
         return false;
@@ -422,6 +393,8 @@ bool GetFileInfoFromUriFuzzTest(const uint8_t* data, size_t size)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
+    OHOS::UserFileServiceTokenMock tokenMock;
+    tokenMock.SetFileManagerToken();
     /* Run your code on data */
     OHOS::CreatorFuzzTest(data, size);
     OHOS::AccessFuzzTest(data, size);

@@ -26,6 +26,7 @@
 #include "iservice_registry.h"
 #include "token_setproc.h"
 #include "nativetoken_kit.h"
+#include "user_file_service_token_mock.h"
 
 namespace OHOS {
 using namespace std;
@@ -45,38 +46,11 @@ T TypeCast(const uint8_t *data, int *pos = nullptr)
     return *(reinterpret_cast<const T *>(data));
 }
 
-void SetNativeToken()
-{
-    uint64_t tokenId;
-    const char *perms[] = {
-        "ohos.permission.FILE_ACCESS_MANAGER",
-        "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED",
-        "ohos.permission.CONNECT_FILE_ACCESS_EXTENSION"
-    };
-    NativeTokenInfoParams infoInstance = {
-        .dcapsNum = 0,
-        .permsNum = 3,
-        .aclsNum = 0,
-        .dcaps = nullptr,
-        .perms = perms,
-        .acls = nullptr,
-        .aplStr = "system_core",
-    };
-
-    infoInstance.processName = "SetUpTestCase";
-    tokenId = GetAccessTokenId(&infoInstance);
-    const uint64_t systemAppMask = (static_cast<uint64_t>(1) << 32);
-    tokenId |= systemAppMask;
-    SetSelfTokenID(tokenId);
-    OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
-}
-
 shared_ptr<FileAccessHelper> GetFileAccessHelper()
 {
     if (g_fah != nullptr) {
         return g_fah;
     }
-    SetNativeToken();
     auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (saManager == nullptr) {
         return nullptr;
@@ -120,7 +94,7 @@ public:
     virtual ~TestObserver() = default;
     int OnChange(const NotifyMessage &notifyMessage) override;
 };
-    
+
 int TestObserver::OnChange(const NotifyMessage &notifyMessage)
 {
     return 1;
@@ -185,6 +159,8 @@ bool UnregisterNotifyNoObserverFuzzTest(sptr<IFileAccessServiceBase> proxy, cons
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
+    OHOS::UserFileServiceTokenMock tokenMock;
+    tokenMock.SetFileManagerToken();
     auto proxy = OHOS::FileAccessFwk::FileAccessServiceClient::GetInstance();
     if (proxy == nullptr) {
         printf("service proxy is nullptr");

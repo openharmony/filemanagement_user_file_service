@@ -31,6 +31,7 @@
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
 #include "accesstoken_kit.h"
+#include "user_file_service_token_mock.h"
 
 namespace OHOS {
 using namespace std;
@@ -38,35 +39,8 @@ using namespace OHOS;
 using namespace FileAccessFwk;
 using namespace AbilityRuntime;
 
-void SetNativeToken()
-{
-    uint64_t tokenId;
-    const char *perms[] = {
-        "ohos.permission.FILE_ACCESS_MANAGER",
-        "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED",
-        "ohos.permission.CONNECT_FILE_ACCESS_EXTENSION"
-    };
-    NativeTokenInfoParams infoInstance = {
-        .dcapsNum = 0,
-        .permsNum = 3,
-        .aclsNum = 0,
-        .dcaps = nullptr,
-        .perms = perms,
-        .acls = nullptr,
-        .aplStr = "system_core",
-    };
-
-    infoInstance.processName = "ExternalFileAccessDeleteFuzzTest";
-    tokenId = GetAccessTokenId(&infoInstance);
-    const uint64_t systemAppMask = (static_cast<uint64_t>(1) << 32);
-    tokenId |= systemAppMask;
-    SetSelfTokenID(tokenId);
-    OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
-}
-
 bool ExternalFileAccessDeleteFuzzTest(const uint8_t *data, size_t size)
 {
-    SetNativeToken();
     // CMD_DELETE
     uint32_t code = 4;
     MessageParcel datas;
@@ -96,6 +70,8 @@ bool ExternalFileAccessDeleteFuzzTest(const uint8_t *data, size_t size)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
+    OHOS::UserFileServiceTokenMock tokenMock;
+    tokenMock.SetFileManagerToken();
     OHOS::ExternalFileAccessDeleteFuzzTest(data, size);
     return 0;
 }
