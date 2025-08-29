@@ -27,6 +27,8 @@
 #ifdef UDMF_ENABLED
 #include "unified_data.h"
 #include "udmf_client.h"
+#include "unified_record.h"
+#include "unified_meta.h"
 #endif
 
 namespace OHOS {
@@ -38,11 +40,13 @@ using namespace AppExecFwk;
 #define WAIT_TIME_MS 100
 
 static const string PHOTO_URIS_KEY = "photoUris";
+const char* ABILITY_WANT_PARAMS_UDKEY = "ability.want.params.udKey";
 
 bool PickerNExporter::Export()
 {
     return exports_.AddProp({
-        NVal::DeclareNapiFunction("startModalPicker", StartModalPicker)
+        NVal::DeclareNapiFunction("startModalPicker", StartModalPicker),
+        NVal::DeclareNapiFunction("insertUdmfData", InsertUdmfData),
     });
 }
 
@@ -405,6 +409,9 @@ static napi_value StartPickerExtension(napi_env env, napi_callback_info info,
         pickerType = request.GetStringParam("pickerType");
     }
     request.SetParam(ABILITY_WANT_PARAMS_UIEXTENSIONTARGETTYPE, targetType);
+    std::string uriUdkey = request.GetStringParam("ability_params_udkey");
+    request.SetParam(ABILITY_WANT_PARAMS_UDKEY, uriUdkey);
+    HILOG_INFO("[picker]: SetParam end, udkey = %{public}s", uriUdkey.c_str());
     asyncContext->pickerCallBack = make_shared<PickerCallBack>();
     auto callback = std::make_shared<ModalUICallback>(uiContent, asyncContext->pickerCallBack);
     Ace::ModalUIExtensionCallbacks extensionCallback = {
@@ -502,6 +509,193 @@ napi_value PickerNExporter::StartModalPicker(napi_env env, napi_callback_info in
 PickerNExporter::PickerNExporter(napi_env env, napi_value exports) : NExporter(env, exports)
 {
     HILOG_INFO("PickerNExporter is called.");
+}
+
+static string GetNapiString(napi_env env, napi_value uri)
+{
+    size_t strLen = 0;
+    napi_status status = napi_get_value_string_utf8(env, uri, nullptr, -1, &strLen);
+    if (status != napi_ok) {
+        HILOG_ERROR("[picker]: napi_get_value_string_utf8 result=%{public}d", status);
+        return "";
+    }
+    
+    size_t bufLen = strLen + 1;
+    unique_ptr<char[]> str = make_unique<char[]>(bufLen);
+    status = napi_get_value_string_utf8(env, uri, str.get(), bufLen, &strLen);
+    if (status != napi_ok) {
+        HILOG_ERROR("[picker]: Get value string UTF8 fail. result=%{public}d", status);
+        return "";
+    }
+    
+    return string(str.get());
+}
+
+static napi_value InsertData(napi_env env, const vector<string> &uriVec)
+{
+    HILOG_INFO("[picker]: InsertData begin.");
+    UDMF::CustomOption option = { .intention = UDMF::Intention::UD_INTENTION_PICKER };
+    UDMF::UnifiedData unifiedData;
+    std::string udKey;
+    napi_status status;
+    
+    HILOG_INFO("[picker]: SetData start, size = %{public}zu", uriVec.size());
+    for (uint32_t i = 0; i < uriVec.size(); i++) {
+        std::shared_ptr<UDMF::Object> fileObj = std::make_shared<OHOS::UDMF::Object>();
+        fileObj->value_[UDMF::UNIFORM_DATA_TYPE] = "general.file-uri";
+        fileObj->value_[UDMF::FILE_URI_PARAM] = uriVec[i];
+        fileObj->value_[UDMF::FILE_TYPE] = "general.file";
+        std::shared_ptr<UDMF::UnifiedRecord> file =
+            std::make_shared<UDMF::UnifiedRecord>(UDMF::UDType::FILE_URI, fileObj);
+        unifiedData.AddRecord(file);
+    }
+    
+    int32_t errCode = UDMF::UdmfClient::GetInstance().SetData(option, unifiedData, udKey);
+    if (errCode != UDMF::Status::E_OK) {
+        HILOG_ERROR("[picker]: SetData failed, stat=%{public}d", errCode);
+    }
+    
+    napi_value resultCode = nullptr;
+    napi_value result = nullptr;
+    status = napi_create_object(env, &result);
+    if (status != napi_ok) {
+        HILOG_ERROR("[picker]: napi_create_object failed, status=%{public}d", status);
+        return nullptr;
+    }
+    
+    status = napi_create_int32(env, errCode, &resultCode);
+    if (status != napi_ok) {
+        HILOG_ERROR("[picker]: napi_create_int32 failed, status=%{public}d", status);
+        return nullptr;
+    }
+    
+    status = napi_set_named_property(env, result, "resultCode", resultCode);
+    if (status != napi_ok) {
+        HILOG_ERROR("[picker]: napi_set_named_property resultCode failed, status=%{public}d", status);
+    }
+    
+    napi_value nUdKey = nullptr;
+    status = napi_create_string_utf8(env, udKey.c_str(), udKey.size(), &nUdKey);
+    if (status != napi_ok) {
+        HILOG_ERROR("[picker]: napi_create_string_utf8 failed, status=%{public}d", status);
+        return nullptr;
+    }
+    
+    status = napi_set_named_property(env, result, "UdKey", nUdKey);
+    if (status != napi_ok) {
+        HILOG_ERROR("[picker]: napi_set_named_property %{public}s failed, status=%{public}d", udKey.c_str(), status);
+    }
+    
+    HILOG_INFO("[picker]: InsertData end.");
+    return result;
+}
+
+static void InsertUdmfAsyncCallbackComplete(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("[picker]: InsertUdmfAsyncCallbackComplete begin.");
+    auto context = static_cast<InsertAsyncContext*>(data);
+    if (context == nullptr) {
+        HILOG_ERROR("Async context is null");
+        return;
+    }
+    
+    auto jsContext = make_unique<JSAsyncContextOutput>();
+    jsContext->status = false;
+    status = napi_get_undefined(env, &jsContext->data);
+    if (status != napi_ok) {
+        HILOG_ERROR("[picker]: napi_get_undefined jsContext->data failed, status=%{public}d", status);
+    }
+    
+    status = napi_get_undefined(env, &jsContext->error);
+    if (status != napi_ok) {
+        HILOG_ERROR("[picker]: napi_get_undefined jsContext->error failed, status=%{public}d", status);
+    }
+    
+    napi_value result = context->result;
+    if (result != nullptr) {
+        jsContext->data = result;
+        jsContext->status = true;
+    } else {
+        PickerNapiUtils::CreateNapiErrorObject(env, jsContext->error, ERR_MEM_ALLOCATION,
+            "failed to create js object");
+    }
+    
+    if (context->work != nullptr) {
+        PickerNapiUtils::InvokeJSAsyncMethod(env, context->deferred, nullptr,
+            context->work, *jsContext);
+    }
+    
+    HILOG_INFO("[picker]: InsertUdmfAsyncCallbackComplete end.");
+    delete context;
+}
+
+static void InsertUdmfExecute(napi_env env, void *data)
+{
+    HILOG_INFO("[picker]: InsertUdmfExecute begin.");
+    auto context = static_cast<InsertAsyncContext*>(data);
+    if (context == nullptr) {
+        HILOG_ERROR("Async context is null");
+        return;
+    }
+    context->result = InsertData(env, context->uriVec);
+}
+
+napi_value PickerNExporter::InsertUdmfData(napi_env env, napi_callback_info info)
+{
+    HILOG_INFO("[picker]: InsertUdmfData begin.");
+    unique_ptr<InsertAsyncContext> asyncContext = make_unique<InsertAsyncContext>();
+    bool isArray = false;
+    napi_value argv[1];
+    size_t argc = 1;
+    
+    napi_status ret = napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
+    if (ret != napi_ok) {
+        HILOG_ERROR("[picker]: Failed to get cb info, status=%{public}d", ret);
+        return nullptr;
+    }
+    
+    ret = napi_is_array(env, argv[0], &isArray);
+    if (ret != napi_ok) {
+        HILOG_ERROR("[picker]: napi_is_array failed, status=%{public}d", ret);
+        return nullptr;
+    }
+    
+    if (!isArray) {
+        HILOG_ERROR("[picker]: InsertUdmfData Input value is not an array");
+        return nullptr;
+    }
+    
+    uint32_t length;
+    ret = napi_get_array_length(env, argv[0], &length);
+    if (ret != napi_ok) {
+        HILOG_ERROR("[picker]: napi_get_array_length failed, status=%{public}d", ret);
+        return nullptr;
+    }
+    
+    for (uint32_t i = 0; i < length; i++) {
+        napi_value uriStr;
+        ret = napi_get_element(env, argv[0], i, &uriStr);
+        if (ret != napi_ok) {
+            HILOG_ERROR("[picker]: napi_get_element failed at index %{public}d, status=%{public}d", i, ret);
+            continue;
+        }
+        napi_valuetype valueType;
+        ret = napi_typeof(env, uriStr, &valueType);
+        if (ret != napi_ok) {
+            HILOG_ERROR("[picker]: napi_typeof failed for element at index %{public}d, status=%{public}d", i, ret);
+            continue;
+        }
+    
+        if (valueType != napi_string) {
+            HILOG_ERROR("[picker]: Element at index %{public}d is not a string, type=%{public}d", i, valueType);
+            continue;
+        }
+        string uri = GetNapiString(env, uriStr);
+        asyncContext->uriVec.emplace_back(uri);
+    }
+    
+    return PickerNapiUtils::NapiCreateAsyncWork(env, asyncContext, "InsertUdmfData",
+        InsertUdmfExecute, InsertUdmfAsyncCallbackComplete);
 }
 
 PickerNExporter::~PickerNExporter() {}
