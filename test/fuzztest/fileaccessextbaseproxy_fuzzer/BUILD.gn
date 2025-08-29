@@ -21,6 +21,7 @@ ohos_fuzztest("FileAccessExtBaseProxyFuzzTest") {
       "${user_file_service_path}/test/fuzztest/fileaccessextbaseproxy_fuzzer"
   include_dirs = [
     "${user_file_service_path}/interfaces/inner_api/file_access/include",
+    "${user_file_service_path}/test/fuzztest/privacy_comm/include",
     "${user_file_service_path}/utils",
   ]
   cflags = [
@@ -29,7 +30,10 @@ ohos_fuzztest("FileAccessExtBaseProxyFuzzTest") {
     "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
   ]
-  sources = [ "fileaccessextbaseproxy_fuzzer.cpp" ]
+  sources = [
+    "fileaccessextbaseproxy_fuzzer.cpp",
+    "${user_file_service_path}/test/fuzztest/privacy_comm/src/user_file_service_token_mock.cpp"
+  ]
 
   deps = [
     "${user_file_service_path}/interfaces/inner_api/file_access:file_access_ext_base_include",
