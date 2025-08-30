@@ -280,7 +280,7 @@ async function photoPickerSelect(...args) {
   return undefined;
 }
 
-function parseDocumentPickerSelectOption(args, action) {
+async function parseDocumentPickerSelectOption(args, action) {
   let config = {
     action: action,
     parameters: {
@@ -311,7 +311,14 @@ function parseDocumentPickerSelectOption(args, action) {
     }
     config.parameters.key_mult_auth_mode = option.multiAuthMode;
     if (option.multiUriArray !== undefined) {
-      config.parameters.key_mult_uri_arr = option.multiUriArray;
+      if (pickerHelper === undefined) {
+        throw Error('[picker] PickerHelper undefined.');
+      }
+      await pickerHelper.insertUdmfData(option.multiUriArray).then((result) => {
+        config.parameters.ability_params_udkey = result.UdKey;
+      }).catch((err) => {
+        console.error('failed insertUdmfData. err is' + JSON.stringify(err)); 
+      });
       console.log('[picker] parseDocumentPickerSelectOption multiUriArray length: ' + option.multiUriArray.length);
     }
   }
@@ -402,7 +409,7 @@ async function documentPickerSelect(...args) {
     if (args[ARGS_TWO] !== undefined) {
         documentSelectWindow = args[ARGS_TWO];
     }
-    documentSelectConfig = parseDocumentPickerSelectOption(args[ARGS_ZERO], ACTION.SELECT_ACTION_MODAL);
+    documentSelectConfig = await parseDocumentPickerSelectOption(args[ARGS_ZERO], ACTION.SELECT_ACTION_MODAL);
     documentSelectResult = await modalPicker(documentSelectContext, documentSelectConfig, documentSelectWindow);
   } catch (paramError) {
     console.error('[picker] DocumentSelect paramError: ' + JSON.stringify(paramError));

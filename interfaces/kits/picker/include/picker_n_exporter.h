@@ -52,12 +52,20 @@ struct PickerAsyncContext {
     std::shared_ptr<PickerCallBack> pickerCallBack;
 };
 
+struct InsertAsyncContext {
+    napi_async_work work;
+    napi_deferred deferred;
+    vector<string> uriVec;
+    napi_value result;
+};
+
 static sptr<Rosen::Window> window_;
 
 class PickerNExporter final : public FileManagement::LibN::NExporter {
 public:
     inline static const std::string className_ = "Picker";
     static napi_value StartModalPicker(napi_env env, napi_callback_info info);
+    static napi_value InsertUdmfData(napi_env env, napi_callback_info info);
     static napi_value MakeResultWithPickerCallBack(napi_env env, std::shared_ptr<PickerCallBack> pickerCallBack);
     bool Export() override;
     std::string GetClassName() override;

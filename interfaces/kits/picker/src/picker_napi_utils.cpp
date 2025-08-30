@@ -73,5 +73,10 @@ napi_value PickerNapiUtils::NapiCreateAsyncWork(napi_env env, unique_ptr<AsyncCo
 template napi_value PickerNapiUtils::NapiCreateAsyncWork<PickerAsyncContext>(napi_env env,
     unique_ptr<PickerAsyncContext> &asyncContext, const string &resourceName,
     void (*execute)(napi_env, void *), void (*complete)(napi_env, napi_status, void *));
+
+template napi_value PickerNapiUtils::NapiCreateAsyncWork<InsertAsyncContext>(
+    napi_env env, unique_ptr<InsertAsyncContext> &asyncContext,
+    const string &resourceName, void (*execute)(napi_env, void *),
+    void (*complete)(napi_env, napi_status, void *));
 } // namespace Picker
 } // namespace OHOS
