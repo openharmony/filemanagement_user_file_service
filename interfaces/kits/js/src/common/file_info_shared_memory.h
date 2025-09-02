@@ -228,6 +228,10 @@ public:
 
     static bool CalculateMemSize(uint64_t &memSize, SharedMemoryInfo &memInfo)
     {
+        if (memInfo.totalDataCounts == 0) {
+            HILOG_ERROR("totalDataCounts is zero ,cannot calculate allocSize");
+            return false;
+        }
         uint64_t allocSize = ((memInfo.leftDataCounts + memInfo.totalDataCounts - 1) / memInfo.totalDataCounts + 1)
             * DEFAULT_CAPACITY_200KB;
 
