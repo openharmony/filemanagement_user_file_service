@@ -17,10 +17,10 @@ import("//build/test.gni")
 import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
 
 ##############################fuzztest##########################################
-ohos_fuzztest("ExternalFileAccessFuzzTest") {
+ohos_fuzztest("ExternalFileAccessPartTwoFuzzTest") {
   module_out_path = "user_file_service/user_file_service"
   fuzz_config_file =
-      "${user_file_service_path}/test/fuzztest/externalfileaccess_fuzzer"
+      "${user_file_service_path}/test/fuzztest/externalfileaccessparttwo_fuzzer"
 
   include_dirs = [
     "${user_file_service_path}/interfaces/inner_api/file_access/include",
