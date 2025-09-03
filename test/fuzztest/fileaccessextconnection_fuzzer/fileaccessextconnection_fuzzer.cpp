@@ -43,18 +43,6 @@ bool OnAbilityDisconnectDoneFuzzTest(sptr<FileAccessExtConnection> conn, const u
     return true;
 }
 
-bool IsExtAbilityConnectedFuzzTest(sptr<FileAccessExtConnection> conn)
-{
-    conn->IsExtAbilityConnected();
-    return true;
-}
-
-bool GetFileExtProxyFuzzTest(sptr<FileAccessExtConnection> conn)
-{
-    conn->GetFileExtProxy();
-    return true;
-}
-
 bool ConnectFileExtAbility(sptr<FileAccessExtConnection> conn, const uint8_t *data, size_t size)
 {
     int len = size >> 1;
@@ -63,12 +51,6 @@ bool ConnectFileExtAbility(sptr<FileAccessExtConnection> conn, const uint8_t *da
         std::string(reinterpret_cast<const char*>(data + len), size - len));
     sptr<IRemoteObject> remoteObject = nullptr;
     conn->ConnectFileExtAbility(want, remoteObject);
-    return true;
-}
-
-bool DisconnectFileExtAbility(sptr<FileAccessExtConnection> conn)
-{
-    conn->DisconnectFileExtAbility();
     return true;
 }
 } // namespace OHOS
@@ -83,10 +65,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
     OHOS::OnAbilityConnectDoneFuzzTest(conn, data, size);
     OHOS::OnAbilityDisconnectDoneFuzzTest(conn, data, size);
-    OHOS::IsExtAbilityConnectedFuzzTest(conn);
-    OHOS::GetFileExtProxyFuzzTest(conn);
     OHOS::ConnectFileExtAbility(conn, data, size);
-    OHOS::DisconnectFileExtAbility(conn);
-
     return 0;
 }

@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#ifndef FILE_ACCESS_EXTBASEPROXY_FUZZER_H
-#define FILE_ACCESS_EXTBASEPROXY_FUZZER_H
+#ifndef FILE_ACCESS_EXTGETFILEINFO_FUZZER_H
+#define FILE_ACCESS_EXTGETFILEINFO_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "fileaccessextbaseproxy_fuzzer"
+#define FUZZ_PROJECT_NAME "fileaccessextgetfileinfo_fuzzer"
 
 #endif
