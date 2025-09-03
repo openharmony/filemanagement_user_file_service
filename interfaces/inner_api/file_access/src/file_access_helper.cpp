@@ -909,7 +909,7 @@ static int GetQueryResult(std::string &uri, std::vector<std::string> &columns, s
                 if (results[i].empty()) {
                     results[i] = "0";
                 }
-                jsonObject[columns[i]] = std::stol(results[i]);
+                jsonObject[columns[i]] = std::atoi(results[i].c_str());
                 break;
             default:
                 jsonObject[columns[i]] = " ";
