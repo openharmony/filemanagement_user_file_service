@@ -82,6 +82,41 @@ int32_t FileAccessServiceBaseProxy::DisConnectFileExtAbility(const sptr<AAFwk::I
     return 0;
 }
 
+int32_t FileAccessServiceBaseProxy::Register(const SyncFolder &syncFolder)
+{
+    return ERR_OK;
+}
+
+int32_t FileAccessServiceBaseProxy::Unregister(const std::string &path)
+{
+    return ERR_OK;
+}
+
+int32_t FileAccessServiceBaseProxy::Active(const std::string &path)
+{
+    return ERR_OK;
+}
+
+int32_t FileAccessServiceBaseProxy::Deactive(const std::string &path)
+{
+    return ERR_OK;
+}
+
+int32_t FileAccessServiceBaseProxy::GetSyncFolders(std::vector<SyncFolder> &syncFolders)
+{
+    return ERR_OK;
+}
+
+int32_t FileAccessServiceBaseProxy::GetAllSyncFolders(std::vector<SyncFolderExt> &syncFolderExts)
+{
+    return ERR_OK;
+}
+
+int32_t FileAccessServiceBaseProxy::UpdateDisplayName(const std::string &path, const std::string &displayName)
+{
+    return ERR_OK;
+}
+
 void FileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const std::shared_ptr<OHOSApplication> &application,
     std::shared_ptr<AbilityHandler> &handler,

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -245,6 +245,13 @@ protected:
     int32_t ConnectFileExtAbility(const AAFwk::Want &want,
         const sptr<AAFwk::IAbilityConnection>& connection) override;
     int32_t DisConnectFileExtAbility(const sptr<AAFwk::IAbilityConnection>& connection) override;
+    int32_t Register(const SyncFolder &syncFolder) override;
+    int32_t Unregister(const std::string &path) override;
+    int32_t Active(const std::string &path) override;
+    int32_t Deactive(const std::string &path) override;
+    int32_t GetSyncFolders(std::vector<SyncFolder> &syncFolder) override;
+    int32_t GetAllSyncFolders(std::vector<SyncFolderExt> &syncFolderExt) override;
+    int32_t UpdateDisplayName(const std::string &path, const std::string &displayName) override;
 
 private:
     class ExtensionDeathRecipient : public IRemoteObject::DeathRecipient {
@@ -285,6 +292,9 @@ private:
     void AddExtProxyInfo(std::string bundleName, sptr<IFileAccessExtBase> extProxy);
     // 管理对象 方法
     void AddAppProxy(const sptr<AAFwk::IAbilityConnection>& key, sptr<AgentFileAccessExtConnection>& value);
+    void IncreaseCnt(const std::string &funcName);
+    void DecreaseCnt(const std::string &funcName);
+    bool IsCalledCountValid();
     std::shared_ptr<UnloadTimer> unLoadTimer_ = nullptr;
     std::shared_ptr<OnDemandTimer> onDemandTimer_ = nullptr;
     static sptr<FileAccessService> instance_;
@@ -298,7 +308,7 @@ private:
     HolderManager<std::shared_ptr<ObserverContext>> obsManager_;
     std::mutex mapMutex_;
     std::unordered_map<std::string, sptr<IFileAccessExtBase>> cMap_;
-    
+
     class AppDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         AppDeathRecipient() {}
@@ -310,6 +320,8 @@ private:
     std::unordered_map<size_t, sptr<AgentFileAccessExtConnection>> appProxyMap_;
     std::unordered_map<size_t, sptr<AAFwk::IAbilityConnection>> appConnection_;
     sptr<IRemoteObject::DeathRecipient> appDeathRecipient_;
+    std::atomic<int> calledCount_{0};
+    std::mutex calledMutex_;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

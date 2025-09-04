@@ -42,6 +42,13 @@ public:
     MOCK_METHOD2(ConnectFileExtAbility, int32_t(const AAFwk::Want &want,
         const sptr<AAFwk::IAbilityConnection>& connection));
     MOCK_METHOD1(DisConnectFileExtAbility, int32_t(const sptr<AAFwk::IAbilityConnection>& connection));
+    MOCK_METHOD1(Register, int32_t(const SyncFolder &rootInfo));
+    MOCK_METHOD1(Unregister, int32_t(const std::string &path));
+    MOCK_METHOD1(Active, int32_t(const std::string &path));
+    MOCK_METHOD1(Deactive, int32_t(const std::string &path));
+    MOCK_METHOD1(GetSyncFolders, int32_t(std::vector<SyncFolder> &syncFolders));
+    MOCK_METHOD1(GetAllSyncFolders, int32_t(std::vector<SyncFolderExt> &syncFolderExts));
+    MOCK_METHOD2(UpdateDisplayName, int32_t(const std::string &path, const std::string &displayName));
 };
 } // namespace FileAccessFwk
 } // namespace OHOS
