@@ -79,33 +79,6 @@ shared_ptr<FileAccessHelper> GetFileAccessHelper()
     return g_fah;
 }
 
-bool CreatorFuzzTest(const uint8_t* data, size_t size)
-{
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    std::string bundleName(reinterpret_cast<const char*>(data), size);
-    auto saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (saManager == nullptr) {
-        return false;
-    }
-    auto remoteObj = saManager->GetSystemAbility(ABILITY_ID);
-    AAFwk::Want want;
-    want.SetElementName(bundleName, "FileExtensionAbility");
-    vector<AAFwk::Want> wants {want};
-    setuid(UID_TRANSFORM_TMP);
-    shared_ptr<FileAccessHelper> helper = nullptr;
-    helper = FileAccessHelper::Creator(remoteObj, wants);
-    setuid(UID_DEFAULT);
-    if (helper == nullptr) {
-        HILOG_ERROR("creator return nullptr.");
-        return false;
-    }
-    helper->Release();
-    return true;
-}
-
 bool CheckDataAndHelper(const uint8_t* data, size_t size, shared_ptr<FileAccessHelper>& helper)
 {
     (void)data;
@@ -114,39 +87,6 @@ bool CheckDataAndHelper(const uint8_t* data, size_t size, shared_ptr<FileAccessH
         HILOG_ERROR("GetFileAccessHelper return nullptr.");
         return false;
     }
-    return true;
-}
-
-bool AccessFuzzTest(const uint8_t* data, size_t size)
-{
-    shared_ptr<FileAccessHelper> helper;
-    if (!CheckDataAndHelper(data, size, helper)) {
-        return false;
-    }
-    Uri uri(std::string(reinterpret_cast<const char*>(data), size));
-    bool isExist = false;
-    int result = helper->Access(uri, isExist);
-    if (isExist != true || result != OHOS::FileAccessFwk::ERR_OK) {
-        return false;
-    }
-    return true;
-}
-
-bool OpenFileFuzzTest(const uint8_t* data, size_t size)
-{
-    shared_ptr<FileAccessHelper> helper;
-    if (!CheckDataAndHelper(data, size, helper)) {
-        return false;
-    }
-    Uri uri(std::string(reinterpret_cast<const char*>(data), size));
-    int fd = -1;
-    int result = 0;
-    result = helper->OpenFile(uri, WRITE_READ, fd);
-    if (result != OHOS::FileAccessFwk::ERR_OK) {
-        HILOG_ERROR("OpenFile failed. ret : %{public}d", result);
-        return false;
-    }
-    close(fd);
     return true;
 }
 
@@ -172,37 +112,6 @@ bool CreateFileFuzzTest(const uint8_t* data, size_t size)
             return false;
         }
         result = helper->Delete(newFileUri);
-        if (result != OHOS::FileAccessFwk::ERR_OK) {
-            HILOG_ERROR("Delete failed. ret : %{public}d", result);
-            return false;
-        }
-    }
-    return true;
-}
-
-bool MkdirFuzzTest(const uint8_t* data, size_t size)
-{
-    shared_ptr<FileAccessHelper> helper;
-    if (!CheckDataAndHelper(data, size, helper)) {
-        return false;
-    }
-
-    vector<RootInfo> info;
-    int result = helper->GetRoots(info);
-    if (result != OHOS::FileAccessFwk::ERR_OK) {
-        HILOG_ERROR("GetRoots failed. ret : %{public}d", result);
-        return false;
-    }
-    for (size_t i = 0; i < info.size(); i++) {
-        Uri parentUri(info[i].uri);
-        Uri newDirUri("");
-        std::string dirName(reinterpret_cast<const char*>(data), size);
-        result = helper->Mkdir(parentUri, dirName, newDirUri);
-        if (result != OHOS::FileAccessFwk::ERR_OK) {
-            HILOG_ERROR("Mkdir failed. ret : %{public}d", result);
-            return false;
-        }
-        result = helper->Delete(newDirUri);
         if (result != OHOS::FileAccessFwk::ERR_OK) {
             HILOG_ERROR("Delete failed. ret : %{public}d", result);
             return false;
@@ -308,86 +217,6 @@ bool RenameFuzzTest(const uint8_t* data, size_t size)
     }
     return true;
 }
-
-bool ListFileFuzzTest(const uint8_t* data, size_t size)
-{
-    if ((data == nullptr) || (size == 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    shared_ptr<FileAccessHelper> helper = GetFileAccessHelper();
-    if (helper == nullptr) {
-        HILOG_ERROR("GetFileAccessHelper return nullptr.");
-        return false;
-    }
-
-    FileInfo fileInfo;
-    fileInfo.uri = std::string(reinterpret_cast<const char*>(data), size);
-    int64_t offset = 0;
-    SharedMemoryInfo memInfo;
-    int result = SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
-        memInfo);
-    if (result != OHOS::FileAccessFwk::ERR_OK) {
-        HILOG_ERROR("CreateSharedMemory failed. ret : %{public}d", result);
-        return false;
-    }
-    FileFilter filter;
-    result = helper->ListFile(fileInfo, offset, filter, memInfo);
-    SharedMemoryOperation::DestroySharedMemory(memInfo);
-    if (result != OHOS::FileAccessFwk::ERR_OK) {
-        HILOG_ERROR("ListFile failed. ret : %{public}d", result);
-        return false;
-    }
-    return true;
-}
-
-bool ScanFileFuzzTest(const uint8_t* data, size_t size)
-{
-    if ((data == nullptr) || (size == 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    shared_ptr<FileAccessHelper> helper = GetFileAccessHelper();
-    if (helper == nullptr) {
-        HILOG_ERROR("GetFileAccessHelper return nullptr.");
-        return false;
-    }
-
-    FileInfo fileInfo;
-    fileInfo.uri = std::string(reinterpret_cast<const char*>(data), size);
-    int64_t offset = 0;
-    int64_t maxCount = 1000;
-    std::vector<FileInfo> fileInfoVec;
-    FileFilter filter;
-    int result = helper->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
-    if (result != OHOS::FileAccessFwk::ERR_OK) {
-        HILOG_ERROR("ScanFile failed. ret : %{public}d", result);
-        return false;
-    }
-    return true;
-}
-
-bool GetFileInfoFromUriFuzzTest(const uint8_t* data, size_t size)
-{
-    if ((data == nullptr) || (size == 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    Uri uri(std::string(reinterpret_cast<const char*>(data), size));
-    shared_ptr<FileAccessHelper> helper = GetFileAccessHelper();
-    if (helper == nullptr) {
-        HILOG_ERROR("GetFileAccessHelper return nullptr.");
-        return false;
-    }
-    FileInfo fileinfo;
-    int result = helper->GetFileInfoFromUri(uri, fileinfo);
-    if (result != OHOS::FileAccessFwk::ERR_OK) {
-        HILOG_ERROR("GetFileInfoFromUri failed. ret : %{public}d", result);
-        return false;
-    }
-    return true;
-}
-
 }
 
 /* Fuzzer entry point */
@@ -396,16 +225,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::UserFileServiceTokenMock tokenMock;
     tokenMock.SetFileManagerToken();
     /* Run your code on data */
-    OHOS::CreatorFuzzTest(data, size);
-    OHOS::AccessFuzzTest(data, size);
-    OHOS::OpenFileFuzzTest(data, size);
-    OHOS::MkdirFuzzTest(data, size);
     OHOS::CreateFileFuzzTest(data, size);
     OHOS::DeleteFuzzTest(data, size);
     OHOS::MoveFuzzTest(data, size);
     OHOS::RenameFuzzTest(data, size);
-    OHOS::ListFileFuzzTest(data, size);
-    OHOS::ScanFileFuzzTest(data, size);
-    OHOS::GetFileInfoFromUriFuzzTest(data, size);
     return 0;
 }
