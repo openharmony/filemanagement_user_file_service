@@ -29,6 +29,7 @@ config("IFile_Access_Ext_Base_config") {
     "${user_file_service_path}/utils",
     "${user_file_service_path}/services/native/file_access_service/include",
     "${user_file_service_path}/interfaces/kits/js/src/common",
+    "${user_file_service_path}/interfaces/inner_api/cloud_disk_kit_inner/include",
     "${target_gen_dir}",
   ]
 }
@@ -128,6 +129,7 @@ ohos_shared_library("file_access_extension_ability_kit") {
   ]
 
   sources = [
+    "${user_file_service_path}/interfaces/inner_api/cloud_disk_kit_inner/src/cloud_disk_comm.cpp",
     "${user_file_service_path}/services/native/file_access_service/src/file_access_service_client.cpp",
     "src/app_file_access_ext_connection.cpp",
     "src/file_access_ext_ability.cpp",

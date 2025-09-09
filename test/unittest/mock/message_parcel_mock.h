@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,6 +45,7 @@ public:
     virtual int ReadFileDescriptor() = 0;
     virtual bool ReadStringVector(std::vector<std::string> *value) = 0;
     virtual bool ReadUint32(uint32_t &value) = 0;
+    virtual bool WriteUint32(uint32_t value) = 0;
 public:
     static inline std::shared_ptr<UMessageParcel> messageParcel = nullptr;
 };
@@ -69,6 +70,7 @@ public:
     MOCK_METHOD0(ReadFileDescriptor, int());
     MOCK_METHOD1(ReadStringVector, bool(std::vector<std::string> *value));
     MOCK_METHOD1(ReadUint32, bool(uint32_t &value));
+    MOCK_METHOD1(WriteUint32, bool(uint32_t value));
 };
 } // namespace OHOS::FileAccessFwk
 #endif // OHOS_FILEMGMT_UFS_MESSAGE_PARCEL_MOCK_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,6 +28,7 @@ const int ERR_URI = 13900002;
 const int ERR_NOT_DIR = 13900018;
 const int ERR_IS_DIR = 13900019;
 const int BASE_OFFSET = 14300001;
+const int CLOUD_DISK_BASE_OFFSET = 34400001;
 enum {
     ERR_OK = 0,
     E_IPCS = BASE_OFFSET,                   // IPC error
@@ -46,7 +47,25 @@ enum {
     E_DO_NOT_HAVE_PARENT,                   // Do not have parent uri in observerNode
     E_LOAD_SA,                              // load SA failed
     E_PERMISSION = 201,                     // Permission verification failed
-    E_PERMISSION_SYS                        // is not system app
+    E_PERMISSION_SYS,                       // is not system app
+
+    E_NOT_SUPPORT = 801,
+    E_SERVICE_DIED = 29189,
+
+    // cloud disk errcode
+    E_INVALID_PARAM = CLOUD_DISK_BASE_OFFSET,       // Invalid parameter
+    E_PERSIST_SYNC_FOLDER_FAILED,                   // Failed to persist Sync folder
+    E_IPC_FAILED,                                   // IPC error
+    E_SYNC_FOLDER_LIMIT_EXCEEDED,                   // Sync folder limit exceeded
+    E_SYNC_FOLDER_CONFLICT_SELF,                    // Conflict with own app's Sync folder
+    E_SYNC_FOLDER_CONFLICT_OTHER,                   // Conflict with other app's Sync folder
+    E_CREATE_SYNC_FOLDER_FAILED,                    // Failed to create Sync folder
+    E_SYNC_FOLDER_NOT_REGISTERED,                   // Sync folder not registered
+    E_REMOVE_SYNC_FOLDER_FAILED,                    // Failed to remove Sync folder
+    E_UPDATE_SYNC_FOLDER_FAILED,                    // Failed to update Sync folder properties
+    E_SYNC_FOLDER_NOT_EXIST,                        // Sync folder not exist
+    E_INTERNAL_ERROR = CLOUD_DISK_BASE_OFFSET + 15, // Internal error 15: offset
+    E_SYSTEM_RESTRICTED,                            // System restricted
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

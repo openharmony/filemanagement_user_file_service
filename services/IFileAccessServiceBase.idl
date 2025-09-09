@@ -18,6 +18,8 @@ import IFileAccessObserver;
 sequenceable Uri..OHOS.Uri;
 sequenceable FileAccessExtensionInfo..OHOS.FileAccessFwk.ConnectExtensionInfo;
 sequenceable Want..OHOS.AAFwk.Want;
+sequenceable CloudDiskComm..OHOS.FileManagement.SyncFolder;
+sequenceable CloudDiskComm..OHOS.FileManagement.SyncFolderExt;
 interface OHOS.FileAccessFwk.IFileAccessExtBase;
 interface OHOS.AAFwk.IAbilityConnection;
 interface OHOS.FileAccessFwk.IFileAccessServiceBase {
@@ -29,4 +31,11 @@ interface OHOS.FileAccessFwk.IFileAccessServiceBase {
     void ConnectFileExtAbility([in] Want want, [in] IAbilityConnection connection);
     void DisConnectFileExtAbility([in] IAbilityConnection connection);
     void UnregisterNotifyNoObserver([in] Uri uri, [in] ConnectExtensionInfo info);
+    void Register([in] SyncFolder syncFolder);
+    void Unregister([in] String path);
+    void Active([in] String path);
+    void Deactive([in] String path);
+    void GetSyncFolders([out] SyncFolder[] syncFolders);
+    void GetAllSyncFolders([out] SyncFolderExt[] syncFolderExts);
+    void UpdateDisplayName([in] String path, [in] String displayName);
 }
