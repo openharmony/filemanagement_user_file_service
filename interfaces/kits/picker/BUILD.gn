@@ -81,6 +81,7 @@ ohos_shared_library("picker") {
     "ipc:ipc_napi",
     "ipc:ipc_single",
     "napi:ace_napi",
+    "window_manager:libwm",
   ]
 
   if (picker_udmf_enabled) {
@@ -127,6 +128,7 @@ ohos_shared_library("cj_picker_ffi") {
     "hilog:libhilog",
     "napi:cj_bind_ffi",
     "napi:cj_bind_native",
+    "window_manager:libwm",
   ]
 
   sanitize = {

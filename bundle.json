@@ -43,7 +43,8 @@
                 "image_framework",
                 "common_event_service",
                 "udmf",
-                "selinux_adapter"
+                "selinux_adapter",
+                "window_manager"
             ]
         },
         "build": {
