@@ -346,6 +346,61 @@ ohos_unittest("js_file_access_ext_ability_test") {
   use_exceptions = true
 }
 
+ohos_unittest("ufs_rdb_adapter_test") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    integer_overflow = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  module_out_path = "user_file_service/user_file_service"
+
+  sources = [
+    "ufs_rdb_adapter_test.cpp",
+    "${user_file_service_path}/services/rdb_adapter/src/ufs_rdb_adapter.cpp",
+  ]
+
+  include_dirs = [
+    "//foundation/filemanagement/user_file_service/interfaces/inner_api/file_access/include",
+    "//foundation/filemanagement/user_file_service/services/native/file_access_service/include",
+    "//foundation/filemanagement/user_file_service/services/rdb_adapter/include",
+    "//foundation/filemanagement/user_file_service/test/unittest/mock",
+  ]
+
+  configs = [ "//build/config/compiler:exceptions" ]
+
+  deps = [
+    "${user_file_service_path}/services:file_access_service",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:app_context",
+    "ability_runtime:extensionkit_native",
+    "ability_runtime:napi_common",
+    "ability_runtime:runtime",
+    "access_token:libaccesstoken_sdk",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "file_api:filemgmt_libn",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "ipc:ipc_napi",
+    "napi:ace_napi",
+    "os_account:os_account_innerkits",
+    "relational_store:native_rdb",
+  ]
+
+  defines = [ "private=public" ]
+  part_name = "user_file_service"
+}
+
 ohos_unittest("urie_test") {
   module_out_path = "user_file_service/user_file_service"
   sources = [
@@ -539,6 +594,7 @@ group("user_file_service_unit_test") {
     ":file_access_ext_stub_impl_test",
     ":js_file_access_ext_ability_test",
     ":notify_work_service_test",
+    ":ufs_rdb_adapter_test",
     ":urie_test",
   ]
 }
