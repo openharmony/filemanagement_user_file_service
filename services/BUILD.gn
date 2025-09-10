@@ -177,7 +177,8 @@ ohos_shared_library("file_access_service") {
     "${user_file_service_path}/interfaces/inner_api/cloud_disk_kit_inner/include",
     "${user_file_service_path}/interfaces/inner_api/file_access/include",
     "${user_file_service_path}/services/native/file_access_service/include",
-    "${user_file_service_path}/services/native/notify_event/include"
+    "${user_file_service_path}/services/native/notify_event/include",
+    "${user_file_service_path}/services/rdb_adapter/include"
   ]
   shlib_type = "sa"
   sources = [
@@ -187,7 +188,8 @@ ohos_shared_library("file_access_service") {
     "native/file_access_service/src/file_access_ext_connection.cpp",
     "native/file_access_service/src/file_access_service.cpp",
     "native/file_access_service/src/file_access_service_client.cpp",
-    "native/notify_event/src/notify_work_service.cpp"
+    "native/notify_event/src/notify_work_service.cpp",
+    "rdb_adapter/src/ufs_rdb_adapter.cpp"
   ]
   configs = [ ":ability_config" ]
   version_script = "libfile_access_service.map"
