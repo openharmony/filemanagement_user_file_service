@@ -24,29 +24,30 @@ void FileAccessService::IncreaseCnt(const std::string &funcName)
 {
     std::lock_guard<std::mutex> lock(calledMutex_);
     ++calledCount_;
-    HILOG_INFO("Func name: %{public}s, count: %{public}d", funcName.c_str(), calledCount_.load());
+    HILOG_INFO("Func name: %{public}s, count: %{public}d", funcName.c_str(), calledCount_);
 }
 
 void FileAccessService::DecreaseCnt(const std::string &funcName)
 {
     std::lock_guard<std::mutex> lock(calledMutex_);
-    if (calledCount_.load() > 0) {
+    if (calledCount_ > 0) {
         --calledCount_;
     } else {
         HILOG_ERROR("Invalid calledCount.");
     }
-    HILOG_INFO("Func name: %{public}s, count: %{public}d", funcName.c_str(), calledCount_.load());
+    HILOG_INFO("Func name: %{public}s, count: %{public}d", funcName.c_str(), calledCount_);
 }
 
 bool FileAccessService::IsCalledCountValid()
 {
     std::lock_guard<std::mutex> lock(calledMutex_);
-    return calledCount_.load() > 0;
+    return calledCount_ > 0;
 }
 
 int32_t FileAccessService::Register(const SyncFolder &syncFolder)
 {
     HILOG_INFO("FileAccessService::Register begin");
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
     IncreaseCnt(__func__);
     SyncFolderExt syncFolderExt;
     syncFolderExt.path_ = syncFolder.path_;
@@ -56,11 +57,15 @@ int32_t FileAccessService::Register(const SyncFolder &syncFolder)
     }
     DecreaseCnt(__func__);
     return ERR_OK;
+#else
+    return E_SYSTEM_RESTRICTED;
+#endif
 }
 
 int32_t FileAccessService::Unregister(const std::string &path)
 {
     HILOG_INFO("FileAccessService::Unregister begin");
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
     IncreaseCnt(__func__);
     SyncFolderExt syncFolderExt;
     syncFolderExt.path_ = path;
@@ -70,11 +75,15 @@ int32_t FileAccessService::Unregister(const std::string &path)
     }
     DecreaseCnt(__func__);
     return ERR_OK;
+#else
+    return E_SYSTEM_RESTRICTED;
+#endif
 }
 
 int32_t FileAccessService::Active(const std::string &path)
 {
     HILOG_INFO("FileAccessService::Active begin");
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
     IncreaseCnt(__func__);
     SyncFolderExt syncFolderExt;
     syncFolderExt.path_ = path;
@@ -84,11 +93,15 @@ int32_t FileAccessService::Active(const std::string &path)
     }
     DecreaseCnt(__func__);
     return ERR_OK;
+#else
+    return E_SYSTEM_RESTRICTED;
+#endif
 }
 
 int32_t FileAccessService::Deactive(const std::string &path)
 {
     HILOG_INFO("FileAccessService::Deactive begin");
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
     IncreaseCnt(__func__);
     SyncFolderExt syncFolderExt;
     syncFolderExt.path_ = path;
@@ -98,27 +111,39 @@ int32_t FileAccessService::Deactive(const std::string &path)
     }
     DecreaseCnt(__func__);
     return ERR_OK;
+#else
+    return E_SYSTEM_RESTRICTED;
+#endif
 }
 
 int32_t FileAccessService::GetSyncFolders(std::vector<SyncFolder> &syncFolders)
 {
     HILOG_INFO("FileAccessService::GetSyncFolders begin");
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
     IncreaseCnt(__func__);
     DecreaseCnt(__func__);
     return ERR_OK;
+#else
+    return E_SYSTEM_RESTRICTED;
+#endif
 }
 
 int32_t FileAccessService::GetAllSyncFolders(std::vector<SyncFolderExt> &syncFolderExts)
 {
     HILOG_INFO("FileAccessService::GetAllSyncFolders begin");
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
     IncreaseCnt(__func__);
     DecreaseCnt(__func__);
     return ERR_OK;
+#else
+    return E_SYSTEM_RESTRICTED;
+#endif
 }
 
 int32_t FileAccessService::UpdateDisplayName(const std::string &path, const std::string &displayName)
 {
     HILOG_INFO("FileAccessService::UpdateDisplayName begin");
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
     IncreaseCnt(__func__);
     SyncFolderExt syncFolderExt;
     syncFolderExt.path_ = path;
@@ -129,6 +154,39 @@ int32_t FileAccessService::UpdateDisplayName(const std::string &path, const std:
     }
     DecreaseCnt(__func__);
     return ERR_OK;
+#else
+    return E_SYSTEM_RESTRICTED;
+#endif
+}
+
+int32_t FileAccessService::UnregisterForSa(const string &path)
+{
+    HILOG_INFO("FileAccessService::UnregisterForSa begin");
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
+    IncreaseCnt(__func__);
+    SyncFolderExt syncFolderExt;
+    syncFolderExt.path_ = path;
+    if (!NotifyWorkService::GetInstance().NotifySyncFolderEvent(syncFolderExt,
+        NotifyWorkService::EventType::UNREGISTER)) {
+        HILOG_ERROR("FileAccessService::UnregisterForSa NotifySyncFolderEvent failed");
+    }
+    DecreaseCnt(__func__);
+    return ERR_OK;
+#else
+    return E_SYSTEM_RESTRICTED;
+#endif
+}
+
+int32_t FileAccessService::GetAllSyncFoldersForSa(std::vector<SyncFolderExt> &syncFolderExt)
+{
+    HILOG_INFO("FileAccessService::GetAllSyncFoldersForSa begin");
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
+    IncreaseCnt(__func__);
+    DecreaseCnt(__func__);
+    return ERR_OK;
+#else
+    return E_SYSTEM_RESTRICTED;
+#endif
 }
 } // namespace FileAccessFwk
 } // namespace OHOS

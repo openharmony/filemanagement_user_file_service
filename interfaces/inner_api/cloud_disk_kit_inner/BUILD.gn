@@ -1,0 +1,149 @@
+# Copyright (c) 2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/config/components/idl_tool/idl.gni")
+import("//build/ohos.gni")
+import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
+
+config("cloud_disk_public_config") {
+  include_dirs = [ "include" ]
+}
+
+ohos_shared_library("cloud_disk_manager_js_kit") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
+  public_configs = [":cloud_disk_public_config"]
+
+  include_dirs = [
+    "${user_file_service_path}/services/native/file_access_service/include",
+    "${user_file_service_path}/utils/file_access_framework_errno.h",
+    "include"
+  ]
+
+  deps = [
+    "${user_file_service_path}/interfaces/inner_api/file_access:file_access_ext_base_source",
+    "${user_file_service_path}/services:file_access_service_base_source"
+  ]
+
+  sources = [
+    "${user_file_service_path}/services/native/file_access_service/src/file_access_service_client.cpp",
+    "${user_file_service_path}/interfaces/inner_api/file_access/src/uri_ext.cpp",
+    "src/cloud_disk_comm.cpp",
+    "src/cloud_disk_js_manager.cpp"
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_connect_callback_stub",
+    "ability_runtime:ability_manager",
+    "ability_runtime:app_context",
+    "ability_runtime:extensionkit_native",
+    "ability_runtime:napi_common",
+    "ability_runtime:runtime",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libtokenid_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "file_api:filemgmt_libn",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "ipc:ipc_napi",
+    "napi:ace_napi",
+    "os_account:os_account_innerkits",
+    "samgr:samgr_proxy",
+  ]
+
+  if (user_file_service_cloud_disk_enable) {
+    defines = ["SUPPORT_CLOUD_DISK_MANAGER"]
+  }
+
+  subsystem_name = "filemanagement"
+  part_name = "user_file_service"
+  innerapi_tags = [ "platformsdk" ]
+}
+
+ohos_shared_library("cloud_disk_manager_kit") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
+  include_dirs = [
+    "${user_file_service_path}/services/native/file_access_service/include",
+  ]
+
+  public_configs = [":cloud_disk_public_config"]
+
+  deps = [
+    "${user_file_service_path}/interfaces/inner_api/file_access:file_access_ext_base_source",
+    "${user_file_service_path}/services:file_access_service_base_source"
+  ]
+
+  sources = [
+    "${user_file_service_path}/services/native/file_access_service/src/file_access_service_client.cpp",
+    "${user_file_service_path}/interfaces/inner_api/file_access/src/uri_ext.cpp",
+    "src/cloud_disk_comm.cpp",
+    "src/cloud_disk_sync_folder_manager.cpp",
+    "src/cloud_disk_sync_folder_manager_impl.cpp"
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_connect_callback_stub",
+    "ability_runtime:ability_manager",
+    "ability_runtime:app_context",
+    "ability_runtime:extensionkit_native",
+    "ability_runtime:napi_common",
+    "ability_runtime:runtime",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libtokenid_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "file_api:filemgmt_libn",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "ipc:ipc_napi",
+    "napi:ace_napi",
+    "os_account:os_account_innerkits",
+    "samgr:samgr_proxy",
+  ]
+
+  if (user_file_service_cloud_disk_enable) {
+    defines = ["SUPPORT_CLOUD_DISK_MANAGER"]
+  }
+
+  subsystem_name = "filemanagement"
+  part_name = "user_file_service"
+  innerapi_tags = [ "platformsdk" ]
+}

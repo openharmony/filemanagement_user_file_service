@@ -252,6 +252,8 @@ protected:
     int32_t GetSyncFolders(std::vector<SyncFolder> &syncFolder) override;
     int32_t GetAllSyncFolders(std::vector<SyncFolderExt> &syncFolderExt) override;
     int32_t UpdateDisplayName(const std::string &path, const std::string &displayName) override;
+    int32_t UnregisterForSa(const string &path) override;
+    int32_t GetAllSyncFoldersForSa(std::vector<SyncFolderExt> &syncFolderExt) override;
 
 private:
     class ExtensionDeathRecipient : public IRemoteObject::DeathRecipient {
@@ -320,7 +322,7 @@ private:
     std::unordered_map<size_t, sptr<AgentFileAccessExtConnection>> appProxyMap_;
     std::unordered_map<size_t, sptr<AAFwk::IAbilityConnection>> appConnection_;
     sptr<IRemoteObject::DeathRecipient> appDeathRecipient_;
-    std::atomic<int> calledCount_{0};
+    int calledCount_{0};
     std::mutex calledMutex_;
 };
 } // namespace FileAccessFwk

@@ -38,4 +38,6 @@ interface OHOS.FileAccessFwk.IFileAccessServiceBase {
     void GetSyncFolders([out] SyncFolder[] syncFolders);
     void GetAllSyncFolders([out] SyncFolderExt[] syncFolderExts);
     void UpdateDisplayName([in] String path, [in] String displayName);
+    void UnregisterForSa([in] String path);
+    void GetAllSyncFoldersForSa([out] SyncFolderExt[] syncFolderExts);
 }

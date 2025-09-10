@@ -49,6 +49,8 @@ public:
     MOCK_METHOD1(GetSyncFolders, int32_t(std::vector<SyncFolder> &syncFolders));
     MOCK_METHOD1(GetAllSyncFolders, int32_t(std::vector<SyncFolderExt> &syncFolderExts));
     MOCK_METHOD2(UpdateDisplayName, int32_t(const std::string &path, const std::string &displayName));
+    MOCK_METHOD1(UnregisterForSa, int32_t(const std::string &path));
+    MOCK_METHOD1(GetAllSyncFoldersForSa, int32_t(std::vector<SyncFolderExt> &syncFolderExts));
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

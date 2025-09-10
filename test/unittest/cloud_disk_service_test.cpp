@@ -68,7 +68,11 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_Register_001, TestSize.Level1)
     sptr<FileAccessService> service = FileAccessService::GetInstance();
     ASSERT_NE(service, nullptr);
     int32_t result = service->Register(syncFolder);
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
     EXPECT_EQ(result, ERR_OK);
+#else
+    EXPECT_EQ(result, E_SYSTEM_RESTRICTED);
+#endif
     GTEST_LOG_(INFO) << "CloudDiskServiceTest-end CloudDiskService_Register_001";
 }
 
@@ -84,7 +88,11 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_Unregister_001, TestSize.Level1)
     sptr<FileAccessService> service = FileAccessService::GetInstance();
     ASSERT_NE(service, nullptr);
     int32_t result = service->Unregister(path);
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
     EXPECT_EQ(result, ERR_OK);
+#else
+    EXPECT_EQ(result, E_SYSTEM_RESTRICTED);
+#endif
     GTEST_LOG_(INFO) << "CloudDiskServiceTest-end CloudDiskService_Unregister_001";
 }
 
@@ -101,7 +109,11 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_Active_001, TestSize.Level1)
     sptr<FileAccessService> service = FileAccessService::GetInstance();
     ASSERT_NE(service, nullptr);
     int32_t result = service->Active(path);
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
     EXPECT_EQ(result, ERR_OK);
+#else
+    EXPECT_EQ(result, E_SYSTEM_RESTRICTED);
+#endif
     GTEST_LOG_(INFO) << "CloudDiskServiceTest-end CloudDiskService_Active_001";
 }
 
@@ -118,7 +130,11 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_InActive_001, TestSize.Level1)
     sptr<FileAccessService> service = FileAccessService::GetInstance();
     ASSERT_NE(service, nullptr);
     int32_t result = service->Deactive(path);
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
     EXPECT_EQ(result, ERR_OK);
+#else
+    EXPECT_EQ(result, E_SYSTEM_RESTRICTED);
+#endif
     GTEST_LOG_(INFO) << "CloudDiskServiceTest-end CloudDiskService_InActive_001";
 }
 
@@ -135,7 +151,11 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_GetSyncFolders_001, TestSize.Lev
     sptr<FileAccessService> service = FileAccessService::GetInstance();
     ASSERT_NE(service, nullptr);
     int32_t result = service->GetSyncFolders(syncFolders);
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
     EXPECT_EQ(result, ERR_OK);
+#else
+    EXPECT_EQ(result, E_SYSTEM_RESTRICTED);
+#endif
     GTEST_LOG_(INFO) << "CloudDiskServiceTest-end CloudDiskService_GetSyncFolders_001";
 }
 
@@ -152,7 +172,11 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_GetAllSyncFolders_001, TestSize.
     sptr<FileAccessService> service = FileAccessService::GetInstance();
     ASSERT_NE(service, nullptr);
     int32_t result = service->GetAllSyncFolders(syncFolderExts);
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
     EXPECT_EQ(result, ERR_OK);
+#else
+    EXPECT_EQ(result, E_SYSTEM_RESTRICTED);
+#endif
     GTEST_LOG_(INFO) << "CloudDiskServiceTest-end CloudDiskService_GetAllSyncFolders_001";
 }
 
@@ -170,7 +194,11 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_UpdateDisplayName_001, TestSize.
     sptr<FileAccessService> service = FileAccessService::GetInstance();
     ASSERT_NE(service, nullptr);
     int32_t result = service->UpdateDisplayName(path, displayName);
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
     EXPECT_EQ(result, ERR_OK);
+#else
+    EXPECT_EQ(result, E_SYSTEM_RESTRICTED);
+#endif
     GTEST_LOG_(INFO) << "CloudDiskServiceTest-end CloudDiskService_UpdateDisplayName_001";
 }
 
@@ -185,9 +213,9 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_IncreaseCnt_001, TestSize.Level1
     sptr<FileAccessService> service = FileAccessService::GetInstance();
     ASSERT_NE(service, nullptr);
 
-    int32_t initialCount = service->calledCount_.load();
+    int32_t initialCount = service->calledCount_;
     service->IncreaseCnt("test_func");
-    EXPECT_EQ(service->calledCount_.load(), initialCount + 1);
+    EXPECT_EQ(service->calledCount_, initialCount + 1);
     GTEST_LOG_(INFO) << "CloudDiskServiceTest-end CloudDiskService_IncreaseCnt_001";
 }
 
@@ -203,9 +231,9 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_DecreaseCnt_001, TestSize.Level1
     ASSERT_NE(service, nullptr);
 
     service->IncreaseCnt("test_func"); // Make sure count > 0
-    int32_t initialCount = service->calledCount_.load();
+    int32_t initialCount = service->calledCount_;
     service->DecreaseCnt("test_func");
-    EXPECT_EQ(service->calledCount_.load(), initialCount - 1);
+    EXPECT_EQ(service->calledCount_, initialCount - 1);
     GTEST_LOG_(INFO) << "CloudDiskServiceTest-end CloudDiskService_DecreaseCnt_001";
 }
 
@@ -221,11 +249,11 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_DecreaseCnt_002, TestSize.Level1
     ASSERT_NE(service, nullptr);
 
     // Ensure count is 0
-    service->calledCount_.store(0);
+    service->calledCount_ = 0;
 
-    int32_t initialCount = service->calledCount_.load();
+    int32_t initialCount = service->calledCount_;
     service->DecreaseCnt("test_func");
-    EXPECT_EQ(service->calledCount_.load(), initialCount); // Should remain 0
+    EXPECT_EQ(service->calledCount_, initialCount); // Should remain 0
     GTEST_LOG_(INFO) << "CloudDiskServiceTest-end CloudDiskService_DecreaseCnt_002";
 }
 } // namespace FileAccessFwk
