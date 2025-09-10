@@ -71,16 +71,16 @@ public:
 
     static std::shared_ptr<RdbAdapter> store;
     static std::shared_ptr<MockRdbStore> mockStore; // 添加一个静态成员来保存 Mock 对象
-    static std::mutex g_rdbAdapterTestMtx;
+    static std::mutex rdbAdapterTestMtx;
 };
 
 std::shared_ptr<RdbAdapter> RdbAdapterTest::store = nullptr;
 std::shared_ptr<MockRdbStore> RdbAdapterTest::mockStore = nullptr;
-std::mutex RdbAdapterTest::g_rdbAdapterTestMtx;
+std::mutex RdbAdapterTest::rdbAdapterTestMtx;
 
 void RdbAdapterTest::SetUpTestCase(void)
 {
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     store = std::make_shared<RdbAdapter>();
     mockStore = std::make_shared<MockRdbStore>();
     MockGetRdbStore(mockStore);
@@ -96,7 +96,7 @@ void RdbAdapterTest::TearDownTestCase(void)
 
 void RdbAdapterTest::SetUp()
 {
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     if (store->store_ == nullptr) {
         store->store_ = mockStore;
     }
@@ -104,9 +104,8 @@ void RdbAdapterTest::SetUp()
 
 void RdbAdapterTest::TearDown()
 {
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     store->UnInit();
-    // store->store_ = nullptr;
 }
 
 /**
@@ -117,7 +116,7 @@ void RdbAdapterTest::TearDown()
  */
 HWTEST_F(RdbAdapterTest, UnInit001, TestSize.Level1)
 {
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     auto errCode = store->UnInit();
     EXPECT_EQ(errCode, true);
 }
@@ -134,7 +133,7 @@ HWTEST_F(RdbAdapterTest, CreateTable001, TestSize.Level1)
     .WillOnce(
         Return(0)
     );
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     auto errCode = store->CreateTable();
     EXPECT_EQ(errCode, true);
 }
@@ -151,7 +150,7 @@ HWTEST_F(RdbAdapterTest, CreateTable002, TestSize.Level1)
     .WillOnce(
         Return(-1)
     );
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     auto errCode = store->CreateTable();
     EXPECT_EQ(errCode, false);
 }
@@ -164,7 +163,7 @@ HWTEST_F(RdbAdapterTest, CreateTable002, TestSize.Level1)
  */
 HWTEST_F(RdbAdapterTest, CreateTable003, TestSize.Level1)
 {
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     store->UnInit();
     auto errCode = store->CreateTable();
     EXPECT_EQ(errCode, false);
@@ -182,7 +181,7 @@ HWTEST_F(RdbAdapterTest, Put001, TestSize.Level1)
     .WillOnce(
         Return(OHOS::NativeRdb::E_OK)
     );
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     int64_t outRowId = 0;
     std::string table = "synchronous_root_table";
     ValuesBucket values;
@@ -206,7 +205,7 @@ HWTEST_F(RdbAdapterTest, Put001, TestSize.Level1)
  */
 HWTEST_F(RdbAdapterTest, Put002, TestSize.Level1)
 {
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     int64_t outRowId = 0;
     std::string table = "trust_xxxdevice_table";
     ValuesBucket values;
@@ -237,7 +236,7 @@ HWTEST_F(RdbAdapterTest, Put003, TestSize.Level1)
     .WillOnce(
         Return(OHOS::NativeRdb::E_SQLITE_CORRUPT)
     );
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     int64_t outRowId1 = 0;
     std::string table = "synchronous_root_table";
     ValuesBucket values;
@@ -271,7 +270,7 @@ HWTEST_F(RdbAdapterTest, Put004, TestSize.Level1)
         Return(OHOS::NativeRdb::E_OK)
     );
     
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     int64_t outRowId1 = 0;
     std::string table = "synchronous_root_table";
     ValuesBucket values;
@@ -294,7 +293,7 @@ HWTEST_F(RdbAdapterTest, Put004, TestSize.Level1)
  */
 HWTEST_F(RdbAdapterTest, Put005, TestSize.Level1)
 {
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     int64_t outRowId = 0;
     std::string table = "synchronous_root_table";
     ValuesBucket values;
@@ -319,7 +318,7 @@ HWTEST_F(RdbAdapterTest, Put005, TestSize.Level1)
  */
 HWTEST_F(RdbAdapterTest, Delete001, TestSize.Level1)
 {
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     std::string table = "synchronous_root_table";
     int32_t deleteRows = 0;
     std::string whereClause = "deviceId = ?";
@@ -336,7 +335,6 @@ HWTEST_F(RdbAdapterTest, Delete001, TestSize.Level1)
 
     int32_t deleteErrCode = store->Delete(deleteRows, table, whereClause, bindArgs);
     EXPECT_EQ(deleteErrCode, true);
-
 }
 
 /**
@@ -347,7 +345,7 @@ HWTEST_F(RdbAdapterTest, Delete001, TestSize.Level1)
  */
 HWTEST_F(RdbAdapterTest, Delete002, TestSize.Level1)
 {
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     int32_t deleteRows = 0;
     std::string deleteTable = "trust_xxxdevice_table";
     std::string whereClause = "deviceId = ?";
@@ -366,7 +364,7 @@ HWTEST_F(RdbAdapterTest, Delete002, TestSize.Level1)
  */
 HWTEST_F(RdbAdapterTest, Delete003, TestSize.Level1)
 {
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     std::string table = "synchronous_root_table";
     int32_t deleteRows = 0;
     std::string deleteTable = "synchronous_root_table";
@@ -386,8 +384,8 @@ HWTEST_F(RdbAdapterTest, Delete003, TestSize.Level1)
  */
 HWTEST_F(RdbAdapterTest, Delete004, TestSize.Level1)
 {
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
-    std::string table = "synchronous_root_table";  
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
+    std::string table = "synchronous_root_table";
     int32_t deleteRows = 0;
     std::string whereClause = "deviceId = ?";
     ValueObject valueObject(std::string("111aaa"));
@@ -418,7 +416,7 @@ HWTEST_F(RdbAdapterTest, Delete004, TestSize.Level1)
  */
 HWTEST_F(RdbAdapterTest, Delete005, TestSize.Level1)
 {
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     std::string table = "synchronous_root_table";
     int32_t deleteRows = 0;
     std::string whereClause = "deviceId = ?";
@@ -450,7 +448,7 @@ HWTEST_F(RdbAdapterTest, Delete005, TestSize.Level1)
  */
 HWTEST_F(RdbAdapterTest, Update001, TestSize.Level1)
 {
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     std::string table = "synchronous_root_table";
     ValuesBucket newValues;
     newValues.Clear();
@@ -488,7 +486,7 @@ HWTEST_F(RdbAdapterTest, Update001, TestSize.Level1)
  */
 HWTEST_F(RdbAdapterTest, Update002, TestSize.Level1)
 {
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     std::string table = "synchXXXXus_root_table";
     ValuesBucket newValues;
     newValues.Clear();
@@ -514,7 +512,7 @@ HWTEST_F(RdbAdapterTest, Update002, TestSize.Level1)
  */
 HWTEST_F(RdbAdapterTest, Update003, TestSize.Level1)
 {
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     std::string table = "synchronous_root_table";
     ValuesBucket newValues;
     newValues.Clear();
@@ -556,7 +554,7 @@ HWTEST_F(RdbAdapterTest, Update003, TestSize.Level1)
  */
 HWTEST_F(RdbAdapterTest, Update004, TestSize.Level1)
 {
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     std::string table = "synchronous_root_table";
     ValuesBucket newValues;
     newValues.Clear();
@@ -602,7 +600,7 @@ HWTEST_F(RdbAdapterTest, Update004, TestSize.Level1)
  */
 HWTEST_F(RdbAdapterTest, Update005, TestSize.Level1)
 {
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     std::string table = "synchronous_root_table";
     ValuesBucket newValues;
     newValues.Clear();
@@ -642,7 +640,7 @@ HWTEST_F(RdbAdapterTest, Get001, TestSize.Level1)
     EXPECT_CALL(*mockResultSet, GetRowCount(_))
         .WillOnce(Return(OHOS::NativeRdb::E_OK));
 
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     std::shared_ptr<ResultSet> resultSet = store->Get(sql, bindArgs);
     EXPECT_NE(resultSet, nullptr);
 }
@@ -659,7 +657,7 @@ HWTEST_F(RdbAdapterTest, Get002, TestSize.Level1)
     std::vector<ValueObject> bindArgs = { ValueObject(1) };
 
     std::shared_ptr<MockResultSet> mockResultSet = std::make_shared<MockResultSet>();
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     store->UnInit();
     std::shared_ptr<ResultSet> resultSet = store->Get(sql, bindArgs);
     EXPECT_EQ(resultSet, nullptr);
@@ -686,7 +684,7 @@ HWTEST_F(RdbAdapterTest, Get003, TestSize.Level1)
     EXPECT_CALL(*mockResultSet, GetRowCount(_))
         .WillOnce(Return(OHOS::NativeRdb::E_OK));
 
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     std::shared_ptr<ResultSet> resultSet = store->Get(sql, bindArgs);
     EXPECT_EQ(resultSet, mockResultSet);
 }
@@ -717,7 +715,7 @@ HWTEST_F(RdbAdapterTest, Get004, TestSize.Level1)
         Return(OHOS::NativeRdb::E_SQLITE_CORRUPT)
     );
 
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     std::shared_ptr<ResultSet> resultSet = store->Get(sql, bindArgs);
     EXPECT_NE(resultSet, mockResultSet);
 }
@@ -748,7 +746,7 @@ HWTEST_F(RdbAdapterTest, Get005, TestSize.Level1)
         Return(OHOS::NativeRdb::E_OK)
     );
 
-    std::lock_guard<std::mutex> lock(g_rdbAdapterTestMtx);
+    std::lock_guard<std::mutex> lock(rdbAdapterTestMtx);
     std::shared_ptr<ResultSet> resultSet = store->Get(sql, bindArgs);
     EXPECT_NE(resultSet, mockResultSet);
     EXPECT_EQ(resultSet, mockSecondResultSet);
