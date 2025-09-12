@@ -117,6 +117,16 @@ int32_t FileAccessServiceBaseProxy::UpdateDisplayName(const std::string &path, c
     return ERR_OK;
 }
 
+int32_t FileAccessServiceBaseProxy::UnregisterForSa(const string &path)
+{
+    return ERR_OK;
+}
+
+int32_t FileAccessServiceBaseProxy::GetAllSyncFoldersForSa(std::vector<SyncFolderExt> &syncFolderExts)
+{
+    return ERR_OK;
+}
+
 void FileAccessExtAbility::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const std::shared_ptr<OHOSApplication> &application,
     std::shared_ptr<AbilityHandler> &handler,

@@ -14,7 +14,11 @@
         "subsystem": "filemanagement",
         "syscap": [
             "SystemCapability.FileManagement.UserFileService",
-            "SystemCapability.FileManagement.UserFileService.FolderSelection"
+            "SystemCapability.FileManagement.UserFileService.FolderSelection",
+            "SystemCapability.FileManagement.CloudDiskManager"
+        ],
+        "features": [
+            "user_file_service_cloud_disk_enable"
         ],
         "adapted_system_type": [
             "standard"
@@ -81,6 +85,24 @@
                     "header": {
                       "header_files": [],
                       "header_base": "//foundation/filemanagement/user_file_service/interfaces/kits/picker/cj/include"
+                    }
+                },
+                {
+                    "name": "//foundation/filemanagement/user_file_service/interfaces/inner_api/cloud_disk_kit_inner:cloud_disk_manager_kit",
+                    "header": {
+                      "header_files": [
+                        "cloud_disk_sync_folder_manager.h"
+                      ],
+                      "header_base": "//foundation/filemanagement/user_file_service/interfaces/inner_api/cloud_disk_kit_inner/include"
+                    }
+                },
+                {
+                    "name": "//foundation/filemanagement/user_file_service/interfaces/inner_api/cloud_disk_kit_inner:cloud_disk_manager_js_kit",
+                    "header": {
+                      "header_files": [
+                        "cloud_disk_js_manager.h"
+                      ],
+                      "header_base": "//foundation/filemanagement/user_file_service/interfaces/inner_api/cloud_disk_kit_inner/include"
                     }
                 }
             ],
