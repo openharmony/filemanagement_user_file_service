@@ -53,10 +53,12 @@ struct PickerAsyncContext {
 };
 
 struct InsertAsyncContext {
-    napi_async_work work;
-    napi_deferred deferred;
-    vector<string> uriVec;
-    napi_value result;
+    napi_async_work work = nullptr;
+    napi_deferred deferred = nullptr;
+    std::vector<std::string> uriVec;
+    napi_value result = nullptr;
+    int32_t errCode = 0;
+    std::string udKey;
 };
 
 static sptr<Rosen::Window> window_;
