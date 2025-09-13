@@ -531,65 +531,6 @@ static string GetNapiString(napi_env env, napi_value uri)
     return string(str.get());
 }
 
-static napi_value InsertData(napi_env env, const vector<string> &uriVec)
-{
-    HILOG_INFO("[picker]: InsertData begin.");
-    UDMF::CustomOption option = { .intention = UDMF::Intention::UD_INTENTION_PICKER };
-    UDMF::UnifiedData unifiedData;
-    std::string udKey;
-    napi_status status;
-    
-    HILOG_INFO("[picker]: SetData start, size = %{public}zu", uriVec.size());
-    for (uint32_t i = 0; i < uriVec.size(); i++) {
-        std::shared_ptr<UDMF::Object> fileObj = std::make_shared<OHOS::UDMF::Object>();
-        fileObj->value_[UDMF::UNIFORM_DATA_TYPE] = "general.file-uri";
-        fileObj->value_[UDMF::FILE_URI_PARAM] = uriVec[i];
-        fileObj->value_[UDMF::FILE_TYPE] = "general.file";
-        std::shared_ptr<UDMF::UnifiedRecord> file =
-            std::make_shared<UDMF::UnifiedRecord>(UDMF::UDType::FILE_URI, fileObj);
-        unifiedData.AddRecord(file);
-    }
-    
-    int32_t errCode = UDMF::UdmfClient::GetInstance().SetData(option, unifiedData, udKey);
-    if (errCode != UDMF::Status::E_OK) {
-        HILOG_ERROR("[picker]: SetData failed, stat=%{public}d", errCode);
-    }
-    
-    napi_value resultCode = nullptr;
-    napi_value result = nullptr;
-    status = napi_create_object(env, &result);
-    if (status != napi_ok) {
-        HILOG_ERROR("[picker]: napi_create_object failed, status=%{public}d", status);
-        return nullptr;
-    }
-    
-    status = napi_create_int32(env, errCode, &resultCode);
-    if (status != napi_ok) {
-        HILOG_ERROR("[picker]: napi_create_int32 failed, status=%{public}d", status);
-        return nullptr;
-    }
-    
-    status = napi_set_named_property(env, result, "resultCode", resultCode);
-    if (status != napi_ok) {
-        HILOG_ERROR("[picker]: napi_set_named_property resultCode failed, status=%{public}d", status);
-    }
-    
-    napi_value nUdKey = nullptr;
-    status = napi_create_string_utf8(env, udKey.c_str(), udKey.size(), &nUdKey);
-    if (status != napi_ok) {
-        HILOG_ERROR("[picker]: napi_create_string_utf8 failed, status=%{public}d", status);
-        return nullptr;
-    }
-    
-    status = napi_set_named_property(env, result, "UdKey", nUdKey);
-    if (status != napi_ok) {
-        HILOG_ERROR("[picker]: napi_set_named_property %{public}s failed, status=%{public}d", udKey.c_str(), status);
-    }
-    
-    HILOG_INFO("[picker]: InsertData end.");
-    return result;
-}
-
 static void InsertUdmfAsyncCallbackComplete(napi_env env, napi_status status, void *data)
 {
     HILOG_INFO("[picker]: InsertUdmfAsyncCallbackComplete begin.");
@@ -611,11 +552,28 @@ static void InsertUdmfAsyncCallbackComplete(napi_env env, napi_status status, vo
         HILOG_ERROR("[picker]: napi_get_undefined jsContext->error failed, status=%{public}d", status);
     }
     
-    napi_value result = context->result;
-    if (result != nullptr) {
-        jsContext->data = result;
-        jsContext->status = true;
-    } else {
+    napi_value result = nullptr;
+    napi_status createStatus = napi_create_object(env, &result);
+    if (createStatus == napi_ok) {
+        napi_value resultCode = nullptr;
+        createStatus = napi_create_int32(env, context->errCode, &resultCode);
+        if (createStatus == napi_ok) {
+            napi_set_named_property(env, result, "resultCode", resultCode);
+        }
+        
+        napi_value nUdKey = nullptr;
+        createStatus = napi_create_string_utf8(env, context->udKey.c_str(), context->udKey.length(), &nUdKey);
+        if (createStatus == napi_ok) {
+            napi_set_named_property(env, result, "UdKey", nUdKey);
+        }
+        
+        if (createStatus == napi_ok) {
+            jsContext->data = result;
+            jsContext->status = true;
+        }
+    }
+    
+    if (!jsContext->status) {
         PickerNapiUtils::CreateNapiErrorObject(env, jsContext->error, ERR_MEM_ALLOCATION,
             "failed to create js object");
     }
@@ -637,7 +595,29 @@ static void InsertUdmfExecute(napi_env env, void *data)
         HILOG_ERROR("Async context is null");
         return;
     }
-    context->result = InsertData(env, context->uriVec);
+    
+    std::vector<std::string> uriVecCopy(context->uriVec);
+
+    UDMF::CustomOption option = { .intention = UDMF::Intention::UD_INTENTION_PICKER };
+    UDMF::UnifiedData unifiedData;
+    
+    HILOG_INFO("[picker]: SetData start, size = %{public}zu", uriVecCopy.size());
+    for (const auto& uri : uriVecCopy) {
+        std::shared_ptr<UDMF::Object> fileObj = std::make_shared<OHOS::UDMF::Object>();
+        fileObj->value_[UDMF::UNIFORM_DATA_TYPE] = "general.file-uri";
+        fileObj->value_[UDMF::FILE_URI_PARAM] = uri;
+        fileObj->value_[UDMF::FILE_TYPE] = "general.file";
+        std::shared_ptr<UDMF::UnifiedRecord> file =
+            std::make_shared<UDMF::UnifiedRecord>(UDMF::UDType::FILE_URI, fileObj);
+        unifiedData.AddRecord(file);
+    }
+
+    context->errCode = UDMF::UdmfClient::GetInstance().SetData(option, unifiedData, context->udKey);
+    if (context->errCode != UDMF::Status::E_OK) {
+        HILOG_ERROR("[picker]: SetData failed, stat=%{public}d", context->errCode);
+    }
+    
+    HILOG_INFO("[picker]: InsertUdmfExecute end.");
 }
 
 napi_value PickerNExporter::InsertUdmfData(napi_env env, napi_callback_info info)
@@ -693,7 +673,6 @@ napi_value PickerNExporter::InsertUdmfData(napi_env env, napi_callback_info info
         string uri = GetNapiString(env, uriStr);
         asyncContext->uriVec.emplace_back(uri);
     }
-    
     return PickerNapiUtils::NapiCreateAsyncWork(env, asyncContext, "InsertUdmfData",
         InsertUdmfExecute, InsertUdmfAsyncCallbackComplete);
 }
