@@ -111,8 +111,13 @@ void AgentFileAccessExtConnection::OnAbilityDisconnectDone(const AppExecFwk::Ele
         return;
     }
     connection_->OnAbilityDisconnectDone(element, resultCode);
-    FileAccessService::GetInstance()->DisconnectAppProxy(connection_);
-    FileAccessService::GetInstance()->RemoveAppProxy(connection_);
+    auto ptr = fileAccessSvc_.promote();
+    if (ptr == nullptr) {
+        HILOG_ERROR("OnAbilityDisconnectDone ptr is nullptr");
+        return;
+    }
+    ptr->DisconnectAppProxy(connection_);
+    ptr->RemoveAppProxy(connection_);
     HILOG_INFO("OnAbilityDisconnectDone resultCode=%{public}d", resultCode);
 }
 

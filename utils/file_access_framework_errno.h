@@ -28,7 +28,6 @@ const int ERR_URI = 13900002;
 const int ERR_NOT_DIR = 13900018;
 const int ERR_IS_DIR = 13900019;
 const int BASE_OFFSET = 14300001;
-const int CLOUD_DISK_ERR_OFFSET = 34400001;
 enum {
     ERR_OK = 0,
     E_IPCS = BASE_OFFSET,                   // IPC error
@@ -48,6 +47,7 @@ enum {
     E_LOAD_SA,                              // load SA failed
     E_PERMISSION = 201,                     // Permission verification failed
     E_PERMISSION_SYS,                       // is not system app
+    E_NOT_SUPPORT = 801,                    // Device not support for feature Isolation
 
     E_SERVICE_DIED = 29189,                 // Service died
 
@@ -61,13 +61,12 @@ enum {
     E_REGISTER_SYNC_FOLDER_FAILED,                  // Failed to register Sync folder
     E_SYNC_FOLDER_NOT_REGISTERED,                   // Sync folder not registered
     E_REMOVE_SYNC_FOLDER_FAILED,                    // Failed to remove Sync folder
-    E_SYNC_FOLDER_NOT_EXIST,                        // Sync folder not exist
+    E_SYNC_FOLDER_PATH_NOT_EXIST,                   // Sync folder not exist
     E_LISTENER_NOT_REGISTERED,                      // Listener not registered
     E_LISTENER_ALREADY_REGISTERED,                  // Listener already registered
     E_INVALID_CHANGE_SEQUENCE,                      // Invalid change sequence
     E_TRY_AGAIN,                                    // Try again
-    E_INTERNAL_ERROR,                               // Internal error
-    E_SYSTEM_RESTRICTED,                            // System restricted
+    E_SYSTEM_RESTRICTED,                            // System restricted, for IT device
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

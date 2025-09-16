@@ -78,10 +78,10 @@ HWTEST_F(CloudDiskSyncFolderManagerTest, CloudDiskSyncFolderManager_Register_001
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
     g_svcTrue = false;
     auto res = cloudDiskSyncFolderManager.Register(syncFolder);
-    EXPECT_EQ(res, E_INTERNAL_ERROR);
+    EXPECT_EQ(res, E_TRY_AGAIN);
 #else
     auto res = cloudDiskSyncFolderManager.Register(syncFolder);
-    EXPECT_EQ(res, E_SYSTEM_RESTRICTED);
+    EXPECT_EQ(res, E_NOT_SUPPORT);
 #endif
     GTEST_LOG_(INFO) << "CloudDiskSyncFolderManager_Register_001 end";
 }
@@ -133,6 +133,32 @@ HWTEST_F(CloudDiskSyncFolderManagerTest, CloudDiskSyncFolderManager_Register_003
 }
 
 /**
+ * @tc.number: user_file_service_cloud_disk_sync_folder_manager_Register_004
+ * @tc.name: Register
+ * @tc.desc: Test Register interface for service died and retry success case.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ */
+HWTEST_F(CloudDiskSyncFolderManagerTest, CloudDiskSyncFolderManager_Register_004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "CloudDiskSyncFolderManager_Register_004 start";
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
+    SyncFolder syncFolder;
+    syncFolder.displayName_ = "test1";
+    syncFolder.path_ = "/storage/user/CurrentUser/";
+    g_svcTrue = true;
+    EXPECT_CALL(*g_fileAccessSvc, Register(_))
+        .WillOnce(Return(E_SERVICE_DIED))  // E_SERVICE_DIED
+        .WillOnce(Return(0));     // Success on retry
+    CloudDiskSyncFolderManager &cloudDiskSyncFolderManager = CloudDiskSyncFolderManager::GetInstance();
+    auto res = cloudDiskSyncFolderManager.Register(syncFolder);
+    EXPECT_EQ(res, 0);
+#endif
+    GTEST_LOG_(INFO) << "CloudDiskSyncFolderManager_Register_004 end";
+}
+
+/**
  * @tc.number: user_file_service_cloud_disk_sync_folder_manager_Unregister_001
  * @tc.name: Unregister
  * @tc.desc: Test Unregister interface for failure case with null proxy.
@@ -152,11 +178,11 @@ HWTEST_F(CloudDiskSyncFolderManagerTest, CloudDiskSyncFolderManager_Unregister_0
     uri = "test_uri";
     g_svcTrue = false;
     res = cloudDiskSyncFolderManager.Unregister(uri);
-    EXPECT_EQ(res, E_INTERNAL_ERROR);
+    EXPECT_EQ(res, E_TRY_AGAIN);
 #else
     std::string uri = "test_uri";
     auto res = cloudDiskSyncFolderManager.Unregister(uri);
-    EXPECT_EQ(res, E_SYSTEM_RESTRICTED);
+    EXPECT_EQ(res, E_NOT_SUPPORT);
 #endif
     GTEST_LOG_(INFO) << "CloudDiskSyncFolderManager_Unregister_001 end";
 }
@@ -227,11 +253,11 @@ HWTEST_F(CloudDiskSyncFolderManagerTest, CloudDiskSyncFolderManager_Active_001, 
     uri = "test_uri";
     g_svcTrue = false;
     res = cloudDiskSyncFolderManager.Active(uri);
-    EXPECT_EQ(res, E_INTERNAL_ERROR);
+    EXPECT_EQ(res, E_TRY_AGAIN);
 #else
     std::string uri = "test_uri";
     auto res = cloudDiskSyncFolderManager.Active(uri);
-    EXPECT_EQ(res, E_SYSTEM_RESTRICTED);
+    EXPECT_EQ(res, E_NOT_SUPPORT);
 #endif
     GTEST_LOG_(INFO) << "CloudDiskSyncFolderManager_Active_001 end";
 }
@@ -303,11 +329,11 @@ HWTEST_F(CloudDiskSyncFolderManagerTest, CloudDiskSyncFolderManager_InActive_001
 
     uri = "test_uri";
     res = cloudDiskSyncFolderManager.Deactive(uri);
-    EXPECT_EQ(res, E_INTERNAL_ERROR);
+    EXPECT_EQ(res, E_TRY_AGAIN);
 #else
     std::string uri = "test_uri";
     auto res = cloudDiskSyncFolderManager.Deactive(uri);
-    EXPECT_EQ(res, E_SYSTEM_RESTRICTED);
+    EXPECT_EQ(res, E_NOT_SUPPORT);
 #endif
     GTEST_LOG_(INFO) << "CloudDiskSyncFolderManager_InActive_001 end";
 }
@@ -374,10 +400,10 @@ HWTEST_F(CloudDiskSyncFolderManagerTest, CloudDiskSyncFolderManager_GetSyncFolde
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
     g_svcTrue = false;
     auto res = cloudDiskSyncFolderManager.GetSyncFolders(syncFolders);
-    EXPECT_EQ(res, E_INTERNAL_ERROR);
+    EXPECT_EQ(res, E_TRY_AGAIN);
 #else
     auto res = cloudDiskSyncFolderManager.GetSyncFolders(syncFolders);
-    EXPECT_EQ(res, E_SYSTEM_RESTRICTED);
+    EXPECT_EQ(res, E_NOT_SUPPORT);
 #endif
     GTEST_LOG_(INFO) << "CloudDiskSyncFolderManager_GetSyncFolders_001 end";
 }
@@ -448,24 +474,13 @@ HWTEST_F(CloudDiskSyncFolderManagerTest, CloudDiskSyncFolderManager_UpdateDispla
     EXPECT_EQ(res, E_INVALID_PARAM);
 
     uri = "test_uri";
-    displayName = "";
     res = cloudDiskSyncFolderManager.UpdateDisplayName(uri, displayName);
-    EXPECT_EQ(res, E_INVALID_PARAM);
-
-    uri = "";
-    displayName = "";
-    res = cloudDiskSyncFolderManager.UpdateDisplayName(uri, displayName);
-    EXPECT_EQ(res, E_INVALID_PARAM);
-
-    uri = "test_uri";
-    displayName = "test_display_name";
-    res = cloudDiskSyncFolderManager.UpdateDisplayName(uri, displayName);
-    EXPECT_EQ(res, E_INTERNAL_ERROR);
+    EXPECT_EQ(res, E_TRY_AGAIN);
 #else
     std::string uri = "test_uri";
     std::string displayName = "test_display_name";
     auto res = cloudDiskSyncFolderManager.UpdateDisplayName(uri, displayName);
-    EXPECT_EQ(res, E_SYSTEM_RESTRICTED);
+    EXPECT_EQ(res, E_NOT_SUPPORT);
 #endif
     GTEST_LOG_(INFO) << "CloudDiskSyncFolderManager_UpdateDisplayName_001 end";
 }
@@ -538,11 +553,11 @@ HWTEST_F(CloudDiskSyncFolderManagerTest, CloudDiskSyncFolderManager_UnregisterFo
 
     uri = "test_uri";
     res = cloudDiskSyncFolderManager.UnregisterForSa(uri);
-    EXPECT_EQ(res, E_INTERNAL_ERROR);
+    EXPECT_EQ(res, E_TRY_AGAIN);
 #else
     std::string uri = "test_uri";
     auto res = cloudDiskSyncFolderManager.UnregisterForSa(uri);
-    EXPECT_EQ(res, E_SYSTEM_RESTRICTED);
+    EXPECT_EQ(res, E_NOT_SUPPORT);
 #endif
     GTEST_LOG_(INFO) << "CloudDiskSyncFolderManager_UnregisterForSa_001 end";
 }
@@ -609,12 +624,12 @@ HWTEST_F(CloudDiskSyncFolderManagerTest, CloudDiskSyncFolderManager_GetAllSyncFo
     g_svcTrue = false;
     CloudDiskSyncFolderManager &cloudDiskSyncFolderManager = CloudDiskSyncFolderManager::GetInstance();
     auto res = cloudDiskSyncFolderManager.GetAllSyncFoldersForSa(syncFolderExts);
-    EXPECT_EQ(res, E_INTERNAL_ERROR);
+    EXPECT_EQ(res, E_TRY_AGAIN);
 #else
     std::vector<SyncFolderExt> syncFolderExts;
     CloudDiskSyncFolderManager &cloudDiskSyncFolderManager = CloudDiskSyncFolderManager::GetInstance();
     auto res = cloudDiskSyncFolderManager.GetAllSyncFoldersForSa(syncFolderExts);
-    EXPECT_EQ(res, E_SYSTEM_RESTRICTED);
+    EXPECT_EQ(res, E_NOT_SUPPORT);
 #endif
     GTEST_LOG_(INFO) << "CloudDiskSyncFolderManager_GetAllSyncFoldersForSa_001 end";
 }

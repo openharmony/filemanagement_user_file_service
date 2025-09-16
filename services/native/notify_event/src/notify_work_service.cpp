@@ -48,7 +48,7 @@ bool NotifyWorkService::NotifySyncFolderEvent(const FileManagement::SyncFolderEx
         HILOG_ERROR("EventType is invalid: %{public}d", static_cast<int>(eventType));
         return false;
     }
-    want.SetParam("eventType", NOTIFY_EVENT_TYPES[static_cast<int>(eventType)]);
+    want.SetParam("eventType", std::string(NOTIFY_EVENT_TYPES[static_cast<int>(eventType)]));
     want.SetParam("path", rootInfoExt.path_);
     want.SetParam("state", static_cast<int>(rootInfoExt.state_));
     if (rootInfoExt.displayNameResId_ != 0) {
@@ -57,7 +57,7 @@ bool NotifyWorkService::NotifySyncFolderEvent(const FileManagement::SyncFolderEx
     if (!rootInfoExt.displayName_.empty()) {
         want.SetParam("displayName", rootInfoExt.displayName_);
     }
-    want.SetAction("usual.event.CLOUD_DISK_STATE_CHANGED");
+    want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_CLOUD_DISK_STATE_CHANGED);
     EventFwk::CommonEventData commonData {want};
     HILOG_INFO("End publish event, bundleName is: %{public}s, eventType: %{public}s",
         rootInfoExt.bundleName_.c_str(), NOTIFY_EVENT_TYPES[static_cast<int>(eventType)]);

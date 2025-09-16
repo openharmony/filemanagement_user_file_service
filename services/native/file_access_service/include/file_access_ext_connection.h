@@ -61,7 +61,8 @@ private:
 
 class AgentFileAccessExtConnection : public AAFwk::AbilityConnectionStub {
 public:
-    AgentFileAccessExtConnection(const sptr<AAFwk::IAbilityConnection>& connection) : connection_(connection){};
+    AgentFileAccessExtConnection(const sptr<AAFwk::IAbilityConnection>& connection,
+        wptr<FileAccessService> fileAccessSvc) : connection_(connection), fileAccessSvc_(fileAccessSvc){};
     virtual ~AgentFileAccessExtConnection();
     void OnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
@@ -70,6 +71,7 @@ public:
     void DisconnectFileExtAbility();
 private:
     const sptr<AAFwk::IAbilityConnection> connection_ = nullptr;
+    wptr<FileAccessService> fileAccessSvc_;
 };
 
 } // namespace FileAccessFwk

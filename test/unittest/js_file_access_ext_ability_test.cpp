@@ -117,7 +117,7 @@ int32_t FileAccessServiceBaseProxy::UpdateDisplayName(const std::string &path, c
     return ERR_OK;
 }
 
-int32_t FileAccessServiceBaseProxy::UnregisterForSa(const string &path)
+int32_t FileAccessServiceBaseProxy::UnregisterForSa(const std::string &path)
 {
     return ERR_OK;
 }

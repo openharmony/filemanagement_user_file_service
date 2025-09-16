@@ -34,12 +34,10 @@ using namespace std;
 namespace OHOS {
 namespace FileAccessFwk {
 namespace {
-    auto pms = FileAccessService::GetInstance();
-    const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(pms.GetRefPtr());
+    REGISTER_SYSTEM_ABILITY_BY_ID(FileAccessService, FILE_ACCESS_SERVICE_ID, false);
     const std::string FILE_SCHEME = "file://";
     const std::string FILE_ACCESS_PERMISSION = "ohos.permission.FILE_ACCESS_MANAGER";
 }
-sptr<FileAccessService> FileAccessService::instance_;
 mutex FileAccessService::mutex_;
 
 constexpr int32_t NOTIFY_MAX_NUM = 32;
@@ -63,38 +61,14 @@ bool FileAccessService::CheckCallingPermission(const std::string &permission)
     return true;
 }
 
-sptr<FileAccessService> FileAccessService::GetInstance()
-{
-    if (instance_ != nullptr) {
-        return instance_;
-    }
-
-    lock_guard<mutex> lock(mutex_);
-    if (instance_ == nullptr) {
-        instance_ = sptr(new FileAccessService());
-        if (instance_ == nullptr) {
-            HILOG_ERROR("GetInstance nullptr");
-            return instance_;
-        }
-    }
-    return instance_;
-}
-
-FileAccessService::FileAccessService() : SystemAbility(FILE_ACCESS_SERVICE_ID, false)
-{
-}
+FileAccessService::FileAccessService(int32_t saID, bool runOnCreate) : SystemAbility(FILE_ACCESS_SERVICE_ID, false) {}
 
 void FileAccessService::OnStart()
 {
     UserAccessTracer trace;
     trace.Start("OnStart");
-    sptr<FileAccessService> service = FileAccessService::GetInstance();
-    if (service == nullptr) {
-        HILOG_ERROR("service is nullptr");
-        return;
-    }
-    service->Init();
-    if (!Publish(service)) {
+    Init();
+    if (!Publish(this)) {
         HILOG_ERROR("OnStart register to system ability manager failed");
         return;
     }
@@ -157,13 +131,13 @@ void FileAccessService::Init()
 {
     InitTimer();
     if (extensionDeathRecipient_ == nullptr) {
-        extensionDeathRecipient_ = sptr(new ExtensionDeathRecipient());
+        extensionDeathRecipient_ = sptr(new ExtensionDeathRecipient(wptr<FileAccessService>(this)));
     }
     if (observerDeathRecipient_  == nullptr) {
-        observerDeathRecipient_ = sptr(new ObserverDeathRecipient());
+        observerDeathRecipient_ = sptr(new ObserverDeathRecipient(wptr<FileAccessService>(this)));
     }
     if (appDeathRecipient_ == nullptr) {
-        appDeathRecipient_ = sptr(new AppDeathRecipient());
+        appDeathRecipient_ = sptr(new AppDeathRecipient(wptr<FileAccessService>(this)));
     }
 }
 
@@ -254,7 +228,12 @@ void FileAccessService::ExtensionDeathRecipient::OnRemoteDied(const wptr<IRemote
         HILOG_ERROR("remote is nullptr");
         return;
     }
-    FileAccessService::GetInstance()->ResetProxy(remote);
+    auto ptr = fileAccessSvc_.promote();
+    if (ptr == nullptr) {
+        HILOG_ERROR("ExtensionDeathRecipient ptr is nullptr");
+        return;
+    }
+    ptr->ResetProxy(remote);
 }
 
 void FileAccessService::ObserverDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
@@ -268,7 +247,12 @@ void FileAccessService::ObserverDeathRecipient::OnRemoteDied(const wptr<IRemoteO
         HILOG_ERROR("convert promote failed");
         return;
     }
-    FileAccessService::GetInstance()->CleanRelativeObserver(observer);
+    auto ptr = fileAccessSvc_.promote();
+    if (ptr == nullptr) {
+        HILOG_ERROR("ObserverDeathRecipient ptr is nullptr");
+        return;
+    }
+    ptr->CleanRelativeObserver(observer);
 }
 
 void FileAccessService::CleanRelativeObserver(const sptr<IFileAccessObserver> &observer)
@@ -690,10 +674,15 @@ bool FileAccessService::IsUnused()
 
 void FileAccessService::InitTimer()
 {
-    onDemandTimer_ = std::make_shared<OnDemandTimer>([this] {
+    onDemandTimer_ = std::make_shared<OnDemandTimer>([obj {wptr<FileAccessService>(this)}] {
         lock_guard<mutex> lock(mutex_);
         vector<shared_ptr<ObserverContext>> contexts;
-        FileAccessService::GetInstance()->obsManager_.getAll(contexts);
+        auto ptr = obj.promote();
+        if (ptr == nullptr) {
+            HILOG_ERROR("onDemandTimer_ ptr is nullptr");
+            return false;
+        }
+        ptr->obsManager_.getAll(contexts);
         bool isMessage = false;
         for (auto context : contexts) {
             if (context == nullptr) {
@@ -747,7 +736,7 @@ int32_t FileAccessService::ConnectFileExtAbility(const AAFwk::Want &want,
     }
 
     sptr<AgentFileAccessExtConnection> fileAccessExtConnection(
-        new(std::nothrow) AgentFileAccessExtConnection(connection));
+        new(std::nothrow) AgentFileAccessExtConnection(connection, wptr<FileAccessService>(this)));
     if (fileAccessExtConnection == nullptr) {
         HILOG_ERROR("new fileAccessExtConnection fail");
         return E_CONNECT;
@@ -904,7 +893,12 @@ void FileAccessService::AppDeathRecipient::OnRemoteDied(const wptr<IRemoteObject
     auto remoteBroker = iface_cast<AAFwk::IAbilityConnection>(remote.promote());
     size_t key = reinterpret_cast<size_t>(remoteBroker->AsObject().GetRefPtr());
     HILOG_INFO("remote: %{public}zu", key);
-    FileAccessService::GetInstance()->RemoveAppProxy(remoteBroker);
+    auto ptr = fileAccessSvc_.promote();
+    if (ptr == nullptr) {
+        HILOG_ERROR("AppDeathRecipient ptr is nullptr");
+        return;
+    }
+    ptr->RemoveAppProxy(remoteBroker);
 }
 } // namespace FileAccessFwk
 } // namespace OHOS

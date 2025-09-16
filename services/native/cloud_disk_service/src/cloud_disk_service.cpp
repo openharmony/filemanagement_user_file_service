@@ -58,7 +58,7 @@ int32_t FileAccessService::Register(const SyncFolder &syncFolder)
     DecreaseCnt(__func__);
     return ERR_OK;
 #else
-    return E_SYSTEM_RESTRICTED;
+    return E_NOT_SUPPORT;
 #endif
 }
 
@@ -76,7 +76,7 @@ int32_t FileAccessService::Unregister(const std::string &path)
     DecreaseCnt(__func__);
     return ERR_OK;
 #else
-    return E_SYSTEM_RESTRICTED;
+    return E_NOT_SUPPORT;
 #endif
 }
 
@@ -94,7 +94,7 @@ int32_t FileAccessService::Active(const std::string &path)
     DecreaseCnt(__func__);
     return ERR_OK;
 #else
-    return E_SYSTEM_RESTRICTED;
+    return E_NOT_SUPPORT;
 #endif
 }
 
@@ -112,7 +112,7 @@ int32_t FileAccessService::Deactive(const std::string &path)
     DecreaseCnt(__func__);
     return ERR_OK;
 #else
-    return E_SYSTEM_RESTRICTED;
+    return E_NOT_SUPPORT;
 #endif
 }
 
@@ -124,7 +124,7 @@ int32_t FileAccessService::GetSyncFolders(std::vector<SyncFolder> &syncFolders)
     DecreaseCnt(__func__);
     return ERR_OK;
 #else
-    return E_SYSTEM_RESTRICTED;
+    return E_NOT_SUPPORT;
 #endif
 }
 
@@ -136,7 +136,7 @@ int32_t FileAccessService::GetAllSyncFolders(std::vector<SyncFolderExt> &syncFol
     DecreaseCnt(__func__);
     return ERR_OK;
 #else
-    return E_SYSTEM_RESTRICTED;
+    return E_NOT_SUPPORT;
 #endif
 }
 
@@ -155,7 +155,7 @@ int32_t FileAccessService::UpdateDisplayName(const std::string &path, const std:
     DecreaseCnt(__func__);
     return ERR_OK;
 #else
-    return E_SYSTEM_RESTRICTED;
+    return E_NOT_SUPPORT;
 #endif
 }
 
@@ -173,11 +173,11 @@ int32_t FileAccessService::UnregisterForSa(const string &path)
     DecreaseCnt(__func__);
     return ERR_OK;
 #else
-    return E_SYSTEM_RESTRICTED;
+    return E_NOT_SUPPORT;
 #endif
 }
 
-int32_t FileAccessService::GetAllSyncFoldersForSa(std::vector<SyncFolderExt> &syncFolderExt)
+int32_t FileAccessService::GetAllSyncFoldersForSa(std::vector<SyncFolderExt> &syncFolderExts)
 {
     HILOG_INFO("FileAccessService::GetAllSyncFoldersForSa begin");
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
@@ -185,7 +185,7 @@ int32_t FileAccessService::GetAllSyncFoldersForSa(std::vector<SyncFolderExt> &sy
     DecreaseCnt(__func__);
     return ERR_OK;
 #else
-    return E_SYSTEM_RESTRICTED;
+    return E_NOT_SUPPORT;
 #endif
 }
 } // namespace FileAccessFwk
