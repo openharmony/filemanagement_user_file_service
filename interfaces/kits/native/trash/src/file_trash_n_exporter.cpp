@@ -23,6 +23,7 @@
 #include "file_info.h"
 #include "file_uri.h"
 #include "file_util.h"
+#include "file_uri_check.h"
 #include "ipc_skeleton.h"
 #include "rust_file.h"
 #include "tokenid_kit.h"
@@ -602,6 +603,11 @@ napi_value FileTrashNExporter::Recover(napi_env env, napi_callback_info info)
         return nullptr;
     }
     string uriStr = uriPtr.get();
+    if (!IsFilePathValid(uriStr.c_str())) {
+        HILOG_ERROR ("uri is invalid");
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
     HILOG_DEBUG("Recover: uriPtr get end.");
 
     // 获取沙箱目录地址
@@ -635,6 +641,24 @@ napi_value FileTrashNExporter::Recover(napi_env env, napi_callback_info info)
     return RecoverDir(env, path);
 }
 
+static string CheckPath(const string &uriStr)
+{
+    HILOG_INFO("CompletelyDelete: check path start");
+    if (!IsFilePathValid(uriStr.c_str())) {
+        HILOG_ERROR ("uri is invalid");
+        return "";
+    }
+    // 获取沙箱目录地址
+    AppFileService::ModuleFileUri::FileUri fileUri(uriStr);
+    string path = fileUri.GetPath();
+    // 判断绝对路径
+    if (!GetRealPath(path)) {
+        HILOG_ERROR("Recover: Invalid Path");
+        return "";
+    }
+    return path;
+}
+
 napi_value FileTrashNExporter::CompletelyDelete(napi_env env, napi_callback_info info)
 {
     if (!CheckSystemAppAndPermission(FILE_ACCESS_PERMISSION, env)) {
@@ -659,14 +683,10 @@ napi_value FileTrashNExporter::CompletelyDelete(napi_env env, napi_callback_info
 
     string uriStr = uriPtr.get();
     HILOG_DEBUG("Recover: uriPtr get end.");
-
-    // 获取沙箱目录地址
-    AppFileService::ModuleFileUri::FileUri fileUri(uriStr);
-    string path = fileUri.GetPath();
-    // 判断绝对路径
-    if (!GetRealPath(path)) {
+    string path = CheckPath(uriStr);
+    if (path.empty()) {
+        HILOG_ERROR("Invalid Path");
         NError(EINVAL).ThrowErr(env);
-        HILOG_ERROR("Recover: Invalid Path");
         return nullptr;
     }
     HILOG_DEBUG("Recover path is trash dir start.");

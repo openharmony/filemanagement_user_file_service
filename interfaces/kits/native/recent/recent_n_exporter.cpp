@@ -23,6 +23,7 @@
 #include "accesstoken_kit.h"
 #include "file_uri.h"
 #include "file_utils.h"
+#include "file_uri_check.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "tokenid_kit.h"
@@ -94,6 +95,11 @@ napi_value RecentNExporter::AddRecentFile(napi_env env, napi_callback_info cbinf
     }
     auto [succ, uri, ignore] = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     FileUri fileUri(string(uri.get()));
+    if (!IsFilePathValid(fileUri.ToString().c_str())) {
+        HILOG_ERROR ("uri is invalid");
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
     auto filePath = fileUri.GetRealPath();
     struct stat statBuf;
     if (stat(filePath.c_str(), &statBuf) < 0) {
@@ -142,6 +148,11 @@ napi_value RecentNExporter::RemoveRecentFile(napi_env env, napi_callback_info cb
     }
     auto [succ, uri, ignore] = NVal(env, funcArg[NARG_POS::FIRST]).ToUTF8String();
     FileUri fileUri(string(uri.get()));
+    if (!IsFilePathValid(fileUri.ToString().c_str())) {
+        HILOG_ERROR ("uri is invalid");
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
     auto filePath = fileUri.GetPath();
     struct stat statBuf;
     if (stat(filePath.c_str(), &statBuf) < 0) {

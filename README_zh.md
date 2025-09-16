@@ -41,7 +41,7 @@
 [媒体库服务](https://gitee.com/openharmony/multimedia_medialibrary_standard)
 [存储管理服务](https://gitee.com/openharmony/filemanagement_storage_service)
 [文件访问接口](https://gitee.com/openharmony/filemanagement_file_api)
-[多用户管理](http:////gitee.com/openharmony/account_os_account)
+[多用户管理](https://gitee.com/openharmony/account_os_account)
 [**公共文件访问框架**](https://gitee.com/openharmony/filemanagement_user_file_service)
 
 
