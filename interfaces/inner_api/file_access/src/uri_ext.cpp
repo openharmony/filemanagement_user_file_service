@@ -57,7 +57,7 @@ Urie::Urie(const std::string& uriString) : OHOS::Uri(uriString)
 
     if (!CheckScheme()) {
         uriString_ = EMPTY;
-        HILOG_IMPL(LOG_CORE, LOG_DEBUG, 0xD001305, "URIe", "URI Scheme wrong");
+        HILOG_IMPL(LOG_CORE, LOG_DEBUG, 0xD00430A, "URIe", "URI Scheme wrong");
     }
 }
 
@@ -489,7 +489,7 @@ bool Urie::Marshalling(Parcel& parcel) const
         return parcel.WriteString16(Str8ToStr16(uriString_));
     }
 
-    HILOG_IMPL(LOG_CORE, LOG_ERROR, 0xD001305,  "URIe", "uriString_ is not ascii string");
+    HILOG_IMPL(LOG_CORE, LOG_ERROR, 0xD00430A,  "URIe", "uriString_ is not ascii string");
     return false;
 }
 
