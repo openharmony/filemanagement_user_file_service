@@ -36,13 +36,14 @@ std::set<int32_t> cloudDiskJSErrCode = {
     E_PERMISSION,                                   // Permission verification failed
     E_PERMISSION_SYS,                               // is not system app
     E_IPC_FAILED,                                   // IPC error
-    E_INTERNAL_ERROR,                               // Internal error, 14: off set, others(11-14) for dfs_cloud
+    E_TRY_AGAIN,                                    // Try again
     E_SYSTEM_RESTRICTED,                            // System restricted
 };
 
 static int32_t ConvertErrCode(int32_t errCode)
 {
     if (cloudDiskJSErrCode.find(errCode) == cloudDiskJSErrCode.end()) {
+        HILOG_ERROR("Not cloudDisk JS errcode: %{public}d", errCode);
         return E_IPC_FAILED;
     }
     return errCode;
@@ -60,7 +61,7 @@ int CloudDiskJSManager::GetAllSyncFolders(std::vector<SyncFolderExt> &syncFolder
     auto proxy = FileAccessServiceClient::GetInstance();
     if (proxy == nullptr) {
         HILOG_ERROR("GetAllSyncFolders get SA failed");
-        return E_INTERNAL_ERROR;
+        return E_TRY_AGAIN;
     }
     int ret = proxy->GetAllSyncFolders(syncFolderExts);
     int retryTimes = 1;
@@ -75,7 +76,7 @@ int CloudDiskJSManager::GetAllSyncFolders(std::vector<SyncFolderExt> &syncFolder
     }
     return ConvertErrCode(ret);
 #endif
-    return E_SYSTEM_RESTRICTED;
+    return E_NOT_SUPPORT;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS

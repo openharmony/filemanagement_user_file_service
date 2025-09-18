@@ -30,7 +30,6 @@
 #include "file_access_service_base_stub.h"
 #include "ifile_access_ext_base.h"
 #include "holder_manager.h"
-#include "ifile_access_ext_base.h"
 #include "iremote_object.h"
 #include "timer.h"
 #include "uri.h"
@@ -221,8 +220,8 @@ class FileAccessService final : public SystemAbility, public FileAccessServiceBa
 
 public:
     bool CheckCallingPermission(const std::string &permission);
-    static sptr<FileAccessService> GetInstance();
     void Init();
+    FileAccessService(int32_t saID, bool runOnCreate = false);
     virtual ~FileAccessService() = default;
 
     virtual void OnStart() override;
@@ -252,22 +251,28 @@ protected:
     int32_t GetSyncFolders(std::vector<SyncFolder> &syncFolder) override;
     int32_t GetAllSyncFolders(std::vector<SyncFolderExt> &syncFolderExt) override;
     int32_t UpdateDisplayName(const std::string &path, const std::string &displayName) override;
-    int32_t UnregisterForSa(const string &path) override;
-    int32_t GetAllSyncFoldersForSa(std::vector<SyncFolderExt> &syncFolderExt) override;
+    int32_t UnregisterForSa(const std::string &path) override;
+    int32_t GetAllSyncFoldersForSa(std::vector<SyncFolderExt> &syncFolderExts) override;
 
 private:
     class ExtensionDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
-        ExtensionDeathRecipient() = default;
+        explicit ExtensionDeathRecipient(wptr<FileAccessService> fileAccessSvc)
+            : fileAccessSvc_(fileAccessSvc) {}
         virtual void OnRemoteDied(const wptr<IRemoteObject>& remote);
         virtual ~ExtensionDeathRecipient() = default;
+    private:
+        wptr<FileAccessService> fileAccessSvc_;
     };
 
     class ObserverDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
-        ObserverDeathRecipient() = default;
+        explicit ObserverDeathRecipient(wptr<FileAccessService> fileAccessSvc)
+            : fileAccessSvc_(fileAccessSvc) {}
         virtual void OnRemoteDied(const wptr<IRemoteObject>& remote);
         virtual ~ObserverDeathRecipient() = default;
+    private:
+        wptr<FileAccessService> fileAccessSvc_;
     };
 
     int32_t RegisterNotifyImpl(Uri uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer,
@@ -284,7 +289,6 @@ private:
     int FindUri(const std::string &uriStr, std::shared_ptr<ObserverNode> &outObsNode);
     sptr<IFileAccessExtBase> ConnectExtension(Uri &uri, const std::shared_ptr<ConnectExtensionInfo> &info);
     void ResetProxy(const wptr<IRemoteObject> &remote);
-    FileAccessService();
     bool IsServiceReady() const;
     void InitTimer();
     bool IsUnused();
@@ -313,9 +317,12 @@ private:
 
     class AppDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
-        AppDeathRecipient() {}
+        AppDeathRecipient(wptr<FileAccessService> fileAccessSvc)
+            : fileAccessSvc_(fileAccessSvc) {}
         virtual void OnRemoteDied(const wptr<IRemoteObject>& remote);
         virtual ~AppDeathRecipient() = default;
+    private:
+        wptr<FileAccessService> fileAccessSvc_;
     };
 
     std::mutex appProxyMutex_;

@@ -62,7 +62,7 @@ HWTEST_F(CloudDiskJSManagerTest, CloudDiskJSManager_GetAllSyncFolders_001, TestS
     EXPECT_EQ(res, E_PERMISSION_SYS);
 #else
     auto res = cloudDiskJSManager.GetAllSyncFolders(syncFolderExts);
-    EXPECT_EQ(res, E_SYSTEM_RESTRICTED);
+    EXPECT_EQ(res, E_NOT_SUPPORT);
 #endif
     GTEST_LOG_(INFO) << "CloudDiskJSManager_GetAllSyncFolders_001 end";
 }

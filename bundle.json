@@ -57,7 +57,8 @@
                     "//foundation/filemanagement/user_file_service/interfaces/kits/picker:picker",
                     "//foundation/filemanagement/user_file_service/interfaces/kits/picker:cj_picker_ffi",
                     "//foundation/filemanagement/user_file_service/interfaces/kits/native/recent:recent",
-                    "//foundation/filemanagement/user_file_service/interfaces/kits/native/trash:trash"
+                    "//foundation/filemanagement/user_file_service/interfaces/kits/native/trash:trash",
+                    "//foundation/filemanagement/user_file_service/interfaces/kits/native/clouddiskmanager:clouddiskmanager"
                 ],
                 "service_group": [
                     "//foundation/filemanagement/user_file_service/services:user_file_managers",
@@ -92,15 +93,6 @@
                     "header": {
                       "header_files": [
                         "cloud_disk_sync_folder_manager.h"
-                      ],
-                      "header_base": "//foundation/filemanagement/user_file_service/interfaces/inner_api/cloud_disk_kit_inner/include"
-                    }
-                },
-                {
-                    "name": "//foundation/filemanagement/user_file_service/interfaces/inner_api/cloud_disk_kit_inner:cloud_disk_manager_js_kit",
-                    "header": {
-                      "header_files": [
-                        "cloud_disk_js_manager.h"
                       ],
                       "header_base": "//foundation/filemanagement/user_file_service/interfaces/inner_api/cloud_disk_kit_inner/include"
                     }
