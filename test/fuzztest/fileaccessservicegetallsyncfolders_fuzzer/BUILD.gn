@@ -1,0 +1,72 @@
+# Copyright (c) 2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#####################hydra-fuzz###################
+import("//build/config/features.gni")
+import("//build/test.gni")
+import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
+
+ohos_fuzztest("FileAccessServiceGetAllSyncFoldersFuzzTest") {
+  module_out_path = "user_file_service/user_file_service"
+  fuzz_config_file =
+      "${user_file_service_path}/test/fuzztest/fileaccessservicegetallsyncfolders_fuzzer"
+
+  include_dirs = [
+    "${user_file_service_path}/interfaces/inner_api/file_access/include",
+    "${user_file_service_path}/utils",
+    "${user_file_service_path}/test/fuzztest/privacy_comm/include",
+  ]
+
+  sources = [
+    "fileaccessservicegetallsyncfolders_fuzzer.cpp",
+    "${user_file_service_path}/test/fuzztest/privacy_comm/src/user_file_service_token_mock.cpp",
+  ]
+
+  deps = [
+    "${user_file_service_path}/interfaces/inner_api/file_access:file_access_ext_base_include",
+    "${user_file_service_path}/interfaces/inner_api/file_access:file_access_extension_ability_kit",
+    "${user_file_service_path}/services:file_access_service",
+    "${user_file_service_path}/services:file_access_service_base_include",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:ability_manager",
+    "ability_runtime:app_manager",
+    "ability_runtime:runtime",
+    "ability_runtime:wantagent_innerkits",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_core",
+    "cJSON:cjson_static",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+    "selinux_adapter:librestorecon",
+  ]
+
+  cflags = [
+    "-g",
+    "-O0",
+    "-Wno-unused-variable",
+    "-fno-omit-frame-pointer",
+  ]
+
+  defines = [ "private=public" ]
+}

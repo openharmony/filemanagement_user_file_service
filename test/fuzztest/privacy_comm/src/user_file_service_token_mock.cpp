@@ -24,6 +24,7 @@ namespace OHOS {
 namespace FileAccessFwk {
 const std::string FILE_ACCESS_PERMISSION = "ohos.permission.FILE_ACCESS_MANAGER";
 const std::string GET_BUNDLE_INFO_PRIVILEGED = "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED";
+const std::string ACCESS_CLOUD_DISK_INFO_PERMISSION = "ohos.permission.ACCESS_CLOUD_DISK_INFO";
 const unsigned char FILES[] = {0x63, 0x6f, 0x6d, 0x2e, 0x68, 0x75, 0x61, 0x77, 0x65, 0x69,
     0x2e, 0x68, 0x6d, 0x6f, 0x73, 0x2e, 0x66, 0x69, 0x6c, 0x65,
     0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x72, 0x00};
@@ -32,7 +33,8 @@ const unsigned char FILEMANAGER[] = {0x63, 0x6f, 0x6d, 0x2e, 0x68, 0x75, 0x61, 0
     0x2e, 0x68, 0x6d, 0x6f, 0x73, 0x2e, 0x66, 0x69, 0x6c, 0x65,
     0x73, 0x00};
 
-std::vector<std::string> requiredPermissions = { FILE_ACCESS_PERMISSION, GET_BUNDLE_INFO_PRIVILEGED };
+std::vector<std::string> requiredPermissions = { FILE_ACCESS_PERMISSION,
+    GET_BUNDLE_INFO_PRIVILEGED, ACCESS_CLOUD_DISK_INFO_PERMISSION };
 // 获取Native进程tokenID
 static AccessTokenID GetNativeTokenIdFromProcess(const std::string &process)
 {
@@ -76,9 +78,9 @@ void UserFileServiceTokenMock::SetFileManagerToken()
     std::string filesBundle(reinterpret_cast<const char *>(FILES));
     std::string fileManagerBundle(reinterpret_cast<const char *>(FILEMANAGER));
     if (!SetHapToken(filesBundle, requiredPermissions, true)) {
-        HILOG_ERROR("GetFileAccessHelper seHapToken files failed.");
+        HILOG_ERROR("SetFileManagerToken files failed.");
         if (!SetHapToken(fileManagerBundle, requiredPermissions, true)) {
-            HILOG_ERROR("GetFileAccessHelper seHapToken filemanager failed.");
+            HILOG_ERROR("SetFileManagerToken filemanager failed.");
         }
     }
 }
