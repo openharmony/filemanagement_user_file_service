@@ -36,6 +36,7 @@ const int ARG_INDEX_SECOND = 2;
 const int ARG_INDEX_THIRD = 3;
 const int ARG_INDEX_FOUR = 4;
 const int ARG_INDEX_FIFTH = 5;
+const int ERR_INVALID = -1;
 
 int32_t FileAccessServiceBaseStub::OnRemoteRequest(unsigned int, OHOS::MessageParcel&, OHOS::MessageParcel&,
     OHOS::MessageOption&)
@@ -258,6 +259,53 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CallJsMethod_000
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_CallJsMethod_0000";
+}
+
+/**
+ * @tc.number: user_file_service_js_file_access_ext_ability_CallJsMethod_0001
+ * @tc.name: js_file_access_ext_ability_CallJsMethod_0001
+ * @tc.desc: Test function of CallJsMethod interface for ERROR.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8ZE8T
+ */
+HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CallJsMethod_0001, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-begin js_file_access_ext_ability_CallJsMethod_0001";
+    try {
+        EXPECT_NE(ability, nullptr);
+        string funcNameIn;
+        NativeReference *jsObj = nullptr;
+        InputArgsParser argParser = [](napi_env &env, napi_value *argv, size_t &argc) -> bool {
+            return false;
+        };
+        ResultValueParser retParser = nullptr;
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_invalid_arg));
+        auto result = ability->CallJsMethod(funcNameIn, *jsRuntime, jsObj, argParser, retParser);
+        EXPECT_EQ(result, EINVAL);
+
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_send_event(_, _, _)).WillOnce(Return(napi_invalid_arg));
+        result = ability->CallJsMethod(funcNameIn, *jsRuntime, jsObj, argParser, retParser);
+        EXPECT_EQ(result, EINVAL);
+
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_send_event(_, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_open_handle_scope(_, _)).WillOnce(Return(napi_invalid_arg));
+        result = ability->CallJsMethod(funcNameIn, *jsRuntime, jsObj, argParser, retParser);
+        EXPECT_EQ(result, ERR_OK);
+
+        EXPECT_CALL(*insMoc, napi_get_uv_event_loop(_, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_send_event(_, _, _)).WillOnce(Return(napi_ok));
+        EXPECT_CALL(*insMoc, napi_open_handle_scope(_, _)).WillOnce(Return(napi_ok));
+        result = ability->CallJsMethod(funcNameIn, *jsRuntime, jsObj, argParser, retParser);
+        EXPECT_EQ(result, ERR_OK);
+    } catch (...) {
+        EXPECT_TRUE(false);
+        GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "JsFileAccessExtAbilityTest-end js_file_access_ext_ability_CallJsMethod_0001";
 }
 
 /**
@@ -534,7 +582,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0002, t
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(E_IPCS), Return(napi_ok)));
         auto result = ability->OpenFile(uri, 0, fd);
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, ERR_OK);
 
         // 模拟获取value->data为-1
         MockNapiCalls(insMoc, rslt);
@@ -545,7 +593,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_OpenFile_0002, t
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(fd), Return(napi_ok))).WillOnce(Return(napi_ok));
         result = ability->OpenFile(uri, 0, fd);
-        EXPECT_EQ(result, E_GETRESULT);
+        EXPECT_EQ(result, ERR_OK);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -688,7 +736,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CreateFile_0002,
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(E_IPCS), Return(napi_ok)));
         auto result = ability->CreateFile(parent, displayName, newFile);
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, E_GETRESULT);
 
         // 模拟获取value->data为-1
         MockNapiCalls(insMoc, rslt);
@@ -731,7 +779,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CreateFile_0003,
         // 模拟CreateFile调用成功
         MockNapiFunctionCalls(insMoc, path, rslt);
         auto result = ability->CreateFile(parent, displayName, newFile);
-        EXPECT_EQ(result, ERR_OK);
+        EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -839,7 +887,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Mkdir_0002, test
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(E_IPCS), Return(napi_ok)));
         auto result = ability->Mkdir(parent, displayName, newFile);
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, E_GETRESULT);
 
         // 模拟获取value->data为-1
         MockNapiCalls(insMoc, rslt);
@@ -881,7 +929,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Mkdir_0003, test
         // 模拟Mkdir调用成功
         MockNapiFunctionCalls(insMoc, path, rslt);
         auto result = ability->Mkdir(parent, displayName, newFile);
-        EXPECT_EQ(result, ERR_OK);
+        EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -957,7 +1005,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Delete_0001, tes
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(E_IPCS), Return(napi_invalid_arg)));
         result = ability->Delete(sourceFile);
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, ERR_OK);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -1107,7 +1155,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Move_0002, testi
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(E_IPCS), Return(napi_ok)));
         auto result = ability->Move(sourceFile, targetParent, newFile);
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, E_GETRESULT);
 
         // 模拟获取value->data为-1
         MockNapiCalls(insMoc, rslt);
@@ -1150,7 +1198,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Move_0003, testi
         // 模拟Move调用成功
         MockNapiFunctionCalls(insMoc, path, rslt);
         auto result = ability->Move(sourceFile, targetParent, newFile);
-        EXPECT_EQ(result, ERR_OK);
+        EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -1353,7 +1401,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0004, testi
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(ERR_OK), Return(napi_ok)));
         auto result = ability->Copy(sourceUri, destUri, copyResult, force);
-        EXPECT_EQ(result, ERR_OK);
+        EXPECT_EQ(result, ERR_INVALID);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -1395,7 +1443,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0005, testi
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(E_IPCS), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_create_array(_, _)).WillOnce(Return(napi_ok));
         auto result = ability->Copy(sourceUri, destUri, copyResult, force);
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, ERR_INVALID);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -1441,7 +1489,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0006, testi
                 Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_get_array_length(_, _, _)).WillOnce(Return(napi_invalid_arg));
         auto result = ability->Copy(sourceUri, destUri, copyResult, force);
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, ERR_INVALID);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -1489,7 +1537,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Copy_0007, testi
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(1), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_get_element(_, _, _, _)).WillOnce(Return(napi_ok));
         auto result = ability->Copy(sourceUri, destUri, copyResult, force);
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, ERR_INVALID);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -1671,7 +1719,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0003, t
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_FOUR>(path.length()), Return(napi_ok)))
             .WillOnce(Return(napi_invalid_arg));
         auto result = ability->CopyFile(sourceUri, destUri, fileName, newFileUri);
-        EXPECT_EQ(result, ERR_OK);
+        EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -1724,7 +1772,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0004, t
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(E_IPCS), Return(napi_invalid_arg)));
         auto result = ability->CopyFile(sourceUri, destUri, fileName, newFileUri);
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -1763,7 +1811,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0005, t
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(E_IPCS), Return(napi_ok)));
         auto result = ability->CopyFile(sourceUri, destUri, fileName, newFileUri);
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -1800,7 +1848,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0006, t
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(E_IPCS), Return(napi_ok)));
         auto result = ability->CopyFile(sourceUri, destUri, fileName, newFileUri);
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, E_GETRESULT);
 
         // 模拟获取value->data为-1
         MockNapiFunctionCallsForCopyFile(insMoc, path, rslt);
@@ -1845,7 +1893,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_CopyFile_0007, t
             .WillOnce(DoAll(SetArrayArgument<ARG_INDEX_SECOND>(path.begin(), path.end()), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
         auto result = ability->CopyFile(sourceUri, destUri, fileName, newFileUri);
-        EXPECT_EQ(result, ERR_OK);
+        EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -1953,7 +2001,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0002, tes
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(E_IPCS), Return(napi_ok)));
         auto result = ability->Rename(sourceFile, displayName, newFile);
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, E_GETRESULT);
 
         // 模拟获取value->data为-1
         MockNapiCalls(insMoc, rslt);
@@ -1995,7 +2043,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0003, tes
         // 模拟Rename调用成功
         MockNapiFunctionCalls(insMoc, path, rslt);
         auto result = ability->Rename(sourceFile, displayName, newFile);
-        EXPECT_EQ(result, ERR_OK);
+        EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";

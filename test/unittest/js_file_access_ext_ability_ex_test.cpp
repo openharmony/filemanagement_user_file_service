@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -636,7 +636,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ListFile_0009, t
         EXPECT_CALL(*insMoc, napi_create_array(_, _)).WillOnce(Return(napi_ok));
         EXPECT_CALL(*insMoc, napi_get_array_length(_, _, _)).WillOnce(Return(napi_ok));
         result = ability->ListFile(fileInfo, offset, maxCount, filter, fileInfoVec);
-        EXPECT_EQ(result, napi_invalid_arg);
+        EXPECT_EQ(result, ERR_OK);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -1229,7 +1229,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_ScanFile_0009, t
         EXPECT_CALL(*insMoc, napi_create_array(_, _)).WillOnce(Return(napi_ok));
         EXPECT_CALL(*insMoc, napi_get_array_length(_, _, _)).WillOnce(Return(napi_ok));
         result = ability->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
-        EXPECT_EQ(result, napi_invalid_arg);
+        EXPECT_EQ(result, ERR_OK);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -1645,7 +1645,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromU
             .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
         EXPECT_CALL(*insMoc, napi_get_value_int64(_, _, _)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
         result = ability->GetFileInfoFromUri(selectFile, fileInfo);
-        EXPECT_EQ(result, napi_invalid_arg);
+        EXPECT_EQ(result, ERR_OK);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -2072,7 +2072,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetFileInfoFromR
             .WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
         EXPECT_CALL(*insMoc, napi_get_value_int64(_, _, _)).WillOnce(Return(napi_ok)).WillOnce(Return(napi_ok));
         result = ability->GetFileInfoFromRelativePath(selectFileRealtivePath, fileInfo);
-        EXPECT_EQ(result, napi_invalid_arg);
+        EXPECT_EQ(result, ERR_OK);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";

@@ -84,8 +84,8 @@ shared_ptr<FileAccessHelper> GetFileAccessHelper()
 bool CheckDataAndGetDownloadUri(const uint8_t* data, size_t size, shared_ptr<FileAccessHelper>& helper,
     Uri& downloadUri)
 {
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
+    if ((data == nullptr) || (size == 0)) {
+        HILOG_ERROR("parameter data is nullptr or parameter size == 0.");
         return false;
     }
     std::tie(helper, downloadUri) = GetDownloadUri();
@@ -98,8 +98,8 @@ bool CheckDataAndGetDownloadUri(const uint8_t* data, size_t size, shared_ptr<Fil
 
 bool CreatorFuzzTest(const uint8_t* data, size_t size)
 {
-    if ((data == nullptr) || (size <= 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
+    if ((data == nullptr) || (size == 0)) {
+        HILOG_ERROR("parameter data is nullptr or parameter size == 0.");
         return false;
     }
     std::string bundleName(reinterpret_cast<const char*>(data), size);

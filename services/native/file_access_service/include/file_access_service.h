@@ -292,6 +292,7 @@ private:
     bool IsServiceReady() const;
     void InitTimer();
     bool IsUnused();
+    bool IsAppProxyMapEmpty();
     int32_t RmUriObsNodeRelations(std::string &uriStr, std::shared_ptr<ObserverNode> &obsNode,
         const std::shared_ptr<ConnectExtensionInfo> &info);
     sptr<IFileAccessExtBase> FindExtProxyByBundleName(std::string bundleName);

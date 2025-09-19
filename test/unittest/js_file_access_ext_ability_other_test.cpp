@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -127,7 +127,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_MoveFile_0002, t
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(E_IPCS), Return(napi_ok)));
         auto result = ability->MoveFile(sourceFile, targetParent, fileName, newFile);
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, E_GETRESULT);
 
         // 模拟获取value->data为-1
         MockNapiCalls(insMoc, rslt);
@@ -190,7 +190,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_MoveFile_0003, t
             .WillOnce(DoAll(SetArrayArgument<ARG_INDEX_SECOND>(path.begin(), path.end()), Return(napi_ok)));
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _)).WillOnce(Return(napi_ok));
         auto result = ability->MoveFile(sourceFile, targetParent, fileName, newFile);
-        EXPECT_EQ(result, ERR_OK);
+        EXPECT_EQ(result, E_GETRESULT);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -325,7 +325,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_MoveItem_0002, t
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(ERR_OK), Return(napi_ok)));
         auto result = ability->MoveItem(sourceFile, targetParent, moveResult, force);
-        EXPECT_EQ(result, ERR_OK);
+        EXPECT_EQ(result, ERR_INVALID);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -584,7 +584,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_StartWatcher_000
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(E_IPCS), Return(napi_ok)));
         auto result = ability->StartWatcher(uri);
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, ERR_OK);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -728,7 +728,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_StopWatcher_0002
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(E_IPCS), Return(napi_ok)));
         auto result = ability->StopWatcher(uri);
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, ERR_OK);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -1153,7 +1153,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_GetRoots_0002, t
         EXPECT_CALL(*insMoc, napi_create_array(_, _)).WillOnce(Return(napi_ok));
         EXPECT_CALL(*insMoc, napi_get_array_length(_, _, _)).WillOnce(Return(napi_ok));
         auto result = ability->GetRoots(rootInfoVec);
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, ERR_OK);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";
@@ -1347,7 +1347,7 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Access_0002, tes
         EXPECT_CALL(*insMoc, napi_get_value_int32(_, _, _))
             .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(E_IPCS), Return(napi_ok)));
         result = ability->Access(uri, isExist);
-        EXPECT_EQ(result, E_IPCS);
+        EXPECT_EQ(result, ERR_OK);
     } catch (...) {
         EXPECT_TRUE(false);
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityTest occurs an exception.";

@@ -70,12 +70,12 @@ void FileAccessServiceClient::ServiceProxyLoadCallback::OnLoadSystemAbilitySucce
 {
     HILOG_INFO("Load FileAccessService SA success,systemAbilityId:%{public}d, remoteObj result:%{private}s",
         systemAbilityId, (remoteObject == nullptr ? "false" : "true"));
+    std::unique_lock<std::mutex> lock(proxyMutex_);
     if (systemAbilityId != FILE_ACCESS_SERVICE_ID || remoteObject == nullptr) {
         isLoadSuccess_.store(false);
         proxyConVar_.notify_one();
         return;
     }
-    std::unique_lock<std::mutex> lock(proxyMutex_);
     serviceProxy_ = iface_cast<IFileAccessServiceBase>(remoteObject);
     if (!serviceProxy_) {
         HILOG_ERROR("Failed to get remote object");

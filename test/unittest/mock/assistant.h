@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,6 +35,7 @@ public:
     virtual int Int() = 0;
 public:
     virtual napi_status napi_get_uv_event_loop(napi_env, struct uv_loop_s**) = 0;
+    virtual napi_status napi_open_handle_scope(napi_env, napi_handle_scope*) = 0;
     virtual napi_status napi_call_function(napi_env, napi_value, napi_value, size_t, const napi_value*, napi_value*)
         = 0;
     virtual napi_status napi_get_reference_value(napi_env, napi_ref, napi_value*) = 0;
@@ -70,6 +71,7 @@ public:
     MOCK_METHOD0(Int, int());
 public:
     MOCK_METHOD2(napi_get_uv_event_loop, napi_status(napi_env, struct uv_loop_s**));
+    MOCK_METHOD2(napi_open_handle_scope, napi_status(napi_env, napi_handle_scope*));
     MOCK_METHOD6(napi_call_function, napi_status(napi_env, napi_value, napi_value, size_t, const napi_value*,
         napi_value*));
     MOCK_METHOD3(napi_get_reference_value, napi_status(napi_env, napi_ref, napi_value*));

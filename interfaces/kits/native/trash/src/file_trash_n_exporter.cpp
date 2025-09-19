@@ -362,6 +362,11 @@ static string GetToDeletePath(const string &toDeletePath, napi_env env)
         toDeletePath.substr(trashPathPrefixPos + FileTrashNExporter::trashPath_.length() + slashSize);
     // 获取时间戳目录位置
     size_t trashPathWithTimePrefixPos = realFilePathWithTime.find_first_of("/");
+    if (trashPathWithTimePrefixPos == string::npos) {
+        HILOG_ERROR("trashPathWithTimePrefixPos is invalid.");
+        NError(EINVAL).ThrowErr(env);
+        return nullptr;
+    }
     size_t realTimeDirPos = trashPathPrefixPos + FileTrashNExporter::trashPath_.length() +
         slashSize + trashPathWithTimePrefixPos;
     // 回收站下一级的时间戳目录
@@ -733,9 +738,6 @@ void FileTrashNExporter::InitTrashPath()
 {
     if (FileTrashNExporter::trashPath_.empty()) {
         std::unique_lock<std::mutex> lock(g_trashPathMutex);
-        if (!FileTrashNExporter::trashPath_.empty()) {
-            return ;
-        }
         FileTrashNExporter::trashPath_ = "/storage/Users/currentUser/.Trash";
         std::string deviceType;
         if (IsFullMountEnable()) {

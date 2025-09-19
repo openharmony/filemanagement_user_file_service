@@ -745,6 +745,10 @@ int FileAccessHelper::CopyFile(Uri &sourceUri, Uri &destUri, const std::string &
         HILOG_ERROR("Uri format check error");
         return E_URIS;
     }
+    if (!IsFilePathValid(fileName)) {
+        HILOG_ERROR("fileName check error");
+        return E_URIS;
+    }
 
     bool isDir = false;
     int ret = IsDirectory(destUri, isDir);

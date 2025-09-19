@@ -994,4 +994,50 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_file_009, testing::e
     }
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Copy_file_009";
 }
+
+/**
+* @tc.number: user_file_service_external_file_access_Copy_file_010
+* @tc.name: external_file_access_Copy_file_010
+* @tc.desc: Test function of Copy file interface.
+* @tc.size: MEDIUM
+* @tc.type: FUNC
+* @tc.level Level 1
+*/
+HWTEST_F(FileExtensionHelperTest, external_file_access_Copy_file_010, testing::ext::TestSize.Level1)
+{
+    shared_ptr<FileAccessHelper> fileAccessHelper = FileExtensionHelperTest::GetFileAccessHelper();
+    EXPECT_NE(fileAccessHelper, nullptr);
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_Copy_file_010";
+    try {
+        vector<RootInfo> info;
+        int result = fileAccessHelper->GetRoots(info);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri parentUri(info[0].uri);
+        Uri newDirUriTest1("");
+        result = fileAccessHelper->Mkdir(parentUri, "测试1", newDirUriTest1);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri sourceUri("");
+        result = fileAccessHelper->CreateFile(newDirUriTest1, "test.txt", sourceUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+
+        Uri newDirUriTest2("");
+        result = fileAccessHelper->Mkdir(parentUri, "测试2", newDirUriTest2);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        Uri targetUri("");
+        result = fileAccessHelper->CreateFile(newDirUriTest2, "test.txt", targetUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        std::string fileName("测试../.../测试.txt");
+        Uri newFile("");
+        result = fileAccessHelper->CopyFile(sourceUri, newDirUriTest2, fileName, newFile);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_URI);
+        EXPECT_EQ(newDirUriTest1.ToString().find("测试.txt"), std::string::npos);
+        result = fileAccessHelper->Delete(newDirUriTest1);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+        result = fileAccessHelper->Delete(newDirUriTest2);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "external_file_access_Copy_file_010 occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileExtensionHelperTest-end external_file_access_Copy_file_010";
+}
 } // namespace
