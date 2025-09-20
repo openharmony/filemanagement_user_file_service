@@ -52,14 +52,6 @@ namespace {
         appIndex           INTEGER, \
         lastModifyTime     TEXT  \
     );";
-    const std::string PATH = "path";
-    const std::string STATE = "state";
-    const std::string DISPLAY_NAME = "displayName";
-    const std::string DISPLAY_NAME_RES_ID = "displayNameResId";
-    const std::string BUNDLENAME = "bundleName";
-    const std::string USERID = "userId";
-    const std::string INDEX = "appIndex";
-    const std::string LAST_MODIFY_TIME = "lastModifyTime";
 }
 
 class RdbAdapterTest : public testing::Test {

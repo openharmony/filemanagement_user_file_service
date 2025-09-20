@@ -48,7 +48,9 @@
                 "common_event_service",
                 "udmf",
                 "selinux_adapter",
-                "window_manager"
+                "window_manager",
+                "dfs_service",
+                "sandbox_manager"
             ]
         },
         "build": {

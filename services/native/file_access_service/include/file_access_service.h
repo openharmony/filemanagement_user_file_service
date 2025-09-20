@@ -24,20 +24,25 @@
 #include <unordered_map>
 #include <vector>
 
+#include "common_event_manager.h"
+#include "common_event_support.h"
 #include "file_access_helper.h"
 #include "bundle_mgr_interface.h"
 #include "file_access_ext_connection.h"
 #include "file_access_service_base_stub.h"
-#include "ifile_access_ext_base.h"
 #include "holder_manager.h"
 #include "iremote_object.h"
+#include "thread_pool.h"
 #include "timer.h"
 #include "uri.h"
 #include "want.h"
+#include "ufs_access_token_helper.h"
+#include "cloud_disk_synchronous_root_manager.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
 class AgentFileAccessExtConnection;
+class BundleObserver;
 class ObserverContext {
     public:
         ObserverContext(sptr<IFileAccessObserver> obs): obs_(obs) {}
@@ -222,15 +227,20 @@ public:
     bool CheckCallingPermission(const std::string &permission);
     void Init();
     FileAccessService(int32_t saID, bool runOnCreate = false);
-    virtual ~FileAccessService() = default;
+    virtual ~FileAccessService();
 
     virtual void OnStart() override;
+    virtual void OnStart(const SystemAbilityOnDemandReason& startReason) override;
     virtual void OnStop() override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string> &args) override;
     
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+    
     void DisconnectAppProxy(const sptr<AAFwk::IAbilityConnection>& connection);
     void RemoveAppProxy(const sptr<AAFwk::IAbilityConnection>& connection);
-
+    int32_t UnregisterAllByBundle(const std::string& bundleName, const int32_t userId, const int32_t index);
+    std::mutex observerMux_;
 protected:
     int32_t RegisterNotify(const Uri &uri, bool notifyForDescendants, const sptr<IFileAccessObserver> &observer,
         const ConnectExtensionInfo& info) override;
@@ -253,6 +263,16 @@ protected:
     int32_t UpdateDisplayName(const std::string &path, const std::string &displayName) override;
     int32_t UnregisterForSa(const std::string &path) override;
     int32_t GetAllSyncFoldersForSa(std::vector<SyncFolderExt> &syncFolderExts) override;
+    int32_t Changestate(const std::string &path, const State& newState);
+    int32_t IsDirectoryExists(const std::string &physicalPath);
+    int32_t GetCurrentUserId();
+    int32_t ValidateSyncFolder(const SyncFolder &syncFolder,
+    const std::string& bundleName, int index, int32_t userId);
+    int32_t IsSyncFolderInTable(const std::string& path,
+        std::vector<SyncFolderExt>& syncFolderExts, int userId);
+    void SetWorkStatus(bool turnOn);
+    int32_t DoUnregister(const std::string &path, int userId, const std::string &bundleName,
+        const SyncFolderExt& syncFolderExt);
 
 private:
     class ExtensionDeathRecipient : public IRemoteObject::DeathRecipient {
@@ -300,7 +320,6 @@ private:
     void AddAppProxy(const sptr<AAFwk::IAbilityConnection>& key, sptr<AgentFileAccessExtConnection>& value);
     void IncreaseCnt(const std::string &funcName);
     void DecreaseCnt(const std::string &funcName);
-    bool IsCalledCountValid();
     std::shared_ptr<UnloadTimer> unLoadTimer_ = nullptr;
     std::shared_ptr<OnDemandTimer> onDemandTimer_ = nullptr;
     static sptr<FileAccessService> instance_;
@@ -314,7 +333,7 @@ private:
     HolderManager<std::shared_ptr<ObserverContext>> obsManager_;
     std::mutex mapMutex_;
     std::unordered_map<std::string, sptr<IFileAccessExtBase>> cMap_;
-
+    
     class AppDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         AppDeathRecipient(wptr<FileAccessService> fileAccessSvc)
@@ -325,12 +344,21 @@ private:
         wptr<FileAccessService> fileAccessSvc_;
     };
 
+    std::mutex syncFolderMtx_;
     std::mutex appProxyMutex_;
     std::unordered_map<size_t, sptr<AgentFileAccessExtConnection>> appProxyMap_;
     std::unordered_map<size_t, sptr<AAFwk::IAbilityConnection>> appConnection_;
     sptr<IRemoteObject::DeathRecipient> appDeathRecipient_;
     int calledCount_{0};
     std::mutex calledMutex_;
+
+    void RegisterBundleBroadcast();
+    void UnRegisterBundleBroadcast();
+    bool IsCalledCountValid();
+
+    std::shared_ptr<BundleObserver> bundleObserver_ = nullptr;
+    bool isRegister_ = false;
+    OHOS::ThreadPool  handleBroadCastThreadPool_;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

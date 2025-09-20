@@ -30,21 +30,6 @@ namespace {
         "synchronous_root_table",
     };
     const std::string TAG = "UfsRdbAdapter";
-    const std::string CREATE_SYNCHRONOUS_ROOT_TABLE_SQL = "CREATE TABLE IF NOT EXISTS synchronous_root_table \
-    ( \
-        path               TEXT PRIMARY KEY, \
-        state              INTEGER, \
-        displayName        TEXT, \
-        displayNameResId   INTEGER, \
-        bundleName         TEXT, \
-        userId             INTEGER, \
-        appIndex           INTEGER, \
-        lastModifyTime     TEXT  \
-    );";
-    constexpr const char* SYNCHRONOUS_ROOT_DATA_RDB_PATH = "/data/service/el1/public/database/ufs_db/";
-    constexpr const char* SYNCHRONOUS_ROOT_DATABASE_NAME = "ufs_synchronous_root_db.db";
-    const int32_t RDB_INIT_MAX_TIMES = 30;
-    const int32_t RDB_INIT_INTERVAL_TIME = 100000;
     std::vector<uint8_t> emp{};
 }
 
@@ -94,7 +79,7 @@ bool RdbAdapter::Put(int64_t& outRowId, const std::string& table, const ValuesBu
         int32_t ret = store_->Insert(outRowId, table, values);
         if (ret == E_SQLITE_CORRUPT) {
             HILOG_ERROR("database corrupt ret:%{public}d", ret);
-            int32_t restoreRet = store_->Restore("", emp);
+            int32_t restoreRet = store_->Restore("");
             if (restoreRet != E_OK) {
                 HILOG_ERROR("Restore failed restoreRet:%{public}d", restoreRet);
                 return false;
@@ -125,7 +110,7 @@ bool RdbAdapter::Delete(int32_t& deleteRows, const std::string& table, const std
         int32_t ret = store_->Delete(deleteRows, table, whereClause, bindArgs);
         if (ret == E_SQLITE_CORRUPT) {
             HILOG_ERROR("database corrupt ret:%{public}d", ret);
-            int32_t restoreRet = store_->Restore("", emp);
+            int32_t restoreRet = store_->Restore("");
             if (restoreRet != E_OK) {
                 HILOG_ERROR("Restore failed restoreRet:%{public}d", restoreRet);
                 return false;
@@ -148,6 +133,7 @@ bool RdbAdapter::Update(int32_t& changedRows, const std::string& table, const Va
         return false;
     }
     {
+        std::lock_guard<std::mutex> lock(rdbAdapterMtx_);
         if (store_ == nullptr) {
             HILOG_ERROR("RDBStore_ is null");
             return false;
@@ -155,7 +141,7 @@ bool RdbAdapter::Update(int32_t& changedRows, const std::string& table, const Va
         int32_t ret = store_->Update(changedRows, table, values, whereClause, bindArgs);
         if (ret == E_SQLITE_CORRUPT) {
             HILOG_ERROR("database corrupt ret:%{public}d", ret);
-            int32_t restoreRet = store_->Restore("", emp);
+            int32_t restoreRet = store_->Restore("");
             if (restoreRet != E_OK) {
                 HILOG_ERROR("Restore failed restoreRet:%{public}d", restoreRet);
                 return false;
@@ -174,6 +160,7 @@ std::shared_ptr<ResultSet> RdbAdapter::Get(const std::string& sql, const std::ve
 {
     std::shared_ptr<ResultSet> resultSet = nullptr;
     {
+        std::lock_guard<std::mutex> lock(rdbAdapterMtx_);
         if (store_ == nullptr) {
             HILOG_ERROR("RDBStore_ is null");
             return nullptr;
@@ -188,7 +175,7 @@ std::shared_ptr<ResultSet> RdbAdapter::Get(const std::string& sql, const std::ve
         if (ret == E_SQLITE_CORRUPT) {
             HILOG_ERROR("database corrupt ret:%{public}d", ret);
             resultSet->Close();
-            ret = store_->Restore("", emp);
+            ret = store_->Restore("");
             if (ret != E_OK) {
                 HILOG_ERROR("Restore failed ret:%{public}d", ret);
                 return nullptr;
@@ -203,13 +190,10 @@ bool RdbAdapter::GetRDBPtr()
 {
     int32_t version = 1;
     OpenCallback helper;
-    RdbStoreConfig config(std::string(SYNCHRONOUS_ROOT_DATA_RDB_PATH) + std::string(SYNCHRONOUS_ROOT_DATABASE_NAME));
+    RdbStoreConfig config(SYNCHRONOUS_ROOT_DATA_RDB_PATH + SYNCHRONOUS_ROOT_DATABASE_NAME);
     int32_t errCode = E_OK;
     {
         std::lock_guard<std::mutex> lock(rdbAdapterMtx_);
-        if (store_ != nullptr) {
-            store_ = nullptr;
-        }
         store_ = RdbHelper::GetRdbStore(config, version, helper, errCode);
         if (errCode != E_OK) {
             HILOG_ERROR("getRDBPtr failed errCode:%{public}d", errCode);
@@ -227,7 +211,7 @@ bool RdbAdapter::GetRDBPtr()
         }
         if (rebuiltType == NativeRdb::RebuiltType::REBUILT) {
             HILOG_ERROR("database corrupt");
-            int32_t restoreRet = store_->Restore("", emp);
+            int32_t restoreRet = store_->Restore("");
             if (restoreRet != E_OK) {
                 HILOG_ERROR("Restore failed restoreRet:%{public}d", restoreRet);
                 return false;

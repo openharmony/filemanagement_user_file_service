@@ -36,6 +36,12 @@ ohos_hap("external_file_manager_hap") {
   subsystem_name = "filemanagement"
   part_name = "user_file_service"
   module_install_dir = "app/com.ohos.UserFile.ExternalFileManager"
+  if (defined(sign_hap_py_path)) {
+    certificate_profile = "//vendor/tools/hap_sign_conf/filemanagement/user_file_service/external_file_manager.p7b"
+    key_alias = "ExternalFileManager"
+    private_key_path = "ExternalFileManager"
+     compatible_version = "9"
+  }
 }
 
 ohos_js_assets("external_file_manager_js_assets") {
@@ -68,6 +74,7 @@ config("ability_config") {
     "${user_file_service_path}/utils",
     "${user_file_service_path}/interfaces/inner_api/file_access/include",
     "${user_file_service_path}/frameworks/js/napi/file_access_module",
+    "${user_file_service_path}/services/rdb_adapter/include",
   ]
 }
 
@@ -77,6 +84,7 @@ config("ability_public_config") {
     "native/file_access_service/include",
     "${user_file_service_path}/utils",
     "${user_file_service_path}/interfaces/kits/js/src/common",
+    "${user_file_service_path}/services/rdb_adapter/include",
   ]
 }
 
@@ -102,6 +110,7 @@ config("IFile_Access_Service_Base_config") {
     "${user_file_service_path}/interfaces/inner_api/file_access/include",
     "${user_file_service_path}/utils",
     "${user_file_service_path}/interfaces/kits/js/src/common",
+    "${user_file_service_path}/services/rdb_adapter/include",
     "${target_gen_dir}",
   ]
 }
@@ -176,20 +185,24 @@ ohos_shared_library("file_access_service") {
   include_dirs = [
     "${user_file_service_path}/interfaces/inner_api/cloud_disk_kit_inner/include",
     "${user_file_service_path}/interfaces/inner_api/file_access/include",
-    "${user_file_service_path}/services/native/file_access_service/include",
     "${user_file_service_path}/services/native/notify_event/include",
-    "${user_file_service_path}/services/rdb_adapter/include"
+    "${user_file_service_path}/services/rdb_adapter/include",
+    "${user_file_service_path}/services/native/file_access_service/include",
   ]
   shlib_type = "sa"
   sources = [
     "${user_file_service_path}/interfaces/inner_api/cloud_disk_kit_inner/src/cloud_disk_comm.cpp",
     "${user_file_service_path}/interfaces/inner_api/file_access/src/uri_ext.cpp",
-    "native/cloud_disk_service/src/cloud_disk_service.cpp",
+    "native/file_access_service/src/bundle_observer.cpp",
     "native/file_access_service/src/file_access_ext_connection.cpp",
     "native/file_access_service/src/file_access_service.cpp",
     "native/file_access_service/src/file_access_service_client.cpp",
     "native/notify_event/src/notify_work_service.cpp",
-    "rdb_adapter/src/ufs_rdb_adapter.cpp"
+    "native/file_access_service/src/ufs_access_token_helper.cpp",
+    "rdb_adapter/src/ufs_rdb_adapter.cpp",
+    "rdb_adapter/src/ufs_db_services_constants.cpp",
+    "native/cloud_disk_service/src/cloud_disk_synchronous_root_manager.cpp",
+    "native/cloud_disk_service/src/cloud_disk_service.cpp"
   ]
   configs = [ ":ability_config" ]
   version_script = "libfile_access_service.map"
@@ -199,10 +212,12 @@ ohos_shared_library("file_access_service") {
     ":file_access_service_base_source",
     "${user_file_service_path}/interfaces/inner_api/file_access:file_access_ext_base_include",
     "${user_file_service_path}/interfaces/inner_api/file_access:file_access_extension_ability_kit",
+    ":file_access_service.para",
+    ":file_access_service.para.dac",
   ]
-
+  defines = []
   if (user_file_service_cloud_disk_enable) {
-    defines = ["SUPPORT_CLOUD_DISK_MANAGER"]
+    defines += ["SUPPORT_CLOUD_DISK_MANAGER"]
   }
 
   external_deps = [
@@ -220,9 +235,37 @@ ohos_shared_library("file_access_service") {
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr:samgr_proxy"
+    "samgr:samgr_proxy",
+    "dfs_service:clouddiskservice_kit_inner",
+    "app_file_service:fileshare_native",
+    "app_file_service:fileuri_native",
+    "os_account:libaccountkits",
+    "os_account:os_account_innerkits",
   ]
-
+  if (ufs_sandbox_manarer) {
+    external_deps += [
+      "ability_runtime:uri_permission_mgr",
+      "sandbox_manager:libsandbox_manager_sdk",
+    ]
+    defines += [
+      "SANDBOX_MANAGER",
+      "ABILITY_RUNTIME_FEATURE_SANDBOXMANAGER",
+    ]
+  }
   subsystem_name = "filemanagement"
   part_name = "user_file_service"
+}
+
+ohos_prebuilt_etc("file_access_service.para") {
+  source = "file_access_service.para"
+  part_name = "user_file_service"
+  module_install_dir = "etc/param"
+  subsystem_name = "filemanagement"
+}
+ 
+ohos_prebuilt_etc("file_access_service.para.dac") {
+  source = "file_access_service.para.dac"
+  part_name = "user_file_service"
+  module_install_dir = "etc/param"
+  subsystem_name = "filemanagement"
 }
