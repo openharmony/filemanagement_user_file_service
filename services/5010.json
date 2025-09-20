@@ -6,7 +6,22 @@
             "libpath": "libfile_access_service.z.so",
             "run-on-create": false,
             "distributed": false,
-            "dump_level": 1
+            "dump_level": 1,
+            "cache-common-event": true,
+            "start-on-demand": {
+                "commonevent": [
+                    {
+                        "name": "usual.event.PACKAGE_REMOVED",
+                        "conditions": [
+                            {
+                                "eventId": "param",
+                                "name": "persist.clouddiskmanager.workstatus",
+                                "value": "true"
+                            }
+                        ]
+                    }
+                ]
+            }
         }
     ]
 }

@@ -25,6 +25,7 @@
 #include "result_set.h"
 #include <set>
 #include "rdb_open_callback.h"
+#include "ufs_db_services_constants.h"
 
 namespace OHOS {
 namespace FileAccessFwk {

@@ -29,6 +29,7 @@
 #include "uri_ext.h"
 #include "access_token.h"
 #include "accesstoken_kit.h"
+#include "ufs_rdb_adapter.h"
 
 using namespace std;
 namespace OHOS {
@@ -45,6 +46,7 @@ constexpr int32_t NOTIFY_TIME_INTERVAL = 500;
 constexpr int32_t MAX_WAIT_TIME = 20;
 constexpr int32_t ONE_SECOND = 1 * 1000;
 constexpr int32_t UNLOAD_SA_WAIT_TIME = 30;
+constexpr int32_t THREAD_NUM = 1;
 std::vector<Uri> deviceUris(DEVICE_ROOTS.begin(), DEVICE_ROOTS.end());
 
 bool FileAccessService::CheckCallingPermission(const std::string &permission)
@@ -61,7 +63,15 @@ bool FileAccessService::CheckCallingPermission(const std::string &permission)
     return true;
 }
 
-FileAccessService::FileAccessService(int32_t saID, bool runOnCreate) : SystemAbility(FILE_ACCESS_SERVICE_ID, false) {}
+FileAccessService::FileAccessService(int32_t saID, bool runOnCreate) : SystemAbility(FILE_ACCESS_SERVICE_ID, false)
+{
+    handleBroadCastThreadPool_.Start(THREAD_NUM);
+}
+
+FileAccessService::~FileAccessService()
+{
+    handleBroadCastThreadPool_.Stop();
+}
 
 void FileAccessService::OnStart()
 {
@@ -80,6 +90,7 @@ void FileAccessService::OnStop()
 {
     UserAccessTracer trace;
     trace.Start("OnStop");
+    UnRegisterBundleBroadcast();
     if (!ready_) {
         HILOG_ERROR("OnStop is not ready, nothing to do");
         return;
@@ -713,6 +724,7 @@ void FileAccessService::InitTimer()
             HILOG_ERROR("UnloadSA, GetSystemAbilityManager is null.");
             return;
         }
+        UnRegisterBundleBroadcast();
         int32_t result = saManager->UnloadSystemAbility(FILE_ACCESS_SERVICE_ID);
         if (result != ERR_OK) {
             HILOG_ERROR("UnloadSA, UnloadSystemAbility result: %{public}d", result);

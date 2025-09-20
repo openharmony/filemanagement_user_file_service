@@ -607,7 +607,8 @@ ohos_unittest("cloud_disk_service_test") {
     "ipc:ipc_napi",
     "napi:ace_napi",
     "os_account:os_account_innerkits",
-    "safwk:system_ability_fwk"
+    "safwk:system_ability_fwk",
+    "relational_store:native_rdb",
   ]
 
   defines = [
@@ -728,7 +729,6 @@ group("user_file_service_unit_test") {
     ":file_access_ext_stub_impl_test",
     ":js_file_access_ext_ability_test",
     ":notify_work_service_test",
-    ":ufs_rdb_adapter_test",
     ":urie_test",
   ]
 }

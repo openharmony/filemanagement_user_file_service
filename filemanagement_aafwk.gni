@@ -22,4 +22,9 @@ declare_args() {
         picker_udmf_enabled = false
     }
     user_file_service_cloud_disk_enable = false
+    ufs_sandbox_manarer = false
+    if (defined(global_parts_info) &&
+        defined(global_parts_info.accesscontrol_sandbox_manager)) {
+        ufs_sandbox_manarer = true
+    }
 }
