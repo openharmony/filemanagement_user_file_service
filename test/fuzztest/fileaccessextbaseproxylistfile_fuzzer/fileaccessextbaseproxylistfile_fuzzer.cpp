@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "fileaccessextbaseproxy_fuzzer.h"
+#include "fileaccessextbaseproxylistfile_fuzzer.h"
 
 #include <string>
 #include <vector>
@@ -87,51 +87,6 @@ shared_ptr<FileAccessHelper> GetFileAccessHelper()
     return g_fah;
 }
 
-bool OpenFileFuzzTest(sptr<IFileAccessExtBase> proxy, const uint8_t *data, size_t size)
-{
-    if (data == nullptr || size < sizeof(int32_t) + sizeof(int)) {
-        return true;
-    }
-
-    int pos = 0;
-    int32_t flags = TypeCast<int32_t>(data, &pos);
-    int fd = TypeCast<int>(data + pos, &pos);
-    Urie uri(string(reinterpret_cast<const char *>(data + pos), size - sizeof(int32_t) - sizeof(int)));
-    proxy->OpenFile(uri, flags, fd);
-    return true;
-}
-
-bool MkdirFuzzTest(sptr<IFileAccessExtBase> proxy, const uint8_t *data, size_t size)
-{
-    int len = size / 3;
-    Urie parent(string(reinterpret_cast<const char *>(data), len));
-    string displayName(string(reinterpret_cast<const char *>(data + len), len));
-    Urie newFile(string(reinterpret_cast<const char *>(data + len + len), len));
-    proxy->Mkdir(parent, displayName, newFile);
-    return true;
-}
-
-bool MoveFuzzTest(sptr<IFileAccessExtBase> proxy, const uint8_t *data, size_t size)
-{
-    int len = size / 3;
-    Urie sourceFile(string(reinterpret_cast<const char *>(data), len));
-    string targetParent(string(reinterpret_cast<const char *>(data + len), len));
-    Urie newFile(string(reinterpret_cast<const char *>(data + len + len), len));
-    proxy->Move(sourceFile, targetParent, newFile);
-    return true;
-}
-
-
-bool RenameFuzzTest(sptr<IFileAccessExtBase> proxy, const uint8_t *data, size_t size)
-{
-    int len = size / 2;
-    Urie sourceFile(string(reinterpret_cast<const char *>(data), len));
-    string displayName(string(reinterpret_cast<const char *>(data + len), len));
-    Urie newFile;
-    proxy->Rename(sourceFile, displayName, newFile);
-    return true;
-}
-
 bool ListFileFuzzTest(sptr<IFileAccessExtBase> proxy, const uint8_t *data, size_t size)
 {
     if (data == nullptr || size < sizeof(int64_t)) {
@@ -154,67 +109,6 @@ bool ListFileFuzzTest(sptr<IFileAccessExtBase> proxy, const uint8_t *data, size_
     SharedMemoryOperation::DestroySharedMemory(memInfo);
     return true;
 }
-
-bool ScanFileFuzzTest(sptr<IFileAccessExtBase> proxy, const uint8_t *data, size_t size)
-{
-    if (data == nullptr || size < sizeof(int64_t) + sizeof(int64_t)) {
-        return true;
-    }
-
-    int pos = 0;
-    int64_t offset = TypeCast<int64_t>(data, &pos);
-    int64_t maxCount = TypeCast<int64_t>(data + pos, &pos);
-
-    FileInfo fileInfo;
-    fileInfo.uri = std::string(reinterpret_cast<const char*>(data + pos), size - pos);
-    std::vector<FileInfo> fileInfoVec;
-    FileFilter filter;
-    proxy->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
-    return true;
-}
-
-bool UrieFuzzTest(const uint8_t *data, size_t size)
-{
-    int len = size / 2;
-    Urie uri(string(reinterpret_cast<const char *>(data), len));
-    Urie other(string(reinterpret_cast<const char *>(data + len), len));
-
-    uri.uriString_ = string(reinterpret_cast<const char *>(data), len);
-    uri.GetScheme();
-    uri.GetSchemeSpecificPart();
-    uri.GetAuthority();
-    uri.GetHost();
-    uri.GetPort();
-    uri.GetUserInfo();
-    uri.GetQuery();
-    uri.GetPath();
-    uri.GetFragment();
-    uri.IsHierarchical();
-    uri.IsAbsolute();
-    uri.IsRelative();
-    uri.ToString();
-    uri.CheckScheme();
-    uri.ParseScheme();
-    uri.ParseSsp();
-    uri.ParseAuthority();
-    uri.ParseUserInfo();
-    uri.ParseHost();
-    uri.ParsePort();
-    uri.ParsePath();
-    uri.ParsePath(NOT_FOUND);
-    uri.ParseQuery();
-    uri.ParseFragment();
-    uri.FindSchemeSeparator();
-    uri.FindFragmentSeparator();
-    uri.Equals(other);
-    uri.CompareTo(other);
-    vector<std::string> segments;
-    uri.GetPathSegments(segments);
-    Parcel parcel;
-    uri.Marshalling(parcel);
-    uri.Unmarshalling(parcel);
-    return (uri == other);
-}
 } // namespace OHOS
 
 /* Fuzzer entry point */
@@ -225,21 +119,13 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     auto helper = OHOS::GetFileAccessHelper();
     if (helper == nullptr) {
         printf("helper is nullptr.");
-        return false;
+        return 1;
     }
     auto proxy = helper->GetProxyByBundleName(OHOS::EXTERNAL_BNUDLE_NAME);
     if (proxy == nullptr) {
         printf("get proxy failed.");
-        return 0;
+        return 1;
     }
-
-    OHOS::OpenFileFuzzTest(proxy, data, size);
-    OHOS::MkdirFuzzTest(proxy, data, size);
-    OHOS::MoveFuzzTest(proxy, data, size);
-    OHOS::RenameFuzzTest(proxy, data, size);
     OHOS::ListFileFuzzTest(proxy, data, size);
-    OHOS::ScanFileFuzzTest(proxy, data, size);
-
-    OHOS::UrieFuzzTest(data, size);
     return 0;
 }

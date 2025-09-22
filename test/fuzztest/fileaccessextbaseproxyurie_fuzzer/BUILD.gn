@@ -15,10 +15,10 @@
 import("//build/config/features.gni")
 import("//build/test.gni")
 import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
-ohos_fuzztest("FileAccessExtBaseProxyFuzzTest") {
+ohos_fuzztest("FileAccessExtBaseProxyUrieFuzzTest") {
   module_out_path = "user_file_service/user_file_service"
   fuzz_config_file =
-      "${user_file_service_path}/test/fuzztest/fileaccessextbaseproxy_fuzzer"
+      "${user_file_service_path}/test/fuzztest/fileaccessextbaseproxyurie_fuzzer"
   include_dirs = [
     "${user_file_service_path}/interfaces/inner_api/file_access/include",
     "${user_file_service_path}/test/fuzztest/privacy_comm/include",
@@ -31,7 +31,7 @@ ohos_fuzztest("FileAccessExtBaseProxyFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
   sources = [
-    "fileaccessextbaseproxy_fuzzer.cpp",
+    "fileaccessextbaseproxyurie_fuzzer.cpp",
     "${user_file_service_path}/test/fuzztest/privacy_comm/src/user_file_service_token_mock.cpp"
   ]
 
