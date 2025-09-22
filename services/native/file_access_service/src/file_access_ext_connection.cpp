@@ -39,7 +39,7 @@ void FileAccessExtConnection::OnAbilityConnectDone(
         HILOG_ERROR("remote is nullptr");
         return;
     }
-
+    std::lock_guard<std::mutex> lock(connectLockInfo_.mutex);
     fileExtProxy_ = iface_cast<FileAccessExtBaseProxy>(remoteObject);
     if (fileExtProxy_ == nullptr) {
         HILOG_ERROR("FileAccessExtConnection fileExtProxy_ is nullptr");
@@ -47,7 +47,6 @@ void FileAccessExtConnection::OnAbilityConnectDone(
     }
     HILOG_INFO("OnAbilityConnectDone set connected info");
     isConnected_.store(true);
-    std::lock_guard<std::mutex> lock(connectLockInfo_.mutex);
     connectLockInfo_.isReady = true;
     connectLockInfo_.condition.notify_all();
 }

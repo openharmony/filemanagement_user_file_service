@@ -678,9 +678,15 @@ int32_t FileAccessService::OnChange(const Uri &uri, NotifyType notifyType)
 
 bool FileAccessService::IsUnused()
 {
-    HILOG_INFO("IsUnused: obsManager_: %{public}d, appProxyMap_: %{public}d, calledCount_: %{public}d",
-        obsManager_.isEmpty(), appProxyMap_.empty(), calledCount_);
-    return obsManager_.isEmpty() && appProxyMap_.empty() && !IsCalledCountValid();
+    HILOG_INFO("IsUnused: obsManager_: %{public}d, calledCount_: %{public}d", obsManager_.isEmpty(), calledCount_);
+    return obsManager_.isEmpty() && IsAppProxyMapEmpty() && !IsCalledCountValid();
+}
+
+bool FileAccessService::IsAppProxyMapEmpty()
+{
+    lock_guard<mutex> lock(appProxyMutex_);
+    HILOG_INFO("IsUnused: appProxyMap_: %{public}d", appProxyMap_.empty());
+    return appProxyMap_.empty();
 }
 
 void FileAccessService::InitTimer()

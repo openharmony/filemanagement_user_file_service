@@ -87,8 +87,8 @@ void NapiObserver::NapiWorkScope(uv_work_t *work, int status)
         HILOG_ERROR("param->napiObserver is nullptr");
         return;
     }
-    napi_open_handle_scope(param->napiObserver->env_, &scope);
-    if (scope == nullptr) {
+    napi_status res = napi_open_handle_scope(param->napiObserver->env_, &scope);
+    if (res != napi_ok || scope == nullptr) {
         HILOG_ERROR("napi_open_handle_scope failed");
         return;
     }

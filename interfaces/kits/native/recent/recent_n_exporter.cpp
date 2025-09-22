@@ -371,9 +371,6 @@ void RecentNExporter::InitRecentPath()
 {
     if (RecentNExporter::recentPath_.empty()) {
         std::unique_lock<std::mutex> lock(g_recentPathMutex);
-        if (!RecentNExporter::recentPath_.empty()) {
-            return ;
-        }
         RecentNExporter::recentPath_ = "/storage/Users/currentUser/.Recent/";
         std::string deviceType;
         if (IsFullMountEnable()) {
