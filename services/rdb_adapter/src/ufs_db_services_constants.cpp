@@ -30,13 +30,13 @@ const std::string SYNCHRONOUS_ROOT_DATA_RDB_PATH = "/data/service/el1/public/dat
 const std::string SYNCHRONOUS_ROOT_DATABASE_NAME = "ufs_synchronous_root_db.db";
 const std::string ACTION_CONDITION = "userId = ? AND bundleName = ? AND appIndex = ? AND  path = ?";
 const std::string DELETE_CONDITION = "userId = ? AND bundleName = ? AND appIndex = ? AND  path = ?";
-const std::string DELETE_ALL_CONDITION = "userid = ? AND bundleName = ?";
+const std::string DELETE_ALL_CONDITION = "userId = ? AND bundleName = ?";
 const std::string SELECT_SYNCHRONOUS_ROOT_TABLE_WHERE_PATH_AND_UID =
     "SELECT * FROM synchronous_root_table WHERE path = ? AND userId = ?";
 const std::string SELECT_SYNCHRONOUS_ROOT_TABLE_WHERE_USERID_AND_BUNDLENAME =
     "SELECT * FROM synchronous_root_table WHERE userId = ? AND bundleName = ? AND appIndex = ?";
 const std::string SELECT_SYNCHRONOUS_ROOT_TABLE_WHERE_USERID =
-    "SELECT * FROM synchronous_root_table WHERE userid = ?";
+    "SELECT * FROM synchronous_root_table WHERE userId = ?";
 const std::string SELECT_SYNCHRONOUS_ROOT_TABLE = "SELECT * FROM synchronous_root_table";
 const std::string CREATE_SYNCHRONOUS_ROOT_TABLE_SQL = "CREATE TABLE IF NOT EXISTS synchronous_root_table \
     ( \

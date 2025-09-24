@@ -158,7 +158,7 @@ int32_t FileAccessService::Register(const SyncFolder &syncFolder)
     if (UfsAccessTokenHelper::GetCallerBundleNameAndIndex(bundleName, index) != ERR_OK) {
         HILOG_ERROR("Get caller bundleName and index failed.");
         DecreaseCnt(__func__);
-        return E_PERMISSION;
+        return E_TRY_AGAIN;
     }
     int32_t userId = UfsAccessTokenHelper::GetUserId();
     auto ret = ValidateSyncFolder(syncFolder, bundleName, index, userId);
@@ -360,7 +360,7 @@ int32_t FileAccessService::Changestate(const std::string &path, const State& new
     NotifyWorkService::EventType state =
         (newState == State::ACTIVE) ? NotifyWorkService::EventType::ACTIVE : NotifyWorkService::EventType::INACTIVE;
     if (!NotifyWorkService::GetInstance().NotifySyncFolderEvent(syncFolderExt, state)) {
-        HILOG_ERROR("FileAccessService::Active otifySyncFolderEvent failed");
+        HILOG_ERROR("FileAccessService::Active NotifySyncFolderEvent failed");
     }
     HILOG_INFO("FileAccessService::Changestate success");
     return ERR_OK;
@@ -575,12 +575,12 @@ int32_t FileAccessService::GetAllSyncFoldersForSa(std::vector<SyncFolderExt> &sy
         DecreaseCnt(__func__);
         return E_INVALID_PARAM;
     }
-    if (!SynchronousRootManager::GetInstance().GetAllRootInfosByUserId(currentUserId, syncFolderExt)) {
+    if (!SynchronousRootManager::GetInstance().GetAllRootInfosByUserId(currentUserId, syncFolderExts)) {
         HILOG_ERROR("Get all root infos failed");
         DecreaseCnt(__func__);
         return E_SYNC_FOLDER_NOT_REGISTERED;
     }
-    HILOG_INFO("Found %{public}zu roots", syncFolderExt.size());
+    HILOG_INFO("Found %{public}zu roots", syncFolderExts.size());
     DecreaseCnt(__func__);
     return ERR_OK;
 #else

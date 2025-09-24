@@ -140,6 +140,10 @@ bool SynchronousRootManager::UpdateSynchronousRootState(const std::string& path,
     PutTimeStamp(values);
     {
         std::lock_guard<std::mutex> lock(rdbMutex_);
+        if (rdbStore_ == nullptr) {
+            HILOG_ERROR("rdbStore_ is nullptr");
+            return false;
+        }
         auto ret = rdbStore_->Update(changedRows, SYNCHRONOUS_ROOT_TABLE, values, ACTION_CONDITION,
             std::vector<ValueObject>{ ValueObject(userId), ValueObject(bundleName),
                 ValueObject(index), ValueObject(rootInfo.path_)});
@@ -176,6 +180,10 @@ bool SynchronousRootManager::UpdateDisplayName(const std::string& path,
     PutTimeStamp(values);
     {
         std::lock_guard<std::mutex> lock(rdbMutex_);
+        if (rdbStore_ == nullptr) {
+            HILOG_ERROR("rdbStore_ is nullptr");
+            return false;
+        }
         auto ret = rdbStore_->Update(changedRows, SYNCHRONOUS_ROOT_TABLE, values, ACTION_CONDITION,
             std::vector<ValueObject>{ ValueObject(userId), ValueObject(bundleName),
                 ValueObject(index), ValueObject(rootInfo.path_)});
@@ -316,16 +324,17 @@ bool SynchronousRootManager::GetSynchronousRootByPathAndUserId(SyncFolder& syncF
 int32_t SynchronousRootManager::GetRootNumByUserIdAndBundleName(const std::string& bundleName,
     int32_t index, int32_t userId)
 {
+    int32_t errorNo = -1;
     if (rdbStore_ == nullptr) {
         HILOG_ERROR("rdbStore_ is nullptr");
-        return false;
+        return errorNo;
     }
     std::shared_ptr<ResultSet> resultSet = rdbStore_->Get(
         SELECT_SYNCHRONOUS_ROOT_TABLE_WHERE_USERID_AND_BUNDLENAME,
         std::vector<ValueObject>{ ValueObject(userId), ValueObject(bundleName), ValueObject(index)});
     if (resultSet == nullptr) {
         HILOG_ERROR("ResultSet is nullptr");
-        return false;
+        return errorNo;
     }
     int32_t rowCount = -1;
     resultSet->GetRowCount(rowCount);

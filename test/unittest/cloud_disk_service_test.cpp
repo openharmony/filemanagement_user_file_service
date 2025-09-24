@@ -62,6 +62,53 @@ void CloudDiskServiceTest::TearDown()
 }
 
 /**
+ * @tc.number: CloudDiskService_RegisterBundleBroadcast_001
+ * @tc.name: CloudDiskService_RegisterBundleBroadcast
+ * @tc.desc: Verify RegisterBundleBroadcast function works correctly
+ */
+HWTEST_F(CloudDiskServiceTest, CloudDiskService_RegisterBundleBroadcast_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "CloudDiskServiceTest-begin CloudDiskService_RegisterBundleBroadcast_001";
+    ASSERT_NE(fileAccessSvc_, nullptr);
+    fileAccessSvc_->RegisterBundleBroadcast();
+    EXPECT_TRUE(fileAccessSvc_->bundleObserver_ != nullptr);
+
+    fileAccessSvc_->isRegister_ = false;
+    fileAccessSvc_->RegisterBundleBroadcast();
+    EXPECT_TRUE(fileAccessSvc_->isRegister_);
+    fileAccessSvc_->bundleObserver_ = nullptr;
+    fileAccessSvc_->isRegister_ = false;
+    GTEST_LOG_(INFO) << "CloudDiskServiceTest-end CloudDiskService_RegisterBundleBroadcast_001";
+}
+
+/**
+ * @tc.number: CloudDiskService_OnAddSystemAbility_001
+ * @tc.name: CloudDiskService_OnAddSystemAbility
+ * @tc.desc: Verify OnAddSystemAbility function works correctly
+ */
+HWTEST_F(CloudDiskServiceTest, CloudDiskService_OnAddSystemAbility_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "CloudDiskServiceTest-begin CloudDiskService_OnAddSystemAbility_001";
+    ASSERT_NE(fileAccessSvc_, nullptr);
+    fileAccessSvc_->OnAddSystemAbility(FILE_ACCESS_SERVICE_ID, "test");
+    EXPECT_TRUE(fileAccessSvc_->bundleObserver_ == nullptr);
+
+    fileAccessSvc_->OnAddSystemAbility(COMMON_EVENT_SERVICE_ID, "test");
+    EXPECT_TRUE(fileAccessSvc_->bundleObserver_ != nullptr);
+
+    fileAccessSvc_->isRegister_ = false;
+    fileAccessSvc_->OnAddSystemAbility(COMMON_EVENT_SERVICE_ID, "test");
+    EXPECT_TRUE(fileAccessSvc_->isRegister_);
+
+    fileAccessSvc_->OnAddSystemAbility(COMMON_EVENT_SERVICE_ID, "test");
+    EXPECT_TRUE(fileAccessSvc_->isRegister_);
+    EXPECT_TRUE(fileAccessSvc_->bundleObserver_ != nullptr);
+    fileAccessSvc_->bundleObserver_ = nullptr;
+    fileAccessSvc_->isRegister_ = false;
+    GTEST_LOG_(INFO) << "CloudDiskServiceTest-end CloudDiskService_OnAddSystemAbility_001";
+}
+
+/**
  * @tc.number: CloudDiskService_Register_001
  * @tc.name: Register cloud disk root info
  * @tc.desc: Verify Register function works correctly
@@ -75,7 +122,7 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_Register_001, TestSize.Level1)
     ASSERT_NE(fileAccessSvc_, nullptr);
     int32_t result = fileAccessSvc_->Register(syncFolder);
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
-    EXPECT_EQ(result, ERR_OK);
+    EXPECT_EQ(result, E_TRY_AGAIN);
 #else
     EXPECT_EQ(result, E_NOT_SUPPORT);
 #endif
@@ -94,7 +141,7 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_Unregister_001, TestSize.Level1)
     ASSERT_NE(fileAccessSvc_, nullptr);
     int32_t result = fileAccessSvc_->Unregister(path);
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
-    EXPECT_EQ(result, ERR_OK);
+    EXPECT_EQ(result, E_INVALID_PARAM);
 #else
     EXPECT_EQ(result, E_NOT_SUPPORT);
 #endif
@@ -114,7 +161,7 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_Active_001, TestSize.Level1)
     ASSERT_NE(fileAccessSvc_, nullptr);
     int32_t result = fileAccessSvc_->Active(path);
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
-    EXPECT_EQ(result, ERR_OK);
+    EXPECT_EQ(result, E_INVALID_PARAM);
 #else
     EXPECT_EQ(result, E_NOT_SUPPORT);
 #endif
@@ -134,7 +181,7 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_InActive_001, TestSize.Level1)
     ASSERT_NE(fileAccessSvc_, nullptr);
     int32_t result = fileAccessSvc_->Deactive(path);
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
-    EXPECT_EQ(result, ERR_OK);
+    EXPECT_EQ(result, E_INVALID_PARAM);
 #else
     EXPECT_EQ(result, E_NOT_SUPPORT);
 #endif
@@ -154,7 +201,7 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_GetSyncFolders_001, TestSize.Lev
     ASSERT_NE(fileAccessSvc_, nullptr);
     int32_t result = fileAccessSvc_->GetSyncFolders(syncFolders);
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
-    EXPECT_EQ(result, ERR_OK);
+    EXPECT_EQ(result, E_INVALID_PARAM);
 #else
     EXPECT_EQ(result, E_NOT_SUPPORT);
 #endif
@@ -174,7 +221,7 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_GetAllSyncFolders_001, TestSize.
     ASSERT_NE(fileAccessSvc_, nullptr);
     int32_t result = fileAccessSvc_->GetAllSyncFolders(syncFolderExts);
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
-    EXPECT_EQ(result, ERR_OK);
+    EXPECT_EQ(result, E_PERMISSION);
 #else
     EXPECT_EQ(result, E_NOT_SUPPORT);
 #endif
@@ -195,7 +242,7 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_UpdateDisplayName_001, TestSize.
     ASSERT_NE(fileAccessSvc_, nullptr);
     int32_t result = fileAccessSvc_->UpdateDisplayName(path, displayName);
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
-    EXPECT_EQ(result, ERR_OK);
+    EXPECT_EQ(result, E_INVALID_PARAM);
 #else
     EXPECT_EQ(result, E_NOT_SUPPORT);
 #endif

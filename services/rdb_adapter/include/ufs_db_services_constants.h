@@ -22,33 +22,6 @@
 
 namespace OHOS {
 namespace FileAccessFwk {
-
-#define S_IFMT  0170000
-
-#define S_IFDIR 0040000
-#define S_IFCHR 0020000
-#define S_IFBLK 0060000
-#define S_IFREG 0100000
-#define S_IFIFO 0010000
-#define S_IFLNK 0120000
-#define S_IFSOCK 0140000
-
-constexpr int32_t PERMISSION_VERIFY_FAIL = 201;
-constexpr int32_t SysCapId = 14500001;
-constexpr int32_t INVALID_PARAMETER = SysCapId + 1;
-constexpr int32_t SYNCHRONOUS_ROOT_NOT_PERSISTED = SysCapId + 2;
-constexpr int32_t IPC_COMMUNICATION_FAIL = SysCapId + 3;
-constexpr int32_t SYNCHRONOUS_ROOT_REACHED_LIMIT = SysCapId + 4;
-constexpr int32_t CONFLICT_WITH_CURRENT_APP = SysCapId + 5;
-constexpr int32_t CONFLICT_WITH_OTHER_APP = SysCapId + 6;
-constexpr int32_t CREATE_SYNCHRONOUS_ROOT_FAIL = SysCapId + 7;
-constexpr int32_t SYNCHRONOUS_ROOT_NOT_EXIST = SysCapId + 8;
-constexpr int32_t REMOVE_SYNCHRONOUS_ROOT_FAIL = SysCapId + 9;
-constexpr int32_t PERSIST_SYNCHRONOUS_ROOT_PROPERTY_FAIL = SysCapId + 10;
-constexpr int32_t SYSTEM_CONTROL_DISABLED = SysCapId + 11;
-
-constexpr int32_t AND_LENGTH = 5;
-constexpr int32_t WHERE_LENGTH = 7;
 constexpr int32_t RDB_INIT_MAX_TIMES = 30;
 constexpr int32_t RDB_INIT_INTERVAL_TIME = 100000;
 constexpr int32_t CHANGEROWCNT_INIT = -1;
