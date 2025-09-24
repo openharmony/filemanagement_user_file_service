@@ -227,7 +227,7 @@ int CloudDiskSyncFolderManagerImpl::Active(const std::string path)
     HILOG_INFO("CloudDiskSyncFolderManagerImpl::Active in");
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
     if (path.empty()) {
-        HILOG_ERROR("Unregister path is empty");
+        HILOG_ERROR("Active path is empty");
         return E_INVALID_PARAM;
     }
     auto proxy = FileAccessServiceClient::GetInstance();
