@@ -111,11 +111,25 @@ HWTEST_F(UriTest, Uri_GetAuthority_0200, Function | MediumTest | Level1)
  */
 HWTEST_F(UriTest, Uri_GetAuthority_0300, Function | MediumTest | Level1)
 {
-    GTEST_LOG_(INFO) << "Uri_GetAuthority_0200 start";
+    GTEST_LOG_(INFO) << "Uri_GetAuthority_0300 start";
     urie_->uriString_ = "://abc";
     auto result = urie_->GetAuthority();
     EXPECT_EQ(result, "abc");
-    GTEST_LOG_(INFO) << "Uri_GetAuthority_0200 end";
+    GTEST_LOG_(INFO) << "Uri_GetAuthority_0300 end";
+}
+
+/**
+ * @tc.number: Uri_GetAuthority_0400
+ * @tc.name: GetAuthority
+ * @tc.desc: Verify the function to get authority.
+ */
+HWTEST_F(UriTest, Uri_GetAuthority_0400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_GetAuthority_0400 start";
+    urie_->uriString_ = "";
+    auto result = urie_->GetAuthority();
+    EXPECT_EQ(result, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_GetAuthority_0400 end";
 }
 
 /**
@@ -299,6 +313,10 @@ HWTEST_F(UriTest, Uri_IsAbsolute_0200, Function | MediumTest | Level1)
     GTEST_LOG_(INFO) << "Uri_IsAbsolute_0200 start";
     auto result = urie_->IsAbsolute();
     EXPECT_TRUE(!result);
+
+    urie_->uriString_ = "";
+    result = urie_->IsAbsolute();
+    EXPECT_TRUE(!result);
     GTEST_LOG_(INFO) << "Uri_IsAbsolute_0200 end";
 }
 
@@ -474,13 +492,41 @@ HWTEST_F(UriTest, Uri_ParseQuery_0100, Function | MediumTest | Level1)
 HWTEST_F(UriTest, Uri_ParseQuery_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "Uri_ParseQuery_0200 start";
+    urie_ = std::make_shared<Urie>();
+    urie_->uriString_ = "?";
+    auto result = urie_->ParseQuery();
+    EXPECT_EQ(result, EMPTY);
+
+    urie_->uriString_ = "test?#test";
+    urie_->cachedSsi_ = 0;
+    urie_->cachedFsi_ = 1;
+    result = urie_->ParseQuery();
+    EXPECT_EQ(result, EMPTY);
+
+    urie_->uriString_ = "?test";
+    urie_->cachedSsi_ = 2;
+    urie_->cachedFsi_ = 1;
+    result = urie_->ParseQuery();
+    EXPECT_EQ(result, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_ParseQuery_0200 end";
+}
+
+/**
+ * @tc.number: Uri_ParseQuery_0300
+ * @tc.name: ParseQuery
+ * @tc.desc: Verify the function.
+ * @tc.require: issueI6415N
+ */
+HWTEST_F(UriTest, Uri_ParseQuery_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_ParseQuery_0300 start";
     string uriString = "this is uriString";
     urie_ = std::make_shared<Urie>(uriString);
     urie_->cachedSsi_ = 3;
     urie_->cachedFsi_ = 2;
     auto result = urie_->ParseQuery();
     EXPECT_EQ(result, EMPTY);
-    GTEST_LOG_(INFO) << "Uri_ParseQuery_0200 end";
+    GTEST_LOG_(INFO) << "Uri_ParseQuery_0300 end";
 }
 
 /**
@@ -503,7 +549,7 @@ HWTEST_F(UriTest, Uri_ParsePath_0100, Function | MediumTest | Level1)
 /**
  * @tc.number: Uri_ParsePath_0200
  * @tc.name: ParsePath
- * @tc.desc: Verify the function.
+ * @tc.desc: Verify the ParsePath function.
  * @tc.require: issueI6415N
  */
 HWTEST_F(UriTest, Uri_ParsePath_0200, Function | MediumTest | Level1)
@@ -514,6 +560,405 @@ HWTEST_F(UriTest, Uri_ParsePath_0200, Function | MediumTest | Level1)
     urie_->cachedSsi_ = 2;
     auto result = urie_->ParsePath();
     EXPECT_EQ(result, EMPTY);
+
+    urie_->uriString_ = ":/";
+    urie_->cachedSsi_ = NOT_FOUND;
+    result = urie_->ParsePath();
+    EXPECT_EQ(result, "/");
     GTEST_LOG_(INFO) << "Uri_ParsePath_0200 end";
+}
+
+/**
+ * @tc.number: Uri_GetHost_0300
+ * @tc.name: WithAbilityName/GetAbilityName.
+ * @tc.desc: Verify the GetHost function.
+ */
+HWTEST_F(UriTest, Uri_GetHost_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_GetHost_0300 start";
+    urie_ = std::make_shared<Urie>();
+    urie_->uriString_ = "";
+    auto result = urie_->GetHost();
+    EXPECT_EQ(result, EMPTY);
+
+    urie_->uriString_ = "test";
+    urie_->host_ = "test";
+    result = urie_->GetHost();
+    EXPECT_EQ(result, "test");
+    GTEST_LOG_(INFO) << "Uri_GetHost_0300 end";
+}
+
+/**
+ * @tc.number: Uri_ParsePath_0300
+ * @tc.name: ParsePath
+ * @tc.desc: Verify the ParsePath function.
+ * @tc.require: issueI6415N
+ */
+HWTEST_F(UriTest, Uri_ParsePath_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_ParsePath_0300 start";
+    urie_ = std::make_shared<Urie>();
+    urie_->uriString_ = "";
+    auto result = urie_->ParsePath(NOT_FOUND);
+    EXPECT_EQ(result, EMPTY);
+
+    urie_->uriString_ = "/";
+    result = urie_->ParsePath(NOT_FOUND);
+    EXPECT_EQ(result, "/");
+
+    urie_->uriString_ = "//";
+    result = urie_->ParsePath(NOT_FOUND);
+    EXPECT_EQ(result, EMPTY);
+
+    urie_->uriString_ = "//?";
+    result = urie_->ParsePath(NOT_FOUND);
+    EXPECT_EQ(result, EMPTY);
+
+    urie_->uriString_ = "//#";
+    result = urie_->ParsePath(NOT_FOUND);
+    EXPECT_EQ(result, EMPTY);
+
+    urie_->uriString_ = "///";
+    result = urie_->ParsePath(NOT_FOUND);
+    EXPECT_EQ(result, "/");
+
+    urie_->uriString_ = "//\\";
+    result = urie_->ParsePath(NOT_FOUND);
+    EXPECT_EQ(result, "\\");
+
+    urie_->uriString_ = "//a";
+    result = urie_->ParsePath(NOT_FOUND);
+    EXPECT_EQ(result, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_ParsePath_0300 end";
+}
+
+/**
+ * @tc.number: Uri_GetScheme_0200
+ * @tc.name: GetScheme
+ * @tc.desc: Verify the GetScheme function.
+ */
+HWTEST_F(UriTest, Uri_GetScheme_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_GetScheme_0200 start";
+    urie_ = std::make_shared<Urie>("");
+    auto result = urie_->GetScheme();
+    EXPECT_EQ(result, EMPTY);
+
+    urie_->uriString_ = "test";
+    urie_->scheme_ = NOT_CACHED;
+    result = urie_->GetScheme();
+    EXPECT_EQ(result, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_GetScheme_0200 end";
+}
+
+/**
+ * @tc.number: Uri_GetSchemeSpecificPart_0400
+ * @tc.name: GetSchemeSpecificPart
+ * @tc.desc: Verify the GetSchemeSpecificPart function.
+ */
+HWTEST_F(UriTest, Uri_GetSchemeSpecificPart_0400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_GetSchemeSpecificPart_0400 start";
+    urie_ = std::make_shared<Urie>("http:");
+    auto result = urie_->GetSchemeSpecificPart();
+    EXPECT_EQ(result, EMPTY);
+
+    urie_->uriString_ = "";
+    result = urie_->GetSchemeSpecificPart();
+    EXPECT_EQ(result, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_GetSchemeSpecificPart_0400 end";
+}
+
+/**
+ * @tc.number: Uri_ParseSsp_0100
+ * @tc.name: ParseSsp
+ * @tc.desc: Verify the ParseSsp function.
+ */
+HWTEST_F(UriTest, Uri_ParseSsp_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_ParseSsp_0100 start";
+    urie_ = std::make_shared<Urie>();
+    urie_->uriString_ = "";
+    urie_->cachedSsi_ = 0;
+    urie_->cachedFsi_ = 0;
+    auto result = urie_->ParseSsp();
+    EXPECT_EQ(result, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_ParseSsp_0100 end";
+}
+
+/**
+ * @tc.number: Uri_ParseUserInfo_0200
+ * @tc.name: ParseUserInfo
+ * @tc.desc: Verify the ParseUserInfo function.
+ */
+HWTEST_F(UriTest, Uri_ParseUserInfo_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_ParseUserInfo_0200 start";
+    urie_ = std::make_shared<Urie>();
+    urie_->uriString_ = "test";
+    urie_->authority_ = "test";
+    auto result = urie_->ParseUserInfo();
+    EXPECT_EQ(result, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_ParseUserInfo_0200 end";
+}
+
+/**
+ * @tc.number: Uri_GetPort_0500
+ * @tc.name: GetPort
+ * @tc.desc: Verify the GetPort function.
+ */
+HWTEST_F(UriTest, Uri_GetPort_0500, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_GetPort_0500 start";
+    urie_ = std::make_shared<Urie>();
+    urie_->uriString_ = "";
+    auto result = urie_->GetPort();
+    EXPECT_EQ(result, PORT_NONE);
+    GTEST_LOG_(INFO) << "Uri_GetPort_0500 end";
+}
+
+/**
+ * @tc.number: Uri_ParsePort_0100
+ * @tc.name: ParsePort
+ * @tc.desc: Verify the ParsePort function.
+ */
+HWTEST_F(UriTest, Uri_ParsePort_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_ParsePort_0100 start";
+    urie_ = std::make_shared<Urie>();
+    urie_->authority_ = "test";
+    urie_->uriString_ = "test";
+    auto result = urie_->ParsePort();
+    EXPECT_EQ(result, PORT_NONE);
+    GTEST_LOG_(INFO) << "Uri_ParsePort_0100 end";
+}
+
+/**
+ * @tc.number: Uri_GetQuery_0100
+ * @tc.name: GetQuery
+ * @tc.desc: Verify the GetQuery function.
+ */
+HWTEST_F(UriTest, Uri_GetQuery_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_GetQuery_0100 start";
+    urie_ = std::make_shared<Urie>();
+    urie_->uriString_ = "";
+    auto result = urie_->GetQuery();
+    EXPECT_EQ(result, EMPTY);
+
+    urie_->uriString_ = "test";
+    urie_->query_ = "";
+    result = urie_->GetQuery();
+    EXPECT_EQ(result, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_GetQuery_0100 end";
+}
+
+/**
+ * @tc.number: Uri_GetPath_0100
+ * @tc.name: GetPath
+ * @tc.desc: Verify the GetPath function.
+ */
+HWTEST_F(UriTest, Uri_GetPath_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_GetPath_0100 start";
+    urie_ = std::make_shared<Urie>();
+    urie_->uriString_ = "";
+    auto result = urie_->GetPath();
+    EXPECT_EQ(result, EMPTY);
+
+    urie_->uriString_ = "test";
+    urie_->path_ = "test";
+    result = urie_->GetPath();
+    EXPECT_EQ(result, "test");
+    GTEST_LOG_(INFO) << "Uri_GetPath_0100 end";
+}
+
+/**
+ * @tc.number: Uri_GetPathSegments_0100
+ * @tc.name: GetPathSegments
+ * @tc.desc: Verify the function when path is empty.
+ */
+HWTEST_F(UriTest, Uri_GetPathSegments_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_GetPathSegments_0100 start";
+    urie_ = std::make_shared<Urie>();
+    urie_->uriString_ = "";
+    std::vector<std::string> segments;
+    urie_->GetPathSegments(segments);
+    EXPECT_EQ(segments.size(), 0);
+
+    urie_->uriString_ = ":/a/b/c/d";
+    urie_->path_ = NOT_CACHED;
+    urie_->GetPathSegments(segments);
+    EXPECT_EQ(segments.size(), 4); // 4: vector size
+
+    urie_->uriString_ = ":/a/b/c/d/";
+    urie_->path_ = NOT_CACHED;
+    urie_->GetPathSegments(segments);
+    EXPECT_EQ(segments.size(), 8); // 8: vector size
+    GTEST_LOG_(INFO) << "Uri_GetPathSegments_0100 end";
+}
+
+/**
+ * @tc.number: Uri_GetPathSegments_0200
+ * @tc.name: GetPathSegments
+ * @tc.desc: Verify the GetPathSegments function.
+ */
+HWTEST_F(UriTest, Uri_GetPathSegments_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_GetPathSegments_0200 start";
+    urie_ = std::make_shared<Urie>();
+    urie_->uriString_ = ":/a/b/c/d";
+    urie_->path_ = "/a/b/c/d";
+    std::vector<std::string> segments;
+    urie_->GetPathSegments(segments);
+    EXPECT_EQ(segments.size(), 4); // 4: vector size
+
+    urie_->uriString_ = ":/a/b/c/d/";
+    urie_->path_ = "/a/b/c/d/";
+    urie_->GetPathSegments(segments);
+    EXPECT_EQ(segments.size(), 8); // 8: vector size
+    GTEST_LOG_(INFO) << "Uri_GetPathSegments_0200 end";
+}
+
+/**
+ * @tc.number: Uri_GetFragment_0200
+ * @tc.name: GetFragment
+ * @tc.desc: Verify the GetFragment function.
+ */
+HWTEST_F(UriTest, Uri_GetFragment_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_GetFragment_0200 start";
+    urie_ = std::make_shared<Urie>("http:path#fragment");
+    auto result = urie_->GetFragment();
+    EXPECT_EQ(result, "fragment");
+
+    urie_->uriString_ = "";
+    result = urie_->GetFragment();
+    EXPECT_EQ(result, EMPTY);
+
+    urie_->uriString_ = "test";
+    urie_->fragment_ = "";
+    result = urie_->GetFragment();
+    EXPECT_EQ(result, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_GetFragment_0200 end";
+}
+
+/**
+ * @tc.number: Uri_FindFragmentSeparator_0100
+ * @tc.name: FindFragmentSeparator
+ * @tc.desc: Verify the FindFragmentSeparator function.
+ */
+HWTEST_F(UriTest, Uri_FindFragmentSeparator_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_FindFragmentSeparator_0100 start";
+    urie_ = std::make_shared<Urie>("http:path");
+    urie_->cachedFsi_ = 0;
+    auto result = urie_->FindFragmentSeparator();
+    EXPECT_EQ(result, 0);
+    GTEST_LOG_(INFO) << "Uri_FindFragmentSeparator_0100 end";
+}
+
+/**
+ * @tc.number: Uri_Marshalling_0100
+ * @tc.name: Marshalling
+ * @tc.desc: Verify the Marshalling function.
+ */
+HWTEST_F(UriTest, Uri_Marshalling_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_Marshalling_0100 start";
+    urie_ = std::make_shared<Urie>();
+    urie_->uriString_ = "café";
+    Parcel parcel;
+    auto result = urie_->Marshalling(parcel);
+    EXPECT_EQ(result, false);
+    GTEST_LOG_(INFO) << "Uri_Marshalling_0100 end";
+}
+
+/**
+ * @tc.number: Uri_GetUserInfo_0300
+ * @tc.name: GetUserInfo
+ * @tc.desc: Verify the GetUserInfo function.
+ */
+HWTEST_F(UriTest, Uri_GetUserInfo_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_GetUserInfo_0300 start";
+    urie_ = std::make_shared<Urie>();
+    urie_->uriString_ = "";
+    auto result = urie_->GetUserInfo();
+    EXPECT_EQ(result, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_GetUserInfo_0300 end";
+}
+
+/**
+ * @tc.number: Uri_ParseAuthority_0100
+ * @tc.name: ParseAuthority
+ * @tc.desc: Verify the ParseAuthority function.
+ */
+HWTEST_F(UriTest, Uri_ParseAuthority_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_ParseAuthority_0100 start";
+    urie_ = std::make_shared<Urie>();
+    urie_->uriString_ = "";
+    urie_->cachedSsi_ = 0;
+    auto result = urie_->ParseAuthority();
+    EXPECT_EQ(result, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_ParseAuthority_0100 end";
+}
+
+/**
+ * @tc.number: Uri_ParseHost_0100
+ * @tc.name: ParseHost
+ * @tc.desc: Verify the ParseAuthority function.
+ */
+HWTEST_F(UriTest, Uri_ParseHost_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_ParseHost_0100 start";
+    urie_ = std::make_shared<Urie>();
+    urie_->uriString_ = "///test";
+    urie_->authority_ = "test@";
+    auto result = urie_->ParseAuthority();
+    EXPECT_EQ(result, EMPTY);
+
+    urie_->uriString_ = "//\\test";
+    result = urie_->ParseAuthority();
+    EXPECT_EQ(result, EMPTY);
+
+    urie_->uriString_ = "//?test";
+    result = urie_->ParseAuthority();
+    EXPECT_EQ(result, EMPTY);
+
+    urie_->uriString_ = "//#test";
+    result = urie_->ParseAuthority();
+    EXPECT_EQ(result, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_ParseHost_0100 end";
+}
+
+/**
+ * @tc.number: Uri_CheckScheme_0100
+ * @tc.name: CheckScheme
+ * @tc.desc: Verify the CheckScheme function.
+ */
+HWTEST_F(UriTest, Uri_CheckScheme_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_CheckScheme_0100 start";
+    urie_ = std::make_shared<Urie>();
+    urie_->uriString_ = "123:";
+    auto result = urie_->CheckScheme();
+    EXPECT_EQ(result, false);
+    GTEST_LOG_(INFO) << "Uri_CheckScheme_0100 end";
+}
+
+/**
+ * @tc.number: Uri_Constructor_0100
+ * @tc.name: Constructor
+ * @tc.desc: Verify the Constructor function.
+ */
+HWTEST_F(UriTest, Uri_Constructor_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Uri_Constructor_0100 start";
+    urie_ = std::make_shared<Urie>("123:");
+    EXPECT_EQ(urie_->uriString_, EMPTY);
+    GTEST_LOG_(INFO) << "Uri_Constructor_0100 end";
 }
 }

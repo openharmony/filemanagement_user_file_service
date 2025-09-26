@@ -108,7 +108,7 @@ bool FileAccessService::IsServiceReady() const
     return ready_;
 }
 
-static bool IsParentUri(const string &comparedUriStr, string &srcUriStr)
+bool FileAccessService::IsParentUri(const string &comparedUriStr, string &srcUriStr)
 {
     if ((comparedUriStr.empty()) || (srcUriStr.empty())) {
         HILOG_ERROR("Uri is empty");
@@ -123,7 +123,7 @@ static bool IsParentUri(const string &comparedUriStr, string &srcUriStr)
     return false;
 }
 
-static bool IsChildUri(const string &comparedUriStr, string &srcUriStr)
+bool FileAccessService::IsChildUri(const string &comparedUriStr, string &srcUriStr)
 {
     if ((comparedUriStr.empty()) || (srcUriStr.empty())) {
         HILOG_ERROR("Uri is empty");
@@ -152,7 +152,7 @@ void FileAccessService::Init()
     }
 }
 
-static bool GetBundleNameFromUri(Uri &uri, string &bundleName)
+bool FileAccessService::GetBundleNameFromUri(Uri &uri, string &bundleName)
 {
     string scheme = uri.GetScheme();
     if (scheme != FILE_SCHEME_NAME) {
