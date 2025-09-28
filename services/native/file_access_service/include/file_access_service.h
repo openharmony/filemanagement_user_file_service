@@ -356,6 +356,9 @@ private:
     void RegisterBundleBroadcast();
     void UnRegisterBundleBroadcast();
     bool IsCalledCountValid();
+    bool IsParentUri(const string &comparedUriStr, string &srcUriStr);
+    bool IsChildUri(const string &comparedUriStr, string &srcUriStr);
+    bool GetBundleNameFromUri(Uri &uri, string &bundleName);
 
     std::shared_ptr<BundleObserver> bundleObserver_ = nullptr;
     bool isRegister_ = false;
