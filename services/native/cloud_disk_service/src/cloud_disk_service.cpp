@@ -313,6 +313,9 @@ int32_t FileAccessService::UnregisterAllByBundle
                 HILOG_ERROR("FileAccessService::Active NotifySyncFolderDetail failed");
         }
     }
+    if (rootManager.GetRootCount() == 0) {
+        SetWorkStatus(false);
+    }
     HILOG_INFO("FileAccessService::UnregisterAllByBundle success");
     DecreaseCnt(__func__);
     return ERR_OK;
