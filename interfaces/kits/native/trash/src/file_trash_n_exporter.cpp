@@ -343,7 +343,7 @@ static string RecurCheckIfOnlyContentInDir(const string &path, size_t trashWithT
     } else {
         HILOG_ERROR("RecurCheckIfOnlyContentInDir: invalid path. ");
     }
-    return nullptr;
+    return "";
 }
 
 static string GetToDeletePath(const string &toDeletePath, napi_env env)
@@ -356,7 +356,7 @@ static string GetToDeletePath(const string &toDeletePath, napi_env env)
     if (trashPathPrefixPos == string::npos ||
         trashPathPrefixPos + FileTrashNExporter::trashPath_.length() + slashSize >= toDeletePath.length()) {
         NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return "";
     }
     string realFilePathWithTime =
         toDeletePath.substr(trashPathPrefixPos + FileTrashNExporter::trashPath_.length() + slashSize);
@@ -365,7 +365,7 @@ static string GetToDeletePath(const string &toDeletePath, napi_env env)
     if (trashPathWithTimePrefixPos == string::npos) {
         HILOG_ERROR("trashPathWithTimePrefixPos is invalid.");
         NError(EINVAL).ThrowErr(env);
-        return nullptr;
+        return "";
     }
     size_t realTimeDirPos = trashPathPrefixPos + FileTrashNExporter::trashPath_.length() +
         slashSize + trashPathWithTimePrefixPos;
