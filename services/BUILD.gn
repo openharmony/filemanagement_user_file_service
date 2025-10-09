@@ -236,22 +236,27 @@ ohos_shared_library("file_access_service") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "dfs_service:clouddiskservice_kit_inner",
     "app_file_service:fileshare_native",
     "app_file_service:fileuri_native",
     "os_account:libaccountkits",
     "os_account:os_account_innerkits",
   ]
-  if (ufs_sandbox_manarer) {
+  if (user_file_service_cloud_disk_enable) {
     external_deps += [
-      "ability_runtime:uri_permission_mgr",
-      "sandbox_manager:libsandbox_manager_sdk",
+      "dfs_service:clouddiskservice_kit_inner",
     ]
-    defines += [
-      "SANDBOX_MANAGER",
-      "ABILITY_RUNTIME_FEATURE_SANDBOXMANAGER",
-    ]
+    if (ufs_sandbox_manarer) {
+      external_deps += [
+        "ability_runtime:uri_permission_mgr",
+        "sandbox_manager:libsandbox_manager_sdk",
+      ]
+      defines += [
+        "SANDBOX_MANAGER",
+        "ABILITY_RUNTIME_FEATURE_SANDBOXMANAGER",
+      ]
+    }
   }
+
   subsystem_name = "filemanagement"
   part_name = "user_file_service"
 }
