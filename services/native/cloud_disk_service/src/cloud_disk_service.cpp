@@ -17,7 +17,9 @@
 #include <sys/stat.h>
 #include "file_uri.h"
 #include "bundle_observer.h"
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
 #include "cloud_disk_service_manager.h"
+#endif
 #include "notify_work_service.h"
 #include "parameters.h"
 #include "file_access_framework_errno.h"
