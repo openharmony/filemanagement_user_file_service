@@ -20,7 +20,6 @@
 #include "uri.h"
 #include "hilog_wrapper.h"
 #include "want.h"
-#include "file_permission.h"
 #include "file_access_helper.h"
 #ifdef SANDBOX_MANAGER
 #include "sandbox_manager_kit.h"
@@ -36,6 +35,15 @@ constexpr int32_t BASE_USER_RANGE = 200000;
 const std::unordered_map<std::string, std::string> g_sandboxPathMap = {
     {"/storage/Users/currentUser", "/data/service/el2/<currentUserId>/hmdfs/account/files/Docs"},
 };
+
+typedef enum OperationMode {
+    READ_MODE = 1 << 0,
+    WRITE_MODE = 1 << 1,
+    CREATE_MODE = 1 << 2,
+    DELETE_MODE = 1 << 3,
+    RENAME_MODE = 1 << 4,
+} OperationMode;
+
 bool UfsAccessTokenHelper::CheckCallerPermission(const std::string &permissionName)
 {
     auto tokenId = IPCSkeleton::GetCallingTokenID();
@@ -158,7 +166,7 @@ void UfsAccessTokenHelper::CheckUriPersistentPermission(const std::string& path,
     std::vector<AccessControl::SandboxManager::PolicyInfo> uriPolicies;
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     AccessControl::SandboxManager::PolicyInfo uriPolicy { .path = path, .mode =
-        (AppFileService::OperationMode::READ_MODE | AppFileService::OperationMode::WRITE_MODE) };
+        (OperationMode::READ_MODE | OperationMode::WRITE_MODE) };
     uriPolicies.emplace_back(uriPolicy);
     std::vector<bool> errorResults;
 

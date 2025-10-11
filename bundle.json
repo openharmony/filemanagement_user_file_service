@@ -50,7 +50,8 @@
                 "selinux_adapter",
                 "window_manager",
                 "dfs_service",
-                "sandbox_manager"
+                "sandbox_manager",
+                "relational_store"
             ]
         },
         "build": {
