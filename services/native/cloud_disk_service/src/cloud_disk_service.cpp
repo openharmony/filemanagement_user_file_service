@@ -15,7 +15,6 @@
 #include "file_access_service.h"
 
 #include <sys/stat.h>
-#include "file_uri.h"
 #include "bundle_observer.h"
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
 #include "cloud_disk_service_manager.h"

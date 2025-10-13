@@ -1277,5 +1277,33 @@ HWTEST_F(CloudDiskSynchronousRootManagerTest, validateDisplayName_006, TestSize.
     manager.rdbStore_ = nullptr;
 }
 
+/**
+ * @tc.name: IsSyncFolderValid001
+ * @tc.desc: Test Cloud disk syncFolder is valid.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(CloudDiskSynchronousRootManagerTest, IsSyncFolderValid001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "CloudDiskSyncFolderManager IsSyncFolderValid001 start";
+    SyncFolder folder;
+    folder.path_ = "/storage/Users/currentUser/appdata/test1";
+    std::string bundleName;
+    int32_t index = 0;
+    int32_t userId = 0;
+    auto& rootManager = SynchronousRootManager::GetInstance();
+    int32_t ret = rootManager.IsSyncFolderValid(folder, bundleName, index, userId);
+    EXPECT_EQ(ret, E_INVALID_PARAM);
+
+    folder.path_ = "/storage/Users/currentUser/test1/../test2";
+    ret = rootManager.IsSyncFolderValid(folder, bundleName, index, userId);
+    EXPECT_EQ(ret, E_INVALID_PARAM);
+
+    folder.path_ = "/storage/Users/currentUser/test1/";
+    folder.displayName_ = "..";
+    ret = rootManager.IsSyncFolderValid(folder, bundleName, index, userId);
+    EXPECT_EQ(ret, E_INVALID_PARAM);
+    GTEST_LOG_(INFO) << "CloudDiskSyncFolderManager IsSyncFolderValid001 end";
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

@@ -16,6 +16,7 @@
 #include "file_access_framework_errno.h"
 #include "cloud_disk_synchronous_root_manager.h"
 #include "file_access_helper.h"
+#include "file_uri_check.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -536,7 +537,7 @@ int32_t SynchronousRootManager::IsSyncFolderValid(const SyncFolder& folder, cons
     std::string path = folder.path_;
     std::string displayName = folder.displayName_;
     
-    if ((!IsPathAllowed(path)) || (!FileAccessHelper::IsFilePathValid(path))) {
+    if ((!IsPathAllowed(path)) || (!IsFilePathValid(path))) {
         return E_INVALID_PARAM;
     }
     

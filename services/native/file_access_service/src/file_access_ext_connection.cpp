@@ -18,7 +18,7 @@
 #include <errors.h>
 
 #include "ability_connect_callback_interface.h"
-#include "ability_manager_client.h"
+#include "extension_manager_client.h"
 #include "file_access_ext_base_proxy.h"
 #include "hilog_wrapper.h"
 #include "iremote_broker.h"
@@ -59,7 +59,7 @@ void FileAccessExtConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementN
 
 void FileAccessExtConnection::ConnectFileExtAbility(const AAFwk::Want &want, const sptr<IRemoteObject> &token)
 {
-    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, this, DEFAULT_USER_ID);
+    ErrCode ret = AAFwk::ExtensionManagerClient::GetInstance().ConnectExtensionAbility(want, this, DEFAULT_USER_ID);
     HILOG_INFO("ConnectFileExtAbility ret: %{public}d ", ret);
     if (ret != ERR_OK) {
         HILOG_INFO("ConnectAbility ret=%{public}d", ret);
@@ -77,7 +77,7 @@ void FileAccessExtConnection::DisconnectFileExtAbility()
 {
     fileExtProxy_ = nullptr;
     isConnected_.store(false);
-    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(this);
+    ErrCode ret = AAFwk::ExtensionManagerClient::GetInstance().DisconnectAbility(this);
     HILOG_INFO("DisconnectFileExtAbility called end, ret=%{public}d", ret);
 }
 
@@ -122,7 +122,7 @@ void AgentFileAccessExtConnection::OnAbilityDisconnectDone(const AppExecFwk::Ele
 
 void AgentFileAccessExtConnection::ConnectFileExtAbility(const AAFwk::Want &want)
 {
-    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, this, DEFAULT_USER_ID);
+    ErrCode ret = AAFwk::ExtensionManagerClient::GetInstance().ConnectExtensionAbility(want, this, DEFAULT_USER_ID);
     if (ret != ERR_OK) {
         HILOG_ERROR("AgentFileAccessExtConnection ConnectAbility failed, ret=%{public}d", ret);
         return;
@@ -132,7 +132,7 @@ void AgentFileAccessExtConnection::ConnectFileExtAbility(const AAFwk::Want &want
 
 void AgentFileAccessExtConnection::DisconnectFileExtAbility()
 {
-    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(this);
+    ErrCode ret = AAFwk::ExtensionManagerClient::GetInstance().DisconnectAbility(this);
     if (ret != ERR_OK) {
         HILOG_ERROR("DisconnectAbility failed, ret=%{public}d", ret);
         return;
