@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "external_file_access_fuzzer.h"
+#include "externalfileaccesscreate_fuzzer.h"
 
 #include <cstdio>
 #include <thread>
@@ -119,104 +119,6 @@ bool CreateFileFuzzTest(const uint8_t* data, size_t size)
     }
     return true;
 }
-
-bool DeleteFuzzTest(const uint8_t* data, size_t size)
-{
-    shared_ptr<FileAccessHelper> helper;
-    if (!CheckDataAndHelper(data, size, helper)) {
-        return false;
-    }
-    Uri uri(std::string(reinterpret_cast<const char*>(data), size));
-    int result = helper->Delete(uri);
-    if (result != OHOS::FileAccessFwk::ERR_OK) {
-        HILOG_ERROR("Delete failed. ret : %{public}d", result);
-        return false;
-    }
-    return true;
-}
-
-bool MoveFuzzTest(const uint8_t* data, size_t size)
-{
-    shared_ptr<FileAccessHelper> helper;
-    if (!CheckDataAndHelper(data, size, helper)) {
-        return false;
-    }
-    vector<RootInfo> info;
-    int result = helper->GetRoots(info);
-    if (result != OHOS::FileAccessFwk::ERR_OK) {
-        return false;
-    }
-    for (size_t i = 0; i < info.size(); i++) {
-        Uri parentUri(info[i].uri);
-        Uri newDirUriTest1("");
-        Uri newDirUriTest2("");
-        size_t len = size >> 2;
-        std::string test1(reinterpret_cast<const char*>(data), len);
-        std::string test2(reinterpret_cast<const char*>(data + len), len);
-        int result1 = helper->Mkdir(parentUri, test1, newDirUriTest1);
-        int result2 = helper->Mkdir(parentUri, test2, newDirUriTest2);
-        if (result1 != OHOS::FileAccessFwk::ERR_OK || result2 != OHOS::FileAccessFwk::ERR_OK) {
-            HILOG_ERROR("Mkdir failed. ret : %{public}d, %{public}d", result1, result2);
-            return false;
-        }
-        Uri testUri("");
-        std::string test(reinterpret_cast<const char*>(data + len + len), len);
-        result = helper->CreateFile(newDirUriTest1, test, testUri);
-        if (result != OHOS::FileAccessFwk::ERR_OK) {
-            HILOG_ERROR("CreateFile failed. ret : %{public}d", result);
-            return false;
-        }
-        Uri testUri2("");
-        result = helper->Move(testUri, newDirUriTest2, testUri2);
-        if (result != OHOS::FileAccessFwk::ERR_OK) {
-            HILOG_ERROR("Move failed. ret : %{public}d", result);
-            return false;
-        }
-        result1 = helper->Delete(newDirUriTest1);
-        result2 = helper->Delete(newDirUriTest2);
-        if (result1 != OHOS::FileAccessFwk::ERR_OK || result2 != OHOS::FileAccessFwk::ERR_OK) {
-            HILOG_ERROR("Delete failed. ret : %{public}d, %{public}d", result1, result2);
-            return false;
-        }
-    }
-    return true;
-}
-
-bool RenameFuzzTest(const uint8_t* data, size_t size)
-{
-    shared_ptr<FileAccessHelper> helper;
-    if (!CheckDataAndHelper(data, size, helper)) {
-        return false;
-    }
-    vector<RootInfo> info;
-    int result = helper->GetRoots(info);
-    if (result != OHOS::FileAccessFwk::ERR_OK) {
-        HILOG_ERROR("GetRoots failed. ret : %{public}d", result);
-        return false;
-    }
-    for (size_t i = 0; i < info.size(); i++) {
-        Uri parentUri(info[i].uri);
-        Uri newDirUriTest("");
-        result = helper->Mkdir(parentUri, "test", newDirUriTest);
-        if (result != OHOS::FileAccessFwk::ERR_OK) {
-            HILOG_ERROR("Mkdir failed. ret : %{public}d", result);
-            return false;
-        }
-        Uri renameUri("");
-        std::string testRename(reinterpret_cast<const char*>(data), size);
-        result = helper->Rename(newDirUriTest, testRename, renameUri);
-        if (result != OHOS::FileAccessFwk::ERR_OK) {
-            HILOG_ERROR("Rename failed. ret : %{public}d", result);
-            return false;
-        }
-        result = helper->Delete(renameUri);
-        if (result != OHOS::FileAccessFwk::ERR_OK) {
-            HILOG_ERROR("Delete failed. ret : %{public}d", result);
-            return false;
-        }
-    }
-    return true;
-}
 }
 
 /* Fuzzer entry point */
@@ -226,8 +128,5 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     tokenMock.SetFileManagerToken();
     /* Run your code on data */
     OHOS::CreateFileFuzzTest(data, size);
-    OHOS::DeleteFuzzTest(data, size);
-    OHOS::MoveFuzzTest(data, size);
-    OHOS::RenameFuzzTest(data, size);
     return 0;
 }

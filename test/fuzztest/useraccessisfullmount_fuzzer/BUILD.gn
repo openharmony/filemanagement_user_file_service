@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025 Huawei Device Co., Ltd.
+# Copyright (c) 2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -15,10 +15,10 @@
 import("//build/config/features.gni")
 import("//build/test.gni")
 import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
-ohos_fuzztest("UserAccessCommonUtilsFuzzTest") {
+ohos_fuzztest("UserAccessIsFullMountFuzzTest") {
   module_out_path = "user_file_service/user_file_service"
   fuzz_config_file =
-      "${user_file_service_path}/test/fuzztest/useraccesscommonutils_fuzzer"
+      "${user_file_service_path}/test/fuzztest/useraccessisfullmount_fuzzer"
   include_dirs = [
     "${user_file_service_path}/utils"
   ]
@@ -29,7 +29,7 @@ ohos_fuzztest("UserAccessCommonUtilsFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
   sources = [
-    "${user_file_service_path}/test/fuzztest/useraccesscommonutils_fuzzer/useraccesscommonutils_fuzzer.cpp"
+    "${user_file_service_path}/test/fuzztest/useraccessisfullmount_fuzzer/useraccessisfullmount_fuzzer.cpp"
   ]
 
   external_deps = [

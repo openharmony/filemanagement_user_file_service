@@ -16,7 +16,10 @@ group("user_file_service_fuzz_test") {
 
   deps = [
     "externalfileaccesspartone_fuzzer:ExternalFileAccessPartOneFuzzTest",
-    "externalfileaccessparttwo_fuzzer:ExternalFileAccessPartTwoFuzzTest",
+    "externalfileaccessrenamefile_fuzzer:ExternalFileAccessRenameFileFuzzTest",
+    "externalfileaccesscreate_fuzzer:ExternalFileAccessCreateFuzzTest",
+    "externalfileaccessdeletefile_fuzzer:ExternalFileAccessDeleteFileFuzzTest",
+    "externalfileaccessmovefile_fuzzer:ExternalFileAccessMoveFileFuzzTest",
     "externalfileaccesspartthree_fuzzer:ExternalFileAccessPartThreeFuzzTest",
     "externalfileaccessaccess_fuzzer:ExternalFileAccessAccessFuzzTest",
     "externalfileaccesscreatefile_fuzzer:ExternalFileAccessCreateFileFuzzTest",
@@ -61,6 +64,7 @@ group("user_file_service_fuzz_test") {
     "fileaccessserviceunregisterforsa_fuzzer:FileAccessServiceUnregisterForSaFuzzTest",
     "fileaccessserviceupdatedisplayname_fuzzer:FileAccessServiceUpdateDisplayNameFuzzTest",
     "fileinfosharedmemory_fuzzer:FileInfoSharedMemoryFuzzTest",
-    "useraccesscommonutils_fuzzer:UserAccessCommonUtilsFuzzTest",
+    "useraccessgetusername_fuzzer:UserAccessGetUserNameFuzzTest",
+    "useraccessisfullmount_fuzzer:UserAccessIsFullMountFuzzTest",
   ]
 }
