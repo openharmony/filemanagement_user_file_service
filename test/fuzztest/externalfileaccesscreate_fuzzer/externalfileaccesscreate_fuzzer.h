@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,10 +14,10 @@
  */
 
 
-#ifndef FILE_ACCESS_EXTERNAL_FILE_ACCESS_FUZZER_H
-#define FILE_ACCESS_EXTERNAL_FILE_ACCESS_FUZZER_H
+#ifndef FILE_ACCESS_EXTERNAL_CREATE_FUZZER_H
+#define FILE_ACCESS_EXTERNAL_CREATE_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "external_file_access_fuzzer"
+#define FUZZ_PROJECT_NAME "externalfileaccesscreate_fuzzer"
 
-#endif // FILE_ACCESS_EXTERNAL_FILE_ACCESS_FUZZER_H
+#endif // FILE_ACCESS_EXTERNAL_CREATE_FUZZER_H
 
