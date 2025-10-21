@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "fileaccessservicebaseproxy_fuzzer.h"
+#include "fileaccessserviceunregisternotifynoobserver_fuzzer.h"
 
 #include <string>
 
@@ -32,37 +32,24 @@ namespace OHOS {
 using namespace std;
 using namespace FileAccessFwk;
 
-template <class T>
-T TypeCast(const uint8_t *data, int *pos = nullptr)
-{
-    if (pos) {
-        *pos += sizeof(T);
-    }
-    return *(reinterpret_cast<const T *>(data));
-}
+shared_ptr<FileAccessHelper> g_fah = nullptr;
 
-class TestObserver : public FileAccessObserverStub {
-public:
-    TestObserver() {};
-    virtual ~TestObserver() = default;
-    int OnChange(const NotifyMessage &notifyMessage) override;
-};
-
-int TestObserver::OnChange(const NotifyMessage &notifyMessage)
+bool UnregisterNotifyNoObserverFuzzTest(sptr<IFileAccessServiceBase> proxy, const uint8_t* data, size_t size)
 {
-    return 1;
-}
-
-bool OnChangeFuzzTest(sptr<IFileAccessServiceBase> proxy, const uint8_t* data, size_t size)
-{
-    if (data == nullptr || size < sizeof(NotifyType)) {
+    if (data == nullptr || size < sizeof(bool) || g_fah == nullptr) {
         return true;
     }
 
-    int pos = 0;
-    NotifyType notifyType = TypeCast<NotifyType>(data, &pos);
+    int pos = sizeof(bool);
     Uri uri(string(reinterpret_cast<const char *>(data + pos), size - pos));
-    proxy->OnChange(uri, notifyType);
+    AAFwk::Want want;
+    want.SetElementName(EXTERNAL_BNUDLE_NAME, "FileExtensionAbility");
+    sptr<ConnectExtensionInfo> info = sptr(new (std::nothrow) ConnectExtensionInfo(want, g_fah->token_));
+    if (info == nullptr) {
+        printf("ConnectExtensionInfo is nullptr");
+        return false;
+    }
+    proxy->UnregisterNotifyNoObserver(uri, *info);
     return true;
 }
 }
@@ -78,6 +65,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
     /* Run your code on data */
-    OHOS::OnChangeFuzzTest(proxy, data, size);
+    OHOS::UnregisterNotifyNoObserverFuzzTest(proxy, data, size);
     return 0;
 }
