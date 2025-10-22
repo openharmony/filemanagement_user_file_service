@@ -67,7 +67,11 @@ group("user_file_service_fuzz_test") {
     "fileaccessserviceunregisterforsa_fuzzer:FileAccessServiceUnregisterForSaFuzzTest",
     "fileaccessserviceunregisternotifynoobserver_fuzzer:FileAccessServiceUnregisterNotifyNoObserverFuzzTest",
     "fileaccessserviceupdatedisplayname_fuzzer:FileAccessServiceUpdateDisplayNameFuzzTest",
-    "fileinfosharedmemory_fuzzer:FileInfoSharedMemoryFuzzTest",
+    "fileinfosharedmemorymarshalling_fuzzer:FileInfoSharedMemoryMarshallingFuzzTest",
+    "fileinfosharedmemoryunmarshalling_fuzzer:FileInfoSharedMemoryUnmarshallingFuzzTest",
+    "fileinfosharedmemorywritefileinfos_fuzzer:FileInfoSharedMemoryWriteFileInfosFuzzTest",
+    "fileinfosharedmemorycreatesharedmemory_fuzzer:FileInfoSharedMemoryCreateSharedMemoryFuzzTest",
+    "fileinfosharedmemoryexpandsharedmemory_fuzzer:FileInfoSharedMemoryExpandSharedMemoryFuzzTest",
     "useraccessgetusername_fuzzer:UserAccessGetUserNameFuzzTest",
     "useraccessisfullmount_fuzzer:UserAccessIsFullMountFuzzTest",
   ]
