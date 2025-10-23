@@ -102,6 +102,7 @@ void FileAccessService::SetWorkStatus(bool turnOn)
 int32_t FileAccessService::IsSyncFolderInTable(const std::string& path,
     std::vector<SyncFolderExt>& syncFolderExts, int userId)
 {
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
     auto& rootManager = SynchronousRootManager::GetInstance();
     if (!rootManager.GetAllSyncFolderInfosByUserId(userId, syncFolderExts)) {
         HILOG_ERROR("Get syncFolder Infos By User failed.");
@@ -116,6 +117,9 @@ int32_t FileAccessService::IsSyncFolderInTable(const std::string& path,
         return E_SYNC_FOLDER_NOT_REGISTERED;
     }
     return ERR_OK;
+#else
+    return E_NOT_SUPPORT;
+#endif
 }
 
 int32_t FileAccessService::ValidateSyncFolder(const SyncFolder &syncFolder,
