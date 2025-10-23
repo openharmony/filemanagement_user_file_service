@@ -479,13 +479,13 @@ bool SynchronousRootManager::IsPathAllowed(const std::string& path)
     const std::string baseDirectory = "/storage/Users/currentUser/";
     const std::string blacklistedSubDirectory = "/storage/Users/currentUser/appdata/";
 
-    if (tmpPath.find(baseDirectory) != 0) {
-        HILOG_ERROR("get baseDirectory failed");
+    if (tmpPath.find(baseDirectory) != 0 || (tmpPath == baseDirectory)) {
+        HILOG_ERROR("get baseDirectory failed ");
         return false;
     }
 
-    if (tmpPath.find(baseDirectory) != 0 || (tmpPath == baseDirectory)) {
-        HILOG_ERROR("get baseDirectory failed");
+    if (tmpPath.find(blacklistedSubDirectory) == 0) {
+        HILOG_ERROR("get blacklistedSubDirectory");
         return false;
     }
 

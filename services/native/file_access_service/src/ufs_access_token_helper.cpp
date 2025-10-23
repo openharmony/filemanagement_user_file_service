@@ -169,16 +169,16 @@ bool UfsAccessTokenHelper::CheckUriPersistentPermission(const std::string& path)
     std::vector<bool> persistErrorResults;
     std::vector<bool> errorResults;
     auto persistCheckRet = SandboxManagerKit::CheckPersistPolicy(tokenId, uriPolicies, persistErrorResults);
-    if (ret == ERR_OK && persistErrorResults[0] == true) {
+    if (persistCheckRet == ERR_OK && persistErrorResults[0] == true) {
         HILOG_INFOR("Check path persist permission success");
         return true;
     }
     auto tmpCheckRet = SandboxManagerKit::CheckPolicy(tokenId, uriPolicies, errorResults);
-    if (ret == ERR_OK && errorResults[0] == true) {
+    if (tmpCheckRet == ERR_OK && errorResults[0] == true) {
         HILOG_INFOR("Check path tmp permission success");
         return true;
     }
-    HILOG_ERROR("Check path Permission failed ,persistCheckRet : %{public}d ,persistCheckRet : %{public}d" , persistCheckRet, tmpCheckRet);
+    HILOG_ERROR("Check path Permission failed ,persistCheckRet : %{public}d ,tmpCheckRet : %{public}d" , persistCheckRet, tmpCheckRet);
     return false;
 #endif
     return false;
