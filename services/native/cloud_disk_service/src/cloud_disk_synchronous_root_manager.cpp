@@ -203,6 +203,7 @@ bool SynchronousRootManager::UpdateDisplayName(const std::string& path,
 bool SynchronousRootManager::GetRootInfosByUserAndBundle(
     const std::string& bundleName, int32_t index, int32_t userId, std::vector<SyncFolder>& syncFolders)
 {
+    std::lock_guard<std::mutex> lock(rdbMutex_);
     if (rdbStore_ == nullptr) {
         HILOG_ERROR("rdbStore_ is nullptr");
         return false;
@@ -252,6 +253,7 @@ bool SynchronousRootManager::GetRootInfosByUserAndBundle(
 bool SynchronousRootManager::GetAllRootInfosByUserId(
     int32_t userId, std::vector<SyncFolderExt>& syncFolderExts)
 {
+    std::lock_guard<std::mutex> lock(rdbMutex_);
     if (rdbStore_ == nullptr) {
         HILOG_ERROR("rdbStore_ is nullptr");
         return false;
@@ -285,6 +287,7 @@ bool SynchronousRootManager::GetAllRootInfosByUserId(
 
 bool SynchronousRootManager::GetSynchronousRootByPathAndUserId(SyncFolder& syncFolder, int32_t userId)
 {
+    std::lock_guard<std::mutex> lock(rdbMutex_);
     if (rdbStore_ == nullptr) {
         HILOG_ERROR("rdbStore_ is nullptr");
         return false;
@@ -326,6 +329,7 @@ int32_t SynchronousRootManager::GetRootNumByUserIdAndBundleName(const std::strin
     int32_t index, int32_t userId)
 {
     int32_t errorNo = -1;
+    std::lock_guard<std::mutex> lock(rdbMutex_);
     if (rdbStore_ == nullptr) {
         HILOG_ERROR("rdbStore_ is nullptr");
         return errorNo;
@@ -346,6 +350,7 @@ int32_t SynchronousRootManager::GetRootNumByUserIdAndBundleName(const std::strin
 
 int32_t SynchronousRootManager::GetRootCount()
 {
+    std::lock_guard<std::mutex> lock(rdbMutex_);
     if (rdbStore_ == nullptr) {
         HILOG_ERROR("rdbStore_ is nullptr");
         return -1;
@@ -479,8 +484,8 @@ bool SynchronousRootManager::IsPathAllowed(const std::string& path)
         return false;
     }
 
-    if (tmpPath.find(blacklistedSubDirectory) == 0) {
-        HILOG_ERROR("get blacklistedSubDirectory");
+    if (tmpPath.find(baseDirectory) != 0 || (tmpPath == baseDirectory)) {
+        HILOG_ERROR("get baseDirectory failed");
         return false;
     }
 

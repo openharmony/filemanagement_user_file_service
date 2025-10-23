@@ -140,7 +140,6 @@ bool UfsAccessTokenHelper::PathToPhysicalPath(const std::string& path, const std
     std::string& physicalPath)
 {
     std::string sandboxPath = path;
-    HILOG_INFO("Get sandboxPath: %{public}s", sandboxPath.c_str());
     std::unordered_map<std::string, std::string> pathMap = g_sandboxPathMap;
     std::string matchedPrefix;
     std::string remainingPath;
@@ -150,7 +149,6 @@ bool UfsAccessTokenHelper::PathToPhysicalPath(const std::string& path, const std
             remainingPath = sandboxPath.substr(prefix.length());
         }
     }
-    HILOG_INFO("Get matchedPrefix: %{public}s,remainingPath: %{public}s", matchedPrefix.c_str(), remainingPath.c_str());
     if (matchedPrefix.empty()) {
         return false;
     }
@@ -160,7 +158,7 @@ bool UfsAccessTokenHelper::PathToPhysicalPath(const std::string& path, const std
     return true;
 }
 
-void UfsAccessTokenHelper::CheckUriPersistentPermission(const std::string& path, bool& result)
+bool UfsAccessTokenHelper::CheckUriPersistentPermission(const std::string& path)
 {
 #ifdef SANDBOX_MANAGER
     std::vector<AccessControl::SandboxManager::PolicyInfo> uriPolicies;
@@ -168,14 +166,21 @@ void UfsAccessTokenHelper::CheckUriPersistentPermission(const std::string& path,
     AccessControl::SandboxManager::PolicyInfo uriPolicy { .path = path, .mode =
         (OperationMode::READ_MODE | OperationMode::WRITE_MODE) };
     uriPolicies.emplace_back(uriPolicy);
+    std::vector<bool> persistErrorResults;
     std::vector<bool> errorResults;
-
-    auto ret = SandboxManagerKit::CheckPersistPolicy(tokenId, uriPolicies, errorResults);
-    if (ret == ERR_OK) {
-        result = errorResults[0];
-    } else {
-        HILOG_ERROR("Check path Persistent Permission failed ,ret : %{public}d", ret);
+    auto persistCheckRet = SandboxManagerKit::CheckPersistPolicy(tokenId, uriPolicies, persistErrorResults);
+    if (ret == ERR_OK && persistErrorResults[0] == true) {
+        HILOG_INFOR("Check path persist permission success");
+        return true;
     }
+    auto tmpCheckRet = SandboxManagerKit::CheckPolicy(tokenId, uriPolicies, errorResults);
+    if (ret == ERR_OK && errorResults[0] == true) {
+        HILOG_INFOR("Check path tmp permission success");
+        return true;
+    }
+    HILOG_ERROR("Check path Permission failed ,persistCheckRet : %{public}d ,persistCheckRet : %{public}d" , persistCheckRet, tmpCheckRet);
+    return false;
 #endif
+    return false;
 }
 } // namespace OHOS::FileManagement

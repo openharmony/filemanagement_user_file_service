@@ -1172,6 +1172,23 @@ HWTEST_F(CloudDiskSynchronousRootManagerTest, IsPathAllowed_003, TestSize.Level1
 }
 
 /**
+ * @tc.name: IsPathAllowed_004
+ * @tc.desc: Test IsPathAllowed with blacklisted subdirectory.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(CloudDiskSynchronousRootManagerTest, IsPathAllowed_004, TestSize.Level1)
+{
+    SynchronousRootManager& manager = SynchronousRootManager::GetInstance();
+    manager.rdbStore_ = mockRdbAdapter;
+    std::string path = "/storage/Users/currentUser";
+    
+    bool result = manager.IsPathAllowed(path);
+    EXPECT_FALSE(result);
+    manager.rdbStore_ = nullptr;
+}
+
+/**
  * @tc.name: validateDisplayName_001
  * @tc.desc: Test validateDisplayName with valid name.
  * @tc.type: FUNC

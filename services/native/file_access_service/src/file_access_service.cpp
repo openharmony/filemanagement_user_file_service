@@ -435,9 +435,8 @@ void FileAccessService::RemoveRelations(string &uriStr, shared_ptr<ObserverNode>
 
 int FileAccessService::FindUri(const string &uriStr, shared_ptr<ObserverNode> &outObsNode)
 {
-    HILOG_INFO("uriStr: %{private}s", uriStr.c_str());
+    HILOG_INFO("FindUri start");
     lock_guard<mutex> lock(nodeMutex_);
-    HILOG_DEBUG("FindUri start");
     auto iter = relationshipMap_.find(uriStr);
     if (iter == relationshipMap_.end()) {
         HILOG_ERROR("Can not find uri");
