@@ -349,7 +349,7 @@ int32_t FileAccessService::Changestate(const std::string &path, const State& new
         return ret;
     }
     if (!rootManager.UpdateSynchronousRootState(path, bundleName, userId, index, newState)) {
-        HILOG_ERROR("Update syncFolder state failed for path: %{private}s", path.c_str());
+        HILOG_ERROR("Update syncFolder state failed");
         return E_TRY_AGAIN;
     }
     SyncFolderExt syncFolderExt;
