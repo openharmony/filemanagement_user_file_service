@@ -29,7 +29,7 @@ public:
     static bool PathToPhysicalPath(const std::string& path, const std::string& userId,
         std::string& physicalPath);
     static std::string ReplacePlaceholders(const std::string& path, const std::string& userId);
-    static bool CheckUriPersistentPermission(const std::string& path);
+    static bool CheckPathPermission(const std::string& path);
 };
 } // namespace OHOS::FileAccessFwk
 

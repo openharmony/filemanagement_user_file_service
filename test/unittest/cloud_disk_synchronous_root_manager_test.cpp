@@ -745,12 +745,12 @@ HWTEST_F(CloudDiskSynchronousRootManagerTest, GetRootInfosByUserAndBundle_004, T
 }
 
 /**
- * @tc.name: GetAllRootInfosByUserId_001
- * @tc.desc: Test GetAllRootInfosByUserId success case.
+ * @tc.name: GetAllSyncFolderInfosByUserId_001
+ * @tc.desc: Test GetAllSyncFolderInfosByUserId success case.
  * @tc.type: FUNC
  * @tc.require:
  */
-HWTEST_F(CloudDiskSynchronousRootManagerTest, GetAllRootInfosByUserId_001, TestSize.Level1)
+HWTEST_F(CloudDiskSynchronousRootManagerTest, GetAllSyncFolderInfosByUserId_001, TestSize.Level1)
 {
     SynchronousRootManager& manager = SynchronousRootManager::GetInstance();
     manager.rdbStore_ = mockRdbAdapter;
@@ -771,34 +771,34 @@ HWTEST_F(CloudDiskSynchronousRootManagerTest, GetAllRootInfosByUserId_001, TestS
         .WillOnce(Return(-1));
 
     
-    bool result = manager.GetAllRootInfosByUserId(userId, syncFolderExts);
+    bool result = manager.GetAllSyncFolderInfosByUserId(userId, syncFolderExts);
     EXPECT_TRUE(result);
     manager.rdbStore_ = nullptr;
 }
 
 /**
- * @tc.name: GetAllRootInfosByUserId_002
- * @tc.desc: Test GetAllRootInfosByUserId failed when rdbStore_ is nullptr.
+ * @tc.name: GetAllSyncFolderInfosByUserId_002
+ * @tc.desc: Test GetAllSyncFolderInfosByUserId failed when rdbStore_ is nullptr.
  * @tc.type: FUNC
  * @tc.require:
  */
-HWTEST_F(CloudDiskSynchronousRootManagerTest, GetAllRootInfosByUserId_002, TestSize.Level1)
+HWTEST_F(CloudDiskSynchronousRootManagerTest, GetAllSyncFolderInfosByUserId_002, TestSize.Level1)
 {
     SynchronousRootManager& manager = SynchronousRootManager::GetInstance();
     manager.rdbStore_ = nullptr;
     int32_t userId = 100;
     std::vector<SyncFolderExt> syncFolderExts;
-    bool result = manager.GetAllRootInfosByUserId(userId, syncFolderExts);
+    bool result = manager.GetAllSyncFolderInfosByUserId(userId, syncFolderExts);
     EXPECT_FALSE(result);
 }
 
 /**
- * @tc.name: GetAllRootInfosByUserId_003
- * @tc.desc: Test GetAllRootInfosByUserId failed when ResultSet is nullptr.
+ * @tc.name: GetAllSyncFolderInfosByUserId_003
+ * @tc.desc: Test GetAllSyncFolderInfosByUserId failed when ResultSet is nullptr.
  * @tc.type: FUNC
  * @tc.require:
  */
-HWTEST_F(CloudDiskSynchronousRootManagerTest, GetAllRootInfosByUserId_003, TestSize.Level1)
+HWTEST_F(CloudDiskSynchronousRootManagerTest, GetAllSyncFolderInfosByUserId_003, TestSize.Level1)
 {
     SynchronousRootManager& manager = SynchronousRootManager::GetInstance();
     manager.rdbStore_ = mockRdbAdapter;
@@ -808,7 +808,7 @@ HWTEST_F(CloudDiskSynchronousRootManagerTest, GetAllRootInfosByUserId_003, TestS
     EXPECT_CALL(*mockRdbAdapter, Get(_, _))
         .WillOnce(Return(nullptr));
     
-    bool result = manager.GetAllRootInfosByUserId(userId, syncFolderExts);
+    bool result = manager.GetAllSyncFolderInfosByUserId(userId, syncFolderExts);
     EXPECT_FALSE(result);
     manager.rdbStore_ = nullptr;
 }

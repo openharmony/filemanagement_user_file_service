@@ -158,7 +158,7 @@ bool UfsAccessTokenHelper::PathToPhysicalPath(const std::string& path, const std
     return true;
 }
 
-bool UfsAccessTokenHelper::CheckUriPersistentPermission(const std::string& path)
+bool UfsAccessTokenHelper::CheckPathPermission(const std::string& path)
 {
 #ifdef SANDBOX_MANAGER
     std::vector<AccessControl::SandboxManager::PolicyInfo> uriPolicies;
@@ -169,12 +169,12 @@ bool UfsAccessTokenHelper::CheckUriPersistentPermission(const std::string& path)
     std::vector<bool> persistErrorResults;
     std::vector<bool> errorResults;
     auto persistCheckRet = SandboxManagerKit::CheckPersistPolicy(tokenId, uriPolicies, persistErrorResults);
-    if (persistCheckRet == ERR_OK && persistErrorResults[0] == true) {
+    if (persistCheckRet == ERR_OK && persistErrorResults[0]) {
         HILOG_INFO("Check path persist permission success");
         return true;
     }
     auto tmpCheckRet = SandboxManagerKit::CheckPolicy(tokenId, uriPolicies, errorResults);
-    if (tmpCheckRet == ERR_OK && errorResults[0] == true) {
+    if (tmpCheckRet == ERR_OK && errorResults[0]) {
         HILOG_INFO("Check path tmp permission success");
         return true;
     }

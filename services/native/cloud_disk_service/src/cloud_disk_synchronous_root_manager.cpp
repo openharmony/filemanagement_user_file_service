@@ -250,7 +250,7 @@ bool SynchronousRootManager::GetRootInfosByUserAndBundle(
     return true;
 }
 
-bool SynchronousRootManager::GetAllRootInfosByUserId(
+bool SynchronousRootManager::GetAllSyncFolderInfosByUserId(
     int32_t userId, std::vector<SyncFolderExt>& syncFolderExts)
 {
     std::lock_guard<std::mutex> lock(rdbMutex_);
@@ -475,17 +475,16 @@ bool SynchronousRootManager::IsPathAllowed(const std::string& path)
     if (!tmpPath.empty() && tmpPath.back() != '/') {
         tmpPath += "/";
     }
-
+    // 检查是否以baseDirectory开头或者是baseDirectory本身
     const std::string baseDirectory = "/storage/Users/currentUser/";
-    const std::string blacklistedSubDirectory = "/storage/Users/currentUser/appdata/";
-
     if (tmpPath.find(baseDirectory) != 0 || (tmpPath == baseDirectory)) {
-        HILOG_ERROR("get baseDirectory failed ");
+        HILOG_ERROR("get baseDirectory failed");
         return false;
     }
-
+    // 检查是否在黑名单子目录中
+    const std::string blacklistedSubDirectory = "/storage/Users/currentUser/appdata/";
     if (tmpPath.find(blacklistedSubDirectory) == 0) {
-        HILOG_ERROR("get blacklistedSubDirectory");
+        HILOG_ERROR("get blacklistedSubDirectory failed");
         return false;
     }
 

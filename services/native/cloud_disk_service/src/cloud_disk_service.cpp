@@ -103,7 +103,7 @@ int32_t FileAccessService::IsSyncFolderInTable(const std::string& path,
     std::vector<SyncFolderExt>& syncFolderExts, int userId)
 {
     auto& rootManager = SynchronousRootManager::GetInstance();
-    if (!rootManager.GetAllRootInfosByUserId(userId, syncFolderExts)) {
+    if (!rootManager.GetAllSyncFolderInfosByUserId(userId, syncFolderExts)) {
         HILOG_ERROR("Get syncFolder Infos By User failed.");
         return E_SYNC_FOLDER_NOT_REGISTERED;
     }
@@ -136,8 +136,7 @@ int32_t FileAccessService::ValidateSyncFolder(const SyncFolder &syncFolder,
         return E_SYNC_FOLDER_PATH_NOT_EXIST;
     }
 
-    bool isPermission = UfsAccessTokenHelper::CheckUriPersistentPermission(syncFolder.path_);
-    if (!isPermission) {
+    if (!UfsAccessTokenHelper::CheckPathPermission(syncFolder.path_)) {
         HILOG_ERROR("is not Persistent");
         return E_SYNC_FOLDER_PATH_UNAUTHORIZED;
     }
@@ -441,7 +440,7 @@ int32_t FileAccessService::GetAllSyncFolders(std::vector<SyncFolderExt>& syncFol
     }
     std::vector<std::map<std::string, std::string>> syncFolders;
     int32_t userId = UfsAccessTokenHelper().GetUserId();
-    if (!SynchronousRootManager::GetInstance().GetAllRootInfosByUserId(userId, syncFolderExts)) {
+    if (!SynchronousRootManager::GetInstance().GetAllSyncFolderInfosByUserId(userId, syncFolderExts)) {
         HILOG_ERROR("Get all SyncFolder infos failed");
         DecreaseCnt(__func__);
         return E_SYNC_FOLDER_NOT_REGISTERED;
@@ -578,7 +577,7 @@ int32_t FileAccessService::GetAllSyncFoldersForSa(std::vector<SyncFolderExt> &sy
         DecreaseCnt(__func__);
         return E_INVALID_PARAM;
     }
-    if (!SynchronousRootManager::GetInstance().GetAllRootInfosByUserId(currentUserId, syncFolderExts)) {
+    if (!SynchronousRootManager::GetInstance().GetAllSyncFolderInfosByUserId(currentUserId, syncFolderExts)) {
         HILOG_ERROR("Get all syncFolder infos failed");
         DecreaseCnt(__func__);
         return E_SYNC_FOLDER_NOT_REGISTERED;
