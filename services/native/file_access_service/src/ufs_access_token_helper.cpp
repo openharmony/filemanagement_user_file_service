@@ -178,8 +178,8 @@ bool UfsAccessTokenHelper::CheckUriPersistentPermission(const std::string& path)
         HILOG_INFO("Check path tmp permission success");
         return true;
     }
-    HILOG_ERROR("Check path Permission failed ,persistCheckRet : %{public}d,
-        tmpCheckRet : %{public}d" , persistCheckRet, tmpCheckRet);
+    HILOG_ERROR("Check path Permission failed ,persistCheckRet : %{public}d, tmpCheckRet : %{public}d",
+        persistCheckRet, tmpCheckRet);
     return false;
 #endif
     return false;
