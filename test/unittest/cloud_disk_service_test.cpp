@@ -300,5 +300,22 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_DecreaseCnt_002, TestSize.Level1
     EXPECT_EQ(fileAccessSvc_->calledCount_, initialCount); // Should remain 0
     GTEST_LOG_(INFO) << "CloudDiskServiceTest-end CloudDiskService_DecreaseCnt_002";
 }
+
+/**
+ * @tc.number: CloudDiskService_IsSyncFolderInTable_002
+ * @tc.name: IsSyncFolderInTable function
+ * @tc.desc: Verify IsSyncFolderInTable function works incorrectly
+ */
+HWTEST_F(CloudDiskServiceTest, CloudDiskService_IsSyncFolderInTable_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "CloudDiskServiceTest-begin CloudDiskService_IsSyncFolderInTable_001";
+    ASSERT_NE(fileAccessSvc_, nullptr);
+    std::string path = "/test";
+    std::vector<SyncFolderExt> syncFolderExts;
+    int userId = 100;
+    auto ret = fileAccessSvc_->IsSyncFolderInTable(path, syncFolderExts, userId);
+    EXPECT_EQ(ret, E_SYNC_FOLDER_NOT_REGISTERED);
+    GTEST_LOG_(INFO) << "CloudDiskServiceTest-end CloudDiskService_IsSyncFolderInTable_001";
+}
 } // namespace FileAccessFwk
 } // namespace OHOS

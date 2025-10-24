@@ -103,8 +103,8 @@ int32_t FileAccessService::IsSyncFolderInTable(const std::string& path,
     std::vector<SyncFolderExt>& syncFolderExts, int userId)
 {
     auto& rootManager = SynchronousRootManager::GetInstance();
-    if (!rootManager.GetAllRootInfosByUserId(userId, syncFolderExts)) {
-        HILOG_ERROR("Get RootInfos By User failed.");
+    if (!rootManager.GetAllSyncFolderInfosByUserId(userId, syncFolderExts)) {
+        HILOG_ERROR("Get syncFolder Infos By User failed.");
         return E_SYNC_FOLDER_NOT_REGISTERED;
     }
     auto it = std::find_if(syncFolderExts.begin(), syncFolderExts.end(),
@@ -112,7 +112,7 @@ int32_t FileAccessService::IsSyncFolderInTable(const std::string& path,
             return info.path_ == path;
         });
     if (it == syncFolderExts.end()) {
-        HILOG_ERROR("Root not found for path: %{private}s", path.c_str());
+        HILOG_ERROR("SyncFolder not found");
         return E_SYNC_FOLDER_NOT_REGISTERED;
     }
     return ERR_OK;
@@ -136,9 +136,7 @@ int32_t FileAccessService::ValidateSyncFolder(const SyncFolder &syncFolder,
         return E_SYNC_FOLDER_PATH_NOT_EXIST;
     }
 
-    bool isPermission = false;
-    UfsAccessTokenHelper::CheckUriPersistentPermission(syncFolder.path_, isPermission);
-    if (!isPermission) {
+    if (!UfsAccessTokenHelper::CheckPathPermission(syncFolder.path_)) {
         HILOG_ERROR("is not Persistent");
         return E_SYNC_FOLDER_PATH_UNAUTHORIZED;
     }
@@ -170,7 +168,7 @@ int32_t FileAccessService::Register(const SyncFolder &syncFolder)
     }
     auto& rootManager = SynchronousRootManager::GetInstance();
     if (!rootManager.PutSynchronousRoot(syncFolder, bundleName, userId, index)) {
-        HILOG_ERROR("Put rootinfo fail");
+        HILOG_ERROR("Put syncFolder fail");
         DecreaseCnt(__func__);
         return E_REGISTER_SYNC_FOLDER_FAILED;
     }
@@ -261,7 +259,7 @@ int32_t FileAccessService::DoUnregister(const std::string &path, int userId, con
     }
     auto& rootManager = SynchronousRootManager::GetInstance();
     if (!rootManager.DeleteSynchronousRoot(path, userId)) {
-        HILOG_ERROR("Delete root failed for path: %{private}s", path.c_str());
+        HILOG_ERROR("Delete syncFolder failed");
         return E_REMOVE_SYNC_FOLDER_FAILED;
     }
     if (rootManager.GetRootCount() == 0) {
@@ -294,7 +292,7 @@ int32_t FileAccessService::UnregisterAllByBundle
     for (const auto &folder : syncFolders) {
         bool isDeleted = rootManager.DeleteSynchronousRoot(folder.path_, userId);
         if (!isDeleted) {
-            HILOG_ERROR("Failed to delete sync root: %{public}s", folder.path_.c_str());
+            HILOG_ERROR("Failed to delete syncFolder");
             continue;
         }
         auto ret = FileManagement::CloudDiskService::CloudDiskServiceManager::GetInstance().
@@ -347,7 +345,7 @@ int32_t FileAccessService::Changestate(const std::string &path, const State& new
         return ret;
     }
     if (!rootManager.UpdateSynchronousRootState(path, bundleName, userId, index, newState)) {
-        HILOG_ERROR("Update root state failed for path: %{private}s", path.c_str());
+        HILOG_ERROR("Update syncFolder state failed");
         return E_TRY_AGAIN;
     }
     SyncFolderExt syncFolderExt;
@@ -416,13 +414,13 @@ int32_t FileAccessService::GetSyncFolders(std::vector<SyncFolder> &syncFolders)
     int32_t userId = UfsAccessTokenHelper::GetUserId();
     auto& rootManager = SynchronousRootManager::GetInstance();
     if (!rootManager.GetRootInfosByUserAndBundle(bundleName, index, userId, syncFolders)) {
-        HILOG_ERROR("Get root infos failed for bundleName: %{public}s, index: %{public}d, userId: %{public}d",
+        HILOG_ERROR("Get syncFolder infos failed for bundleName: %{public}s, index: %{public}d, userId: %{public}d",
             bundleName.c_str(), index, userId);
         DecreaseCnt(__func__);
         return E_SYNC_FOLDER_NOT_REGISTERED;
     }
 
-    HILOG_INFO("FileAccessService::GetRoots success, found %{public}zu roots", syncFolders.size());
+    HILOG_INFO("GetSyncFolders success, found %{public}zu SyncFolders", syncFolders.size());
     DecreaseCnt(__func__);
     return ERR_OK;
 #else
@@ -442,12 +440,12 @@ int32_t FileAccessService::GetAllSyncFolders(std::vector<SyncFolderExt>& syncFol
     }
     std::vector<std::map<std::string, std::string>> syncFolders;
     int32_t userId = UfsAccessTokenHelper().GetUserId();
-    if (!SynchronousRootManager::GetInstance().GetAllRootInfosByUserId(userId, syncFolderExts)) {
-        HILOG_ERROR("Get all root infos failed");
+    if (!SynchronousRootManager::GetInstance().GetAllSyncFolderInfosByUserId(userId, syncFolderExts)) {
+        HILOG_ERROR("Get all SyncFolder infos failed");
         DecreaseCnt(__func__);
         return E_SYNC_FOLDER_NOT_REGISTERED;
     }
-    HILOG_INFO("Found %{public}zu roots", syncFolderExts.size());
+    HILOG_INFO("Found %{public}zu SyncFolders", syncFolderExts.size());
     int32_t cnt = SynchronousRootManager::GetInstance().GetRootCount();
     HILOG_INFO("Found %{public}d", cnt);
     DecreaseCnt(__func__);
@@ -487,7 +485,7 @@ int32_t FileAccessService::UpdateDisplayName(const std::string &path, const std:
         return ret;
     }
     if (!rootManager.UpdateDisplayName(path, bundleName, userId, index, displayName)) {
-        HILOG_ERROR("Update root state failed for path: %{private}s", path.c_str());
+        HILOG_ERROR("Update syncFolder state failed");
         DecreaseCnt(__func__);
         return E_TRY_AGAIN;
     }
@@ -533,7 +531,7 @@ int32_t FileAccessService::UnregisterForSa(const string &path)
     }
     auto& rootManager = SynchronousRootManager::GetInstance();
     if (!rootManager.DeleteSynchronousRoot(path, userId)) {
-        HILOG_ERROR("Delete root failed");
+        HILOG_ERROR("Delete syncFolder failed");
         DecreaseCnt(__func__);
         return E_REMOVE_SYNC_FOLDER_FAILED;
     }
@@ -579,12 +577,12 @@ int32_t FileAccessService::GetAllSyncFoldersForSa(std::vector<SyncFolderExt> &sy
         DecreaseCnt(__func__);
         return E_INVALID_PARAM;
     }
-    if (!SynchronousRootManager::GetInstance().GetAllRootInfosByUserId(currentUserId, syncFolderExts)) {
-        HILOG_ERROR("Get all root infos failed");
+    if (!SynchronousRootManager::GetInstance().GetAllSyncFolderInfosByUserId(currentUserId, syncFolderExts)) {
+        HILOG_ERROR("Get all syncFolder infos failed");
         DecreaseCnt(__func__);
         return E_SYNC_FOLDER_NOT_REGISTERED;
     }
-    HILOG_INFO("Found %{public}zu roots", syncFolderExts.size());
+    HILOG_INFO("Found %{public}zu syncFolders", syncFolderExts.size());
     DecreaseCnt(__func__);
     return ERR_OK;
 #else

@@ -61,7 +61,7 @@ public:
     bool GetRootInfosByUserAndBundle(const std::string& bundleName, int32_t index,
         int32_t userId, std::vector<SyncFolder>& rootInfos);
 
-    bool GetAllRootInfosByUserId(int32_t userId, std::vector<SyncFolderExt>& syncFolderExts);
+    bool GetAllSyncFolderInfosByUserId(int32_t userId, std::vector<SyncFolderExt>& syncFolderExts);
     int32_t GetRootNumByUserIdAndBundleName(const std::string& bundleName,
         int32_t index, int32_t userId);
     bool UpdateDisplayName(const std::string& rootUri, const std::string& bundleName,
