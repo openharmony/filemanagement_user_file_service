@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "external_file_access_fuzzer.h"
+#include "external_file_access_listfile_fuzzer.h"
 
 #include <cstdio>
 #include <thread>
@@ -79,27 +79,33 @@ shared_ptr<FileAccessHelper> GetFileAccessHelper()
     return g_fah;
 }
 
-bool CheckDataAndHelper(const uint8_t* data, size_t size, shared_ptr<FileAccessHelper>& helper)
+bool ListFileFuzzTest(const uint8_t* data, size_t size)
 {
-    (void)data;
-    helper = GetFileAccessHelper();
+    if ((data == nullptr) || (size == 0)) {
+        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
+        return false;
+    }
+    shared_ptr<FileAccessHelper> helper = GetFileAccessHelper();
     if (helper == nullptr) {
         HILOG_ERROR("GetFileAccessHelper return nullptr.");
         return false;
     }
-    return true;
-}
 
-bool AccessFuzzTest(const uint8_t* data, size_t size)
-{
-    shared_ptr<FileAccessHelper> helper;
-    if (!CheckDataAndHelper(data, size, helper)) {
+    FileInfo fileInfo;
+    fileInfo.uri = std::string(reinterpret_cast<const char*>(data), size);
+    int64_t offset = 0;
+    SharedMemoryInfo memInfo;
+    int result = SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+        memInfo);
+    if (result != OHOS::FileAccessFwk::ERR_OK) {
+        HILOG_ERROR("CreateSharedMemory failed. ret : %{public}d", result);
         return false;
     }
-    Uri uri(std::string(reinterpret_cast<const char*>(data), size));
-    bool isExist = false;
-    int result = helper->Access(uri, isExist);
-    if (isExist != true || result != OHOS::FileAccessFwk::ERR_OK) {
+    FileFilter filter;
+    result = helper->ListFile(fileInfo, offset, filter, memInfo);
+    SharedMemoryOperation::DestroySharedMemory(memInfo);
+    if (result != OHOS::FileAccessFwk::ERR_OK) {
+        HILOG_ERROR("ListFile failed. ret : %{public}d", result);
         return false;
     }
     return true;
@@ -112,6 +118,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::UserFileServiceTokenMock tokenMock;
     tokenMock.SetFileManagerToken();
     /* Run your code on data */
-    OHOS::AccessFuzzTest(data, size);
+    OHOS::ListFileFuzzTest(data, size);
     return 0;
 }
