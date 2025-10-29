@@ -106,7 +106,8 @@ public:
     int MoveFile(const Uri &sourceFile, const Uri &targetParent, std::string &fileName, Uri &newFile) override;
     int GetFileInfoNum(const std::string &sourceFileUri, const FileFilter &filter, bool recursion,
         uint32_t &counts) override;
-
+    static int DoCallJsMethod(CallJsParam *param);
+    static bool ParserGetJsResult(napi_env &env, napi_value nativeValue, std::vector<Result> &result, int &copyRet);
 private:
     template <typename T>
     struct Value {

@@ -166,7 +166,7 @@ napi_value JsFileAccessExtAbility::CallObjectMethod(const char *name, napi_value
     return handleEscape.Escape(result);
 }
 
-static int DoCallJsMethod(CallJsParam *param)
+int JsFileAccessExtAbility::DoCallJsMethod(CallJsParam *param)
 {
     UserAccessTracer trace;
     trace.Start("DoCallJsMethod");
@@ -250,7 +250,7 @@ int JsFileAccessExtAbility::CallJsMethod(const std::string &funcName, JsRuntime 
             param->fileOperateCondition.notify_one();
             return;
         }
-        if (DoCallJsMethod(param) != ERR_OK) {
+        if (JsFileAccessExtAbility::DoCallJsMethod(param) != ERR_OK) {
             HILOG_ERROR("failed to call DoCallJsMethod.");
         }
 
@@ -588,7 +588,7 @@ static bool GetResultByJs(napi_env &env, napi_value nativeResult, Result &result
     return true;
 }
 
-static bool ParserGetJsResult(napi_env &env, napi_value nativeValue, std::vector<Result> &result,
+bool JsFileAccessExtAbility::ParserGetJsResult(napi_env &env, napi_value nativeValue, std::vector<Result> &result,
     int &copyRet)
 {
     UserAccessTracer trace;
@@ -669,7 +669,7 @@ int JsFileAccessExtAbility::Copy(const Uri &sourceUri, const Uri &destUri, std::
 
     int copyRet = EXCEPTION;
     auto retParser = [&copyResult, &copyRet](napi_env &env, napi_value result) -> bool {
-        return ParserGetJsResult(env, result, copyResult, copyRet);
+        return JsFileAccessExtAbility::ParserGetJsResult(env, result, copyResult, copyRet);
     };
 
     auto errCode = CallJsMethod("copy", jsRuntime_, jsObj_.get(), argParser, retParser);
@@ -1897,7 +1897,7 @@ int JsFileAccessExtAbility::MoveItem(const Uri &sourceFile, const Uri &targetPar
 
     int ret = EXCEPTION;
     auto retParser = [&moveResult, &ret](napi_env &env, napi_value result) -> bool {
-        return ParserGetJsResult(env, result, moveResult, ret);
+        return JsFileAccessExtAbility::ParserGetJsResult(env, result, moveResult, ret);
     };
 
     auto errCode = CallJsMethod("moveItem", jsRuntime_, jsObj_.get(), argParser, retParser);
