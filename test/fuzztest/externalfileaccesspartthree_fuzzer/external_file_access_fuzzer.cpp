@@ -79,75 +79,6 @@ shared_ptr<FileAccessHelper> GetFileAccessHelper()
     return g_fah;
 }
 
-bool CheckDataAndHelper(const uint8_t* data, size_t size, shared_ptr<FileAccessHelper>& helper)
-{
-    (void)data;
-    helper = GetFileAccessHelper();
-    if (helper == nullptr) {
-        HILOG_ERROR("GetFileAccessHelper return nullptr.");
-        return false;
-    }
-    return true;
-}
-
-bool ListFileFuzzTest(const uint8_t* data, size_t size)
-{
-    if ((data == nullptr) || (size == 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    shared_ptr<FileAccessHelper> helper = GetFileAccessHelper();
-    if (helper == nullptr) {
-        HILOG_ERROR("GetFileAccessHelper return nullptr.");
-        return false;
-    }
-
-    FileInfo fileInfo;
-    fileInfo.uri = std::string(reinterpret_cast<const char*>(data), size);
-    int64_t offset = 0;
-    SharedMemoryInfo memInfo;
-    int result = SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
-        memInfo);
-    if (result != OHOS::FileAccessFwk::ERR_OK) {
-        HILOG_ERROR("CreateSharedMemory failed. ret : %{public}d", result);
-        return false;
-    }
-    FileFilter filter;
-    result = helper->ListFile(fileInfo, offset, filter, memInfo);
-    SharedMemoryOperation::DestroySharedMemory(memInfo);
-    if (result != OHOS::FileAccessFwk::ERR_OK) {
-        HILOG_ERROR("ListFile failed. ret : %{public}d", result);
-        return false;
-    }
-    return true;
-}
-
-bool ScanFileFuzzTest(const uint8_t* data, size_t size)
-{
-    if ((data == nullptr) || (size == 0)) {
-        HILOG_ERROR("parameter data is nullptr or parameter size <= 0.");
-        return false;
-    }
-    shared_ptr<FileAccessHelper> helper = GetFileAccessHelper();
-    if (helper == nullptr) {
-        HILOG_ERROR("GetFileAccessHelper return nullptr.");
-        return false;
-    }
-
-    FileInfo fileInfo;
-    fileInfo.uri = std::string(reinterpret_cast<const char*>(data), size);
-    int64_t offset = 0;
-    int64_t maxCount = 1000;
-    std::vector<FileInfo> fileInfoVec;
-    FileFilter filter;
-    int result = helper->ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
-    if (result != OHOS::FileAccessFwk::ERR_OK) {
-        HILOG_ERROR("ScanFile failed. ret : %{public}d", result);
-        return false;
-    }
-    return true;
-}
-
 bool GetFileInfoFromUriFuzzTest(const uint8_t* data, size_t size)
 {
     if ((data == nullptr) || (size == 0)) {
@@ -176,8 +107,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::UserFileServiceTokenMock tokenMock;
     tokenMock.SetFileManagerToken();
     /* Run your code on data */
-    OHOS::ListFileFuzzTest(data, size);
-    OHOS::ScanFileFuzzTest(data, size);
     OHOS::GetFileInfoFromUriFuzzTest(data, size);
     return 0;
 }

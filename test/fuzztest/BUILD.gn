@@ -15,6 +15,11 @@ group("user_file_service_fuzz_test") {
   testonly = true
 
   deps = [
+    "externalfileaccesscreator_fuzzer:ExternalFileAccessCreatorFuzzTest",
+    "externalfileaccessmkdirpartone_fuzzer:ExternalFileAccessMkdirPartOneFuzzTest",
+    "externalfileaccessopenfilepartone_fuzzer:ExternalFileAccessOpenFilePartOneFuzzTest",
+    "externalfileaccesslistfilepartone_fuzzer:ExternalFileAccessListFilePartOneFuzzTest",
+    "externalfileaccessscanfilepartone_fuzzer:ExternalFileAccessScanFilePartOneFuzzTest",
     "externalfileaccesspartone_fuzzer:ExternalFileAccessPartOneFuzzTest",
     "externalfileaccessrenamefile_fuzzer:ExternalFileAccessRenameFileFuzzTest",
     "externalfileaccesscreate_fuzzer:ExternalFileAccessCreateFuzzTest",

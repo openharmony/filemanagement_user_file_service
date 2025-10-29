@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "external_file_access_fuzzer.h"
+#include "external_file_access_mkdir_fuzzer.h"
 
 #include <cstdio>
 #include <thread>
@@ -90,17 +90,33 @@ bool CheckDataAndHelper(const uint8_t* data, size_t size, shared_ptr<FileAccessH
     return true;
 }
 
-bool AccessFuzzTest(const uint8_t* data, size_t size)
+bool MkdirFuzzTest(const uint8_t* data, size_t size)
 {
     shared_ptr<FileAccessHelper> helper;
     if (!CheckDataAndHelper(data, size, helper)) {
         return false;
     }
-    Uri uri(std::string(reinterpret_cast<const char*>(data), size));
-    bool isExist = false;
-    int result = helper->Access(uri, isExist);
-    if (isExist != true || result != OHOS::FileAccessFwk::ERR_OK) {
+
+    vector<RootInfo> info;
+    int result = helper->GetRoots(info);
+    if (result != OHOS::FileAccessFwk::ERR_OK) {
+        HILOG_ERROR("GetRoots failed. ret : %{public}d", result);
         return false;
+    }
+    for (size_t i = 0; i < info.size(); i++) {
+        Uri parentUri(info[i].uri);
+        Uri newDirUri("");
+        std::string dirName(reinterpret_cast<const char*>(data), size);
+        result = helper->Mkdir(parentUri, dirName, newDirUri);
+        if (result != OHOS::FileAccessFwk::ERR_OK) {
+            HILOG_ERROR("Mkdir failed. ret : %{public}d", result);
+            return false;
+        }
+        result = helper->Delete(newDirUri);
+        if (result != OHOS::FileAccessFwk::ERR_OK) {
+            HILOG_ERROR("Delete failed. ret : %{public}d", result);
+            return false;
+        }
     }
     return true;
 }
@@ -112,6 +128,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::UserFileServiceTokenMock tokenMock;
     tokenMock.SetFileManagerToken();
     /* Run your code on data */
-    OHOS::AccessFuzzTest(data, size);
+    OHOS::MkdirFuzzTest(data, size);
     return 0;
 }

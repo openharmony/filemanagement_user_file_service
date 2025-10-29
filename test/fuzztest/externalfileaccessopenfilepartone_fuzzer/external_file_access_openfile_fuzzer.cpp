@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "external_file_access_fuzzer.h"
+#include "external_file_access_openfile_fuzzer.h"
 
 #include <cstdio>
 #include <thread>
@@ -90,18 +90,21 @@ bool CheckDataAndHelper(const uint8_t* data, size_t size, shared_ptr<FileAccessH
     return true;
 }
 
-bool AccessFuzzTest(const uint8_t* data, size_t size)
+bool OpenFileFuzzTest(const uint8_t* data, size_t size)
 {
     shared_ptr<FileAccessHelper> helper;
     if (!CheckDataAndHelper(data, size, helper)) {
         return false;
     }
     Uri uri(std::string(reinterpret_cast<const char*>(data), size));
-    bool isExist = false;
-    int result = helper->Access(uri, isExist);
-    if (isExist != true || result != OHOS::FileAccessFwk::ERR_OK) {
+    int fd = -1;
+    int result = 0;
+    result = helper->OpenFile(uri, WRITE_READ, fd);
+    if (result != OHOS::FileAccessFwk::ERR_OK) {
+        HILOG_ERROR("OpenFile failed. ret : %{public}d", result);
         return false;
     }
+    close(fd);
     return true;
 }
 }
@@ -112,6 +115,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::UserFileServiceTokenMock tokenMock;
     tokenMock.SetFileManagerToken();
     /* Run your code on data */
-    OHOS::AccessFuzzTest(data, size);
+    OHOS::OpenFileFuzzTest(data, size);
     return 0;
 }
