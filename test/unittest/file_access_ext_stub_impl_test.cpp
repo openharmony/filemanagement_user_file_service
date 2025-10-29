@@ -27,6 +27,7 @@
 #include "file_access_extension_info.h"
 #include "file_access_framework_errno.h"
 #include "file_access_ext_ability_mock.h"
+#include "accesstoken_kit_mock.h"
 #include "uri_ext.h"
 #include "accesstoken_kit.h"
 #include "nativetoken_kit.h"
@@ -37,12 +38,10 @@ using namespace std;
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AbilityRuntime;
-
 void SetNativeToken()
 {
     uint64_t tokenId;
     const char *perms[] = {
-        "ohos.permission.FILE_ACCESS_MANAGER",
         "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED",
         "ohos.permission.CONNECT_FILE_ACCESS_EXTENSION"
     };
@@ -72,8 +71,17 @@ int FileAccessExtBaseStub::OnRemoteRequest(uint32_t code, MessageParcel& data, M
 
 class FileAccessExtStubImplTest : public testing::Test {
 public:
-    static void SetUpTestCase(void) {}
-    static void TearDownTestCase() {}
+static inline shared_ptr<AccesstokenMock> accesstokenMock_ = nullptr;
+    static void SetUpTestCase(void)
+    {
+        accesstokenMock_ = make_shared<AccesstokenMock>();
+        AccesstokenMock::fileAccessAccesstokenMock = accesstokenMock_;
+    }
+    static void TearDownTestCase()
+    {
+        AccesstokenMock::fileAccessAccesstokenMock = nullptr;
+        accesstokenMock_ = nullptr;
+    }
     void SetUp() {}
     void TearDown() {}
     shared_ptr<FileAccessExtAbilityMock> ability = make_shared<FileAccessExtAbilityMock>();
@@ -117,7 +125,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_OpenFile_0001, tes
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_OpenFile_0001";
     try {
         EXPECT_CALL(*ability, OpenFile(_, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
-
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
         SetNativeToken();
         int fd;
         Urie uri("");
@@ -130,6 +138,57 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_OpenFile_0001, tes
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_OpenFile_0001";
 }
 
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_OpenFile_0002
+ * @tc.name: file_access_ext_stub_impl_OpenFile_0002
+ * @tc.desc: Test function of OpenFile interface for E_INVALID_PARAM.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8WZ9U
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_OpenFile_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_OpenFile_0002";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
+        int fd;
+        Urie uri("");
+        int flags = -1;
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.OpenFile(uri, flags, fd);
+        EXPECT_EQ(result, EINVAL);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_OpenFile_0002";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_OpenFile_0003
+ * @tc.name: file_access_ext_stub_impl_OpenFile_0003
+ * @tc.desc: Test function of OpenFile interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8WZ9U
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_OpenFile_0003, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_OpenFile_0003";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+        int fd;
+        Urie uri("");
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.OpenFile(uri, WRITE_READ, fd);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+    } catch (...) {
+
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_OpenFile_0003";
+}
 /**
  * @tc.number: user_file_service_file_access_ext_stub_impl_CreateFile_0000
  * @tc.name: file_access_ext_stub_impl_CreateFile_0000
@@ -169,6 +228,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_CreateFile_0001, t
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_CreateFile_0001";
     try {
         EXPECT_CALL(*ability, CreateFile(_, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
 
         Urie uri("");
         Urie newUri("");
@@ -180,6 +240,32 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_CreateFile_0001, t
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_CreateFile_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_CreateFile_0002
+ * @tc.name: file_access_ext_stub_impl_CreateFile_0002
+ * @tc.desc: Test function of CreateFile interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8WZ9U
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_CreateFile_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_CreateFile_0002";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+        Urie uri("");
+        Urie newUri("");
+        string displayName = "";
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.CreateFile(uri, displayName, newUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_CreateFile_0002";
 }
 
 /**
@@ -221,13 +307,40 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Mkdir_0001, testin
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Mkdir_0001";
     try {
         EXPECT_CALL(*ability, Mkdir(_, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
-
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
         Urie uri("");
         Urie newUri("");
         string displayName = "";
         FileAccessExtStubImpl impl(ability, nullptr);
         int result = impl.Mkdir(uri, displayName, newUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_Mkdir_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_Mkdir_0002
+ * @tc.name: file_access_ext_stub_impl_Mkdir_0002
+ * @tc.desc: Test function of Mkdir interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8WZ9U
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Mkdir_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Mkdir_0002";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+
+        Urie uri("");
+        Urie newUri("");
+        string displayName = "";
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.Mkdir(uri, displayName, newUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
@@ -271,6 +384,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Delete_0001, testi
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Delete_0001";
     try {
         EXPECT_CALL(*ability, Delete(_)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
 
         Urie sourceFile("");
         FileAccessExtStubImpl impl(ability, nullptr);
@@ -280,6 +394,31 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Delete_0001, testi
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_Delete_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_Delete_0002
+ * @tc.name: file_access_ext_stub_impl_Delete_0002
+ * @tc.desc: Test function of Delete interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8WZ9U
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Delete_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Delete_0002";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+
+        Urie sourceFile("");
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.Delete(sourceFile);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_Delete_0002";
 }
 
 /**
@@ -321,6 +460,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Move_0001, testing
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Move_0001";
     try {
         EXPECT_CALL(*ability, Move(_, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
 
         Urie sourceFile("");
         Urie targetParent("");
@@ -332,6 +472,33 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Move_0001, testing
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_Move_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_Move_0002
+ * @tc.name: file_access_ext_stub_impl_Move_0002
+ * @tc.desc: Test function of Move interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XFLP
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Move_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Move_0002";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+
+        Urie sourceFile("");
+        Urie targetParent("");
+        Urie newFile("");
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.Move(sourceFile, targetParent, newFile);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_Move_0002";
 }
 
 /**
@@ -353,8 +520,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Copy_0000, testing
         FileAccessExtStubImpl impl(nullptr, nullptr);
         int retCode;
         int result = impl.Copy(sourceFile, destUri, copyResult, retCode);
-        result = retCode;
-        EXPECT_EQ(result, ERR_OK);
+        EXPECT_EQ(result, E_IPCS);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
@@ -375,6 +541,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Copy_0001, testing
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Copy_0001";
     try {
         EXPECT_CALL(*ability, Copy(_, _, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
 
         Urie sourceFile("");
         Urie destUri("");
@@ -388,6 +555,34 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Copy_0001, testing
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_Copy_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_Copy_0002
+ * @tc.name: file_access_ext_stub_impl_Copy_0002
+ * @tc.desc: Test function of Copy interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XFLP
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Copy_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Copy_0002";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+
+        Urie sourceFile("");
+        Urie destUri("");
+        vector<Result> copyResult;
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int retCode;
+        int result = impl.Copy(sourceFile, destUri, copyResult, retCode);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_Copy_0002";
 }
 
 /**
@@ -430,6 +625,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_CopyFile_0001, tes
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_CopyFile_0001";
     try {
         EXPECT_CALL(*ability, CopyFile(_, _, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
 
         Urie sourceFile("");
         Urie destUri("");
@@ -438,6 +634,34 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_CopyFile_0001, tes
         FileAccessExtStubImpl impl(ability, nullptr);
         int result = impl.CopyFile(sourceFile, destUri, fileName, newFileUri);
         EXPECT_EQ(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_CopyFile_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_CopyFile_0002
+ * @tc.name: file_access_ext_stub_impl_CopyFile_0002
+ * @tc.desc: Test function of CopyFile interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XFLP
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_CopyFile_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_CopyFile_0002";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+
+        Urie sourceFile("");
+        Urie destUri("");
+        string fileName;
+        Urie newFileUri("");
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.CopyFile(sourceFile, destUri, fileName, newFileUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
     } catch (...) {
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
@@ -483,6 +707,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Rename_0001, testi
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Rename_0001";
     try {
         EXPECT_CALL(*ability, Rename(_, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
 
         Urie sourceFile("");
         Urie newUri("");
@@ -494,6 +719,33 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Rename_0001, testi
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_Rename_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_Rename_0002
+ * @tc.name: file_access_ext_stub_impl_Rename_0002
+ * @tc.desc: Test function of Rename interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XFLP
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Rename_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Rename_0002";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+
+        Urie sourceFile("");
+        Urie newUri("");
+        string displayName = "";
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.Rename(sourceFile, displayName, newUri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_Rename_0002";
 }
 
 /**
@@ -536,6 +788,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_ListFile_0001, tes
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_ListFile_0001";
     try {
         EXPECT_CALL(*ability, ListFile(_, _, _, _, _)).WillOnce(Return(EPERM));
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
 
         FileInfo fileInfo;
         int64_t offset = 0;
@@ -566,6 +819,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_ListFile_0002, tes
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_ListFile_0002";
     try {
         EXPECT_CALL(*ability, ListFile(_, _, _, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
 
         FileInfo fileInfo;
         int64_t offset = 0;
@@ -580,6 +834,68 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_ListFile_0002, tes
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_ListFile_0002";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_ListFile_0003
+ * @tc.name: file_access_ext_stub_impl_ListFile_0003
+ * @tc.desc: Test function of ListFile interface for SUCCESS.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XFLP
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_ListFile_0003, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_ListFile_0003";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
+
+        FileInfo fileInfo;
+        int64_t offset = 0;
+        const FileFilter filter;
+        SharedMemoryInfo memInfo;
+        memInfo.memSize = DEFAULT_CAPACITY_200KB;
+        int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", -1,
+            memInfo);
+        FileAccessExtStubImpl impl(ability, nullptr);
+        result = impl.ListFile(fileInfo, offset, filter, memInfo);
+        EXPECT_NE(result, OHOS::FileAccessFwk::ERR_OK);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_ListFile_0003";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_ListFile_0004
+ * @tc.name: file_access_ext_stub_impl_ListFile_0004
+ * @tc.desc: Test function of ListFile interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XFLP
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_ListFile_0004, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_ListFile_0004";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+
+        FileInfo fileInfo;
+        int64_t offset = 0;
+        const FileFilter filter;
+        SharedMemoryInfo memInfo;
+        int result = FileAccessFwk::SharedMemoryOperation::CreateSharedMemory("FileInfo List", DEFAULT_CAPACITY_200KB,
+            memInfo);
+        FileAccessExtStubImpl impl(ability, nullptr);
+        result = impl.ListFile(fileInfo, offset, filter, memInfo);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_ListFile_0004";
 }
 
 /**
@@ -623,6 +939,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_ScanFile_0001, tes
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_ScanFile_0001";
     try {
         EXPECT_CALL(*ability, ScanFile(_, _, _, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
 
         FileInfo fileInfo;
         int64_t offset = 0;
@@ -636,6 +953,35 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_ScanFile_0001, tes
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_ScanFile_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_ScanFile_0002
+ * @tc.name: file_access_ext_stub_impl_ScanFile_0002
+ * @tc.desc: Test function of ScanFile interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XFLP
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_ScanFile_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_ScanFile_0002";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+
+        FileInfo fileInfo;
+        int64_t offset = 0;
+        int64_t maxCount = 0;
+        const FileFilter filter;
+        vector<FileInfo> fileInfoVec;
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.ScanFile(fileInfo, offset, maxCount, filter, fileInfoVec);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_ScanFile_0002";
 }
 
 /**
@@ -677,6 +1023,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Query_0001, testin
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Query_0001";
     try {
         EXPECT_CALL(*ability, Query(_, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
 
         Urie uri("");
         vector<string> columns;
@@ -688,6 +1035,33 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Query_0001, testin
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_Query_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_Query_0002
+ * @tc.name: file_access_ext_stub_impl_Query_0002
+ * @tc.desc: Test function of Query interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XFLP
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Query_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Query_0002";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+
+        Urie uri("");
+        vector<string> columns;
+        vector<string> results;
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.Query(uri, columns, results);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_Query_0002";
 }
 
 /**
@@ -728,6 +1102,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_GetFileInfoFromUri
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_GetFileInfoFromUri_0001";
     try {
         EXPECT_CALL(*ability, GetFileInfoFromUri(_, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
 
         Urie selectFile("");
         FileInfo fileInfo;
@@ -738,6 +1113,32 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_GetFileInfoFromUri
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_GetFileInfoFromUri_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_GetFileInfoFromUri_0002
+ * @tc.name: file_access_ext_stub_impl_GetFileInfoFromUri_0002
+ * @tc.desc: Test function of GetFileInfoFromUri interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_GetFileInfoFromUri_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_GetFileInfoFromUri_0002";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+
+        Urie selectFile("");
+        FileInfo fileInfo;
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.GetFileInfoFromUri(selectFile, fileInfo);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_GetFileInfoFromUri_0002";
 }
 
 /**
@@ -780,6 +1181,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_GetFileInfoFromRel
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_GetFileInfoFromRelativePath_0001";
     try {
         EXPECT_CALL(*ability, GetFileInfoFromRelativePath(_, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
 
         string selectFile;
         FileInfo fileInfo;
@@ -790,6 +1192,33 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_GetFileInfoFromRel
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_GetFileInfoFromRelativePath_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_GetFileInfoFromRelativePath_0002
+ * @tc.name: file_access_ext_stub_impl_GetFileInfoFromRelativePath_0002
+ * @tc.desc: Test function of GetFileInfoFromRelativePath interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_GetFileInfoFromRelativePath_0002,
+    testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_GetFileInfoFromRelativePath_0002";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+
+        string selectFile;
+        FileInfo fileInfo;
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.GetFileInfoFromRelativePath(selectFile, fileInfo);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_GetFileInfoFromRelativePath_0002";
 }
 
 /**
@@ -829,6 +1258,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_GetRoots_0001, tes
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_GetRoots_0001";
     try {
         EXPECT_CALL(*ability, GetRoots(_)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
 
         vector<RootInfo> rootInfoVec;
         FileAccessExtStubImpl impl(ability, nullptr);
@@ -838,6 +1268,31 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_GetRoots_0001, tes
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_GetRoots_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_GetRoots_0002
+ * @tc.name: file_access_ext_stub_impl_GetRoots_0002
+ * @tc.desc: Test function of GetRoots interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_GetRoots_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_GetRoots_0002";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+
+        vector<RootInfo> rootInfoVec;
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.GetRoots(rootInfoVec);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_GetRoots_0002";
 }
 
 /**
@@ -878,6 +1333,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Access_0001, testi
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Access_0001";
     try {
         EXPECT_CALL(*ability, Access(_, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
 
         Urie uri("");
         bool isExist;
@@ -888,6 +1344,32 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Access_0001, testi
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_Access_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_Access_0002
+ * @tc.name: file_access_ext_stub_impl_Access_0002
+ * @tc.desc: Test function of Access interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Access_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Access_0002";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+
+        Urie uri("");
+        bool isExist;
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.Access(uri, isExist);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_Access_0002";
 }
 
 /**
@@ -927,6 +1409,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_StartWatcher_0001,
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_StartWatcher_0001";
     try {
         EXPECT_CALL(*ability, StartWatcher(_)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
 
         Urie uri("");
         FileAccessExtStubImpl impl(ability, nullptr);
@@ -936,6 +1419,31 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_StartWatcher_0001,
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_StartWatcher_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_StartWatcher_0002
+ * @tc.name: file_access_ext_stub_impl_StartWatcher_0002
+ * @tc.desc: Test function of StartWatcher interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_StartWatcher_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_StartWatcher_0002";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+
+        Urie uri("");
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.StartWatcher(uri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_StartWatcher_0002";
 }
 
 /**
@@ -975,6 +1483,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_StopWatcher_0001, 
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_StopWatcher_0001";
     try {
         EXPECT_CALL(*ability, StopWatcher(_)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
 
         Urie uri("");
         FileAccessExtStubImpl impl(ability, nullptr);
@@ -984,6 +1493,31 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_StopWatcher_0001, 
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_StopWatcher_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_StopWatcher_0002
+ * @tc.name: file_access_ext_stub_impl_StopWatcher_0002
+ * @tc.desc: Test function of StopWatcher interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_StopWatcher_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_StopWatcher_0002";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+
+        Urie uri("");
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.StopWatcher(uri);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_StopWatcher_0002";
 }
 
 /**
@@ -999,6 +1533,8 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveItem_0000, tes
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_MoveItem_0000";
     try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
+
         Urie sourceFile("");
         Urie targetParent("");
         vector<Result> moveResult;
@@ -1027,6 +1563,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveItem_0001, tes
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_MoveItem_0001";
     try {
         EXPECT_CALL(*ability, MoveItem(_, _, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
 
         Urie sourceFile("");
         Urie targetParent("");
@@ -1040,6 +1577,34 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveItem_0001, tes
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_MoveItem_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_MoveItem_0002
+ * @tc.name: file_access_ext_stub_impl_MoveItem_0002
+ * @tc.desc: Test function of MoveItem interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveItem_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_MoveItem_0002";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+
+        Urie sourceFile("");
+        Urie targetParent("");
+        vector<Result> moveResult;
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int retCode;
+        int result = impl.MoveItem(sourceFile, targetParent, moveResult, retCode);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_MoveItem_0002";
 }
 
 /**
@@ -1082,6 +1647,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveFile_0001, tes
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_MoveFile_0001";
     try {
         EXPECT_CALL(*ability, MoveFile(_, _, _, _)).WillOnce(Return(OHOS::FileAccessFwk::ERR_OK));
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
 
         Urie sourceFile("");
         Urie targetParent("");
@@ -1094,5 +1660,33 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveFile_0001, tes
         GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_MoveFile_0001";
+}
+
+/**
+ * @tc.number: user_file_service_file_access_ext_stub_impl_MoveFile_0002
+ * @tc.name: file_access_ext_stub_impl_MoveFile_0002
+ * @tc.desc: Test function of MoveFile interface for E_PERMISSION.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 3
+ * @tc.require: issuesI8XN2E
+ */
+HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveFile_0002, testing::ext::TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_MoveFile_0002";
+    try {
+        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(-1));
+
+        Urie sourceFile("");
+        Urie targetParent("");
+        string fileName;
+        Urie newFile("");
+        FileAccessExtStubImpl impl(ability, nullptr);
+        int result = impl.MoveFile(sourceFile, targetParent, fileName, newFile);
+        EXPECT_EQ(result, OHOS::FileAccessFwk::E_PERMISSION);
+    } catch (...) {
+        GTEST_LOG_(ERROR) << "FileAccessExtStubImplTest occurs an exception.";
+    }
+    GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_MoveFile_0002";
 }
 }

@@ -23,7 +23,7 @@ using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::FileAccessFwk;
 using namespace OHOS::FileManagement;
-
+const std::string FILE_ACCESS_PERMISSION = "ohos.permission.FILE_ACCESS_MANAGER";
 namespace OHOS {
 namespace FileAccessFwk {
 class FileAccessServiceTest : public testing::Test {
@@ -130,6 +130,114 @@ HWTEST_F(FileAccessServiceTest, FileAccessService_IsChildUri_001, TestSize.Level
     ret = fileAccessSvc_->IsChildUri(cmpStr, srcStr);
     EXPECT_TRUE(ret);
     GTEST_LOG_(INFO) << "FileAccessServiceTest-end FileAccessService_IsChildUri_001";
+}
+
+/**
+ * @tc.number: FileAccessService_GetBundleNameFromUri_001
+ * @tc.name: FileAccessService_GetBundleNameFromUri_001
+ * @tc.desc: Get BundleName From Uri function
+ */
+HWTEST_F(FileAccessServiceTest, FileAccessService_GetBundleNameFromUri_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessServiceTest-begin FileAccessService_GetBundleNameFromUri_001";
+    ASSERT_NE(fileAccessSvc_, nullptr) << "FileAccessService_GetBundleNameFromUri_001 fileAccessSvc_ is nullptr";
+    OHOS::Uri fileUri("Connect://com.ohos.fileaccess/test");
+    std::string bundleName = "";
+    bool ret = fileAccessSvc_->GetBundleNameFromUri(fileUri, bundleName);
+    EXPECT_FALSE(ret);
+
+    GTEST_LOG_(INFO) << "FileAccessServiceTest-end FileAccessService_GetBundleNameFromUri_001";
+}
+
+/**
+ * @tc.number: FileAccessService_GetBundleNameFromUri_002
+ * @tc.name: FileAccessService_GetBundleNameFromUri_002
+ * @tc.desc: Get BundleName From Uri function
+ */
+HWTEST_F(FileAccessServiceTest, FileAccessService_GetBundleNameFromUri_002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessServiceTest-begin FileAccessService_GetBundleNameFromUri_002";
+    ASSERT_NE(fileAccessSvc_, nullptr) << "FileAccessService_GetBundleNameFromUri_002 fileAccessSvc_ is nullptr";
+    OHOS::Uri fileUri("file://");
+    std::string bundleName = "";
+    auto ret = fileAccessSvc_->GetBundleNameFromUri(fileUri, bundleName);
+    EXPECT_FALSE(ret);
+
+    OHOS::Uri fileUri1("file://media/photo/1/IMG_2020-09-01_15-09-09.jpg");
+    bundleName = "";
+    ret = fileAccessSvc_->GetBundleNameFromUri(fileUri1, bundleName);
+    EXPECT_TRUE(ret);
+
+    GTEST_LOG_(INFO) << "FileAccessServiceTest-end FileAccessService_GetBundleNameFromUri_002";
+}
+
+/**
+ * @tc.number: FileAccessService_GetBundleNameFromUri_004
+ * @tc.name: FileAccessService_GetBundleNameFromUri_004
+ * @tc.desc: Get BundleName From Uri function
+ */
+HWTEST_F(FileAccessServiceTest, FileAccessService_GetBundleNameFromUri_004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessServiceTest-begin FileAccessService_GetBundleNameFromUri_004";
+    ASSERT_NE(fileAccessSvc_, nullptr) << "FileAccessService_GetBundleNameFromUri_004 fileAccessSvc_ is nullptr";
+    OHOS::Uri fileUri("file://docs/storage/Users/currentUser/1.txt");
+    std::string bundleName = "";
+    auto ret = fileAccessSvc_->GetBundleNameFromUri(fileUri, bundleName);
+    EXPECT_TRUE(ret);
+
+    OHOS::Uri fileUri1("file://com.ohos.fileaccess/data/storage/el2/bsae/1.txt");
+    bundleName = "test";
+    ret = fileAccessSvc_->GetBundleNameFromUri(fileUri1, bundleName);
+    EXPECT_FALSE(ret);
+
+    GTEST_LOG_(INFO) << "FileAccessServiceTest-end FileAccessService_GetBundleNameFromUri_004";
+}
+
+/**
+ * @tc.number: FileAccessService_CleanAllNotify_001
+ * @tc.name: FileAccessService_CleanAllNotify_001
+ * @tc.desc: CleanAllNotify function
+ */
+HWTEST_F(FileAccessServiceTest, FileAccessService_CleanAllNotify_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessServiceTest-begin FileAccessService_CleanAllNotify_001";
+    ASSERT_NE(fileAccessSvc_, nullptr) << "FileAccessService_CleanAllNotify_001 fileAccessSvc_ is nullptr";
+    OHOS::Uri uri("");
+    int32_t ret = fileAccessSvc_->CleanAllNotify(uri, nullptr);
+    EXPECT_NE(ret, 0);
+    GTEST_LOG_(INFO) << "FileAccessServiceTest-end FileAccessService_CleanAllNotify_001";
+}
+
+/**
+ * @tc.number: FileAccessService_CleanAllNotify_002
+ * @tc.name: FileAccessService_CleanAllNotify_002
+ * @tc.desc: CleanAllNotify function
+ */
+HWTEST_F(FileAccessServiceTest, FileAccessService_CleanAllNotify_002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessServiceTest-begin FileAccessService_CleanAllNotify_002";
+    ASSERT_NE(fileAccessSvc_, nullptr) << "FileAccessService_CleanAllNotify_002 fileAccessSvc_ is nullptr";
+    OHOS::Uri uri1("file://docs");
+    int32_t ret = fileAccessSvc_->CleanAllNotify(uri1, nullptr);
+    EXPECT_NE(ret, 0);
+    OHOS::Uri uri2("file://com.demo/data/storage/el2/base/1.txt");
+    ret = fileAccessSvc_->CleanAllNotify(uri2, nullptr);
+    EXPECT_NE(ret, 0);
+    GTEST_LOG_(INFO) << "FileAccessServiceTest-end FileAccessService_CleanAllNotify_002";
+}
+
+/**
+ * @tc.number: FileAccessService_CheckCallingPermission_001
+ * @tc.name: FileAccessService_CheckCallingPermission_001
+ * @tc.desc: CheckCallingPermission function
+ */
+HWTEST_F(FileAccessServiceTest, FileAccessService_CheckCallingPermission_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FileAccessServiceTest-begin FileAccessService_CheckCallingPermission_001";
+    ASSERT_NE(fileAccessSvc_, nullptr) << "FileAccessService_CheckCallingPermission_001 fileAccessSvc_ is nullptr";
+    bool ret = fileAccessSvc_->CheckCallingPermission(FILE_ACCESS_PERMISSION);
+    EXPECT_FALSE(ret);
+    GTEST_LOG_(INFO) << "FileAccessServiceTest-end FileAccessService_CheckCallingPermission_001";
 }
 } // namespace FileAccessFwk
 } // namespace OHOS
