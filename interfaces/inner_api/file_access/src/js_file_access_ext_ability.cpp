@@ -250,7 +250,7 @@ int JsFileAccessExtAbility::CallJsMethod(const std::string &funcName, JsRuntime 
             param->fileOperateCondition.notify_one();
             return;
         }
-        if (JsFileAccessExtAbility::DoCallJsMethod(param) != ERR_OK) {
+        if (DoCallJsMethod(param) != ERR_OK) {
             HILOG_ERROR("failed to call DoCallJsMethod.");
         }
 
@@ -669,7 +669,7 @@ int JsFileAccessExtAbility::Copy(const Uri &sourceUri, const Uri &destUri, std::
 
     int copyRet = EXCEPTION;
     auto retParser = [&copyResult, &copyRet](napi_env &env, napi_value result) -> bool {
-        return JsFileAccessExtAbility::ParserGetJsResult(env, result, copyResult, copyRet);
+        return ParserGetJsResult(env, result, copyResult, copyRet);
     };
 
     auto errCode = CallJsMethod("copy", jsRuntime_, jsObj_.get(), argParser, retParser);
@@ -1897,7 +1897,7 @@ int JsFileAccessExtAbility::MoveItem(const Uri &sourceFile, const Uri &targetPar
 
     int ret = EXCEPTION;
     auto retParser = [&moveResult, &ret](napi_env &env, napi_value result) -> bool {
-        return JsFileAccessExtAbility::ParserGetJsResult(env, result, moveResult, ret);
+        return ParserGetJsResult(env, result, moveResult, ret);
     };
 
     auto errCode = CallJsMethod("moveItem", jsRuntime_, jsObj_.get(), argParser, retParser);
