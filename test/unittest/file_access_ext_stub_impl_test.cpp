@@ -1689,4 +1689,6 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveFile_0002, tes
     }
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-end file_access_ext_stub_impl_MoveFile_0002";
 }
+
+#include "file_access_ext_stub_impl_other_test.cpp"
 }
