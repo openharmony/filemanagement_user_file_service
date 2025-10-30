@@ -40,7 +40,7 @@ void FileAccessExtConnection::OnAbilityConnectDone(
         return;
     }
     std::lock_guard<std::mutex> lock(connectLockInfo_.mutex);
-    fileExtProxy_ = iface_cast<FileAccessExtBaseProxy>(remoteObject);
+    fileExtProxy_ = iface_cast<IFileAccessExtBase>(remoteObject);
     if (fileExtProxy_ == nullptr) {
         HILOG_ERROR("FileAccessExtConnection fileExtProxy_ is nullptr");
         return;
@@ -53,6 +53,7 @@ void FileAccessExtConnection::OnAbilityConnectDone(
 
 void FileAccessExtConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
+    std::lock_guard<std::mutex> lock(connectLockInfo_.mutex);
     fileExtProxy_ = nullptr;
     isConnected_.store(false);
 }
@@ -75,8 +76,11 @@ void FileAccessExtConnection::ConnectFileExtAbility(const AAFwk::Want &want, con
 
 void FileAccessExtConnection::DisconnectFileExtAbility()
 {
-    fileExtProxy_ = nullptr;
-    isConnected_.store(false);
+    {
+        std::lock_guard<std::mutex> lock(connectLockInfo_.mutex);
+        fileExtProxy_ = nullptr;
+        isConnected_.store(false);
+    }
     ErrCode ret = AAFwk::ExtensionManagerClient::GetInstance().DisconnectAbility(this);
     HILOG_INFO("DisconnectFileExtAbility called end, ret=%{public}d", ret);
 }
@@ -88,6 +92,7 @@ bool FileAccessExtConnection::IsExtAbilityConnected()
 
 sptr<IFileAccessExtBase> FileAccessExtConnection::GetFileExtProxy()
 {
+    std::lock_guard<std::mutex> lock(connectLockInfo_.mutex);
     return fileExtProxy_;
 }
 
