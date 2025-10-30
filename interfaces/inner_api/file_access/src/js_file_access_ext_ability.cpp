@@ -166,7 +166,7 @@ napi_value JsFileAccessExtAbility::CallObjectMethod(const char *name, napi_value
     return handleEscape.Escape(result);
 }
 
-static int DoCallJsMethod(CallJsParam *param)
+int JsFileAccessExtAbility::DoCallJsMethod(CallJsParam *param)
 {
     UserAccessTracer trace;
     trace.Start("DoCallJsMethod");
@@ -588,7 +588,7 @@ static bool GetResultByJs(napi_env &env, napi_value nativeResult, Result &result
     return true;
 }
 
-static bool ParserGetJsResult(napi_env &env, napi_value nativeValue, std::vector<Result> &result,
+bool JsFileAccessExtAbility::ParserGetJsResult(napi_env &env, napi_value nativeValue, std::vector<Result> &result,
     int &copyRet)
 {
     UserAccessTracer trace;

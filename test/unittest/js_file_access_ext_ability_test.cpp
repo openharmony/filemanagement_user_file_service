@@ -2053,4 +2053,5 @@ HWTEST_F(JsFileAccessExtAbilityTest, js_file_access_ext_ability_Rename_0003, tes
 
 #include "js_file_access_ext_ability_ex_test.cpp"
 #include "js_file_access_ext_ability_other_test.cpp"
+#include "js_file_access_ext_ability_ext_test.cpp"
 }
