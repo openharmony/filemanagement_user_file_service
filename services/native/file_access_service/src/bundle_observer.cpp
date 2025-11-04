@@ -63,7 +63,7 @@ int32_t BundleObserver::HandleBundleBroadcast()
             HILOG_ERROR("GetOnDemandReasonExtraData failed, ret = %{public}d", getDataRet);
             continue;
         }
-        auto extraData = dataParcel.ReadParcelable<OnDemandReasonExtraData>();
+        std::shared_ptr<OnDemandReasonExtraData> extraData(dataParcel.ReadParcelable<OnDemandReasonExtraData>());
         if (extraData == nullptr) {
             HILOG_ERROR("extraData is nullptr");
             continue;
