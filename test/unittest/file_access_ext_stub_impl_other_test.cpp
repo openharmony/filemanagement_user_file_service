@@ -359,7 +359,7 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_Query_0003, testin
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_Query_0003";
     try {
-        Urie uri("/test/test../../test");
+        Urie uri("/test./test../../test");
         vector<string> columns;
         vector<string> results;
         FileAccessExtStubImpl impl(nullptr, nullptr);
