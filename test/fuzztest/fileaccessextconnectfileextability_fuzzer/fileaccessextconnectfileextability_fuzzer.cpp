@@ -18,7 +18,11 @@
 #include <memory>
 
 #include "hilog_wrapper.h"
+#include "accesstoken_kit.h"
+#include "token_setproc.h"
+#include "nativetoken_kit.h"
 #include "file_access_ext_connection.h"
+#include "user_file_service_token_mock.h"
 
 namespace OHOS {
 using namespace std;
@@ -39,6 +43,8 @@ bool ConnectFileExtAbility(sptr<FileAccessExtConnection> conn, const uint8_t *da
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
+    OHOS::UserFileServiceTokenMock tokenMock;
+    tokenMock.SetFileManagerToken();
     auto conn = OHOS::sptr<OHOS::FileAccessFwk::FileAccessExtConnection>();
     if (conn == nullptr) {
         return 0;
