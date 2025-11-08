@@ -31,6 +31,7 @@
                 "ability_runtime",
                 "ace_engine",
                 "app_file_service",
+                "bounds_checking_function",
                 "ipc",
                 "init",
                 "samgr",
