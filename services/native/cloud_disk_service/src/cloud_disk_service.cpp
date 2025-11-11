@@ -551,7 +551,7 @@ int32_t FileAccessService::UnregisterForSa(const string &path)
     }
 
     if (!NotifyWorkService::GetInstance().NotifySyncFolderEvent(syncFolderExt,
-        NotifyWorkService::NotifyWorkService::EventType::INACTIVE)) {
+        NotifyWorkService::NotifyWorkService::EventType::UNREGISTER)) {
         HILOG_ERROR("FileAccessService::UnregisterForSa otifySyncFolderEvent failed");
     }
     DecreaseCnt(__func__);
