@@ -218,8 +218,8 @@ int JsFileAccessExtAbility::DoCallJsMethod(CallJsParam *param)
     return ERR_OK;
 }
 
-int JsFileAccessExtAbility::CallJsMethod(const std::string &funcName, JsRuntime &jsRuntime, NativeReference *jsObj,
-    InputArgsParser argParser, ResultValueParser retParser)
+__attribute__((weak)) int JsFileAccessExtAbility::CallJsMethod(const std::string &funcName,
+    JsRuntime &jsRuntime, NativeReference *jsObj, InputArgsParser argParser, ResultValueParser retParser)
 {
     UserAccessTracer trace;
     trace.Start("CallJsMethod");
