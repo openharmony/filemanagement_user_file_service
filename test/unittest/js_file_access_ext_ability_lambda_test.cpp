@@ -296,7 +296,6 @@ HWTEST_F(JsFileAccessExtAbilityLambdaTest, js_file_access_ext_ability_OpenFile_0
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityLambdaTest-begin js_file_access_ext_ability_OpenFile_0006";
     try {
         EXPECT_NE(ability, nullptr);
-        napi_value rslt = nullptr;
         const Uri uri("");
         int fd = -1;
         ability->jsObj_ = make_shared<NativeReferenceMock>();
@@ -1126,7 +1125,6 @@ HWTEST_F(JsFileAccessExtAbilityLambdaTest, js_file_access_ext_ability_Copy_0014,
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityLambdaTest-begin js_file_access_ext_ability_Copy_0014";
     try {
         EXPECT_NE(ability, nullptr);
-        napi_value rslt = nullptr;
         Uri sourceUri("");
         Uri destUri("");
         vector<Result> copyResult;
@@ -1458,4 +1456,6 @@ HWTEST_F(JsFileAccessExtAbilityLambdaTest, js_file_access_ext_ability_CopyFile_0
         GTEST_LOG_(ERROR) << "JsFileAccessExtAbilityLambdaTest occurs an exception.";
     }
     GTEST_LOG_(INFO) << "JsFileAccessExtAbilityLambdaTest-end js_file_access_ext_ability_CopyFile_0015";
+}
+
 }
