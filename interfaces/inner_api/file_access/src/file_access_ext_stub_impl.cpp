@@ -23,6 +23,7 @@
 #include "access_token.h"
 #include "accesstoken_kit.h"
 #include "ipc_skeleton.h"
+#include "file_uri_check.h"
 
 namespace OHOS {
 namespace FileAccessFwk {
@@ -52,6 +53,10 @@ int FileAccessExtStubImpl::OpenFile(const Urie &uri, const int flags, int &fd)
 {
     UserAccessTracer trace;
     trace.Start("OpenFile");
+    if (!IsFilePathValid(uri.ToString().c_str())) {
+        HILOG_ERROR ("uri is invalid");
+        return E_URIS;
+    }
     if (extension_ == nullptr) {
         HILOG_ERROR("OpenFile get extension failed.");
         return E_IPCS;
@@ -75,6 +80,10 @@ int FileAccessExtStubImpl::CreateFile(const Urie &parent, const std::string &dis
 {
     UserAccessTracer trace;
     trace.Start("CreateFile");
+    if (!IsFilePathValid(parent.ToString().c_str())) {
+        HILOG_ERROR("parent uri is invalid");
+        return E_URIS;
+    }
     if (extension_ == nullptr) {
         HILOG_ERROR("CreateFile get extension failed.");
         return E_IPCS;
@@ -95,6 +104,10 @@ int FileAccessExtStubImpl::Mkdir(const Urie &parent, const std::string &displayN
 {
     UserAccessTracer trace;
     trace.Start("Mkdir");
+    if (!IsFilePathValid(parent.ToString().c_str())) {
+        HILOG_ERROR("parent uri is invalid");
+        return E_URIS;
+    }
     if (extension_ == nullptr) {
         HILOG_ERROR("Mkdir get extension failed.");
         return E_IPCS;
@@ -115,6 +128,10 @@ int FileAccessExtStubImpl::Delete(const Urie &sourceFile)
 {
     UserAccessTracer trace;
     trace.Start("Delete");
+    if (!IsFilePathValid(sourceFile.ToString().c_str())) {
+        HILOG_ERROR("sourceFile uri is invalid");
+        return E_URIS;
+    }
     if (extension_ == nullptr) {
         HILOG_ERROR("Delete get extension failed.");
         return E_IPCS;
@@ -133,6 +150,14 @@ int FileAccessExtStubImpl::Move(const Urie &sourceFile, const Urie &targetParent
 {
     UserAccessTracer trace;
     trace.Start("Move");
+    if (!IsFilePathValid(sourceFile.ToString().c_str())) {
+        HILOG_ERROR("sourceFile uri is invalid");
+        return E_URIS;
+    }
+    if (!IsFilePathValid(targetParent.ToString().c_str())) {
+        HILOG_ERROR("targetParent uri is invalid");
+        return E_URIS;
+    }
     if (extension_ == nullptr) {
         HILOG_ERROR("Move get extension failed.");
         return E_IPCS;
@@ -155,6 +180,14 @@ int FileAccessExtStubImpl::Copy(const Urie &sourceUri, const Urie &destUri, std:
 {
     UserAccessTracer trace;
     trace.Start("Copy");
+    if (!IsFilePathValid(sourceUri.ToString().c_str())) {
+        HILOG_ERROR("sourceUri is invalid");
+        return E_URIS;
+    }
+    if (!IsFilePathValid(destUri.ToString().c_str())) {
+        HILOG_ERROR("destUri is invalid");
+        return E_URIS;
+    }
     if (extension_ == nullptr) {
         HILOG_ERROR("Copy get extension failed.");
         return E_IPCS;
@@ -176,6 +209,14 @@ int FileAccessExtStubImpl::CopyFile(const Urie &sourceUri, const Urie &destUri, 
 {
     UserAccessTracer trace;
     trace.Start("CopyFile");
+    if (!IsFilePathValid(sourceUri.ToString().c_str())) {
+        HILOG_ERROR("sourceUri is invalid");
+        return E_URIS;
+    }
+    if (!IsFilePathValid(destUri.ToString().c_str())) {
+        HILOG_ERROR("destUri is invalid");
+        return E_URIS;
+    }
     if (extension_ == nullptr) {
         HILOG_ERROR("Copy file get extension failed.");
         return E_IPCS;
@@ -197,6 +238,10 @@ int FileAccessExtStubImpl::Rename(const Urie &sourceFile, const std::string &dis
 {
     UserAccessTracer trace;
     trace.Start("Rename");
+    if (!IsFilePathValid(sourceFile.ToString().c_str())) {
+        HILOG_ERROR("sourceFile uri is invalid");
+        return E_URIS;
+    }
     if (extension_ == nullptr) {
         HILOG_ERROR("Rename get extension failed.");
         return E_IPCS;
@@ -218,6 +263,10 @@ int FileAccessExtStubImpl::ListFile(const FileInfo &fileInfo, const int64_t offs
 {
     UserAccessTracer trace;
     trace.Start("ListFile");
+    if (!IsFilePathValid(fileInfo.uri.c_str())) {
+        HILOG_ERROR("fileInfo.uri is invalid");
+        return E_URIS;
+    }
     if (extension_ == nullptr) {
         HILOG_ERROR("ListFile get extension failed.");
         return E_IPCS;
@@ -271,6 +320,10 @@ int FileAccessExtStubImpl::ScanFile(const FileInfo &fileInfo, const int64_t offs
 {
     UserAccessTracer trace;
     trace.Start("ScanFile");
+    if (!IsFilePathValid(fileInfo.uri.c_str())) {
+        HILOG_ERROR("fileInfo.uri is invalid");
+        return E_URIS;
+    }
     if (extension_ == nullptr) {
         HILOG_ERROR("ScanFile get extension failed.");
         return E_IPCS;
@@ -289,6 +342,10 @@ int FileAccessExtStubImpl::Query(const Urie &uri, const std::vector<std::string>
 {
     UserAccessTracer trace;
     trace.Start("Query");
+    if (!IsFilePathValid(uri.ToString().c_str())) {
+        HILOG_ERROR("uri is invalid");
+        return E_URIS;
+    }
     if (extension_ == nullptr) {
         HILOG_ERROR("Query get extension failed.");
         return E_IPCS;
@@ -325,6 +382,10 @@ int FileAccessExtStubImpl::GetFileInfoFromUri(const Urie &selectFile, FileInfo &
 {
     UserAccessTracer trace;
     trace.Start("GetFileInfoFromUri");
+    if (!IsFilePathValid(selectFile.ToString().c_str())) {
+        HILOG_ERROR("selectFile uri is invalid");
+        return E_URIS;
+    }
     if (extension_ == nullptr) {
         HILOG_ERROR("GetFileInfoFromUri get extension failed.");
         return E_IPCS;
@@ -343,6 +404,10 @@ int FileAccessExtStubImpl::GetFileInfoFromRelativePath(const std::string &select
 {
     UserAccessTracer trace;
     trace.Start("GetFileInfoFromRelativePath");
+    if (!IsFilePathValid(selectFile.c_str())) {
+        HILOG_ERROR("selectFile path is invalid");
+        return E_URIS;
+    }
     if (extension_ == nullptr) {
         HILOG_ERROR("GetFileInfoFromRelativePath get extension failed.");
         return E_IPCS;
@@ -360,6 +425,10 @@ int FileAccessExtStubImpl::Access(const Urie &uri, bool &isExist)
 {
     UserAccessTracer trace;
     trace.Start("Access");
+    if (!IsFilePathValid(uri.ToString().c_str())) {
+        HILOG_ERROR("uri is invalid");
+        return E_URIS;
+    }
     if (extension_ == nullptr) {
         HILOG_ERROR("Access get extension failed.");
         return E_IPCS;
@@ -378,6 +447,10 @@ int FileAccessExtStubImpl::StartWatcher(const Urie &uri)
 {
     UserAccessTracer trace;
     trace.Start("StartWatcher");
+    if (!IsFilePathValid(uri.ToString().c_str())) {
+        HILOG_ERROR("uri is invalid");
+        return E_URIS;
+    }
     if (extension_ == nullptr) {
         HILOG_ERROR("StartWatcher get extension failed.");
         return E_IPCS;
@@ -396,6 +469,10 @@ int FileAccessExtStubImpl::StopWatcher(const Urie &uri)
 {
     UserAccessTracer trace;
     trace.Start("StopWatcher");
+    if (!IsFilePathValid(uri.ToString().c_str())) {
+        HILOG_ERROR("uri is invalid");
+        return E_URIS;
+    }
     if (extension_ == nullptr) {
         HILOG_ERROR("StopWatcher get extension failed.");
         return E_IPCS;
@@ -415,6 +492,14 @@ int FileAccessExtStubImpl::MoveItem(const Urie &sourceFile, const Urie &targetPa
 {
     UserAccessTracer trace;
     trace.Start("MoveItem");
+    if (!IsFilePathValid(sourceFile.ToString().c_str())) {
+        HILOG_ERROR("sourceFile uri is invalid");
+        return E_URIS;
+    }
+    if (!IsFilePathValid(targetParent.ToString().c_str())) {
+        HILOG_ERROR("targetParent uri is invalid");
+        return E_URIS;
+    }
     if (extension_ == nullptr) {
         HILOG_ERROR("Move get extension failed.");
         return E_IPCS;
@@ -436,6 +521,14 @@ int FileAccessExtStubImpl::MoveFile(const Urie &sourceFile, const Urie &targetPa
 {
     UserAccessTracer trace;
     trace.Start("MoveFile");
+    if (!IsFilePathValid(sourceFile.ToString().c_str())) {
+        HILOG_ERROR("sourceFile uri is invalid");
+        return E_URIS;
+    }
+    if (!IsFilePathValid(targetParent.ToString().c_str())) {
+        HILOG_ERROR("targetParent uri is invalid");
+        return E_URIS;
+    }
     if (extension_ == nullptr) {
         HILOG_ERROR("Move get extension failed.");
         return E_IPCS;

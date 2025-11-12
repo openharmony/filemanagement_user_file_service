@@ -83,7 +83,7 @@ class ObserverContext {
     std::unordered_map<NotifyType, std::vector<std::string>> notifyMap_;
     std::mutex mapMutex_;
     private:
-        std::atomic<int32_t> ref_;
+        std::atomic<int32_t> ref_ = 0;
 };
 
 class ObserverNode {
