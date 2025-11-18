@@ -52,7 +52,8 @@
                 "window_manager",
                 "dfs_service",
                 "sandbox_manager",
-                "relational_store"
+                "relational_store",
+                "runtime_core"
             ]
         },
         "build": {
@@ -62,7 +63,8 @@
                     "//foundation/filemanagement/user_file_service/interfaces/kits/picker:cj_picker_ffi",
                     "//foundation/filemanagement/user_file_service/interfaces/kits/native/recent:recent",
                     "//foundation/filemanagement/user_file_service/interfaces/kits/native/trash:trash",
-                    "//foundation/filemanagement/user_file_service/interfaces/kits/native/clouddiskmanager:clouddiskmanager"
+                    "//foundation/filemanagement/user_file_service/interfaces/kits/native/clouddiskmanager:clouddiskmanager",
+                    "//foundation/filemanagement/user_file_service/interfaces/kits/taihe/clouddiskmanager:cloudmanager_taihe"
                 ],
                 "service_group": [
                     "//foundation/filemanagement/user_file_service/services:user_file_managers",
@@ -100,6 +102,9 @@
                       ],
                       "header_base": "//foundation/filemanagement/user_file_service/interfaces/inner_api/cloud_disk_kit_inner/include"
                     }
+                },
+                {
+                    "name": "//foundation/filemanagement/user_file_service/interfaces/kits/taihe/clouddiskmanager:copy_taihe"
                 }
             ],
             "test": [
