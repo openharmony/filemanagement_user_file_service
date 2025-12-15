@@ -503,8 +503,6 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveItem_0003, tes
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_MoveItem_0003";
     try {
-        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
-
         Urie sourceFile("/test/test../../test");
         Urie targetParent("");
         vector<Result> moveResult;
@@ -531,8 +529,6 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveItem_0004, tes
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_MoveItem_0004";
     try {
-        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
-
         Urie sourceFile("");
         Urie targetParent("/test/test../../test");
         vector<Result> moveResult;

@@ -435,15 +435,6 @@ HWTEST_F(JsFileAccessExtAbilityTest, DoCallJsMethod_RetParserException_0015, Tes
     };
     ResultValueParser retParser = retParserLambda;
     
-    napi_value rslt = nullptr;
-    EXPECT_CALL(*insMoc, napi_get_reference_value(_, _, _))
-        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_SECOND>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-    EXPECT_CALL(*insMoc, napi_get_named_property(_, _, _, _))
-        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_THIRD>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-    EXPECT_CALL(*insMoc, napi_call_function(_, _, _, _, _, _))
-        .WillOnce(DoAll(SetArgPointee<ARG_INDEX_FIFTH>(reinterpret_cast<napi_value>(&rslt)), Return(napi_ok)));
-    EXPECT_CALL(*insMoc, napi_escape_handle(_, _, _, _)).WillOnce(Return(napi_ok));
-    
     CallJsParam param("testFunction", jsRuntime.get(), nullptr, argParser, retParser);
     // The actual behavior depends on how exceptions are handled in the implementation
     

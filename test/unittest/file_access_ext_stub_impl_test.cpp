@@ -72,18 +72,20 @@ int FileAccessExtBaseStub::OnRemoteRequest(uint32_t code, MessageParcel& data, M
 class FileAccessExtStubImplTest : public testing::Test {
 public:
 static inline shared_ptr<AccesstokenMock> accesstokenMock_ = nullptr;
-    static void SetUpTestCase(void)
+    static void SetUpTestCase(void) {}
+    static void TearDownTestCase() {}
+
+    void SetUp()
     {
         accesstokenMock_ = make_shared<AccesstokenMock>();
         AccesstokenMock::fileAccessAccesstokenMock = accesstokenMock_;
     }
-    static void TearDownTestCase()
+
+    void TearDown()
     {
-        AccesstokenMock::fileAccessAccesstokenMock = nullptr;
         accesstokenMock_ = nullptr;
+        AccesstokenMock::fileAccessAccesstokenMock = nullptr;
     }
-    void SetUp() {}
-    void TearDown() {}
     shared_ptr<FileAccessExtAbilityMock> ability = make_shared<FileAccessExtAbilityMock>();
 };
 
@@ -1533,8 +1535,6 @@ HWTEST_F(FileAccessExtStubImplTest, file_access_ext_stub_impl_MoveItem_0000, tes
 {
     GTEST_LOG_(INFO) << "FileAccessExtStubImplTest-begin file_access_ext_stub_impl_MoveItem_0000";
     try {
-        EXPECT_CALL(*accesstokenMock_, VerifyAccessToken(_, _)).WillOnce(Return(0));
-
         Urie sourceFile("");
         Urie targetParent("");
         vector<Result> moveResult;
