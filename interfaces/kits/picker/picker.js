@@ -426,6 +426,7 @@ function parseDocumentPickerSaveOption(args, action) {
       pickerMode: DocumentPickerMode.DEFAULT,
       extType: ExtTypes.DOWNLOAD_TYPE,
       pickerType: PickerDetailType.FILE_MGR_SAVE,
+      autoCreateEmptyFile: true,
     }
   };
   console.log('[picker] parse document save option start');
@@ -447,9 +448,13 @@ function parseDocumentPickerSaveOption(args, action) {
       config.parameters.pickerMode = option.pickerMode;
       config.parameters.pickerType = PickerDetailType.FILE_MGR_AUTH;
     }
+    if (option.autoCreateEmptyFile !== undefined) {
+      config.parameters.autoCreateEmptyFile = option.autoCreateEmptyFile;
+    }
   }
   console.log('[picker] document save config pickerMode is ' + config.parameters.pickerMode + 
-    ',pickerType is ' + config.parameters.pickerType);
+    ',pickerType is ' + config.parameters.pickerType +
+    ',autoCreateEmptyFile is ' + config.parameters.autoCreateEmptyFile);
   return config;
 }
 
@@ -704,6 +709,7 @@ class DocumentSaveOptions {
     this.fileSuffixChoices = undefined;
     this.pickerMode = DocumentPickerMode.DEFAULT;
     this.themeColor = undefined;
+    this.autoCreateEmptyFile = true;
   }
 }
 
