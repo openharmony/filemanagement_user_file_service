@@ -70,6 +70,14 @@
 #define HILOG_WARN(...)
 #define HILOG_INFO(...)
 #define HILOG_DEBUG(...)
+#define FILEMGMT_CALL_BASE(theCall, retVal)                                 \
+    do {                                                                    \
+        if ((theCall) != napi_ok) {                                         \
+            HILOG_ERROR("napi call failed, theCall: %{public}s", #theCall); \
+            return retVal;                                                  \
+        }                                                                   \
+    } while (0)
+#define FILEMGMT_CALL(theCall)             FILEMGMT_CALL_BASE(theCall, nullptr)
 #endif // CONFIG_HILOG
 
 #endif // HILOG_WRAPPER_H
