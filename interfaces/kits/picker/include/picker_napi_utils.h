@@ -22,6 +22,17 @@
 #include "napi/native_node_api.h"
 #include "hilog_wrapper.h"
 
+#define FILEMGMT_CALL_BASE(theCall, retVal)                                 \
+    do                                                                      \
+    {                                                                       \
+        if ((theCall) != napi_ok)                                           \
+        {                                                                   \
+            HILOG_ERROR("napi call failed, theCall: %{public}s", #theCall); \
+            return retVal;                                                  \
+        }                                                                   \
+    } while (0)
+#define FILEMGMT_CALL(theCall) FILEMGMT_CALL_BASE(theCall, nullptr)
+
 namespace OHOS {
 namespace Picker {
 /* Constants for array index */
