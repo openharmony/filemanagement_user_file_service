@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Huawei Device Co., Ltd.
+ * Copyright (C) 2024-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,17 @@
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "hilog_wrapper.h"
+
+#define FILEMGMT_CALL_BASE(theCall, retVal)                                 \
+    do                                                                      \
+    {                                                                       \
+        if ((theCall) != napi_ok)                                           \
+        {                                                                   \
+            HILOG_ERROR("napi call failed, theCall: %{public}s", #theCall); \
+            return retVal;                                                  \
+        }                                                                   \
+    } while (0)
+#define FILEMGMT_CALL(theCall) FILEMGMT_CALL_BASE(theCall, nullptr)
 
 namespace OHOS {
 namespace Picker {
