@@ -64,6 +64,7 @@
                     "//foundation/filemanagement/user_file_service/interfaces/kits/native/recent:recent",
                     "//foundation/filemanagement/user_file_service/interfaces/kits/native/trash:trash",
                     "//foundation/filemanagement/user_file_service/interfaces/kits/native/clouddiskmanager:clouddiskmanager",
+                    "//foundation/filemanagement/user_file_service/interfaces/kits/taihe/picker:afs_picker_taihe",
                     "//foundation/filemanagement/user_file_service/interfaces/kits/taihe/clouddiskmanager:cloudmanager_taihe"
                 ],
                 "service_group": [
