@@ -82,11 +82,11 @@ namespace {
     using Boolean = OHOS::AAFwk::Boolean;
     using UIExtensionContext = OHOS::AbilityRuntime::UIExtensionContext;
 
-    OHOS::Ace::UIContent *GetUIContent(const ani_ref &contextRef)
+    OHOS::Ace::UIContent *GetUIContent(ani_env *env, const ani_ref &contextRef)
     {
         HILOG_INFO("Begin");
-        ani_env *env = ::taihe::get_env();
         if (env == nullptr) {
+            HILOG_ERROR("env == nullptr");
             return nullptr;
         }
 
@@ -95,6 +95,7 @@ namespace {
         env->Reference_IsNullishValue(contextRef, &isValue);
         env->Reference_IsUndefined(contextRef, &isUndefined);
         if (isUndefined || isValue) {
+            HILOG_ERROR("context is undefined or Null");
             return nullptr;
         }
 
@@ -102,6 +103,7 @@ namespace {
         ani_status status = OHOS::AbilityRuntime::IsStageContext(env,
             reinterpret_cast<ani_object>(contextRef), isStageMode);
         if (status != ANI_OK || !isStageMode) {
+            HILOG_ERROR("[picker]: is not StageMode context");
             ::taihe::set_business_error(-1, "[picker]: is not StageMode context");
             return nullptr;
         }
@@ -123,11 +125,11 @@ namespace {
         return abilityContext->GetUIContent();
     }
 
-    void GetCustomShowingWindow(const ani_ref &windowRef, OHOS::sptr<OHOS::Rosen::Window> &window)
+    void GetCustomShowingWindow(ani_env *env, const ani_ref &windowRef, OHOS::sptr<OHOS::Rosen::Window> &window)
     {
         HILOG_INFO("Begin");
-        ani_env *env = ::taihe::get_env();
         if (env == nullptr) {
+            HILOG_ERROR("env == nullptr");
             return;
         }
         ani_boolean isValue = false;
@@ -135,11 +137,13 @@ namespace {
         env->Reference_IsNullishValue(windowRef, &isValue);
         env->Reference_IsUndefined(windowRef, &isUndefined);
         if (isUndefined || isValue) {
+            HILOG_ERROR("window is undefined or Null");
             return;
         }
         OHOS::Rosen::AniWindow *ani_window = OHOS::Rosen::AniWindow::GetWindowObjectFromEnv(env,
             reinterpret_cast<ani_object>(windowRef));
         if (ani_window == nullptr) {
+            HILOG_ERROR("GetWindowObjectFromEnv failed");
             ::taihe::set_business_error(-1, "GetWindowObjectFromEnv");
             return;
         }
@@ -147,6 +151,7 @@ namespace {
         ani_string name;
         ani_status status = env->Object_GetPropertyByName_Ref(property, "name", reinterpret_cast<ani_ref *>(&name));
         if (status != ANI_OK) {
+            HILOG_ERROR("Object_GetPropertyByName_Ref failed, status = %{public}d", status);
             ::taihe::set_business_error(-1, "Get Window name failed");
             return;
         }
@@ -164,21 +169,48 @@ namespace {
         delete[] nameUtf8;
     }
 
-    std::shared_ptr<AniPickerAsyncContext> StartPickerExtension(const ani_ref &contextRef,
+    std::shared_ptr<AniPickerAsyncContext> StartPickerExtension(ani_vm *vm, const ani_ref &contextRef,
                                                                 const ani_ref &windowRef, Want &request)
     {
         HILOG_INFO("Begin");
+
+        if (vm == nullptr) {
+            HILOG_ERROR("vm == nullptr");
+            return nullptr;
+        }
+
+        ani_env* env = nullptr;
+        ani_options aniArgs {0, nullptr};
+        if (ANI_OK != vm->AttachCurrentThread(&aniArgs, ANI_VERSION_1, &env)) {
+            env = nullptr;
+            if (ANI_OK != vm->GetEnv(ANI_VERSION_1, &env)) {
+                HILOG_ERROR("env == nullptr");
+                return nullptr;
+            }
+        }
+
+        if (env == nullptr) {
+            HILOG_ERROR("env == nullptr");
+            if (ANI_OK != vm->DetachCurrentThread()) {
+                HILOG_ERROR("DetachCurrentThread failed");
+            }
+            return nullptr;
+        }
+
         OHOS::sptr<OHOS::Rosen::Window> tempWindow = nullptr;
         UIContent *uiContent = nullptr;
         std::shared_ptr<AniPickerAsyncContext> asyncContext = std::make_shared<AniPickerAsyncContext>();
-        GetCustomShowingWindow(windowRef, tempWindow);
+        GetCustomShowingWindow(env, windowRef, tempWindow);
         if (tempWindow) {
             uiContent = tempWindow->GetUIContent();
         } else {
-            uiContent = GetUIContent(contextRef);
+            uiContent = GetUIContent(env, contextRef);
         }
 
         if (uiContent == nullptr) {
+            if (ANI_OK != vm->DetachCurrentThread()) {
+                HILOG_ERROR("DetachCurrentThread failed");
+            }
             return nullptr;
         }
 
@@ -204,9 +236,15 @@ namespace {
         OHOS::Ace::ModalUIExtensionConfig config;
         int sessionId = uiContent->CreateModalUIExtension(request, extensionCallback, config);
         if (sessionId == 0) {
+            if (ANI_OK != vm->DetachCurrentThread()) {
+                HILOG_ERROR("DetachCurrentThread failed");
+            }
             return nullptr;
         }
         callback->SetSessionId(sessionId);
+        if (ANI_OK != vm->DetachCurrentThread()) {
+            HILOG_ERROR("DetachCurrentThread failed");
+        }
         return asyncContext;
     }
 
@@ -220,48 +258,101 @@ namespace {
         DocumentViewPickerImpl(uintptr_t context) : suffixIndex_(0)
         {
             HILOG_INFO("Begin");
-            ani_env *env = ::taihe::get_env();
-            ani_object objContext = reinterpret_cast<ani_object>(context);
-            if (env->GlobalReference_Create(static_cast<ani_ref>(objContext), &context_) != ANI_OK) {
-                ::taihe::set_business_error(-1, "context  global reference error");
-            } else {
-                if (env->GetUndefined(&context_) != ANI_OK) {
-                    ::taihe::set_business_error(-1, "context  global reference error");
-                }
+            taihe::env_guard guard;
+            ani_env *env = guard.get_env();
+
+            if (env == nullptr) {
+                HILOG_ERROR("env == nullptr");
+                return;
             }
 
-            if (env->GetUndefined(&window_) != ANI_OK) {
+            env->GetVM(&vm_);
+            if (vm_ == nullptr) {
+                HILOG_ERROR("vm == nullptr");
+                return;
+            }
+
+            ani_object objContext = reinterpret_cast<ani_object>(context);
+            ani_ref refContext = static_cast<ani_ref>(objContext);
+            ani_boolean isValue = false;
+            ani_boolean isUndefined = false;
+            env->Reference_IsNullishValue(refContext, &isValue);
+            env->Reference_IsUndefined(refContext, &isUndefined);
+            if (isUndefined || isValue) {
+                HILOG_ERROR("context is Undefined or  Null");
+                return;
+            }
+            if (env->GlobalReference_Create(refContext, &context_) != ANI_OK) {
+                HILOG_ERROR("context  global reference error");
                 ::taihe::set_business_error(-1, "context  global reference error");
+                return;
+            }
+            if (env->GetUndefined(&window_) != ANI_OK) {
+                HILOG_ERROR("window  GetUndefined error");
+                ::taihe::set_business_error(-1, "window  GetUndefined error");
             }
         }
 
         DocumentViewPickerImpl(uintptr_t context, uintptr_t window) : suffixIndex_(0)
         {
             HILOG_INFO("Begin");
-            ani_env *env = ::taihe::get_env();
-            ani_object objContext = reinterpret_cast<ani_object>(context);
-            ani_object objWindow = reinterpret_cast<ani_object>(window);
-            if (env->GlobalReference_Create(static_cast<ani_ref>(objContext), &context_) != ANI_OK) {
-                ::taihe::set_business_error(-1, "context  global reference error");
-            } else {
-                if (env->GetUndefined(&context_) != ANI_OK) {
-                    ::taihe::set_business_error(-1, "context  global reference error");
-                }
+            taihe::env_guard guard;
+            ani_env *env = guard.get_env();
+
+            if (env == nullptr) {
+                HILOG_ERROR("env == nullptr");
+                return;
             }
 
-            if (env->GlobalReference_Create(static_cast<ani_ref>(objWindow), &window_) != ANI_OK) {
+            env->GetVM(&vm_);
+            if (vm_ == nullptr) {
+                HILOG_ERROR("vm == nullptr");
+                return;
+            }
+
+            ani_object objContext = reinterpret_cast<ani_object>(context);
+            ani_ref refContext = static_cast<ani_ref>(objContext);
+            ani_boolean isValue = false;
+            ani_boolean isUndefined = false;
+            env->Reference_IsNullishValue(refContext, &isValue);
+            env->Reference_IsUndefined(refContext, &isUndefined);
+            if (isUndefined || isValue) {
+                HILOG_ERROR("context is Undefined or  Null");
+                return;
+            }
+
+            if (env->GlobalReference_Create(refContext, &context_) != ANI_OK) {
+                HILOG_ERROR("context  global reference error");
                 ::taihe::set_business_error(-1, "context  global reference error");
-            } else {
-                if (env->GetUndefined(&window_) != ANI_OK) {
-                    ::taihe::set_business_error(-1, "context  global reference error");
-                }
+                return;
+            }
+
+            ani_object objWindow = reinterpret_cast<ani_object>(window);
+            ani_ref refWindow = static_cast<ani_ref>(objWindow);
+            isValue = false;
+            isUndefined = false;
+            env->Reference_IsNullishValue(refWindow, &isValue);
+            env->Reference_IsUndefined(refWindow, &isUndefined);
+            if (isUndefined || isValue) {
+                HILOG_ERROR("window is Undefined or  Null");
+                return;
+            }
+
+            if (env->GlobalReference_Create(refWindow, &window_) != ANI_OK) {
+                HILOG_ERROR("window  global reference error");
+                ::taihe::set_business_error(-1, "window  global reference error");
+                return;
             }
         }
 
         ~DocumentViewPickerImpl()
         {
             HILOG_INFO("Begin");
-            ani_env *env = ::taihe::get_env();
+            taihe::env_guard guard;
+            ani_env *env = guard.get_env();
+            if (env == nullptr) {
+                HILOG_ERROR("env == nullptr");
+            }
             env->GlobalReference_Delete(context_);
             env->GlobalReference_Delete(window_);
         }
@@ -330,7 +421,7 @@ namespace {
 
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &request, &aniPickerAsyncContext]() {
-                aniPickerAsyncContext = StartPickerExtension(this->context_, this->window_, request);
+                aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, this->window_, request);
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             };
             std::thread taskThread(task);
@@ -412,7 +503,7 @@ namespace {
             }
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &request, &aniPickerAsyncContext]() {
-                aniPickerAsyncContext = StartPickerExtension(this->context_, this->window_, request);
+                aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, this->window_, request);
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             };
             std::thread taskThread(task);
@@ -449,7 +540,7 @@ namespace {
 
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &request, &aniPickerAsyncContext]() {
-                aniPickerAsyncContext = StartPickerExtension(this->context_, this->window_, request);
+                aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, this->window_, request);
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             };
             std::thread taskThread(task);
@@ -526,7 +617,7 @@ namespace {
 
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &request, &aniPickerAsyncContext]() {
-                aniPickerAsyncContext = StartPickerExtension(this->context_, this->window_, request);
+                aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, this->window_, request);
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             };
             std::thread taskThread(task);
@@ -604,7 +695,7 @@ namespace {
 
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &request, &aniPickerAsyncContext]() {
-                aniPickerAsyncContext = StartPickerExtension(this->context_, this->window_, request);
+                aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, this->window_, request);
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             };
             std::thread taskThread(task);
@@ -648,7 +739,7 @@ namespace {
 
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &request, &aniPickerAsyncContext]() {
-                aniPickerAsyncContext = StartPickerExtension(this->context_, this->window_, request);
+                aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, this->window_, request);
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             };
             std::thread taskThread(task);
@@ -686,10 +777,11 @@ namespace {
             return index;
         }
 
-    private:
+    public:
         ani_ref context_;
         ani_ref window_;
         int32_t suffixIndex_;
+        ani_vm *vm_ = nullptr;
     };
 
     class AudioViewPickerImpl {
@@ -698,21 +790,45 @@ namespace {
         AudioViewPickerImpl(uintptr_t context)
         {
             HILOG_INFO("Begin");
-            ani_env *env = ::taihe::get_env();
+            taihe::env_guard guard;
+            ani_env *env = guard.get_env();
+
+            if (env == nullptr) {
+                HILOG_ERROR("env == nullptr");
+                return;
+            }
+
+            env->GetVM(&vm_);
+            if (vm_ == nullptr) {
+                HILOG_ERROR("vm == nullptr");
+                return;
+            }
+
             ani_object objContext = reinterpret_cast<ani_object>(context);
-            if (env->GlobalReference_Create(static_cast<ani_ref>(objContext), &context_) != ANI_OK) {
+            ani_ref refContext = static_cast<ani_ref>(objContext);
+            ani_boolean isValue = false;
+            ani_boolean isUndefined = false;
+            env->Reference_IsNullishValue(refContext, &isValue);
+            env->Reference_IsUndefined(refContext, &isUndefined);
+            if (isUndefined || isValue) {
+                HILOG_ERROR("context is Undefined or  Null");
+                return;
+            }
+            if (env->GlobalReference_Create(refContext, &context_) != ANI_OK) {
+                HILOG_ERROR("context  global reference error");
                 ::taihe::set_business_error(-1, "context  global reference error");
-            } else {
-                if (env->GetUndefined(&context_) != ANI_OK) {
-                    ::taihe::set_business_error(-1, "context  GetUndefined error");
-                }
+                return;
             }
         }
 
         ~AudioViewPickerImpl()
         {
             HILOG_INFO("Begin");
-            ani_env *env = ::taihe::get_env();
+            taihe::env_guard guard;
+            ani_env *env = guard.get_env();
+            if (env == nullptr) {
+                HILOG_ERROR("env == nullptr");
+            }
             env->GlobalReference_Delete(context_);
         }
 
@@ -738,7 +854,7 @@ namespace {
 
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &undefineRef, &request, &aniPickerAsyncContext]() {
-                aniPickerAsyncContext = StartPickerExtension(this->context_, undefineRef, request);
+                aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, undefineRef, request);
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             };
             std::thread taskThread(task);
@@ -779,7 +895,7 @@ namespace {
 
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &undefineRef, &request, &aniPickerAsyncContext]() {
-                aniPickerAsyncContext = StartPickerExtension(this->context_, undefineRef, request);
+                aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, undefineRef, request);
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             };
             std::thread taskThread(task);
@@ -818,7 +934,7 @@ namespace {
 
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &undefineRef, &request, &aniPickerAsyncContext]() {
-                aniPickerAsyncContext = StartPickerExtension(this->context_, undefineRef, request);
+                aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, undefineRef, request);
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             };
             std::thread taskThread(task);
@@ -873,7 +989,7 @@ namespace {
             }
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &undefineRef, &request, &aniPickerAsyncContext]() {
-                aniPickerAsyncContext = StartPickerExtension(this->context_, undefineRef, request);
+                aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, undefineRef, request);
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             };
             std::thread taskThread(task);
@@ -925,7 +1041,7 @@ namespace {
 
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &undefineRef, &request, &aniPickerAsyncContext]() {
-                aniPickerAsyncContext = StartPickerExtension(this->context_, undefineRef, request);
+                aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, undefineRef, request);
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             };
             std::thread taskThread(task);
@@ -967,7 +1083,7 @@ namespace {
 
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &undefineRef, &request, &aniPickerAsyncContext]() {
-                aniPickerAsyncContext = StartPickerExtension(this->context_, undefineRef, request);
+                aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, undefineRef, request);
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             };
             std::thread taskThread(task);
@@ -990,8 +1106,9 @@ namespace {
             return uriNullArray;
         }
 
-    private:
+    public:
         ani_ref context_;
+        ani_vm *vm_ = nullptr;
     };
 
     ::ohos::file::picker::DocumentViewPicker createDocumentViewPicker1()
