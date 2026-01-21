@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Huawei Device Co., Ltd.
+ * Copyright (C) 2025-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -251,11 +251,13 @@ namespace {
     class DocumentViewPickerImpl {
     public:
         DocumentViewPickerImpl()
+            : context_(nullptr), window_(nullptr), suffixIndex_(0), vm_(nullptr)
         {
             HILOG_INFO("Begin");
         }
 
-        DocumentViewPickerImpl(uintptr_t context) : suffixIndex_(0)
+        explicit DocumentViewPickerImpl(uintptr_t context)
+            : context_(nullptr), window_(nullptr), suffixIndex_(0), vm_(nullptr)
         {
             HILOG_INFO("Begin");
             taihe::env_guard guard;
@@ -293,7 +295,8 @@ namespace {
             }
         }
 
-        DocumentViewPickerImpl(uintptr_t context, uintptr_t window) : suffixIndex_(0)
+        DocumentViewPickerImpl(uintptr_t context, uintptr_t window)
+            : context_(nullptr), window_(nullptr), suffixIndex_(0), vm_(nullptr)
         {
             HILOG_INFO("Begin");
             taihe::env_guard guard;
@@ -352,6 +355,7 @@ namespace {
             ani_env *env = guard.get_env();
             if (env == nullptr) {
                 HILOG_ERROR("env == nullptr");
+                return;
             }
             env->GlobalReference_Delete(context_);
             env->GlobalReference_Delete(window_);
@@ -375,7 +379,7 @@ namespace {
                                         String::Box(std::string(aniOption.defaultFilePathUri.value())));
                 }
                 if (aniOption.fileSuffixFilters.has_value()) {
-                    int length = aniOption.fileSuffixFilters.value().size();
+                    uint32_t length = aniOption.fileSuffixFilters.value().size();
                     int i = 0;
                     OHOS::sptr<OHOS::AAFwk::IArray> ao = OHOS::sptr<OHOS::AAFwk::Array>::MakeSptr(length,
                         OHOS::AAFwk::g_IID_IString);
@@ -460,7 +464,7 @@ namespace {
                 parameters.SetParam("key_pick_dir_path", String::Box(std::string(option.defaultFilePathUri.value())));
             }
             if (option.fileSuffixFilters.has_value()) {
-                int length = option.fileSuffixFilters.value().size();
+                uint32_t length = option.fileSuffixFilters.value().size();
                 int i = 0;
                 OHOS::sptr<OHOS::AAFwk::IArray> ao = OHOS::sptr<OHOS::AAFwk::Array>::MakeSptr(length,
                     OHOS::AAFwk::g_IID_IString);
@@ -584,7 +588,7 @@ namespace {
                                         String::Box(std::string(aniOption.defaultFilePathUri.value())));
                 }
                 if (aniOption.newFileNames.has_value()) {
-                    int length = aniOption.newFileNames.value().size();
+                    uint32_t length = aniOption.newFileNames.value().size();
                     OHOS::sptr<OHOS::AAFwk::IArray> ao = OHOS::sptr<OHOS::AAFwk::Array>::MakeSptr(length,
                         OHOS::AAFwk::g_IID_IString);
                     int i = 0;
@@ -596,7 +600,7 @@ namespace {
                     parameters.SetParam("saveFile", ao);
                 }
                 if (aniOption.fileSuffixChoices.has_value()) {
-                    int length = aniOption.fileSuffixChoices.value().size();
+                    uint32_t length = aniOption.fileSuffixChoices.value().size();
                     OHOS::sptr<OHOS::AAFwk::IArray> ao = OHOS::sptr<OHOS::AAFwk::Array>::MakeSptr(length,
                         OHOS::AAFwk::g_IID_IString);
                     int i = 0;
@@ -663,7 +667,7 @@ namespace {
                 parameters.SetParam("key_pick_dir_path", String::Box(std::string(option.defaultFilePathUri.value())));
             }
             if (option.newFileNames.has_value()) {
-                int length = option.newFileNames.value().size();
+                uint32_t length = option.newFileNames.value().size();
                 OHOS::sptr<OHOS::AAFwk::IArray> ao = OHOS::sptr<OHOS::AAFwk::Array>::MakeSptr(length,
                     OHOS::AAFwk::g_IID_IString);
                 int i = 0;
@@ -675,7 +679,7 @@ namespace {
                 parameters.SetParam("saveFile", ao);
             }
             if (option.fileSuffixChoices.has_value()) {
-                int length = option.fileSuffixChoices.value().size();
+                uint32_t length = option.fileSuffixChoices.value().size();
                 OHOS::sptr<OHOS::AAFwk::IArray> ao = OHOS::sptr<OHOS::AAFwk::Array>::MakeSptr(length,
                     OHOS::AAFwk::g_IID_IString);
                 int i = 0;
@@ -786,8 +790,11 @@ namespace {
 
     class AudioViewPickerImpl {
     public:
-        AudioViewPickerImpl() {}
+        AudioViewPickerImpl()
+            : context_(nullptr), vm_(nullptr) {}
+
         AudioViewPickerImpl(uintptr_t context)
+            : context_(nullptr), vm_(nullptr)
         {
             HILOG_INFO("Begin");
             taihe::env_guard guard;
@@ -828,6 +835,7 @@ namespace {
             ani_env *env = guard.get_env();
             if (env == nullptr) {
                 HILOG_ERROR("env == nullptr");
+                return;
             }
             env->GlobalReference_Delete(context_);
         }
@@ -835,7 +843,8 @@ namespace {
         ::taihe::array<::taihe::string> SelectSync(::taihe::optional_view<AudioSelectOptions> option)
         {
             HILOG_INFO("Begin");
-            ani_env *env = ::taihe::get_env();
+            taihe::env_guard guard;
+            ani_env *env = guard.get_env();
             Want request;
             request.SetAction(std::string("ohos.want.action.OPEN_FILE"));
             WantParams &parameters = const_cast<WantParams &>(request.GetParams());
@@ -880,7 +889,8 @@ namespace {
         ::taihe::array<::taihe::string> SelectSync1(::ohos::file::picker::AudioSelectOptions const &option)
         {
             HILOG_INFO("Begin");
-            ani_env *env = ::taihe::get_env();
+            taihe::env_guard guard;
+            ani_env *env = guard.get_env();
             Want request;
             request.SetAction(std::string("ohos.want.action.OPEN_FILE"));
             WantParams &parameters = const_cast<WantParams &>(request.GetParams());
@@ -921,7 +931,8 @@ namespace {
         ::taihe::array<::taihe::string> SelectSync2()
         {
             HILOG_INFO("Begin");
-            ani_env *env = ::taihe::get_env();
+            taihe::env_guard guard;
+            ani_env *env = guard.get_env();
             Want request;
             request.SetAction(std::string("ohos.want.action.OPEN_FILE"));
             WantParams &parameters = const_cast<WantParams &>(request.GetParams());
@@ -960,7 +971,8 @@ namespace {
         ::taihe::array<::taihe::string> SaveSync(::taihe::optional_view<::ohos::file::picker::AudioSaveOptions> option)
         {
             HILOG_INFO("Begin");
-            ani_env *env = ::taihe::get_env();
+            taihe::env_guard guard;
+            ani_env *env = guard.get_env();
             Want request;
             request.SetAction(std::string("ohos.want.action.CREATE_FILE_SERVICE"));
             WantParams &parameters = const_cast<WantParams &>(request.GetParams());
@@ -971,7 +983,7 @@ namespace {
             if (option.has_value()) {
                 AudioSaveOptions audioSaveOptions = option.value();
                 if (audioSaveOptions.newFileNames.has_value()) {
-                    int length = audioSaveOptions.newFileNames.value().size();
+                    uint32_t length = audioSaveOptions.newFileNames.value().size();
                     OHOS::sptr<OHOS::AAFwk::IArray> ao = OHOS::sptr<OHOS::AAFwk::Array>::MakeSptr(length,
                         OHOS::AAFwk::g_IID_IString);
                     int i = 0;
@@ -1013,7 +1025,8 @@ namespace {
         ::taihe::array<::taihe::string> SaveSync1(::ohos::file::picker::AudioSaveOptions const &option)
         {
             HILOG_INFO("Begin");
-            ani_env *env = ::taihe::get_env();
+            taihe::env_guard guard;
+            ani_env *env = guard.get_env();
             Want request;
             request.SetAction(std::string("ohos.want.action.CREATE_FILE_SERVICE"));
             WantParams &parameters = const_cast<WantParams &>(request.GetParams());
@@ -1023,7 +1036,7 @@ namespace {
             parameters.SetParam("pickerType", String::Box(std::string("save")));
 
             if (option.newFileNames.has_value()) {
-                int length = option.newFileNames.value().size();
+                uint32_t length = option.newFileNames.value().size();
                 OHOS::sptr<OHOS::AAFwk::IArray> ao = OHOS::sptr<OHOS::AAFwk::Array>::MakeSptr(length,
                     OHOS::AAFwk::g_IID_IString);
                 int i = 0;
@@ -1067,7 +1080,8 @@ namespace {
         ::taihe::array<::taihe::string> SaveSync2()
         {
             HILOG_INFO("Begin");
-            ani_env *env = ::taihe::get_env();
+            taihe::env_guard guard;
+            ani_env *env = guard.get_env();
             Want request;
             request.SetAction(std::string("ohos.want.action.CREATE_FILE_SERVICE"));
             WantParams &parameters = const_cast<WantParams &>(request.GetParams());
