@@ -82,6 +82,17 @@ namespace {
     using Boolean = OHOS::AAFwk::Boolean;
     using UIExtensionContext = OHOS::AbilityRuntime::UIExtensionContext;
 
+
+    void WaitForPickerReady(const std::shared_ptr<AniPickerAsyncContext>& context)
+    {
+        if (!context || !context->pickerCallBack) {
+            return;
+        }
+        while (!context->pickerCallBack->ready) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_TIME_MS));
+        }
+    }
+
     OHOS::Ace::UIContent *GetUIContent(ani_env *env, const ani_ref &contextRef)
     {
         HILOG_INFO("Begin");
@@ -426,7 +437,7 @@ namespace {
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &request, &aniPickerAsyncContext]() {
                 aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, this->window_, request);
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                WaitForPickerReady(aniPickerAsyncContext);
             };
             std::thread taskThread(task);
             taskThread.join();
@@ -508,7 +519,7 @@ namespace {
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &request, &aniPickerAsyncContext]() {
                 aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, this->window_, request);
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                WaitForPickerReady(aniPickerAsyncContext);
             };
             std::thread taskThread(task);
             taskThread.join();
@@ -545,7 +556,7 @@ namespace {
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &request, &aniPickerAsyncContext]() {
                 aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, this->window_, request);
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                WaitForPickerReady(aniPickerAsyncContext);
             };
             std::thread taskThread(task);
             taskThread.join();
@@ -622,7 +633,7 @@ namespace {
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &request, &aniPickerAsyncContext]() {
                 aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, this->window_, request);
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                WaitForPickerReady(aniPickerAsyncContext);
             };
             std::thread taskThread(task);
             taskThread.join();
@@ -700,7 +711,7 @@ namespace {
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &request, &aniPickerAsyncContext]() {
                 aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, this->window_, request);
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                WaitForPickerReady(aniPickerAsyncContext);
             };
             std::thread taskThread(task);
             taskThread.join();
@@ -744,7 +755,7 @@ namespace {
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &request, &aniPickerAsyncContext]() {
                 aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, this->window_, request);
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                WaitForPickerReady(aniPickerAsyncContext);
             };
             std::thread taskThread(task);
             taskThread.join();
@@ -864,7 +875,7 @@ namespace {
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &undefineRef, &request, &aniPickerAsyncContext]() {
                 aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, undefineRef, request);
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                WaitForPickerReady(aniPickerAsyncContext);
             };
             std::thread taskThread(task);
             taskThread.join();
@@ -906,7 +917,7 @@ namespace {
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &undefineRef, &request, &aniPickerAsyncContext]() {
                 aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, undefineRef, request);
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                WaitForPickerReady(aniPickerAsyncContext);
             };
             std::thread taskThread(task);
             taskThread.join();
@@ -946,7 +957,7 @@ namespace {
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &undefineRef, &request, &aniPickerAsyncContext]() {
                 aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, undefineRef, request);
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                WaitForPickerReady(aniPickerAsyncContext);
             };
             std::thread taskThread(task);
             taskThread.join();
@@ -1002,16 +1013,14 @@ namespace {
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &undefineRef, &request, &aniPickerAsyncContext]() {
                 aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, undefineRef, request);
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                WaitForPickerReady(aniPickerAsyncContext);
             };
             std::thread taskThread(task);
             taskThread.join();
             std::vector<std::string> list;
-            if (aniPickerAsyncContext) {
-                if (aniPickerAsyncContext->pickerCallBack) {
-                    if (aniPickerAsyncContext->pickerCallBack->want.GetParams().HasParam("ability.params.stream")) {
-                        list = aniPickerAsyncContext->pickerCallBack->want.GetStringArrayParam("ability.params.stream");
-                    }
+            if (aniPickerAsyncContext && aniPickerAsyncContext->pickerCallBack) {
+                if (aniPickerAsyncContext->pickerCallBack->want.GetParams().HasParam("ability.params.stream")) {
+                    list = aniPickerAsyncContext->pickerCallBack->want.GetStringArrayParam("ability.params.stream");
                 }
             }
             std::vector<::taihe::string> taiheList;
@@ -1055,7 +1064,7 @@ namespace {
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &undefineRef, &request, &aniPickerAsyncContext]() {
                 aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, undefineRef, request);
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                WaitForPickerReady(aniPickerAsyncContext);
             };
             std::thread taskThread(task);
             taskThread.join();
@@ -1098,7 +1107,7 @@ namespace {
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &undefineRef, &request, &aniPickerAsyncContext]() {
                 aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, undefineRef, request);
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                WaitForPickerReady(aniPickerAsyncContext);
             };
             std::thread taskThread(task);
             taskThread.join();
