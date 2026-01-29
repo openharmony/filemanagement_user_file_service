@@ -82,6 +82,14 @@ namespace {
     using Boolean = OHOS::AAFwk::Boolean;
     using UIExtensionContext = OHOS::AbilityRuntime::UIExtensionContext;
 
+    void setAudioPickerSaveParameters(const AudioSaveOptions& option, WantParams& params,
+        OHOS::sptr<OHOS::AAFwk::IArray>& ao)
+    {
+        params.SetParam("key_pick_file_name", ao);
+        auto itTemp = option.newFileNames.value().begin();
+        std::string saveFile(*itTemp);
+        params.SetParam("saveFile", String::Box(saveFile));
+    }
 
     void WaitForPickerReady(const std::shared_ptr<AniPickerAsyncContext>& context)
     {
@@ -591,6 +599,7 @@ namespace {
             parameters.SetParam("pickerMode", Integer::Box(0));
             parameters.SetParam("extType", String::Box(std::string("filePicker")));
             parameters.SetParam("pickerType", String::Box(std::string("save")));
+            parameters.SetParam("autoCreateEmptyFile", Boolean::Box(true));
 
             if (option.has_value()) {
                 DocumentSaveOptions aniOption = option.value();
@@ -608,7 +617,10 @@ namespace {
                         ao->Set(i, OHOS::AAFwk::String::Box(std::string(*it)));
                         i++;
                     }
-                    parameters.SetParam("saveFile", ao);
+                    parameters.SetParam("key_pick_file_name", ao);
+                    auto itTemp = aniOption.newFileNames.value().begin();
+                    std::string saveFile(*itTemp);
+                    parameters.SetParam("saveFile", String::Box(saveFile));
                 }
                 if (aniOption.fileSuffixChoices.has_value()) {
                     uint32_t length = aniOption.fileSuffixChoices.value().size();
@@ -673,6 +685,7 @@ namespace {
             parameters.SetParam("pickerMode", Integer::Box(0));
             parameters.SetParam("extType", String::Box(std::string("filePicker")));
             parameters.SetParam("pickerType", String::Box(std::string("save")));
+            parameters.SetParam("autoCreateEmptyFile", Boolean::Box(true));
 
             if (option.defaultFilePathUri.has_value()) {
                 parameters.SetParam("key_pick_dir_path", String::Box(std::string(option.defaultFilePathUri.value())));
@@ -687,7 +700,10 @@ namespace {
                     ao->Set(i, String::Box(std::string(*it)));
                     i++;
                 }
-                parameters.SetParam("saveFile", ao);
+                parameters.SetParam("key_pick_file_name", ao);
+                auto itTemp = option.newFileNames.value().begin();
+                std::string saveFile(*itTemp);
+                parameters.SetParam("saveFile", String::Box(saveFile));
             }
             if (option.fileSuffixChoices.has_value()) {
                 uint32_t length = option.fileSuffixChoices.value().size();
@@ -751,6 +767,7 @@ namespace {
             parameters.SetParam("pickerMode", Integer::Box(0));
             parameters.SetParam("extType", String::Box(std::string("filePicker")));
             parameters.SetParam("pickerType", String::Box(std::string("save")));
+            parameters.SetParam("autoCreateEmptyFile", Boolean::Box(true));
 
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &request, &aniPickerAsyncContext]() {
@@ -991,6 +1008,7 @@ namespace {
             parameters.SetParam("pickerMode", Integer::Box(0));
             parameters.SetParam("extType", String::Box(std::string("filePicker")));
             parameters.SetParam("pickerType", String::Box(std::string("save")));
+            parameters.SetParam("autoCreateEmptyFile", Boolean::Box(true));
             if (option.has_value()) {
                 AudioSaveOptions audioSaveOptions = option.value();
                 if (audioSaveOptions.newFileNames.has_value()) {
@@ -1003,7 +1021,7 @@ namespace {
                         ao->Set(i, String::Box(std::string(*it)));
                         i++;
                     }
-                    parameters.SetParam("saveFile", ao);
+                    setAudioPickerSaveParameters(audioSaveOptions, parameters, ao);
                 }
             }
             ani_ref undefineRef;
@@ -1043,6 +1061,7 @@ namespace {
             parameters.SetParam("pickerMode", Integer::Box(0));
             parameters.SetParam("extType", String::Box(std::string("filePicker")));
             parameters.SetParam("pickerType", String::Box(std::string("save")));
+            parameters.SetParam("autoCreateEmptyFile", Boolean::Box(true));
 
             if (option.newFileNames.has_value()) {
                 uint32_t length = option.newFileNames.value().size();
@@ -1053,7 +1072,7 @@ namespace {
                     ao->Set(i, String::Box(std::string(*it)));
                     i++;
                 }
-                parameters.SetParam("saveFile", ao);
+                setAudioPickerSaveParameters(option, parameters, ao);
             }
 
             ani_ref undefineRef;
@@ -1098,6 +1117,7 @@ namespace {
             parameters.SetParam("pickerMode", Integer::Box(0));
             parameters.SetParam("extType", String::Box(std::string("filePicker")));
             parameters.SetParam("pickerType", String::Box(std::string("save")));
+            parameters.SetParam("autoCreateEmptyFile", Boolean::Box(true));
 
             ani_ref undefineRef;
             if (env->GetUndefined(&undefineRef) != ANI_OK) {
