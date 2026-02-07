@@ -1,6 +1,5 @@
-
 /*
- * Copyright (C) 2023 - 2025 Huawei Device Co., Ltd.
+ * Copyright (C) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -168,7 +167,7 @@ public:
         memInfo.memFd = AshmemCreate(memInfo.memName, memInfo.memSize);
         if (memInfo.memFd < 0) {
             HILOG_ERROR("Create shared memory error, shared memory name is %{public}s code: %{public}d",
-                    memInfo.memName, memInfo.memFd);
+                memInfo.memName, memInfo.memFd);
             return memInfo.memFd;
         }
 
