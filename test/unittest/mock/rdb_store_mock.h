@@ -69,7 +69,7 @@ public:
     MOCK_METHOD(int, Commit, (), (override));
     MOCK_METHOD(int, Insert, (int64_t& outRowId, const std::string& table,
         const ValuesBucket& initialValues), (override));
-    MOCK_METHOD2(Restore, int(const std::string&, const std::vector<uint8_t>&));
+    MOCK_METHOD2(Restore, int(const std::string& key, const std::vector<uint8_t>& value));
     MOCK_METHOD(int, Update,
         (int& changedRows, const std::string& table, const ValuesBucket& values,
             const std::string& whereClause, const std::vector<ValueObject>& bindArgs),
