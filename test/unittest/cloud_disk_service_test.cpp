@@ -302,7 +302,7 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_DecreaseCnt_002, TestSize.Level1
 }
 
 /**
- * @tc.number: CloudDiskService_IsSyncFolderInTable_002
+ * @tc.number: CloudDiskService_IsSyncFolderInTable_001
  * @tc.name: IsSyncFolderInTable function
  * @tc.desc: Verify IsSyncFolderInTable function works incorrectly
  */
