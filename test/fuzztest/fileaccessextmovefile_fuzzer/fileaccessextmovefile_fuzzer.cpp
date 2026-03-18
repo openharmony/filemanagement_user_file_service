@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+#include <fuzzer/FuzzedDataProvider.h>
+
 #include "accesstoken_kit.h"
 #include "file_access_helper.h"
 #include "file_access_ext_base_proxy.h"
@@ -103,10 +105,12 @@ bool OpenFileFuzzTest(sptr<IFileAccessExtBase> proxy, const uint8_t *data, size_
 
 bool MoveFileFuzzTest(sptr<IFileAccessExtBase> proxy, const uint8_t *data, size_t size)
 {
-    int len = size / 3;
-    Urie sourceFile(string(reinterpret_cast<const char *>(data), len));
-    Urie targetParent(string(reinterpret_cast<const char *>(data + len), len));
-    string fileName(string(reinterpret_cast<const char *>(data + len + len), len));
+    FuzzedDataProvider provider(data, size);
+    size_t sourceFileLen = provider.ConsumeIntegralInRange<size_t>(0, provider.remaining_bytes());
+    Urie sourceFile(provider.ConsumeBytesAsString(sourceFileLen));
+    size_t targetParentLen = provider.ConsumeIntegralInRange<size_t>(0, provider.remaining_bytes());
+    Urie targetParent(provider.ConsumeBytesAsString(targetParentLen));
+    string fileName = provider.ConsumeBytesAsString(provider.remaining_bytes());
     Urie newFile;
     proxy->MoveFile(sourceFile, targetParent, fileName, newFile);
     return true;

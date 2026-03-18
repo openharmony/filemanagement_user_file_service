@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+#include <fuzzer/FuzzedDataProvider.h>
+
 #include "accesstoken_kit.h"
 #include "file_access_helper.h"
 #include "file_access_ext_base_proxy.h"
@@ -89,11 +91,14 @@ shared_ptr<FileAccessHelper> GetFileAccessHelper()
 
 bool UrieFuzzTest(const uint8_t *data, size_t size)
 {
-    int len = size / 2;
-    Urie uri(string(reinterpret_cast<const char *>(data), len));
-    Urie other(string(reinterpret_cast<const char *>(data + len), len));
+    FuzzedDataProvider provider(data, size);
+    size_t uriLen = provider.ConsumeIntegralInRange<size_t>(0, provider.remaining_bytes());
+    string uriString = provider.ConsumeBytesAsString(uriLen);
+    string otherString = provider.ConsumeBytesAsString(provider.remaining_bytes());
+    Urie uri(uriString);
+    Urie other(otherString);
 
-    uri.uriString_ = string(reinterpret_cast<const char *>(data), len);
+    uri.uriString_ = uriString;
     uri.GetScheme();
     uri.GetSchemeSpecificPart();
     uri.GetAuthority();

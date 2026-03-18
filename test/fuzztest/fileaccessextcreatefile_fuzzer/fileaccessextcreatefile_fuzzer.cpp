@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+#include <fuzzer/FuzzedDataProvider.h>
+
 #include "accesstoken_kit.h"
 #include "file_access_helper.h"
 #include "file_access_ext_base_proxy.h"
@@ -89,10 +91,12 @@ shared_ptr<FileAccessHelper> GetFileAccessHelper()
 
 bool CreateFileFuzzTest(sptr<IFileAccessExtBase> proxy, const uint8_t *data, size_t size)
 {
-    int len = size / 3;
-    Urie parent(string(reinterpret_cast<const char *>(data), len));
-    string displayName(string(reinterpret_cast<const char *>(data + len), len));
-    Urie newFile(string(reinterpret_cast<const char *>(data + len + len), len));
+    FuzzedDataProvider provider(data, size);
+    size_t parentLen = provider.ConsumeIntegralInRange<size_t>(0, provider.remaining_bytes());
+    Urie parent(provider.ConsumeBytesAsString(parentLen));
+    size_t displayNameLen = provider.ConsumeIntegralInRange<size_t>(0, provider.remaining_bytes());
+    string displayName = provider.ConsumeBytesAsString(displayNameLen);
+    Urie newFile(provider.ConsumeBytesAsString(provider.remaining_bytes()));
     proxy->CreateFile(parent, displayName, newFile);
     return true;
 }

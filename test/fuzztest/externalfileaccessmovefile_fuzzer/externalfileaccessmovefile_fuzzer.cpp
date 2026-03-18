@@ -19,6 +19,8 @@
 #include <thread>
 #include <unistd.h>
 
+#include <fuzzer/FuzzedDataProvider.h>
+
 #include "accesstoken_kit.h"
 #include "token_setproc.h"
 #include "nativetoken_kit.h"
@@ -105,9 +107,11 @@ bool MoveFuzzTest(const uint8_t* data, size_t size)
         Uri parentUri(info[i].uri);
         Uri newDirUriTest1("");
         Uri newDirUriTest2("");
-        size_t len = size >> 2;
-        std::string test1(reinterpret_cast<const char*>(data), len);
-        std::string test2(reinterpret_cast<const char*>(data + len), len);
+        FuzzedDataProvider provider(data, size);
+        size_t test1Len = provider.ConsumeIntegralInRange<size_t>(0, provider.remaining_bytes());
+        std::string test1 = provider.ConsumeBytesAsString(test1Len);
+        size_t test2Len = provider.ConsumeIntegralInRange<size_t>(0, provider.remaining_bytes());
+        std::string test2 = provider.ConsumeBytesAsString(test2Len);
         int result1 = helper->Mkdir(parentUri, test1, newDirUriTest1);
         int result2 = helper->Mkdir(parentUri, test2, newDirUriTest2);
         if (result1 != OHOS::FileAccessFwk::ERR_OK || result2 != OHOS::FileAccessFwk::ERR_OK) {
@@ -115,7 +119,7 @@ bool MoveFuzzTest(const uint8_t* data, size_t size)
             return false;
         }
         Uri testUri("");
-        std::string test(reinterpret_cast<const char*>(data + len + len), len);
+        std::string test = provider.ConsumeBytesAsString(provider.remaining_bytes());
         result = helper->CreateFile(newDirUriTest1, test, testUri);
         if (result != OHOS::FileAccessFwk::ERR_OK) {
             HILOG_ERROR("CreateFile failed. ret : %{public}d", result);

@@ -19,6 +19,8 @@
 #include <vector>
 #include <securec.h>
 
+#include <fuzzer/FuzzedDataProvider.h>
+
 #include "file_access_service_client.h"
 namespace OHOS {
 using namespace std;
@@ -43,11 +45,11 @@ SyncFolder BuildSyncFolder(const uint8_t* data, size_t size)
     SyncFolder syncFolder;
     syncFolder.state_ = TypeCast<State>(data, &pos);
     syncFolder.displayNameResId_ = TypeCast<uint32_t>(data + pos, &pos);
-    int len = (size - pos) / 2;
-    int displayNameLen = size - pos - len;
-    std::string path(reinterpret_cast<const char*>(data + pos), len);
+    FuzzedDataProvider provider(data + pos, size - pos);
+    size_t pathLen = provider.ConsumeIntegralInRange<size_t>(0, provider.remaining_bytes());
+    std::string path = provider.ConsumeBytesAsString(pathLen);
     syncFolder.path_ = path;
-    std::string name(reinterpret_cast<const char*>(data + pos + len), displayNameLen);
+    std::string name = provider.ConsumeBytesAsString(provider.remaining_bytes());
     syncFolder.displayName_ = name;
     return syncFolder;
 }

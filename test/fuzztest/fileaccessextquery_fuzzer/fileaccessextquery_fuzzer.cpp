@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+#include <fuzzer/FuzzedDataProvider.h>
+
 #include "accesstoken_kit.h"
 #include "file_access_helper.h"
 #include "file_access_ext_base_proxy.h"
@@ -103,12 +105,17 @@ bool OpenFileFuzzTest(sptr<IFileAccessExtBase> proxy, const uint8_t *data, size_
 
 bool QueryFuzzTest(sptr<IFileAccessExtBase> proxy, const uint8_t *data, size_t size)
 {
-    int len = size / 4;
-    Urie uri(string(reinterpret_cast<const char *>(data), len));
+    FuzzedDataProvider provider(data, size);
+    size_t uriLen = provider.ConsumeIntegralInRange<size_t>(0, provider.remaining_bytes());
+    Urie uri(provider.ConsumeBytesAsString(uriLen));
+    size_t firstColumnLen = provider.ConsumeIntegralInRange<size_t>(0, provider.remaining_bytes());
+    string firstColumn = provider.ConsumeBytesAsString(firstColumnLen);
+    size_t secondColumnLen = provider.ConsumeIntegralInRange<size_t>(0, provider.remaining_bytes());
+    string secondColumn = provider.ConsumeBytesAsString(secondColumnLen);
     vector<string> columns {
-        string(reinterpret_cast<const char *>(data + len), len),
-        string(reinterpret_cast<const char *>(data + len + len), len),
-        string(reinterpret_cast<const char *>(data + len + len + len), len)
+        firstColumn,
+        secondColumn,
+        provider.ConsumeBytesAsString(provider.remaining_bytes())
     };
     vector<string> results;
     proxy->Query(uri, columns, results);

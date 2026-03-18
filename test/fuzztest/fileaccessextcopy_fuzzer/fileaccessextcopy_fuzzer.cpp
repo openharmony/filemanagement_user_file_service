@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+#include <fuzzer/FuzzedDataProvider.h>
+
 #include "accesstoken_kit.h"
 #include "file_access_helper.h"
 #include "file_access_ext_base_proxy.h"
@@ -97,9 +99,10 @@ bool CopyFuzzTest(sptr<IFileAccessExtBase> proxy, const uint8_t *data, size_t si
     int32_t retCode = 0;
     int pos = 0;
     bool force = TypeCast<bool>(data, &pos);
-    int len = (size - pos) / 2;
-    Urie sourceUri(string(reinterpret_cast<const char *>(data + pos), len));
-    Urie destUri(string(reinterpret_cast<const char *>(data + pos + len), len));
+    FuzzedDataProvider provider(data + pos, size - pos);
+    size_t sourceUriLen = provider.ConsumeIntegralInRange<size_t>(0, provider.remaining_bytes());
+    Urie sourceUri(provider.ConsumeBytesAsString(sourceUriLen));
+    Urie destUri(provider.ConsumeBytesAsString(provider.remaining_bytes()));
 
     proxy->Copy(sourceUri, destUri, copyResult, retCode, force);
     return true;
