@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+#include <fuzzer/FuzzedDataProvider.h>
+
 #include "accesstoken_kit.h"
 #include "file_access_helper.h"
 #include "file_access_ext_base_proxy.h"
@@ -89,9 +91,10 @@ shared_ptr<FileAccessHelper> GetFileAccessHelper()
 
 bool RenameFuzzTest(sptr<IFileAccessExtBase> proxy, const uint8_t *data, size_t size)
 {
-    int len = size / 2;
-    Urie sourceFile(string(reinterpret_cast<const char *>(data), len));
-    string displayName(string(reinterpret_cast<const char *>(data + len), len));
+    FuzzedDataProvider provider(data, size);
+    size_t sourceFileLen = provider.ConsumeIntegralInRange<size_t>(0, provider.remaining_bytes());
+    Urie sourceFile(provider.ConsumeBytesAsString(sourceFileLen));
+    string displayName = provider.ConsumeBytesAsString(provider.remaining_bytes());
     Urie newFile;
     proxy->Rename(sourceFile, displayName, newFile);
     return true;

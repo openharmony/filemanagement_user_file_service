@@ -101,6 +101,92 @@ namespace {
         }
     }
 
+    bool GetReferenceState(ani_env *env, ani_ref ref, const char *refName)
+    {
+        if (env == nullptr) {
+            HILOG_ERROR("env is nullptr");
+            return false;
+        }
+        ani_boolean isNull = false;
+        ani_boolean isUndefined = false;
+        ani_status status = env->Reference_IsNullishValue(ref, &isNull);
+        if (status != ANI_OK) {
+            HILOG_ERROR("Reference_IsNullishValue for %{public}s failed, status = %{public}d", refName, status);
+            return false;
+        }
+
+        status = env->Reference_IsUndefined(ref, &isUndefined);
+        if (status != ANI_OK) {
+            HILOG_ERROR("Reference_IsUndefined for %{public}s failed, status = %{public}d", refName, status);
+            return false;
+        }
+        if (isUndefined || isNull) {
+            HILOG_ERROR("context is undefined or Null");
+            return false;
+        }
+        return true;
+    }
+
+    bool InitAniVm(ani_env *env, ani_vm *&vm)
+    {
+        if (env == nullptr) {
+            HILOG_ERROR("env is nullptr");
+            return false;
+        }
+        ani_status status = env->GetVM(&vm);
+        if (status != ANI_OK) {
+            HILOG_ERROR("GetVM failed, status = %{public}d", status);
+            return false;
+        }
+        if (vm == nullptr) {
+            HILOG_ERROR("vm == nullptr");
+            return false;
+        }
+        return true;
+    }
+
+    void DeleteGlobalReference(ani_env *env, ani_ref ref, const char *refName)
+    {
+        if (env == nullptr) {
+            HILOG_ERROR("env is nullptr");
+            return;
+        }
+        if (ref == nullptr) {
+            HILOG_ERROR("ref is nullptr");
+            return;
+        }
+
+        ani_status status = env->GlobalReference_Delete(ref);
+        if (status != ANI_OK) {
+            HILOG_ERROR("GlobalReference_Delete for %{public}s failed, status = %{public}d", refName, status);
+        }
+    }
+
+    bool GetAniStringUtf8(ani_env *env, ani_string name, char *&nameUtf8)
+    {
+        if (env == nullptr) {
+            HILOG_ERROR("env is nullptr");
+            return false;
+        }
+        ani_size len = 0;
+        ani_status status = env->String_GetUTF8Size(name, &len);
+        if (status != ANI_OK) {
+            HILOG_ERROR("String_GetUTF8Size failed, status = %{public}d", status);
+            ::taihe::set_business_error(-1, "Get Window name size failed");
+            return false;
+        }
+        nameUtf8 = new char[len + 1];
+        status = env->String_GetUTF8(name, nameUtf8, len + 1, &len);
+        if (status != ANI_OK) {
+            HILOG_ERROR("String_GetUTF8 failed, status = %{public}d", status);
+            ::taihe::set_business_error(-1, "Get Window name failed");
+            delete[] nameUtf8;
+            nameUtf8 = nullptr;
+            return false;
+        }
+        return true;
+    }
+
     OHOS::Ace::UIContent *GetUIContent(ani_env *env, const ani_ref &contextRef)
     {
         HILOG_INFO("Begin");
@@ -108,13 +194,7 @@ namespace {
             HILOG_ERROR("env == nullptr");
             return nullptr;
         }
-
-        ani_boolean isValue = false;
-        ani_boolean isUndefined = false;
-        env->Reference_IsNullishValue(contextRef, &isValue);
-        env->Reference_IsUndefined(contextRef, &isUndefined);
-        if (isUndefined || isValue) {
-            HILOG_ERROR("context is undefined or Null");
+        if (!GetReferenceState(env, contextRef, "context")) {
             return nullptr;
         }
 
@@ -151,12 +231,7 @@ namespace {
             HILOG_ERROR("env == nullptr");
             return;
         }
-        ani_boolean isValue = false;
-        ani_boolean isUndefined = false;
-        env->Reference_IsNullishValue(windowRef, &isValue);
-        env->Reference_IsUndefined(windowRef, &isUndefined);
-        if (isUndefined || isValue) {
-            HILOG_ERROR("window is undefined or Null");
+        if (!GetReferenceState(env, windowRef, "window")) {
             return;
         }
         OHOS::Rosen::AniWindow *ani_window = OHOS::Rosen::AniWindow::GetWindowObjectFromEnv(env,
@@ -174,18 +249,19 @@ namespace {
             ::taihe::set_business_error(-1, "Get Window name failed");
             return;
         }
-        
-        ani_size len;
-        env->String_GetUTF8Size(name, &len);
-        char *nameUtf8 = new char[len + 1];
-        env->String_GetUTF8(name, nameUtf8, len + 1, &len);
+        char *nameUtf8 = nullptr;
+        if (!GetAniStringUtf8(env, name, nameUtf8)) {
+            return;
+        }
         auto customWindow = OHOS::Rosen::Window::Find(nameUtf8);
         if (!customWindow) {
             delete[] nameUtf8;
+            nameUtf8 = nullptr;
             return;
         }
         window = customWindow;
         delete[] nameUtf8;
+        nameUtf8 = nullptr;
     }
 
     std::shared_ptr<AniPickerAsyncContext> StartPickerExtension(ani_vm *vm, const ani_ref &contextRef,
@@ -287,20 +363,13 @@ namespace {
                 return;
             }
 
-            env->GetVM(&vm_);
-            if (vm_ == nullptr) {
-                HILOG_ERROR("vm == nullptr");
+            if (!InitAniVm(env, vm_)) {
                 return;
             }
 
             ani_object objContext = reinterpret_cast<ani_object>(context);
             ani_ref refContext = static_cast<ani_ref>(objContext);
-            ani_boolean isValue = false;
-            ani_boolean isUndefined = false;
-            env->Reference_IsNullishValue(refContext, &isValue);
-            env->Reference_IsUndefined(refContext, &isUndefined);
-            if (isUndefined || isValue) {
-                HILOG_ERROR("context is Undefined or  Null");
+            if (!GetReferenceState(env, refContext, "context")) {
                 return;
             }
             if (env->GlobalReference_Create(refContext, &context_) != ANI_OK) {
@@ -326,20 +395,13 @@ namespace {
                 return;
             }
 
-            env->GetVM(&vm_);
-            if (vm_ == nullptr) {
-                HILOG_ERROR("vm == nullptr");
+            if (!InitAniVm(env, vm_)) {
                 return;
             }
 
             ani_object objContext = reinterpret_cast<ani_object>(context);
             ani_ref refContext = static_cast<ani_ref>(objContext);
-            ani_boolean isValue = false;
-            ani_boolean isUndefined = false;
-            env->Reference_IsNullishValue(refContext, &isValue);
-            env->Reference_IsUndefined(refContext, &isUndefined);
-            if (isUndefined || isValue) {
-                HILOG_ERROR("context is Undefined or  Null");
+            if (!GetReferenceState(env, refContext, "context")) {
                 return;
             }
 
@@ -351,12 +413,7 @@ namespace {
 
             ani_object objWindow = reinterpret_cast<ani_object>(window);
             ani_ref refWindow = static_cast<ani_ref>(objWindow);
-            isValue = false;
-            isUndefined = false;
-            env->Reference_IsNullishValue(refWindow, &isValue);
-            env->Reference_IsUndefined(refWindow, &isUndefined);
-            if (isUndefined || isValue) {
-                HILOG_ERROR("window is Undefined or  Null");
+            if (!GetReferenceState(env, refWindow, "window")) {
                 return;
             }
 
@@ -376,8 +433,8 @@ namespace {
                 HILOG_ERROR("env == nullptr");
                 return;
             }
-            env->GlobalReference_Delete(context_);
-            env->GlobalReference_Delete(window_);
+            DeleteGlobalReference(env, context_, "context");
+            DeleteGlobalReference(env, window_, "window");
         }
 
         ::taihe::array<::taihe::string> SelectSync(::taihe::optional_view<DocumentSelectOptions> option)
@@ -833,20 +890,13 @@ namespace {
                 return;
             }
 
-            env->GetVM(&vm_);
-            if (vm_ == nullptr) {
-                HILOG_ERROR("vm == nullptr");
+            if (!InitAniVm(env, vm_)) {
                 return;
             }
 
             ani_object objContext = reinterpret_cast<ani_object>(context);
             ani_ref refContext = static_cast<ani_ref>(objContext);
-            ani_boolean isValue = false;
-            ani_boolean isUndefined = false;
-            env->Reference_IsNullishValue(refContext, &isValue);
-            env->Reference_IsUndefined(refContext, &isUndefined);
-            if (isUndefined || isValue) {
-                HILOG_ERROR("context is Undefined or  Null");
+            if (!GetReferenceState(env, refContext, "context")) {
                 return;
             }
             if (env->GlobalReference_Create(refContext, &context_) != ANI_OK) {
@@ -865,7 +915,7 @@ namespace {
                 HILOG_ERROR("env == nullptr");
                 return;
             }
-            env->GlobalReference_Delete(context_);
+            DeleteGlobalReference(env, context_, "context");
         }
 
         ::taihe::array<::taihe::string> SelectSync(::taihe::optional_view<AudioSelectOptions> option)

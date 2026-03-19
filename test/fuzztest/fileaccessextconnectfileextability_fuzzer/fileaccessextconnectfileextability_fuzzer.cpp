@@ -17,6 +17,8 @@
 #include <string>
 #include <memory>
 
+#include <fuzzer/FuzzedDataProvider.h>
+
 #include "hilog_wrapper.h"
 #include "accesstoken_kit.h"
 #include "token_setproc.h"
@@ -30,10 +32,12 @@ using namespace FileAccessFwk;
 
 bool ConnectFileExtAbility(sptr<FileAccessExtConnection> conn, const uint8_t *data, size_t size)
 {
-    int len = size >> 1;
+    FuzzedDataProvider provider(data, size);
+    size_t bundleNameLen = provider.ConsumeIntegralInRange<size_t>(0, provider.remaining_bytes());
+    std::string bundleName = provider.ConsumeBytesAsString(bundleNameLen);
+    std::string abilityName = provider.ConsumeBytesAsString(provider.remaining_bytes());
     AAFwk::Want want;
-    want.SetElementName(std::string(reinterpret_cast<const char*>(data), len),
-        std::string(reinterpret_cast<const char*>(data + len), size - len));
+    want.SetElementName(bundleName, abilityName);
     sptr<IRemoteObject> remoteObject = nullptr;
     conn->ConnectFileExtAbility(want, remoteObject);
     return true;

@@ -17,6 +17,8 @@
 
 #include <string>
 
+#include <fuzzer/FuzzedDataProvider.h>
+
 #include "app_file_access_ext_connection.h"
 #include "file_access_observer_stub.h"
 #include "file_access_service_client.h"
@@ -81,9 +83,10 @@ shared_ptr<FileAccessHelper> GetFileAccessHelper()
 
 bool ConnectFileExtAbilityFuzzTest(sptr<IFileAccessServiceBase> proxy, const uint8_t* data, size_t size)
 {
-    int len = size / 2;
-    string bundleName(reinterpret_cast<const char *>(data), len);
-    string infoName(reinterpret_cast<const char *>(data + len), len);
+    FuzzedDataProvider provider(data, size);
+    size_t bundleNameLen = provider.ConsumeIntegralInRange<size_t>(0, provider.remaining_bytes());
+    string bundleName = provider.ConsumeBytesAsString(bundleNameLen);
+    string infoName = provider.ConsumeBytesAsString(provider.remaining_bytes());
     AAFwk::Want want;
     want.SetElementName(bundleName, infoName);
 

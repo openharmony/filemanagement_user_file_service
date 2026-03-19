@@ -19,6 +19,8 @@
 #include <vector>
 #include <securec.h>
 
+#include <fuzzer/FuzzedDataProvider.h>
+
 #include "file_access_service_client.h"
 
 namespace OHOS {
@@ -31,11 +33,10 @@ bool DoSomethingUpdateDisplayNameFuzzTest(sptr<IFileAccessServiceBase> proxy, co
         return true;
     }
 
-    size_t pathLen = size / 2;
-    size_t displayNameLen = size - pathLen;
-
-    std::string path(reinterpret_cast<const char*>(data), pathLen);
-    std::string displayName(reinterpret_cast<const char*>(data + pathLen), displayNameLen);
+    FuzzedDataProvider provider(data, size);
+    size_t pathLen = provider.ConsumeIntegralInRange<size_t>(0, provider.remaining_bytes());
+    std::string path = provider.ConsumeBytesAsString(pathLen);
+    std::string displayName = provider.ConsumeBytesAsString(provider.remaining_bytes());
 
     proxy->UpdateDisplayName(path, displayName);
 
