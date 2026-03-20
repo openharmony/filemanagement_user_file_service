@@ -297,6 +297,7 @@ async function parseDocumentPickerSelectOption(args, action) {
     config.parameters.key_merge_type_mode = option.mergeMode;
     config.parameters.key_is_encryption_supported = option.isEncryptionSupported;
     config.parameters.key_theme_color_mode = option.themeColor;
+    config.parameters.key_allows_mulfolder_selection = option.allowsMulFolderSelection;
     if ((option.maxSelectNumber !== undefined) && option.maxSelectNumber > 0) {
       config.parameters.key_pick_num = option.maxSelectNumber;
     }
@@ -699,6 +700,7 @@ class DocumentSelectOptions {
     this.multiUriArray = undefined;
     this.isEncryptionSupported = false;
     this.themeColor = undefined;
+    this.allowsMulFolderSelection = false;
   }
 }
 
