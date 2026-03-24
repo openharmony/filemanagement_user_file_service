@@ -697,6 +697,9 @@ namespace {
                         parameters.SetParam("pickerType", String::Box(std::string("downloadAuth")));
                     }
                 }
+                if (aniOption.autoCreateEmptyFile.has_value()) {
+                    parameters.SetParam("autoCreateEmptyFile", Boolean::Box(aniOption.autoCreateEmptyFile.value()));
+                }
             }
 
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
@@ -780,7 +783,9 @@ namespace {
                     parameters.SetParam("pickerType", String::Box(std::string("downloadAuth")));
                 }
             }
-
+            if (option.autoCreateEmptyFile.has_value()) {
+                parameters.SetParam("autoCreateEmptyFile", Boolean::Box(option.autoCreateEmptyFile.value()));
+            }
             std::shared_ptr<AniPickerAsyncContext> aniPickerAsyncContext = nullptr;
             auto task = [this, &request, &aniPickerAsyncContext]() {
                 aniPickerAsyncContext = StartPickerExtension(this->vm_, this->context_, this->window_, request);

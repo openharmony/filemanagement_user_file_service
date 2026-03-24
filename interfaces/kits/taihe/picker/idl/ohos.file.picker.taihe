@@ -64,6 +64,7 @@ struct DocumentSaveOptions {
     fileSuffixChoices: Optional<Array<String>>;
     pickerMode: Optional<DocumentPickerMode>;    
     themeColor: Optional<@sts_type("CustomColors") Opaque>;
+    autoCreateEmptyFile: Optional<bool>;
 }
 
 @class

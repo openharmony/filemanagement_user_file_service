@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "taihe_modal_ui_callback.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace Picker {
@@ -31,6 +32,7 @@ void ModalUICallback::SetSessionId(int32_t sessionId)
 
 void ModalUICallback::OnRelease(int32_t releaseCode)
 {
+    HILOG_INFO("[picker] OnRelease enter. release code is %{public}d", releaseCode);
     if (this->uiContent) {
         this->uiContent->CloseModalUIExtension(this->sessionId_);
     }
@@ -42,6 +44,8 @@ void ModalUICallback::OnRelease(int32_t releaseCode)
 
 void ModalUICallback::OnError(int32_t code, const std::string& name, const std::string& message)
 {
+    HILOG_ERROR("[picker] OnError enter. errorCode=%{public}d, name=%{public}s, message=%{public}s",
+        code, name.c_str(), message.c_str());
     if (!pickerCallBack_ || !this->uiContent) {
         return;
     }
@@ -51,6 +55,7 @@ void ModalUICallback::OnError(int32_t code, const std::string& name, const std::
 
 void ModalUICallback::OnResultForModal(int32_t resultCode, const OHOS::AAFwk::Want &result)
 {
+    HILOG_INFO("[picker] OnResultForModal enter. resultCode is %{public}d,", resultCode);
     if (!pickerCallBack_) {
         return;
     }
@@ -60,6 +65,7 @@ void ModalUICallback::OnResultForModal(int32_t resultCode, const OHOS::AAFwk::Wa
 
 void ModalUICallback::OnReceive(const OHOS::AAFwk::WantParams &request)
 {
+    HILOG_INFO("[picker] OnReceive enter.");
 }
 
 void ModalUICallback::OnDestroy()
@@ -69,6 +75,7 @@ void ModalUICallback::OnDestroy()
     }
     this->uiContent->CloseModalUIExtension(this->sessionId_);
     pickerCallBack_->ready = true;
+    HILOG_INFO("[picker] OnDestroy enter.");
 }
 } // namespace Picker
 } // namespace OHOS
