@@ -478,6 +478,18 @@ namespace {
                 if (aniOption.multiAuthMode.has_value()) {
                     parameters.SetParam("key_mult_auth_mode", Boolean::Box(aniOption.multiAuthMode.value()));
                 }
+                if (aniOption.isEncryptionSupported.has_value()) {
+                    parameters.SetParam("key_is_encryption_supported", Boolean::Box(aniOption.isEncryptionSupported.value()));
+                }
+                if (aniOption.mergeMode.has_value()) {
+                    parameters.SetParam("key_merge_type_mode", Boolean::Box(aniOption.mergeMode.value()));
+                }
+                if (aniOption.themeColor.has_value()) {
+                    parameters.SetParam("key_theme_color_mode", Boolean::Box(aniOption.themeColor.value()));
+                }
+                if (aniOption.allowsMulFolderSelection.has_value()) {
+                    parameters.SetParam("key_allows_mulfolder_selection", Boolean::Box(aniOption.allowsMulFolderSelection.value()));
+                }
                 if (aniOption.multiUriArray.has_value()) {
                     std::unique_ptr<AniInsertAsyncContext> asyncContext = std::make_unique<AniInsertAsyncContext>();
                     std::vector<::taihe::string> uriVec;
@@ -562,6 +574,18 @@ namespace {
             }
             if (option.multiAuthMode.has_value()) {
                 parameters.SetParam("key_mult_auth_mode", Boolean::Box(option.multiAuthMode.value()));
+            }
+            if (option.isEncryptionSupported.has_value()) {
+                parameters.SetParam("key_is_encryption_supported", Boolean::Box(option.isEncryptionSupported.value()));
+            }
+            if (option.mergeMode.has_value()) {
+                parameters.SetParam("key_merge_type_mode", Boolean::Box(option.mergeMode.value()));
+            }
+            if (option.themeColor.has_value()) {
+                parameters.SetParam("key_theme_color_mode", Boolean::Box(option.themeColor.value()));
+            }
+            if (option.allowsMulFolderSelection.has_value()) {
+                parameters.SetParam("key_allows_mulfolder_selection", Boolean::Box(option.allowsMulFolderSelection.value()));
             }
             if (option.multiUriArray.has_value()) {
                 std::unique_ptr<AniInsertAsyncContext> asyncContext = std::make_unique<AniInsertAsyncContext>();
