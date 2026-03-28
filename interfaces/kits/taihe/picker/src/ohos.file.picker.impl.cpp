@@ -478,6 +478,10 @@ namespace {
                 if (aniOption.multiAuthMode.has_value()) {
                     parameters.SetParam("key_mult_auth_mode", Boolean::Box(aniOption.multiAuthMode.value()));
                 }
+                if (aniOption.allowsMulFolderSelection.has_value()) {
+                    parameters.SetParam("key_allows_mulfolder_selection",
+                        Boolean::Box(aniOption.allowsMulFolderSelection.value()));
+                }
                 if (aniOption.multiUriArray.has_value()) {
                     std::unique_ptr<AniInsertAsyncContext> asyncContext = std::make_unique<AniInsertAsyncContext>();
                     std::vector<::taihe::string> uriVec;
@@ -562,6 +566,10 @@ namespace {
             }
             if (option.multiAuthMode.has_value()) {
                 parameters.SetParam("key_mult_auth_mode", Boolean::Box(option.multiAuthMode.value()));
+            }
+            if (option.allowsMulFolderSelection.has_value()) {
+                parameters.SetParam("key_allows_mulfolder_selection",
+                    Boolean::Box(option.allowsMulFolderSelection.value()));
             }
             if (option.multiUriArray.has_value()) {
                 std::unique_ptr<AniInsertAsyncContext> asyncContext = std::make_unique<AniInsertAsyncContext>();
