@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2025 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2026 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -17,42 +17,10 @@ import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
 
 group("user_file_managers") {
   deps = [
-    ":external_file_manager_hap",
     ":file_access_service",
     ":file_access_service.cfg",
     ":file_access_service_profile",
   ]
-}
-
-ohos_hap("external_file_manager_hap") {
-  hap_profile = "file_extension_hap/entry/src/main/module.json"
-  deps = [
-    ":external_file_manager_js_assets",
-    ":external_file_manager_resources",
-  ]
-  publicity_file = "../publicity.xml"
-  certificate_profile = "signature/fileextension.p7b"
-  hap_name = "external_file_manager"
-  subsystem_name = "filemanagement"
-  part_name = "user_file_service"
-  module_install_dir = "app/com.ohos.UserFile.ExternalFileManager"
-  if (defined(sign_hap_py_path)) {
-    certificate_profile = "//vendor/tools/hap_sign_conf/filemanagement/user_file_service/external_file_manager.p7b"
-    key_alias = "ExternalFileManager"
-    private_key_path = "ExternalFileManager"
-     compatible_version = "9"
-  }
-}
-
-ohos_js_assets("external_file_manager_js_assets") {
-  hap_profile = "file_extension_hap/entry/src/main/module.json"
-  ets2abc = true
-  source_dir = "file_extension_hap/entry/src/main/ets"
-}
-
-ohos_app_scope("external_file_manager_app_profile") {
-  app_profile = "file_extension_hap/AppScope/app.json"
-  sources = [ "file_extension_hap/AppScope/resources" ]
 }
 
 ohos_sa_profile("file_access_service_profile") {
@@ -86,12 +54,6 @@ config("ability_public_config") {
     "${user_file_service_path}/interfaces/kits/js/src/common",
     "${user_file_service_path}/services/rdb_adapter/include",
   ]
-}
-
-ohos_resources("external_file_manager_resources") {
-  sources = [ "file_extension_hap/entry/src/main/resources" ]
-  deps = [ ":external_file_manager_app_profile" ]
-  hap_profile = "file_extension_hap/entry/src/main/module.json"
 }
 
 idl_gen_interface("IFile_Access_Service_Base") {

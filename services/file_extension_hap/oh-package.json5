@@ -14,20 +14,11 @@
  */
 
 {
-  "apiType": "stageMode",
-  "buildOption": {
-    "resOptions": {
-      "copyCodeResource": {
-        "enable": false
-      }
-    }
+  "modelVersion": "6.0.0",
+  "description": "Please describe the basic information.",
+  "dependencies": {
   },
-  "targets": [
-    {
-      "name": "default"
-    },
-    {
-      "name": "ohosTest",
-    }
-  ]
+  "devDependencies": {
+    "@ohos/hypium": "1.0.25"
+  }
 }

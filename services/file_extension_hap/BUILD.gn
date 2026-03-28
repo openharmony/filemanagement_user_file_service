@@ -1,0 +1,44 @@
+# Copyright (c) 2021-2026 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/config/components/idl_tool/idl.gni")
+import("//build/ohos.gni")
+import("//foundation/filemanagement/user_file_service/filemanagement_aafwk.gni")
+
+group("user_file_manager_hap") {
+  deps = [
+    ":external_file_manager_hap",
+  ]
+}
+
+ohos_app("external_file_manager_hap") {
+  publicity_file = "../../publicity.xml"
+  certificate_profile = "../signature/fileextension.p7b"
+  hap_name = "external_file_manager"
+  subsystem_name = "filemanagement"
+  part_name = "user_file_service"
+  module_install_dir = "app/com.ohos.UserFile.ExternalFileManager"
+  if (defined(sign_hap_py_path)) {
+    certificate_profile = "//vendor/tools/hap_sign_conf/filemanagement/user_file_service/external_file_manager.p7b"
+    key_alias = "ExternalFileManager"
+    private_key_path = "ExternalFileManager"
+     compatible_version = "9"
+  }
+
+  js_build_mode = "release"
+  sdk_home = "//prebuilts/ohos-sdk/linux"
+  sdk_type_name = [ "sdk.dir" ]
+  assemble_type = "assembleHap"
+  build_level = "module"
+  build_modules = [ "entry" ]
+}

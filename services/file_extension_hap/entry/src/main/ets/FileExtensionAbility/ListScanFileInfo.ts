@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import hilog from '@ohos.hilog';
 import fs from '@ohos.file.fs';
 import type { Filter } from '@ohos.file.fs';
@@ -26,7 +27,7 @@ const APP_DATA = 'appdata';
 const BACKUP_DIR = '.backup';
 const CURRENT_USER_PATH = '/storage/Users/currentUser';
 
-function hasFilter(filter: Filter) : boolean {
+function hasFilter(filter: Filter): boolean {
   if (filter === null) {
     return false;
   }
@@ -49,8 +50,8 @@ function hasFilter(filter: Filter) : boolean {
   return false;
 }
 
-function buildDisplayName(displayNameArray: string[]) : string[] {
-  let displayNames : string[] = [];
+function buildDisplayName(displayNameArray: string[]): string[] {
+  let displayNames: string[] = [];
   for (let i = 0; i < displayNameArray.length; i++) {
     if (displayNameArray[i].lastIndexOf('*') === -1) {
       let name = '*' + displayNameArray[i];
@@ -62,8 +63,8 @@ function buildDisplayName(displayNameArray: string[]) : string[] {
   return displayNames;
 }
 
-function buildFilterOptions(filter: Filter, listNum: number, recursion: boolean) :
-{recursion: boolean, listNum: number, filter: Filter} {
+function buildFilterOptions(filter: Filter, listNum: number, recursion: boolean):
+  { recursion: boolean, listNum: number, filter: Filter } {
   let optionFilter: Filter = {};
   if (filter !== null) {
     let suffixArray = filter.suffix;
@@ -99,7 +100,7 @@ function buildFilterOptions(filter: Filter, listNum: number, recursion: boolean)
   return options;
 }
 
-function buildNoFilterOptions(listNum: number, recursion: boolean) : {recursion: boolean, listNum: number} {
+function buildNoFilterOptions(listNum: number, recursion: boolean): { recursion: boolean, listNum: number } {
   let options = {
     'recursion': recursion,
     'listNum': listNum,
@@ -107,7 +108,7 @@ function buildNoFilterOptions(listNum: number, recursion: boolean) : {recursion:
   return options;
 }
 
-function getNewPathOrUri(prefixSection: string, filename: string) : string {
+function getNewPathOrUri(prefixSection: string, filename: string): string {
   let completeResult = prefixSection;
   if (completeResult.endsWith('/')) {
     if (filename.startsWith('/')) {
@@ -132,9 +133,9 @@ function genNewFileName(filename: string): string {
   return newFilename;
 }
 
-function getListFileInfos(sourceFileUri: string, offset: number, count: number, filter: Filter, recursion: boolean) :
-{infos: Fileinfo[], code: number} {
-  let infos : Fileinfo[] = [];
+function getListFileInfos(sourceFileUri: string, offset: number, count: number, filter: Filter, recursion: boolean):
+  { infos: Fileinfo[], code: number } {
+  let infos: Fileinfo[] = [];
   let path = getPath(sourceFileUri);
   try {
     let statPath = fs.statSync(path);
@@ -167,8 +168,15 @@ function getListFileInfos(sourceFileUri: string, offset: number, count: number, 
       }
       let newFileUri = getNewPathOrUri(sourceFileUri, fileNameList[i]);
       newFileUri = encodePathOfUri(newFileUri);
-      infos.push({ uri: newFileUri, relativePath: filePath, fileName: genNewFileName(fileNameList[i]),
-        mode: mode, size: stat.size, mtime: stat.mtime, mimeType: '' });
+      infos.push({
+        uri: newFileUri,
+        relativePath: filePath,
+        fileName: genNewFileName(fileNameList[i]),
+        mode: mode,
+        size: stat.size,
+        mtime: stat.mtime,
+        mimeType: ''
+      });
     }
   } catch (e) {
     hilog.error(DOMAIN_CODE, TAG, `getFileInfos error: ${e.message},code: ${e.code}`);
@@ -177,20 +185,19 @@ function getListFileInfos(sourceFileUri: string, offset: number, count: number, 
   return infosReturnObject(infos, ERR_OK);
 }
 
-function getSubUriList(path: string, listNum: number, filter: Filter) : string[]
-{
+function getSubUriList(path: string, listNum: number, filter: Filter): string[] {
   let dirOptions = {
     'recursion': false
   };
   let fileOption = hasFilter(filter) ?
-      buildFilterOptions(filter, listNum, false) : buildNoFilterOptions(listNum, false);
-  let dirTmpResult = fs.listFileSync(path, dirOptions).filter(item => item !== APP_DATA).map(function(item) {
+    buildFilterOptions(filter, listNum, false) : buildNoFilterOptions(listNum, false);
+  let dirTmpResult = fs.listFileSync(path, dirOptions).filter(item => item !== APP_DATA).map(function (item) {
     return CURRENT_USER_PATH + '/' + item;
   });
-  let fileResult = fs.listFileSync(path, fileOption).filter(item => item !== APP_DATA).map(function(item) {
+  let fileResult = fs.listFileSync(path, fileOption).filter(item => item !== APP_DATA).map(function (item) {
     return CURRENT_USER_PATH + '/' + item;
   });
-  let dirResult : string[] = [];
+  let dirResult: string[] = [];
   for (let i = 0; i < dirTmpResult.length; ++i) {
     if (fs.statSync(dirTmpResult[i]).isDirectory()) {
       dirResult.push(dirTmpResult[i]);
@@ -201,15 +208,15 @@ function getSubUriList(path: string, listNum: number, filter: Filter) : string[]
 
 function getSubFileInfos(
   changeData: {
-    options: {recursion: boolean, listNum: number, filter?: Filter},
+    options: { recursion: boolean, listNum: number, filter?: Filter },
     tempOffset: number,
     listNumCnt: number
-  }, needInfo: {subPath: string, count: number, isRootPath: boolean, sourceFileUri: string}): Fileinfo[] {
+  }, needInfo: { subPath: string, count: number, isRootPath: boolean, sourceFileUri: string }): Fileinfo[] {
   let infos: Fileinfo[] = [];
   let tmpStat = fs.statSync(needInfo.subPath);
   let bIsDct = tmpStat.isDirectory();
   let fileNameList = bIsDct ? fs.listFileSync(needInfo.subPath, changeData.options) :
-      [needInfo.subPath.substring(CURRENT_USER_PATH.length)];
+    [needInfo.subPath.substring(CURRENT_USER_PATH.length)];
   let subPath = needInfo.subPath;
   if (needInfo.isRootPath) {
     subPath = bIsDct ? subPath.substring(CURRENT_USER_PATH.length) : '';
@@ -226,21 +233,28 @@ function getSubFileInfos(
     let mode = documentFlag.SUPPORTS_READ | documentFlag.SUPPORTS_WRITE;
     let filePath = getNewPathOrUri(needInfo.subPath, fileNameList[j]);
     let stat = bIsDct ? fs.statSync(filePath) : tmpStat;
-    mode |= (bIsDct | stat.isDirectory()) ? documentFlag.REPRESENTS_DIR : documentFlag.REPRESENTS_FILE;
+    mode |= (bIsDct || stat.isDirectory()) ? documentFlag.REPRESENTS_DIR : documentFlag.REPRESENTS_FILE;
     let newFileUri = getNewPathOrUri(
       needInfo.isRootPath ? needInfo.sourceFileUri + subPath : needInfo.sourceFileUri, fileNameList[j]);
     newFileUri = encodePathOfUri(newFileUri);
-    infos.push({ uri: newFileUri, relativePath: filePath, fileName: genNewFileName(fileNameList[j]),
-      mode: mode, size: stat.size, mtime: stat.mtime, mimeType: '' });
+    infos.push({
+      uri: newFileUri,
+      relativePath: filePath,
+      fileName: genNewFileName(fileNameList[j]),
+      mode: mode,
+      size: stat.size,
+      mtime: stat.mtime,
+      mimeType: ''
+    });
   }
   changeData.tempOffset = 0;
   changeData.options.listNum = needInfo.count - changeData.listNumCnt;
   return infos;
 }
 
-function getScanFileInfos(sourceFileUri: string, offset: number, count: number, filter: Filter, recursion: boolean) :
-{infos: Fileinfo[], code: number} {
-  let infos : Fileinfo[] = [];
+function getScanFileInfos(sourceFileUri: string, offset: number, count: number, filter: Filter, recursion: boolean):
+  { infos: Fileinfo[], code: number } {
+  let infos: Fileinfo[] = [];
   let path = getPath(sourceFileUri);
   try {
     let statPath = fs.statSync(path);
@@ -275,4 +289,5 @@ function getScanFileInfos(sourceFileUri: string, offset: number, count: number, 
   }
   return infosReturnObject(infos, ERR_OK);
 }
+
 export { getListFileInfos, getScanFileInfos, buildFilterOptions, buildNoFilterOptions, hasFilter };

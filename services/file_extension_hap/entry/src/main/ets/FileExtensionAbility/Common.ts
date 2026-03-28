@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 import hilog from '@ohos.hilog';
+
 const BUNDLE_NAME = 'docs';
 const DOMAIN_CODE = 0x0001;
 const SLICE_PREFIX_URI = 12;
@@ -43,17 +44,17 @@ function getAnonyString(uri): string {
   let tmpStr = '********';
   let len = uri.length;
   if (len < MIN_FILE_LENGTH) {
-      return tmpStr;
+    return tmpStr;
   }
 
   if (len <= SHORT_FILE_LENGTH) {
-      res += uri[0];
-      res += tmpStr;
-      res += uri[len - 1];
+    res += uri[0];
+    res += tmpStr;
+    res += uri[len - 1];
   } else {
-      res += uri.substring(0, PLAIN_TEXT_LENGTH);
-      res += tmpStr;
-      res += uri.substring(len - PLAIN_TEXT_LENGTH);
+    res += uri.substring(0, PLAIN_TEXT_LENGTH);
+    res += tmpStr;
+    res += uri.substring(len - PLAIN_TEXT_LENGTH);
   }
 
   return res;
@@ -99,52 +100,52 @@ function uriReturnObject(uri: string, code: number) {
   };
 }
 
-function infosReturnObject(infos: Fileinfo[], code: number): {infos: Fileinfo[], code: number} {
+function infosReturnObject(infos: Fileinfo[], code: number): { infos: Fileinfo[], code: number } {
   return {
     infos: infos,
     code: code
   };
 }
 
-function fdReturnObject(fd: number, code: number): {fd: number, code: number} {
+function fdReturnObject(fd: number, code: number): { fd: number, code: number } {
   return {
     fd: fd,
     code: code
   };
 }
 
-function boolReturnObject(isExist: boolean, code: number): {isExist: boolean, code: number} {
+function boolReturnObject(isExist: boolean, code: number): { isExist: boolean, code: number } {
   return {
     isExist: isExist,
     code: code
   };
 }
 
-function fileinfoReturnObject(fileInfo: object, code: number): {fileInfo: object, code: number} {
+function fileinfoReturnObject(fileInfo: object, code: number): { fileInfo: object, code: number } {
   return {
     fileInfo: fileInfo,
     code: code
   };
 }
 
-function resultsResultObject(results: object, code: number): {results: object, code: number} {
+function resultsResultObject(results: object, code: number): { results: object, code: number } {
   return {
     results: results,
     code: code
   };
 }
 
-function rootsReturnObject(roots: object, code: number): {roots: object, code: number} {
+function rootsReturnObject(roots: object, code: number): { roots: object, code: number } {
   return {
     roots: roots,
     code: code
   };
 }
 
-function encodePathOfUri(uri): string {  
+function encodePathOfUri(uri): string {
   try {
     let suffixUri = uri.slice(SLICE_PREFIX_URI, uri.length);
-    let prefixUri = uri.slice(0, SLICE_PREFIX_URI); 
+    let prefixUri = uri.slice(0, SLICE_PREFIX_URI);
     uri = prefixUri.concat(encodeURIComponent(suffixUri).replace(/%2F/g, '/'));
   } catch (e) {
     hilog.error(DOMAIN_CODE, TAG, 'The reason of encodeURIComponent: ' + e.message + ' code: ' + e.code);
@@ -163,9 +164,23 @@ function decodeUri(uri): string {
   return uri;
 }
 
-export { 
-  getPath, checkUri, encodePathOfUri, decodeUri, getAnonyString, uriReturnObject, infosReturnObject, fdReturnObject, boolReturnObject, resultsResultObject,
-  fileinfoReturnObject, rootsReturnObject, BUNDLE_NAME, DOMAIN_CODE, FILE_PREFIX_NAME, TAG 
+export {
+  getPath,
+  checkUri,
+  encodePathOfUri,
+  decodeUri,
+  getAnonyString,
+  uriReturnObject,
+  infosReturnObject,
+  fdReturnObject,
+  boolReturnObject,
+  resultsResultObject,
+  fileinfoReturnObject,
+  rootsReturnObject,
+  BUNDLE_NAME,
+  DOMAIN_CODE,
+  FILE_PREFIX_NAME,
+  TAG
 };
 
 export type { Fileinfo };
