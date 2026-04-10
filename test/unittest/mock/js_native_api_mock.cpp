@@ -24,6 +24,29 @@ napi_status napi_get_uv_event_loop(napi_env env, struct uv_loop_s** loop)
     return OHOS::FileAccessFwk::Assistant::ins_->napi_get_uv_event_loop(env, loop);
 }
 
+napi_status napi_open_handle_scope(napi_env env, napi_handle_scope* result)
+{
+    if (OHOS::FileAccessFwk::Assistant::ins_ == nullptr) {
+        return napi_invalid_arg;
+    }
+    auto ret = OHOS::FileAccessFwk::Assistant::ins_->napi_open_handle_scope(env, result);
+    if (ret == napi_ok && result != nullptr && *result == nullptr) {
+        if (env != nullptr) {
+            *result = reinterpret_cast<napi_handle_scope>(env);
+        } else {
+            *result = reinterpret_cast<napi_handle_scope>(result);
+        }
+    }
+    return ret;
+}
+
+napi_status napi_close_handle_scope(napi_env env, napi_handle_scope scope)
+{
+    (void)env;
+    (void)scope;
+    return napi_ok;
+}
+
 napi_status napi_call_function(napi_env env, napi_value recv, napi_value func, size_t argc, const napi_value* argv,
     napi_value* result)
 {
@@ -212,8 +235,10 @@ napi_status napi_get_value_bool(napi_env env, napi_value value, bool* result)
 }
 
 napi_status napi_send_event(napi_env env, const std::function<void()>& cb, napi_event_priority priority,
-    const char* name)
+    const char* name, napi_event_barrier_option option)
 {
+    (void)name;
+    (void)option;
     if (cb) {
         cb();
     }
