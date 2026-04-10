@@ -72,9 +72,8 @@ void FileExtensionHelperTest::SetUpTestCase()
     g_context->SetToken(systemAbilityObj);
     AAFwk::Want want;
     vector<AAFwk::Want> wantVec;
-    setuid(UID_TRANSFORM_TMP);
     int ret = FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(wantVec);
-    EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
+    ASSERT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
     bool isFound = false;
     for (size_t i = 0; i < wantVec.size(); i++) {
         auto element = wantVec[i].GetElement();
@@ -85,14 +84,10 @@ void FileExtensionHelperTest::SetUpTestCase()
             break;
         }
     }
-    EXPECT_TRUE(isFound);
+    ASSERT_TRUE(isFound);
     vector<AAFwk::Want> wants{want};
     g_fah = FileAccessHelper::Creator(systemAbilityObj, wants);
-    if (g_fah == nullptr) {
-        GTEST_LOG_(ERROR) << "external_file_access_test g_fah is nullptr";
-        exit(1);
-    }
-    setuid(UID_DEFAULT);
+    ASSERT_NE(g_fah, nullptr) << "external_file_access_test g_fah is nullptr";
 }
 void FileExtensionHelperTest::TearDownTestCase()
 {
