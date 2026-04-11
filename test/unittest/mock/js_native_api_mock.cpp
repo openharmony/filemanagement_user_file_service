@@ -24,18 +24,26 @@ napi_status napi_get_uv_event_loop(napi_env env, struct uv_loop_s** loop)
     return OHOS::FileAccessFwk::Assistant::ins_->napi_get_uv_event_loop(env, loop);
 }
 
+namespace {
+int g_mockHandleScopeSentinel = 0;
+}
+
 napi_status napi_open_handle_scope(napi_env env, napi_handle_scope* result)
 {
-    if (OHOS::FileAccessFwk::Assistant::ins_ == nullptr || env == nullptr || result == nullptr) {
+    if (OHOS::FileAccessFwk::Assistant::ins_ == nullptr) {
         return napi_invalid_arg;
     }
     auto ret = OHOS::FileAccessFwk::Assistant::ins_->napi_open_handle_scope(env, result);
-    if (ret != napi_ok || *result != nullptr) {
-        return ret;
+    if (ret == napi_ok && result != nullptr && *result == nullptr) {
+        if (env != nullptr) {
+            *result = reinterpret_cast<napi_handle_scope>(env);
+        } else {
+            *result = reinterpret_cast<napi_handle_scope>(&g_mockHandleScopeSentinel);
+        }
     }
-    *result = reinterpret_cast<napi_handle_scope>(env);
-    return napi_ok;
+    return ret;
 }
+
 
 napi_status napi_close_handle_scope(napi_env env, napi_handle_scope scope)
 {
