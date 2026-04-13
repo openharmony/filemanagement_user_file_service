@@ -14,20 +14,15 @@
  */
 
 {
-  "apiType": "stageMode",
-  "buildOption": {
-    "resOptions": {
-      "copyCodeResource": {
-        "enable": false
-      }
-    }
-  },
-  "targets": [
-    {
-      "name": "default"
-    },
-    {
-      "name": "ohosTest",
-    }
-  ]
+  "module": {
+    "name": "entry_test",
+    "type": "feature",
+    "deviceTypes": [
+      "phone",
+      "tablet",
+      "2in1"
+    ],
+    "deliveryWithInstall": true,
+    "installationFree": false
+  }
 }

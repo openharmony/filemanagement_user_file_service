@@ -13,21 +13,8 @@
  * limitations under the License.
  */
 
-{
-  "apiType": "stageMode",
-  "buildOption": {
-    "resOptions": {
-      "copyCodeResource": {
-        "enable": false
-      }
-    }
-  },
-  "targets": [
-    {
-      "name": "default"
-    },
-    {
-      "name": "ohosTest",
-    }
-  ]
+import abilityTest from './Ability.test';
+
+export default function testsuite() {
+  abilityTest();
 }

@@ -14,20 +14,12 @@
  */
 
 {
-  "apiType": "stageMode",
-  "buildOption": {
-    "resOptions": {
-      "copyCodeResource": {
-        "enable": false
-      }
-    }
-  },
-  "targets": [
-    {
-      "name": "default"
-    },
-    {
-      "name": "ohosTest",
-    }
-  ]
+  "app": {
+    "bundleName": "com.ohos.UserFile.ExternalFileManager",
+    "vendor": "example",
+    "versionCode": 1000000,
+    "versionName": "1.0.0",
+    "icon": "$media:layered_image",
+    "label": "$string:app_name"
+  }
 }

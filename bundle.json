@@ -30,8 +30,10 @@
                 "ability_base",
                 "ability_runtime",
                 "ace_engine",
+                "ace_ets2bundle",
                 "app_file_service",
                 "bounds_checking_function",
+                "ets_frontend",
                 "ipc",
                 "init",
                 "samgr",
@@ -69,6 +71,7 @@
                 ],
                 "service_group": [
                     "//foundation/filemanagement/user_file_service/services:user_file_managers",
+                    "//foundation/filemanagement/user_file_service/services/file_extension_hap:user_file_manager_hap",
                     "//foundation/filemanagement/user_file_service/interfaces/inner_api/file_access:file_access_extension_ability_module",
                     "//foundation/filemanagement/user_file_service/frameworks/js/napi/file_access_module:fileaccess",
                     "//foundation/filemanagement/user_file_service/frameworks/js/napi/file_access_ext_ability:fileaccessextensionability_napi",

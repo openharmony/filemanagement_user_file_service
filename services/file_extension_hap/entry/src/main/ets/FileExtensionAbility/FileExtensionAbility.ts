@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 // @ts-nocheck
 import Extension from '@ohos.application.FileAccessExtensionAbility';
 import fs from '@ohos.file.fs';
@@ -19,9 +20,25 @@ import type { Filter } from '@ohos.file.fs';
 import fileAccess from '@ohos.file.fileAccess';
 import fileExtensionInfo from '@ohos.file.fileExtensionInfo';
 import hilog from '@ohos.hilog';
-import { getListFileInfos, getScanFileInfos, buildFilterOptions, buildNoFilterOptions, hasFilter } from './ListScanFileInfo';
+import {
+  getListFileInfos,
+  getScanFileInfos,
+  buildFilterOptions,
+  buildNoFilterOptions,
+  hasFilter
+} from './ListScanFileInfo';
 import type { Fileinfo } from './Common';
-import { getPath, checkUri, uriReturnObject, encodePathOfUri, decodeUri, getAnonyString, BUNDLE_NAME, DOMAIN_CODE, fileinfoReturnObject } from './Common';
+import {
+  getPath,
+  checkUri,
+  uriReturnObject,
+  encodePathOfUri,
+  decodeUri,
+  getAnonyString,
+  BUNDLE_NAME,
+  DOMAIN_CODE,
+  fileinfoReturnObject
+} from './Common';
 import { FILE_PREFIX_NAME, TAG, fdReturnObject, boolReturnObject, rootsReturnObject } from './Common';
 import { infosReturnObject, resultsResultObject } from './Common';
 
@@ -162,7 +179,7 @@ export default class FileExtAbility extends Extension {
     }
   }
 
-  openFile(sourceFileUri, flags): {number, number} {
+  openFile(sourceFileUri, flags): { number, number } {
     sourceFileUri = decodeUri(sourceFileUri);
     if (!checkUri(sourceFileUri)) {
       return fdReturnObject(ERR_ERROR, E_URIS);
@@ -177,7 +194,7 @@ export default class FileExtAbility extends Extension {
     }
   }
 
-  createFile(parentUri, displayName): {string, number} {
+  createFile(parentUri, displayName): { string, number } {
     parentUri = decodeUri(parentUri);
     if (!checkUri(parentUri)) {
       return uriReturnObject('', E_URIS);
@@ -199,7 +216,7 @@ export default class FileExtAbility extends Extension {
     }
   }
 
-  mkdir(parentUri, displayName): {string, number} {
+  mkdir(parentUri, displayName): { string, number } {
     parentUri = decodeUri(parentUri);
     if (!checkUri(parentUri)) {
       return uriReturnObject('', E_URIS);
@@ -245,12 +262,12 @@ export default class FileExtAbility extends Extension {
     }
     for (i = 0; i < path.length; i++) {
       if (path[i] === '/') {
-        num ++;
+        num++;
         if (num === CURRENT_USER_PATH_LEN) {
           return path.substring(0, i);
         }
       }
-    }  
+    }
     return path;
   }
 
@@ -272,7 +289,8 @@ export default class FileExtAbility extends Extension {
     let curTime = new Date().getTime();
     try {
       // 拼接新路径
-      let currentTrashParentPath = this.getUserPath(path) + '/.Trash/' + curTime + selectPathOnly + TRASH_SUB_FODER + curTime;
+      let currentTrashParentPath =
+        this.getUserPath(path) + '/.Trash/' + curTime + selectPathOnly + TRASH_SUB_FODER + curTime;
       // 创建回收站目录
       this.mkdirs(currentTrashParentPath);
       let stat = fs.statSync(path);
@@ -324,7 +342,7 @@ export default class FileExtAbility extends Extension {
     return code;
   }
 
-  move(sourceFileUri, targetParentUri): {string, number} {
+  move(sourceFileUri, targetParentUri): { string, number } {
     sourceFileUri = decodeUri(sourceFileUri);
     targetParentUri = decodeUri(targetParentUri);
     if (!checkUri(sourceFileUri) || !checkUri(targetParentUri)) {
@@ -374,7 +392,7 @@ export default class FileExtAbility extends Extension {
     }
   }
 
-  rename(sourceFileUri, displayName): {string, number} {
+  rename(sourceFileUri, displayName): { string, number } {
     sourceFileUri = decodeUri(sourceFileUri);
     if (!checkUri(sourceFileUri)) {
       return uriReturnObject('', E_URIS);
@@ -396,7 +414,7 @@ export default class FileExtAbility extends Extension {
     }
   }
 
-  getReturnValue(sourceUri, destUri, errCode, errMsg, ret): {[], number} {
+  getReturnValue(sourceUri, destUri, errCode, errMsg, ret): { [object], number } {
     let copyResult = [
       {
         sourceUri: sourceUri,
@@ -408,7 +426,7 @@ export default class FileExtAbility extends Extension {
     return resultsResultObject(copyResult, ret);
   }
 
-  checkCopyArguments(sourceFileUri, targetParentUri): {[], number} {
+  checkCopyArguments(sourceFileUri, targetParentUri): { [object], number } {
     if (!checkUri(sourceFileUri) || !checkUri(targetParentUri)) {
       hilog.error(DOMAIN_CODE, TAG, 'check arguments error, invalid arguments');
       return this.getReturnValue(sourceFileUri, targetParentUri, E_URIS, '', EXCEPTION);
@@ -457,7 +475,7 @@ export default class FileExtAbility extends Extension {
     }
   }
 
-  copyFile(sourceFilePath, newFilePath): {[], number} {
+  copyFile(sourceFilePath, newFilePath): { [object], number } {
     let copyRet = {
       results: [],
       code: ERR_OK,
@@ -472,12 +490,13 @@ export default class FileExtAbility extends Extension {
     } catch (err) {
       hilog.error(DOMAIN_CODE, TAG,
         'copyFileSync failed with error message: ' + err.message + ', error code: ' + err.code);
-      return this.getReturnValue(encodePathOfUri(this.relativePath2uri(sourceFilePath)), '', err.code, err.message, EXCEPTION);
+      return this.getReturnValue(encodePathOfUri(this.relativePath2uri(sourceFilePath)), '', err.code, err.message,
+        EXCEPTION);
     }
     return copyRet;
   }
 
-  copyDirectory(sourceFilePath, targetFilePath, mode): {[], number} {
+  copyDirectory(sourceFilePath, targetFilePath, mode): { [object], number } {
     let copyRet = {
       results: [],
       code: ERR_OK,
@@ -506,7 +525,7 @@ export default class FileExtAbility extends Extension {
     return copyRet;
   }
 
-  copy(sourceFileUri, targetParentUri, force): {[], number} {
+  copy(sourceFileUri, targetParentUri, force): { [object], number } {
     sourceFileUri = decodeUri(sourceFileUri);
     targetParentUri = decodeUri(targetParentUri);
     let checkRet = this.checkCopyArguments(sourceFileUri, targetParentUri);
@@ -524,7 +543,8 @@ export default class FileExtAbility extends Extension {
     if (stat.isFile()) {
       let isExist = fs.accessSync(newFilePath);
       if (isExist && force === false) {
-        return this.getReturnValue(encodePathOfUri(sourceFileUri), encodePathOfUri(newFileOrDirUri), E_EXIST, '', NOEXCEPTION);
+        return this.getReturnValue(encodePathOfUri(sourceFileUri), encodePathOfUri(newFileOrDirUri), E_EXIST, '',
+          NOEXCEPTION);
       }
       return this.copyFile(sourceFilePath, newFilePath);
     } else if (stat.isDirectory()) {
@@ -537,7 +557,7 @@ export default class FileExtAbility extends Extension {
     }
   }
 
-  copyFileByFileName(sourceFileUri, targetParentUri, fileName): {string, number } {
+  copyFileByFileName(sourceFileUri, targetParentUri, fileName): { string, number } {
     sourceFileUri = decodeUri(sourceFileUri);
     targetParentUri = decodeUri(targetParentUri);
     if (!checkUri(sourceFileUri) || !checkUri(targetParentUri)) {
@@ -589,7 +609,7 @@ export default class FileExtAbility extends Extension {
     }
   }
 
-  access(sourceFileUri): {boolean, number} {
+  access(sourceFileUri): { boolean, number } {
     sourceFileUri = decodeUri(sourceFileUri);
     if (sourceFileUri === '') {
       return uriReturnObject('', E_URIS);
@@ -612,12 +632,12 @@ export default class FileExtAbility extends Extension {
     return boolReturnObject(true, ERR_OK);
   }
 
-  getFileInfoNum(sourceFileUri: string, filter: Filter, recursion: boolean) : {boolean, number} {
+  getFileInfoNum(sourceFileUri: string, filter: Filter, recursion: boolean): { boolean, number } {
     let path = getPath(sourceFileUri);
     try {
       let statPath = fs.statSync(path);
       if (!statPath.isDirectory()) {
-        return {success: false, counts: 0};
+        return { success: false, counts: 0 };
       }
       let options;
       if (hasFilter(filter)) {
@@ -626,16 +646,16 @@ export default class FileExtAbility extends Extension {
         options = buildNoFilterOptions(0, recursion);
       }
       let fileNameList = fs.listFileSync(path, options);
-      return {success: true, counts: fileNameList.length};
+      return { success: true, counts: fileNameList.length };
     } catch (e) {
       hilog.error(DOMAIN_CODE, TAG, `getFileInfoNum error: ${e.message},code: ${e.code}`);
-      return {success: false, counts: 0};
+      return { success: false, counts: 0 };
     }
   }
 
-  listFile(sourceFileUri: string, offset: number, count: number, filter: Filter) :
-  {infos: Fileinfo[], code: number} {
-    let infos : Fileinfo[] = [];
+  listFile(sourceFileUri: string, offset: number, count: number, filter: Filter):
+    { infos: Fileinfo[], code: number } {
+    let infos: Fileinfo[] = [];
     sourceFileUri = decodeUri(sourceFileUri);
     if (!checkUri(sourceFileUri)) {
       return infosReturnObject([], E_URIS);
@@ -643,9 +663,9 @@ export default class FileExtAbility extends Extension {
     return getListFileInfos(sourceFileUri, offset, count, filter, false);
   }
 
-  scanFile(sourceFileUri: string, offset: number, count: number, filter: Filter) :
-  {infos: Fileinfo[], code: number} {
-    let infos : Fileinfo[] = [];
+  scanFile(sourceFileUri: string, offset: number, count: number, filter: Filter):
+    { infos: Fileinfo[], code: number } {
+    let infos: Fileinfo[] = [];
     sourceFileUri = decodeUri(sourceFileUri);
     if (!checkUri(sourceFileUri)) {
       return infosReturnObject([], E_URIS);
@@ -710,7 +730,7 @@ export default class FileExtAbility extends Extension {
   /*
    * selectFileRelativePath formate： /storage/Users/currentUser/filename
    */
-  getFileInfoFromRelativePath(selectFileRelativePath): {fileInfo:object, code:number} {
+  getFileInfoFromRelativePath(selectFileRelativePath): { fileInfo: object, code: number } {
     let fileInfo = {};
     if (!this.checkRelativePath(selectFileRelativePath)) {
       return fileinfoReturnObject({}, E_INVAL);
@@ -817,7 +837,7 @@ export default class FileExtAbility extends Extension {
   getNormalResult(dirPath, column, queryResults): void {
     if (column === 'display_name') {
       let index = dirPath.lastIndexOf('/');
-      let target = dirPath.substring(index + 1, );
+      let target = dirPath.substring(index + 1,);
       queryResults.push(String(target));
     } else if (column === 'relative_path') {
       queryResults.push(dirPath);
@@ -841,7 +861,7 @@ export default class FileExtAbility extends Extension {
     }
   }
 
-  query(uri, columns): {[], number} {
+  query(uri, columns): { [object], number } {
     uri = decodeUri(uri);
     if (uri === '') {
       return uriReturnObject('', E_URIS);
@@ -955,7 +975,7 @@ export default class FileExtAbility extends Extension {
     return ERR_OK;
   }
 
-  moveForFile(sourceFilePath, newFilePath): { [], number } {
+  moveForFile(sourceFilePath, newFilePath): { [object], number } {
     let copyRet = {
       results: [],
       code: ERR_OK,
@@ -968,13 +988,15 @@ export default class FileExtAbility extends Extension {
       }
       fs.moveFileSync(sourceFilePath, newFilePath, 1);
     } catch (err) {
-      hilog.error(DOMAIN_CODE, TAG, 'moveFileSync failed with error message: ' + err.message + ', error code: ' + err.code);
-      return this.getReturnValue(encodePathOfUri(this.relativePath2uri(sourceFilePath)), '', err.code, err.message, NOEXCEPTION);
+      hilog.error(DOMAIN_CODE, TAG,
+        'moveFileSync failed with error message: ' + err.message + ', error code: ' + err.code);
+      return this.getReturnValue(encodePathOfUri(this.relativePath2uri(sourceFilePath)), '', err.code, err.message,
+        NOEXCEPTION);
     }
     return copyRet;
   }
 
-  moveDirectory(sourceFilePath, targetFilePath, force): { [], number } {
+  moveDirectory(sourceFilePath, targetFilePath, force): { [object], number } {
     let copyRet = {
       results: [],
       code: ERR_OK,
@@ -1012,7 +1034,7 @@ export default class FileExtAbility extends Extension {
     return copyRet;
   }
 
-  moveItem(sourceFileUri, targetParentUri, force): { [], number } {
+  moveItem(sourceFileUri, targetParentUri, force): { [object], number } {
     sourceFileUri = decodeUri(sourceFileUri);
     targetParentUri = decodeUri(targetParentUri);
     if (!checkUri(sourceFileUri) || !checkUri(targetParentUri)) {
