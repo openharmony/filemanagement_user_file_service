@@ -1538,10 +1538,8 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_creator_0000, testing::ex
 {
     GTEST_LOG_(INFO) << "FileExtensionHelperTest-begin external_file_access_creator_0000";
     try {
-        setuid(UID_TRANSFORM_TMP);
         std::pair<shared_ptr<FileAccessHelper>, int> helper =
             FileAccessHelper::Creator(FileExtensionHelperTest::GetContext());
-        setuid(UID_DEFAULT);
         ASSERT_TRUE(helper.first != nullptr);
         bool succ = helper.first->Release();
         EXPECT_TRUE(succ);
@@ -1567,9 +1565,8 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_creator_0001, testing::ex
     try {
         AAFwk::Want want;
         vector<AAFwk::Want> wantVec;
-        setuid(UID_TRANSFORM_TMP);
         int ret = FileAccessHelper::GetRegisteredFileAccessExtAbilityInfo(wantVec);
-        EXPECT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
+        ASSERT_EQ(ret, OHOS::FileAccessFwk::ERR_OK);
         bool sus = false;
         for (size_t i = 0; i < wantVec.size(); i++) {
             auto element = wantVec[i].GetElement();
@@ -1580,11 +1577,10 @@ HWTEST_F(FileExtensionHelperTest, external_file_access_creator_0001, testing::ex
                 break;
             }
         }
-        EXPECT_TRUE(sus);
+        ASSERT_TRUE(sus);
         vector<AAFwk::Want> wants{want};
         std::pair<shared_ptr<FileAccessHelper>, int> helper =
             FileAccessHelper::Creator(FileExtensionHelperTest::GetContext(), wants);
-        setuid(UID_DEFAULT);
         ASSERT_TRUE(helper.first != nullptr);
         bool succ = helper.first->Release();
         EXPECT_TRUE(succ);
