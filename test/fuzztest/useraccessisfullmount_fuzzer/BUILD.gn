@@ -36,6 +36,7 @@ ohos_fuzztest("UserAccessIsFullMountFuzzTest") {
     "c_utils:utils",
     "hilog:libhilog",
     "init:libbegetutil",
+    "ipc:ipc_single",
     "os_account:os_account_innerkits",
   ]
 
