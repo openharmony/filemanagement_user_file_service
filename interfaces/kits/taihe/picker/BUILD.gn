@@ -94,6 +94,7 @@ taihe_shared_library("file_picker_taihe") {
     "window_manager:windowstageani_kit",
     "window_manager:window_native_kit",
     "ability_runtime:ani_base_context",
+    "udmf:udmf_core",
     "udmf:udmf_client",
   ]
 }
