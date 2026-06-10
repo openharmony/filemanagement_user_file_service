@@ -86,10 +86,7 @@ ohos_shared_library("picker") {
 
   if (picker_udmf_enabled) {
     defines = [ "UDMF_ENABLED" ]
-    external_deps += [
-      "udmf:udmf_client",
-      "udmf:udmf_core"
-    ]
+    external_deps += [ "udmf:udmf_client" ]
   }
   
   sanitize = {
