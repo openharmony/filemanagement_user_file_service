@@ -30,7 +30,6 @@
                 "ability_base",
                 "ability_runtime",
                 "ace_engine",
-                "ace_ets2bundle",
                 "app_file_service",
                 "bounds_checking_function",
                 "ets_frontend",
@@ -55,7 +54,8 @@
                 "dfs_service",
                 "sandbox_manager",
                 "relational_store",
-                "runtime_core"
+                "runtime_core",
+                "taihe_ffi_gen"
             ]
         },
         "build": {
