@@ -47,6 +47,8 @@
                 "os_account",
                 "c_utils",
                 "cJSON",
+                "libuv",
+                "node",
                 "image_framework",
                 "common_event_service",
                 "udmf",
