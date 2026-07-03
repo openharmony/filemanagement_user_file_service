@@ -165,7 +165,9 @@ ohos_shared_library("file_access_extension_ability_kit") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "ipc:ipc_napi",
+    "libuv:uv",
     "napi:ace_napi",
+    "node:node_header_notice",
     "os_account:os_account_innerkits",
     "samgr:samgr_proxy",
   ]
@@ -202,7 +204,9 @@ ohos_shared_library("file_access_extension_ability_module") {
     "hilog:libhilog",
     "ipc:ipc_napi",
     "ipc:ipc_single",
+    "libuv:uv",
     "napi:ace_napi",
+    "node:node_header_notice",
   ]
 
   relative_install_dir = "extensionability/"
