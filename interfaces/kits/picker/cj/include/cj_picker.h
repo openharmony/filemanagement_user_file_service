@@ -37,7 +37,6 @@ namespace OHOS {
 namespace CjPicker {
 
 using WantHandle = void*;
-static sptr<Rosen::Window> window_;
 
 struct CjPickerCallBack {
     bool ready = false;
