@@ -16,6 +16,8 @@
 
 #include "cj_picker.h"
 
+#include <mutex>
+
 #include "modal_ui_extension_config.h"
 #include "ability.h"
 #include "ui_extension_context.h"
@@ -28,6 +30,11 @@ using namespace OHOS::Ace;
 const int32_t ERR_OK = 0;
 const int32_t ERR_INVALID_ARG = 13900020;
 const int32_t ERR_INV = -1;
+
+namespace {
+std::mutex g_windowMutex;
+}
+static sptr<Rosen::Window> window_;
 
 static Ace::UIContent* GetUIContextByContext(OHOS::AbilityRuntime::Context* context)
 {
@@ -49,9 +56,14 @@ static int32_t StartCjPickerExtension(OHOS::AbilityRuntime::Context* context,
 {
     HILOG_INFO("[picker]: StartPickerExtension begin.");
     Ace::UIContent *uiContent;
-    if (window_) {
+    sptr<Rosen::Window> localWindow;
+    {
+        std::lock_guard<std::mutex> lock(g_windowMutex);
+        localWindow = window_;
+    }
+    if (localWindow) {
         HILOG_INFO("[picker] Will get uiContent by window.");
-        uiContent = window_->GetUIContent();
+        uiContent = localWindow->GetUIContent();
     } else {
         HILOG_INFO("[picker] Will get uiContent by context.");
         uiContent = GetUIContextByContext(context);
@@ -173,9 +185,14 @@ int32_t FfiOHOSFilePickerModalPicker(OHOS::AbilityRuntime::Context* context,
         return ERR_INVALID_ARG;
     }
     if (windowName) {
-        int32_t status = GetWindow(windowName, window_);
+        sptr<Rosen::Window> found;
+        int32_t status = GetWindow(windowName, found);
         if (status != ERR_OK) {
             return status;
+        }
+        {
+            std::lock_guard<std::mutex> lock(g_windowMutex);
+            window_ = found;
         }
     }
     return StartCjPickerExtension(context, config, callback);
@@ -207,8 +224,11 @@ void CjModalUICallback::OnRelease(int32_t releaseCode)
 
     auto ret = MakePickerResult(pickerCallBack_);
     this->callback(ret);
-    if (window_) {
-        window_ = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(g_windowMutex);
+        if (window_) {
+            window_ = nullptr;
+        }
     }
 }
 
