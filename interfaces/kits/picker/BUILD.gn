@@ -66,7 +66,6 @@ ohos_shared_library("picker") {
     "ability_runtime:ability_context_native",
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
-    "ability_runtime:abilitykit_native",
     "ability_runtime:app_context",
     "ability_runtime:dataobs_manager",
     "ability_runtime:napi_base_context",
@@ -80,7 +79,6 @@ ohos_shared_library("picker") {
     "hilog:libhilog",
     "ipc:ipc_napi",
     "ipc:ipc_single",
-    "libuv:uv",
     "napi:ace_napi",
     "node:node_header_notice",
     "window_manager:libwm",
@@ -130,6 +128,7 @@ ohos_shared_library("cj_picker_ffi") {
     "hilog:libhilog",
     "napi:cj_bind_ffi",
     "napi:cj_bind_native",
+    "node:node_header_notice",
     "window_manager:libwm",
   ]
 

@@ -45,7 +45,8 @@ ohos_shared_library("clouddiskmanager") {
     "file_api:filemgmt_libhilog",
     "file_api:filemgmt_libn",
     "hilog:libhilog",
-    "napi:ace_napi"
+    "napi:ace_napi",
+    "node:node_header_notice",
   ]
 
   relative_install_dir = "module/file"

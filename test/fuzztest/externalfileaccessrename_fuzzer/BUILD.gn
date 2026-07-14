@@ -60,7 +60,9 @@ ohos_fuzztest("ExternalFileAccessRenameFuzzTest") {
     "image_framework:image_native",
     "ipc:ipc_core",
     "ipc:ipc_napi",
+    "libuv:uv",
     "napi:ace_napi",
+    "node:node_header_notice",
     "samgr:samgr_proxy",
     "selinux_adapter:librestorecon",
   ]

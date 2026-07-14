@@ -48,5 +48,6 @@ ohos_shared_library("fileextensioninfo") {
     "hilog:libhilog",
     "ipc:ipc_single",
     "napi:ace_napi",
+    "node:node_header_notice",
   ]
 }

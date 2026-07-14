@@ -204,7 +204,6 @@ ohos_shared_library("file_access_extension_ability_module") {
     "hilog:libhilog",
     "ipc:ipc_napi",
     "ipc:ipc_single",
-    "libuv:uv",
     "napi:ace_napi",
     "node:node_header_notice",
   ]

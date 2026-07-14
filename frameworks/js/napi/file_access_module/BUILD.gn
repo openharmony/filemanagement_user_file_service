@@ -74,7 +74,6 @@ ohos_shared_library("fileaccess") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "ipc:ipc_single",
-    "libuv:uv",
     "napi:ace_napi",
     "node:node_header_notice",
   ]
