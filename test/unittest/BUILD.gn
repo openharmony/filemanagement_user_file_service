@@ -279,6 +279,7 @@ ohos_unittest("file_access_ext_stub_impl_test") {
     "ipc:ipc_core",
     "ipc:ipc_napi",
     "napi:ace_napi",
+    "node:node_header_notice",
     "selinux_adapter:librestorecon",
   ]
 
@@ -338,7 +339,9 @@ ohos_unittest("js_file_access_ext_ability_test") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "ipc:ipc_napi",
+    "libuv:uv",
     "napi:ace_napi",
+    "node:node_header_notice",
     "os_account:os_account_innerkits",
   ]
 
@@ -400,7 +403,9 @@ ohos_unittest("js_file_access_ext_ability_lambda_test") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "ipc:ipc_napi",
+    "libuv:uv",
     "napi:ace_napi",
+    "node:node_header_notice",
     "os_account:os_account_innerkits",
   ]
  
