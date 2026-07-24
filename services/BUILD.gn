@@ -108,6 +108,7 @@ ohos_source_set("file_access_service_base_source") {
 }
 
 ohos_source_set("file_access_service_base_include") {
+  branch_protector_ret = "pac_ret"
   sanitize = {
     cfi = true
     cfi_cross_dso = true
