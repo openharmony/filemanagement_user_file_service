@@ -35,6 +35,9 @@ constexpr int32_t CLOUD_DISK_NOT_ALLOWED = 34400015;
 constexpr int32_t CLOUD_DISK_NOT_A_DIRECTORY = 34400023;
 constexpr int32_t CLOUD_DISK_FILE_NOT_EXIST = 34400024;
 constexpr int32_t CLOUD_DISK_NAME_TOO_LONG = 34400025;
+constexpr int32_t E_NOT_A_DIRECTORY = 34400023;
+constexpr int32_t E_FILE_NOT_EXIST = 34400024;
+constexpr int32_t E_NAME_TOO_LONG = 34400025;
 constexpr int32_t UNKNOWN_ERROR = -1;
 
 const std::set<int32_t> PLACEHOLDER_ERR_CODE = {
@@ -160,7 +163,9 @@ HWTEST_F(CloudDiskJSManagerTest, CloudDiskJSManager_ConvertToCloudDiskApiErrCode
     GTEST_LOG_(INFO) << "CloudDiskJSManager_ConvertToCloudDiskApiErrCode_001 start";
     EXPECT_EQ(CloudDiskJSManager::ConvertToCloudDiskApiErrCode(E_INVALID_PARAM), E_INVALID_PARAM);
     EXPECT_EQ(CloudDiskJSManager::ConvertToCloudDiskApiErrCode(E_SYSTEM_RESTRICTED), CLOUD_DISK_NOT_ALLOWED);
-    EXPECT_EQ(CloudDiskJSManager::ConvertToCloudDiskApiErrCode(CLOUD_DISK_FILE_NOT_EXIST), CLOUD_DISK_FILE_NOT_EXIST);
+    EXPECT_EQ(CloudDiskJSManager::ConvertToCloudDiskApiErrCode(E_NOT_A_DIRECTORY), CLOUD_DISK_NOT_A_DIRECTORY);
+    EXPECT_EQ(CloudDiskJSManager::ConvertToCloudDiskApiErrCode(E_FILE_NOT_EXIST), CLOUD_DISK_FILE_NOT_EXIST);
+    EXPECT_EQ(CloudDiskJSManager::ConvertToCloudDiskApiErrCode(E_NAME_TOO_LONG), CLOUD_DISK_NAME_TOO_LONG);
     EXPECT_EQ(CloudDiskJSManager::ConvertToCloudDiskApiErrCode(UNKNOWN_ERROR), E_IPC_FAILED);
     GTEST_LOG_(INFO) << "CloudDiskJSManager_ConvertToCloudDiskApiErrCode_001 end";
 }
