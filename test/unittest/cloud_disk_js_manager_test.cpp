@@ -32,6 +32,7 @@ namespace OHOS {
 namespace FileManagement {
 namespace {
 constexpr int32_t CLOUD_DISK_NOT_ALLOWED = 34400015;
+constexpr int32_t CLOUD_DISK_TRY_AGAIN = 34400014;
 constexpr int32_t CLOUD_DISK_NOT_A_DIRECTORY = 34400023;
 constexpr int32_t CLOUD_DISK_FILE_NOT_EXIST = 34400024;
 constexpr int32_t CLOUD_DISK_NAME_TOO_LONG = 34400025;
@@ -146,7 +147,7 @@ HWTEST_F(CloudDiskJSManagerTest, CloudDiskJSManager_GetCloudDiskErrMsg_002, Test
 {
     GTEST_LOG_(INFO) << "CloudDiskJSManager_GetCloudDiskErrMsg_002 start";
     EXPECT_EQ(CloudDiskJSManager::GetCloudDiskErrMsg(CLOUD_DISK_NOT_ALLOWED), "CLOUD_DISK_NOT_ALLOWED");
-    EXPECT_EQ(CloudDiskJSManager::GetCloudDiskErrMsg(UNKNOWN_ERROR), "CLOUD_DISK_IPC_FAILED");
+    EXPECT_EQ(CloudDiskJSManager::GetCloudDiskErrMsg(UNKNOWN_ERROR), "CLOUD_DISK_TRY_AGAIN");
     GTEST_LOG_(INFO) << "CloudDiskJSManager_GetCloudDiskErrMsg_002 end";
 }
 
@@ -166,7 +167,7 @@ HWTEST_F(CloudDiskJSManagerTest, CloudDiskJSManager_ConvertToCloudDiskApiErrCode
     EXPECT_EQ(CloudDiskJSManager::ConvertToCloudDiskApiErrCode(E_NOT_A_DIRECTORY), CLOUD_DISK_NOT_A_DIRECTORY);
     EXPECT_EQ(CloudDiskJSManager::ConvertToCloudDiskApiErrCode(E_FILE_NOT_EXIST), CLOUD_DISK_FILE_NOT_EXIST);
     EXPECT_EQ(CloudDiskJSManager::ConvertToCloudDiskApiErrCode(E_NAME_TOO_LONG), CLOUD_DISK_NAME_TOO_LONG);
-    EXPECT_EQ(CloudDiskJSManager::ConvertToCloudDiskApiErrCode(UNKNOWN_ERROR), E_IPC_FAILED);
+    EXPECT_EQ(CloudDiskJSManager::ConvertToCloudDiskApiErrCode(UNKNOWN_ERROR), CLOUD_DISK_TRY_AGAIN);
     GTEST_LOG_(INFO) << "CloudDiskJSManager_ConvertToCloudDiskApiErrCode_001 end";
 }
 } // namespace FileManagement

@@ -122,7 +122,7 @@ int32_t CloudDiskJSManager::ConvertToCloudDiskApiErrCode(int32_t errCode)
         return iter->second;
     }
     HILOG_ERROR("Not cloudDisk API errcode: %{public}d", errCode);
-    return CLOUD_DISK_IPC_FAILED;
+    return CLOUD_DISK_TRY_AGAIN;
 }
 
 std::string CloudDiskJSManager::GetCloudDiskErrMsg(int32_t errCode)
