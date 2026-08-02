@@ -128,11 +128,7 @@ int32_t CloudDiskJSManager::ConvertToCloudDiskApiErrCode(int32_t errCode)
 std::string CloudDiskJSManager::GetCloudDiskErrMsg(int32_t errCode)
 {
     int32_t cloudDiskErrCode = ConvertToCloudDiskApiErrCode(errCode);
-    auto iter = CLOUD_DISK_ERR_MSG_TABLE.find(cloudDiskErrCode);
-    if (iter != CLOUD_DISK_ERR_MSG_TABLE.end()) {
-        return iter->second;
-    }
-    return CLOUD_DISK_ERR_MSG_TABLE.at(CLOUD_DISK_IPC_FAILED);
+    return CLOUD_DISK_ERR_MSG_TABLE.at(cloudDiskErrCode);
 }
 
 CloudDiskJSManager::CloudDiskJSManager(const std::string &syncFolderPath) : syncFolderPath_(syncFolderPath)
