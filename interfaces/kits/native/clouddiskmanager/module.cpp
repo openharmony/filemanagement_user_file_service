@@ -26,6 +26,7 @@ using namespace LibN;
 
 static napi_value InitCloudDisk(napi_env env, napi_value exports)
 {
+    HILOG_INFO("CloudDiskManager NAPI module init");
     InitSyncFolder(env, exports);
     InitState(env, exports);
     std::vector<std::unique_ptr<NExporter>> products;

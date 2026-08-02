@@ -61,6 +61,7 @@ CloudDiskAccessNExporter::~CloudDiskAccessNExporter() {};
 
 napi_value CloudDiskAccessNExporter::Constructor(napi_env env, napi_callback_info cbinfo)
 {
+    HILOG_INFO("CloudDiskAccessor NAPI constructor in");
     NFuncArg funcArg(env, cbinfo);
     if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         HILOG_ERROR("Number of arguments unmatched");
@@ -80,11 +81,13 @@ napi_value CloudDiskAccessNExporter::Constructor(napi_env env, napi_callback_inf
         MakeCloudDiskNError(E_TRY_AGAIN).ThrowErr(env);
         return nullptr;
     }
+    HILOG_INFO("CloudDiskAccessor NAPI constructor success");
     return funcArg.GetThisVar();
 }
 
 napi_value CloudDiskAccessNExporter::IsPlaceholderFile(napi_env env, napi_callback_info cbinfo)
 {
+    HILOG_INFO("CloudDiskAccessor NAPI isPlaceholderFile in");
     NFuncArg funcArg(env, cbinfo);
     if (!funcArg.InitArgs(NARG_CNT::ONE)) {
         HILOG_ERROR("Number of arguments unmatched");
@@ -107,6 +110,7 @@ napi_value CloudDiskAccessNExporter::IsPlaceholderFile(napi_env env, napi_callba
         return nullptr;
     }
     auto cbExec = [relativePath, isPlaceholder, cloudDiskJSAccess]() -> NError {
+        HILOG_INFO("CloudDiskAccessor NAPI isPlaceholderFile async execute");
         if (!cloudDiskJSAccess) {
             HILOG_ERROR("cloudDiskJSAccess is nullptr");
             return MakeCloudDiskNError(E_TRY_AGAIN);
