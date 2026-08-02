@@ -59,6 +59,7 @@ ohos_shared_library("cloud_disk_manager_js_kit") {
   ]
 
   if (user_file_service_cloud_disk_enable) {
+    external_deps += [ "dfs_service:clouddiskservice_kit_inner" ]
     defines = ["SUPPORT_CLOUD_DISK_MANAGER"]
   }
 

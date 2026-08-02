@@ -15,6 +15,12 @@
 
 #include "cloud_disk_js_manager.h"
 
+#include <set>
+#include <unordered_map>
+
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
+#include "cloud_disk_service_manager.h"
+#endif
 #include "ipc_skeleton.h"
 #include "tokenid_kit.h"
 #include "file_access_framework_errno.h"
@@ -23,8 +29,60 @@
 namespace OHOS {
 namespace FileManagement {
 using namespace FileAccessFwk;
+
+namespace {
+enum CloudDiskApiErrCode : int32_t {
+    CLOUD_DISK_OK = 0,
+    CLOUD_DISK_PERMISSION_DENIED = 201,
+    CLOUD_DISK_NOT_SUPPORTED = 801,
+    CLOUD_DISK_INVALID_ARG = 34400001,
+    CLOUD_DISK_SYNC_FOLDER_PATH_UNAUTHORIZED = 34400002,
+    CLOUD_DISK_IPC_FAILED = 34400003,
+    CLOUD_DISK_SYNC_FOLDER_NOT_REGISTERED = 34400008,
+    CLOUD_DISK_SYNC_FOLDER_PATH_NOT_EXIST = 34400010,
+    CLOUD_DISK_TRY_AGAIN = 34400014,
+    CLOUD_DISK_NOT_ALLOWED = 34400015,
+    CLOUD_DISK_NOT_A_DIRECTORY = 34400023,
+    CLOUD_DISK_FILE_NOT_EXIST = 34400024,
+    CLOUD_DISK_NAME_TOO_LONG = 34400025,
+};
+
+const std::unordered_map<int32_t, int32_t> CLOUD_DISK_API_ERR_CODE_TABLE = {
+    {OHOS::ERR_OK, CLOUD_DISK_OK},
+    {E_PERMISSION, CLOUD_DISK_PERMISSION_DENIED},
+    {E_NOT_SUPPORT, CLOUD_DISK_NOT_SUPPORTED},
+    {E_INVALID_PARAM, CLOUD_DISK_INVALID_ARG},
+    {E_SYNC_FOLDER_PATH_UNAUTHORIZED, CLOUD_DISK_SYNC_FOLDER_PATH_UNAUTHORIZED},
+    {E_IPC_FAILED, CLOUD_DISK_IPC_FAILED},
+    {E_SYNC_FOLDER_NOT_REGISTERED, CLOUD_DISK_SYNC_FOLDER_NOT_REGISTERED},
+    {E_SYNC_FOLDER_PATH_NOT_EXIST, CLOUD_DISK_SYNC_FOLDER_PATH_NOT_EXIST},
+    {E_TRY_AGAIN, CLOUD_DISK_TRY_AGAIN},
+    {E_SYSTEM_RESTRICTED, CLOUD_DISK_NOT_ALLOWED},
+    {CLOUD_DISK_NOT_A_DIRECTORY, CLOUD_DISK_NOT_A_DIRECTORY},
+    {CLOUD_DISK_FILE_NOT_EXIST, CLOUD_DISK_FILE_NOT_EXIST},
+    {CLOUD_DISK_NAME_TOO_LONG, CLOUD_DISK_NAME_TOO_LONG},
+};
+
+const std::unordered_map<int32_t, std::string> CLOUD_DISK_ERR_MSG_TABLE = {
+    {CLOUD_DISK_OK, "CLOUD_DISK_OK"},
+    {CLOUD_DISK_PERMISSION_DENIED, "CLOUD_DISK_PERMISSION_DENIED"},
+    {CLOUD_DISK_NOT_SUPPORTED, "CLOUD_DISK_NOT_SUPPORTED"},
+    {CLOUD_DISK_INVALID_ARG, "CLOUD_DISK_INVALID_ARG"},
+    {CLOUD_DISK_SYNC_FOLDER_PATH_UNAUTHORIZED, "CLOUD_DISK_SYNC_FOLDER_PATH_UNAUTHORIZED"},
+    {CLOUD_DISK_IPC_FAILED, "CLOUD_DISK_IPC_FAILED"},
+    {CLOUD_DISK_SYNC_FOLDER_NOT_REGISTERED, "CLOUD_DISK_SYNC_FOLDER_NOT_REGISTERED"},
+    {CLOUD_DISK_SYNC_FOLDER_PATH_NOT_EXIST, "CLOUD_DISK_SYNC_FOLDER_PATH_NOT_EXIST"},
+    {CLOUD_DISK_TRY_AGAIN, "CLOUD_DISK_TRY_AGAIN"},
+    {CLOUD_DISK_NOT_ALLOWED, "CLOUD_DISK_NOT_ALLOWED"},
+    {CLOUD_DISK_NOT_A_DIRECTORY, "CLOUD_DISK_NOT_A_DIRECTORY"},
+    {CLOUD_DISK_FILE_NOT_EXIST, "CLOUD_DISK_FILE_NOT_EXIST"},
+    {CLOUD_DISK_NAME_TOO_LONG, "CLOUD_DISK_NAME_TOO_LONG"},
+};
+} // namespace
+
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
 constexpr int MAX_RETRY_TIMES = 3;
+
 static bool IsSystemApp()
 {
     uint64_t accessTokenIDEx = OHOS::IPCSkeleton::GetCallingFullTokenID();
@@ -48,7 +106,32 @@ static int32_t ConvertErrCode(int32_t errCode)
     }
     return errCode;
 }
+
 #endif
+
+int32_t CloudDiskJSManager::ConvertToCloudDiskApiErrCode(int32_t errCode)
+{
+    auto iter = CLOUD_DISK_API_ERR_CODE_TABLE.find(errCode);
+    if (iter != CLOUD_DISK_API_ERR_CODE_TABLE.end()) {
+        return iter->second;
+    }
+    HILOG_ERROR("Not cloudDisk API errcode: %{public}d", errCode);
+    return CLOUD_DISK_IPC_FAILED;
+}
+
+std::string CloudDiskJSManager::GetCloudDiskErrMsg(int32_t errCode)
+{
+    int32_t cloudDiskErrCode = ConvertToCloudDiskApiErrCode(errCode);
+    auto iter = CLOUD_DISK_ERR_MSG_TABLE.find(cloudDiskErrCode);
+    if (iter != CLOUD_DISK_ERR_MSG_TABLE.end()) {
+        return iter->second;
+    }
+    return CLOUD_DISK_ERR_MSG_TABLE.at(CLOUD_DISK_IPC_FAILED);
+}
+
+CloudDiskJSManager::CloudDiskJSManager(const std::string &syncFolderPath) : syncFolderPath_(syncFolderPath)
+{
+}
 
 int CloudDiskJSManager::GetAllSyncFolders(std::vector<SyncFolderExt> &syncFolderExts)
 {
@@ -75,6 +158,17 @@ int CloudDiskJSManager::GetAllSyncFolders(std::vector<SyncFolderExt> &syncFolder
         ++retryTimes;
     }
     return ConvertErrCode(ret);
+#endif
+    return E_NOT_SUPPORT;
+}
+
+int CloudDiskJSManager::IsPlaceholderFile(const std::string &relativePath, bool &isPlaceholder)
+{
+    HILOG_INFO("CloudDiskJSManager::IsPlaceholderFile in");
+#ifdef SUPPORT_CLOUD_DISK_MANAGER
+    auto ret = FileManagement::CloudDiskService::CloudDiskServiceManager::GetInstance().
+        IsPlaceholderFile(syncFolderPath_, relativePath, isPlaceholder);
+    return ConvertToCloudDiskApiErrCode(ret);
 #endif
     return E_NOT_SUPPORT;
 }

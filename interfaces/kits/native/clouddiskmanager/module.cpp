@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "comm_root_info.h"
+#include "cloud_disk_access_n_exporter.h"
 #include "filemgmt_libn.h"
 #include "hilog_wrapper.h"
 #include "sync_folder_access_n_exporter.h"
@@ -28,6 +29,7 @@ static napi_value InitCloudDisk(napi_env env, napi_value exports)
     InitSyncFolder(env, exports);
     InitState(env, exports);
     std::vector<std::unique_ptr<NExporter>> products;
+    products.emplace_back(std::make_unique<CloudDiskAccessNExporter>(env, exports));
     products.emplace_back(std::make_unique<SyncFolderAccessNExporter>(env, exports));
     for (auto &&product : products) {
         if (!product->Export()) {

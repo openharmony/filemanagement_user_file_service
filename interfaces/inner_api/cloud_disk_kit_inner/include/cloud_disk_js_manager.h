@@ -15,6 +15,9 @@
 #ifndef CLOUD_DISK_MANAGER_JS_H
 #define CLOUD_DISK_MANAGER_JS_H
 
+#include <string>
+#include <vector>
+
 #include "cloud_disk_comm.h"
 
 namespace OHOS {
@@ -22,8 +25,15 @@ namespace FileManagement {
 class CloudDiskJSManager {
 public:
     CloudDiskJSManager() = default;
+    explicit CloudDiskJSManager(const std::string &syncFolderPath);
     ~CloudDiskJSManager() = default;
     int GetAllSyncFolders(std::vector<SyncFolderExt> &syncFolderExts);
+    int IsPlaceholderFile(const std::string &relativePath, bool &isPlaceholder);
+    static int32_t ConvertToCloudDiskApiErrCode(int32_t errCode);
+    static std::string GetCloudDiskErrMsg(int32_t errCode);
+
+private:
+    std::string syncFolderPath_;
 };
 } // namespace FileAccessFwk
 } // namespace OHOS

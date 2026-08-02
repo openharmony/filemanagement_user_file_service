@@ -32,6 +32,7 @@ ohos_shared_library("clouddiskmanager") {
 
   sources = [
     "src/comm_root_info.cpp",
+    "src/cloud_disk_access_n_exporter.cpp",
     "src/sync_folder_access_n_exporter.cpp",
     "module.cpp",
   ]
