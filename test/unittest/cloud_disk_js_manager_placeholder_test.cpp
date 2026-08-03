@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <set>
@@ -21,7 +20,6 @@
 #include "cloud_disk_js_manager.h"
 #include "file_access_framework_errno.h"
 
-using namespace testing;
 using namespace testing::ext;
 
 using namespace OHOS;
