@@ -18,22 +18,14 @@
 #include <unordered_map>
 
 #include "cloud_disk_error_code.h"
-#include "file_access_framework_errno.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace FileManagement {
-using namespace FileAccessFwk;
 
 namespace {
-enum CloudDiskServiceErrCode : int32_t {
-    E_NOT_A_DIRECTORY = 34400023,
-    E_FILE_NOT_EXIST = 34400024,
-    E_NAME_TOO_LONG = 34400025,
-};
-
 const std::unordered_map<int32_t, int32_t> CLOUD_DISK_API_ERR_CODE_TABLE = {
-    {OHOS::ERR_OK, CLOUD_DISK_OK},
+    {E_OK, CLOUD_DISK_OK},
     {E_PERMISSION, CLOUD_DISK_PERMISSION_DENIED},
     {E_NOT_SUPPORT, CLOUD_DISK_NOT_SUPPORTED},
     {E_INVALID_PARAM, CLOUD_DISK_INVALID_ARG},
