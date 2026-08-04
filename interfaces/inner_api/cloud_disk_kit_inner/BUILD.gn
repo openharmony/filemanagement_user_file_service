@@ -45,7 +45,9 @@ ohos_shared_library("cloud_disk_manager_js_kit") {
   sources = [
     "${user_file_service_path}/services/native/file_access_service/src/file_access_service_client.cpp",
     "src/cloud_disk_comm.cpp",
-    "src/cloud_disk_js_manager.cpp"
+    "src/cloud_disk_error.cpp",
+    "src/cloud_disk_js_manager.cpp",
+    "src/cloud_disk_placeholder_manager.cpp"
   ]
 
   external_deps = [

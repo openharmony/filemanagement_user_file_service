@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,23 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef INTERFACES_KITS_NATIVE_CLOUDDISK_NAPI_CLOUD_DISK_ACCESS_H
-#define INTERFACES_KITS_NATIVE_CLOUDDISK_NAPI_CLOUD_DISK_ACCESS_H
+#ifndef CLOUD_DISK_ERROR_H
+#define CLOUD_DISK_ERROR_H
 
-#include "filemgmt_libn.h"
+#include <cstdint>
+#include <string>
 
 namespace OHOS {
 namespace FileManagement {
-namespace CloudDiskService {
-class CloudDiskAccessNExporter final : public LibN::NExporter {
-public:
-    bool Export() override;
-    std::string GetClassName() override;
-
-    CloudDiskAccessNExporter(napi_env env, napi_value exports);
-    ~CloudDiskAccessNExporter() override;
+struct CloudDiskErrorInfo {
+    int32_t code;
+    std::string message;
 };
-} // namespace CloudDiskService
+
+CloudDiskErrorInfo GetCloudDiskErrorInfo(int32_t errCode);
 } // namespace FileManagement
 } // namespace OHOS
-#endif // INTERFACES_KITS_NATIVE_CLOUDDISK_NAPI_CLOUD_DISK_ACCESS_H
+
+#endif // CLOUD_DISK_ERROR_H
