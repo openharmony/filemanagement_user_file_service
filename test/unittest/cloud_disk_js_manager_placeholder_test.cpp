@@ -22,6 +22,7 @@
 
 #include "cloud_disk_error.h"
 #include "cloud_disk_placeholder_manager.h"
+#include "../../interfaces/inner_api/cloud_disk_kit_inner/src/cloud_disk_error.cpp"
 
 using namespace testing::ext;
 
@@ -203,6 +204,21 @@ HWTEST_F(CloudDiskJSManagerPlaceholderTest, CloudDiskJSManager_CloudDiskError_00
     EXPECT_EQ(unknownErrorInfo.code, CLOUD_DISK_TRY_AGAIN);
     EXPECT_EQ(unknownErrorInfo.message, "CLOUD_DISK_TRY_AGAIN");
     GTEST_LOG_(INFO) << "CloudDiskJSManager_CloudDiskError_005 end";
+}
+
+/**
+ * @tc.number: user_file_service_cloud_disk_js_manager_placeholder_CloudDiskError_006
+ * @tc.name: CloudDiskError
+ * @tc.desc: Test CloudDisk error message fallback branch.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ */
+HWTEST_F(CloudDiskJSManagerPlaceholderTest, CloudDiskJSManager_CloudDiskError_006, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "CloudDiskJSManager_CloudDiskError_006 start";
+    EXPECT_EQ(GetCloudDiskErrMsg(UNKNOWN_ERROR), "CLOUD_DISK_TRY_AGAIN");
+    GTEST_LOG_(INFO) << "CloudDiskJSManager_CloudDiskError_006 end";
 }
 } // namespace FileManagement
 } // namespace OHOS

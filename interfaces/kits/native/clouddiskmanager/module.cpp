@@ -26,7 +26,7 @@ using namespace LibN;
 
 static napi_value InitCloudDisk(napi_env env, napi_value exports)
 {
-    HILOG_INFO("CloudDiskManager NAPI module init");
+    HILOG_INFO("CloudDiskManagerNapi::Module init");
     InitSyncFolder(env, exports);
     InitState(env, exports);
     std::vector<std::unique_ptr<NExporter>> products;
@@ -34,11 +34,11 @@ static napi_value InitCloudDisk(napi_env env, napi_value exports)
     products.emplace_back(std::make_unique<SyncFolderAccessNExporter>(env, exports));
     for (auto &&product : products) {
         if (!product->Export()) {
-            HILOG_ERROR("INNER BUG. Failed to export class %{public}s for module recent",
+            HILOG_ERROR("CloudDiskManagerNapi::Failed to export class %{public}s",
                 product->GetClassName().c_str());
             return nullptr;
         } else {
-            HILOG_WARN("Class %{public}s for module fileio has been exported", product->GetClassName().c_str());
+            HILOG_INFO("CloudDiskManagerNapi::Export class %{public}s success", product->GetClassName().c_str());
         }
     }
 

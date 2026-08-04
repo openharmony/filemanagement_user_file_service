@@ -68,17 +68,17 @@ bool ParseStringArg(napi_env env, napi_value arg, string &value)
 
 napi_value Constructor(napi_env env, napi_callback_info cbinfo)
 {
-    HILOG_INFO("CloudDiskAccessor::Constructor start");
+    HILOG_INFO("CloudDiskManagerNapi::CloudDiskAccessor::Constructor start");
     NFuncArg funcArg(env, cbinfo);
     if (!funcArg.InitArgs(NARG_CNT::ONE)) {
-        HILOG_ERROR("CloudDiskAccessor::Constructor invalid argument count");
+        HILOG_ERROR("CloudDiskManagerNapi::CloudDiskAccessor::Constructor invalid argument count");
         MakeCloudDiskApiNError(CLOUD_DISK_INVALID_ARG).ThrowErr(env);
         return nullptr;
     }
 
     string syncFolderPath;
     if (!ParseStringArg(env, funcArg[NARG_POS::FIRST], syncFolderPath)) {
-        HILOG_ERROR("CloudDiskAccessor::Constructor invalid sync folder path");
+        HILOG_ERROR("CloudDiskManagerNapi::CloudDiskAccessor::Constructor invalid sync folder path");
         MakeCloudDiskApiNError(CLOUD_DISK_INVALID_ARG).ThrowErr(env);
         return nullptr;
     }
@@ -87,27 +87,27 @@ napi_value Constructor(napi_env env, napi_callback_info cbinfo)
         make_unique<CloudDiskPlaceholderManager>(syncFolderPath);
     if (!NClass::SetEntityFor<CloudDiskPlaceholderManager>(
         env, funcArg.GetThisVar(), std::move(cloudDiskPlaceholderManager))) {
-        HILOG_ERROR("CloudDiskAccessor::Constructor set entity failed");
+        HILOG_ERROR("CloudDiskManagerNapi::CloudDiskAccessor::Constructor set entity failed");
         MakeCloudDiskApiNError(CLOUD_DISK_TRY_AGAIN).ThrowErr(env);
         return nullptr;
     }
-    HILOG_INFO("CloudDiskAccessor::Constructor success");
+    HILOG_INFO("CloudDiskManagerNapi::CloudDiskAccessor::Constructor success");
     return funcArg.GetThisVar();
 }
 
 napi_value IsPlaceholderFile(napi_env env, napi_callback_info cbinfo)
 {
-    HILOG_INFO("CloudDiskAccessor::IsPlaceholderFile start");
+    HILOG_INFO("CloudDiskManagerNapi::CloudDiskAccessor::IsPlaceholderFile start");
     NFuncArg funcArg(env, cbinfo);
     if (!funcArg.InitArgs(NARG_CNT::ONE)) {
-        HILOG_ERROR("CloudDiskAccessor::IsPlaceholderFile invalid argument count");
+        HILOG_ERROR("CloudDiskManagerNapi::CloudDiskAccessor::IsPlaceholderFile invalid argument count");
         MakeCloudDiskApiNError(CLOUD_DISK_INVALID_ARG).ThrowErr(env);
         return nullptr;
     }
 
     string relativePath;
     if (!ParseStringArg(env, funcArg[NARG_POS::FIRST], relativePath)) {
-        HILOG_ERROR("CloudDiskAccessor::IsPlaceholderFile invalid relative path");
+        HILOG_ERROR("CloudDiskManagerNapi::CloudDiskAccessor::IsPlaceholderFile invalid relative path");
         MakeCloudDiskApiNError(CLOUD_DISK_INVALID_ARG).ThrowErr(env);
         return nullptr;
     }
@@ -115,26 +115,26 @@ napi_value IsPlaceholderFile(napi_env env, napi_callback_info cbinfo)
     auto isPlaceholder = make_shared<bool>(false);
     auto cloudDiskPlaceholderAccess = NClass::GetEntityOf<CloudDiskPlaceholderManager>(env, funcArg.GetThisVar());
     if (!cloudDiskPlaceholderAccess) {
-        HILOG_ERROR("CloudDiskAccessor::IsPlaceholderFile get entity failed");
+        HILOG_ERROR("CloudDiskManagerNapi::CloudDiskAccessor::IsPlaceholderFile get entity failed");
         MakeCloudDiskApiNError(CLOUD_DISK_TRY_AGAIN).ThrowErr(env);
         return nullptr;
     }
     auto cbExec = [relativePath, isPlaceholder, cloudDiskPlaceholderAccess]() -> NError {
-        HILOG_INFO("CloudDiskAccessor::IsPlaceholderFile async execute");
+        HILOG_INFO("CloudDiskManagerNapi::CloudDiskAccessor::IsPlaceholderFile async execute");
         if (!cloudDiskPlaceholderAccess) {
-            HILOG_ERROR("CloudDiskAccessor::IsPlaceholderFile entity is nullptr");
+            HILOG_ERROR("CloudDiskManagerNapi::CloudDiskAccessor::IsPlaceholderFile entity is nullptr");
             return MakeCloudDiskApiNError(CLOUD_DISK_TRY_AGAIN);
         }
         int ret = cloudDiskPlaceholderAccess->IsPlaceholderFile(relativePath, *isPlaceholder);
-        HILOG_INFO("CloudDiskAccessor::IsPlaceholderFile async ret=%{public}d", ret);
+        HILOG_INFO("CloudDiskManagerNapi::CloudDiskAccessor::IsPlaceholderFile async ret=%{public}d", ret);
         return MakeCloudDiskServiceNError(ret);
     };
     auto cbCompl = [isPlaceholder](napi_env env, NError err) -> NVal {
         if (err) {
-            HILOG_ERROR("CloudDiskAccessor::IsPlaceholderFile async complete with error");
+            HILOG_ERROR("CloudDiskManagerNapi::CloudDiskAccessor::IsPlaceholderFile async complete with error");
             return {env, err.GetNapiErr(env)};
         }
-        HILOG_INFO("CloudDiskAccessor::IsPlaceholderFile async complete success");
+        HILOG_INFO("CloudDiskManagerNapi::CloudDiskAccessor::IsPlaceholderFile async complete success");
         return NVal::CreateBool(env, *isPlaceholder);
     };
     const string procedureName = "clouddisk_isPlaceholderFile";
@@ -163,13 +163,13 @@ bool CloudDiskAccessNExporter::Export()
     tie(succ, classValue) = NClass::DefineClass(
         exports_.env_, className, Constructor, std::move(props));
     if (!succ) {
-        HILOG_ERROR("Failed to define class %{public}s", className.c_str());
+        HILOG_ERROR("CloudDiskManagerNapi::Failed to define class %{public}s", className.c_str());
         MakeCloudDiskApiNError(CLOUD_DISK_TRY_AGAIN).ThrowErr(exports_.env_);
         return false;
     }
     succ = NClass::SaveClass(exports_.env_, className, classValue);
     if (!succ) {
-        HILOG_ERROR("Failed to save class %{public}s", className.c_str());
+        HILOG_ERROR("CloudDiskManagerNapi::Failed to save class %{public}s", className.c_str());
         MakeCloudDiskApiNError(CLOUD_DISK_TRY_AGAIN).ThrowErr(exports_.env_);
         return false;
     }
