@@ -18,58 +18,24 @@
 #include <cstdint>
 #include <set>
 #include <string>
+#include <vector>
 
+#include "cloud_disk_error.h"
 #include "cloud_disk_placeholder_manager.h"
-#include "file_access_framework_errno.h"
 
 using namespace testing::ext;
 
 using namespace OHOS;
-using namespace FileAccessFwk;
 
 namespace OHOS {
 namespace FileManagement {
-struct CloudDiskErrorInfo {
-    int32_t code;
-    std::string message;
-};
-
-CloudDiskErrorInfo GetCloudDiskErrorInfo(int32_t errCode);
-
 namespace {
-enum CloudDiskApiErrCode : int32_t {
-    CLOUD_DISK_OK = 0,
-    CLOUD_DISK_PERMISSION_DENIED = 201,
-    CLOUD_DISK_NOT_SUPPORTED = 801,
-    CLOUD_DISK_INVALID_ARG = 34400001,
-    CLOUD_DISK_SYNC_FOLDER_PATH_UNAUTHORIZED = 34400002,
-    CLOUD_DISK_IPC_FAILED = 34400003,
-    CLOUD_DISK_SYNC_FOLDER_NOT_REGISTERED = 34400008,
-    CLOUD_DISK_SYNC_FOLDER_PATH_NOT_EXIST = 34400010,
-    CLOUD_DISK_TRY_AGAIN = 34400014,
-    CLOUD_DISK_NOT_ALLOWED = 34400015,
-    CLOUD_DISK_NOT_A_DIRECTORY = 34400023,
-    CLOUD_DISK_FILE_NOT_EXIST = 34400024,
-    CLOUD_DISK_NAME_TOO_LONG = 34400025,
-};
-
-enum CloudDiskInternalErrCode : int32_t {
-    E_OK = 0,
-    E_PERMISSION = 201,
-    E_NOT_SUPPORT = 801,
-    E_INVALID_PARAM = 34400001,
-    E_SYNC_FOLDER_PATH_UNAUTHORIZED = 34400002,
-    E_IPC_FAILED = 34400003,
-    E_SYNC_FOLDER_NOT_REGISTERED = 34400008,
-    E_SYNC_FOLDER_PATH_NOT_EXIST = 34400010,
-    E_TRY_AGAIN = 34400014,
-    E_SYSTEM_RESTRICTED = 34400015,
-    E_NOT_A_DIRECTORY = 34400023,
-    E_FILE_NOT_EXIST = 34400024,
-    E_NAME_TOO_LONG = 34400025,
-};
-
 constexpr int32_t UNKNOWN_ERROR = -1;
+
+struct ErrCodeMap {
+    int32_t internalCode;
+    int32_t apiCode;
+};
 
 const std::set<int32_t> PLACEHOLDER_API_ERR_CODE = {
     CLOUD_DISK_OK,
@@ -85,6 +51,22 @@ const std::set<int32_t> PLACEHOLDER_API_ERR_CODE = {
     CLOUD_DISK_NOT_A_DIRECTORY,
     CLOUD_DISK_FILE_NOT_EXIST,
     CLOUD_DISK_NAME_TOO_LONG,
+};
+
+const std::vector<ErrCodeMap> CLOUD_DISK_ERR_CODE_MAP = {
+    {E_OK, CLOUD_DISK_OK},
+    {E_PERMISSION, CLOUD_DISK_PERMISSION_DENIED},
+    {E_NOT_SUPPORT, CLOUD_DISK_NOT_SUPPORTED},
+    {E_INVALID_PARAM, CLOUD_DISK_INVALID_ARG},
+    {E_SYNC_FOLDER_PATH_UNAUTHORIZED, CLOUD_DISK_SYNC_FOLDER_PATH_UNAUTHORIZED},
+    {E_IPC_FAILED, CLOUD_DISK_IPC_FAILED},
+    {E_SYNC_FOLDER_NOT_REGISTERED, CLOUD_DISK_SYNC_FOLDER_NOT_REGISTERED},
+    {E_SYNC_FOLDER_PATH_NOT_EXIST, CLOUD_DISK_SYNC_FOLDER_PATH_NOT_EXIST},
+    {E_TRY_AGAIN, CLOUD_DISK_TRY_AGAIN},
+    {E_SYSTEM_RESTRICTED, CLOUD_DISK_NOT_ALLOWED},
+    {E_NOT_A_DIRECTORY, CLOUD_DISK_NOT_A_DIRECTORY},
+    {E_FILE_NOT_EXIST, CLOUD_DISK_FILE_NOT_EXIST},
+    {E_NAME_TOO_LONG, CLOUD_DISK_NAME_TOO_LONG},
 };
 } // namespace
 
@@ -181,6 +163,46 @@ HWTEST_F(CloudDiskJSManagerPlaceholderTest, CloudDiskJSManager_CloudDiskError_00
     EXPECT_EQ(GetCloudDiskErrorInfo(E_NAME_TOO_LONG).code, CLOUD_DISK_NAME_TOO_LONG);
     EXPECT_EQ(GetCloudDiskErrorInfo(UNKNOWN_ERROR).code, CLOUD_DISK_TRY_AGAIN);
     GTEST_LOG_(INFO) << "CloudDiskJSManager_CloudDiskError_003 end";
+}
+
+/**
+ * @tc.number: user_file_service_cloud_disk_js_manager_placeholder_CloudDiskError_004
+ * @tc.name: CloudDiskError
+ * @tc.desc: Test all CloudDisk placeholder error code mappings.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ */
+HWTEST_F(CloudDiskJSManagerPlaceholderTest, CloudDiskJSManager_CloudDiskError_004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "CloudDiskJSManager_CloudDiskError_004 start";
+    for (const auto &errCodeMap : CLOUD_DISK_ERR_CODE_MAP) {
+        EXPECT_EQ(GetCloudDiskErrorInfo(errCodeMap.internalCode).code, errCodeMap.apiCode);
+    }
+    GTEST_LOG_(INFO) << "CloudDiskJSManager_CloudDiskError_004 end";
+}
+
+/**
+ * @tc.number: user_file_service_cloud_disk_js_manager_placeholder_CloudDiskError_005
+ * @tc.name: CloudDiskError
+ * @tc.desc: Test public CloudDisk error code direct conversion.
+ * @tc.size: MEDIUM
+ * @tc.type: FUNC
+ * @tc.level Level 1
+ */
+HWTEST_F(CloudDiskJSManagerPlaceholderTest, CloudDiskJSManager_CloudDiskError_005, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "CloudDiskJSManager_CloudDiskError_005 start";
+    auto invalidArgErrorInfo = GetCloudDiskApiErrorInfo(CLOUD_DISK_INVALID_ARG);
+    auto tryAgainErrorInfo = GetCloudDiskApiErrorInfo(CLOUD_DISK_TRY_AGAIN);
+    auto unknownErrorInfo = GetCloudDiskApiErrorInfo(UNKNOWN_ERROR);
+    EXPECT_EQ(invalidArgErrorInfo.code, CLOUD_DISK_INVALID_ARG);
+    EXPECT_EQ(invalidArgErrorInfo.message, "CLOUD_DISK_INVALID_ARG");
+    EXPECT_EQ(tryAgainErrorInfo.code, CLOUD_DISK_TRY_AGAIN);
+    EXPECT_EQ(tryAgainErrorInfo.message, "CLOUD_DISK_TRY_AGAIN");
+    EXPECT_EQ(unknownErrorInfo.code, CLOUD_DISK_TRY_AGAIN);
+    EXPECT_EQ(unknownErrorInfo.message, "CLOUD_DISK_TRY_AGAIN");
+    GTEST_LOG_(INFO) << "CloudDiskJSManager_CloudDiskError_005 end";
 }
 } // namespace FileManagement
 } // namespace OHOS

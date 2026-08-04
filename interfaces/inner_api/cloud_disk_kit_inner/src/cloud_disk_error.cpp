@@ -17,7 +17,6 @@
 
 #include <unordered_map>
 
-#include "cloud_disk_error_code.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -82,6 +81,15 @@ CloudDiskErrorInfo GetCloudDiskErrorInfo(int32_t errCode)
 {
     int32_t cloudDiskErrCode = ConvertToCloudDiskApiErrCode(errCode);
     return {cloudDiskErrCode, GetCloudDiskErrMsg(cloudDiskErrCode)};
+}
+
+CloudDiskErrorInfo GetCloudDiskApiErrorInfo(int32_t errCode)
+{
+    auto iter = CLOUD_DISK_ERR_MSG_TABLE.find(errCode);
+    if (iter != CLOUD_DISK_ERR_MSG_TABLE.end()) {
+        return {errCode, iter->second};
+    }
+    return {CLOUD_DISK_TRY_AGAIN, GetCloudDiskErrMsg(CLOUD_DISK_TRY_AGAIN)};
 }
 } // namespace FileManagement
 } // namespace OHOS

@@ -18,12 +18,11 @@
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
 #include "cloud_disk_service_manager.h"
 #endif
-#include "file_access_framework_errno.h"
+#include "cloud_disk_error.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace FileManagement {
-using namespace FileAccessFwk;
 
 CloudDiskPlaceholderManager::CloudDiskPlaceholderManager(const std::string &syncFolderPath)
     : syncFolderPath_(syncFolderPath)
