@@ -149,7 +149,6 @@ int32_t FileAccessService::ValidateSyncFolder(const SyncFolder &syncFolder,
 int32_t FileAccessService::Register(const SyncFolder &syncFolder)
 {
     std::lock_guard<std::mutex> lock(syncFolderMtx_);
-    HILOG_INFO("FileAccessService::Register begin");
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
     IncreaseCnt(__func__);
     int index;
@@ -477,7 +476,6 @@ int32_t FileAccessService::UpdateDisplayName(const std::string &path, const std:
     
     auto& rootManager = SynchronousRootManager::GetInstance();
     if (!rootManager.validateDisplayName(displayName)) {
-        HILOG_ERROR("INVALID DISPLAYNAME");
         DecreaseCnt(__func__);
         return E_INVALID_PARAM;
     }

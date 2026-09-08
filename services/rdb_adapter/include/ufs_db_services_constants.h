@@ -32,7 +32,7 @@ extern const std::string BUNDLENAME;
 extern const std::string CLOUD_DISK_DISPLAY_NAME;
 extern const std::string USERID;
 extern const std::string INDEX;
- extern const std::string IS_SUPPORT_PLACEHOLDER;
+extern const std::string IS_SUPPORT_PLACEHOLDER;
 extern const std::string SYNCHRONOUS_ROOT_DATA_RDB_PATH;
 extern const std::string SYNCHRONOUS_ROOT_DATABASE_NAME;
 extern const std::string CREATE_SYNCHRONOUS_ROOT_TABLE_SQL;
