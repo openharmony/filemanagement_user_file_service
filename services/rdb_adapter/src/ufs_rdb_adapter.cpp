@@ -23,7 +23,8 @@
 namespace OHOS {
 namespace FileAccessFwk {
 using namespace std::chrono_literals;
-
+constexpr int32_t UFS_SYNCROOT_V1 = 1;
+constexpr int32_t UFS_SYNCROOT_V2 = 2;
 
 namespace {
     const std::set<std::string> TABLES = {
@@ -188,13 +189,12 @@ std::shared_ptr<ResultSet> RdbAdapter::Get(const std::string& sql, const std::ve
 
 bool RdbAdapter::GetRDBPtr()
 {
-    int32_t version = 1;
     OpenCallback helper;
     RdbStoreConfig config(SYNCHRONOUS_ROOT_DATA_RDB_PATH + SYNCHRONOUS_ROOT_DATABASE_NAME);
     int32_t errCode = E_OK;
     {
         std::lock_guard<std::mutex> lock(rdbAdapterMtx_);
-        store_ = RdbHelper::GetRdbStore(config, version, helper, errCode);
+        store_ = RdbHelper::GetRdbStore(config, UFS_SYNCROOT_V2, helper, errCode);
         if (errCode != E_OK) {
             HILOG_ERROR("getRDBPtr failed errCode:%{public}d", errCode);
             return false;
@@ -241,16 +241,63 @@ int32_t OpenCallback::OnCreate(RdbStore& store)
     HILOG_INFO("rdbStore create");
     if (!CreateTable(store)) {
         HILOG_ERROR("CreateTable failed");
-        return -1;
+        return NativeRdb::E_ERROR;
     }
     HILOG_INFO("rdbStore create");
     return NativeRdb::E_OK;
 }
 
-int32_t OpenCallback::OnUpgrade(RdbStore& store, int oldVersion, int newVersion)
+ int32_t OpenCallback::OnUpgrade(RdbStore& store, int oldVersion, int newVersion)
 {
     HILOG_INFO("rdbStore upgrade, oldVersion : %{public}d, newVersion : %{public}d", oldVersion, newVersion);
+    if (oldVersion == UFS_SYNCROOT_V1 && newVersion > UFS_SYNCROOT_V1) {
+        if (IsExistColumn(store, SYNCHRONOUS_ROOT_TABLE, IS_SUPPORT_PLACEHOLDER)) {
+            HILOG_INFO("isSupportPlaceHolder column already exists, skip alter table");
+        } else {
+            if (store.ExecuteSql(ALTER_ADD_IS_SUPPORT_PLACEHOLDER_SQL) != NativeRdb::E_OK) {
+                HILOG_ERROR("Failed to add isSupportPlaceHolder column");
+                return NativeRdb::E_ERROR;
+            }
+        }
+    }
     return NativeRdb::E_OK;
+}
+
+bool OpenCallback::IsExistColumn(RdbStore& store, const std::string& table, const std::string& column)
+{
+    auto resultSet = store.QueryByStep(PRAGMA_TABLE_INFO_SQL);
+    if (resultSet == nullptr) {
+        HILOG_ERROR("QueryByStep PRAGMA table_info failed");
+        return false;
+    }
+    int32_t columnCount = 0;
+    if (resultSet->GetColumnCount(columnCount) != NativeRdb::E_OK) {
+        HILOG_ERROR("GetColumnCount failed");
+        resultSet->Close();
+        return false;
+    }
+    int32_t nameIndex = -1;
+    for (int32_t i = 0; i < columnCount; i++) {
+        std::string columnName;
+        if (resultSet->GetColumnName(i, columnName) == NativeRdb::E_OK && columnName == "name") {
+            nameIndex = i;
+            break;
+        }
+    }
+    if (nameIndex < 0) {
+        HILOG_ERROR("name column not found in PRAGMA table_info result");
+        resultSet->Close();
+        return false;
+    }
+    while (resultSet->GoToNextRow() == NativeRdb::E_OK) {
+        std::string value;
+        if (resultSet->GetString(nameIndex, value) == NativeRdb::E_OK && value == column) {
+            resultSet->Close();
+            return true;
+        }
+    }
+    resultSet->Close();
+    return false;
 }
 
 bool OpenCallback::CreateTable(RdbStore& store)

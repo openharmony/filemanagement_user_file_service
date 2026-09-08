@@ -77,6 +77,7 @@ public:
     int32_t OnUpgrade(RdbStore& store, int oldVersion, int newVersion) override;
     bool CreateTable(RdbStore& store);
     bool CreateUniqueIndex(RdbStore& store);
+    bool IsExistColumn(RdbStore& store, const std::string& table, const std::string& column);
 private:
     std::mutex rdbStoreMtx_;
 };

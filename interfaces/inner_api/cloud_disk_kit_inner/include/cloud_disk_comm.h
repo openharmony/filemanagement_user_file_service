@@ -35,10 +35,13 @@ namespace FileManagement {
         State state_ { State::INACTIVE };
         uint32_t displayNameResId_ { 0 }; // 0: default resId value
         std::string displayName_;
+        bool isSupportPlaceHolder_ {false};
 
         SyncFolder() = default;
-        SyncFolder(const std::string &path, State state, uint32_t resId, const std::string &displayName)
-            :path_(path), state_(state), displayNameResId_(resId), displayName_(displayName) {}
+        SyncFolder(const std::string &path, State state, uint32_t resId, const std::string &displayName,
+            bool isSupportPlaceHolder = false)
+            :path_(path), state_(state), displayNameResId_(resId), displayName_(displayName),
+            isSupportPlaceHolder_(isSupportPlaceHolder) {}
         bool Marshalling(Parcel &parcel) const override;
         bool ReadFromParcel(Parcel &parcel);
         static SyncFolder *Unmarshalling(Parcel &parcel);

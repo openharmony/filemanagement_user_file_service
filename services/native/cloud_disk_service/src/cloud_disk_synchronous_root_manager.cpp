@@ -23,6 +23,8 @@ namespace FileAccessFwk {
 namespace {
     const int32_t MAX_CLOUD_DISK_DISPLAY_NAMELENGTH = 255;
     const int32_t MAX_ROOT_COUNT = 9;
+    const int32_t PH_TRUE = 1;
+    const int32_t PH_FALSE = 0;
 }
 
 bool SynchronousRootManager::Init()
@@ -58,6 +60,7 @@ bool SynchronousRootManager::PutSynchronousRoot(const SyncFolder& rootInfo,
     values.PutInt(DISPLAY_NAME_RES_ID, rootInfo.displayNameResId_);
     values.PutInt(USERID, userId);
     values.PutInt(INDEX, index);
+    values.PutInt(IS_SUPPORT_PLACEHOLDER, rootInfo.isSupportPlaceHolder_ ? PH_TRUE : PH_FALSE);
     PutTimeStamp(values);
     int64_t rowId = -1;
     {
@@ -138,6 +141,7 @@ bool SynchronousRootManager::UpdateSynchronousRootState(const std::string& path,
     values.PutInt(DISPLAY_NAME_RES_ID, rootInfo.displayNameResId_);
     values.PutInt(USERID, userId);
     values.PutInt(INDEX, index);
+    values.PutInt(IS_SUPPORT_PLACEHOLDER, rootInfo.isSupportPlaceHolder_ ? PH_TRUE : PH_FALSE);
     PutTimeStamp(values);
     {
         std::lock_guard<std::mutex> lock(rdbMutex_);
@@ -178,6 +182,7 @@ bool SynchronousRootManager::UpdateDisplayName(const std::string& path,
     values.PutInt(DISPLAY_NAME_RES_ID, rootInfo.displayNameResId_);
     values.PutInt(USERID, userId);
     values.PutInt(INDEX, index);
+    values.PutInt(IS_SUPPORT_PLACEHOLDER, rootInfo.isSupportPlaceHolder_ ? PH_TRUE : PH_FALSE);
     PutTimeStamp(values);
     {
         std::lock_guard<std::mutex> lock(rdbMutex_);
@@ -242,6 +247,7 @@ bool SynchronousRootManager::GetRootInfosByUserAndBundle(
         info.state_ = static_cast<State>((int)rowEntity.Get(STATE));
         info.displayName_ = static_cast<std::string>(rowEntity.Get(CLOUD_DISK_DISPLAY_NAME));
         info.displayNameResId_ = static_cast<uint32_t>(static_cast<int>(rowEntity.Get(DISPLAY_NAME_RES_ID)));
+        info.isSupportPlaceHolder_ = static_cast<int>(rowEntity.Get(IS_SUPPORT_PLACEHOLDER)) != PH_FALSE;
         syncFolders.push_back(info);
 
         ret = resultSet->GoToNextRow();
@@ -278,6 +284,7 @@ bool SynchronousRootManager::GetAllSyncFolderInfosByUserId(
         info.displayNameResId_ = static_cast<uint32_t>(static_cast<int>(rowEntity.Get(DISPLAY_NAME_RES_ID)));
         info.bundleName_ = static_cast<std::string>(rowEntity.Get(BUNDLENAME));
         info.displayName_ = static_cast<std::string>(rowEntity.Get(CLOUD_DISK_DISPLAY_NAME));
+        info.isSupportPlaceHolder_ = static_cast<int>(rowEntity.Get(IS_SUPPORT_PLACEHOLDER)) != PH_FALSE;
         syncFolderExts.push_back(info);
         ret = resultSet->GoToNextRow();
     }
@@ -321,6 +328,7 @@ bool SynchronousRootManager::GetSynchronousRootByPathAndUserId(SyncFolder& syncF
     syncFolder.state_ = static_cast<State>((int)rowEntity.Get(STATE));
     syncFolder.displayNameResId_ = static_cast<uint32_t>(static_cast<int>(rowEntity.Get(DISPLAY_NAME_RES_ID)));
     syncFolder.displayName_ = static_cast<std::string>(rowEntity.Get(CLOUD_DISK_DISPLAY_NAME));
+    syncFolder.isSupportPlaceHolder_ = static_cast<int>(rowEntity.Get(IS_SUPPORT_PLACEHOLDER)) != PH_FALSE;
     resultSet->Close();
     return true;
 }

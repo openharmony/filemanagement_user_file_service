@@ -58,6 +58,7 @@ bool NotifyWorkService::NotifySyncFolderEvent(const FileManagement::SyncFolderEx
         want.SetParam("displayName", rootInfoExt.displayName_);
     }
     want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_CLOUD_DISK_STATE_CHANGED);
+    want.SetParam("isSupportPlaceHolder", static_cast<int>(rootInfoExt.isSupportPlaceHolder_));
     EventFwk::CommonEventData commonData {want};
     HILOG_INFO("End publish event, bundleName is: %{public}s, eventType: %{public}s",
         rootInfoExt.bundleName_.c_str(), NOTIFY_EVENT_TYPES[static_cast<int>(eventType)]);

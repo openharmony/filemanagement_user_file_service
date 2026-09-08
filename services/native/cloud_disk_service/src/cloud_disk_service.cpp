@@ -187,6 +187,7 @@ int32_t FileAccessService::Register(const SyncFolder &syncFolder)
     syncFolderExt.bundleName_ = bundleName;
     syncFolderExt.displayName_ = syncFolder.displayName_;
     syncFolderExt.displayNameResId_ = syncFolder.displayNameResId_;
+    syncFolderExt.isSupportPlaceHolder_ = syncFolder.isSupportPlaceHolder_;
     if (!NotifyWorkService::GetInstance().NotifySyncFolderEvent(syncFolderExt,
         NotifyWorkService::EventType::REGISTER)) {
         HILOG_ERROR("FileAccessService::Register NotifySyncFolderEvent failed");
@@ -227,6 +228,7 @@ int32_t FileAccessService::Unregister(const std::string &path)
             syncFolderExt.state_ = it.state_;
             syncFolderExt.displayName_ = it.displayName_;
             syncFolderExt.displayNameResId_ = it.displayNameResId_;
+            syncFolderExt.isSupportPlaceHolder_ = it.isSupportPlaceHolder_;
             break;
         }
     }
@@ -307,6 +309,7 @@ int32_t FileAccessService::UnregisterAllByBundle
         syncFolderExt.state_ = folder.state_;
         syncFolderExt.displayName_ = folder.displayName_;
         syncFolderExt.displayNameResId_ = folder.displayNameResId_;
+        syncFolderExt.isSupportPlaceHolder_ = folder.isSupportPlaceHolder_;
         if (!NotifyWorkService::GetInstance().NotifySyncFolderEvent(syncFolderExt,
             NotifyWorkService::EventType::UNREGISTER)) {
                 HILOG_ERROR("FileAccessService::Active NotifySyncFolderDetail failed");
@@ -356,6 +359,7 @@ int32_t FileAccessService::Changestate(const std::string &path, const State& new
             syncFolderExt.bundleName_ = it.bundleName_;
             syncFolderExt.displayName_ = it.displayName_;
             syncFolderExt.displayNameResId_ = it.displayNameResId_;
+            syncFolderExt.isSupportPlaceHolder_ = it.isSupportPlaceHolder_;
             break;
         }
     }
@@ -497,6 +501,7 @@ int32_t FileAccessService::UpdateDisplayName(const std::string &path, const std:
             syncFolderExt.state_ = it.state_;
             syncFolderExt.displayName_ = displayName;
             syncFolderExt.displayNameResId_ = it.displayNameResId_;
+            syncFolderExt.isSupportPlaceHolder_ = it.isSupportPlaceHolder_;
             break;
         }
     }
@@ -546,6 +551,7 @@ int32_t FileAccessService::UnregisterForSa(const string &path)
             syncFolderExt.state_ = it.state_;
             syncFolderExt.displayName_ = it.displayName_;
             syncFolderExt.displayNameResId_ = it.displayNameResId_;
+            syncFolderExt.isSupportPlaceHolder_ = it.isSupportPlaceHolder_;
             break;
         }
     }

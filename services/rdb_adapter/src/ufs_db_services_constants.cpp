@@ -23,6 +23,7 @@ const std::string STATE = "state";
 const std::string DISPLAY_NAME_RES_ID = "displayNameResId";
 const std::string BUNDLENAME = "bundleName";
 const std::string INDEX = "appIndex";
+const std::string IS_SUPPORT_PLACEHOLDER = "isSupportPlaceHolder";
 const std::string CLOUD_DISK_DISPLAY_NAME = "displayName";
 const std::string USERID = "userId";
 const std::string SYNCHRONOUS_ROOT_TABLE = "synchronous_root_table";
@@ -48,9 +49,13 @@ const std::string CREATE_SYNCHRONOUS_ROOT_TABLE_SQL = "CREATE TABLE IF NOT EXIST
         userId             INTEGER NOT NULL, \
         appIndex           INTEGER, \
         lastModifyTime     TEXT,  \
+        isSupportPlaceHolder   INTEGER DEFAULT 0, \
         PRIMARY KEY (path, userId) \
     );";
 
+const std::string ALTER_ADD_IS_SUPPORT_PLACEHOLDER_SQL =
+    "ALTER TABLE synchronous_root_table ADD COLUMN isSupportPlaceHolder INTEGER DEFAULT 0;";
+const std::string PRAGMA_TABLE_INFO_SQL = "PRAGMA table_info(synchronous_root_table)";
 const std::string SYNCFOLDER_WORK_STATUS_KEY = "persist.clouddiskmanager.workstatus";
 const std::string SYNCFOLDER_WORK_STATUS_ON = "true";
 const std::string SYNCFOLDER_WORK_STATUS_OFF = "false";

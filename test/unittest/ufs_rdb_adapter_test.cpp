@@ -758,7 +758,7 @@ HWTEST_F(RdbAdapterTest, OnCreate001, TestSize.Level1)
         Return(NativeRdb::E_SQLITE_CORRUPT)
     );
     auto ret = helper.OnCreate(*(store->store_));
-    EXPECT_EQ(ret, -1);
+    EXPECT_EQ(ret, NativeRdb::E_ERROR);
 }
 
 /**
@@ -779,18 +779,233 @@ HWTEST_F(RdbAdapterTest, OnCreate002, TestSize.Level1)
 }
 
 /**
+ * @tc.name: IsExistColumn001
+ * @tc.desc: IsExistColumn returns false when QueryByStep returns nullptr
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(RdbAdapterTest, IsExistColumn001, TestSize.Level1)
+{
+    OpenCallback helper;
+    EXPECT_CALL(*mockStore, QueryByStep(_, _, _))
+        .WillOnce(Return(nullptr));
+    bool ret = helper.IsExistColumn(*(store->store_), SYNCHRONOUS_ROOT_TABLE, IS_SUPPORT_PLACEHOLDER);
+    EXPECT_FALSE(ret);
+}
+ 
+/**
+ * @tc.name: IsExistColumn002
+ * @tc.desc: IsExistColumn returns false when GetColumnCount fails
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(RdbAdapterTest, IsExistColumn002, TestSize.Level1)
+{
+    OpenCallback helper;
+    auto mockResultSet = std::make_shared<MockResultSet>();
+    EXPECT_CALL(*mockStore, QueryByStep(_, _, _))
+        .WillOnce(Return(mockResultSet));
+    EXPECT_CALL(*mockResultSet, GetColumnCount(_))
+        .WillOnce(Return(NativeRdb::E_ERROR));
+    EXPECT_CALL(*mockResultSet, Close())
+        .WillOnce(Return(NativeRdb::E_OK));
+    bool ret = helper.IsExistColumn(*(store->store_), SYNCHRONOUS_ROOT_TABLE, IS_SUPPORT_PLACEHOLDER);
+    EXPECT_FALSE(ret);
+}
+ 
+/**
+ * @tc.name: IsExistColumn003
+ * @tc.desc: IsExistColumn returns false when name column not found
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(RdbAdapterTest, IsExistColumn003, TestSize.Level1)
+{
+    OpenCallback helper;
+    auto mockResultSet = std::make_shared<MockResultSet>();
+    EXPECT_CALL(*mockStore, QueryByStep(_, _, _))
+        .WillOnce(Return(mockResultSet));
+    EXPECT_CALL(*mockResultSet, GetColumnCount(_))
+        .WillOnce(DoAll(SetArgReferee<0>(2), Return(NativeRdb::E_OK)));
+    // Two columns, neither is "name"
+    EXPECT_CALL(*mockResultSet, GetColumnName(0, _))
+        .WillOnce(DoAll(SetArgReferee<1>("cid"), Return(NativeRdb::E_OK)));
+    EXPECT_CALL(*mockResultSet, GetColumnName(1, _))
+        .WillOnce(DoAll(SetArgReferee<1>("type"), Return(NativeRdb::E_OK)));
+    EXPECT_CALL(*mockResultSet, Close())
+        .WillOnce(Return(NativeRdb::E_OK));
+    bool ret = helper.IsExistColumn(*(store->store_), SYNCHRONOUS_ROOT_TABLE, IS_SUPPORT_PLACEHOLDER);
+    EXPECT_FALSE(ret);
+}
+ 
+/**
+ * @tc.name: IsExistColumn004
+ * @tc.desc: IsExistColumn returns true when column is found
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(RdbAdapterTest, IsExistColumn004, TestSize.Level1)
+{
+    OpenCallback helper;
+    auto mockResultSet = std::make_shared<MockResultSet>();
+    EXPECT_CALL(*mockStore, QueryByStep(_, _, _))
+        .WillOnce(Return(mockResultSet));
+    EXPECT_CALL(*mockResultSet, GetColumnCount(_))
+        .WillOnce(DoAll(SetArgReferee<0>(1), Return(NativeRdb::E_OK)));
+    // First column is "name", nameIndex = 0
+    EXPECT_CALL(*mockResultSet, GetColumnName(0, _))
+        .WillOnce(DoAll(SetArgReferee<1>("name"), Return(NativeRdb::E_OK)));
+    // First row matches the target column
+    EXPECT_CALL(*mockResultSet, GoToNextRow())
+        .WillOnce(Return(NativeRdb::E_OK));
+    EXPECT_CALL(*mockResultSet, GetString(0, _))
+        .WillOnce(DoAll(SetArgReferee<1>("isSupportPlaceHolder"), Return(NativeRdb::E_OK)));
+    EXPECT_CALL(*mockResultSet, Close())
+        .WillOnce(Return(NativeRdb::E_OK));
+    bool ret = helper.IsExistColumn(*(store->store_), SYNCHRONOUS_ROOT_TABLE, IS_SUPPORT_PLACEHOLDER);
+    EXPECT_TRUE(ret);
+}
+ 
+/**
+ * @tc.name: IsExistColumn005
+ * @tc.desc: IsExistColumn returns false when column not found after iterating all rows
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(RdbAdapterTest, IsExistColumn005, TestSize.Level1)
+{
+    OpenCallback helper;
+    auto mockResultSet = std::make_shared<MockResultSet>();
+    EXPECT_CALL(*mockStore, QueryByStep(_, _, _))
+        .WillOnce(Return(mockResultSet));
+    EXPECT_CALL(*mockResultSet, GetColumnCount(_))
+        .WillOnce(DoAll(SetArgReferee<0>(1), Return(NativeRdb::E_OK)));
+    EXPECT_CALL(*mockResultSet, GetColumnName(0, _))
+        .WillOnce(DoAll(SetArgReferee<1>("name"), Return(NativeRdb::E_OK)));
+    // First row: value does not match
+    EXPECT_CALL(*mockResultSet, GoToNextRow())
+        .WillOnce(Return(NativeRdb::E_OK))
+        .WillOnce(Return(NativeRdb::E_ERROR));
+    EXPECT_CALL(*mockResultSet, GetString(0, _))
+        .WillOnce(DoAll(SetArgReferee<1>("otherColumn"), Return(NativeRdb::E_OK)));
+    EXPECT_CALL(*mockResultSet, Close())
+        .WillOnce(Return(NativeRdb::E_OK));
+    bool ret = helper.IsExistColumn(*(store->store_), SYNCHRONOUS_ROOT_TABLE, IS_SUPPORT_PLACEHOLDER);
+    EXPECT_FALSE(ret);
+}
+ 
+/**
  * @tc.name: OnUpgrade001
- * @tc.desc: OnCreate success.
+ * @tc.desc: OnUpgrade skips upgrade when oldVersion != UFS_SYNCROOT_V1
  * @tc.type: FUNC
  * @tc.require:
  */
 HWTEST_F(RdbAdapterTest, OnUpgrade001, TestSize.Level1)
 {
     OpenCallback helper;
-    int oldVersion = 1;
-    int newVersion = 2;
+    int oldVersion = 2; // != UFS_SYNCROOT_V1
+    int newVersion = 3;
     auto ret = helper.OnUpgrade(*(store->store_), oldVersion, newVersion);
     EXPECT_EQ(ret, NativeRdb::E_OK);
+}
+ 
+/**
+ * @tc.name: OnUpgrade002
+ * @tc.desc: OnUpgrade skips upgrade when newVersion <= UFS_SYNCROOT_V1
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(RdbAdapterTest, OnUpgrade002, TestSize.Level1)
+{
+    OpenCallback helper;
+    int oldVersion = 1;
+    int newVersion = 1; // <= UFS_SYNCROOT_V1
+    auto ret = helper.OnUpgrade(*(store->store_), oldVersion, newVersion);
+    EXPECT_EQ(ret, NativeRdb::E_OK);
+}
+ 
+/**
+ * @tc.name: OnUpgrade003
+ * @tc.desc: OnUpgrade skips ALTER when column already exists
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(RdbAdapterTest, OnUpgrade003, TestSize.Level1)
+{
+    OpenCallback helper;
+    int oldVersion = 1;
+    int newVersion = 2;
+    auto mockResultSet = std::make_shared<MockResultSet>();
+    EXPECT_CALL(*mockStore, QueryByStep(_, _, _))
+        .WillOnce(Return(mockResultSet));
+    EXPECT_CALL(*mockResultSet, GetColumnCount(_))
+        .WillOnce(DoAll(SetArgReferee<0>(1), Return(NativeRdb::E_OK)));
+    EXPECT_CALL(*mockResultSet, GetColumnName(0, _))
+        .WillOnce(DoAll(SetArgReferee<1>("name"), Return(NativeRdb::E_OK)));
+    EXPECT_CALL(*mockResultSet, GoToNextRow())
+        .WillOnce(Return(NativeRdb::E_OK));
+    EXPECT_CALL(*mockResultSet, GetString(0, _))
+        .WillOnce(DoAll(SetArgReferee<1>("isSupportPlaceHolder"), Return(NativeRdb::E_OK)));
+    EXPECT_CALL(*mockResultSet, Close())
+        .WillOnce(Return(NativeRdb::E_OK));
+    auto ret = helper.OnUpgrade(*(store->store_), oldVersion, newVersion);
+    EXPECT_EQ(ret, NativeRdb::E_OK);
+}
+ 
+/**
+ * @tc.name: OnUpgrade004
+ * @tc.desc: OnUpgrade executes ALTER successfully when column does not exist
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(RdbAdapterTest, OnUpgrade004, TestSize.Level1)
+{
+    OpenCallback helper;
+    int oldVersion = 1;
+    int newVersion = 2;
+    auto mockResultSet = std::make_shared<MockResultSet>();
+    EXPECT_CALL(*mockStore, QueryByStep(_, _, _))
+        .WillOnce(Return(mockResultSet));
+    EXPECT_CALL(*mockResultSet, GetColumnCount(_))
+        .WillOnce(DoAll(SetArgReferee<0>(1), Return(NativeRdb::E_OK)));
+    EXPECT_CALL(*mockResultSet, GetColumnName(0, _))
+        .WillOnce(DoAll(SetArgReferee<1>("name"), Return(NativeRdb::E_OK)));
+    EXPECT_CALL(*mockResultSet, GoToNextRow())
+        .WillOnce(Return(NativeRdb::E_ERROR));
+    EXPECT_CALL(*mockResultSet, Close())
+        .WillOnce(Return(NativeRdb::E_OK));
+    EXPECT_CALL(*mockStore, ExecuteSql(_, _))
+        .WillOnce(Return(NativeRdb::E_OK));
+    auto ret = helper.OnUpgrade(*(store->store_), oldVersion, newVersion);
+    EXPECT_EQ(ret, NativeRdb::E_OK);
+}
+ 
+/**
+ * @tc.name: OnUpgrade005
+ * @tc.desc: OnUpgrade returns E_ERROR when ALTER fails
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(RdbAdapterTest, OnUpgrade005, TestSize.Level1)
+{
+    OpenCallback helper;
+    int oldVersion = 1;
+    int newVersion = 2;
+    auto mockResultSet = std::make_shared<MockResultSet>();
+    EXPECT_CALL(*mockStore, QueryByStep(_, _, _))
+        .WillOnce(Return(mockResultSet));
+    EXPECT_CALL(*mockResultSet, GetColumnCount(_))
+        .WillOnce(DoAll(SetArgReferee<0>(1), Return(NativeRdb::E_OK)));
+    EXPECT_CALL(*mockResultSet, GetColumnName(0, _))
+        .WillOnce(DoAll(SetArgReferee<1>("name"), Return(NativeRdb::E_OK)));
+    EXPECT_CALL(*mockResultSet, GoToNextRow())
+        .WillOnce(Return(NativeRdb::E_ERROR));
+    EXPECT_CALL(*mockResultSet, Close())
+        .WillOnce(Return(NativeRdb::E_OK));
+    EXPECT_CALL(*mockStore, ExecuteSql(_, _))
+        .WillOnce(Return(NativeRdb::E_ERROR));
+    auto ret = helper.OnUpgrade(*(store->store_), oldVersion, newVersion);
+    EXPECT_EQ(ret, NativeRdb::E_ERROR);
 }
 } // namespace FileAccessFwk
 } // namespace OHOS
