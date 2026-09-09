@@ -43,7 +43,6 @@ extern const std::string SELECT_SYNCHRONOUS_ROOT_TABLE_WHERE_USERID;
 extern const std::string SELECT_SYNCHRONOUS_ROOT_TABLE;
 extern const std::string SYNCHRONOUS_ROOT_TABLE;
 extern const std::string ALTER_ADD_IS_SUPPORT_PLACEHOLDER_SQL;
-extern const std::string PRAGMA_TABLE_INFO_SQL;
 extern const std::string ACTION_CONDITION;
 extern const std::string DELETE_CONDITION;
 extern const std::string DELETE_ALL_CONDITION;

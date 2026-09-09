@@ -265,7 +265,8 @@ int32_t OpenCallback::OnCreate(RdbStore& store)
 
 bool OpenCallback::IsExistColumn(RdbStore& store, const std::string& table, const std::string& column)
 {
-    auto resultSet = store.QueryByStep(PRAGMA_TABLE_INFO_SQL);
+    std::string pragmSql = "PRAGMA table_info(" + table + ")";
+    auto resultSet = store.QueryByStep(pragmSql);
     if (resultSet == nullptr) {
         HILOG_ERROR("QueryByStep PRAGMA table_info failed");
         return false;
