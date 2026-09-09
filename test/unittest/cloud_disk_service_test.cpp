@@ -122,7 +122,7 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_Register_001, TestSize.Level1)
     ASSERT_NE(fileAccessSvc_, nullptr);
     int32_t result = fileAccessSvc_->Register(syncFolder);
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
-    EXPECT_EQ(result, E_TRY_AGAIN);
+    EXPECT_EQ(result, E_INVALID_PARAM);
 #else
     EXPECT_EQ(result, E_NOT_SUPPORT);
 #endif
@@ -141,7 +141,7 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_Unregister_001, TestSize.Level1)
     ASSERT_NE(fileAccessSvc_, nullptr);
     int32_t result = fileAccessSvc_->Unregister(path);
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
-    EXPECT_EQ(result, E_INVALID_PARAM);
+    EXPECT_EQ(result, ERR_OK);
 #else
     EXPECT_EQ(result, E_NOT_SUPPORT);
 #endif
@@ -161,7 +161,7 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_Active_001, TestSize.Level1)
     ASSERT_NE(fileAccessSvc_, nullptr);
     int32_t result = fileAccessSvc_->Active(path);
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
-    EXPECT_EQ(result, E_INVALID_PARAM);
+    EXPECT_EQ(result, E_SYNC_FOLDER_NOT_REGISTERED);
 #else
     EXPECT_EQ(result, E_NOT_SUPPORT);
 #endif
@@ -181,7 +181,7 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_InActive_001, TestSize.Level1)
     ASSERT_NE(fileAccessSvc_, nullptr);
     int32_t result = fileAccessSvc_->Deactive(path);
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
-    EXPECT_EQ(result, E_INVALID_PARAM);
+    EXPECT_EQ(result, E_SYNC_FOLDER_NOT_REGISTERED);
 #else
     EXPECT_EQ(result, E_NOT_SUPPORT);
 #endif
@@ -201,7 +201,7 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_GetSyncFolders_001, TestSize.Lev
     ASSERT_NE(fileAccessSvc_, nullptr);
     int32_t result = fileAccessSvc_->GetSyncFolders(syncFolders);
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
-    EXPECT_EQ(result, E_INVALID_PARAM);
+    EXPECT_EQ(result, ERR_OK);
 #else
     EXPECT_EQ(result, E_NOT_SUPPORT);
 #endif
@@ -242,7 +242,7 @@ HWTEST_F(CloudDiskServiceTest, CloudDiskService_UpdateDisplayName_001, TestSize.
     ASSERT_NE(fileAccessSvc_, nullptr);
     int32_t result = fileAccessSvc_->UpdateDisplayName(path, displayName);
 #ifdef SUPPORT_CLOUD_DISK_MANAGER
-    EXPECT_EQ(result, E_INVALID_PARAM);
+    EXPECT_EQ(result, E_SYNC_FOLDER_NOT_REGISTERED);
 #else
     EXPECT_EQ(result, E_NOT_SUPPORT);
 #endif

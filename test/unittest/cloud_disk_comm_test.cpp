@@ -67,35 +67,43 @@ void CloudDiskCommTest::TearDown(void)
 HWTEST_F(CloudDiskCommTest, SyncFolder_Marshalling_001, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "SyncFolder_Marshalling_001 start";
-
+ 
     SyncFolder syncFolder("/test/path", State::ACTIVE, 100, "testDisplayName");
     MessageParcel parcel;
     // Mock failed writes
     EXPECT_CALL(*messageParcelMock_, WriteString(_)).WillOnce(Return(false));
     bool result = syncFolder.Marshalling(parcel);
     EXPECT_FALSE(result);
-
+ 
     EXPECT_CALL(*messageParcelMock_, WriteString(_)).WillOnce(Return(true));
     EXPECT_CALL(*messageParcelMock_, WriteInt32(_)).WillOnce(Return(false));
     result = syncFolder.Marshalling(parcel);
     EXPECT_FALSE(result);
-
+ 
     EXPECT_CALL(*messageParcelMock_, WriteString(_)).WillOnce(Return(true));
     EXPECT_CALL(*messageParcelMock_, WriteInt32(_)).WillOnce(Return(true));
     EXPECT_CALL(*messageParcelMock_, WriteUint32(_)).WillOnce(Return(false));
     result = syncFolder.Marshalling(parcel);
     EXPECT_FALSE(result);
-
+ 
     EXPECT_CALL(*messageParcelMock_, WriteString(_)).WillOnce(Return(true)).WillOnce(Return(false));
     EXPECT_CALL(*messageParcelMock_, WriteInt32(_)).WillOnce(Return(true));
     EXPECT_CALL(*messageParcelMock_, WriteUint32(_)).WillOnce(Return(true));
     result = syncFolder.Marshalling(parcel);
     EXPECT_FALSE(result);
-
+ 
+    EXPECT_CALL(*messageParcelMock_, WriteString(_)).WillOnce(Return(true)).WillOnce(Return(true));
+    EXPECT_CALL(*messageParcelMock_, WriteInt32(_)).WillOnce(Return(true));
+    EXPECT_CALL(*messageParcelMock_, WriteUint32(_)).WillOnce(Return(true));
+    EXPECT_CALL(*messageParcelMock_, WriteBool(_)).WillOnce(Return(false));
+    result = syncFolder.Marshalling(parcel);
+    EXPECT_FALSE(result);
+ 
     // Mock successful writes
     EXPECT_CALL(*messageParcelMock_, WriteString(_)).WillOnce(Return(true)).WillOnce(Return(true));
     EXPECT_CALL(*messageParcelMock_, WriteInt32(_)).WillOnce(Return(true));
     EXPECT_CALL(*messageParcelMock_, WriteUint32(_)).WillOnce(Return(true));
+    EXPECT_CALL(*messageParcelMock_, WriteBool(_)).WillOnce(Return(true));
     result = syncFolder.Marshalling(parcel);
     EXPECT_TRUE(result);
     GTEST_LOG_(INFO) << "SyncFolder_Marshalling_001 end";
@@ -146,27 +154,36 @@ HWTEST_F(CloudDiskCommTest, SyncFolder_ReadFromParcel_002, TestSize.Level1)
     GTEST_LOG_(INFO) << "SyncFolder_ReadFromParcel_002 start";
     SyncFolder syncFolder;
     MessageParcel parcel;
-
+ 
     EXPECT_CALL(*messageParcelMock_, ReadString(_)).WillOnce(Return(true));
     EXPECT_CALL(*messageParcelMock_, ReadInt32(_)).WillOnce(
         DoAll(SetArgReferee<0>(static_cast<int32_t>(State::INACTIVE)), Return(true)));
     EXPECT_CALL(*messageParcelMock_, ReadUint32(_)).WillOnce(Return(false));
     bool result = syncFolder.ReadFromParcel(parcel);
     EXPECT_FALSE(result);
-
+ 
     EXPECT_CALL(*messageParcelMock_, ReadString(_)).WillOnce(Return(true)).WillOnce(Return(false));
     EXPECT_CALL(*messageParcelMock_, ReadInt32(_)).WillOnce(
         DoAll(SetArgReferee<0>(static_cast<int32_t>(State::INACTIVE)), Return(true)));
     EXPECT_CALL(*messageParcelMock_, ReadUint32(_)).WillOnce(Return(true));
     result = syncFolder.ReadFromParcel(parcel);
     EXPECT_FALSE(result);
-
+ 
     EXPECT_CALL(*messageParcelMock_, ReadString(_)).WillOnce(Return(true)).WillOnce(Return(true));
     EXPECT_CALL(*messageParcelMock_, ReadInt32(_)).WillOnce(
         DoAll(SetArgReferee<0>(static_cast<int32_t>(State::INACTIVE)), Return(true)));
     EXPECT_CALL(*messageParcelMock_, ReadUint32(_)).WillOnce(Return(true));
+    EXPECT_CALL(*messageParcelMock_, ReadBool(_)).WillOnce(Return(true));
     result = syncFolder.ReadFromParcel(parcel);
     EXPECT_TRUE(result);
+ 
+    EXPECT_CALL(*messageParcelMock_, ReadString(_)).WillOnce(Return(true)).WillOnce(Return(true));
+    EXPECT_CALL(*messageParcelMock_, ReadInt32(_)).WillOnce(
+        DoAll(SetArgReferee<0>(static_cast<int32_t>(State::INACTIVE)), Return(true)));
+    EXPECT_CALL(*messageParcelMock_, ReadUint32(_)).WillOnce(Return(true));
+    EXPECT_CALL(*messageParcelMock_, ReadBool(_)).WillOnce(Return(false));
+    result = syncFolder.ReadFromParcel(parcel);
+    EXPECT_FALSE(result);
     GTEST_LOG_(INFO) << "SyncFolder_ReadFromParcel_002 end";
 }
 
@@ -188,6 +205,7 @@ HWTEST_F(CloudDiskCommTest, SyncFolder_Unmarshalling_001, TestSize.Level1)
     EXPECT_CALL(*messageParcelMock_, ReadInt32(_)).WillOnce(
         DoAll(SetArgReferee<0>(static_cast<int32_t>(State::INACTIVE)), Return(true)));
     EXPECT_CALL(*messageParcelMock_, ReadUint32(_)).WillOnce(Return(true));
+    EXPECT_CALL(*messageParcelMock_, ReadBool(_)).WillOnce(Return(true));
     syncFolder = SyncFolder::Unmarshalling(parcel);
     EXPECT_NE(syncFolder, nullptr);
     EXPECT_EQ(syncFolder->state_, State::INACTIVE);
@@ -219,6 +237,7 @@ HWTEST_F(CloudDiskCommTest, SyncFolderExt_Marshalling_001, TestSize.Level1)
         .WillOnce(Return(true)).WillOnce(Return(false));
     EXPECT_CALL(*messageParcelMock_, WriteInt32(_)).WillOnce(Return(true));
     EXPECT_CALL(*messageParcelMock_, WriteUint32(_)).WillOnce(Return(true));
+    EXPECT_CALL(*messageParcelMock_, WriteBool(_)).WillOnce(Return(true));
     result = syncFolderExt.Marshalling(parcel);
     EXPECT_FALSE(result);
 
@@ -226,6 +245,7 @@ HWTEST_F(CloudDiskCommTest, SyncFolderExt_Marshalling_001, TestSize.Level1)
         .WillOnce(Return(true)).WillOnce(Return(true));
     EXPECT_CALL(*messageParcelMock_, WriteInt32(_)).WillOnce(Return(true));
     EXPECT_CALL(*messageParcelMock_, WriteUint32(_)).WillOnce(Return(true));
+    EXPECT_CALL(*messageParcelMock_, WriteBool(_)).WillOnce(Return(true));
     result = syncFolderExt.Marshalling(parcel);
     EXPECT_TRUE(result);
     GTEST_LOG_(INFO) << "SyncFolderExt_Marshalling_001 end";
@@ -252,6 +272,7 @@ HWTEST_F(CloudDiskCommTest, SyncFolderExt_ReadFromParcel_001, TestSize.Level1)
     EXPECT_CALL(*messageParcelMock_, ReadInt32(_)).WillOnce(
         DoAll(SetArgReferee<0>(static_cast<int32_t>(State::INACTIVE)), Return(true)));
     EXPECT_CALL(*messageParcelMock_, ReadUint32(_)).WillOnce(Return(true));
+    EXPECT_CALL(*messageParcelMock_, ReadBool(_)).WillOnce(Return(true));
     result = syncFolderExt.ReadFromParcel(parcel);
     EXPECT_FALSE(result);
 
@@ -260,6 +281,7 @@ HWTEST_F(CloudDiskCommTest, SyncFolderExt_ReadFromParcel_001, TestSize.Level1)
     EXPECT_CALL(*messageParcelMock_, ReadInt32(_)).WillOnce(
         DoAll(SetArgReferee<0>(static_cast<int32_t>(State::INACTIVE)), Return(true)));
     EXPECT_CALL(*messageParcelMock_, ReadUint32(_)).WillOnce(Return(true));
+    EXPECT_CALL(*messageParcelMock_, ReadBool(_)).WillOnce(Return(true));
     result = syncFolderExt.ReadFromParcel(parcel);
     EXPECT_TRUE(result);
     GTEST_LOG_(INFO) << "SyncFolderExt_ReadFromParcel_001 end";
@@ -285,6 +307,7 @@ HWTEST_F(CloudDiskCommTest, SyncFolderExt_Unmarshalling_001, TestSize.Level1)
     EXPECT_CALL(*messageParcelMock_, ReadInt32(_)).WillOnce(
         DoAll(SetArgReferee<0>(static_cast<int32_t>(State::INACTIVE)), Return(true)));
     EXPECT_CALL(*messageParcelMock_, ReadUint32(_)).WillOnce(Return(true));
+    EXPECT_CALL(*messageParcelMock_, ReadBool(_)).WillOnce(Return(true));
     syncFolderExt = SyncFolderExt::Unmarshalling(parcel);
     EXPECT_NE(syncFolderExt, nullptr);
     EXPECT_EQ(syncFolderExt->state_, State::INACTIVE);

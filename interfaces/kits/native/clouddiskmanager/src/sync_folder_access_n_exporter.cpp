@@ -29,6 +29,7 @@ constexpr const char* STATE = "state";
 constexpr const char* DISPLAY_NAME_RES_ID = "displayNameResId";
 constexpr const char* CUSTOM_ALIAS = "customAlias";
 constexpr const char* BUNDLE_NAME = "bundleName";
+constexpr const char* IS_SUPPORT_PLACE_HOLDER = "isSupportPlaceHolder";
 
 static napi_status CreateOneSyncFolderExt(napi_env env,
     const SyncFolderExt &syncFolderExt, napi_value resVec, size_t index)
@@ -66,6 +67,11 @@ static napi_status CreateOneSyncFolderExt(napi_env env,
     if ((status = napi_set_named_property(env,
         ele, BUNDLE_NAME, NVal::CreateUTF8String(env, syncFolderExt.bundleName_).val_)) != napi_ok) {
         HILOG_ERROR("Set named property bundleName failed");
+        return status;
+    }
+    if ((status = napi_set_named_property(env, ele, IS_SUPPORT_PLACE_HOLDER,
+        NVal::CreateBool(env, syncFolderExt.isSupportPlaceHolder_).val_)) != napi_ok) {
+        HILOG_ERROR("Set named property isSupportPlaceHolder failed");
         return status;
     }
     if ((status = napi_set_element(env, resVec, index, ele)) != napi_ok) {

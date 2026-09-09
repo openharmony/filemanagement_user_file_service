@@ -35,6 +35,10 @@ bool SyncFolder::Marshalling(Parcel &parcel) const
         HILOG_ERROR("write displayName failed");
         return false;
     }
+    if (!parcel.WriteBool(isSupportPlaceHolder_)) {
+        HILOG_ERROR("write isSupportPlaceHolder failed");
+        return false;
+    }
     return true;
 }
 
@@ -60,6 +64,10 @@ bool SyncFolder::ReadFromParcel(Parcel &parcel)
     }
     if (!parcel.ReadString(displayName_)) {
         HILOG_ERROR("read displayName failed");
+        return false;
+    }
+    if (!parcel.ReadBool(isSupportPlaceHolder_)) {
+        HILOG_ERROR("read isSupportPlaceHolder failed");
         return false;
     }
     return true;

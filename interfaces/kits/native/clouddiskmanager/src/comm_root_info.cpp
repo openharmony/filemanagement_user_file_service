@@ -26,6 +26,7 @@ constexpr const char* STATE = "state";
 constexpr const char* DISPLAY_NAME_RES_ID = "displayNameResId";
 constexpr const char* CUSTOM_ALIAS = "customAlias";
 constexpr const char* BUNDLE_NAME = "bundleName";
+constexpr const char* IS_SUPPORT_PLACE_HOLDER = "isSupportPlaceHolder";
 constexpr const char* ACTIVE = "ACTIVE";
 constexpr const char* INACTIVE = "INACTIVE";
 
@@ -57,7 +58,8 @@ void InitSyncFolder(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY(STATE, NVal::CreateInt32(env, static_cast<int32_t>(State::INACTIVE)).val_),
         DECLARE_NAPI_PROPERTY(DISPLAY_NAME_RES_ID, NVal::CreateInt32(env, 0).val_),
         DECLARE_NAPI_PROPERTY(CUSTOM_ALIAS, NVal::CreateUTF8String(env, "").val_),
-        DECLARE_NAPI_PROPERTY(BUNDLE_NAME, NVal::CreateUTF8String(env, "").val_)
+        DECLARE_NAPI_PROPERTY(BUNDLE_NAME, NVal::CreateUTF8String(env, "").val_),
+        DECLARE_NAPI_PROPERTY(IS_SUPPORT_PLACE_HOLDER, NVal::CreateBool(env, false).val_)
     };
     napi_value obj = nullptr;
     napi_define_class(env, className, NAPI_AUTO_LENGTH, SyncFolderConstructor, nullptr,

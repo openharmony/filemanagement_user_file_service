@@ -32,6 +32,7 @@ extern const std::string BUNDLENAME;
 extern const std::string CLOUD_DISK_DISPLAY_NAME;
 extern const std::string USERID;
 extern const std::string INDEX;
+extern const std::string IS_SUPPORT_PLACEHOLDER;
 extern const std::string SYNCHRONOUS_ROOT_DATA_RDB_PATH;
 extern const std::string SYNCHRONOUS_ROOT_DATABASE_NAME;
 extern const std::string CREATE_SYNCHRONOUS_ROOT_TABLE_SQL;
@@ -41,6 +42,7 @@ extern const std::string SELECT_SYNCHRONOUS_ROOT_TABLE_WHERE_USERID_AND_BUNDLENA
 extern const std::string SELECT_SYNCHRONOUS_ROOT_TABLE_WHERE_USERID;
 extern const std::string SELECT_SYNCHRONOUS_ROOT_TABLE;
 extern const std::string SYNCHRONOUS_ROOT_TABLE;
+extern const std::string ALTER_ADD_IS_SUPPORT_PLACEHOLDER_SQL;
 extern const std::string ACTION_CONDITION;
 extern const std::string DELETE_CONDITION;
 extern const std::string DELETE_ALL_CONDITION;

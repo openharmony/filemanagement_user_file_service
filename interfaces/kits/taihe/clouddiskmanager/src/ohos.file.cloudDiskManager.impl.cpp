@@ -35,7 +35,8 @@ public:
                 folderInfo.bundleName_,
                 ohos::file::cloudDiskManager::SyncFolderState::from_value(static_cast<int>(folderInfo.state_)),
                 ::taihe::optional<int32_t>(std::in_place_t{}, folderInfo.displayNameResId_),
-                ::taihe::optional<taihe::string>(std::in_place_t{}, folderInfo.displayName_)
+                ::taihe::optional<taihe::string>(std::in_place_t{}, folderInfo.displayName_),
+                ::taihe::optional<bool>(std::in_place_t{}, folderInfo.isSupportPlaceHolder_)
                 };
     }
 
