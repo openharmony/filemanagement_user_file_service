@@ -21,8 +21,7 @@
 namespace OHOS {
 namespace FileManagement {
 namespace CloudDiskService {
-void InitSyncFolder(napi_env env, napi_value exports);
-void InitState(napi_env env, napi_value exports);
+void InitCommonRootInfo(napi_env env, napi_value exports);
 } // namespace CloudDiskService
 } // namespace FileManagement
 } // namespace OHOS
