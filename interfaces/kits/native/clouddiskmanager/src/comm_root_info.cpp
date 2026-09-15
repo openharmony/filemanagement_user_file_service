@@ -29,11 +29,42 @@ constexpr const char* BUNDLE_NAME = "bundleName";
 constexpr const char* IS_SUPPORT_PLACE_HOLDER = "isSupportPlaceHolder";
 constexpr const char* ACTIVE = "ACTIVE";
 constexpr const char* INACTIVE = "INACTIVE";
+constexpr const char* LOW = "LOW";
+constexpr const char* NORMAL = "NORMAL";
+constexpr const char* HIGH = "HIGH";
+constexpr const char* FETCH_DATA = "FETCH_DATA";
+constexpr const char* CANCEL_FETCH_DATA = "CANCEL_FETCH_DATA";
+constexpr const char* DEHYDRATE = "DEHYDRATE";
+constexpr const char* PENDING = "PENDING";
+constexpr const char* IN_PROGRESS = "IN_PROGRESS";
+constexpr const char* COMPLETED = "COMPLETED";
+constexpr const char* CANCELLED = "CANCELLED";
 
+namespace {
 enum class State {
     INACTIVE = 0,
     ACTIVE,
 };
+
+enum class HydratePriority {
+    LOW = 0,
+    NORMAL,
+    HIGH,
+};
+
+enum class CallbackType {
+    FETCH_DATA = 0,
+    CANCEL_FETCH_DATA,
+    DEHYDRATE = 2,
+};
+
+enum class HydrateProgressState {
+    PENDING = 0,
+    IN_PROGRESS,
+    COMPLETED,
+    CANCELLED,
+};
+} // namespace
 
 static napi_value SyncFolderConstructor(napi_env env, napi_callback_info info)
 {
@@ -50,7 +81,7 @@ static napi_value SyncFolderConstructor(napi_env env, napi_callback_info info)
     return res;
 }
 
-void InitSyncFolder(napi_env env, napi_value exports)
+static void InitSyncFolder(napi_env env, napi_value exports)
 {
     char className[] = "SyncFolder";
     napi_property_descriptor desc[] = {
@@ -67,7 +98,7 @@ void InitSyncFolder(napi_env env, napi_value exports)
     napi_set_named_property(env, exports, className, obj);
 }
 
-void InitState(napi_env env, napi_value exports)
+static void InitState(napi_env env, napi_value exports)
 {
     char propertyName[] = "SyncFolderState";
     napi_property_descriptor desc[] = {
@@ -78,5 +109,65 @@ void InitState(napi_env env, napi_value exports)
     napi_create_object(env, &obj);
     napi_define_properties(env, obj, sizeof(desc) / sizeof(desc[0]), desc);
     napi_set_named_property(env, exports, propertyName, obj);
+}
+
+static void InitHydratePriority(napi_env env, napi_value exports)
+{
+    char propertyName[] = "HydratePriority";
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY(LOW, NVal::CreateInt32(env, static_cast<int32_t>(HydratePriority::LOW)).val_),
+        DECLARE_NAPI_STATIC_PROPERTY(NORMAL,
+            NVal::CreateInt32(env, static_cast<int32_t>(HydratePriority::NORMAL)).val_),
+        DECLARE_NAPI_STATIC_PROPERTY(HIGH, NVal::CreateInt32(env, static_cast<int32_t>(HydratePriority::HIGH)).val_)
+    };
+    napi_value obj = nullptr;
+    napi_create_object(env, &obj);
+    napi_define_properties(env, obj, sizeof(desc) / sizeof(desc[0]), desc);
+    napi_set_named_property(env, exports, propertyName, obj);
+}
+
+static void InitCallbackType(napi_env env, napi_value exports)
+{
+    char propertyName[] = "CallbackType";
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY(FETCH_DATA,
+            NVal::CreateInt32(env, static_cast<int32_t>(CallbackType::FETCH_DATA)).val_),
+        DECLARE_NAPI_STATIC_PROPERTY(CANCEL_FETCH_DATA,
+            NVal::CreateInt32(env, static_cast<int32_t>(CallbackType::CANCEL_FETCH_DATA)).val_),
+        DECLARE_NAPI_STATIC_PROPERTY(DEHYDRATE,
+            NVal::CreateInt32(env, static_cast<int32_t>(CallbackType::DEHYDRATE)).val_)
+    };
+    napi_value obj = nullptr;
+    napi_create_object(env, &obj);
+    napi_define_properties(env, obj, sizeof(desc) / sizeof(desc[0]), desc);
+    napi_set_named_property(env, exports, propertyName, obj);
+}
+
+static void InitHydrateProgressState(napi_env env, napi_value exports)
+{
+    char propertyName[] = "HydrateProgressState";
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY(PENDING,
+            NVal::CreateInt32(env, static_cast<int32_t>(HydrateProgressState::PENDING)).val_),
+        DECLARE_NAPI_STATIC_PROPERTY(IN_PROGRESS,
+            NVal::CreateInt32(env, static_cast<int32_t>(HydrateProgressState::IN_PROGRESS)).val_),
+        DECLARE_NAPI_STATIC_PROPERTY(COMPLETED,
+            NVal::CreateInt32(env, static_cast<int32_t>(HydrateProgressState::COMPLETED)).val_),
+        DECLARE_NAPI_STATIC_PROPERTY(CANCELLED,
+            NVal::CreateInt32(env, static_cast<int32_t>(HydrateProgressState::CANCELLED)).val_)
+    };
+    napi_value obj = nullptr;
+    napi_create_object(env, &obj);
+    napi_define_properties(env, obj, sizeof(desc) / sizeof(desc[0]), desc);
+    napi_set_named_property(env, exports, propertyName, obj);
+}
+
+void InitCommonRootInfo(napi_env env, napi_value exports)
+{
+    InitSyncFolder(env, exports);
+    InitState(env, exports);
+    InitHydratePriority(env, exports);
+    InitCallbackType(env, exports);
+    InitHydrateProgressState(env, exports);
 }
 } // namespace OHOS::FileManagement::CloudDiskService
