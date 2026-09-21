@@ -41,6 +41,7 @@ ohos_shared_library("trash") {
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "app_file_service:fileuri_native",
+    "c_utils:utils",
     "file_api:filemgmt_libhilog",
     "file_api:filemgmt_libn",
     "file_api:rust_file",
