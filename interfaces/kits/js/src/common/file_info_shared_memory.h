@@ -32,6 +32,9 @@
 #include "parcel.h"
 #include "securec.h"
 
+#define FAF_FDSAN_TAG_A 1
+#define FAF_FDSAN_TAG_SHIFT 32
+
 namespace OHOS {
 namespace FileAccessFwk {
 namespace {
@@ -174,7 +177,9 @@ public:
         int ret = AshmemSetProt(memInfo.memFd, PROT_READ | PROT_WRITE);
         if (ret < 0) {
             HILOG_ERROR("Set shared memory protection mask error, code: %{public}d", ret);
-            ::close(memInfo.memFd);
+            uint64_t new_tag = (static_cast<uint64_t>(FAF_LOG_DOMAIN) << FAF_FDSAN_TAG_SHIFT) | FAF_FDSAN_TAG_A;
+            fdsan_exchange_owner_tag(memInfo.memFd, 0, new_tag);
+            fdsan_close_with_tag(memInfo.memFd, new_tag);
             memInfo.memFd = -1;
             return ret;
         }
@@ -202,7 +207,9 @@ public:
     {
         if (memInfo.memHead != nullptr) {
             ::munmap(memInfo.memHead, memInfo.memSize);
-            ::close(memInfo.memFd);
+            uint64_t new_tag = (static_cast<uint64_t>(FAF_LOG_DOMAIN) << FAF_FDSAN_TAG_SHIFT) | FAF_FDSAN_TAG_A;
+            fdsan_exchange_owner_tag(memInfo.memFd, 0, new_tag);
+            fdsan_close_with_tag(memInfo.memFd, new_tag);
             memInfo.memFd = -1;
             memInfo.memHead = nullptr;
         }
@@ -214,7 +221,9 @@ public:
             ::mmap(nullptr, memInfo.memSize, PROT_READ | PROT_WRITE, MAP_SHARED, memInfo.memFd, 0));
         if (memInfo.memHead == MAP_FAILED) {
             int ret = errno;
-            ::close(memInfo.memFd);
+            uint64_t new_tag = (static_cast<uint64_t>(FAF_LOG_DOMAIN) << FAF_FDSAN_TAG_SHIFT) | FAF_FDSAN_TAG_A;
+            fdsan_exchange_owner_tag(memInfo.memFd, 0, new_tag);
+            fdsan_close_with_tag(memInfo.memFd, new_tag);
             memInfo.memFd = -1;
             HILOG_ERROR("Shared memory map error, code: %{public}d", ret);
             return ret;
