@@ -54,6 +54,7 @@ ohos_shared_library("cloud_disk_manager_js_kit") {
     "ability_runtime:ability_connect_callback_stub",
     "access_token:libtokenid_sdk",
     "bounds_checking_function:libsec_shared",
+    "c_utils:utils",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
@@ -102,6 +103,7 @@ ohos_shared_library("cloud_disk_manager_kit") {
   external_deps = [
     "ability_runtime:ability_connect_callback_stub",
     "bounds_checking_function:libsec_shared",
+    "c_utils:utils",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
