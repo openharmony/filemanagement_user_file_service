@@ -15,8 +15,12 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <set>
+#include <thread>
+#include <vector>
 
 #include "cloud_disk_js_manager.h"
+#include "cloud_disk_manager_utils.h"
 #include "file_access_framework_errno.h"
 #include "file_access_service_client.h"
 
@@ -65,6 +69,30 @@ HWTEST_F(CloudDiskJSManagerTest, CloudDiskJSManager_GetAllSyncFolders_001, TestS
     EXPECT_EQ(res, E_NOT_SUPPORT);
 #endif
     GTEST_LOG_(INFO) << "CloudDiskJSManager_GetAllSyncFolders_001 end";
+}
+
+/**
+ * @tc.number: user_file_service_cloud_disk_js_manager_CreateAccessorId_001
+ * @tc.name: CreateAccessorId
+ * @tc.desc: Concurrent instance creation produces ids without duplicates.
+ * @tc.size: MEDIUM
+ * @tc.type: RELI
+ * @tc.level Level 2
+ */
+HWTEST_F(CloudDiskJSManagerTest, CloudDiskJSManager_CreateAccessorId_001, TestSize.Level2)
+{
+    constexpr size_t countPerThread = 64;
+    std::vector<uint64_t> ids(countPerThread * 2);
+    auto create = [&ids](size_t offset) {
+        for (size_t i = 0; i < countPerThread; ++i) {
+            ids[offset + i] = CreateCloudDiskAccessorId();
+        }
+    };
+    std::thread first(create, 0);
+    std::thread second(create, countPerThread);
+    first.join();
+    second.join();
+    EXPECT_EQ(std::set<uint64_t>(ids.begin(), ids.end()).size(), ids.size());
 }
 } // namespace FileManagement
 } // namespace OHOS

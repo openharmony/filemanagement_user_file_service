@@ -18,6 +18,7 @@
 #define CLOUD_DISK_HYDRATE_PROGRESS_CALLBACK_H
 
 #include <atomic>
+#include <cstdint>
 #include <mutex>
 
 #include "cloud_disk_progress_callback_stub.h"
@@ -26,17 +27,18 @@
 namespace OHOS::FileManagement::CloudDiskService {
 class HydrateProgressCallback final : public CloudDiskProgressCallbackStub {
 public:
-    static sptr<HydrateProgressCallback> Create(napi_env env, napi_value handler);
+    static sptr<HydrateProgressCallback> Create(napi_env env, napi_value handler, uint64_t accessorId);
     void Close(bool removeHook = true);
     void OnProgress(const HydrateProgress &progress) override;
 
 private:
-    explicit HydrateProgressCallback(napi_env env) : env_(env) {}
+    HydrateProgressCallback(napi_env env, uint64_t accessorId) : env_(env), accessorId_(accessorId) {}
     static void Cleanup(void *data);
     static void Finalize(napi_env env, void *data, void *hint);
     static void CallJs(napi_env env, napi_value function, void *context, void *data);
 
     napi_env env_;
+    const uint64_t accessorId_;
     napi_threadsafe_function function_ = nullptr;
     std::mutex mutex_;
     std::atomic<bool> closed_{false};
