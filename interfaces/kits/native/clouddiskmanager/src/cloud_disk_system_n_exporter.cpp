@@ -23,6 +23,7 @@
 
 #include "accesstoken_kit.h"
 #include "cloud_disk_error.h"
+#include "cloud_disk_manager_utils.h"
 #include "cloud_disk_service_manager.h"
 #include "hilog_wrapper.h"
 #include "hydrate_progress_callback.h"
@@ -33,19 +34,20 @@ namespace OHOS::FileManagement::CloudDiskService {
 using namespace LibN;
 namespace {
 const std::string CLASS_NAME = "CloudDiskSystemAccessor";
-const std::string EVENT_NAME = "hydrateProgress";
 constexpr int32_t MAX_CALLBACK_TYPE_LIMIT = 2;
 constexpr int32_t MAX_PRIORITY_LIMIT = 2;
 const napi_type_tag SYSTEM_ACCESSOR_TAG = {0x6d5c01ca4b984269, 0xa61382ed04f9e5b7};
 
 struct SystemAccessor {
+    const uint64_t accessorId = FileManagement::CreateCloudDiskAccessorId();
     sptr<HydrateProgressCallback> progress;
 
     ~SystemAccessor()
     {
         if (progress != nullptr) {
             progress->Close();
-            int32_t ret = CloudDiskServiceManager::GetInstance().UnregisterProgressCallback(progress);
+            int32_t ret = CloudDiskServiceManager::GetInstance().UnregisterProgressCallback(
+                accessorId, progress);
             if (ret != E_OK && ret != E_NOT_SUPPORT) {
                 HILOG_ERROR("CloudDiskSystemAccessor::~SystemAccessor unregister callback failed, ret:%{public}d", ret);
             }
@@ -134,6 +136,10 @@ napi_value Constructor(napi_env env, napi_callback_info info)
         return Throw(env, FileManagement::E_PARAMETER_ERROR);
     }
     auto accessor = std::make_unique<SystemAccessor>();
+    if (accessor->accessorId == 0) {
+        HILOG_ERROR("CloudDiskSystemAccessor::Constructor generated invalid accessor ID");
+        return Throw(env, FileManagement::E_TRY_AGAIN);
+    }
     auto finalize = [](napi_env env, void *data, void *hint) {
         delete static_cast<SystemAccessor *>(data);
     };
@@ -200,9 +206,10 @@ napi_value RunOperation(napi_env env, napi_callback_info info, bool hydrate)
         HILOG_ERROR("CloudDiskSystemAccessor::%{public}s invalid receiver", operation);
         return Throw(env, FileManagement::E_PARAMETER_ERROR);
     }
-    auto execute = [path, type, priority, hydrate]() -> NError {
+    auto execute = [path, type, priority, hydrate, accessorId = accessor->accessorId]() -> NError {
         auto &manager = CloudDiskServiceManager::GetInstance();
-        int32_t ret = hydrate ? manager.StartHydrationByPath(path, type, priority) : manager.DehydrateFileByPath(path);
+        int32_t ret = hydrate ? manager.StartHydrationByPath(path, type, priority, accessorId) :
+            manager.DehydrateFileByPath(path);
         if (ret != E_OK) {
             HILOG_ERROR("execute failed ret:%{public}d, path:%{private}s", ret, path.c_str());
         }
@@ -226,64 +233,39 @@ napi_value DehydrateFile(napi_env env, napi_callback_info info)
     return RunOperation(env, info, false);
 }
 
-bool ParseEvent(napi_env env, NFuncArg &args, bool on)
+napi_value OnHydrateProgress(napi_env env, napi_callback_info info)
 {
-    const char *operation = on ? "on" : "off";
-    if (!args.InitArgs(on ? NARG_CNT::TWO : NARG_CNT::ONE, NARG_CNT::TWO)) {
-        HILOG_ERROR("CloudDiskSystemAccessor::%{public}s invalid arguments, argc:%{public}zu",
-            operation, args.GetArgc());
-        return false;
-    }
-    std::string event;
-    if (!ReadString(env, args[NARG_POS::FIRST], event) || event != EVENT_NAME) {
-        HILOG_ERROR("CloudDiskSystemAccessor::%{public}s invalid event: expected hydrateProgress", operation);
-        return false;
-    }
-    if (args.GetArgc() == NARG_CNT::TWO) {
-        napi_valuetype type = napi_undefined;
-        napi_status status = napi_typeof(env, args[NARG_POS::SECOND], &type);
-        if (status != napi_ok) {
-            HILOG_ERROR("CloudDiskSystemAccessor::%{public}s get callback type failed, status:%{public}d",
-                operation, static_cast<int32_t>(status));
-            return false;
-        }
-        if (type != napi_function) {
-            HILOG_ERROR("CloudDiskSystemAccessor::%{public}s invalid callback type:%{public}d",
-                operation, static_cast<int32_t>(type));
-            return false;
-        }
-    }
-    return true;
-}
-
-napi_value On(napi_env env, napi_callback_info info)
-{
-    HILOG_INFO("CloudDiskSystemAccessor::on start");
+    HILOG_INFO("CloudDiskSystemAccessor::onHydrateProgress start");
     int32_t accessRet = CheckAccess();
     if (accessRet != E_OK) {
         return Throw(env, accessRet);
     }
     NFuncArg args(env, info);
-    if (!ParseEvent(env, args, true)) {
+    napi_valuetype type = napi_undefined;
+    if (!args.InitArgs(NARG_CNT::ONE) ||
+        napi_typeof(env, args[NARG_POS::FIRST], &type) != napi_ok || type != napi_function) {
+        HILOG_ERROR("CloudDiskSystemAccessor::onHydrateProgress expected one function argument");
         return Throw(env, FileManagement::E_PARAMETER_ERROR);
     }
     auto accessor = GetAccessor(env, args.GetThisVar());
     if (accessor == nullptr) {
-        HILOG_ERROR("CloudDiskSystemAccessor::on invalid receiver");
+        HILOG_ERROR("CloudDiskSystemAccessor::onHydrateProgress invalid receiver");
         return Throw(env, FileManagement::E_PARAMETER_ERROR);
     }
     if (accessor->progress != nullptr) {
-        HILOG_ERROR("CloudDiskSystemAccessor::on progress callback is already registered");
-        return Throw(env, FileManagement::E_CALLBACK_ALREADY_REGISTERED);
+        HILOG_INFO("CloudDiskSystemAccessor::onHydrateProgress progress callback is already registered");
+        return NVal::CreateUndefined(env).val_;
     }
-    auto progress = HydrateProgressCallback::Create(env, args[NARG_POS::SECOND]);
+    auto progress = HydrateProgressCallback::Create(env, args[NARG_POS::FIRST], accessor->accessorId);
     if (progress == nullptr) {
-        HILOG_ERROR("CloudDiskSystemAccessor::on create progress callback failed");
+        HILOG_ERROR("CloudDiskSystemAccessor::onHydrateProgress create progress callback failed");
         return Throw(env, FileManagement::E_TRY_AGAIN);
     }
-    int32_t ret = CloudDiskServiceManager::GetInstance().RegisterProgressCallback(progress);
+    int32_t ret = CloudDiskServiceManager::GetInstance().RegisterProgressCallback(
+        accessor->accessorId, progress);
     if (ret != E_OK) {
-        HILOG_ERROR("CloudDiskSystemAccessor::on register progress callback failed, ret:%{public}d", ret);
+        HILOG_ERROR("CloudDiskSystemAccessor::onHydrateProgress register progress callback failed, ret:%{public}d",
+            ret);
         progress->Close();
         return Throw(env, ret);
     }
@@ -291,31 +273,41 @@ napi_value On(napi_env env, napi_callback_info info)
     return NVal::CreateUndefined(env).val_;
 }
 
-napi_value Off(napi_env env, napi_callback_info info)
+napi_value OffHydrateProgress(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("CloudDiskSystemAccessor::off start");
+    HILOG_INFO("CloudDiskSystemAccessor::offHydrateProgress start");
     int32_t accessRet = CheckAccess();
     if (accessRet != E_OK) {
         return Throw(env, accessRet);
     }
     NFuncArg args(env, info);
-    if (!ParseEvent(env, args, false)) {
+    if (!args.InitArgs(NARG_CNT::ZERO, NARG_CNT::ONE)) {
+        HILOG_ERROR("CloudDiskSystemAccessor::offHydrateProgress expected zero or one argument");
         return Throw(env, FileManagement::E_PARAMETER_ERROR);
+    }
+    if (args.GetArgc() == NARG_CNT::ONE) {
+        napi_valuetype type = napi_undefined;
+        if (napi_typeof(env, args[NARG_POS::FIRST], &type) != napi_ok || type != napi_function) {
+            HILOG_ERROR("CloudDiskSystemAccessor::offHydrateProgress expected a function argument");
+            return Throw(env, FileManagement::E_PARAMETER_ERROR);
+        }
     }
     auto accessor = GetAccessor(env, args.GetThisVar());
     if (accessor == nullptr) {
-        HILOG_ERROR("CloudDiskSystemAccessor::off invalid receiver");
+        HILOG_ERROR("CloudDiskSystemAccessor::offHydrateProgress invalid receiver");
         return Throw(env, FileManagement::E_PARAMETER_ERROR);
     }
     if (accessor->progress == nullptr) {
-        HILOG_ERROR("CloudDiskSystemAccessor::off progress callback is not registered");
-        return Throw(env, FileManagement::E_CALLBACK_NOT_REGISTERED);
+        HILOG_INFO("CloudDiskSystemAccessor::offHydrateProgress progress callback is not registered");
+        return NVal::CreateUndefined(env).val_;
     }
-    int32_t ret = CloudDiskServiceManager::GetInstance().UnregisterProgressCallback(accessor->progress);
+    int32_t ret = CloudDiskServiceManager::GetInstance().UnregisterProgressCallback(
+        accessor->accessorId, accessor->progress);
     accessor->progress->Close();
     accessor->progress = nullptr;
-    if (ret != E_OK) {
-        HILOG_ERROR("CloudDiskSystemAccessor::off unregister progress callback failed, ret:%{public}d", ret);
+    if (ret != E_OK && ret != FileManagement::E_CALLBACK_NOT_REGISTERED) {
+        HILOG_ERROR("CloudDiskSystemAccessor::offHydrateProgress unregister progress callback failed, ret:%{public}d",
+            ret);
         return Throw(env, ret);
     }
     return NVal::CreateUndefined(env).val_;
@@ -334,8 +326,8 @@ bool CloudDiskSystemNExporter::Export()
     std::vector<napi_property_descriptor> props = {
         NVal::DeclareNapiFunction("hydratePlaceholder", HydratePlaceholder),
         NVal::DeclareNapiFunction("dehydrateFile", DehydrateFile),
-        NVal::DeclareNapiFunction("on", On),
-        NVal::DeclareNapiFunction("off", Off)
+        NVal::DeclareNapiFunction("onHydrateProgress", OnHydrateProgress),
+        NVal::DeclareNapiFunction("offHydrateProgress", OffHydrateProgress)
     };
     std::string className = GetClassName();
     bool succ = false;

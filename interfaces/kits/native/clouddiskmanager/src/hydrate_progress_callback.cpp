@@ -24,10 +24,10 @@
 #include "hilog_wrapper.h"
 
 namespace OHOS::FileManagement::CloudDiskService {
-sptr<HydrateProgressCallback> HydrateProgressCallback::Create(napi_env env, napi_value handler)
+sptr<HydrateProgressCallback> HydrateProgressCallback::Create(napi_env env, napi_value handler, uint64_t accessorId)
 {
     HILOG_INFO("HydrateProgressCallback::Create start");
-    sptr<HydrateProgressCallback> callback = new (std::nothrow) HydrateProgressCallback(env);
+    sptr<HydrateProgressCallback> callback = new (std::nothrow) HydrateProgressCallback(env, accessorId);
     if (callback == nullptr) {
         HILOG_ERROR("HydrateProgressCallback::Create allocate callback failed");
         return nullptr;
@@ -111,7 +111,8 @@ void HydrateProgressCallback::Cleanup(void *data)
     HILOG_INFO("HydrateProgressCallback::Cleanup start");
     sptr<HydrateProgressCallback> callback = static_cast<HydrateProgressCallback *>(data);
     callback->Close(false);
-    int32_t ret = CloudDiskServiceManager::GetInstance().UnregisterProgressCallback(callback);
+    int32_t ret = CloudDiskServiceManager::GetInstance().UnregisterProgressCallback(
+        callback->accessorId_, callback);
     if (ret != E_OK && ret != E_NOT_SUPPORT) {
         HILOG_ERROR("HydrateProgressCallback::Cleanup unregister callback failed, ret:%{public}d", ret);
     }

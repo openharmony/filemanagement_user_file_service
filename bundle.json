@@ -33,6 +33,7 @@
                 "app_file_service",
                 "bounds_checking_function",
                 "ets_frontend",
+                "eventhandler",
                 "ipc",
                 "init",
                 "samgr",
