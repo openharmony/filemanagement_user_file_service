@@ -14,6 +14,7 @@
  */
 
 #include "bundle_observer.h"
+#include "parse_user_file_int32.h"
 #include "file_access_service.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
@@ -130,7 +131,12 @@ int32_t BundleObserver::GetNumberFromString(const string &str, const int32_t def
         HILOG_ERROR("GetNumberFromString failed, str is empty");
         return defaultValue;
     }
-    return static_cast<int32_t>(std::atoi(str.c_str()));
+    int32_t value = 0;
+    if (!ParseUserFileInt32(str, value)) {
+        HILOG_ERROR("GetNumberFromString failed, invalid str: %{public}s", str.c_str());
+        return defaultValue;
+    }
+    return value;
 }
 } // namespace FileAccessFwk
 } // namespace OHOS
